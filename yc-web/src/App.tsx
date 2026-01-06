@@ -13,6 +13,8 @@ import ForgotPassword from './pages/common/ForgotPassword';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import Courses from './pages/instructor/Courses';
 import CourseEdit from './components/instructor/courses/CourseEdit';
+import ResumeBuilder from "./pages/student/ResumeBuilder";
+
 
 import Users from './pages/instructor/Users';
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -86,6 +88,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route path="/student/resume-builder" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <ResumeBuilder />
+              </ProtectedRoute>
+            } />
 
               <Route
                 path="/student/learn/:courseId"

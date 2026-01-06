@@ -1,6 +1,137 @@
 @import "tailwindcss";
 
+.font-inter { font-family: 'Inter', sans-serif !important; }
+.font-roboto { font-family: 'Roboto', sans-serif !important; }
+.font-opensans { font-family: 'Open Sans', sans-serif !important; }
+.font-lato { font-family: 'Lato', sans-serif !important; }
+.font-montserrat { font-family: 'Montserrat', sans-serif !important; }
+.font-merriweather { font-family: 'Merriweather', serif !important; }
+
+.resume-preview.font-inter,
+.resume-preview.font-inter *,
+.resume-preview.font-inter h1,
+.resume-preview.font-inter h2,
+.resume-preview.font-inter h3,
+.resume-preview.font-inter p,
+.resume-preview.font-inter span,
+.resume-preview.font-inter div {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.resume-preview.font-roboto,
+.resume-preview.font-roboto *,
+.resume-preview.font-roboto h1,
+.resume-preview.font-roboto h2,
+.resume-preview.font-roboto h3,
+.resume-preview.font-roboto p,
+.resume-preview.font-roboto span,
+.resume-preview.font-roboto div {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.resume-preview.font-opensans,
+.resume-preview.font-opensans *,
+.resume-preview.font-opensans h1,
+.resume-preview.font-opensans h2,
+.resume-preview.font-opensans h3,
+.resume-preview.font-opensans p,
+.resume-preview.font-opensans span,
+.resume-preview.font-opensans div {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.resume-preview.font-lato,
+.resume-preview.font-lato *,
+.resume-preview.font-lato h1,
+.resume-preview.font-lato h2,
+.resume-preview.font-lato h3,
+.resume-preview.font-lato p,
+.resume-preview.font-lato span,
+.resume-preview.font-lato div {
+  font-family: 'Lato', sans-serif !important;
+}
+
+.resume-preview.font-montserrat,
+.resume-preview.font-montserrat *,
+.resume-preview.font-montserrat h1,
+.resume-preview.font-montserrat h2,
+.resume-preview.font-montserrat h3,
+.resume-preview.font-montserrat p,
+.resume-preview.font-montserrat span,
+.resume-preview.font-montserrat div {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.resume-preview.font-merriweather,
+.resume-preview.font-merriweather *,
+.resume-preview.font-merriweather h1,
+.resume-preview.font-merriweather h2,
+.resume-preview.font-merriweather h3,
+.resume-preview.font-merriweather p,
+.resume-preview.font-merriweather span,
+.resume-preview.font-merriweather div {
+  font-family: 'Merriweather', serif !important;
+}
+
+.resume-preview {
+  font-family: var(--resume-font-family, 'Inter', sans-serif) !important;
+}
+
+.resume-preview * {
+  font-family: inherit !important;
+}
+
+.resume-preview[data-font="Inter"] * {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.resume-preview[data-font="Roboto"] * {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.resume-preview[data-font="Open Sans"] * {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.resume-preview[data-font="Lato"] * {
+  font-family: 'Lato', sans-serif !important;
+}
+
+.resume-preview[data-font="Montserrat"] * {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.resume-preview[data-font="Merriweather"] * {
+  font-family: 'Merriweather', serif !important;
+}
+
+/* Ensure fonts are loaded */
+body {
+  font-display: swap;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0;        
     pointer-events: none;
   }
+
+.resume-preview[data-font] {
+  position: relative;
+}
+
+.resume-preview[data-font]::before {
+  content: "Font: " attr(data-font);
+  position: absolute;
+  top: -25px;
+  right: 0;
+  background: #3b82f6;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: system-ui, sans-serif;
+  z-index: 10;
+  opacity: 0.9;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

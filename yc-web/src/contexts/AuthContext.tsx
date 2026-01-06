@@ -92,9 +92,19 @@ const getInitialState = (): AuthState => {
   const accessToken = localStorage.getItem('access');
   const storedUser = localStorage.getItem('user');
 
+  let user = null;
+  if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+    try {
+      user = JSON.parse(storedUser);
+    } catch (e) {
+      console.warn('Failed to parse stored user data:', e);
+      localStorage.removeItem('user');
+    }
+  }
+
   if (accessToken) {
     return {
-      user: storedUser ? JSON.parse(storedUser) : null, 
+      user, 
       token: accessToken,
       isLoading: true, 
       isAuthenticated: true, 

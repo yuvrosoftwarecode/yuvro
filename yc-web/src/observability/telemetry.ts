@@ -50,6 +50,7 @@ if (isOtelEnabled) {
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
             /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8003\/.*$/,
           ],
         },
         '@opentelemetry/instrumentation-xml-http-request': {
@@ -57,6 +58,7 @@ if (isOtelEnabled) {
           propagateTraceHeaderCorsUrls: [
             /^http:\/\/localhost:8001\/.*$/,
             /^http:\/\/localhost:8002\/.*$/,
+            /^http:\/\/localhost:8003\/.*$/,
           ],
         },
       }),
@@ -152,7 +154,6 @@ export function trackUserAction(action: string, details?: Record<string, any>) {
     'user.id': localStorage.getItem('userId') || 'anonymous',
     ...details,
   });
-  // Auto-end the span after a short delay for user actions
   setTimeout(() => {
     span.setStatus({ code: SpanStatusCode.OK });
     span.end();

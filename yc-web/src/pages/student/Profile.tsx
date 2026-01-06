@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/common/Navigation";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import { FileText } from "lucide-react";
+
 
 import profileService, {
   Profile as ProfileType,
@@ -55,6 +57,9 @@ import AddCertificationDialog, {
 
 import ProfileStats from "@/components/student/profile/ProfileStats";
 
+import { generateResumePDF } from "../../utils/resumeGenerator";
+import resumeService from "../../services/resumeService";
+import { toast } from "sonner";
 // Local form shapes (must match dialog shapes)
 type SkillForm = {
   name: string;
@@ -177,6 +182,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<ProfileType | null>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
 
   // Images (preview only)
   const [profilePic, setProfilePic] = useState<string>("");
@@ -364,9 +371,28 @@ const Profile = () => {
     await loadProfile();
   };
 
-  /* -------------------------------------------- *
-   * MAIN RENDER
-   * -------------------------------------------- */
+  const handleDownloadResume = async () => {
+    if (!profile) {
+      toast.error("Profile data not available");
+      return;
+    }
+
+    try {
+      setIsGeneratingPDF(true);
+      toast.info("Generating your resume PDF...");
+
+      await generateResumePDF(profile);
+
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating resume:", error);
+      toast.error("Failed to generate resume. Please try again.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+ 
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-background">
@@ -475,6 +501,25 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => navigate('/student/resume-builder')}
+                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg transition"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Resume Builder
+                    </Button>
+
+                    <Button
+                      onClick={() => setEditDialogOpen(true)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </div>
+
+
                 </div>
               </CardContent>
             </Card>
