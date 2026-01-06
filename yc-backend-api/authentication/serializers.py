@@ -7,6 +7,28 @@ from .models import (
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'  # Use email instead of username for login
+    
+    def validate(self, attrs):
+        # Override to use email for authentication
+        email = attrs.get('email')
+        password = attrs.get('password')
+        
+        if email and password:
+            from django.contrib.auth import authenticate
+            user = authenticate(username=email, password=password)
+            if user:
+                if not user.is_active:
+                    raise serializers.ValidationError("User account is disabled.")
+                # Set the user for token generation
+                attrs[self.username_field] = email
+                attrs['password'] = password
+                return super().validate(attrs)
+            else:
+                raise serializers.ValidationError("Invalid email or password.")
+        else:
+            raise serializers.ValidationError("Must include email and password.")
+    
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)

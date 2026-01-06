@@ -7,6 +7,10 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.contrib.auth import login
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.openapi import OpenApiTypes
+from rest_framework.permissions import AllowAny
+import logging
+
+logger = logging.getLogger(__name__)
 from .models import (
     User,
     Profile,
@@ -43,6 +47,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
 from authentication.permissions import (
     IsAdminUser,
     IsAuthenticatedUser,
@@ -64,28 +69,125 @@ User = get_user_model()
         )
     ],
 )
-@api_view(["POST"])
-@permission_classes([permissions.AllowAny])
-def login_view(request):
-    """User login endpoint."""
-    serializer = UserLoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
-    user = serializer.validated_data["user"]
-    login(request, user)
 
-    token_serializer = CustomTokenObtainPairSerializer()
-    refresh = token_serializer.get_token(user)
+@api_view(['POST'])
+@permission_classes([IsAuthenticatedUser])
+def generate_resume_pdf(request):
+    try:
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({
+                'error': 'Profile not found. Please complete your profile first.'
+            }, status=status.HTTP_404_NOT_FOUND)
 
-    return Response(
-        {
-            "user": UserSerializer(user).data,
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
+        profile_serializer = ProfileSerializer(profile)
+        profile_data = profile_serializer.data
+
+        resume_settings = request.data.get('settings', {})
+        if not resume_settings and profile.resume_config:
+            resume_settings = profile.resume_config
+
+        template_id = resume_settings.get('template', 'classic')
+        font_family = resume_settings.get('font', 'Inter')
+        color_scheme = resume_settings.get('color', 'default')
+
+        if request.data.get('settings') and request.data.get('save_config', False):
+            profile.resume_config = resume_settings
+            profile.save()
+
+        color_schemes = {
+            'default': {'primary': '#374151', 'accent': '#6b7280'},
+            'blue': {'primary': '#1e40af', 'accent': '#3b82f6'},
+            'green': {'primary': '#166534', 'accent': '#22c55e'},
+            'purple': {'primary': '#7c3aed', 'accent': '#a78bfa'},
+            'red': {'primary': '#dc2626', 'accent': '#ef4444'},
+            'teal': {'primary': '#0d9488', 'accent': '#14b8a6'},
         }
-    )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        colors = color_schemes.get(color_scheme, color_schemes['default'])
+
+        context = {
+            'profile': profile_data,
+            'user': request.user,
+            'template_id': template_id,
+            'colors': colors,
+            'font_family': font_family,
+            'generated_date': datetime.now().strftime('%B %d, %Y'),
+        }
+
+
+        if not WEASYPRINT_AVAILABLE:
+            html_content = render_to_string('resume/resume_template.html', context)
+            return Response({
+                'html_content': html_content,
+                'message': 'HTML content generated. Convert to PDF on frontend.',
+                'fallback': True
+            }, status=status.HTTP_200_OK)
+
+        html_content = render_to_string('resume/resume_template.html', context)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+            HTML(string=html_content).write_pdf(tmp_file.name)
+
+            with open(tmp_file.name, 'rb') as pdf_file:
+                pdf_content = pdf_file.read()
+
+            os.unlink(tmp_file.name)
+
+        user_name = profile_data.get('full_name', 'Resume').replace(' ', '_')
+        filename = f"{user_name}_Resume_{datetime.now().strftime('%Y%m%d')}.pdf"
+
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Length'] = len(pdf_content)
+
+        logger.info(f"Resume PDF generated successfully for user {request.user.username}")
+        return response
+
+    except Exception as e:
+        logger.error(f"Error generating resume PDF: {str(e)}")
+
+        return Response(
+            {
+                "error": "Failed to generate resume PDF",
+                "details": str(e) if settings.DEBUG else "Internal server error",
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+      
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticatedUser])
+def resume_config_view(request):
+    """Get or update user's resume configuration."""
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        return Response({
+            'error': 'Profile not found. Please complete your profile first.'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response({
+            'resume_config': profile.resume_config or {}
+        })
+
+    elif request.method == 'PUT':
+        resume_config = request.data.get('resume_config', {})
+        profile.resume_config = resume_config
+        profile.save()
+
+        return Response({
+            'message': 'Resume configuration updated successfully',
+            'resume_config': profile.resume_config
+        })
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -181,12 +283,64 @@ class CustomTokenRefreshView(TokenRefreshView):
     description="Get information about the currently authenticated user.",
     responses=UserSerializer,
 )
-@api_view(["GET"])
+@api_view(['GET'])
 @permission_classes([IsAuthenticatedUser])
-def user_info_view(request):
-    """Get current user information."""
+def get_current_user(request):
+    """Get the current authenticated user's information."""
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedUser])
+def get_resume_templates(request):
+    """Get available resume templates, color schemes, and fonts."""
+    templates = [
+        {
+            'id': 'classic',
+            'name': 'Classic Professional',
+            'description': 'Clean and traditional layout perfect for corporate roles',
+            'category': 'free',
+            'popular': True,
+        },
+        {
+            'id': 'modern',
+            'name': 'Modern Minimal',
+            'description': 'Sleek design with focus on content and readability',
+            'category': 'free',
+        },
+        {
+            'id': 'developer',
+            'name': 'Developer Focused',
+            'description': 'Highlighting technical skills and projects',
+            'category': 'free',
+            'new': True,
+        },
+        {
+            'id': 'compact',
+            'name': 'Compact Single Page',
+            'description': 'All information in one page efficiently',
+            'category': 'free',
+        },
+    ]
+
+    return Response({
+        'templates': templates,
+        'color_schemes': [
+            {'id': 'default', 'name': 'Default', 'primary': '#374151', 'accent': '#6b7280'},
+            {'id': 'blue', 'name': 'Professional Blue', 'primary': '#1e40af', 'accent': '#3b82f6'},
+            {'id': 'green', 'name': 'Nature Green', 'primary': '#166534', 'accent': '#22c55e'},
+            {'id': 'purple', 'name': 'Creative Purple', 'primary': '#7c3aed', 'accent': '#a78bfa'},
+            {'id': 'red', 'name': 'Bold Red', 'primary': '#dc2626', 'accent': '#ef4444'},
+            {'id': 'teal', 'name': 'Modern Teal', 'primary': '#0d9488', 'accent': '#14b8a6'},
+        ],
+        'fonts': [
+            {'id': 'inter', 'name': 'Inter', 'family': 'Inter, sans-serif'},
+            {'id': 'roboto', 'name': 'Roboto', 'family': 'Roboto, sans-serif'},
+            {'id': 'opensans', 'name': 'Open Sans', 'family': 'Open Sans, sans-serif'},
+            {'id': 'lato', 'name': 'Lato', 'family': 'Lato, sans-serif'},
+        ]
+    })
 
 
 class ForgotPasswordView(generics.GenericAPIView):
@@ -264,11 +418,23 @@ from rest_framework import generics, filters
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+import logging
+import os
+import tempfile
+from datetime import datetime
 
 try:
     from django_filters.rest_framework import DjangoFilterBackend
 except ImportError:
     DjangoFilterBackend = None
+
+try:
+    from weasyprint import HTML, CSS
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
 
 User = get_user_model()
 
