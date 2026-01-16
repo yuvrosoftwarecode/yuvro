@@ -69,9 +69,33 @@ User = get_user_model()
         )
     ],
 )
+# class CustomTokenObtainPairView(TokenObtainPairView):
+#     serializer_class = CustomTokenObtainPairSerializer
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def login_view(request):
+    """User login endpoint."""
+    serializer = UserLoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    
+    user = serializer.validated_data["user"]
+    login(request, user)
+    
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+    
+    return Response(
+        {
+            "user": UserSerializer(user).data,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticatedUser])
@@ -118,7 +142,6 @@ def generate_resume_pdf(request):
             'font_family': font_family,
             'generated_date': datetime.now().strftime('%B %d, %Y'),
         }
-
 
         if not WEASYPRINT_AVAILABLE:
             html_content = render_to_string('resume/resume_template.html', context)
@@ -283,10 +306,11 @@ class CustomTokenRefreshView(TokenRefreshView):
     description="Get information about the currently authenticated user.",
     responses=UserSerializer,
 )
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticatedUser])
-def get_current_user(request):
-    """Get the current authenticated user's information."""
+def user_info_view(request):
+    """Get current user information."""
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
