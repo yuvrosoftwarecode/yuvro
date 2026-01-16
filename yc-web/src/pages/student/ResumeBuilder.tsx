@@ -605,9 +605,12 @@ const ResumeBuilder = () => {
 
     if (!resumeRef.current) return;
 
+    if (hasUnsavedChanges()) {
+      handleSave();
+    }
+
     setIsDownloading(true);
     try {
-
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         throw new Error('Popup blocked. Please allow popups for this site.');
@@ -619,24 +622,50 @@ const ResumeBuilder = () => {
         <!DOCTYPE html>
         <html>
           <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${safeProfile.name.replace(/\s+/g, '_')}_Resume</title>
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+            <script src="https://cdn.tailwindcss.com"></script>
             <style>
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              
               body { 
                 margin: 0; 
                 padding: 20px; 
                 font-family: ${currentFont.family};
                 background: white;
+                font-size: ${fontSize}%;
+                line-height: ${lineSpacing};
               }
+              
               * {
                 font-family: ${currentFont.family} !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
               }
+              
               @media print {
-                body { margin: 0; padding: 0; }
-                .no-print { display: none !important; }
+                body { 
+                  margin: 0; 
+                  padding: 0; 
+                }
+                .no-print { 
+                  display: none !important; 
+                }
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                }
               }
+              
               .resume-container {
                 max-width: 210mm;
                 margin: 0 auto;
@@ -644,12 +673,23 @@ const ResumeBuilder = () => {
                 box-shadow: none;
                 font-family: ${currentFont.family} !important;
               }
+              
               .resume-preview {
                 font-family: ${currentFont.family} !important;
+                font-size: ${fontSize}%;
+                line-height: ${lineSpacing};
               }
+              
               .resume-preview * {
                 font-family: ${currentFont.family} !important;
               }
+              
+              .font-inter, .font-inter * { font-family: 'Inter', sans-serif !important; }
+              .font-roboto, .font-roboto * { font-family: 'Roboto', sans-serif !important; }
+              .font-opensans, .font-opensans * { font-family: 'Open Sans', sans-serif !important; }
+              .font-lato, .font-lato * { font-family: 'Lato', sans-serif !important; }
+              .font-montserrat, .font-montserrat * { font-family: 'Montserrat', sans-serif !important; }
+              .font-merriweather, .font-merriweather * { font-family: 'Merriweather', serif !important; }
             </style>
           </head>
           <body>
@@ -658,7 +698,12 @@ const ResumeBuilder = () => {
             </div>
             <script>
               window.onload = function() {
-                window.print();
+                setTimeout(function() {
+                  window.print();
+                }, 500);
+              };
+              
+              window.onafterprint = function() {
                 setTimeout(function() {
                   window.close();
                 }, 100);
@@ -671,7 +716,7 @@ const ResumeBuilder = () => {
       printWindow.document.write(printDocument);
       printWindow.document.close();
       
-      toast.success('Print dialog opened! You can save as PDF from there.');
+      toast.success('Print dialog opened! Save as PDF to download.');
     } catch (error) {
       console.error('Print error:', error);
       toast.error('Failed to open print dialog. Please try using your browser\'s print function (Ctrl+P).');
@@ -1323,7 +1368,6 @@ const ResumeBuilder = () => {
       
       <div className="flex h-[calc(100vh-64px)]">
         <div className="w-1/4 min-w-[280px] max-w-[320px] border-r bg-card flex flex-col">
-          {/* Header */}
           <div className="p-4 border-b">
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
@@ -1337,7 +1381,6 @@ const ResumeBuilder = () => {
               </div>
             </div>
 
-            {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="free" className="flex items-center gap-1">
@@ -1352,7 +1395,6 @@ const ResumeBuilder = () => {
             </Tabs>
           </div>
 
-          {/* Template List */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-3">
               {filteredTemplates.map((template) => (
@@ -1367,14 +1409,12 @@ const ResumeBuilder = () => {
                 >
                   <CardContent className="p-3">
                     <div className="flex gap-3">
-                      {/* Mini Preview Thumbnail */}
                       <TemplateMiniPreview 
                         templateId={template.id} 
                         primaryColor={currentColor.primary}
                         accentColor={currentColor.accent}
                       />
                       
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-medium text-sm truncate">{template.name}</h3>
@@ -1417,7 +1457,7 @@ const ResumeBuilder = () => {
                 className="h-9"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {hasUnsavedChanges() ? 'Save' : 'Saved'}
+                {hasUnsavedChanges() ? 'Save Settings' : 'Saved'}
               </Button>
               <Button 
                 className="bg-gradient-to-r from-primary to-orange-500 h-9"
@@ -1425,7 +1465,7 @@ const ResumeBuilder = () => {
                 disabled={isDownloading}
               >
                 <Download className="h-4 w-4 mr-2" />
-                {isDownloading ? 'Generating...' : 'Download PDF'}
+                {isDownloading ? 'Generating...' : hasUnsavedChanges() ? 'Save & Download' : 'Download PDF'}
               </Button>
             </div>
           </div>
