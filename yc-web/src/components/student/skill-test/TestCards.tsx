@@ -117,9 +117,12 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
                   return (
                     <Card
                       key={test.id}
-                      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-card border border-border/50 overflow-hidden rounded-xl"
+                      className="group relative bg-gradient-to-br from-white to-slate-50/50 border-0 shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden rounded-xl"
                     >
-                      <div className="p-6 space-y-5">
+                      {/* Hover Glow */}
+                      <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                      <div className="p-6 space-y-5 relative z-10">
                         <div className="flex justify-between items-start">
                           <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {test.title}

@@ -31,6 +31,8 @@ export interface Course {
   icon: string;
   color: string;
   topics: Topic[];
+  category?: string;
+  topicCount?: number;
 }
 
 export interface Test {
@@ -135,6 +137,8 @@ const SkillTest: React.FC = () => {
             icon: ICONS[index % ICONS.length],
             color: COLORS[index % COLORS.length],
             topics: [],
+            category: c.category || "General",
+            topicCount: c.topics ? c.topics.length : 0,
           })
         );
 

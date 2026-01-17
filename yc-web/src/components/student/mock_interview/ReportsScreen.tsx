@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  ArrowLeft, 
-  RotateCcw, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  ArrowLeft,
+  RotateCcw,
+  TrendingUp,
+  TrendingDown,
   MessageSquare,
   Code,
   Clock,
@@ -21,7 +21,9 @@ import {
   FileText,
   Award,
   Calendar,
-  User
+  User,
+  CheckCircle,
+  BarChart3
 } from 'lucide-react';
 
 interface ReportsScreenProps {
@@ -31,11 +33,29 @@ interface ReportsScreenProps {
   };
   difficulty: string;
   duration: string;
+  // Make these optional for now to maintain backward compatibility during refactor
+  interviewData?: {
+    position: string;
+    round: string;
+    duration: string;
+    interviewer: string;
+    practicedOn: string;
+  };
+  overallScore?: number;
+  performanceMetrics?: {
+    communication: number;
+    technicalSkills: number;
+    problemSolving: number;
+    confidence: number;
+    [key: string]: number;
+  };
+  questionAnalysis?: QuestionAnalysis[];
+
   onTryAgain: () => void;
   onBackToLibrary: () => void;
 }
 
-interface QuestionAnalysis {
+export interface QuestionAnalysis {
   id: number;
   question: string;
   type: 'behavioral' | 'coding';
@@ -58,40 +78,21 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   role,
   difficulty,
   duration,
-  onTryAgain,
-  onBackToLibrary
-}) => {
-  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
-  const [showChatbot, setShowChatbot] = useState(true);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      type: 'ai',
-      message: "Hello! I'm here to help you understand your interview performance. Feel free to ask me any questions about your responses or how to improve.",
-      timestamp: new Date()
-    }
-  ]);
-  const [newMessage, setNewMessage] = useState('');
-
-  // Mock interview data
-  const interviewData = {
-    position: "HR Manager",
-    round: "Behavioral",
-    duration: "15 mins",
-    interviewer: "AI Interviewer",
-    practicedOn: "27th Jul, 2025 12:18 PM"
-  };
-
-  // Mock data for the report
-  const overallScore = 75;
-  const performanceMetrics = {
+  interviewData = {
+    position: role.title,
+    round: "Comprehensive",
+    duration: duration,
+    interviewer: "AI Assistant",
+    practicedOn: new Date().toLocaleString()
+  },
+  overallScore = 75,
+  performanceMetrics = {
     communication: 80,
     technicalSkills: 70,
     problemSolving: 75,
     confidence: 78
-  };
-
-  const questionAnalysis: QuestionAnalysis[] = [
+  },
+  questionAnalysis = [
     {
       id: 1,
       question: "Can you give an example of how you have handled stress in a challenging academic or work situation?",
@@ -136,7 +137,22 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
       ],
       recommendedResponse: "Using the STAR method: Situation - Faced three major projects in final semester. Task - Complete all within one week deadline. Action - Created detailed schedule, prioritized by complexity, allocated time blocks. Result - Successfully delivered all projects on time with high grades."
     }
-  ];
+  ],
+  onTryAgain,
+  onBackToLibrary
+}) => {
+  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+  const [showChatbot, setShowChatbot] = useState(true);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: 1,
+      type: 'ai',
+      message: "Hello! I'm here to help you understand your interview performance. Feel free to ask me any questions about your responses or how to improve.",
+      timestamp: new Date()
+    }
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -166,7 +182,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
 
   const generateAIResponse = (message: string) => {
     const lowerMessage = message.toLowerCase();
-    
+
     if (lowerMessage.includes('improve') || lowerMessage.includes('better')) {
       return "Based on your interview performance, I recommend focusing on using the STAR method for behavioral questions and providing more specific examples with quantifiable results. Practice articulating your experiences more clearly.";
     } else if (lowerMessage.includes('score') || lowerMessage.includes('performance')) {
@@ -174,7 +190,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
     } else if (lowerMessage.includes('stress') || lowerMessage.includes('pressure')) {
       return "For stress management questions, try to include specific frameworks like the Eisenhower Matrix, mention mindfulness techniques, and always quantify your results. The STAR method works great for these behavioral questions.";
     }
-    
+
     return "That's a great question! I'd recommend reviewing the detailed feedback for each question and focusing on the missing terminologies highlighted in your responses. Practice using the STAR method to structure your answers better.";
   };
 
@@ -191,19 +207,19 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-50 p-6 font-sans selection:bg-blue-100">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Report Download Section */}
-        <Card>
-          <CardContent className="p-6">
+        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-xl ring-1 ring-slate-200/50">
+          <CardContent className="p-8">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Interview Report</h2>
-                <p className="text-sm text-muted-foreground mt-1">Your detailed interview analysis and feedback</p>
+                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 mb-2">Interview Report</h2>
+                <p className="text-slate-500 font-medium">Your detailed interview analysis and feedback</p>
               </div>
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
                 <FileText className="w-4 h-4 mr-2" />
-                Download
+                Download PDF
               </Button>
             </div>
           </CardContent>
@@ -504,11 +520,10 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
                                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[80%] rounded-lg p-3 text-sm ${
-                                    message.type === 'user'
-                                      ? 'bg-primary text-primary-foreground'
-                                      : 'bg-muted'
-                                  }`}
+                                  className={`max-w-[80%] rounded-lg p-3 text-sm ${message.type === 'user'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted'
+                                    }`}
                                 >
                                   {message.message}
                                 </div>
