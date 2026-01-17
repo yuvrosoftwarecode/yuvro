@@ -13,6 +13,8 @@ from django.db.models import (
 from django.db.models.functions import Coalesce
 from authentication.permissions import CanManageCourses, IsAuthenticatedUser
 from .utils import CodeExecutionUtil
+from .gamification_service import GamificationService
+from .gamification_models import UserGamificationProfile, DailyUserActivity
 from .models import (
     Course,
     Topic,
@@ -643,6 +645,10 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
         progress.save()
 
+        # Gamification Hook: Quiz
+        if is_passed:
+            GamificationService.record_activity(user, 'quiz')
+
         return Response(
             {
                 "message": "Quiz submitted",
@@ -799,10 +805,20 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                 progress.completed_at = timezone.now()
 
             progress.save()
+            
+            # Gamification Hook: Coding
+            if subtopic and progress.coding_score > 0: # Or checks specific question success
+                 # We probably want to award XP per question success, not just overall progress
+                 # But checking question level success is tricky here as 'coding_status' might be partial
+                 # Let's look at the 'question_solved' flag below
+                 pass
         else:
-            # No subtopic, so no progress tracking
-            new_percent = 0
-            coding_score = 0.0
+            # No subtopic
+            pass
+            
+        # Check if current submission was successful to award XP
+        if question_id and test_results.get("passed", 0) == test_results.get("total", 0):
+             GamificationService.record_activity(user, 'coding')
 
         response_data = {
             "message": "Coding progress updated"
@@ -866,6 +882,9 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             progress.completed_at = timezone.now()
 
         progress.save()
+
+        # Gamification Hook: Video
+        GamificationService.record_activity(user, 'video')
 
         return Response(
             {
@@ -966,13 +985,79 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if hours == 0:
             time_spent_str = f"{mins}m"
 
+        # Gamification Data
+        gamification_profile = GamificationService.get_or_create_profile(user)
+        streak = gamification_profile.current_streak
+        xp = gamification_profile.total_xp
+        level = gamification_profile.current_level
+
         return Response(
             {
                 "lessons_completed": completed_count,
                 "time_spent": time_spent_str,
                 "avg_progress": avg_progress,
+                "streak": streak,
+                "xp": xp,
+                "level": level,
             }
         )
+
+    @action(detail=False, methods=["get"])
+    def leaderboard(self, request):
+        """
+        Return top 10 users by XP.
+        """
+        top_profiles = UserGamificationProfile.objects.select_related('user').order_by('-total_xp')[:10]
+        
+        data = []
+        for profile in top_profiles:
+            # Check if user has a profile for avatar
+            # This is inefficient if N is large, but for 10 it's fine. 
+            # Ideally select_related('user__profile')
+            avatar_url = None
+            try:
+                if hasattr(profile.user, 'profile'):
+                     avatar_url = profile.user.profile.profile_image
+            except:
+                pass
+                
+            data.append({
+                "rank": 0, # Filled below
+                "user": profile.user.username,
+                "xp": profile.total_xp,
+                "level": profile.current_level,
+                "avatar": avatar_url
+            })
+            
+        # Add rank
+        for i, item in enumerate(data):
+            item['rank'] = i + 1
+            
+        return Response(data)
+
+    @action(detail=False, methods=["get"])
+    def calendar_activity(self, request):
+        """
+        Get active dates for the current month (or specified).
+        Request: ?year=2025&month=12
+        """
+        user = request.user
+        today = timezone.now().date()
+        year = int(request.query_params.get('year', today.year))
+        month = int(request.query_params.get('month', today.month))
+        
+        activities = DailyUserActivity.objects.filter(
+            user=user,
+            date__year=year,
+            date__month=month,
+            activity_count__gt=0
+        ).values_list('date', flat=True)
+        
+        return Response({
+            "active_dates": [d.isoformat() for d in activities],
+            "year": year,
+            "month": month
+        })
 
     @action(detail=False, methods=["get"])
     def progress(self, request):

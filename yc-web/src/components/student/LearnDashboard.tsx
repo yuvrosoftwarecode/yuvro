@@ -6,11 +6,12 @@ import { fetchTopicsByCourse } from '@/services/courseService';
 
 import ContinueLearningBanner from "@/components/student/Learn/ContinueLearningBanner";
 import StatsGrid from "@/components/student/Learn/StatsGrid";
+import GamificationSidebar from "@/components/student/Learn/GamificationSidebar";
 import SearchBar from "@/components/common/SearchBar";
 import CategorySection from "@/components/student/Learn/CatergorySection";
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 
-import { Binary, Code, Database, Sparkles, FileText, Flame, Award, X } from "lucide-react";
+import { Binary, Code, Database, Sparkles, FileText, Flame, Award, X, ChevronRight } from "lucide-react";
 
 import type { Course, Stats, ContinueProgress, CourseProgressMap } from "@/components/student/Learn/types";
 
@@ -29,6 +30,7 @@ const LearnDashboard: React.FC = () => {
     total_lessons: 0,
     percent: 0,
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -208,27 +210,16 @@ const LearnDashboard: React.FC = () => {
                   <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 </div>
 
-                <div className="group relative">
-                  <div className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm">
+                <div className="group relative cursor-pointer" onClick={() => setIsSidebarOpen(true)}>
+                  <div className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
                     <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-200 text-yellow-700 text-lg shadow">
                       <Flame className="w-4 h-4" />
                     </span>
-                    <span className="text-sm font-bold text-gray-800">7-day streak</span>
+                    <span className="text-sm font-bold text-gray-800">{stats.streak || 0}-day streak</span>
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                   </div>
                   <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    🔥 7-day streak
-                  </div>
-                </div>
-
-                <div className="group relative">
-                  <div className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-100/60 to-cyan-100/40 rounded-full border border-blue-200 shadow-sm">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-200 text-blue-700 text-lg shadow">
-                      <Award className="w-4 h-4" />
-                    </span>
-                    <span className="text-sm font-bold text-gray-800">12 badges</span>
-                  </div>
-                  <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    🏅 12 badges earned
+                    🔥 View detailed progress
                   </div>
                 </div>
               </div>
@@ -236,7 +227,11 @@ const LearnDashboard: React.FC = () => {
 
             <StatsGrid stats={stats} />
 
-            <ContinueLearningBanner continueProgress={continueProgress} />
+            <div className="grid grid-cols-1 gap-8">
+              <div className="lg:col-span-3">
+                <ContinueLearningBanner continueProgress={continueProgress} />
+              </div>
+            </div>
           </div>
 
 
@@ -259,22 +254,15 @@ const LearnDashboard: React.FC = () => {
             )
           )}
 
-          <div className="mt-8 p-0 bg-gradient-to-r from-yellow-100/60 via-orange-100/40 to-blue-100/30 border border-yellow-200 rounded-2xl shadow flex flex-col items-center justify-center">
-            <div className="flex items-center gap-3 py-4">
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-yellow-200 text-yellow-700 text-xl shadow">
-                🔥
-              </span>
-              <span className="font-bold text-lg text-gray-800">7-day streak</span>
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-gray-200 text-gray-700 text-xl shadow">
-                🥈
-              </span>
-            </div>
-            <p className="text-base text-center text-gray-700 pb-4">
-              Complete <span className="font-semibold text-blue-600">1 more lesson today</span> to earn a <span className="font-semibold text-yellow-700">silver badge!</span>
-            </p>
-          </div>
+
         </div>
       </div>
+
+      <GamificationSidebar
+        stats={stats}
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
 
       {/* Chat toggle & Window */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">

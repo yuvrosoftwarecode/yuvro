@@ -11,10 +11,18 @@ from .models import (
     UserCourseProgress,
     StudentCodePractice,
 )
+from .gamification_models import UserGamificationProfile
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+class UserGamificationProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGamificationProfile
+        fields = ["current_streak", "longest_streak", "total_xp", "current_level", "last_activity_date"]
+
 
 
 class SubtopicSerializer(serializers.ModelSerializer):

@@ -16,6 +16,9 @@ export interface Stats {
   lessons_completed: number;
   time_spent: string;
   avg_progress: number;
+  streak?: number;
+  xp?: number;
+  level?: number;
 }
 
 export interface ContinueProgress {

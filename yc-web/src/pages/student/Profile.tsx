@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/common/Navigation";
+import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 import profileService, {
   Profile as ProfileType,
@@ -17,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Edit,
   Plus,
@@ -28,7 +28,6 @@ import {
   MapPin,
   Calendar,
   Award,
-  Trophy,
   Code,
   Briefcase,
   GraduationCap,
@@ -49,10 +48,12 @@ import AddExperienceDialog, {
 } from "@/components/student/profile/AddExperienceDialog";
 import AddProjectDialog from "@/components/student/profile/AddProjectDialog";
 import AddEducationDialog from "@/components/student/profile/AddEducationDialog";
-import EditLinksDialog from "@/components/student/profile/EditLinksDialog";
+
 import AddCertificationDialog, {
   CertificationForm,
 } from "@/components/student/profile/AddCertificationDialog";
+
+import ProfileStats from "@/components/student/profile/ProfileStats";
 
 // Local form shapes (must match dialog shapes)
 type SkillForm = {
@@ -187,7 +188,7 @@ const Profile = () => {
   const [experienceDialogOpen, setExperienceDialogOpen] = useState(false);
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
-  const [linksDialogOpen, setLinksDialogOpen] = useState(false);
+
   const [certificationDialogOpen, setCertificationDialogOpen] =
     useState(false);
 
@@ -202,10 +203,22 @@ const Profile = () => {
   const [editingCertification, setEditingCertification] =
     useState<Certification | null>(null);
 
+  const [gamificationStats, setGamificationStats] = useState<any>(null);
+
   // Fetch profile
   useEffect(() => {
     loadProfile();
+    loadGamificationStats();
   }, []);
+
+  const loadGamificationStats = async () => {
+    try {
+      const stats = await restApiAuthUtil.get("/course/student-course-progress/stats/");
+      setGamificationStats(stats);
+    } catch (err) {
+      console.error("Failed to load gamification stats", err);
+    }
+  };
 
   const loadProfile = async () => {
     try {
@@ -356,18 +369,18 @@ const Profile = () => {
    * -------------------------------------------- */
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-background">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-[1480px] mx-auto px-8 py-8 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           {/* ========== LEFT MAIN CONTENT ========== */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-8">
             {/* ========= HEADER CARD ========= */}
-            <Card>
+            <Card className="border-0 shadow-lg ring-1 ring-black/5 overflow-hidden">
               <div className="relative">
                 {/* COVER */}
-                <div className="h-48 bg-gradient-to-r from-orange-100 to-orange-50 relative group">
+                <div className="h-56 bg-gradient-to-r from-orange-400/80 via-rose-400/80 to-purple-500/80 backdrop-blur-md relative group">
                   {coverPic && (
                     <img
                       src={coverPic}
@@ -383,7 +396,7 @@ const Profile = () => {
                         accept="image/*"
                         onChange={handleCoverPicUpload}
                       />
-                      <Button size="sm" variant="secondary">
+                      <Button size="sm" variant="secondary" className="shadow-sm">
                         <Upload className="h-4 w-4 mr-2" /> Upload Cover
                       </Button>
                     </label>
@@ -392,11 +405,11 @@ const Profile = () => {
 
                 {/* PROFILE PIC */}
                 <div className="absolute -bottom-16 left-8">
-                  <Avatar className="h-32 w-32 border-4 border-background">
+                  <Avatar className="h-36 w-36 border-4 border-background shadow-xl">
                     {profilePic ? (
                       <AvatarImage src={profilePic} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="text-3xl">
+                      <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
                         {profile.full_name
                           ?.split(" ")
                           .map((n) => n[0])
@@ -407,125 +420,179 @@ const Profile = () => {
                 </div>
               </div>
 
-              <CardContent className="pt-20 pb-6">
+              <CardContent className="pt-20 pb-8 px-8">
                 <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <h1 className="text-3xl font-bold">
+                  <div className="space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight">
                       {profile.full_name || "Student User"}
                     </h1>
-                    <p className="text-lg text-muted-foreground">
+                    <p className="text-lg text-muted-foreground font-medium">
                       {profile.title || "Your Title Here"}
                     </p>
 
                     {profile.education.length > 0 && (
-                      <p className="text-sm text-muted-foreground flex gap-3 items-center">
+                      <p className="text-sm text-muted-foreground flex gap-2 items-center pt-1">
                         <Building2 className="h-4 w-4" />
-                        {profile.education[0].institution} |{" "}
-                        {profile.education[0].degree} |{" "}
-                        {profile.education[0].duration}
+                        <span className="font-medium">{profile.education[0].institution}</span>
+                        <span>•</span>
+                        <span>{profile.education[0].degree}</span>
                       </p>
                     )}
 
-                    <p className="text-sm flex items-center gap-1 text-muted-foreground">
+                    <p className="text-sm flex items-center gap-2 text-muted-foreground">
                       <MapPin className="h-4 w-4" />
-                      {profile.location}
+                      {profile.location || "Location not set"}
                     </p>
                   </div>
 
-                  <Button onClick={() => setEditDialogOpen(true)}>
-                    <Edit className="h-4 w-4 mr-2" /> Edit Profile
-                  </Button>
+                  <div className="flex flex-col items-end gap-6 mt-2">
+                    <Button onClick={() => setEditDialogOpen(true)} className="shadow-sm rounded-xl px-6">
+                      <Edit className="h-4 w-4 mr-2" /> Edit Profile
+                    </Button>
+
+                    {/* Social Links Row */}
+                    <div className="flex gap-3">
+                      {profile.links.github && (
+                        <a href={profile.links.github} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:scale-110 transition-transform">
+                            <Github className="h-6 w-6" />
+                          </Button>
+                        </a>
+                      )}
+                      {profile.links.linkedin && (
+                        <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:scale-110 transition-transform">
+                            <Linkedin className="h-6 w-6" />
+                          </Button>
+                        </a>
+                      )}
+                      {profile.links.portfolio && (
+                        <a href={profile.links.portfolio} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-600 hover:scale-110 transition-transform">
+                            <Globe className="h-6 w-6" />
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* ========= ABOUT ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-3">About</h2>
-                <p className="text-muted-foreground">
-                  {profile.about || "No about added yet."}
+            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+              <CardContent className="p-8">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground/90">
+                  About Me
+                </h2>
+                <p className="text-muted-foreground leading-loose text-base">
+                  {profile.about || "Write a short bio to introduce yourself."}
                 </p>
               </CardContent>
             </Card>
 
-            {/* ========= CERTIFICATIONS ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" />
-                    Certifications
+            {/* ========= PROJECTS (MOVED UP) ========= */}
+            <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-card">
+              <CardContent className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Code className="h-6 w-6 text-blue-600" />
+                    Projects
                   </h2>
 
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
                     onClick={() => {
-                      setEditingCertification(null);
-                      setCertificationDialogOpen(true);
+                      setEditingProject(null);
+                      setProjectDialogOpen(true);
                     }}
                   >
-                    <Plus className="h-4 w-4 mr-2" /> Add Certification
+                    <Plus className="h-4 w-4 mr-2" /> Add Project
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {profile.certifications.map((cert) => (
-                    <Card key={cert.id} className="border-2">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{cert.name}</h3>
-
-                            <p className="text-sm text-muted-foreground">
-                              {cert.issuer}
-                            </p>
-
-                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {cert.completion_date}
+                <div className="grid gap-6">
+                  {profile.projects.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
+                      No projects added yet. Showcase your work!
+                    </div>
+                  )}
+                  {profile.projects.map((project) => (
+                    <Card key={project.id} className="border-0 shadow-md ring-1 ring-black/5 hover:shadow-lg transition-all duration-300">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-bold text-lg text-primary">
+                              {project.title}
+                            </h3>
+                            <p className="text-sm font-medium text-foreground/80 mt-1">
+                              {project.role}
                             </p>
                           </div>
-
                           <div className="flex gap-1">
-                            {/* Edit */}
                             <Button
-                              size="sm"
                               variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
                               onClick={() => {
-                                setEditingCertification(cert);
-                                setCertificationDialogOpen(true);
+                                setEditingProject(project);
+                                setProjectDialogOpen(true);
                               }}
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-4 w-4 text-muted-foreground" />
                             </Button>
-
-                            {/* Delete */}
                             <Button
-                              size="sm"
                               variant="ghost"
-                              className="hover:text-destructive"
-                              onClick={() =>
-                                handleDeleteCertification(cert.id)
-                              }
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:text-destructive"
+                              onClick={() => handleDeleteProject(project.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-
-                            {/* Download file */}
-                            {cert.certificate_file && (
-                              <a
-                                href={cert.certificate_file}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <Button size="sm" variant="outline">
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                              </a>
-                            )}
                           </div>
+                        </div>
+
+                        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                          {project.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {project.tech_stack.map((tech, idx) => (
+                            <Badge
+                              key={`${tech}-${idx}`}
+                              variant="outline"
+                              className="bg-blue-50 text-blue-700 border-blue-50 px-3 py-1 font-medium hover:bg-blue-100 transition-colors"
+                            >
+                              {tech}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          {project.github_link && (
+                            <a
+                              href={project.github_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button variant="outline" size="sm" className="h-8 gap-2 bg-white border-slate-200 hover:bg-slate-50 text-slate-700">
+                                <Github className="h-3.5 w-3.5" /> Code
+                              </Button>
+                            </a>
+                          )}
+                          {project.live_link && (
+                            <a
+                              href={project.live_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" className="h-8 gap-2 bg-slate-900 text-white hover:bg-slate-800 shadow-sm">
+                                <ExternalLink className="h-3.5 w-3.5" /> Live Demo
+                              </Button>
+                            </a>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -535,17 +602,18 @@ const Profile = () => {
             </Card>
 
             {/* ========= EXPERIENCE ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-primary" />
+            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+              <CardContent className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Briefcase className="h-6 w-6 text-orange-600" />
                     Experience
                   </h2>
 
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
                     onClick={() => {
                       setExperienceEditData(null);
                       setExperienceDialogOpen(true);
@@ -555,39 +623,42 @@ const Profile = () => {
                   </Button>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {profile.experiences.map((exp) => (
                     <div
                       key={exp.id}
-                      className="border-l-2 border-primary/20 pl-4 relative"
+                      className="p-6 rounded-xl bg-card border-0 shadow-sm ring-1 ring-black/5 hover:shadow-md transition-shadow group border-l-4 border-l-orange-500"
                     >
-                      <div className="absolute -left-2 top-0 w-4 h-4 bg-primary rounded-full" />
-
-                      <div className="flex justify-between items-start mb-2">
+                      <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-semibold text-lg">{exp.role}</h3>
-                          <p className="text-muted-foreground">{exp.company}</p>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                            <Clock className="h-3 w-3" /> {exp.duration}
-                          </p>
+                          <h3 className="font-bold text-lg text-primary">{exp.role}</h3>
+                          <div className="flex items-center gap-2 text-base font-medium text-muted-foreground mt-1">
+                            <Building2 className="h-4 w-4 text-orange-500" />
+                            <span>{exp.company}</span>
+                            <span className="text-xs text-muted-foreground/50">•</span>
+                            <span className="text-sm flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> {exp.duration}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="flex gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="h-8 w-8 p-0"
                             onClick={() => {
                               setExperienceEditData(exp);
                               setExperienceDialogOpen(true);
                             }}
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4 text-muted-foreground" />
                           </Button>
 
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hover:text-destructive"
+                            className="h-8 w-8 p-0 hover:text-destructive"
                             onClick={() => handleDeleteExperience(exp.id)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -596,16 +667,20 @@ const Profile = () => {
                       </div>
 
                       {/* Description */}
-                      <ul className="list-disc pl-4 text-muted-foreground text-sm mb-3">
+                      <ul className="list-disc pl-4 text-muted-foreground text-sm space-y-2 mb-4 marker:text-orange-400">
                         {exp.description_list.map((d, idx) => (
-                          <li key={idx}>{d}</li>
+                          <li key={idx} className="leading-relaxed">{d}</li>
                         ))}
                       </ul>
 
                       {/* Tech stack */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mt-4">
                         {exp.technologies.map((tech, idx) => (
-                          <Badge key={idx} variant="secondary">
+                          <Badge
+                            key={`${tech}-${idx}`}
+                            variant="outline"
+                            className="bg-slate-50 text-slate-700 border-slate-200 px-3 py-1 font-medium hover:bg-slate-100 transition-colors"
+                          >
                             {tech}
                           </Badge>
                         ))}
@@ -616,114 +691,19 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            {/* ========= PROJECTS ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Code className="h-5 w-5 text-primary" /> Projects
-                  </h2>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingProject(null);
-                      setProjectDialogOpen(true);
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" /> Add
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {profile.projects.map((project) => (
-                    <Card key={project.id}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {project.title}
-                            </h3>
-                            <p className="text-muted-foreground mt-1">
-                              {project.description}
-                            </p>
-                            <p className="text-primary mt-1">
-                              Role: {project.role}
-                            </p>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingProject(project);
-                                setProjectDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="hover:text-destructive"
-                              onClick={() => handleDeleteProject(project.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {project.tech_stack.map((tech) => (
-                            <Badge variant="outline" key={tech}>
-                              {tech}
-                            </Badge>
-                          ))}
-                        </div>
-
-                        <div className="flex gap-2 mt-3">
-                          {project.github_link && (
-                            <a
-                              href={project.github_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Button size="sm" variant="outline">
-                                <Github className="h-4 w-4 mr-1" /> GitHub
-                              </Button>
-                            </a>
-                          )}
-                          {project.live_link && (
-                            <a
-                              href={project.live_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Button size="sm" variant="outline">
-                                <ExternalLink className="h-4 w-4 mr-1" /> Live
-                              </Button>
-                            </a>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* ========= EDUCATION ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <GraduationCap className="h-5 w-5 text-primary" /> Education
+            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+              <CardContent className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <GraduationCap className="h-6 w-6 text-green-600" />
+                    Education
                   </h2>
 
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
                     onClick={() => {
                       setEditingEducation(null);
                       setEducationDialogOpen(true);
@@ -733,24 +713,26 @@ const Profile = () => {
                   </Button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid gap-4">
                   {profile.education.map((edu) => (
                     <div
                       key={edu.id}
-                      className="p-4 border rounded-lg flex justify-between"
+                      className="p-6 rounded-xl bg-card border-0 shadow-sm ring-1 ring-black/5 flex justify-between items-start hover:shadow-md transition-shadow border-l-4 border-l-green-500"
                     >
                       <div>
-                        <h3 className="font-semibold text-lg">
+                        <h3 className="font-bold text-lg text-primary">
                           {edu.institution}
                         </h3>
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground font-medium mt-1">
                           {edu.degree} in {edu.field}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {edu.duration}
+                        <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+                          <Calendar className="h-3 w-3" /> {edu.duration}
                         </p>
                         {edu.cgpa && (
-                          <p className="text-sm text-primary">CGPA: {edu.cgpa}</p>
+                          <Badge variant="secondary" className="mt-3 font-medium bg-green-50 text-green-700 hover:bg-green-100 border-0">
+                            CGPA: {edu.cgpa}
+                          </Badge>
                         )}
                       </div>
 
@@ -758,17 +740,18 @@ const Profile = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 w-8 p-0"
                           onClick={() => {
                             setEditingEducation(edu);
                             setEducationDialogOpen(true);
                           }}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4 text-muted-foreground" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="hover:text-destructive"
+                          className="h-8 w-8 p-0 hover:text-destructive"
                           onClick={() => handleDeleteEducation(edu.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -780,100 +763,117 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            {/* ========= SOCIAL LINKS ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between mb-3">
-                  <h2 className="text-xl font-semibold">Social Links</h2>
+            {/* ========= CERTIFICATIONS ========= */}
+            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+              <CardContent className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Award className="h-6 w-6 text-yellow-600" />
+                    Certifications
+                  </h2>
+
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setLinksDialogOpen(true)}
+                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
+                    onClick={() => {
+                      setEditingCertification(null);
+                      setCertificationDialogOpen(true);
+                    }}
                   >
-                    <Edit className="h-4 w-4 mr-2" /> Edit Links
+                    <Plus className="h-4 w-4 mr-2" /> Add Certification
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <a
-                    href={profile.links.github || "#"}
-                    className="p-3 border rounded hover:bg-accent flex items-center gap-2"
-                  >
-                    <Github className="h-4 w-4" />
-                    GitHub
-                  </a>
-                  <a
-                    href={profile.links.linkedin || "#"}
-                    className="p-3 border rounded hover:bg-accent flex items-center gap-2"
-                  >
-                    <Linkedin className="h-4 w-4" />
-                    LinkedIn
-                  </a>
-                  <a
-                    href={profile.links.portfolio || "#"}
-                    className="p-3 border rounded hover:bg-accent flex items-center gap-2"
-                  >
-                    <Globe className="h-4 w-4" />
-                    Portfolio
-                  </a>
-                  <a
-                    href={`mailto:${profile.links.email}`}
-                    className="p-3 border rounded hover:bg-accent flex items-center gap-2"
-                  >
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </a>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {profile.certifications.map((cert) => (
+                    <Card key={cert.id} className="border-0 shadow-sm ring-1 ring-black/5 hover:shadow-md transition-all group border-t-4 border-t-yellow-500">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 space-y-1">
+                            <h3 className="font-bold text-base leading-tight group-hover:text-primary transition-colors">{cert.name}</h3>
+
+                            <p className="text-sm text-muted-foreground font-medium">
+                              {cert.issuer}
+                            </p>
+
+                            <p className="text-xs text-muted-foreground pt-2 flex items-center gap-1.5">
+                              <Calendar className="h-3 w-3" />
+                              {cert.completion_date}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {/* Edit */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={() => {
+                                setEditingCertification(cert);
+                                setCertificationDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+
+                            {/* Delete */}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 hover:text-destructive"
+                              onClick={() =>
+                                handleDeleteCertification(cert.id)
+                              }
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Download file */}
+                        {cert.certificate_file && (
+                          <div className="mt-4 pt-3 border-t border-border/50">
+                            <a
+                              href={cert.certificate_file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-medium text-primary hover:underline flex items-center justify-center gap-2"
+                            >
+                              <Download className="h-3 w-3" /> Download Certificate
+                            </a>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </CardContent>
             </Card>
+
           </div>
 
           {/* ========== RIGHT SIDEBAR ========== */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold flex items-center gap-2 mb-6">
-                  <Trophy className="h-6 w-6 text-[hsl(var(--saffron))]" />
-                  Contest Performance
-                </h2>
+          <div className="space-y-8">
 
-                <div className="bg-gradient-to-br from-yellow-200/10 to-yellow-200/5 rounded p-6 text-center mb-5">
-                  <p className="text-muted-foreground">Current Rank</p>
-                  <h3 className="text-5xl font-bold text-yellow-600">#42</h3>
-                </div>
+            {/* Dynamic Gamification Stats */}
+            <ProfileStats
+              profileStrength={profileStrength}
+              suggestions={suggestions}
+              gamificationStats={gamificationStats}
+            />
 
-                <div className="mb-6">
-                  <h4 className="font-semibold mb-2">Top Skills</h4>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge className="px-4 py-1.5 bg-yellow-500 text-white">
-                      DSA
-                    </Badge>
-                    <Badge className="px-4 py-1.5 bg-green-500 text-white">
-                      React
-                    </Badge>
-                  </div>
-                </div>
 
-                <div>
-                  <h4 className="font-semibold mb-2">Next Badge Level</h4>
-                  <div className="relative w-full h-2 rounded-full bg-neutral-300 dark:bg-neutral-700 overflow-hidden">
-                    <div
-                      className="h-full bg-yellow-500 dark:bg-yellow-400 transition-all"
-                      style={{ width: `75%` }}
-                    ></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Skills Matrix */}
-            <Card>
+            <Card className="border-0 shadow-lg ring-1 ring-black/5">
               <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Skills Matrix</h2>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold">Skills</h2>
                   <Button
                     variant="outline"
                     size="sm"
+                    className="border-0 shadow-sm"
                     onClick={() => {
                       setEditingSkill(null);
                       setSkillDialogOpen(true);
@@ -883,40 +883,43 @@ const Profile = () => {
                   </Button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {profile.skills.map((skill) => (
-                    <div key={skill.id}>
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{skill.name}</span>
+                    <div key={skill.id} className="group">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold text-sm">{skill.name}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">
+                          <span className="text-xs font-mono text-muted-foreground">
                             {skill.percentage}%
                           </span>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingSkill(skill);
-                              setSkillDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0"
+                              onClick={() => {
+                                setEditingSkill(skill);
+                                setSkillDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-3 w-3 text-muted-foreground" />
+                            </Button>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="hover:text-destructive"
-                            onClick={() => handleDeleteSkill(skill.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0 hover:text-destructive"
+                              onClick={() => handleDeleteSkill(skill.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <div className="relative w-full h-2 rounded-full bg-neutral-300 dark:bg-neutral-700 overflow-hidden mt-2">
+                      <div className="relative w-full h-2.5 rounded-full bg-secondary overflow-hidden">
                         <div
-                          className="h-full bg-green-500 dark:bg-green-400 transition-all"
+                          className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
                           style={{ width: `${skill.percentage}%` }}
                         ></div>
                       </div>
@@ -926,120 +929,29 @@ const Profile = () => {
               </CardContent>
             </Card>
 
-            {/* Profile Strength */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Profile Strength</h3>
-
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">
-                    {profileStrength}% Complete
-                  </span>
-                </div>
-
-                {/* Strength Bar */}
-                <div className="relative w-full h-2 rounded-full bg-neutral-300 dark:bg-neutral-700 overflow-hidden mt-2">
-                  <div
-                    className="h-full bg-green-500 dark:bg-green-400 transition-all"
-                    style={{ width: `${profileStrength}%` }}
-                  ></div>
-                </div>
 
 
-                {/* Suggestions */}
-                {suggestions.length > 0 ? (
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Suggestions to improve:</h4>
-                    <ul className="space-y-1 text-sm text-muted-foreground">
-                      {suggestions.slice(0, 5).map((s, idx) => (
-                        <li key={idx} className="flex justify-between">
-                          <span>• {s.text}</span>
-                          <span className="text-primary font-medium">+{s.boost}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <p className="text-sm text-green-600 mt-2">
-                    Your profile is 100% complete. Great job!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* ========= PROFILE STATS ========= */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4 text-lg">Profile Stats</h3>
-
-                <div className="space-y-4">
-
-                  {/* Certificates */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Certificates Earned
-                    </span>
-                    <span className="font-semibold text-lg">
-                      {profile.certifications.length}
-                    </span>
-                  </div>
-
-                  {/* Projects */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Projects Added
-                    </span>
-                    <span className="font-semibold text-lg">
-                      {profile.projects.length}
-                    </span>
-                  </div>
-
-                  {/* Contests (Static for now — can make dynamic later) */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Contests Participated
-                    </span>
-                    <span className="font-semibold text-lg">
-                      {profile.contests ? profile.contests.length : 2}
-                    </span>
-                  </div>
-
-                  {/* Skills */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Skills Added
-                    </span>
-                    <span className="font-semibold text-lg">
-                      {profile.skills.length}
-                    </span>
-                  </div>
-
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-[hsl(var(--saffron))]/20 bg-gradient-to-br from-[hsl(var(--saffron))]/5 to-transparent">
+            {/* AI Insight */}
+            <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-2 mb-3">
-                  <Star className="h-5 w-5 text-[hsl(var(--saffron))] mt-0.5" />
-                  <h3 className="font-semibold">AI Suggestions</h3>
+                  <div className="p-1.5 rounded-md bg-[hsl(var(--saffron))]/20 text-[hsl(var(--saffron))]">
+                    <Star className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-bold text-lg">AI Insight</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[hsl(var(--saffron))]">•</span>
-                    <span>Add more projects to showcase your skills</span>
+                <ul className="space-y-3 text-sm text-foreground/80">
+                  <li className="flex items-start gap-3">
+                    <span className="text-[hsl(var(--saffron))] text-lg leading-none">•</span>
+                    <span>Add <span className="font-medium">3 more projects</span> to boost visibility by 40%.</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[hsl(var(--saffron))]">•</span>
-                    <span>Complete your education details</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[hsl(var(--saffron))]">•</span>
-                    <span>Add GitHub links to your projects</span>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[hsl(var(--saffron))] text-lg leading-none">•</span>
+                    <span>Complete <span className="font-medium">Education</span> details for internship matching.</span>
                   </li>
                 </ul>
               </CardContent>
             </Card>
-
 
           </div>
         </div>
@@ -1059,6 +971,9 @@ const Profile = () => {
           title: profile.title || "",
           location: profile.location || "",
           about: profile.about || "",
+          github: profile.links.github || "",
+          linkedin: profile.links.linkedin || "",
+          portfolio: profile.links.portfolio || "",
         }}
         onSave={async (data) => {
           await profileService.updateProfile(data);
@@ -1127,16 +1042,7 @@ const Profile = () => {
         onSave={handleSaveCertification}
       />
 
-      {/* SOCIAL LINKS */}
-      <EditLinksDialog
-        open={linksDialogOpen}
-        onOpenChange={setLinksDialogOpen}
-        links={profile.links}
-        onSave={async (links) => {
-          await profileService.updateSocialLinks(links);
-          await loadProfile();
-        }}
-      />
+
     </div>
   );
 };
