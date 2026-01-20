@@ -305,18 +305,18 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
 
+        if (aiText.toLowerCase().includes("write code") ||
+          aiText.toLowerCase().includes("coding question") ||
+          aiText.toLowerCase().includes("write a function") ||
+          aiText.match(/```/)) {
 
-        if (aiText.toLowerCase().includes("code") || aiText.toLowerCase().includes("function") || aiText.toLowerCase().includes("program")) {
-          // Check for Markdown code blocks
           const codeBlockRegex = /```(?:javascript|js|python|java|cpp|typescript|ts)?\s*([\s\S]*?)```/i;
           const match = aiText.match(codeBlockRegex);
 
           if (match && match[1]) {
-            // Found starter code -> Auto-populate editor
             setCurrentCode(match[1].trim());
             if (!showCodeEditor) setShowCodeEditor(true);
           } else {
-            // No code block, but keyword found -> Open empty editor
             if (!showCodeEditor) setShowCodeEditor(true);
           }
         }
@@ -432,11 +432,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
                       <span>• {msg.timestamp}</span>
                     </div>
                     {msg.content}
-                    {msg.codeSubmission && (
-                      <div className="mt-3 p-3 bg-black/20 rounded-lg font-mono text-xs overflow-x-auto">
-                        {msg.codeSubmission}
-                      </div>
-                    )}
+
                   </div>
                 </div>
               ))}
