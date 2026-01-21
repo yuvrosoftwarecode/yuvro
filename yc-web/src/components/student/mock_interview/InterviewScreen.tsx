@@ -2,21 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code } from 'lucide-react';
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock } from 'lucide-react';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
 
-interface Role {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  interviewer_name?: string;
-  interviewer_voice_id?: string;
-  voice_speed?: number;
-}
+import { Role, Message } from '@/types/mockInterview';
 
 interface InterviewScreenProps {
   role: Role;
@@ -27,14 +18,6 @@ interface InterviewScreenProps {
   resume?: File;
   onExit: () => void;
   onInterviewComplete: (role: Role, difficulty: string, duration: string) => void;
-}
-
-interface Message {
-  type: 'ai' | 'user';
-  content: string;
-  timestamp: string;
-  questionType?: 'behavioral' | 'coding';
-  codeSubmission?: string;
 }
 
 const InterviewScreen: React.FC<InterviewScreenProps> = ({
@@ -54,17 +37,18 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [isAITyping, setIsAITyping] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
 
-  // Real API State
+
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
+  const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Helper function to speak text
+
   const speakText = (text: string) => {
     // Cancel any current speech
     window.speechSynthesis.cancel();
@@ -110,7 +94,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     window.speechSynthesis.speak(utterance);
   };
 
-  // Load voices
+
   useEffect(() => {
     const loadVoices = () => {
       window.speechSynthesis.getVoices();
@@ -123,13 +107,13 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
   }, []);
 
-  // Convert duration to seconds
+
   const getDurationInSeconds = (durationStr: string): number => {
     const match = durationStr.match(/(\d+)\s*mins?/i);
     return match ? parseInt(match[1]) * 60 : 300;
   };
 
-  // Initialize Interview & Timer
+
   useEffect(() => {
     const seconds = getDurationInSeconds(duration);
     setTimeLeft(seconds);
@@ -137,7 +121,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     const initInterview = async () => {
       try {
         setIsAITyping(true);
-        // Start Interview API
+
         const response = await mockInterviewService.startInterview(
           role.id,
           difficulty,
@@ -148,8 +132,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         if (response.chat_session_id) {
           setChatSessionId(response.chat_session_id);
 
-          // Send initial Trigger to AI to start the conversation
-          // Using a hidden system instruction disguised as user prompt or just a prompt
+
           const initialPrompt = "The interview is starting now. Please introduce yourself and ask the first question.";
           const aiResponse = await aiAssistantService.sendMessage(response.chat_session_id, initialPrompt);
 
@@ -192,7 +175,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     onExit();
   };
 
-  // Timer countdown
+
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => {
@@ -208,7 +191,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
   }, [timeLeft]);
 
-  // Video feed
+
   useEffect(() => {
     if (mediaStream && videoRef.current) {
       videoRef.current.srcObject = mediaStream;
@@ -221,9 +204,9 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         });
       }
     }
-  }, [mediaStream]);
+  }, [mediaStream, layout]);
 
-  // Speech Recognition
+
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -261,7 +244,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
   }, [isRecording]);
 
-  // Auto scroll
+
   useEffect(() => {
     conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversation, isUserTyping, isAITyping]);
@@ -322,11 +305,20 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
 
-        // Heuristic for coding
-        if (aiText.toLowerCase().includes("code") || aiText.toLowerCase().includes("function") || aiText.toLowerCase().includes("program")) {
-          // Only switch if it explicitly looks like a coding request and we aren't already there? 
-          // Or allow toggling.
-          if (!showCodeEditor) setShowCodeEditor(true);
+        if (aiText.toLowerCase().includes("write code") ||
+          aiText.toLowerCase().includes("coding question") ||
+          aiText.toLowerCase().includes("write a function") ||
+          aiText.match(/```/)) {
+
+          const codeBlockRegex = /```(?:javascript|js|python|java|cpp|typescript|ts)?\s*([\s\S]*?)```/i;
+          const match = aiText.match(codeBlockRegex);
+
+          if (match && match[1]) {
+            setCurrentCode(match[1].trim());
+            if (!showCodeEditor) setShowCodeEditor(true);
+          } else {
+            if (!showCodeEditor) setShowCodeEditor(true);
+          }
         }
       } catch (err) {
         console.error("AI Error", err);
@@ -337,138 +329,238 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative h-14 w-20 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-              <div className="absolute bottom-0 right-0 p-0.5 bg-black/50 text-[8px] text-white">You</div>
+    <div className="h-screen overflow-hidden bg-slate-50 flex flex-col font-sans selection:bg-blue-100">
+
+
+      <div className="bg-white border-b border-slate-200 px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-50 shadow-sm transition-all">
+
+
+        <div className="flex items-center gap-4 justify-self-start">
+          <Button variant="ghost" size="sm" onClick={onExit} className="text-slate-500 hover:text-slate-900">
+            <LogOut className="w-4 h-4 mr-2" />
+            Exit
+          </Button>
+          <div className="h-4 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-transparent font-mono hidden sm:inline-flex">{role.title}</Badge>
+            <Badge className="bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100">{difficulty}</Badge>
+          </div>
+        </div>
+
+
+        <div className="justify-self-center flex justify-center w-full">
+          {layout === 'classic' && (
+            <div className="w-20 h-10 bg-black rounded-md overflow-hidden border border-slate-200 shadow-sm relative group transform-gpu ring-1 ring-slate-900/5">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover scale-x-[-1]"
+              />
+              <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full border border-white"></div>
             </div>
-            <div>
-              <h1 className="text-xl font-semibold">Mock Interview - {role.title}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="secondary">{difficulty}</Badge>
-                <Badge variant="outline">{interviewer}</Badge>
-              </div>
-            </div>
+          )}
+        </div>
+
+
+        <div className="flex items-center gap-4 justify-self-end">
+
+          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+            <button
+              onClick={() => setLayout('modern')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'modern' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Split
+            </button>
+            <button
+              onClick={() => setLayout('classic')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'classic' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Classic
+            </button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-lg font-mono">
+
+          <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md">
+            <Clock className="w-4 h-4 text-slate-500" />
+            <span className={`font-mono font-bold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-slate-700'}`}>
               {formatTime(timeLeft)}
-            </div>
-            <Button variant="destructive" onClick={handleEndInterview}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Exit
-            </Button>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex h-[calc(100vh-80px)]">
-        {/* Left Panel - Conversation */}
-        <div className={`flex flex-col bg-card m-4 rounded-lg border transition-all duration-300 ${showCodeEditor ? 'w-1/2' : 'flex-1 w-full'}`}>
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Interview Conversation</h2>
-              <Button variant="ghost" size="sm" onClick={() => speakText(conversation.length > 0 ? conversation[conversation.length - 1].content : "")}>
-                <RotateCcw className="h-4 w-4" />
+
+      <div className="flex-1 w-full mx-auto p-6 flex gap-6 overflow-hidden transition-all duration-500 relative max-w-[1800px]">
+
+
+
+
+
+        <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? (showCodeEditor ? 'w-full lg:w-1/2' : 'w-full max-w-4xl mx-auto') : (showCodeEditor ? 'w-full lg:w-1/4' : 'w-full lg:w-3/4')}`}>
+
+          <Card className="flex-1 flex flex-col overflow-hidden shadow-sm border-slate-200 h-full">
+
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold text-slate-800">Interview Conversation</h2>
+                {isRecording && <Badge variant="destructive" className="animate-pulse">Recording...</Badge>}
+              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                <RotateCcw className="w-4 h-4" />
               </Button>
             </div>
-          </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {conversation.map((message, index) => (
-              <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-lg p-3 ${message.type === 'ai'
-                  ? 'bg-muted text-muted-foreground'
-                  : 'bg-primary text-primary-foreground'
-                  }`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    {message.type === 'ai' ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                    <span className="text-xs opacity-70">
-                      {message.type === 'ai' ? 'AI Interviewer' : 'You'} • {message.timestamp}
-                    </span>
-                  </div>
-                  <p className="text-sm user-select-text whitespace-pre-wrap">{message.content}</p>
 
-                  {message.codeSubmission && (
-                    <div className="mt-2 p-2 bg-black/10 rounded border text-xs font-mono overflow-x-auto">
-                      {message.codeSubmission.substring(0, 100)}...
-                    </div>
-                  )}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
+              {conversation.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center opacity-60">
+                  <Bot className="w-12 h-12 text-slate-300 mb-3" />
+                  <p className="text-sm text-slate-500">The Ai is preparing your first question...</p>
                 </div>
-              </div>
-            ))}
-
-            {/* Typing Indicators */}
-            {isUserTyping && (
-              <div className="flex justify-end">
-                <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground">
-                  <User className="h-4 w-4 mb-1" />
-                  <div className="text-sm">
-                    {currentUserAnswer.split(" [interim]")[0] || "Listening..."}
-                    <span className="opacity-50">{currentUserAnswer.includes("[interim]") ? currentUserAnswer.split("[interim]")[1] : ""}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isAITyping && (
-              <div className="flex justify-start">
-                <div className="bg-muted p-3 rounded-lg text-sm flex items-center gap-2">
-                  <Bot className="h-4 w-4" />
-                  <span className="animate-pulse">AI is thinking...</span>
-                </div>
-              </div>
-            )}
-
-            <div ref={conversationEndRef} />
-          </div>
-
-          <div className="p-4 border-t">
-            <Button
-              onClick={handleToggleRecording}
-              className={`w-full ${isRecording ? 'bg-red-500 hover:bg-red-600' : ''}`}
-              size="lg"
-            >
-              {isRecording ? (
-                <>
-                  <MicOff className="h-4 w-4 mr-2" />
-                  Stop & Submit Answer
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4 mr-2" />
-                  Start Answer
-                </>
               )}
-            </Button>
-          </div>
+
+              {conversation.map((msg, i) => (
+                <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${msg.type === 'user'
+                    ? 'bg-slate-900 text-white rounded-tr-sm'
+                    : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+                    }`}>
+                    <div className="flex items-center gap-2 mb-2 opacity-70 text-[10px] uppercase font-bold tracking-wider">
+                      {msg.type === 'ai' ? <><Bot className="w-3 h-3" /> AI Interviewer</> : <><User className="w-3 h-3" /> You</>}
+                      <span>• {msg.timestamp}</span>
+                    </div>
+                    {msg.content}
+
+                  </div>
+                </div>
+              ))}
+
+
+              {isAITyping && (
+                <div className="flex items-center gap-2 text-xs text-slate-400 ml-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  AI is thinking...
+                </div>
+              )}
+              {isUserTyping && (
+                <div className="flex justify-end text-xs text-slate-400 mr-2">
+                  Listening... <span className="ml-1 animate-pulse">🎤</span>
+                </div>
+              )}
+              <div ref={conversationEndRef} />
+            </div>
+
+
+            <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-center gap-4">
+
+              {isRecording && (
+                <div className="flex items-center gap-1 h-8 px-4">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="w-1 bg-red-500 rounded-full animate-[pulse_0.5s_ease-in-out_infinite]" style={{ height: `${Math.random() * 100}%` }} />
+                  ))}
+                </div>
+              )}
+
+              <Button
+                size="lg"
+                onClick={handleToggleRecording}
+                disabled={isAITyping}
+                className={`rounded-full px-8 h-12 font-bold shadow-lg transition-all ${isRecording
+                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200'
+                  }`}
+              >
+                {isRecording ? <><MicOff className="w-4 h-4 mr-2" /> Stop Recording</> : <><Mic className="w-4 h-4 mr-2" /> Start Answer</>}
+              </Button>
+            </div>
+          </Card>
+
         </div>
 
-        {/* Right Panel - Code Editor */}
+
         {showCodeEditor && (
-          <div className="w-1/2 m-4 ml-0 flex flex-col bg-card rounded-lg border overflow-hidden">
-            <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
-              <h4 className="font-semibold flex items-center">
-                <Code className="h-4 w-4 mr-2" />
-                Code Editor
-              </h4>
-              <Badge variant="outline">javascript</Badge>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <CodeEditor
-                initialCode={currentCode}
-                initialLanguage={'javascript'}
-                onCodeChange={setCurrentCode}
-                className="h-full"
-                showFullscreenButton={true}
-              />
-            </div>
+          <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? 'w-full lg:w-1/2' : 'w-full lg:w-1/2'}`}>
+            <Card className="flex-1 h-full border-slate-200 overflow-hidden flex flex-col shadow-sm transition-all duration-500">
+              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-600 flex items-center gap-2"><Code className="w-3 h-3" /> Code Editor</span>
+                <Badge variant="outline" className="text-[10px] bg-white">JavaScript</Badge>
+              </div>
+              <div className="flex-1 relative">
+                <CodeEditor
+                  initialCode={currentCode}
+                  initialLanguage={'javascript'}
+                  onCodeChange={setCurrentCode}
+                  className="h-full border-none"
+                />
+              </div>
+            </Card>
+          </div>
+        )}
+
+
+        {layout === 'modern' && (
+          <div className={`flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-500 ${showCodeEditor ? 'w-full lg:w-1/3' : 'w-full lg:w-1/4'}`}>
+
+
+            <Card className={`overflow-hidden shadow-sm transition-all duration-300 ${isAITyping ? 'ring-2 ring-blue-500 shadow-blue-200 scale-[1.02]' : 'border-slate-200'}`}>
+              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isAITyping ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
+                <span>AI Interviewer ({interviewer})</span>
+                {isAITyping && <span className="text-[10px] uppercase font-extrabold animate-pulse">Speaking...</span>}
+              </div>
+              <div className="aspect-video bg-slate-50 relative flex items-center justify-center overflow-hidden">
+
+                {isAITyping && (
+                  <>
+                    <div className="absolute inset-0 bg-blue-500/5 animate-pulse" />
+                    <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping [animation-duration:2s]" />
+                    <div className="absolute w-32 h-32 bg-blue-500/20 rounded-full animate-ping [animation-duration:1.5s]" />
+                  </>
+                )}
+
+
+                <div className={`relative w-24 h-24 flex items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 z-10 ${isAITyping ? 'scale-110 ring-4 ring-blue-100' : ''}`}>
+                  <Bot className={`w-12 h-12 ${isAITyping ? 'text-blue-600' : 'text-slate-400'}`} />
+                </div>
+              </div>
+            </Card>
+
+
+            <Card className={`overflow-hidden shadow-sm flex-1 flex flex-col transition-all duration-300 ${isRecording ? 'ring-2 ring-green-500 shadow-green-200 scale-[1.02]' : 'border-slate-200'}`}>
+              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isRecording ? 'bg-green-50 border-green-100 text-green-800' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
+                <span>You</span>
+                <span className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border transition-all ${isRecording ? 'bg-green-500 text-white border-green-600' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-green-500 animate-pulse'}`} />
+                  {isRecording ? 'RECORDING' : 'LIVE'}
+                </span>
+              </div>
+              <div className="flex-1 bg-black relative overflow-hidden group">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover scale-x-[-1]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+
+
+                {isRecording && (
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 items-end h-12 px-8">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                      <div key={i} className="w-1.5 bg-green-400/80 rounded-t-full" style={{
+                        height: '20%',
+                        animation: `visualizer 0.5s ease-in-out infinite alternate`,
+                        animationDelay: `${i * 0.05}s`
+                      }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
           </div>
         )}
       </div>

@@ -1,16 +1,31 @@
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Course } from '@/pages/student/SkillTest';
+import ModernCard from '@/components/common/ModernCard';
 
 interface CourseSelectionProps {
   courses: Course[];
   onCourseSelect: (course: Course) => void;
 }
 
+const getCourseStyle = (id: string | number) => {
+  const styles = [
+    { bg: "bg-blue-50", text: "text-blue-600", gradient: "from-blue-500 to-indigo-600" },
+    { bg: "bg-purple-50", text: "text-purple-600", gradient: "from-purple-500 to-violet-600" },
+    { bg: "bg-emerald-50", text: "text-emerald-600", gradient: "from-emerald-500 to-teal-600" },
+    { bg: "bg-amber-50", text: "text-amber-600", gradient: "from-amber-500 to-orange-600" },
+    { bg: "bg-rose-50", text: "text-rose-600", gradient: "from-rose-500 to-pink-600" },
+    { bg: "bg-indigo-50", text: "text-indigo-600", gradient: "from-indigo-500 to-blue-600" },
+    { bg: "bg-cyan-50", text: "text-cyan-600", gradient: "from-cyan-500 to-sky-600" },
+  ];
+
+  // Simple hash to ensuring consistent color for the same course ID
+  const index = String(id).charCodeAt(0) % styles.length;
+  return styles[index];
+};
+
 const CourseSelection = ({ courses, onCourseSelect }: CourseSelectionProps) => {
   return (
-    <div className="p-6 animate-fade-in">
-      <div className="mb-8">
+    <div className="p-8 animate-fade-in max-w-[1600px] mx-auto">
+      <div className="mb-10">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           Skill Test
         </h1>
@@ -19,40 +34,29 @@ const CourseSelection = ({ courses, onCourseSelect }: CourseSelectionProps) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => (
-          <Card
-            key={course.id}
-            className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-card border border-gray-200 overflow-hidden"
-          >
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                {/* Course Icon */}
-                <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/10 to-teal-500/10 text-4xl">
-                  {course.icon}
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {courses.map((course) => {
+          const style = getCourseStyle(course.id);
 
-                {/* Course Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-semibold text-foreground mb-1 group-hover:text-blue-600 transition-colors truncate">
-                    {course.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {course.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Select Button */}
-              <Button
-                onClick={() => onCourseSelect(course)}
-                className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white transition-all duration-300"
-              >
-                Select Course
-              </Button>
-            </div>
-          </Card>
-        ))}
+          return (
+            <ModernCard
+              key={course.id}
+              title={course.name}
+              description={course.description}
+              icon={<span className="text-3xl">{course.icon}</span>}
+              iconClassName={`${style.bg} ${style.text}`}
+              gradientColor={style.gradient}
+              actionLabel="Select Course"
+              onAction={() => onCourseSelect(course)}
+              tags={[
+                { text: course.category || "General", variant: "secondary" }
+              ]}
+              footerItems={[
+                { icon: <span className="text-lg">📚</span>, text: `${course.topicCount || 0} Topics` }
+              ]}
+            />
+          );
+        })}
       </div>
     </div>
   );

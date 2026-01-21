@@ -8,6 +8,7 @@ import {
 import { fetchCourses } from '@/services/courseService';
 import type { Course } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
+import ModernCard from '@/components/common/ModernCard';
 
 interface CourseDashboardProps {
   onCourseSelect: (course: Course) => void;
@@ -27,14 +28,20 @@ const getIcon = (category: string) => {
   return icons[category as keyof typeof icons] || Code2;
 };
 
-const getIconColor = (category: string) => {
-  const colors = {
-    databases: 'bg-blue-100 text-blue-600',
-    programming_languages: 'bg-red-100 text-red-600',
-    fundamentals: 'bg-purple-100 text-purple-600',
-    ai_tools: 'bg-amber-100 text-amber-600',
-  };
-  return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-600';
+const getCourseStyle = (id: string | number) => {
+  const styles = [
+    { bg: "bg-blue-50", text: "text-blue-600", gradient: "from-blue-500 to-indigo-600" },
+    { bg: "bg-purple-50", text: "text-purple-600", gradient: "from-purple-500 to-violet-600" },
+    { bg: "bg-emerald-50", text: "text-emerald-600", gradient: "from-emerald-500 to-teal-600" },
+    { bg: "bg-amber-50", text: "text-amber-600", gradient: "from-amber-500 to-orange-600" },
+    { bg: "bg-rose-50", text: "text-rose-600", gradient: "from-rose-500 to-pink-600" },
+    { bg: "bg-indigo-50", text: "text-indigo-600", gradient: "from-indigo-500 to-blue-600" },
+    { bg: "bg-cyan-50", text: "text-cyan-600", gradient: "from-cyan-500 to-sky-600" },
+  ];
+
+  // Simple hash to ensuring consistent color for the same course ID
+  const index = String(id).charCodeAt(0) % styles.length;
+  return styles[index];
 };
 
 const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardProps) => {
@@ -55,7 +62,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
           solvedProblems: course.solved_problems || 0,
           totalScore: course.total_score || 0,
           aiHelpUsed: course.ai_help_used || 0,
-          iconColor: getIconColor(course.category),
+          iconColor: '', // Will be handled dynamically by getCourseStyle
           category: course.category,
         }));
 
@@ -99,7 +106,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
 
           <Button
             onClick={onViewAnalytics}
-            className="bg-gradient-to-r from-blue-500 to-teal-500 text-white border-0 hover:opacity-90"
+            className="bg-gradient-to-r from-blue-500 to-teal-500 text-white border-0 hover:opacity-90 shadow-md transition-transform hover:scale-105"
           >
             View Analytics
           </Button>
@@ -108,16 +115,17 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-          {/* Problems Solved */}
-          <Card className="bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6">
+          {/* Problems Solved (Green) */}
+          <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-green-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+            <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-green-600" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle2 className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Problems Solved</p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-slate-500 group-hover:text-green-600 transition-colors">Problems Solved</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-900">
                     {courses.reduce((sum, c) => sum + c.solvedProblems, 0)}
                   </p>
                 </div>
@@ -125,16 +133,17 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
             </CardContent>
           </Card>
 
-          {/* Total Score */}
-          <Card className="bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6">
+          {/* Total Score (Purple) */}
+          <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-purple-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+            <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <Trophy className="h-6 w-6 text-gray-700" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <Trophy className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total Score</p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-slate-500 group-hover:text-purple-600 transition-colors">Total Score</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-900">
                     {courses.reduce((sum, c) => sum + (c.totalScore || 0), 0)}
                   </p>
                 </div>
@@ -142,16 +151,17 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
             </CardContent>
           </Card>
 
-          {/* AI Help */}
-          <Card className="bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6">
+          {/* AI Help (Blue) */}
+          <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-blue-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+            <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-gray-700" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <Brain className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">AI Help Used</p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-slate-500 group-hover:text-blue-600 transition-colors">AI Help Used</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-900">
                     {courses.reduce((sum, c) => sum + (c.aiHelpUsed || 0), 0)}
                   </p>
                 </div>
@@ -159,16 +169,17 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
             </CardContent>
           </Card>
 
-          {/* Courses Available */}
-          <Card className="bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <CardContent className="p-6">
+          {/* Courses Available (Amber) */}
+          <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-amber-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+            <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <Target className="h-6 w-6 text-amber-600" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <Target className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Courses Available</p>
-                  <p className="text-3xl font-bold text-gray-900">{courses.length}</p>
+                  <p className="text-sm font-medium text-slate-500 group-hover:text-amber-600 transition-colors">Courses Available</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-900">{courses.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -177,60 +188,32 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
         </div>
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {courses.map(course => {
             const Icon = getIcon(course.category);
-            const iconColor = course.iconColor;
+            const style = getCourseStyle(course.id);
 
             return (
-              <Card
+              <ModernCard
                 key={course.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition hover:-translate-y-1 flex flex-col"
-              >
-                {/* Icon Section */}
-                <div className="p-6 pb-4 bg-gray-50">
-                  <div
-                    className={`w-14 h-14 rounded-xl flex items-center justify-center ${iconColor}`}
-                  >
-                    <Icon className="h-7 w-7" />
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <CardContent className="p-6 pt-4 flex flex-col gap-3 flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 min-h-[48px]">
-                    {course.name}
-                  </h3>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <span className="flex items-center gap-1.5">
-                      <Target className="h-4 w-4 text-amber-600" />
-                      {course.totalProblems}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      {course.solvedProblems} solved
-                    </span>
-                  </div>
-
-                  {/* Spacer pushes button down */}
-                  <div className="flex-1"></div>
-
-                  <Button
-                    onClick={() => onCourseSelect(course)}
-                    size="sm"
-                    className="w-full bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:opacity-90"
-                  >
-                    Start Practice
-                  </Button>
-                </CardContent>
-              </Card>
-
+                title={course.name}
+                description={`Master ${course.name} concepts with hands-on coding challenges and real-world scenarios.`}
+                icon={<Icon className="h-6 w-6" />}
+                iconClassName={`${style.bg} ${style.text}`}
+                gradientColor={style.gradient}
+                progress={course.progress}
+                tags={[
+                  { text: course.category.replace('_', ' '), variant: "secondary" }
+                ]}
+                footerItems={[
+                  { icon: <Target className="w-3.5 h-3.5" />, text: `${course.totalProblems} Problems` },
+                  { icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: `${course.solvedProblems} Solved` }
+                ]}
+                actionLabel="Start Practice"
+                onAction={() => onCourseSelect(course)}
+              />
             );
           })}
-
         </div>
 
       </div>

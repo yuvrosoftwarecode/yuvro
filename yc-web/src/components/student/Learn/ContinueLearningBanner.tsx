@@ -46,7 +46,7 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
                         <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600">
                             <BookOpen className="w-4 h-4" />
                         </span>
-                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600/80">Continue Learning</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600/80">Pick where you left off</span>
                     </div>
 
                     <div>

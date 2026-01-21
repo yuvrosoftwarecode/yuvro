@@ -6,22 +6,26 @@ interface Props {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
-const SearchBar: React.FC<Props> = ({ searchQuery, setSearchQuery, placeholder }) => {
+const SearchBar: React.FC<Props> = ({ searchQuery, setSearchQuery, placeholder, className = "" }) => {
   return (
-    <div className="relative w-full max-w-md border border-gray-200 rounded-lg">
-      {/* Search Icon */}
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+    <div className={`relative w-full max-w-lg transform hover:scale-105 transition-transform duration-300 ${className}`}>
+      {/* Ambient Glow */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl opacity-50" />
 
-      {/* Input */}
-      <Input
-        type="text"
-        placeholder={placeholder || "Search"}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="pl-10 h-[44px] rounded-lg border border-gray-200 w-full"
-      />
+      {/* Glassmorphic Container */}
+      <div className="relative bg-background/80 backdrop-blur-md rounded-full shadow-lg border border-white/20">
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder={placeholder || "Search"}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-12 h-14 rounded-full border-none bg-transparent focus-visible:ring-0 text-base placeholder:text-muted-foreground/70"
+        />
+      </div>
     </div>
   );
 };
