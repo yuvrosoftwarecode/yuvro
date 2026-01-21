@@ -277,6 +277,10 @@ class CodeEditorService {
   async getSupportedLanguagesAndTemplates(): Promise<any> {
     return restApiUtilCodeExecuter.get('/supported-languages-and-templates');
   }
+
+  async generateInsights(): Promise<{ insights: any[] }> {
+    return restApiAuthUtil.get('/course/student-code-practices/generate_insights/');
+  }
 }
 
 export default new CodeEditorService();

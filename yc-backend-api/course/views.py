@@ -37,6 +37,8 @@ from .serializers import (
     QuestionSerializer,
     StudentCodePracticeSerializer,
 )
+from ai_assistant.services import AIServiceFactory, AIServiceError
+from ai_assistant.models import AIAgent
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -1499,3 +1501,171 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @action(detail=False, methods=["get"])
+    def generate_insights(self, request):
+        """
+        Generate AI insights based on user's recent coding practice using `ai_assistant` service.
+        """
+        user = request.user
+        
+        # 1. Fetch recent submissions (last 20)
+        recent_submissions = StudentCodePractice.objects.filter(
+            user=user
+        ).order_by('-created_at')[:20]
+        
+        if not recent_submissions.exists():
+             return Response({
+                "insights": [],
+                "message": "No coding practice data available yet."
+            })
+
+        # 2. aggregate stats
+        total_submissions = recent_submissions.count()
+        languages = {}
+        error_types = {}
+        total_time = 0
+        success_count = 0
+        
+        problems_summary = []
+
+        for sub in recent_submissions:
+            # Language usage
+            lang = sub.language
+            languages[lang] = languages.get(lang, 0) + 1
+            
+            # Execution time
+            if sub.evaluation_results:
+                 # evaluation_results might be list (old) or dict (new)
+                 # Handle based on typical structure
+                 exec_time = 0
+                 if isinstance(sub.evaluation_results, dict):
+                     exec_time = sub.evaluation_results.get('execution_result', {}).get('execution_time', 0)
+                 total_time += exec_time
+
+            # Status/Success
+            # Check marks or status
+            is_success = sub.marks_obtained > 0 
+            if is_success:
+                success_count += 1
+            else:
+                # Collect errors if any
+                error = sub.execution_output 
+                if error and "Error" in error:
+                    # naive classification or just take first line
+                    err_line = error.split('\n')[0]
+                    error_types[err_line] = error_types.get(err_line, 0) + 1
+
+            problems_summary.append({
+                "problem": sub.question.title,
+                "language": lang,
+                "status": "Success" if is_success else "Failed",
+            })
+
+        avg_time = total_time / total_submissions if total_submissions > 0 else 0
+        success_rate = (success_count / total_submissions) * 100
+
+        # 3. Construct Prompt
+        prompt = f"""
+        Analyze the following coding practice data for a student and provide 4 specific, personalized insights in JSON format.
+        
+        Data Summary:
+        - Total Submissions: {total_submissions}
+        - Success Rate: {success_rate:.1f}%
+        - Average Execution Time: {avg_time:.4f}s
+        - Languages Used: {languages}
+        - Common Errors: {error_types}
+        - Recent Problem Attempt History: {problems_summary}
+
+        Required JSON Structure:
+        {{
+            "insights": [
+                {{
+                    "type": "strength", 
+                    "title": "Short Title", 
+                    "description": "2 sentence explanation", 
+                    "icon_name": "TrendingUp"
+                }},
+                {{
+                    "type": "weakness", 
+                    "title": "Short Title", 
+                    "description": "2 sentence explanation", 
+                    "icon_name": "BookOpen"
+                }},
+                {{
+                    "type": "recommendation", 
+                    "title": "Short Title", 
+                    "description": "Actionable advice", 
+                    "icon_name": "Lightbulb"
+                }},
+                {{
+                    "type": "trend", 
+                    "title": "Short Title", 
+                    "description": "Observation about progress", 
+                    "icon_name": "TrendingUp"
+                }}
+            ]
+        }}
+        
+        Ensure "type" is strictly one of: 'strength', 'weakness', 'recommendation', 'trend'.
+        """
+
+        # 4. Call AI Service
+        try:
+            # Find an active agent
+            agent = AIAgent.objects.filter(is_active=True).first()
+            if not agent:
+                 # Fallback if no agent in DB, but we need one. 
+                 # For now, return error or mock if forced.
+                 return Response({"error": "No active AI agent configured."}, status=503)
+
+            ai_service = AIServiceFactory.create_service(agent.provider, agent.model_name)
+            
+            # Using async wrapper as seen in other views
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                response_data = loop.run_until_complete(
+                    ai_service.generate_response(
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.7,
+                        max_tokens=1000
+                    )
+                )
+            finally:
+                loop.close()
+            
+            ai_text = response_data.get('response', '{}')
+            
+            # Extract JSON from markdown code blocks if present
+            import re
+            json_match = re.search(r'```json\s*(.*?)\s*```', ai_text, re.DOTALL)
+            if json_match:
+                ai_text = json_match.group(1)
+            elif '```' in ai_text:
+                 # Check for generic block
+                 json_match = re.search(r'```\s*(.*?)\s*```', ai_text, re.DOTALL)
+                 if json_match:
+                    ai_text = json_match.group(1)
+
+            import json
+            try:
+                insights_data = json.loads(ai_text)
+                # Ensure valid structure
+                if "insights" not in insights_data:
+                     # try to look if it returned a list directly
+                     if isinstance(insights_data, list):
+                         insights_data = {"insights": insights_data}
+                     else:
+                         insights_data = {"insights": []}
+            except json.JSONDecodeError:
+                # Fallback or retry? for now just return empty with error message
+                print("Failed to parse AI JSON response:", ai_text)
+                return Response({"error": "Failed to parse AI response"}, status=500)
+
+            return Response(insights_data)
+
+        except AIServiceError as e:
+             return Response({"error": f"AI Service Error: {str(e)}"}, status=503)
+        except Exception as e:
+             return Response({"error": f"Unexpected Error: {str(e)}"}, status=500)
