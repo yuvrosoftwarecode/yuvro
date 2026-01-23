@@ -273,7 +273,6 @@ const CodePractice = () => {
             {currentView === 'insights' && (
               <AIInsights
                 onBack={() => setCurrentView('analytics')}
-                onGeneratePracticeSet={() => setCurrentView('topics')}
               />
             )}
           </>
