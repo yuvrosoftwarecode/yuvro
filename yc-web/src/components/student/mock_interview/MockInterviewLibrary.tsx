@@ -37,6 +37,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
 
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastSessionId, setLastSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMockInterviews = async () => {
@@ -124,11 +125,18 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   };
 
   const handleExitInterview = () => {
+    if (interviewSettings?.mediaStream) {
+      interviewSettings.mediaStream.getTracks().forEach(track => track.stop());
+    }
     setShowInterviewScreen(false);
     setShowThankYouScreen(true); // Show thank you page when exiting
   };
 
-  const handleInterviewComplete = (role: Role, difficulty: string, duration: string) => {
+  const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sessionId: string) => {
+    if (interviewSettings?.mediaStream) {
+      interviewSettings.mediaStream.getTracks().forEach(track => track.stop());
+    }
+    setLastSessionId(sessionId);
     setShowInterviewScreen(false);
     setShowThankYouScreen(true);
   };
@@ -204,6 +212,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
         duration={interviewSettings.duration}
         onTryAgain={handleTryAgain}
         onBackToLibrary={handleBackToLibrary}
+        sessionId={lastSessionId}
       />
     );
   }

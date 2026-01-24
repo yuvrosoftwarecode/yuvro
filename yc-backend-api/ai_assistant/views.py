@@ -13,6 +13,8 @@ from .models import (
     ChatMessage,
     AIAgentUsage,
     AIAgentConfiguration,
+    InterviewSession,
+    InterviewReport,
 )
 from .serializers import (
     AIAgentSerializer,
@@ -23,8 +25,10 @@ from .serializers import (
     AIAgentConfigurationSerializer,
     ChatRequestSerializer,
     ChatResponseSerializer,
+    InterviewSessionSerializer,
+    InterviewReportSerializer,
 )
-from .services import AIServiceFactory, AIServiceError
+from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
 
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -214,8 +218,30 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         """Prepare messages for AI service."""
         messages = []
 
-        # Add system prompt if configured
-        if user_config and user_config.system_prompt:
+        # Check if this is a mock interview session and inject specialized persona
+        if chat_session.page == "mock_interview":
+            context = chat_session.context
+            role = context.get("role", "Software Engineer")
+            level = context.get("level", "Intermediate")
+            difficulty = context.get("difficulty", "Medium")
+
+            interview_prompt = (
+                f"You are an expert technical interviewer conducting a mock interview for the role of {role} ({level} Level). "
+                f"Your goal is to assess the candidate's skills, knowledge, and problem-solving abilities. "
+                f"Difficulty Level: {difficulty}.\n\n"
+                "Guidelines:\n"
+                "1. Ask ONE clear question at a time. Do not ask multiple questions in a single turn.\n"
+                "2. If this is the start of the conversation, begin with a relevant opening question about their background or a core concept.\n"
+                "3. If the candidate provides a vague answer, ask follow-up probing questions.\n"
+                "4. Maintain a professional, encouraging, but rigorous tone.\n"
+                f"5. Focus on topics specifically relevant to {role}.\n"
+                "6. Keep your responses concise (under 100 words) to mimic a real-time conversation.\n"
+                "7. Do not provide improved answers or long explanations unless the candidate explicitly gives up.\n"
+            )
+            messages.append({"role": "system", "content": interview_prompt})
+
+        # Add user-configured system prompt (if not in interview mode, or as secondary instruction)
+        elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
         # Add conversation history
@@ -414,3 +440,129 @@ class ChatViewSet(viewsets.ViewSet):
                 )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InterviewSessionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Interview Sessions.
+    """
+
+    permission_classes = [IsAuthenticatedUser]
+    serializer_class = InterviewSessionSerializer
+
+    def get_queryset(self):
+        """
+        Users see their own interviews.
+        Admins can see all interviews.
+        """
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return InterviewSession.objects.all().select_related("report", "chat_session")
+        return InterviewSession.objects.filter(user=self.request.user).select_related("report", "chat_session")
+
+    def perform_create(self, serializer):
+        """
+        When creating an interview session, we also need to create a ChatSession
+        and link it.
+        """
+        # 1. Create a ChatSession
+        # We need an AI Agent. For now, we pick the first active Gemini agent or create a default one.
+        # Ideally, the frontend should pass the preferred agent_id, but we'll default it here.
+        ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
+        if not ai_agent:
+            # Fallback for dev env for now
+            ai_agent = AIAgent.objects.first()
+            if not ai_agent:
+                raise serializers.ValidationError("No active AI Agent found for interview. Please configure at least one agent.")
+
+        chat_session = ChatSession.objects.create(
+            user=self.request.user,
+            ai_agent=ai_agent,
+            title=f"Mock Interview - {serializer.validated_data.get('role_title', 'General')}",
+            page="mock_interview",
+            context={
+                "role": serializer.validated_data.get('role_title'),
+                "level": serializer.validated_data.get('role_level'),
+                "difficulty": serializer.validated_data.get('difficulty'),
+            }
+        )
+
+        # 2. Save InterviewSession with the linked ChatSession
+        serializer.save(user=self.request.user, chat_session=chat_session)
+
+    @action(detail=True, methods=["post"])
+    def end_interview(self, request, pk=None):
+        """
+        End the interview, mark as completed, and trigger report generation.
+        """
+        interview_session = self.get_object()
+
+        if interview_session.status == "completed":
+            return Response(
+                {"detail": "Interview already completed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update status
+        interview_session.status = "completed"
+        interview_session.completed_at = timezone.now()
+        interview_session.save()
+
+        # Generate Report
+        try:
+            report_generator = InterviewReportGenerator()
+            
+            # Read resume content if file exists
+            resume_text = None
+            if interview_session.resume_file:
+                try:
+                    # Basic text extraction from PDF could go here.
+                    # For now, we will skip complex PDF parsing and just pass "Resume provided"
+                    # or implement a simple PDF reader if libraries available.
+                    # We'll stick to a placeholder to avoid dependency issues for this slice.
+                    resume_text = "The candidate has provided a resume file." 
+                except Exception:
+                    pass
+
+            # Prepare conversation text synchronously
+            messages = interview_session.chat_session.messages.order_by("created_at")
+            conversation_text = ""
+            for msg in messages:
+                role = "Interviewer" if msg.message_type != "user" else "Candidate"
+                conversation_text += f"{role}: {msg.content}\n\n"
+
+            # Run async generation in sync context
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                report_data = loop.run_until_complete(
+                    report_generator.generate_report(
+                        conversation_text, resume_content=resume_text
+                    )
+                )
+            finally:
+                loop.close()
+
+            # Create Report object
+            InterviewReport.objects.create(
+                interview_session=interview_session,
+                overall_score=report_data.get("overall_score", 0),
+                feedback_summary=report_data.get("feedback_summary", ""),
+                performance_metrics=report_data.get("performance_metrics", {}),
+                skill_analysis=report_data.get("skill_analysis", {}),
+                question_analysis=report_data.get("question_analysis", []),
+                key_takeaways=report_data.get("key_takeaways", {}),
+                meta_stats=report_data.get("meta_stats", {})
+            )
+
+            return Response(
+                {"detail": "Interview ended and report generated successfully."},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            # logger.error(f"Error generating report: {str(e)}") # logger not imported at top level in snippet view
+            print(f"Error generating report: {str(e)}")
+            return Response(
+                {"detail": "Interview ended but report generation failed.", "error": str(e)},
+                status=status.HTTP_200_OK, # Soft fail, we still ended the interview
+            )

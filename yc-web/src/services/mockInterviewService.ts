@@ -175,6 +175,42 @@ class MockInterviewService {
       throw error;
     }
   }
+
+  // --- New Methods for Interview Sessions ---
+
+  async createInterviewSession(roleTitle: string, roleLevel: string, difficulty: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.post<any>('/interviews/', {
+        role_title: roleTitle,
+        role_level: roleLevel,
+        difficulty: difficulty
+      });
+      return response;
+    } catch (error) {
+      console.error('Error creating interview session:', error);
+      throw error;
+    }
+  }
+
+  async endInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.post<any>(`/interviews/${sessionId}/end_interview/`, {});
+      return response;
+    } catch (error) {
+      console.error('Error ending interview session:', error);
+      throw error;
+    }
+  }
+
+  async getInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/interviews/${sessionId}/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching interview session:', error);
+      throw error;
+    }
+  }
 }
 
 export const mockInterviewService = new MockInterviewService();

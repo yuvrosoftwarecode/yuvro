@@ -17,7 +17,8 @@ interface InterviewScreenProps {
   mediaStream: MediaStream;
   resume?: File;
   onExit: () => void;
-  onInterviewComplete: (role: Role, difficulty: string, duration: string) => void;
+  onExit: () => void;
+  onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
 
 const InterviewScreen: React.FC<InterviewScreenProps> = ({
@@ -39,6 +40,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
 
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
@@ -47,6 +49,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const initializedRef = useRef(false);
 
 
   const speakText = (text: string) => {
@@ -119,15 +122,21 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     setTimeLeft(seconds);
 
     const initInterview = async () => {
+      if (initializedRef.current) return;
+      initializedRef.current = true;
+
       try {
         setIsAITyping(true);
 
-        const response = await mockInterviewService.startInterview(
-          role.id,
-          difficulty,
-          getDurationInSeconds(duration) / 60,
-          resume
+        const response = await mockInterviewService.createInterviewSession(
+          role.title,
+          role.level || "Intermediate",
+          difficulty
         );
+
+        if (response.id) {
+          setInterviewSessionId(response.id);
+        }
 
         if (response.chat_session_id) {
           setChatSessionId(response.chat_session_id);
@@ -172,7 +181,18 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       try { recognitionRef.current.stop(); } catch (e) { }
     }
     window.speechSynthesis.cancel();
-    onExit();
+    window.speechSynthesis.cancel();
+
+    if (interviewSessionId) {
+      mockInterviewService.endInterviewSession(interviewSessionId).then(() => {
+        onInterviewComplete(role, difficulty, duration, interviewSessionId);
+      }).catch(err => {
+        console.error("Error ending interview session", err);
+        onExit();
+      });
+    } else {
+      onExit();
+    }
   };
 
 
@@ -278,7 +298,11 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         cleanAnswer = "I have written the code in the editor.";
       }
 
-      const combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : "");
+      let combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : "");
+
+      if (!combinedAnswer.trim()) {
+        combinedAnswer = "(No verbal answer provided)";
+      }
 
       const userMessage: Message = {
         type: 'user',
@@ -336,9 +360,9 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
 
         <div className="flex items-center gap-4 justify-self-start">
-          <Button variant="ghost" size="sm" onClick={onExit} className="text-slate-500 hover:text-slate-900">
+          <Button variant="ghost" size="sm" onClick={handleEndInterview} className="text-slate-500 hover:text-slate-900">
             <LogOut className="w-4 h-4 mr-2" />
-            Exit
+            Finish & Exit
           </Button>
           <div className="h-4 w-px bg-slate-200" />
           <div className="flex items-center gap-2">

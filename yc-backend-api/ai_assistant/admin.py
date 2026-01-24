@@ -5,6 +5,8 @@ from .models import (
     ChatMessage,
     AIAgentUsage,
     AIAgentConfiguration,
+    InterviewSession,
+    InterviewReport,
 )
 
 
@@ -209,3 +211,37 @@ class AIAgentConfigurationAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimize queryset with select_related."""
         return super().get_queryset(request).select_related("user", "ai_agent")
+
+
+@admin.register(InterviewSession)
+class InterviewSessionAdmin(admin.ModelAdmin):
+    """
+    Admin interface for InterviewSession model.
+    """
+
+    list_display = [
+        "role_title",
+        "user",
+        "status",
+        "duration_minutes",
+        "created_at",
+        "completed_at",
+    ]
+    list_filter = ["status", "difficulty", "role_level", "created_at"]
+    search_fields = ["role_title", "user__username", "user__email"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    ordering = ["-created_at"]
+
+
+@admin.register(InterviewReport)
+class InterviewReportAdmin(admin.ModelAdmin):
+    """
+    Admin interface for InterviewReport model.
+    """
+
+    list_display = [
+        "interview_session",
+        "overall_score",
+        "created_at",
+    ]
+    ordering = ["-created_at"]

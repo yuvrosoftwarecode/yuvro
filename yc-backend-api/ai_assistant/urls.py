@@ -6,7 +6,9 @@ from .views import (
     ChatMessageViewSet,
     AIAgentUsageViewSet,
     AIAgentConfigurationViewSet,
+    AIAgentConfigurationViewSet,
     ChatViewSet,
+    InterviewSessionViewSet,
 )
 
 # Create a router and register our viewsets with it
@@ -19,6 +21,7 @@ router.register(
     r"configurations", AIAgentConfigurationViewSet, basename="aiagentconfiguration"
 )
 router.register(r"chat", ChatViewSet, basename="chat")
+router.register(r"interviews", InterviewSessionViewSet, basename="interviewsession")
 
 # The API URLs are now determined automatically by the router
 urlpatterns = [

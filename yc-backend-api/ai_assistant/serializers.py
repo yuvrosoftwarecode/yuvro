@@ -6,6 +6,8 @@ from .models import (
     ChatMessage,
     AIAgentUsage,
     AIAgentConfiguration,
+    InterviewSession,
+    InterviewReport,
 )
 
 
@@ -242,3 +244,61 @@ class ChatResponseSerializer(serializers.Serializer):
     tokens_used = serializers.IntegerField(required=False)
     response_time_ms = serializers.IntegerField(required=False)
     metadata = serializers.JSONField(required=False, default=dict)
+
+
+class InterviewReportSerializer(serializers.ModelSerializer):
+    """
+    Serializer for InterviewReport model.
+    """
+
+    class Meta:
+        model = InterviewReport
+        fields = [
+            "id",
+            "interview_session",
+            "overall_score",
+            "feedback_summary",
+            "performance_metrics",
+            "skill_analysis",
+            "question_analysis",
+            "key_takeaways",
+            "meta_stats",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class InterviewSessionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for InterviewSession model.
+    """
+
+    report = InterviewReportSerializer(read_only=True)
+    chat_session_id = serializers.UUIDField(source="chat_session.id", read_only=True)
+
+    class Meta:
+        model = InterviewSession
+        fields = [
+            "id",
+            "user",
+            "chat_session",
+            "chat_session_id",
+            "role_title",
+            "role_level",
+            "difficulty",
+            "duration_minutes",
+            "status",
+            "resume_file",
+            "report",
+            "created_at",
+            "updated_at",
+            "completed_at",
+        ]
+        read_only_fields = [
+            "id",
+            "created_at",
+            "updated_at",
+            "chat_session",
+            "report",
+            "user",
+        ]

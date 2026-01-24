@@ -1,30 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ArrowLeft,
-  RotateCcw,
   TrendingUp,
-  TrendingDown,
-  MessageSquare,
-  Code,
-  Clock,
   Target,
-  Star,
-  Bot,
-  Send,
   FileText,
-  Award,
   Calendar,
-  User,
+  Loader2,
+  Share2,
+  RotateCcw,
+  Bot,
   CheckCircle,
-  BarChart3
+  AlertCircle
 } from 'lucide-react';
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip
+} from 'recharts';
+import { mockInterviewService } from '@/services/mockInterviewService';
 
 interface ReportsScreenProps {
   role: {
@@ -33,166 +36,89 @@ interface ReportsScreenProps {
   };
   difficulty: string;
   duration: string;
-  // Make these optional for now to maintain backward compatibility during refactor
-  interviewData?: {
-    position: string;
-    round: string;
-    duration: string;
-    interviewer: string;
-    practicedOn: string;
-  };
-  overallScore?: number;
-  performanceMetrics?: {
-    communication: number;
-    technicalSkills: number;
-    problemSolving: number;
-    confidence: number;
-    [key: string]: number;
-  };
-  questionAnalysis?: QuestionAnalysis[];
-
+  sessionId?: string | null;
   onTryAgain: () => void;
   onBackToLibrary: () => void;
 }
 
-export interface QuestionAnalysis {
-  id: number;
-  question: string;
-  type: 'behavioral' | 'coding';
-  userAnswer: string;
-  aiScore: number;
-  whatWentWell: string[];
-  whatCouldBeBetter: string[];
-  missingTerminologies: string[];
-  recommendedResponse: string;
-}
-
-interface ChatMessage {
-  id: number;
-  type: 'user' | 'ai';
-  message: string;
-  timestamp: Date;
+interface ReportData {
+  overall_score: number;
+  feedback_summary: string;
+  performance_metrics: Record<string, number>;
+  skill_analysis: Record<string, { score: number; feedback: string }>;
+  question_analysis: any[];
+  key_takeaways: {
+    strengths: string[];
+    improvements: string[];
+  };
+  meta_stats: any;
+  interview_session: any;
+  created_at: string;
 }
 
 const ReportsScreen: React.FC<ReportsScreenProps> = ({
   role,
   difficulty,
   duration,
-  interviewData = {
-    position: role.title,
-    round: "Comprehensive",
-    duration: duration,
-    interviewer: "AI Assistant",
-    practicedOn: new Date().toLocaleString()
-  },
-  overallScore = 75,
-  performanceMetrics = {
-    communication: 80,
-    technicalSkills: 70,
-    problemSolving: 75,
-    confidence: 78
-  },
-  questionAnalysis = [
-    {
-      id: 1,
-      question: "Can you give an example of how you have handled stress in a challenging academic or work situation?",
-      type: 'behavioral',
-      userAnswer: "I balance my stress, you know, um, noting down all the task which I have received from my manager and make a plan according to it. So, I take regular, you know, mid, mid intervals in between of my work. Um, and I always love to, you know, make a time table and work accordingly. That's how I release most, I cannot take most of the stress on me.",
-      aiScore: 65,
-      whatWentWell: [
-        "You mentioned planning and task management as a way to handle stress, which is a practical approach.",
-        "You touched upon the importance of taking breaks, indicating an awareness of the need for self-care."
-      ],
-      whatCouldBeBetter: [
-        "You could have provided a specific example of a challenging situation and how you applied your strategies. For instance, describe a time when you had multiple deadlines and how your planning and breaks helped you manage the workload effectively.",
-        "You could elaborate on the types of breaks you take and how they help you to de-stress. For example, do you meditate, take a walk, or engage in a hobby?",
-        "You could have discussed additional stress-management techniques you use, such as mindfulness, exercise, or seeking support from colleagues or supervisors.",
-        "You could have quantified the impact of your stress management techniques. For example, 'By implementing these strategies, I was able to complete all tasks on time and reduce my stress levels by X%'."
-      ],
-      missingTerminologies: [
-        "Prioritization techniques (e.g. Eisenhower Matrix)",
-        "Mindfulness",
-        "Time management frameworks (e.g. Pomodoro Technique)",
-        "Seeking support/delegation"
-      ],
-      recommendedResponse: "Situation: As an HR intern, I was coordinating a training program while the HR Director was unexpectedly absent due to a family emergency.\n\nTask: I had to manage the increased workload and tight deadlines for both the training program and the Director's responsibilities.\n\nAction: I created a prioritized task list using the Eisenhower Matrix, delegated simpler tasks to other team members, triaged emails based on urgency, scheduled meetings efficiently, implemented time-blocking techniques with 25-minute focused work sessions followed by 5-minute breaks, and used time-blocking techniques with 25-minute focused work sessions followed by 5-minute breaks.\n\nResult: The training program was executed successfully, the HR department ran smoothly, and I learned valuable lessons about prioritization, delegation, communication, and the benefits of short, focused breaks."
-    },
-    {
-      id: 2,
-      question: "Tell me about a time when you had to work under pressure.",
-      type: 'behavioral',
-      userAnswer: "During my final semester, I had three major projects due within a week. I created a detailed schedule, prioritized tasks based on complexity and deadlines, and worked systematically through each project.",
-      aiScore: 78,
-      whatWentWell: [
-        "Good structure and organization in your approach",
-        "You mentioned specific strategies like scheduling and prioritization"
-      ],
-      whatCouldBeBetter: [
-        "Could provide more specific details about the outcome",
-        "Missing quantifiable results of your approach"
-      ],
-      missingTerminologies: [
-        "STAR method implementation",
-        "Stress management techniques"
-      ],
-      recommendedResponse: "Using the STAR method: Situation - Faced three major projects in final semester. Task - Complete all within one week deadline. Action - Created detailed schedule, prioritized by complexity, allocated time blocks. Result - Successfully delivered all projects on time with high grades."
-    }
-  ],
+  sessionId,
   onTryAgain,
   onBackToLibrary
 }) => {
-  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
-  const [showChatbot, setShowChatbot] = useState(true);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      type: 'ai',
-      message: "Hello! I'm here to help you understand your interview performance. Feel free to ask me any questions about your responses or how to improve.",
-      timestamp: new Date()
-    }
-  ]);
-  const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [report, setReport] = useState<ReportData | null>(null);
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number>(0);
 
+  useEffect(() => {
+    const fetchReport = async () => {
+      if (!sessionId) {
+        setError("No session ID provided.");
+        setLoading(false);
+        return;
+      }
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+      try {
+        let attempts = 0;
+        const maxAttempts = 10;
 
-    const userMessage: ChatMessage = {
-      id: chatMessages.length + 1,
-      type: 'user',
-      message: newMessage,
-      timestamp: new Date()
+        // Poll for report completion
+        const poll = async () => {
+          try {
+            const sessionData = await mockInterviewService.getInterviewSession(sessionId);
+
+            if (sessionData.report) {
+              setReport({
+                ...sessionData.report,
+                interview_session: {
+                  ...sessionData,
+                  report: undefined // avoid circular ref or duplication
+                }
+              });
+              setLoading(false);
+            } else if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(poll, 2000); // Poll every 2 seconds
+            } else {
+              setError("Report generation timed out. Please check back later.");
+              setLoading(false);
+            }
+          } catch (err) {
+            console.error(err);
+            setError("Failed to fetch report data.");
+            setLoading(false);
+          }
+        };
+
+        poll();
+      } catch (err) {
+        console.error(err);
+        setError("Failed to initialize report fetching.");
+        setLoading(false);
+      }
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: chatMessages.length + 2,
-        type: 'ai',
-        message: generateAIResponse(newMessage),
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-
-    setNewMessage('');
-  };
-
-  const generateAIResponse = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-
-    if (lowerMessage.includes('improve') || lowerMessage.includes('better')) {
-      return "Based on your interview performance, I recommend focusing on using the STAR method for behavioral questions and providing more specific examples with quantifiable results. Practice articulating your experiences more clearly.";
-    } else if (lowerMessage.includes('score') || lowerMessage.includes('performance')) {
-      return "Your overall score of 75% shows good performance with room for improvement. Your communication skills are particularly strong at 80%, while technical skills could use some enhancement.";
-    } else if (lowerMessage.includes('stress') || lowerMessage.includes('pressure')) {
-      return "For stress management questions, try to include specific frameworks like the Eisenhower Matrix, mention mindfulness techniques, and always quantify your results. The STAR method works great for these behavioral questions.";
-    }
-
-    return "That's a great question! I'd recommend reviewing the detailed feedback for each question and focusing on the missing terminologies highlighted in your responses. Practice using the STAR method to structure your answers better.";
-  };
+    fetchReport();
+  }, [sessionId]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";
@@ -200,375 +126,374 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
     return "text-red-600";
   };
 
-  const getScoreIcon = (score: number) => {
-    if (score >= 80) return <TrendingUp className="w-4 h-4 text-green-600" />;
-    if (score >= 60) return <Target className="w-4 h-4 text-yellow-600" />;
-    return <TrendingDown className="w-4 h-4 text-red-600" />;
+  const getScoreBgColor = (score: number) => {
+    if (score >= 80) return "bg-green-100 dark:bg-green-900/30";
+    if (score >= 60) return "bg-yellow-100 dark:bg-yellow-900/30";
+    return "bg-red-100 dark:bg-red-900/30";
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="relative w-24 h-24 mx-auto">
+            <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+            <Loader2 className="absolute inset-0 m-auto w-8 h-8 text-blue-600 animate-pulse" />
+          </div>
+          <h2 className="text-xl font-semibold text-slate-800">Generating Your AI Analysis...</h2>
+          <p className="text-slate-500 max-w-sm mx-auto">
+            Our AI is analyzing your responses, body language, and technical accuracy.
+            This usually takes about 10-20 seconds.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !report) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+            <h2 className="text-lg font-semibold text-slate-800">Something went wrong</h2>
+            <p className="text-slate-500">{error || "Report data unavailable"}</p>
+            <Button onClick={onBackToLibrary} variant="outline">
+              Back to Library
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Prepare Radar Data
+  const radarData = Object.entries(report.performance_metrics || {}).map(([key, value]) => ({
+    subject: key,
+    A: value,
+    fullMark: 100
+  }));
+
+  // Prepare Question Analysis
+  const currentQuestion = report.question_analysis?.[selectedQuestionIndex];
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 font-sans selection:bg-blue-100">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Report Download Section */}
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur-xl ring-1 ring-slate-200/50">
-          <CardContent className="p-8">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 mb-2">Interview Report</h2>
-                <p className="text-slate-500 font-medium">Your detailed interview analysis and feedback</p>
-              </div>
-              <Button size="lg" className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-                <FileText className="w-4 h-4 mr-2" />
-                Download PDF
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
 
-        {/* Main Tabs */}
-        <Tabs defaultValue="overall" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="overall">Overall Performance</TabsTrigger>
-            <TabsTrigger value="questions">Question Based Performance</TabsTrigger>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                {role.level}
+              </Badge>
+              <Badge variant="outline" className="bg-slate-100 text-slate-600">
+                {duration} mins
+              </Badge>
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900">{role.title} Interview Report</h1>
+            <p className="text-slate-500 text-sm mt-1 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Completed on {new Date(report.created_at).toLocaleDateString()} at {new Date(report.created_at).toLocaleTimeString()}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="gap-2" onClick={onTryAgain}>
+              <RotateCcw className="w-4 h-4" />
+              Retry
+            </Button>
+            <Button className="gap-2 bg-slate-900 hover:bg-slate-800">
+              <Share2 className="w-4 h-4" />
+              Share Report
+            </Button>
+          </div>
+        </div>
+
+        {/* Top Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Overall Score Circle */}
+          <Card className="md:col-span-1 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-3 opacity-10">
+              <Target className="w-24 h-24" />
+            </div>
+            <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[200px]">
+              <div className="relative flex items-center justify-center w-32 h-32">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    className="text-slate-100"
+                    strokeWidth="12"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="56"
+                    cx="64"
+                    cy="64"
+                  />
+                  <circle
+                    className={`${getScoreColor(report.overall_score)} transition-all duration-1000 ease-out`}
+                    strokeWidth="12"
+                    strokeDasharray={351.86}
+                    strokeDashoffset={351.86 - (351.86 * report.overall_score) / 100}
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="transparent"
+                    r="56"
+                    cx="64"
+                    cy="64"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center">
+                  <span className={`text-3xl font-bold ${getScoreColor(report.overall_score)}`}>
+                    {Math.round(report.overall_score)}%
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">Score</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Feedback Summary */}
+          <Card className="md:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-500" />
+                Executive Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {report.feedback_summary || "No summary available."}
+              </p>
+
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-green-700 font-medium mb-1 text-sm">
+                    <CheckCircle className="w-4 h-4" /> Top Strength
+                  </div>
+                  <p className="text-xs text-green-800 font-medium">
+                    {report.key_takeaways?.strengths?.[0] || "Analysis pending"}
+                  </p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-orange-700 font-medium mb-1 text-sm">
+                    <Target className="w-4 h-4" /> Focus Area
+                  </div>
+                  <p className="text-xs text-orange-800 font-medium">
+                    {report.key_takeaways?.improvements?.[0] || "Analysis pending"}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Radar Chart */}
+          <Card className="md:col-span-1">
+            <CardHeader className="pb-0">
+              <CardTitle className="text-sm text-slate-500 font-medium text-center">Skill Balance</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[200px] w-full p-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                  <PolarGrid stroke="#e2e8f0" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10 }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                  <Radar
+                    name="Skills"
+                    dataKey="A"
+                    stroke="#2563eb"
+                    strokeWidth={2}
+                    fill="#3b82f6"
+                    fillOpacity={0.3}
+                  />
+                  <RechartsTooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Detailed Analysis Tabs */}
+        <Tabs defaultValue="questions" className="space-y-6">
+          <TabsList className="bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+            <TabsTrigger value="questions" className="rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900">
+              Question Analysis
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900">
+              Skill Breakdown
+            </TabsTrigger>
+            <TabsTrigger value="transcript" className="rounded-lg data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900">
+              Transcript
+            </TabsTrigger>
           </TabsList>
 
-          {/* Overall Performance Tab */}
-          <TabsContent value="overall">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Interview Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Interview Summary
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Position:</span>
-                      <div className="font-semibold">{interviewData.position}</div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Round:</span>
-                      <div className="font-semibold">{interviewData.round}</div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Duration:</span>
-                      <div className="font-semibold">{interviewData.duration}</div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Interviewer:</span>
-                      <div className="font-semibold">{interviewData.interviewer}</div>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Practiced On:</span>
-                    <div className="font-semibold">{interviewData.practicedOn}</div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Overall Score */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="w-5 h-5" />
-                    Overall Score
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="text-4xl font-bold flex items-center justify-center gap-2 mb-2">
-                    <span className={getScoreColor(overallScore)}>{overallScore}%</span>
-                    {getScoreIcon(overallScore)}
-                  </div>
-                  <p className="text-muted-foreground mb-4">Overall Interview Score</p>
-                  <div className="text-center">
-                    <p className="font-medium text-lg">Good Performance!</p>
-                    <p className="text-muted-foreground">Above average candidate</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Performance Metrics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Performance Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {Object.entries(performanceMetrics).map(([key, value]) => (
-                      <div key={key} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium capitalize text-sm">{key.replace(/([A-Z])/g, ' $1')}</span>
-                          <span className="text-muted-foreground text-sm">{value}%</span>
-                        </div>
-                        <Progress value={value} className="h-2" />
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Feedback and Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              {/* Key Strengths */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                    Key Strengths
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Strong communication skills with clear articulation</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Good understanding of behavioral question frameworks</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Demonstrated problem-solving approach in responses</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Showed confidence in handling challenging situations</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Areas for Improvement */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-orange-600" />
-                    Areas for Improvement
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Use more specific examples with quantifiable results</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Implement STAR method more consistently</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Reduce filler words and improve articulation</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                      <span className="text-sm">Include more industry-specific terminologies</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Question Based Performance Tab */}
-          <TabsContent value="questions">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              {/* Question Numbers and Analysis */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Question Numbers + Content in fixed-height card */}
-                <Card className="h-[700px] flex flex-col">
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <div className="flex items-center gap-4 mb-6">
-                      {questionAnalysis.map((_, index) => (
-                        <Button
-                          key={index}
-                          variant={selectedQuestion === index ? "default" : "outline"}
-                          onClick={() => setSelectedQuestion(index)}
-                          className="w-12 h-12 rounded-lg"
+          {/* Question Analysis Tab */}
+          <TabsContent value="questions" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Question Navigation */}
+              <div className="lg:col-span-3 space-y-4">
+                <Card className="shadow-sm border-slate-200 h-[calc(100vh-300px)] flex flex-col">
+                  <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-3">
+                    <CardTitle className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Questions</CardTitle>
+                  </CardHeader>
+                  <ScrollArea className="flex-1">
+                    <div className="p-3 space-y-2">
+                      {report.question_analysis?.map((q, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedQuestionIndex(idx)}
+                          className={`
+                               w-full text-left p-3 rounded-lg transition-all duration-200 flex items-start gap-3
+                               border
+                               ${selectedQuestionIndex === idx
+                              ? 'bg-blue-50 border-blue-200 shadow-sm'
+                              : 'bg-white border-transparent hover:bg-slate-50'
+                            }
+                             `}
                         >
-                          Q{index + 1}
-                        </Button>
+                          <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border ${selectedQuestionIndex === idx
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                            }`}>
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium truncate ${selectedQuestionIndex === idx ? 'text-blue-900' : 'text-slate-700'}`}>
+                              {q.question}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getScoreBgColor(q.ai_score)}`}>
+                                {q.ai_score}%
+                              </span>
+                              <span className="text-xs text-slate-400 capitalize">{q.type}</span>
+                            </div>
+                          </div>
+                        </button>
                       ))}
                     </div>
+                  </ScrollArea>
+                </Card>
+              </div>
 
-                    {/* Scrollable Question Content */}
-                    <ScrollArea className="flex-1 pr-2">
-                      {selectedQuestion !== null && (
-                        <div className="space-y-6">
-                          {/* Question */}
-                          <div>
-                            <h3 className="font-semibold mb-2">Q: {questionAnalysis[selectedQuestion].question}</h3>
-                          </div>
+              {/* Question Details */}
+              <div className="lg:col-span-9">
+                {currentQuestion ? (
+                  <div className="space-y-6">
+                    {/* Question Card */}
+                    <Card className="border-l-4 border-l-blue-500 shadow-sm">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                          Q{selectedQuestionIndex + 1}: {currentQuestion.question}
+                        </h3>
 
-                          {/* User Answer */}
+                        <div className="space-y-4">
                           <div>
-                            <h4 className="font-medium mb-2 text-muted-foreground">Your Answer:</h4>
-                            <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-blue-500">
-                              <p className="text-sm leading-relaxed">{questionAnalysis[selectedQuestion].userAnswer}</p>
+                            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Your Answer</div>
+                            <div className="bg-slate-50 rounded-xl p-4 text-slate-700 text-sm leading-relaxed border border-slate-100">
+                              {currentQuestion.user_answer || "No answer recorded."}
                             </div>
                           </div>
 
-                          {/* Feedback Sections as separate cards */}
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* What went well */}
-                            <Card>
-                              <CardHeader>
-                                <CardTitle className="text-sm font-semibold">What went well</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <ul className="space-y-2">
-                                  {questionAnalysis[selectedQuestion].whatWentWell.map((item, index) => (
-                                    <li key={index} className="flex items-start gap-3 text-sm">
-                                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                                      <span>{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </CardContent>
-                            </Card>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Strengths */}
+                            <div className="bg-green-50/50 rounded-xl p-4 border border-green-100">
+                              <h4 className="flex items-center gap-2 text-sm font-semibold text-green-800 mb-3">
+                                <TrendingUp className="w-4 h-4" /> What Went Well
+                              </h4>
+                              <ul className="space-y-2">
+                                {currentQuestion.what_went_well?.map((item: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-green-900/80">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
+                                    {item}
+                                  </li>
+                                )) || <li className="text-sm text-slate-400">No data available</li>}
+                              </ul>
+                            </div>
 
-                            {/* What could be better */}
-                            <Card>
-                              <CardHeader>
-                                <CardTitle className="text-sm font-semibold">What could be better</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <ul className="space-y-2">
-                                  {questionAnalysis[selectedQuestion].whatCouldBeBetter.map((item, index) => (
-                                    <li key={index} className="flex items-start gap-3 text-sm">
-                                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                                      <span>{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </CardContent>
-                            </Card>
+                            {/* Improvements */}
+                            <div className="bg-orange-50/50 rounded-xl p-4 border border-orange-100">
+                              <h4 className="flex items-center gap-2 text-sm font-semibold text-orange-800 mb-3">
+                                <Target className="w-4 h-4" /> Areas to Improve
+                              </h4>
+                              <ul className="space-y-2">
+                                {currentQuestion.what_could_be_better?.map((item: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-orange-900/80">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 flex-shrink-0" />
+                                    {item}
+                                  </li>
+                                )) || <li className="text-sm text-slate-400">No data available</li>}
+                              </ul>
+                            </div>
+                          </div>
 
-                            {/* Missing Terminologies */}
-                            <Card>
-                              <CardHeader>
-                                <CardTitle className="text-sm font-semibold">Missing Terminologies</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <ul className="space-y-2">
-                                  {questionAnalysis[selectedQuestion].missingTerminologies.map((item, index) => (
-                                    <li key={index} className="flex items-start gap-3 text-sm">
-                                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                                      <span>{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </CardContent>
-                            </Card>
-
-                            {/* Recommended Response */}
-                            <Card className="lg:col-span-2">
-                              <CardHeader>
-                                <CardTitle className="text-sm font-semibold">Recommended Response</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 border-l-4 border-blue-500">
-                                  <p className="text-sm leading-relaxed whitespace-pre-line">
-                                    {questionAnalysis[selectedQuestion].recommendedResponse}
-                                  </p>
-                                </div>
-                              </CardContent>
-                            </Card>
+                          {/* Ideal Answer */}
+                          <div className="bg-blue-50/30 rounded-xl p-4 border border-blue-100">
+                            <h4 className="flex items-center gap-2 text-sm font-semibold text-blue-800 mb-2">
+                              <Bot className="w-4 h-4" /> Recommended Answer Structure
+                            </h4>
+                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                              {currentQuestion.recommended_response || "No recommendation available."}
+                            </p>
                           </div>
                         </div>
-                      )}
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* AI Chatbot */}
-              <div className="lg:col-span-1">
-                <Card className={`transition-all duration-300 ${showChatbot ? 'h-[700px]' : 'h-16'}`}>
-                  <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowChatbot(!showChatbot)}>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Bot className="w-5 h-5" />
-                        AI Assistant
-                      </CardTitle>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                      >
-                        {showChatbot ? '−' : '+'}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  {showChatbot && (
-                    <CardContent className="p-0 h-[calc(700px-64px)]">
-                      <div className="flex flex-col h-full">
-                        {/* Chat Messages */}
-                        <ScrollArea className="flex-1 p-4">
-                          <div className="space-y-4">
-                            {chatMessages.map((message) => (
-                              <div
-                                key={message.id}
-                                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                              >
-                                <div
-                                  className={`max-w-[80%] rounded-lg p-3 text-sm ${message.type === 'user'
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted'
-                                    }`}
-                                >
-                                  {message.message}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </ScrollArea>
-
-                        {/* Chat Input */}
-                        <div className="p-4 border-t">
-                          <div className="flex gap-2">
-                            <Input
-                              value={newMessage}
-                              onChange={(e) => setNewMessage(e.target.value)}
-                              placeholder="Ask about your performance..."
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleSendMessage();
-                                }
-                              }}
-                            />
-                            <Button size="sm" onClick={handleSendMessage}>
-                              <Send className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-slate-400">
+                    Select a question to view detailed analysis.
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
+
+          {/* Skill Breakdown */}
+          <TabsContent value="skills">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(report.skill_analysis || {}).map(([skill, data]: [string, any], idx) => (
+                <Card key={idx} className="overflow-hidden">
+                  <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-3">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-sm font-semibold text-slate-700 truncate">{skill}</CardTitle>
+                      <Badge className={`${getScoreBgColor(data.score * 10)}`}>{data.score}/10</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 bg-white/50">
+                    <p className="text-sm text-slate-600 line-clamp-3">
+                      {data.feedback}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Transcript - Placeholder for now as it needs ChatSession mapping which is complex */}
+          <TabsContent value="transcript">
+            <Card>
+              <CardContent className="p-8 text-center text-slate-500">
+                <p>Full interview transcript is available in the 'Chat' view.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
 
-        {/* Back Button */}
-        <div className="flex justify-center pt-4">
-          <Button variant="outline" onClick={onBackToLibrary}>
+        {/* Footer Actions */}
+        <div className="flex justify-center pt-8 pb-12">
+          <Button variant="ghost" className="text-slate-500 hover:text-slate-800 hover:bg-slate-100" onClick={onBackToLibrary}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Interview Library
+            Back to Library
           </Button>
         </div>
+
       </div>
     </div>
   );
 };
+
+// Helper components (e.g. RotateCcw) reused from lucide-react import
+import { RotateCcw as RotateCcwIcon } from 'lucide-react';
 
 export default ReportsScreen;
