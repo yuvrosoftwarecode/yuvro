@@ -153,10 +153,10 @@ ${codeEditorRef.current?.getCode() || ''}
   };
 
   return (
-    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative' : 'h-screen bg-white') : 'mx-auto px-[3px] py-6 max-w-[1500px]'}`}>
+    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'h-full flex flex-col mx-auto px-[3px] py-6 max-w-[1500px]'}`}>
       {/* Breadcrumb */}
       {!isEditorFullscreen && showBreadcrumb && (
-        <div className="flex items-center gap-2 mb-3 ml-2 text-sm text-gray-500">
+        <div className="flex-none flex items-center gap-2 mb-3 ml-2 text-sm text-gray-500">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">
             {topic.name}
           </Button>
@@ -281,7 +281,7 @@ ${codeEditorRef.current?.getCode() || ''}
 
       {/* 2) Split view when editor is open (horizontal resizable) */}
       {editorOpen && !isEditorFullscreen && (
-        <div className="h-[calc(100vh-140px)]">
+        <div className="flex-1 min-h-0">
           <ResizablePanelGroup
             direction="horizontal"
             className="w-full h-full flex"
@@ -459,7 +459,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   minSize={25}
                   maxSize={50}
                 >
-                  <div className="h-full border-l border-gray-200 bg-white shadow-lg overflow-hidden flex flex-col">
+                  <div className="h-full min-h-0 border-l border-gray-200 bg-white shadow-lg overflow-hidden flex flex-col">
                     <AIChatContainer
                       className="w-full flex-1"
                       contextGetter={getProblemContext}
@@ -552,7 +552,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     minSize={20}
                     maxSize={60}
                   >
-                    <div className="h-full bg-white border-l border-gray-200 shadow-lg overflow-hidden flex flex-col">
+                    <div className="h-full min-h-0 bg-white border-l border-gray-200 shadow-lg overflow-hidden flex flex-col">
                       <AIChatContainer
                         className="w-full flex-1"
                         contextGetter={getProblemContext}

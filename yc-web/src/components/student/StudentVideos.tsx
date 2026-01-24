@@ -225,6 +225,7 @@ const StudentVideos = ({
           chatTitle="AI Learning Buddy"
           contextGetter={getVideoContext}
           onNewChat={onNewSession}
+          showHistory={false}
         />
       </div>
     </PaneWrapper>
