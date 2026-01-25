@@ -96,6 +96,9 @@ const CourseDetail: React.FC = () => {
         lastProgressFetchRef.current = 0;
 
         if (selectedSubtopic) {
+            // Context Isolation: Use a STABLE session ID for each subtopic
+            // This ensures persistence across refreshes without needing a history menu
+            setChatSessionId(`subtopic-chat-${selectedSubtopic.id}`);
             checkRequirements(selectedSubtopic.id);
         }
     }, [selectedSubtopic?.id]);
@@ -293,9 +296,9 @@ const CourseDetail: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
             <Navigation />
-            <div className="flex flex-1 h-[calc(100vh-64px)] overflow-hidden relative">
+            <div className="flex flex-1 overflow-hidden relative">
                 <div
                     className={`bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200`}
                     style={{

@@ -24,13 +24,14 @@ def _apply_page_content_grounding(
         # Truncate to a reasonable size to avoid token blowup
         snippet = page_content if len(page_content) <= 4000 else page_content[:4000]
         strict_prompt = (
-            "You are a helpful and friendly AI Tutor. You have access to the following context "
-            "from the current page the user is viewing (labeled SOURCE). \n"
-            "Use this SOURCE to answer the user's questions accurately. \n"
-            "If the answer is in the SOURCE, explain it clearly.\n"
-            "If the answer is not in the SOURCE, you may politely use your general knowledge to help, "
-            "but please mention that this information isn't explicitly on the current page.\n"
-            "Keep your tone encouraging and educational.\n\n"
+            "You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). \n"
+            "Your goal is to help the student understand this specific topic and GUIDE them to the solution.\n"
+            "1. You MAY use your general knowledge to explain concepts related to this topic.\n"
+            "2. IMPORTANT: Do NOT write the full code solution for the student. Do NOT edit their code for them.\n"
+            "3. Instead, identify the logical or syntax errors in their code (if provided in SOURCE) and explain WHY it is wrong.\n"
+            "4. Give hints, pseudocode, or correct specific lines, but encourage the student to type the solution themselves.\n"
+            "5. If the user asks about a completely DIFFERENT topic, polite refuse.\n"
+            "6. Keep your tone encouraging, educational, and concise.\n\n"
             "SOURCE:\n" + snippet
         )
 
@@ -255,9 +256,26 @@ class GeminiService(BaseAIService):
                 "max_output_tokens": max_tokens,
             }
 
-            response = self.model.generate_content(
-                conversation_text, generation_config=generation_config
-            )
+            try:
+                response = self.model.generate_content(
+                    conversation_text, generation_config=generation_config
+                )
+            except Exception as e:
+                # Fallback for deprecated models (e.g. gemini-pro)
+                if "404" in str(e) or "not found" in str(e).lower():
+                    logger.warning(f"Gemini model {self.model_name} failed. Attempting fallback to gemini-2.5-flash.")
+                    try:
+                        import google.generativeai as genai
+                        fallback_model = genai.GenerativeModel("gemini-2.5-flash")
+                        response = fallback_model.generate_content(
+                            conversation_text, generation_config=generation_config
+                        )
+                    except Exception as fallback_error:
+                         # If fallback also fails, raise original error or the new one
+                         logger.error(f"Fallback failed: {fallback_error}")
+                         raise e
+                else:
+                    raise e
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)
