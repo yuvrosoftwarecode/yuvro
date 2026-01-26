@@ -472,10 +472,7 @@ const Profile = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-6 mt-2">
-                    <Button onClick={() => setEditDialogOpen(true)} className="shadow-sm rounded-xl px-6">
-                      <Edit className="h-4 w-4 mr-2" /> Edit Profile
-                    </Button>
-
+                    
                     {/* Social Links Row */}
                     <div className="flex gap-3">
                       {profile.links.github && (
