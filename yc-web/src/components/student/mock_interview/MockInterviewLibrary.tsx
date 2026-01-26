@@ -198,43 +198,52 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   // Show reports screen if active
   if (showReportsScreen && selectedRole && interviewSettings) {
     return (
-      <ReportsScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-      />
+      <div className="bg-background min-h-screen">
+        <Navigation autoHide={true} />
+        <ReportsScreen
+          role={selectedRole}
+          difficulty={interviewSettings.difficulty}
+          duration={interviewSettings.duration}
+          onTryAgain={handleTryAgain}
+          onBackToLibrary={handleBackToLibrary}
+        />
+      </div>
     );
   }
 
   // Show thank you screen if active
   if (showThankYouScreen && selectedRole && interviewSettings) {
     return (
-      <ThankYouScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onViewReports={handleViewReports}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-      />
+      <div className="bg-background min-h-screen">
+        <Navigation autoHide={true} />
+        <ThankYouScreen
+          role={selectedRole}
+          difficulty={interviewSettings.difficulty}
+          duration={interviewSettings.duration}
+          onViewReports={handleViewReports}
+          onTryAgain={handleTryAgain}
+          onBackToLibrary={handleBackToLibrary}
+        />
+      </div>
     );
   }
 
   // Show interview screen if active
   if (showInterviewScreen && selectedRole && interviewSettings) {
     return (
-      <InterviewScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        interviewer={interviewSettings.interviewer}
-        mediaStream={interviewSettings.mediaStream}
-        resume={interviewSettings.resume}
-        onExit={handleExitInterview}
-        onInterviewComplete={handleInterviewComplete}
-      />
+      <div className="bg-background min-h-screen">
+        <Navigation autoHide={true} />
+        <InterviewScreen
+          role={selectedRole}
+          difficulty={interviewSettings.difficulty}
+          duration={interviewSettings.duration}
+          interviewer={interviewSettings.interviewer}
+          mediaStream={interviewSettings.mediaStream}
+          resume={interviewSettings.resume}
+          onExit={handleExitInterview}
+          onInterviewComplete={handleInterviewComplete}
+        />
+      </div>
     );
   }
 

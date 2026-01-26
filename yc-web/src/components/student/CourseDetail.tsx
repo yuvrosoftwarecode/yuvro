@@ -297,7 +297,7 @@ const CourseDetail: React.FC = () => {
 
     return (
         <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
-            <Navigation />
+            <Navigation autoHide={true} />
             <div className="flex flex-1 overflow-hidden relative">
                 <div
                     className={`bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200`}
