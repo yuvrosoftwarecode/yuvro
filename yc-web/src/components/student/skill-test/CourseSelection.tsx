@@ -24,12 +24,12 @@ const getCourseStyle = (id: string | number) => {
 
 const CourseSelection = ({ courses, onCourseSelect }: CourseSelectionProps) => {
   return (
-    <div className="p-8 animate-fade-in max-w-[1600px] mx-auto">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+    <div className="px-6 py-8 animate-fade-in max-w-[1600px] mx-auto">
+      <div className="mb-10 text-left">
+        <h1 className="text-3xl font-bold text-gray-900">
           Skill Test
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-gray-600 text-sm mt-1">
           Choose a course to start testing your knowledge
         </p>
       </div>

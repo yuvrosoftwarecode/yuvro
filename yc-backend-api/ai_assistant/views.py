@@ -161,6 +161,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                             temperature=temperature,
                             max_tokens=max_tokens,
                             page_content=page_content,
+                            user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
                         )
                     )
                 finally:
@@ -387,6 +388,7 @@ class ChatViewSet(viewsets.ViewSet):
                             temperature=temperature,
                             max_tokens=max_tokens,
                             page_content=page_content,
+                            user_name=request.user.profile.full_name if hasattr(request.user, 'profile') and request.user.profile.full_name else (request.user.first_name or request.user.username),
                         )
                     )
                 finally:

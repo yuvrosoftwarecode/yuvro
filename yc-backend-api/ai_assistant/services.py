@@ -16,22 +16,27 @@ def _apply_page_content_grounding(
     that instructs the model to only use the provided SOURCE. This modifies
     messages in-place (and removes page_content from kwargs).
     """
-    page_content = None
+    user_name = None
     if isinstance(kwargs, dict):
         page_content = kwargs.pop("page_content", None)
+        user_name = kwargs.pop("user_name", "Student")
 
-    if page_content:
+    if page_content and page_content != "mock_interview":
         # Truncate to a reasonable size to avoid token blowup
         snippet = page_content if len(page_content) <= 4000 else page_content[:4000]
+        
+        greeting_instruction = f"Address the student as '{user_name}'." if user_name != "Student" else "Address the user as 'Student'."
+
         strict_prompt = (
-            "You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). \n"
+            f"You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). {greeting_instruction}\n"
             "Your goal is to help the student understand this specific topic and GUIDE them to the solution.\n"
             "1. You MAY use your general knowledge to explain concepts related to this topic.\n"
             "2. IMPORTANT: Do NOT write the full code solution for the student. Do NOT edit their code for them.\n"
             "3. Instead, identify the logical or syntax errors in their code (if provided in SOURCE) and explain WHY it is wrong.\n"
             "4. Give hints, pseudocode, or correct specific lines, but encourage the student to type the solution themselves.\n"
             "5. If the user asks about a completely DIFFERENT topic, polite refuse.\n"
-            "6. Keep your tone encouraging, educational, and concise.\n\n"
+            "6. DO NOT DUMP INFORMATION. Be Socratic. Ask guiding questions to help the student find the answer.\n"
+            "7. Keep your responses SHORT and CONCISE. Do not lecture.\n\n"
             "SOURCE:\n" + snippet
         )
 

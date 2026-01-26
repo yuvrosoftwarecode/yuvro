@@ -63,28 +63,29 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto animate-fade-in">
+    <div className="p-6 max-w-7xl mx-auto animate-fade-in">
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <button
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onBack}
-          className="flex items-center gap-1.5 hover:text-foreground transition-colors font-medium"
+          className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors font-normal text-gray-500"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Courses</span>
-        </button>
-        <span className="text-muted-foreground/50">/</span>
-        <span className="text-foreground">{courseName}</span>
-        <span className="text-muted-foreground/50">/</span>
-        <span className="text-foreground font-medium">{topicName}</span>
+          Skill Test
+        </Button>
+        <span>/</span>
+        <span className="text-gray-700 font-medium">{courseName}</span>
+        <span>/</span>
+        <span className="text-gray-900 font-semibold">{topicName}</span>
       </div>
 
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+      <div className="mb-10 text-left">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           {topicName} Tests
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-gray-600 text-sm">
           Choose a test based on your skill level
         </p>
       </div>
