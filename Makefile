@@ -1,7 +1,10 @@
 .PHONY: help dev dev-detached stop restart logs setup clean rebuild
 .PHONY: db-shell db-migrate db-makemigrations db-reset
+.PHONY: ycampus-db-shell ycampus-db-migrate ycampus-db-makemigrations ycampus-db-reset
 .PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
+.PHONY: ycampus-backend-shell ycampus-backend-test ycampus-backend-format ycampus-backend-format-fix ycampus-backend-lint ycampus-backend-install
 .PHONY: frontend-shell frontend-test frontend-test-watch frontend-format frontend-format-fix frontend-lint frontend-install
+.PHONY: ycampus-frontend-shell ycampus-frontend-test ycampus-frontend-test-watch ycampus-frontend-format ycampus-frontend-format-fix ycampus-frontend-lint ycampus-frontend-install
 .PHONY: test-all format-all lint-all check-all
 .PHONY: prod-build prod-up prod-down
 .PHONY: observability-setup observability-start observability-stop observability-logs observability-dashboards
@@ -33,6 +36,12 @@ help:
 	@echo "  db-makemigrations   Create Django migrations"
 	@echo "  db-reset            Reset database"
 	@echo ""
+	@echo "YCampus Database operations:"
+	@echo "  ycampus-db-shell    Access ycampus database shell"
+	@echo "  ycampus-db-migrate  Run ycampus Django migrations"
+	@echo "  ycampus-db-makemigrations Create ycampus Django migrations"
+	@echo "  ycampus-db-reset    Reset ycampus database"
+	@echo ""
 	@echo "Backend commands:"
 	@echo "  backend-shell       Django shell"
 	@echo "  backend-test        Run backend tests"
@@ -40,6 +49,14 @@ help:
 	@echo "  backend-format-fix  Fix backend code formatting"
 	@echo "  backend-lint        Lint backend code"
 	@echo "  backend-install PKG Install backend package"
+	@echo ""
+	@echo "YCampus Backend commands:"
+	@echo "  ycampus-backend-shell Django shell"
+	@echo "  ycampus-backend-test  Run ycampus backend tests"
+	@echo "  ycampus-backend-format Check ycampus backend code formatting"
+	@echo "  ycampus-backend-format-fix Fix ycampus backend code formatting"
+	@echo "  ycampus-backend-lint  Lint ycampus backend code"
+	@echo "  ycampus-backend-install PKG Install ycampus backend package"
 	@echo ""
 	@echo "Code Executor commands:"
 	@echo "  executor-shell      Code executor shell"
@@ -54,6 +71,15 @@ help:
 	@echo "  frontend-format-fix Fix frontend code formatting"
 	@echo "  frontend-lint       Lint frontend code"
 	@echo "  frontend-install PKG Install frontend package"
+	@echo ""
+	@echo "YCampus Frontend commands:"
+	@echo "  ycampus-frontend-shell Node.js shell"
+	@echo "  ycampus-frontend-test  Run ycampus frontend tests"
+	@echo "  ycampus-frontend-test-watch Run ycampus frontend tests in watch mode"
+	@echo "  ycampus-frontend-format Check ycampus frontend code formatting"
+	@echo "  ycampus-frontend-format-fix Fix ycampus frontend code formatting"
+	@echo "  ycampus-frontend-lint  Lint ycampus frontend code"
+	@echo "  ycampus-frontend-install PKG Install ycampus frontend package"
 	@echo ""
 	@echo "Combined operations:"
 	@echo "  test-all            Run all tests"
@@ -115,6 +141,8 @@ setup:
 	@if [ ! -f yc-backend-api/.env ]; then cp yc-backend-api/.env.example yc-backend-api/.env; echo "Created backend .env"; fi
 	@if [ ! -f yc-web/.env ]; then cp yc-web/.env.example yc-web/.env; echo "Created frontend .env"; fi
 	@if [ ! -f yc-code-executor/.env ]; then cp yc-code-executor/.env.example yc-code-executor/.env; echo "Created code-executor .env"; fi
+	@if [ ! -f ycampus-backend-api/.env ]; then cp ycampus-backend-api/.env.example ycampus-backend-api/.env; echo "Created ycampus-backend .env"; fi
+	@if [ ! -f ycampus-web/.env ]; then cp ycampus-web/.env.example ycampus-web/.env; echo "Created ycampus-frontend .env"; fi
 
 
 	@echo "Building and starting services..."
@@ -127,10 +155,14 @@ setup:
 	@echo "Running initial setup and migrations..."
 	docker compose exec backend python manage.py migrate
 	docker compose exec backend python manage.py setup_local_testing --clear
+	docker compose exec ycampus-backend python manage.py migrate
+	docker compose exec ycampus-backend python manage.py setup_local_testing --clear
 	
 	@echo "Setup complete! The application is running."
-	@echo "Frontend: http://localhost:3000"
-	@echo "Backend API: http://localhost:8001"
+	@echo "YC Frontend: http://localhost:3000"
+	@echo "YC Backend API: http://localhost:8001"
+	@echo "YCampus Frontend: http://localhost:3002"
+	@echo "YCampus Backend API: http://localhost:8003"
 	@echo "Run 'make build' if requirements or libraries are updated."
 	@echo "Run 'make logs' to monitor the services."
 	@echo "Run 'make reload-data' to reload test data."
@@ -139,6 +171,7 @@ setup:
 reload-data:
 	@echo "Resetting and reloading test data..."
 	docker compose exec backend python manage.py setup_local_testing --clear
+	docker compose exec ycampus-backend python manage.py setup_local_testing --clear
 
 clean:
 	docker compose down -v --remove-orphans
@@ -162,6 +195,24 @@ db-reset:
 	docker compose down -v
 	docker compose up -d db
 
+# YCampus Database operations
+ycampus-db-shell:
+	docker compose exec ycampus-db psql -U postgres -d yc_app
+
+ycampus-db-migrate:
+	docker compose exec ycampus-backend python manage.py migrate
+
+ycampus-db-makemigrations:
+	docker compose exec ycampus-backend python manage.py makemigrations
+
+ycampus-db-createsuperuser:
+	docker compose exec ycampus-backend python manage.py createsuperuser
+
+ycampus-db-reset:
+	@echo "Resetting ycampus database to initial state..."
+	docker compose down ycampus-db -v
+	docker compose up -d ycampus-db
+
 backend-shell:
 	docker compose exec backend python manage.py shell
 
@@ -184,6 +235,30 @@ backend-install:
 	fi
 	docker compose exec backend pip install $(PKG)
 	docker compose exec backend pip freeze > requirements.txt
+
+# YCampus Backend commands
+ycampus-backend-shell:
+	docker compose exec ycampus-backend python manage.py shell
+
+ycampus-backend-test:
+	docker compose exec ycampus-backend python manage.py test
+
+ycampus-backend-format:
+	docker compose exec ycampus-backend black . --check --diff
+
+ycampus-backend-format-fix:
+	docker compose exec ycampus-backend black .
+
+ycampus-backend-lint:
+	docker compose exec ycampus-backend flake8 .
+
+ycampus-backend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make ycampus-backend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose exec ycampus-backend pip install $(PKG)
+	docker compose exec ycampus-backend pip freeze > requirements.txt
 
 frontend-shell:
 	docker compose exec frontend sh
@@ -209,6 +284,32 @@ frontend-install:
 		exit 1; \
 	fi
 	docker compose exec frontend npm install $(PKG)
+
+# YCampus Frontend commands
+ycampus-frontend-shell:
+	docker compose exec ycampus-frontend sh
+
+ycampus-frontend-test:
+	docker compose exec ycampus-frontend npm test -- --run
+
+ycampus-frontend-test-watch:
+	docker compose exec ycampus-frontend npm test
+
+ycampus-frontend-format:
+	docker compose exec ycampus-frontend npm run format:check
+
+ycampus-frontend-format-fix:
+	docker compose exec ycampus-frontend npm run format
+
+ycampus-frontend-lint:
+	docker compose exec ycampus-frontend npm run lint
+
+ycampus-frontend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make ycampus-frontend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose exec ycampus-frontend npm install $(PKG)
 
 executor-shell:
 	docker compose exec code-executor sh
