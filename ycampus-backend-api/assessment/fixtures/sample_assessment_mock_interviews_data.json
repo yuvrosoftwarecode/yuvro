@@ -1,0 +1,172 @@
+{
+  "mock_interviews": [
+    {
+      "title": "Mock Interview — Java Developer",
+      "description": "Master core Java concepts, multithreading, and stream APIs. This interview challenges your understanding of JVM internals, memory management, and object-oriented design patterns used in enterprise-grade applications.",
+      "instructions": "60 minutes. Includes MCQs, short design prompts, and one coding task in Java.",
+      "max_duration": 60,
+      "ai_generation_mode": "mixed",
+      "voice_type": "junnu",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Java",
+        "OOP",
+        "Spring Boot"
+      ],
+      "optional_skills": [
+        "Hibernate",
+        "Microservices"
+      ],
+      "ai_verbal_question_count": 5,
+      "ai_coding_question_count": 2,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — Python Developer",
+      "description": "Dive deep into Python's data structures, decorators, and generators. You'll face questions on asynchronous programming, Django/Flask frameworks, and writing efficient, pythonic code for scalable backends.",
+      "instructions": "50 minutes. MCQs and one coding task; focus on Pythonic solutions.",
+      "max_duration": 50,
+      "ai_generation_mode": "mixed",
+      "voice_type": "munnu",
+      "voice_speed": 1.1,
+      "audio_settings": {},
+      "required_skills": [
+        "Python",
+        "Django",
+        "DSA"
+      ],
+      "optional_skills": [
+        "Flask",
+        "AWS"
+      ],
+      "ai_verbal_question_count": 5,
+      "ai_coding_question_count": 2,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — Frontend Developer",
+      "description": "Demonstrate your expertise in building responsive, accessible web applications. Expect questions on React hooks, state management (Redux/Context), CSS architecture, and optimizing browser performance.",
+      "instructions": "55 minutes. MCQs, DOM/CSS problems, and a small implementation task.",
+      "max_duration": 55,
+      "ai_generation_mode": "mixed",
+      "voice_type": "junnu",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "React",
+        "JavaScript",
+        "CSS"
+      ],
+      "optional_skills": [
+        "TypeScript",
+        "Tailwind"
+      ],
+      "ai_verbal_question_count": 5,
+      "ai_coding_question_count": 1,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — Data Scientist",
+      "description": "Validate your expertise in statistical modeling, machine learning algorithms, and data visualization. Be ready to discuss feature engineering, model evaluation metrics, and real-world data pipeline challenges.",
+      "instructions": "75 minutes. MCQs, short analytical problems, and one coding/data task.",
+      "max_duration": 75,
+      "ai_generation_mode": "full_ai",
+      "voice_type": "munnu",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Python",
+        "Machine Learning",
+        "Statistics"
+      ],
+      "optional_skills": [
+        "Pandas",
+        "Scikit-Learn"
+      ],
+      "ai_verbal_question_count": 8,
+      "ai_coding_question_count": 2,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — System Design Engineer",
+      "description": "Architect scalable, distributed systems. You'll be tested on load balancing, database sharding, caching strategies, and CAP theorem trade-offs for high-traffic global services.",
+      "instructions": "90 minutes. Design prompts and discussion-based questions; include one architecture diagram task.",
+      "max_duration": 90,
+      "ai_generation_mode": "mixed",
+      "voice_type": "junnu",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "System Design",
+        "Scalability",
+        "Distributed Systems"
+      ],
+      "optional_skills": [
+        "Kafka",
+        "Redis"
+      ],
+      "ai_verbal_question_count": 6,
+      "ai_coding_question_count": 0,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — DevOps Engineer",
+      "description": "Prove your skills in CI/CD pipelines, container orchestration (Kubernetes), and infrastructure as code. This session covers cloud reliability, monitoring, and automated deployment strategies.",
+      "instructions": "60 minutes. MCQs, short scenario-based tasks, and one practical automation task.",
+      "max_duration": 60,
+      "ai_generation_mode": "mixed",
+      "voice_type": "munnu",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Docker",
+        "Kubernetes",
+        "CI/CD"
+      ],
+      "optional_skills": [
+        "AWS",
+        "Terraform"
+      ],
+      "ai_verbal_question_count": 5,
+      "ai_coding_question_count": 1,
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    }
+  ]
+}

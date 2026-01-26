@@ -105,6 +105,24 @@ services:
       - app
       - observability
 
+  ycampus-backend:
+    env_file:
+      - ./ycampus-backend-api/.env
+      - ./ycampus-backend-api/.env.observability
+    depends_on:
+      - otel-collector
+    networks:
+      - app
+      - observability
+
+  ycampus-frontend:
+    env_file:
+      - ./ycampus-web/.env
+      - ./ycampus-web/.env.observability
+    networks:
+      - app
+      - observability
+
 volumes:
   prometheus_data:
   grafana_data:
