@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { CheckCircle, XCircle, Eye, Briefcase, MapPin, Clock } from "lucide-react";
 import { jobService, Job } from "../../services/jobService";
+import StatusBadge from "../../components/common/StatusBadge";
+import JobDetailsViewer from "../../components/common/recruiter/JobDetailsViewer";
 import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
 import { useAuth } from "../../contexts/AuthContext";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Button } from "../../components/ui/button";
 
 const JobsApproval: React.FC = () => {
   const { user } = useAuth();
@@ -19,7 +23,7 @@ const JobsApproval: React.FC = () => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [jobToReject, setJobToReject] = useState<Job | null>(null);
 
@@ -32,8 +36,8 @@ const JobsApproval: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
-              title="Jobs Approval" 
+            <RoleHeader
+              title="Jobs Approval"
               subtitle="Review and approve job postings"
             />
             <div className="flex items-center justify-center h-64">
@@ -73,14 +77,14 @@ const JobsApproval: React.FC = () => {
 
   const loadApprovedJobs = useCallback(async () => {
     console.log('=== loadApprovedJobs called ===');
-    
+
     try {
       setError(null);
-      
+
       console.log('About to call jobService.getAllJobs() for approved jobs');
       const data = await jobService.getAllJobs();
       console.log('API call completed. Data received:', data);
-      
+
       if (Array.isArray(data)) {
         const activeJobs = data.filter(job => job.status === 'active');
         console.log('Setting approved jobs state with data:', activeJobs);
@@ -90,12 +94,12 @@ const JobsApproval: React.FC = () => {
         console.error('API returned non-array data:', data);
         setError('Invalid data format received from server');
       }
-      
+
     } catch (error) {
       console.error('=== ERROR in loadApprovedJobs ===');
       console.error('Error object:', error);
       console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Failed to load approved jobs';
       setError(errorMessage);
       toast.error('Failed to load approved jobs: ' + errorMessage);
@@ -104,15 +108,15 @@ const JobsApproval: React.FC = () => {
 
   const loadPendingJobs = useCallback(async () => {
     console.log('=== loadPendingJobs called ===');
-    
+
     try {
       setError(null);
-      
+
       console.log('About to call jobService.getPendingJobs()');
       const data = await jobService.getPendingJobs();
       console.log('API call completed. Data received:', data);
       console.log('Number of jobs:', data?.length || 0);
-      
+
       if (Array.isArray(data)) {
         console.log('Setting jobs state with data:', data);
         setJobs(data);
@@ -121,24 +125,24 @@ const JobsApproval: React.FC = () => {
         console.error('API returned non-array data:', data);
         setError('Invalid data format received from server');
       }
-      
+
     } catch (error) {
       console.error('=== ERROR in loadPendingJobs ===');
       console.error('Error object:', error);
       console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Failed to load pending jobs';
       setError(errorMessage);
       toast.error('Failed to load pending jobs: ' + errorMessage);
     }
-  }, []); 
+  }, []);
 
   const handleTabChange = async (tab: 'pending' | 'approved') => {
     setSelectedTab(tab);
     setLoading(true);
-    setSearchQuery(''); 
-    
+    setSearchQuery('');
+
     try {
       if (tab === 'pending') {
         await loadPendingJobs();
@@ -156,7 +160,7 @@ const JobsApproval: React.FC = () => {
 
   useEffect(() => {
     console.log('=== JobsApproval useEffect triggered ===');
-    
+
     const loadInitialData = async () => {
       setLoading(true);
       try {
@@ -173,40 +177,40 @@ const JobsApproval: React.FC = () => {
     };
 
     loadInitialData();
-  }, []); 
+  }, []);
 
   const handleApproveJob = async (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
     if (!job) return;
-    
+
     try {
       setActionLoading(jobId);
       const response = await jobService.approveJob(jobId);
-      
+
       toast.success(response.message || 'Job approved and published successfully');
-      
+
       setJobs(prevJobs => prevJobs.filter(job => job.id !== jobId));
-      
+
       await loadApprovedJobs();
-      
+
       setTimeout(() => {
         toast.info('The approved job is now available in the "Approved Jobs" tab and in the main Jobs page under "Active" status.');
       }, 1000);
-      
+
       if (selectedJob && selectedJob.id === jobId) {
         setSelectedJob(null);
         setShowJobDetails(false);
       }
-      
+
     } catch (error: any) {
       console.error('Error approving job:', error);
-      
-      const errorMessage = error?.response?.data?.error || 
-                          error?.response?.data?.message || 
-                          error?.message || 
-                          'Failed to approve job';
+
+      const errorMessage = error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to approve job';
       toast.error(errorMessage);
-      
+
       if (selectedTab === 'pending') {
         loadPendingJobs();
       } else {
@@ -220,39 +224,39 @@ const JobsApproval: React.FC = () => {
   const handleRejectJob = async (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
     if (!job) return;
-    
+
     setJobToReject(job);
     setShowRejectModal(true);
   };
 
   const confirmRejectJob = async () => {
     if (!jobToReject) return;
-    
+
     try {
       setActionLoading(jobToReject.id);
       const response = await jobService.rejectJob(jobToReject.id);
-      
+
       toast.success(response.message || 'Job rejected successfully');
-      
+
       setJobs(prevJobs => prevJobs.filter(job => job.id !== jobToReject.id));
-      
+
       if (selectedJob && selectedJob.id === jobToReject.id) {
         setSelectedJob(null);
         setShowJobDetails(false);
       }
-      
+
       setShowRejectModal(false);
       setJobToReject(null);
-      
+
     } catch (error: any) {
       console.error('Error rejecting job:', error);
-      
-      const errorMessage = error?.response?.data?.error || 
-                          error?.response?.data?.message || 
-                          error?.message || 
-                          'Failed to reject job';
+
+      const errorMessage = error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to reject job';
       toast.error(errorMessage);
-      
+
       if (selectedTab === 'pending') {
         loadPendingJobs();
       } else {
@@ -274,12 +278,12 @@ const JobsApproval: React.FC = () => {
   };
 
   const currentJobs = selectedTab === 'pending' ? jobs : approvedJobs;
-  
+
   const filteredJobs = currentJobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     if (selectedTab === 'pending') {
       const isPendingApproval = job.status === 'draft' || job.status === 'paused';
       return isPendingApproval && matchesSearch;
@@ -289,14 +293,7 @@ const JobsApproval: React.FC = () => {
     }
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'paused': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
+
 
 
   if (loading) {
@@ -305,8 +302,8 @@ const JobsApproval: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
-              title="Jobs Approval" 
+            <RoleHeader
+              title="Jobs Approval"
               subtitle="Review and approve job postings"
             />
             <div className="flex items-center justify-center h-64">
@@ -349,55 +346,32 @@ const JobsApproval: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title="Jobs Approval" 
+          <RoleHeader
+            title="Jobs Approval"
             subtitle="Review and approve job postings before they go live"
           />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Tab Navigation */}
-            <div className="mb-6">
-              <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
-                  <button
-                    onClick={() => handleTabChange('pending')}
-                    disabled={loading}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      selectedTab === 'pending'
-                        ? 'border-orange-500 text-orange-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    Pending Approval
-                    {jobs.length > 0 && (
-                      <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                        selectedTab === 'pending' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {jobs.filter(j => j.status === 'draft' || j.status === 'paused').length}
-                      </span>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleTabChange('approved')}
-                    disabled={loading}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                      selectedTab === 'approved'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    Approved Jobs
-                    {approvedJobs.length > 0 && (
-                      <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                        selectedTab === 'approved' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {approvedJobs.filter(j => j.status === 'active').length}
-                      </span>
-                    )}
-                  </button>
-                </nav>
-              </div>
-            </div>
+            <Tabs value={selectedTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
+              <TabsList className="inline-flex w-auto gap-1">
+                <TabsTrigger value="pending" className="px-5">
+                  Pending Approval
+                  {jobs.length > 0 && (
+                    <span className="ml-2 py-0.5 px-2 rounded-full text-xs opacity-70">
+                      {jobs.filter(j => j.status === 'draft' || j.status === 'paused').length}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="approved" className="px-5">
+                  Approved Jobs
+                  {approvedJobs.length > 0 && (
+                    <span className="ml-2 py-0.5 px-2 rounded-full text-xs opacity-70">
+                      {approvedJobs.filter(j => j.status === 'active').length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {selectedTab === 'pending' ? (
@@ -476,10 +450,10 @@ const JobsApproval: React.FC = () => {
                   {selectedTab === 'pending' ? 'No jobs pending approval' : 'No approved jobs found'}
                 </h3>
                 <p className="text-gray-600">
-                  {searchQuery 
-                    ? 'No jobs match your search criteria.' 
-                    : selectedTab === 'pending' 
-                      ? 'All jobs have been reviewed.' 
+                  {searchQuery
+                    ? 'No jobs match your search criteria.'
+                    : selectedTab === 'pending'
+                      ? 'All jobs have been reviewed.'
                       : 'No jobs have been approved yet.'
                   }
                 </p>
@@ -555,9 +529,7 @@ const JobsApproval: React.FC = () => {
                             }
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
-                              {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                            </span>
+                            <StatusBadge status={job.status} />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center space-x-2">
@@ -607,104 +579,35 @@ const JobsApproval: React.FC = () => {
       </div>
 
       {showJobDetails && selectedJob && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">{selectedJob.title}</h2>
-                  <p className="text-sm text-gray-600">{selectedJob.company.name}</p>
-                </div>
+        <JobDetailsViewer
+          job={selectedJob}
+          onClose={() => setShowJobDetails(false)}
+          actions={
+            selectedTab === 'pending' ? (
+              <>
                 <button
-                  onClick={() => setShowJobDetails(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  onClick={() => handleRejectJob(selectedJob.id)}
+                  disabled={actionLoading === selectedJob.id}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
                 >
-                  <XCircle className="h-5 w-5 text-gray-400" />
+                  {actionLoading === selectedJob.id ? 'Rejecting...' : 'Reject Job'}
                 </button>
+                <button
+                  onClick={() => handleApproveJob(selectedJob.id)}
+                  disabled={actionLoading === selectedJob.id}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
+                >
+                  {actionLoading === selectedJob.id ? 'Approving...' : 'Approve & Publish'}
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center text-green-600">
+                <CheckCircle className="h-5 w-5 mr-2" />
+                <span className="font-medium">This job is approved and active</span>
               </div>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Job Details */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Job Description</h3>
-                <div className="prose max-w-none text-gray-700">
-                  {selectedJob.description.split('\n').map((paragraph, index) => (
-                    <p key={index} className="mb-2">{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-
-              {/* Job Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Employment Details</h4>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">Type:</span> {selectedJob.employment_type}</div>
-                    <div><span className="font-medium">Experience:</span> {selectedJob.experience_min_years}-{selectedJob.experience_max_years || '+'} years</div>
-                    <div><span className="font-medium">Education:</span> {selectedJob.education_level}</div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Location & Compensation</h4>
-                  <div className="space-y-2 text-sm">
-                    <div><span className="font-medium">Location:</span> {selectedJob.locations.join(', ') || 'Not specified'}</div>
-                    <div><span className="font-medium">Remote:</span> {selectedJob.is_remote ? 'Yes' : 'No'}</div>
-                    <div><span className="font-medium">Salary:</span> {selectedJob.min_salary && selectedJob.max_salary
-                      ? `${selectedJob.min_salary}-${selectedJob.max_salary} ${selectedJob.currency}`
-                      : 'Not specified'}</div>
-                  </div>
-                </div>
-              </div>
-
-              {selectedJob.skills.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Required Skills</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedJob.skills.map((skill, index) => (
-                      <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-4">
-              <button
-                onClick={() => setShowJobDetails(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Close
-              </button>
-              {selectedTab === 'pending' ? (
-                <>
-                  <button
-                    onClick={() => handleRejectJob(selectedJob.id)}
-                    disabled={actionLoading === selectedJob.id}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-                  >
-                    {actionLoading === selectedJob.id ? 'Rejecting...' : 'Reject Job'}
-                  </button>
-                  <button
-                    onClick={() => handleApproveJob(selectedJob.id)}
-                    disabled={actionLoading === selectedJob.id}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
-                  >
-                    {actionLoading === selectedJob.id ? 'Approving...' : 'Approve & Publish'}
-                  </button>
-                </>
-              ) : (
-                <div className="flex items-center text-green-600">
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  <span className="font-medium">This job is approved and active</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+            )
+          }
+        />
       )}
 
       {/* Custom Rejection Confirmation Modal */}
@@ -720,21 +623,21 @@ const JobsApproval: React.FC = () => {
                   <h3 className="text-lg font-medium text-gray-900">Reject Job</h3>
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <p className="text-sm text-gray-600">
-                  Are you sure you want to reject "<span className="font-medium">{jobToReject.title}</span>"? 
+                  Are you sure you want to reject "<span className="font-medium">{jobToReject.title}</span>"?
                   This action cannot be undone and the job will be moved to the rejected status.
                 </p>
               </div>
-              
+
               <div className="flex justify-end space-x-3">
-                <button
+                <Button
+                  variant="ghost"
                   onClick={cancelRejectJob}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
-                </button>
+                </Button>
                 <button
                   onClick={confirmRejectJob}
                   disabled={actionLoading === jobToReject.id}

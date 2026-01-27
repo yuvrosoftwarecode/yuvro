@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -15,12 +16,12 @@ export default function SkillTestForm() {
   const navigate = useNavigate();
   const { skillTestId } = useParams<{ skillTestId: string }>();
   const isEditMode = !!skillTestId;
-  
+
   // Get URL parameters for course and topic
   const urlParams = new URLSearchParams(window.location.search);
   const courseIdFromUrl = urlParams.get('courseId');
   const topicIdFromUrl = urlParams.get('topicId');
-  
+
   console.log('SkillTestForm - URL params:', { courseIdFromUrl, topicIdFromUrl, currentUrl: window.location.href });
 
   const [skillTest, setSkillTest] = useState<SkillTest | null>(null);
@@ -70,7 +71,7 @@ export default function SkillTestForm() {
     try {
       const questionPromises = questionIds.map(id => fetchQuestionById(id));
       const questions = await Promise.all(questionPromises);
-      
+
       const categorized = {
         mcq_single: [] as string[],
         mcq_multiple: [] as string[],
@@ -130,12 +131,12 @@ export default function SkillTestForm() {
 
   const fetchSkillTest = async () => {
     if (!skillTestId) return;
-    
+
     setLoading(true);
     try {
       const data = await skillTestService.getSkillTest(skillTestId);
       setSkillTest(data);
-      
+
       // Populate form with skill test data
       setFormData({
         title: data.title,
@@ -232,12 +233,12 @@ export default function SkillTestForm() {
         await skillTestService.createSkillTest(payload);
         toast.success('Skill test created successfully');
       }
-      
+
       // Navigate back to the course topics page and auto-select the topic for which skill test was created
       const skillTestTopicId = formData.topic; // Use the actual topic from the skill test
       const skillTestCourseId = formData.course; // Use the actual course from the skill test
       console.log('Skill test saved, navigating back. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-      
+
       try {
         if (skillTestCourseId) {
           let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
@@ -275,16 +276,16 @@ export default function SkillTestForm() {
     if (isEditMode) {
       return 'Modify skill test details and settings';
     }
-    
+
     const courseName = courses.find(c => c.id === courseIdFromUrl)?.name;
     const topicName = topics.find(t => t.id === topicIdFromUrl)?.name;
-    
+
     if (courseName && topicName) {
       return `Create a new skill test for ${courseName} - ${topicName}`;
     } else if (courseName) {
       return `Create a new skill test for ${courseName}`;
     }
-    
+
     return 'Create a new skill test';
   };
 
@@ -358,17 +359,17 @@ export default function SkillTestForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsList className="inline-flex w-auto gap-1">
                   <TabsTrigger
                     value="details"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <Settings className="h-4 w-4" />
                     Test Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="questions"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <FileText className="h-4 w-4" />
                     Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
@@ -612,7 +613,8 @@ export default function SkillTestForm() {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       const skillTestTopicId = formData.topic || topicIdFromUrl;
                       const skillTestCourseId = formData.course || courseIdFromUrl;
@@ -642,10 +644,9 @@ export default function SkillTestForm() {
                         }
                       }
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
-                  </button>
+                  </Button>
                   <button
                     onClick={handleSubmit}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"

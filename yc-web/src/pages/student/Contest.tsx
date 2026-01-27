@@ -4,6 +4,8 @@ import Navigation from '../../components/common/Navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import StatusBadge from '@/components/common/StatusBadge';
+import SearchBar from '@/components/common/SearchBar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -129,14 +131,7 @@ const ContestPage = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ongoing': return 'bg-green-500/10 text-green-600 border-green-500/20';
-      case 'upcoming': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
-      case 'past': return 'bg-gray-200/10 text-gray-600 border border-gray-200';
-      default: return 'bg-muted text-muted-foreground border-border';
-    }
-  };
+
 
   const filteredContests = contests.filter(contest => {
     const matchesType = selectedType === 'all' || contest.type === selectedType;
@@ -200,10 +195,7 @@ const ContestPage = () => {
                     {getTypeIcon(contest.type)}
                     <span className="ml-1 capitalize">{contest.type}</span>
                   </Badge>
-                  <Badge className={cn('border', getStatusColor(contest.status))}>
-                    {contest.status === 'ongoing' && <span className="animate-pulse mr-1">●</span>}
-                    {contest.status.toUpperCase()}
-                  </Badge>
+                  <StatusBadge status={contest.status} />
                 </div>
                 <CardTitle className="text-xl line-clamp-2">{contest.title}</CardTitle>
                 <CardDescription className="flex items-center gap-1">
@@ -286,15 +278,11 @@ const ContestPage = () => {
                     </SelectContent>
                   </Select>
 
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search contests..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 border border-gray-200"
-                    />
-                  </div>
+                  <SearchBar
+                    placeholder="Search contests..."
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -303,38 +291,14 @@ const ContestPage = () => {
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <div className="my-4">
-                <TabsList className="flex w-full h-10 max-w-md justify-between bg-gray-100 rounded-md border border-gray-200 py-0.5 gap-1">
-                  <TabsTrigger
-                    className={cn(
-                      "flex-1 h-8 flex items-center px-4 rounded-md transition-colors font-medium cursor-pointer",
-                      activeTab === "all"
-                        ? "bg-white shadow text-primary border border-gray-300"
-                        : "bg-gray-100 text-gray-600 border border-transparent hover:bg-white"
-                    )}
-                    value="all"
-                  >
+                <TabsList className="inline-flex w-auto gap-1">
+                  <TabsTrigger value="all" className="px-6">
                     All Contests
                   </TabsTrigger>
-                  <TabsTrigger
-                    className={cn(
-                      "flex-1 h-8 flex items-center px-4 rounded-md transition-colors font-medium cursor-pointer",
-                      activeTab === "past"
-                        ? "bg-white shadow text-primary border border-gray-300"
-                        : "bg-gray-100 text-gray-600 border border-transparent hover:bg-white"
-                    )}
-                    value="past"
-                  >
+                  <TabsTrigger value="past" className="px-6">
                     Past Contests
                   </TabsTrigger>
-                  <TabsTrigger
-                    className={cn(
-                      "flex-1 h-8 flex items-center px-4 rounded-md transition-colors font-medium cursor-pointer",
-                      activeTab === "my"
-                        ? "bg-white shadow text-primary border border-gray-300"
-                        : "bg-gray-100 text-gray-600 border border-transparent hover:bg-white"
-                    )}
-                    value="my"
-                  >
+                  <TabsTrigger value="my" className="px-6">
                     My Contests
                   </TabsTrigger>
                 </TabsList>
@@ -364,10 +328,7 @@ const ContestPage = () => {
                             {getTypeIcon(contest.type)}
                             <span className="ml-1 capitalize">{contest.type}</span>
                           </Badge>
-                          <Badge className={cn('border', getStatusColor(contest.status))}>
-                            {contest.status === 'ongoing' && <span className="animate-pulse mr-1">●</span>}
-                            {contest.status.toUpperCase()}
-                          </Badge>
+                          <StatusBadge status={contest.status} />
                           <Badge className="border border-gray-200" variant="outline">{contest.difficulty}</Badge>
                         </div>
                         <h3 className="text-xl font-semibold mb-1 group-hover:text-primary transition-colors">

@@ -312,11 +312,11 @@ export default function MockInterviewForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 p-1 rounded-lg">
-                  <TabsTrigger value="details">Basic Info</TabsTrigger>
-                  <TabsTrigger value="ai_config">AI Config</TabsTrigger>
-                  <TabsTrigger value="voice_config">Voice & Audio</TabsTrigger>
-                  <TabsTrigger value="questions">Questions</TabsTrigger>
+                <TabsList className="inline-flex w-auto gap-1">
+                  <TabsTrigger value="details" className="px-5">Basic Info</TabsTrigger>
+                  <TabsTrigger value="ai_config" className="px-5">AI Config</TabsTrigger>
+                  <TabsTrigger value="voice_config" className="px-5">Voice & Audio</TabsTrigger>
+                  <TabsTrigger value="questions" className="px-5">Questions</TabsTrigger>
                 </TabsList>
 
                 {/* Details Tab */}
@@ -594,13 +594,12 @@ export default function MockInterviewForm() {
                 </TabsContent>
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={() => navigate('/instructor/mock-interview')}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
-                  </button>
+                  </Button>
                   <Button
                     onClick={handleSubmit}
                     disabled={loading}

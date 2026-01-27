@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, Mic, Brain, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import StatusBadge from '@/components/common/StatusBadge';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import SearchBar from '@/components/common/SearchBar';
@@ -141,12 +142,14 @@ export default function MockInterviewPage() {
     return matchesSearch && matchesTab;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      case 'draft': return 'bg-gray-100 text-gray-700 border-gray-200';
-      case 'archived': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-muted text-muted-foreground';
+
+
+  const getModeColor = (mode: string) => {
+    switch (mode) {
+      case 'full_ai': return 'bg-blue-100 text-blue-700';
+      case 'mixed': return 'bg-purple-100 text-purple-700';
+      case 'predefined': return 'bg-orange-100 text-orange-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -242,26 +245,11 @@ export default function MockInterviewPage() {
 
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div className="flex w-full items-center gap-4 h-12">
-                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center border border-gray-200 rounded-lg">
-                      <TabsList className="flex rounded-lg overflow-hidden border border-gray-200 bg-white px-4 gap-4 h-full items-center">
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'all' ? 'bg-gray-200 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="all"
-                        >
-                          All
-                        </TabsTrigger>
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'active' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="active"
-                        >
-                          Active
-                        </TabsTrigger>
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'draft' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="draft"
-                        >
-                          Draft
-                        </TabsTrigger>
+                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
+                      <TabsList className="inline-flex w-auto gap-1">
+                        <TabsTrigger value="all" className="px-6">All</TabsTrigger>
+                        <TabsTrigger value="active" className="px-6">Active</TabsTrigger>
+                        <TabsTrigger value="draft" className="px-6">Draft</TabsTrigger>
                       </TabsList>
                     </Tabs>
 
@@ -291,9 +279,7 @@ export default function MockInterviewPage() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                          <Badge className={getStatusColor(selectedInterview.publish_status)} variant="outline">
-                            {selectedInterview.publish_status}
-                          </Badge>
+                          <StatusBadge status={selectedInterview.publish_status} />
                         </div>
                       </div>
 
@@ -305,7 +291,9 @@ export default function MockInterviewPage() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">AI Mode</label>
-                          <div className="text-gray-900 capitalize">{selectedInterview.ai_generation_mode.replace('_', ' ')}</div>
+                          <Badge className={`capitalize border-0 ${getModeColor(selectedInterview.ai_generation_mode)}`}>
+                            {selectedInterview.ai_generation_mode.replace('_', ' ')}
+                          </Badge>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Voice</label>
@@ -346,7 +334,7 @@ export default function MockInterviewPage() {
                           <div className="flex flex-wrap gap-2">
                             {selectedInterview.optional_skills.length > 0 ? (
                               selectedInterview.optional_skills.map(s => (
-                                <Badge key={s} variant="outline">{s}</Badge>
+                                <Badge key={s} variant="secondary" className="bg-gray-100 text-gray-700 border-0">{s}</Badge>
                               ))
                             ) : <span className="text-gray-500 text-sm">None</span>}
                           </div>
@@ -412,15 +400,13 @@ export default function MockInterviewPage() {
                             <TableRow key={interview.id} className="cursor-pointer hover:bg-gray-50" onClick={() => openViewForm(interview)}>
                               <TableCell className="font-medium">{interview.title}</TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="capitalize">
+                                <Badge variant="secondary" className={`capitalize border-0 ${getModeColor(interview.ai_generation_mode)}`}>
                                   {interview.ai_generation_mode.replace('_', ' ')}
                                 </Badge>
                               </TableCell>
                               <TableCell>{interview.max_duration} mins</TableCell>
                               <TableCell>
-                                <Badge className={getStatusColor(interview.publish_status)} variant="outline">
-                                  {interview.publish_status}
-                                </Badge>
+                                <StatusBadge status={interview.publish_status} />
                               </TableCell>
                               <TableCell>
                                 {interview.ai_verbal_question_count} / {interview.ai_coding_question_count}

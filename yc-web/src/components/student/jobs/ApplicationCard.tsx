@@ -1,5 +1,6 @@
 import React from 'react';
 import { JobApplication } from '@/services/jobApplicationService';
+import StatusBadge from '@/components/common/StatusBadge';
 
 interface ApplicationCardProps {
   application: JobApplication;
@@ -10,18 +11,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
     return null;
   }
 
-  const getStatusColor = (status?: string) => {
-    if (!status) return 'bg-blue-100 text-blue-700 border-blue-200'; // Default for applied
-    
-    switch (status) {
-      case 'under_review': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'shortlisted': return 'bg-green-100 text-green-700 border-green-200';
-      case 'interview_scheduled': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'selected': return 'bg-green-100 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-blue-100 text-blue-700 border-blue-200';
-    }
-  };
+
 
   const getStatusText = (status?: string) => {
     if (!status) return 'Applied';
@@ -44,9 +34,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
             </div>
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(application.status)}`}>
-          {getStatusText(application.status)}
-        </div>
+        <StatusBadge status={application.status || 'Applied'} />
       </div>
 
       <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-4">

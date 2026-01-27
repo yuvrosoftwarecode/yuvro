@@ -538,7 +538,7 @@ const CourseDetail: React.FC = () => {
 
                                     <div className="p-6 pt-2">
                                         <Tabs defaultValue="progress" className="w-full">
-                                            <TabsList className="grid w-full grid-cols-4 mb-6">
+                                            <TabsList className="grid w-full grid-cols-4">
                                                 <TabsTrigger value="progress">Progress</TabsTrigger>
                                                 <TabsTrigger value="quiz">Quizzes</TabsTrigger>
                                                 <TabsTrigger value="coding">Coding</TabsTrigger>

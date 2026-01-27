@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -274,11 +275,11 @@ export default function CertificationExamForm() {
                 <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
                     <div className="bg-white shadow rounded-lg mb-6 p-6">
                         <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
-                                <TabsTrigger value="details" className="flex items-center gap-2">
+                            <TabsList className="inline-flex w-auto gap-1 mb-6">
+                                <TabsTrigger value="details" className="flex items-center justify-center gap-2 px-5">
                                     <Settings className="h-4 w-4" /> Exam Details & Schedule
                                 </TabsTrigger>
-                                <TabsTrigger value="questions" className="flex items-center gap-2">
+                                <TabsTrigger value="questions" className="flex items-center justify-center gap-2 px-5">
                                     <FileText className="h-4 w-4" />
                                     Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
                                 </TabsTrigger>
@@ -557,12 +558,12 @@ export default function CertificationExamForm() {
                             </TabsContent>
 
                             <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => navigate('/instructor/certifications')}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                                 >
                                     Cancel
-                                </button>
+                                </Button>
                                 <button
                                     onClick={handleSubmit}
                                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"

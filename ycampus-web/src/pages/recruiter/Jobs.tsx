@@ -241,7 +241,7 @@ const Jobs: React.FC = () => {
       skills: job.skills,
       notice_period: job.notice_period,
       education_level: job.education_level as "any",
-      status: "draft", 
+      status: "draft",
       posted_at: undefined,
       expires_at: undefined,
     });
@@ -338,9 +338,9 @@ const Jobs: React.FC = () => {
       if (isEditing && selectedJobId) {
         const originalJob = jobs.find(job => job.id === selectedJobId);
         const wasActive = originalJob?.status === 'active';
-        
+
         const updatedJob = await jobService.updateJob(selectedJobId, payload);
-        
+
         if (wasActive && updatedJob.status === 'draft') {
           toast.success('Job updated successfully! Since this was an active job, it has been moved to Jobs Approval for re-approval before going live again.', {
             duration: 6000
@@ -395,7 +395,7 @@ const Jobs: React.FC = () => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     let matchesTab = false;
     if (selectedTab === 'all') {
       matchesTab = true;
@@ -404,7 +404,7 @@ const Jobs: React.FC = () => {
     } else {
       matchesTab = job.status === selectedTab;
     }
-    
+
     return matchesSearch && matchesTab;
   });
 
@@ -449,7 +449,7 @@ const Jobs: React.FC = () => {
         <span>Find Candidates</span>
       </button>
     </>
-    
+
   );
 
   return (
@@ -664,8 +664,8 @@ const Jobs: React.FC = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
-                                {job.status === 'active' && selectedTab === 'Approved' 
-                                  ? 'Approved' 
+                                {job.status === 'active' && selectedTab === 'Approved'
+                                  ? 'Approved'
                                   : job.status.charAt(0).toUpperCase() + job.status.slice(1)
                                 }
                               </span>

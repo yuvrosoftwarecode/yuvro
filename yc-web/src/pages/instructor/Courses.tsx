@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Trash2, BookOpen, Users } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 import {
   fetchCourses,
@@ -38,7 +39,7 @@ import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
 
 type Course = {
-  id: string;
+  id: string | number;
   short_code: string | null;
   name: string;
   category: "fundamentals" | "programming_languages" | "databases" | "ai_tools";
@@ -357,32 +358,23 @@ const Courses: React.FC = () => {
           />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Tabs */}
-            <div className="mb-6">
-              <nav className="flex space-x-8">
+            <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
+              <TabsList className="inline-flex w-auto gap-1">
                 {[
                   { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
                   { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
                   { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
                   { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
                 ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => handleTabChange(tab.key as any)}
-                    className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                  >
-                    <span>{tab.label}</span>
-                    <span className={`rounded-full px-2 py-1 text-xs ${activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                  <TabsTrigger key={tab.key} value={tab.key} className="px-5">
+                    <span className="mr-2">{tab.label}</span>
+                    <span className="opacity-70 text-xs py-0.5 px-2 rounded-full">
                       {tab.count}
                     </span>
-                  </button>
+                  </TabsTrigger>
                 ))}
-              </nav>
-            </div>
+              </TabsList>
+            </Tabs>
 
             {/* Loading State */}
             {loading && (

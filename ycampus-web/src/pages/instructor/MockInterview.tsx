@@ -393,18 +393,18 @@ export default function MockInterviewPage() {
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent className="pt-0 px-0 pb-0 p-5">
-                    <div className="rounded-lg overflow-hidden border border-gray-200">
-                      <Table className="border border-gray-200 rounded-lg">
+                  <CardContent className="pt-4 px-6 pb-6">
+                    <div className="rounded-lg overflow-hidden">
+                      <Table>
                         <TableHeader>
-                          <TableRow className="border border-gray-200">
-                            <TableHead>Title</TableHead>
-                            <TableHead>Mode</TableHead>
-                            <TableHead>Duration</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Questions (V/C)</TableHead>
-                            <TableHead>Participants</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                          <TableRow className="bg-gray-50 hover:bg-gray-50">
+                            <TableHead className="text-gray-600 font-medium">Title</TableHead>
+                            <TableHead className="text-gray-600 font-medium">Mode</TableHead>
+                            <TableHead className="text-gray-600 font-medium">Duration</TableHead>
+                            <TableHead className="text-gray-600 font-medium">Status</TableHead>
+                            <TableHead className="text-gray-600 font-medium">Questions (V/C)</TableHead>
+                            <TableHead className="text-gray-600 font-medium">Participants</TableHead>
+                            <TableHead className="text-right text-gray-600 font-medium">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
