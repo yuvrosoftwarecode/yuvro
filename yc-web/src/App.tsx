@@ -19,6 +19,8 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import CourseDetail from './components/student/CourseDetail';
 import SkillTest from './pages/student/SkillTest';
 import MockInterview from './pages/student/MockInterview';
+import MockInterviewRoom from './pages/student/MockInterviewRoom';
+import MockInterviewReportPage from './pages/student/MockInterviewReportPage';
 import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
@@ -159,6 +161,22 @@ function App() {
                 }
               />
 
+              <Route
+                path="/student/mock-interview/session"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <MockInterviewRoom />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/mock-interview/report/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <MockInterviewReportPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/student/mock-interview"
                 element={

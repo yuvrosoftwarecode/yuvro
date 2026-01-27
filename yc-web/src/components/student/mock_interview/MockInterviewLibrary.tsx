@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ModernCard from '@/components/common/ModernCard';
 import SearchBar from "@/components/common/SearchBar";
@@ -22,6 +23,7 @@ interface MockInterviewLibraryProps {
 }
 
 const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInterview }) => {
+  const navigate = useNavigate(); // Add hook
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -30,25 +32,19 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
-  const [showInterviewScreen, setShowInterviewScreen] = useState(false);
-  const [showThankYouScreen, setShowThankYouScreen] = useState(false);
-  const [showReportsScreen, setShowReportsScreen] = useState(false);
-  const [interviewSettings, setInterviewSettings] = useState<InterviewSettings | null>(null);
+  // States removed: showInterviewScreen, showThankYouScreen, showReportsScreen
 
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastSessionId, setLastSessionId] = useState<string | null>(null);
+
+  // ... (useEffect remains same) ...
 
   useEffect(() => {
     const fetchMockInterviews = async () => {
       try {
         const data = await mockInterviewService.getAllMockInterviews();
         const mappedRoles = data.map((item: ApiMockInterview) => {
-          // Map difficulty to level (Defaulting to Intermediate as difficulty field is removed)
           let level: 'Beginner' | 'Intermediate' | 'Advanced' = 'Intermediate';
-          // Future: map from description or tags if available
-
-          // Determine icon based on title
           const { icon, iconBg, iconColor, buttonGradient } = getRoleIconConfig(item.title);
 
           return {
@@ -70,7 +66,6 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
         setMockRoles(mappedRoles);
       } catch (error) {
         console.error("Failed to fetch mock interviews", error);
-        // Fallback to empty or toast error
       } finally {
         setLoading(false);
       }
@@ -91,7 +86,6 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   };
 
   const handleCloseModal = () => {
-    console.log('Closing modal');
     setShowModal(false);
     setSelectedRole(null);
     setSelectedDifficulty('');
@@ -101,151 +95,54 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   };
 
   const handleProceedWithInterview = () => {
-    console.log('Proceeding with interview');
     setShowPermissionDialog(false);
-    setShowInterviewScreen(true);
+    handleStartInterview(); // Call start interview when confirmed
   };
-
-  const resetInterviewState = () => {
-    // Stop media stream if exists
-    if (interviewSettings?.mediaStream) {
-      interviewSettings.mediaStream.getTracks().forEach(track => track.stop());
-    }
-    setInterviewSettings(null);
-    setSelectedRole(null);
-    setShowInterviewScreen(false);
-    setShowThankYouScreen(false);
-    setShowReportsScreen(false);
-    setShowPermissionDialog(false);
-  }
 
   const handleCancelInterview = () => {
-    console.log('Canceling interview');
-    resetInterviewState();
-  };
-
-  const handleExitInterview = () => {
-    if (interviewSettings?.mediaStream) {
-      interviewSettings.mediaStream.getTracks().forEach(track => track.stop());
-    }
-    setShowInterviewScreen(false);
-    setShowThankYouScreen(true); // Show thank you page when exiting
-  };
-
-  const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sessionId: string) => {
-    if (interviewSettings?.mediaStream) {
-      interviewSettings.mediaStream.getTracks().forEach(track => track.stop());
-    }
-    setLastSessionId(sessionId);
-    setShowInterviewScreen(false);
-    setShowThankYouScreen(true);
-  };
-
-  const handleViewReports = () => {
-    setShowThankYouScreen(false);
-    setShowReportsScreen(true);
-  };
-
-  const handleTryAgain = () => {
-    setShowThankYouScreen(false);
-    setShowReportsScreen(false);
-    setShowInterviewScreen(true);
-  };
-
-  const handleBackToLibrary = () => {
-    resetInterviewState();
+    setShowPermissionDialog(false);
   };
 
   const handleStartInterview = async () => {
-    console.log('handleStartInterview called');
+    // NOTE: In this refactor, we no longer start the media stream HERE.
+    // We navigate to the room page which handles the stream per the plan.
+    // However, the original code had permission dialog flow.
+    // We should keep the flow: Select Role -> Modal -> Permission/Start -> Navigate
+
+    // The previous implementation of handleProceedWithInterview called setShowInterviewScreen(true).
+    // Now we will navigate.
+
+    if (!selectedRole) return;
+
+    const settings: InterviewSettings = {
+      difficulty: selectedDifficulty,
+      duration: selectedDuration,
+      interviewer: selectedRole.interviewer_name || 'Junnu',
+      mediaStream: null as any, // Stream will be acquired in the room
+      resume: resumeFile || undefined
+    };
+
+    // Navigate to the interview room
+    navigate('/student/mock-interview/session', {
+      state: {
+        role: selectedRole,
+        settings: settings
+      }
+    });
+  };
+
+  const handleStartInterviewClick = () => {
     if (!selectedDifficulty || !selectedDuration || !agreeToTerms) {
       alert('Please fill in all required fields and agree to terms.');
       return;
     }
+    setShowModal(false);
 
-    try {
-      console.log('Requesting media permissions...');
-      // Request camera and microphone permissions
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
-
-      console.log('Permissions granted, stream received:', stream);
-      // If we get here, permissions were granted
-      const settings: InterviewSettings = {
-        difficulty: selectedDifficulty,
-        duration: selectedDuration,
-        interviewer: selectedRole?.interviewer_name || 'Junnu',
-        mediaStream: stream,
-        resume: resumeFile || undefined
-      };
-
-      console.log('Setting interview settings and showing permission dialog');
-      setInterviewSettings(settings);
-
-      // Close modal but keep selectedRole
-      setShowModal(false);
-      setSelectedDifficulty('');
-      setSelectedDuration('');
-      setResumeFile(null);
-      setAgreeToTerms(false);
-
-      // Use setTimeout to ensure modal is closed before showing permission dialog
-      setTimeout(() => {
-        console.log('Setting showPermissionDialog to true');
-        setShowPermissionDialog(true);
-      }, 100);
-
-    } catch (error) {
-      console.error('Failed to get media permissions:', error);
-      alert('Camera and microphone access is required for the interview. Please grant permissions and try again.');
-    }
+    // Slight delay to allow modal to close animation
+    setTimeout(() => {
+      setShowPermissionDialog(true);
+    }, 100);
   };
-
-  // Show reports screen if active
-  if (showReportsScreen && selectedRole && interviewSettings) {
-    return (
-      <ReportsScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-        sessionId={lastSessionId}
-      />
-    );
-  }
-
-  // Show thank you screen if active
-  if (showThankYouScreen && selectedRole && interviewSettings) {
-    return (
-      <ThankYouScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onViewReports={handleViewReports}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-      />
-    );
-  }
-
-  // Show interview screen if active
-  if (showInterviewScreen && selectedRole && interviewSettings) {
-    return (
-      <InterviewScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        interviewer={interviewSettings.interviewer}
-        mediaStream={interviewSettings.mediaStream}
-        resume={interviewSettings.resume}
-        onExit={handleExitInterview}
-        onInterviewComplete={handleInterviewComplete}
-      />
-    );
-  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -454,7 +351,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
                 Cancel
               </Button>
               <Button
-                onClick={handleStartInterview}
+                onClick={handleStartInterviewClick}
                 disabled={!selectedDifficulty || !selectedDuration || !agreeToTerms}
                 className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/10 px-8 py-6 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
               >

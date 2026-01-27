@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock } from 'lucide-react';
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2 } from 'lucide-react';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
@@ -16,7 +16,6 @@ interface InterviewScreenProps {
   interviewer: string;
   mediaStream: MediaStream;
   resume?: File;
-  onExit: () => void;
   onExit: () => void;
   onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
@@ -32,11 +31,13 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   onInterviewComplete
 }) => {
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
+  const [loadingExit, setLoadingExit] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentUserAnswer, setCurrentUserAnswer] = useState('');
   const [isAITyping, setIsAITyping] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
 
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
@@ -173,25 +174,34 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     initInterview();
   }, [role.id, difficulty, duration]); // dependency on role vars
 
-  const handleEndInterview = () => {
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
-    }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (e) { }
-    }
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.cancel();
+  const handleEndInterview = async () => {
+    try {
+      setLoadingExit(true); // Start loading
+      // Stop recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
 
-    if (interviewSessionId) {
-      mockInterviewService.endInterviewSession(interviewSessionId).then(() => {
+      // Stop media tracks
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+
+      window.speechSynthesis.cancel();
+
+      // End session via API
+      if (interviewSessionId) {
+        await mockInterviewService.endInterviewSession(interviewSessionId);
         onInterviewComplete(role, difficulty, duration, interviewSessionId);
-      }).catch(err => {
-        console.error("Error ending interview session", err);
-        onExit();
-      });
-    } else {
+      } else {
+        onExit(); // Fallback if no session
+      }
+    } catch (error) {
+      console.error("Failed to end interview", error);
+      // Even if API fails, we should probably exit
       onExit();
+    } finally {
+      setLoadingExit(false);
     }
   };
 
@@ -360,9 +370,19 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
 
         <div className="flex items-center gap-4 justify-self-start">
-          <Button variant="ghost" size="sm" onClick={handleEndInterview} className="text-slate-500 hover:text-slate-900">
-            <LogOut className="w-4 h-4 mr-2" />
-            Finish & Exit
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEndInterview}
+            disabled={loadingExit}
+            className="text-slate-500 hover:text-slate-900"
+          >
+            {loadingExit ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <LogOut className="w-4 h-4 mr-2" />
+            )}
+            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
           </Button>
           <div className="h-4 w-px bg-slate-200" />
           <div className="flex items-center gap-2">
