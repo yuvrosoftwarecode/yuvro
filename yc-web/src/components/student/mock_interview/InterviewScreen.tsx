@@ -129,10 +129,16 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       try {
         setIsAITyping(true);
 
+        const durationMatch = duration.match(/(\d+)/);
+        const durationMins = durationMatch ? parseInt(durationMatch[1]) : 30;
+
         const response = await mockInterviewService.createInterviewSession(
           role.title,
           role.level || "Intermediate",
-          difficulty
+          difficulty,
+          durationMins,
+          interviewer,
+          resume
         );
 
         if (response.id) {

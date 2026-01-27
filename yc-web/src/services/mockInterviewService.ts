@@ -178,13 +178,21 @@ class MockInterviewService {
 
   // --- New Methods for Interview Sessions ---
 
-  async createInterviewSession(roleTitle: string, roleLevel: string, difficulty: string): Promise<any> {
+  async createInterviewSession(roleTitle: string, roleLevel: string, difficulty: string, duration: number, interviewer: string, resume?: File): Promise<any> {
     try {
-      const response = await restApiAuthUtil.post<any>('/interviews/', {
-        role_title: roleTitle,
-        role_level: roleLevel,
-        difficulty: difficulty
-      });
+      const formData = new FormData();
+      formData.append('role_title', roleTitle);
+      formData.append('role_level', roleLevel);
+      formData.append('difficulty', difficulty);
+      formData.append('duration_minutes', duration.toString());
+      formData.append('interviewer_name', interviewer);
+
+      if (resume) {
+        formData.append('resume', resume);
+      }
+
+      // Note: We're sending FormData, so we don't set Content-Type header manually (browser does it with boundary)
+      const response = await restApiAuthUtil.post<any>('/interviews/', formData);
       return response;
     } catch (error) {
       console.error('Error creating interview session:', error);

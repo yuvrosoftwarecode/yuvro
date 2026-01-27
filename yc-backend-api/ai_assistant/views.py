@@ -224,20 +224,38 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             role = context.get("role", "Software Engineer")
             level = context.get("level", "Intermediate")
             difficulty = context.get("difficulty", "Medium")
+            interviewer_name = context.get("interviewer_name", "AI Interviewer")
+            candidate_info = context.get("candidate_info", "No specific background provided.")
+            
+            # Richer Prompt Construction
+            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer.
 
-            interview_prompt = (
-                f"You are an expert technical interviewer conducting a mock interview for the role of {role} ({level} Level). "
-                f"Your goal is to assess the candidate's skills, knowledge, and problem-solving abilities. "
-                f"Difficulty Level: {difficulty}.\n\n"
-                "Guidelines:\n"
-                "1. Ask ONE clear question at a time. Do not ask multiple questions in a single turn.\n"
-                "2. If this is the start of the conversation, begin with a relevant opening question about their background or a core concept.\n"
-                "3. If the candidate provides a vague answer, ask follow-up probing questions.\n"
-                "4. Maintain a professional, encouraging, but rigorous tone.\n"
-                f"5. Focus on topics specifically relevant to {role}.\n"
-                "6. Keep your responses concise (under 100 words) to mimic a real-time conversation.\n"
-                "7. Do not provide improved answers or long explanations unless the candidate explicitly gives up.\n"
-            )
+CRITICAL RULES:
+1. **Initial Greeting**: STRICTLY start with: "Hi, I'm {interviewer_name}. I'll be conducting your interview for the {role} position today. To get us started, could you please give me a quick introduction?"
+   - Do NOT add any other pleasantries.
+2. **NO Definitions**: NEVER ask "What is...", "Define...", or "Explain the concept of...".
+   - ❌ "What is a deadlock?"
+   - ❌ "Explain useEffect."
+3. **Scenario First**: EVERY question must be a practical situation, debugging challenge, or system design trade-off.
+   - ✅ "Two threads are stuck waiting for each other. How do you debug this?"
+   - ✅ "Your component renders too often. how do you optimize it?"
+4. **Brevity**: Max 1-2 sentences. Be direct and conversational.
+5. **Adaptive Chaining (Step-by-Step Strategy)**:
+   - **Step 1**: Analyze the candidate's last answer. Identify ONE specific concept, technology, or trade-off they mentioned.
+   - **Step 2**: Formulate a follow-up question that challenges THAT specific concept.
+   - **Rule**: Do NOT change the topic unless the candidate completely failed or the topic is fully exhausted.
+   - Example If they say "I use Redis for caching", ask: "What happens if your Redis instance fills up? How do you handle eviction?"
+6. **Coding Questions**: When you want the candidate to write code, you MUST start the sentence with **"Please write code to..."** or **"Write a function that..."**.
+   - This triggers the code editor for the candidate.
+
+
+INTERVIEW CONTEXT:
+- Role: {role}
+- Difficulty: {difficulty}
+- Candidate: {candidate_info}
+
+Start with the Initial Greeting.
+"""
             messages.append({"role": "system", "content": interview_prompt})
 
         # Add user-configured system prompt (if not in interview mode, or as secondary instruction)
@@ -254,6 +272,23 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             else:
                 role = "assistant"
             messages.append({"role": role, "content": msg.content})
+
+        if chat_session.page == "mock_interview":
+            # Find the last user message to enforce adaptive analysis
+            last_user_msg = None
+            for msg in reversed(messages):
+                if msg["role"] == "user":
+                    last_user_msg = msg["content"]
+                    break
+            
+            if last_user_msg:
+                adaptive_instruction = (
+                    f"The candidate's last answer was: \"{last_user_msg}\".\n"
+                    "TASK: Analyze this answer for technical accuracy and depth. "
+                    "Did they miss any edge cases? Did they mention a specific technology? "
+                    "Formulate your next question specifically to follow up on this answer."
+                )
+                messages.append({"role": "system", "content": adaptive_instruction})
 
         return messages
 
@@ -464,9 +499,33 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
         When creating an interview session, we also need to create a ChatSession
         and link it.
         """
-        # 1. Create a ChatSession
+        # 1. Extract Resume Text & Context
+        resume_file = self.request.data.get('resume') # From FormData
+        interviewer_name = self.request.data.get('interviewer_name', 'Alex')
+        role_title = self.request.data.get('role_title', 'General Profile')
+        role_level = self.request.data.get('role_level', 'Intermediate')
+        difficulty = self.request.data.get('difficulty', 'Medium')
+        duration_minutes = self.request.data.get('duration_minutes', 30)
+
+        context_text = ""
+        if resume_file:
+            try:
+                # Basic PDF text extraction
+                from pypdf import PdfReader
+                reader = PdfReader(resume_file)
+                for page in reader.pages:
+                    text = page.extract_text()
+                    if text:
+                        context_text += text + "\n"
+            except Exception as e:
+                print(f"Error reading resume: {e}")
+                context_text = "Resume provided but could not be read."
+        
+        if not context_text.strip():
+             context_text = "No resume provided. Ask questions based on the role title."
+
+        # 2. Create a ChatSession
         # We need an AI Agent. For now, we pick the first active Gemini agent or create a default one.
-        # Ideally, the frontend should pass the preferred agent_id, but we'll default it here.
         ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
         if not ai_agent:
             # Fallback for dev env for now
@@ -477,16 +536,19 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
         chat_session = ChatSession.objects.create(
             user=self.request.user,
             ai_agent=ai_agent,
-            title=f"Mock Interview - {serializer.validated_data.get('role_title', 'General')}",
+            title=f"Mock Interview - {role_title}",
             page="mock_interview",
             context={
-                "role": serializer.validated_data.get('role_title'),
-                "level": serializer.validated_data.get('role_level'),
-                "difficulty": serializer.validated_data.get('difficulty'),
+                "role": role_title,
+                "level": role_level,
+                "difficulty": difficulty,
+                "interviewer_name": interviewer_name,
+                "duration_minutes": duration_minutes,
+                "candidate_info": context_text
             }
         )
 
-        # 2. Save InterviewSession with the linked ChatSession
+        # 3. Save InterviewSession with the linked ChatSession
         serializer.save(user=self.request.user, chat_session=chat_session)
 
     @action(detail=True, methods=["post"])
