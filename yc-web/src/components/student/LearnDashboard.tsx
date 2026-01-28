@@ -211,14 +211,12 @@ const LearnDashboard: React.FC = () => {
                 </div>
 
                 <div className="group relative cursor-pointer" onClick={() => setIsSidebarOpen(true)}>
-                  <div className="flex items-center gap-2 h-14 px-6 bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-200 text-yellow-700 text-lg shadow">
-                      <Flame className="w-4 h-4" />
-                    </span>
+                  <div className="flex items-center gap-2 h-[44px] px-6 bg-white rounded-full border border-gray-100 shadow hover:shadow-lg transition-shadow">
+                    <Flame className="w-5 h-5 text-orange-500 animate-pulse" fill="currentColor" strokeWidth={2} />
                     <span className="text-sm font-bold text-gray-800">{stats.streak || 0}-day streak</span>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                   </div>
-                  <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     🔥 View detailed progress
                   </div>
                 </div>
@@ -241,7 +239,7 @@ const LearnDashboard: React.FC = () => {
           ) : (
             Object.entries(groupedFiltered).map(([key, list]) =>
               list.length > 0 ? (
-                <div key={key} className="flex mb-8 gap-6">
+                <div key={key} className="mb-8 gap-6">
                   <CategorySection
                     title={key.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
                     icon={getIconFor(key)}
@@ -265,39 +263,46 @@ const LearnDashboard: React.FC = () => {
       />
 
       {/* Chat toggle & Window */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+      <div
+        className={`fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4
+    ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}
+  `}
+      >
 
-        {/* Chat Window with Transition */}
+        {/* Chat Window */}
         <div
           className={`transition-all duration-300 ease-in-out transform origin-bottom-right
-            ${showChat
-              ? 'opacity-100 scale-100 translate-y-0'
+      ${showChat
+              ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
               : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
             }
-          `}
+    `}
         >
-          <AIChatContainer className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl" welcomeMessage="I can help you find courses or track your progress." />
+          <AIChatContainer
+            className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl"
+            welcomeMessage="I can help you find courses or track your progress."
+          />
         </div>
 
-        {/* Toggle Button */}
+        {/* Toggle Button — ALWAYS clickable */}
         <button
           aria-label={showChat ? 'Close AI chat' : 'Open AI chat'}
           onClick={() => setShowChat((s) => !s)}
           className={`
-            group flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 hover:scale-105 active:scale-95
-            ${showChat
-              ? 'bg-red-500 text-white rotate-0'
-              : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-4 ring-blue-50/50' // Open state with premium gradient
+      pointer-events-auto
+      group flex items-center justify-center w-14 h-14 rounded-full shadow-xl
+      transition-all duration-300 hover:scale-105 active:scale-95
+      ${showChat
+              ? 'bg-red-500 text-white'
+              : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-4 ring-blue-50/50'
             }
-          `}
+    `}
         >
-          {showChat ? (
-            <X size={24} />
-          ) : (
-            <Sparkles size={24} className="animate-pulse" />
-          )}
+          {showChat ? <X size={24} /> : <Sparkles size={24} className="animate-pulse" />}
         </button>
+
       </div>
+
     </>
   );
 };

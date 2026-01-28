@@ -11,7 +11,7 @@ import {
   Target,
   MessageCircle,
   TrendingUp,
-  Calendar,
+  CalendarDays,
   Clock,
   Award,
   Users,
@@ -23,6 +23,7 @@ import {
   DollarSign,
   Flame
 } from 'lucide-react';
+import { CustomCalendarIcon } from '@/components/common/CustomIcons';
 import { studentDashboardService, DashboardData } from '@/services/studentDashboardService';
 
 const Dashboard: React.FC = () => {
@@ -149,33 +150,33 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                      <Flame className="w-5 h-5 text-orange-500 animate-pulse" fill="currentColor" strokeWidth={2}/>
-                    </div>
-                    <div>
-                      <p className="text-sm">Learning Streak</p>
-                      <p className="font-semibold">7 days</p>
-                    </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <Flame className="w-5 h-5 text-orange-500 animate-pulse" fill="currentColor" strokeWidth={2} />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                      <Star className="w-5 h-5 text-amber-500 animate-pulse" fill="currentColor" strokeWidth={2}  />
-                    </div>
-                    <div>
-                      <p className="text-sm">XP Points</p>
-                      <p className="font-semibold">2,450</p>
-                    </div>
+                  <div>
+                    <p className="text-sm">Learning Streak</p>
+                    <p className="font-semibold">7 days</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <Target className="w-5 h-5 text-red-500 animate-pulse" strokeWidth={2} />
-                    </div>
-                    <div>
-                        <p className="text-sm">Today's Goal</p>
-                        <p className="font-semibold">2 / 3 Problems</p>
-                    </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <Star className="w-5 h-5 text-amber-500 animate-pulse" fill="currentColor" strokeWidth={2} />
                   </div>
+                  <div>
+                    <p className="text-sm">XP Points</p>
+                    <p className="font-semibold">2,450</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <Target className="w-5 h-5 text-red-500 animate-pulse" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <p className="text-sm">Today's Goal</p>
+                    <p className="font-semibold">2 / 3 Problems</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -213,14 +214,14 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Recent Activity & Course Progress */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Course Progress */}
             <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Course Progress</h3>
                 <button
                   onClick={() => navigate('/student/learn')}
-                  className="text-gray-500 cursor-pointer text-sm font-medium flex items-center"
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer text-sm font-medium flex items-center"
                 >
                   View All <ArrowRight className="w-4 h-4 ml-1" />
                 </button>
@@ -258,7 +259,7 @@ const Dashboard: React.FC = () => {
                   {dashboardData.upcomingEvents.map((event) => (
                     <div key={event.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
                       <div className="flex-shrink-0">
-                        <Calendar className="w-5 h-5 text-indigo-600 mt-0.5" />
+                        <CustomCalendarIcon className="w-5 h-5 text-gray-600 mt-0.5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
@@ -317,7 +318,7 @@ const Dashboard: React.FC = () => {
                     return (
                       <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div className={`p-2 rounded-lg ${activityColor} bg-opacity-10`}>
-                          <ActivityIcon className={`w-5 h-5 ${activityColor}`} />
+                          <ActivityIcon className="w-5 h-5 text-black" />
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-gray-900">
@@ -389,7 +390,7 @@ const Dashboard: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900">Recommended Jobs</h3>
                 <button
                   onClick={() => navigate('/student/jobs')}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer text-sm font-medium flex items-center"
                 >
                   View All <ArrowRight className="w-4 h-4 ml-1" />
                 </button>
@@ -397,7 +398,7 @@ const Dashboard: React.FC = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {dashboardData.recommendedJobs.map((job) => (
-                    <div key={job.id} className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors cursor-pointer">
+                    <div key={job.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer p-4 border border-gray-100 relative z-40">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-gray-900 text-sm">{job.title}</h4>
                         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">

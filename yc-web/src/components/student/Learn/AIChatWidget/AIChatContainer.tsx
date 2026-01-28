@@ -9,7 +9,9 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
   const [showHistory, setShowHistory] = React.useState(false);
 
   return (
-    <div className={`ai-chat-container flex flex-col bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100 ${className || 'w-[360px] h-[500px]'}`}>
+<div
+  className={`ai-chat-container relative flex flex-col bg-white shadow-xl rounded-2xl overflow-hidden  border border-slate-100 ${className || 'w-[360px] h-[500px]'}`}
+>
       <div className="px-6 py-4 border-b border-slate-50 bg-white shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -41,7 +43,7 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
 
         {/* History Dropdown */}
         {showHistory && (
-          <div className="absolute top-[72px] left-4 right-4 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 max-h-[400px] overflow-hidden flex flex-col animate-in slide-in-from-top-2 duration-200">
+          <div className="absolute top-[72px] left-4 right-4 bg-white rounded-3xl shadow-2xl border border-slate-100 z-30 max-h-[400px] overflow-hidden flex flex-col animate-in slide-in-from-top-2 duration-200">
             <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center shrink-0">
               <span className="text-xs font-black text-slate-400 uppercase tracking-widest pl-2">Recent Reviews</span>
               <button

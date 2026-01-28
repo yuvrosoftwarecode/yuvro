@@ -1,75 +1,67 @@
-// src/features/Learn/components/CourseCard.tsx
 import React from "react";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import ProgressBar from "@/components/ui/ProgressBar";
+import { cn } from "@/lib/utils";
 
-
-interface Props {
+interface CourseCardProps {
   id: string;
   icon: React.ReactNode;
   title: string;
-  description: string;
+  description?: string;
   progress: number;
+  topicsCount: number;
   onStartLearning: (id: string) => void;
-  actionLabel?: string;
-  completedActionLabel?: string;
+  iconClassName?: string;
 }
 
-const CourseCard: React.FC<Props> = ({
+const CourseCard: React.FC<CourseCardProps> = ({
   id,
   icon,
   title,
-  description,
+  description = "No topics yet",
   progress,
+  topicsCount,
   onStartLearning,
-  actionLabel = "Start Learning",
-  completedActionLabel = "Revisit and Learn"
+  iconClassName = "bg-blue-50 text-blue-600"
 }) => {
-  const hasStarted = progress > 0;
-
   return (
-    <Card className="group w-[400px] h-[250px] hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden border border-gray-200 py-4 flex flex-col">
-      <CardHeader className="pt-2 pb-2 flex-shrink-0">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-200 group-hover:from-blue-200 group-hover:to-blue-400">
-              {icon}
-            </div>
-            <div>
-              <CardTitle className="text-sm font-semibold line-clamp-1">{title}</CardTitle>
-              <span className="text-xs text-muted-foreground block">{progress}% complete</span>
-            </div>
-          </div>
+    <Card
+      onClick={() => onStartLearning(id)}
+      className="group relative bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 w-[320px] h-[220px] p-5 flex flex-col justify-between cursor-pointer rounded-xl overflow-hidden"
+    >
+      {/* Top Row: Icon and Topic Count */}
+      <div className="flex items-start justify-between">
+        <div className={cn("flex items-center justify-center w-10 h-10 rounded-lg", iconClassName)}>
+          {icon}
         </div>
-      </CardHeader>
+        <span className="text-[10px] font-bold text-gray-500 tracking-wider uppercase">
+          {topicsCount} TOPICS
+        </span>
+      </div>
 
-      <CardContent className="space-y-2 pt-2 pb-2 flex flex-col flex-1">
-        <p className="text-base text-gray-700 font-medium mb-4 line-clamp-3">{description}</p>
+      {/* Middle: Title and Description */}
+      <div className="mt-4 mb-auto">
+        <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+          {title}
+        </h3>
+        <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">
+          {description}
+        </p>
+      </div>
 
-        <div className="mt-auto">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-500">Progress</span>
-            <span className="text-xs font-semibold text-blue-600">{progress}%</span>
-          </div>
-          <ProgressBar
-            value={progress}
-            height={12}
-            trackClassName="bg-gradient-to-r from-blue-100 to-cyan-100 shadow-inner"
-            barClassName="bg-gradient-to-r from-blue-500 to-cyan-500"
+      {/* Bottom: Progress */}
+      <div className="mt-4">
+        <div className="flex justify-between items-center mb-1.5">
+          <span className="text-xs font-medium text-gray-500">Progress</span>
+          <span className="text-xs font-semibold text-blue-600">{Math.round(progress)}%</span>
+        </div>
+        <div className="relative h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
           />
-          <Button
-            size="sm"
-            className={`w-full rounded-lg text-white hover:opacity-90 transition-opacity shadow-md mt-4 font-semibold tracking-wide ${progress >= 100
-              ? "bg-gradient-to-r from-green-500 to-emerald-500"
-              : "bg-gradient-to-r from-blue-500 to-cyan-500"
-              }`}
-            onClick={() => onStartLearning(id)}
-          >
-            {progress >= 100 ? completedActionLabel : hasStarted ? (actionLabel === "Start Learning" ? "Continue Learning" : actionLabel) : actionLabel}
-          </Button>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

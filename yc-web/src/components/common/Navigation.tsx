@@ -191,33 +191,56 @@ const Navigation: React.FC = () => {
                         <div className="relative" ref={profileRef} key={`profile-${role}`}>
                             <button
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                className="flex items-center space-x-3 focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 ease-in-out transform hover:scale-105"
+                                className="flex items-center space-x-3 focus:outline-none hover:bg-gray-50 rounded-lg p-1.5 transition-all duration-200 ease-in-out"
                             >
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg transition-all duration-300 ${role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
-                                    role === 'instructor' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
-                                        role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :
-                                            'bg-gradient-to-r from-indigo-600 to-blue-600'
-                                    }`}>
-                                    {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
+                                <div className="relative">
+                                    {/* Progress Ring */}
+                                    {/* Progress Ring */}
+                                    <svg className="w-[46px] h-[46px] transform rotate-180">
+                                        <circle
+                                            cx="23"
+                                            cy="23"
+                                            r="21"
+                                            fill="none"
+                                            stroke="#E5E7EB"
+                                            strokeWidth="3"
+                                        />
+                                        <circle
+                                            cx="23"
+                                            cy="23"
+                                            r="21"
+                                            fill="none"
+                                            stroke="#F59E0B" // amber-500
+                                            strokeWidth="3"
+                                            strokeDasharray="131.95" // 2 * pi * 21
+                                            strokeDashoffset={131.95 * (1 - 75 / 100)} // 75% visual completion for gap
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out origin-center -scale-x-100" // Anti-clockwise
+                                        />
+                                    </svg>
+
+                                    {/* Avatar */}
+                                    <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm ${role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
+                                        role === 'instructor' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
+                                            role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :
+                                                'bg-gradient-to-r from-blue-600 to-indigo-600'
+                                        }`}>
+                                        {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
+                                    </div>
                                 </div>
+
                                 <div className="hidden md:block text-left">
-                                    <div className="text-sm font-medium text-gray-900">
+                                    <div className="text-sm font-bold text-gray-900 leading-tight">
                                         {user?.first_name && user?.last_name
                                             ? `${user.first_name} ${user.last_name}`
                                             : user?.username || 'User'}
                                     </div>
-                                    <div className={`text-xs font-medium capitalize ${role === 'admin' ? 'text-red-600' :
-                                        role === 'instructor' ? 'text-green-600' :
-                                            role === 'recruiter' ? 'text-purple-600' :
-                                                'text-indigo-600'
-                                        }`}>{user?.role || 'Student'}</div>
+                                    <div className="text-xs font-medium text-indigo-600 capitalize leading-tight mt-0.5">
+                                        {user?.role || 'Student'}
+                                    </div>
                                 </div>
-                                <svg className={`w-4 h-4 hidden md:block transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''
-                                    } ${role === 'admin' ? 'text-red-400' :
-                                        role === 'instructor' ? 'text-green-400' :
-                                            role === 'recruiter' ? 'text-purple-400' :
-                                                'text-indigo-400'
-                                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -239,12 +262,39 @@ const Navigation: React.FC = () => {
                                                 'bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100'
                                         }`}>
                                         <div className="flex items-center space-x-4">
-                                            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-white ${role === 'admin' ? 'bg-gradient-to-br from-red-600 to-pink-600' :
-                                                role === 'instructor' ? 'bg-gradient-to-br from-green-600 to-emerald-600' :
-                                                    role === 'recruiter' ? 'bg-gradient-to-br from-purple-600 to-violet-600' :
-                                                        'bg-gradient-to-br from-indigo-600 to-blue-600'
-                                                }`}>
-                                                {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
+                                            <div className="relative mr-4">
+                                                <svg className="w-[78px] h-[78px] transform rotate-180 absolute -top-[11px] -left-[11px] z-10">
+                                                    <circle
+                                                        cx="39"
+                                                        cy="39"
+                                                        r="36"
+                                                        fill="none"
+                                                        stroke="#E5E7EB"
+                                                        strokeWidth="3"
+                                                    />
+                                                    <circle
+                                                        cx="39"
+                                                        cy="39"
+                                                        r="36"
+                                                        fill="none"
+                                                        stroke="#F59E0B" // amber-500
+                                                        strokeWidth="3"
+                                                        strokeDasharray="226.19" // 2 * pi * 36
+                                                        strokeDashoffset={226.19 * (1 - 75 / 100)}
+                                                        strokeLinecap="round"
+                                                        className="transition-all duration-1000 ease-out origin-center -scale-x-100"
+                                                    />
+                                                </svg>
+                                                <div className={`relative z-20 w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-white ${role === 'admin' ? 'bg-gradient-to-br from-red-600 to-pink-600' :
+                                                    role === 'instructor' ? 'bg-gradient-to-br from-green-600 to-emerald-600' :
+                                                        role === 'recruiter' ? 'bg-gradient-to-br from-purple-600 to-violet-600' :
+                                                            'bg-gradient-to-br from-indigo-600 to-blue-600'
+                                                    }`}>
+                                                    {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="absolute -bottom-1 -right-2 z-30 bg-white rounded-full px-1.5 py-0.5 shadow-sm border border-gray-100 flex items-center justify-center">
+                                                    <span className="text-[10px] font-bold text-amber-600 leading-none">85%</span>
+                                                </div>
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-bold text-gray-900 text-base truncate">
