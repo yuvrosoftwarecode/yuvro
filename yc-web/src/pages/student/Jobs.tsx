@@ -98,8 +98,8 @@ const Jobs = () => {
         if (filters.location.includes('Remote') && job.is_remote) return true;
         if (filters.location.includes('Hybrid') && job.locations.length > 0 && job.is_remote) return true;
         if (filters.location.includes('Onsite') && job.locations.length > 0 && !job.is_remote) return true;
-        return job.locations.some(loc => 
-          filters.location.some(filterLoc => 
+        return job.locations.some(loc =>
+          filters.location.some(filterLoc =>
             loc.toLowerCase().includes(filterLoc.toLowerCase())
           )
         );
@@ -117,8 +117,8 @@ const Jobs = () => {
     }
 
     if (filters.jobType.length > 0) {
-      filtered = filtered.filter(job => 
-        filters.jobType.some(type => 
+      filtered = filtered.filter(job =>
+        filters.jobType.some(type =>
           job.employment_type.toLowerCase().replace('-', ' ') === type.toLowerCase()
         )
       );
@@ -328,10 +328,10 @@ const Jobs = () => {
 
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="all">All Jobs</TabsTrigger>
-                  <TabsTrigger value="bookmarks">Bookmarks ({bookmarks.length})</TabsTrigger>
-                  <TabsTrigger value="applications">Applications ({myApplications.length})</TabsTrigger>
+                <TabsList className="inline-flex w-auto gap-1">
+                  <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
+                  <TabsTrigger value="bookmarks" className="px-5">Bookmarks ({bookmarks.length})</TabsTrigger>
+                  <TabsTrigger value="applications" className="px-5">Applications ({myApplications.length})</TabsTrigger>
                 </TabsList>
 
                 {/* Search and Filter Toggle - Only show for All Jobs tab */}
@@ -363,7 +363,7 @@ const Jobs = () => {
                     const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
                     const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
                     const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
-                    
+
                     return (
                       <div key={job.id} className="relative">
                         {/* Bookmarked indicator for recently bookmarked jobs */}
@@ -375,8 +375,8 @@ const Jobs = () => {
                             </div>
                           </div>
                         )}
-                        <JobCard 
-                          job={job} 
+                        <JobCard
+                          job={job}
                           isBookmarked={isBookmarked}
                           isApplied={isApplied}
                           onBookmark={handleBookmarkJob}
@@ -387,7 +387,7 @@ const Jobs = () => {
                     );
                   })}
                   {filteredJobs.length === 0 && !loading && (
-                    <EmptyState 
+                    <EmptyState
                       title="No jobs found"
                       description="Try adjusting your search criteria or filters to find more opportunities."
                       actionText="Clear Filters"
@@ -407,8 +407,8 @@ const Jobs = () => {
                           Saved
                         </div>
                       </div>
-                      <JobCard 
-                        job={application.job} 
+                      <JobCard
+                        job={application.job}
                         isBookmarked={application.is_bookmarked}
                         isApplied={application.is_applied}
                         onBookmark={handleBookmarkJob}
@@ -420,7 +420,7 @@ const Jobs = () => {
                     </div>
                   ))}
                   {bookmarks.length === 0 && (
-                    <EmptyState 
+                    <EmptyState
                       title="No bookmarked jobs"
                       description="Start bookmarking jobs you're interested in to see them here."
                       actionText="Browse Jobs"
@@ -432,13 +432,13 @@ const Jobs = () => {
                 {/* Applications Tab */}
                 <TabsContent value="applications" className="space-y-4">
                   {myApplications.map((application) => (
-                    <ApplicationCard 
-                      key={application.id} 
+                    <ApplicationCard
+                      key={application.id}
                       application={application}
                     />
                   ))}
                   {myApplications.length === 0 && (
-                    <EmptyState 
+                    <EmptyState
                       title="No applications yet"
                       description="Start applying to jobs to track your applications here."
                       actionText="Browse Jobs"

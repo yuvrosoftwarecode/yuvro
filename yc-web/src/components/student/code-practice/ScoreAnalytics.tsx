@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, TrendingUp, Trophy, Target, Clock, Brain, CheckCircle2 } from 'lucide-react';
+import StatusBadge from '@/components/common/StatusBadge';
 import codeEditorService from '@/services/codeEditorService';
 import { toast } from 'sonner';
 
@@ -105,18 +106,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20';
-      case 'error':
-        return 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20';
-      case 'timeout':
-        return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
+
 
   if (loading) {
     return (
@@ -298,9 +288,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
               {stats.recentSubmissions.map((submission) => (
                 <div key={submission.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline" className={getStatusColor(submission.status)}>
-                      {submission.status}
-                    </Badge>
+                    <StatusBadge status={submission.status} />
                     <div>
                       <p className="font-medium">{submission.problem_title}</p>
                       <p className="text-sm text-muted-foreground">

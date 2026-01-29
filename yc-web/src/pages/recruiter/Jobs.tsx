@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Pencil, Trash, Filter, Settings, FileText, Building2, Users, X, Briefcase, MapPin, DollarSign, Copy, CheckCircle, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash, Filter, Settings, FileText, Building2, Users, X, Briefcase, MapPin, DollarSign, Copy, CheckCircle, RefreshCw, Eye } from "lucide-react";
 import { jobService, Job, Company } from "../../services/jobService";
 import { jobApplicationService } from "../../services/jobApplicationService";
 
@@ -10,6 +10,10 @@ import QuestionBank from "../../components/common/QuestionBank";
 import SearchBar from "../../components/common/SearchBar";
 import { fetchQuestionById } from "../../services/questionService";
 import { toast } from "sonner";
+import { Button } from "../../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import StatusBadge from "../../components/common/StatusBadge";
+import JobDetailsViewer from "../../components/common/recruiter/JobDetailsViewer";
 
 const Jobs: React.FC = () => {
   const navigate = useNavigate();
@@ -61,6 +65,8 @@ const Jobs: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
+  const [showJobDetails, setShowJobDetails] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const [jobsWithApplications, setJobsWithApplications] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -241,7 +247,7 @@ const Jobs: React.FC = () => {
       skills: job.skills,
       notice_period: job.notice_period,
       education_level: job.education_level as "any",
-      status: "draft", 
+      status: "draft",
       posted_at: undefined,
       expires_at: undefined,
     });
@@ -338,9 +344,9 @@ const Jobs: React.FC = () => {
       if (isEditing && selectedJobId) {
         const originalJob = jobs.find(job => job.id === selectedJobId);
         const wasActive = originalJob?.status === 'active';
-        
+
         const updatedJob = await jobService.updateJob(selectedJobId, payload);
-        
+
         if (wasActive && updatedJob.status === 'draft') {
           toast.success('Job updated successfully! Since this was an active job, it has been moved to Jobs Approval for re-approval before going live again.', {
             duration: 6000
@@ -395,7 +401,7 @@ const Jobs: React.FC = () => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     let matchesTab = false;
     if (selectedTab === 'all') {
       matchesTab = true;
@@ -404,20 +410,11 @@ const Jobs: React.FC = () => {
     } else {
       matchesTab = job.status === selectedTab;
     }
-    
+
     return matchesSearch && matchesTab;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      case 'draft': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'paused': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'closed': return 'bg-gray-100 text-gray-700 border-gray-200';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
+
 
 
 
@@ -449,7 +446,7 @@ const Jobs: React.FC = () => {
         <span>Find Candidates</span>
       </button>
     </>
-    
+
   );
 
   return (
@@ -513,62 +510,22 @@ const Jobs: React.FC = () => {
 
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div className="flex w-full items-center gap-4 h-12">
-                    <div className="h-full flex items-center border border-gray-200 rounded-lg">
-                      <div className="flex rounded-lg overflow-hidden border border-gray-200 bg-white px-4 gap-4 h-full items-center">
-                        <button
-                          onClick={() => setSelectedTab('all')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'all' ? 'bg-gray-200 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          All Jobs
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('active')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'active' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          Active
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('draft')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'draft' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          Draft
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('paused')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'paused' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          Paused
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('closed')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'closed' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          Closed
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('Approved')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'Approved' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
+                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
+                      <TabsList className="inline-flex w-auto gap-1">
+                        <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
+                        <TabsTrigger value="active" className="px-5">Active</TabsTrigger>
+                        <TabsTrigger value="draft" className="px-5">Draft</TabsTrigger>
+                        <TabsTrigger value="paused" className="px-5">Paused</TabsTrigger>
+                        <TabsTrigger value="closed" className="px-5">Closed</TabsTrigger>
+                        <TabsTrigger value="Approved" className="px-5">
                           Approved
-                          <span className={`ml-1 text-xs ${selectedTab === 'Approved' ? 'text-gray-700' : 'text-gray-500'}`}>
+                          <span className="ml-1 text-xs opacity-70">
                             ({jobs.filter(j => j.status === 'active').length})
                           </span>
-                        </button>
-                        <button
-                          onClick={() => setSelectedTab('rejected')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'rejected' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                        >
-                          Rejected
-                        </button>
-                      </div>
-                    </div>
+                        </TabsTrigger>
+                        <TabsTrigger value="rejected" className="px-5">Rejected</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
 
                     <div className="group relative h-full flex items-center">
                       <SearchBar
@@ -663,12 +620,10 @@ const Jobs: React.FC = () => {
                               }
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
-                                {job.status === 'active' && selectedTab === 'Approved' 
-                                  ? 'Approved' 
-                                  : job.status.charAt(0).toUpperCase() + job.status.slice(1)
-                                }
-                              </span>
+                              <StatusBadge
+                                status={job.status}
+                                label={job.status === 'active' && selectedTab === 'Approved' ? 'Approved' : undefined}
+                              />
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center justify-between">
@@ -696,6 +651,13 @@ const Jobs: React.FC = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => { setSelectedJob(job); setShowJobDetails(true); }}
+                                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="View Details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
                                 <button
                                   onClick={() => openEditForm(job)}
                                   className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -829,366 +791,354 @@ const Jobs: React.FC = () => {
                   </div>
                 )}
 
-                <div className="w-full">
-                  <div className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
-                    <button
-                      onClick={() => setCurrentFormTab('details')}
-                      className={`flex items-center gap-2 rounded-md py-2 px-4 transition-all ${currentFormTab === 'details' ? 'bg-white shadow-sm' : ''
-                        }`}
-                    >
+                <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="details" className="flex items-center gap-2">
                       <Briefcase className="h-4 w-4" />
                       Job Details
-                    </button>
-                    <button
-                      onClick={() => setCurrentFormTab('screening')}
-                      className={`flex items-center gap-2 rounded-md py-2 px-4 transition-all ${currentFormTab === 'screening' ? 'bg-white shadow-sm' : ''
-                        }`}
-                    >
+                    </TabsTrigger>
+                    <TabsTrigger value="screening" className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Screening Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
-                    </button>
-                  </div>
+                    </TabsTrigger>
+                  </TabsList>
 
-                  {currentFormTab === 'details' && (
-                    <div className="space-y-6">
-                      <div className="border border-gray-200 shadow-sm rounded-lg">
-                        <div className="pb-4 p-6 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
-                            Basic Information
-                          </h3>
-                        </div>
-                        <div className="space-y-4 p-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
-                              <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="e.g., Senior React Developer"
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type *</label>
-                              <select
-                                value={formData.employment_type}
-                                onChange={(e) => setFormData({ ...formData, employment_type: e.target.value as any })}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              >
-                                <option value="full-time">Full Time</option>
-                                <option value="part-time">Part Time</option>
-                                <option value="contract">Contract</option>
-                                <option value="internship">Internship</option>
-                              </select>
-                            </div>
-                          </div>
-
+                  <TabsContent value="details" className="space-y-6">
+                    <div className="border border-gray-200 shadow-sm rounded-lg">
+                      <div className="pb-4 p-6 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
+                          Basic Information
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Job Description *</label>
-                            <textarea
-                              value={formData.description}
-                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                              placeholder="Describe the role, responsibilities, and what you're looking for..."
-                              rows={4}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Company *</label>
-                              <select
-                                value={selectedCompanyId}
-                                onChange={(e) => {
-                                  setSelectedCompanyId(e.target.value);
-                                  handleCompanySelect(e.target.value);
-                                }}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              >
-                                <option value="">Select Company</option>
-                                {companies.map(company => (
-                                  <option key={company.id} value={company.id}>{company.name}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Remote Work</label>
-                              <div className="flex items-center space-x-4 pt-2">
-                                <label className="flex items-center">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.is_remote}
-                                    onChange={(e) => setFormData({ ...formData, is_remote: e.target.checked })}
-                                    className="mr-2"
-                                  />
-                                  Remote Position
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Locations (comma-separated)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
                             <input
                               type="text"
-                              value={formData.locations.join(', ')}
-                              onChange={(e) => {
-                                const locations = e.target.value.split(',').map(loc => loc.trim()).filter(loc => loc);
-                                setFormData({ ...formData, locations });
-                              }}
-                              placeholder="e.g., Bangalore, Mumbai, Delhi"
+                              value={formData.title}
+                              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                              placeholder="e.g., Senior React Developer"
                               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type *</label>
+                            <select
+                              value={formData.employment_type}
+                              onChange={(e) => setFormData({ ...formData, employment_type: e.target.value as any })}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            >
+                              <option value="full-time">Full Time</option>
+                              <option value="part-time">Part Time</option>
+                              <option value="contract">Contract</option>
+                              <option value="internship">Internship</option>
+                            </select>
+                          </div>
+                        </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Min Salary</label>
-                              <input
-                                type="number"
-                                value={formData.min_salary || ''}
-                                onChange={(e) => setFormData({ ...formData, min_salary: e.target.value ? Number(e.target.value) : undefined })}
-                                placeholder="50000"
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              />
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Job Description *</label>
+                          <textarea
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            placeholder="Describe the role, responsibilities, and what you're looking for..."
+                            rows={4}
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Company *</label>
+                            <select
+                              value={selectedCompanyId}
+                              onChange={(e) => {
+                                setSelectedCompanyId(e.target.value);
+                                handleCompanySelect(e.target.value);
+                              }}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            >
+                              <option value="">Select Company</option>
+                              {companies.map(company => (
+                                <option key={company.id} value={company.id}>{company.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Remote Work</label>
+                            <div className="flex items-center space-x-4 pt-2">
+                              <label className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.is_remote}
+                                  onChange={(e) => setFormData({ ...formData, is_remote: e.target.checked })}
+                                  className="mr-2"
+                                />
+                                Remote Position
+                              </label>
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Max Salary</label>
-                              <input
-                                type="number"
-                                value={formData.max_salary || ''}
-                                onChange={(e) => setFormData({ ...formData, max_salary: e.target.value ? Number(e.target.value) : undefined })}
-                                placeholder="100000"
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                              <select
-                                value={formData.currency}
-                                onChange={(e) => setFormData({ ...formData, currency: e.target.value as any })}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              >
-                                <option value="INR">INR</option>
-                                <option value="USD">USD</option>
-                                <option value="EUR">EUR</option>
-                                <option value="GBP">GBP</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                              <select
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              >
-                                <option value="draft">Draft</option>
-                                <option value="active">Active</option>
-                                <option value="paused">Paused</option>
-                                <option value="closed">Closed</option>
-                              </select>
-                              {isEditing && jobs.find(job => job.id === selectedJobId)?.status === 'active' && (
-                                <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                  <div className="flex items-start">
-                                    <div className="flex-shrink-0">
-                                      <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                      </svg>
-                                    </div>
-                                    <div className="ml-3">
-                                      <h3 className="text-sm font-medium text-amber-800">
-                                        Editing Active Job
-                                      </h3>
-                                      <div className="mt-1 text-sm text-amber-700">
-                                        <p>This job is currently active. Any content changes will move it to draft status and require re-approval before going live again.</p>
-                                      </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Locations (comma-separated)</label>
+                          <input
+                            type="text"
+                            value={formData.locations.join(', ')}
+                            onChange={(e) => {
+                              const locations = e.target.value.split(',').map(loc => loc.trim()).filter(loc => loc);
+                              setFormData({ ...formData, locations });
+                            }}
+                            placeholder="e.g., Bangalore, Mumbai, Delhi"
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Min Salary</label>
+                            <input
+                              type="number"
+                              value={formData.min_salary || ''}
+                              onChange={(e) => setFormData({ ...formData, min_salary: e.target.value ? Number(e.target.value) : undefined })}
+                              placeholder="50000"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Max Salary</label>
+                            <input
+                              type="number"
+                              value={formData.max_salary || ''}
+                              onChange={(e) => setFormData({ ...formData, max_salary: e.target.value ? Number(e.target.value) : undefined })}
+                              placeholder="100000"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                            <select
+                              value={formData.currency}
+                              onChange={(e) => setFormData({ ...formData, currency: e.target.value as any })}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            >
+                              <option value="INR">INR</option>
+                              <option value="USD">USD</option>
+                              <option value="EUR">EUR</option>
+                              <option value="GBP">GBP</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select
+                              value={formData.status}
+                              onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            >
+                              <option value="draft">Draft</option>
+                              <option value="active">Active</option>
+                              <option value="paused">Paused</option>
+                              <option value="closed">Closed</option>
+                            </select>
+                            {isEditing && jobs.find(job => job.id === selectedJobId)?.status === 'active' && (
+                              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <div className="flex items-start">
+                                  <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                  <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-amber-800">
+                                      Editing Active Job
+                                    </h3>
+                                    <div className="mt-1 text-sm text-amber-700">
+                                      <p>This job is currently active. Any content changes will move it to draft status and require re-approval before going live again.</p>
                                     </div>
                                   </div>
                                 </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Min Experience (years)</label>
-                              <input
-                                type="number"
-                                value={formData.experience_min_years}
-                                onChange={(e) => setFormData({ ...formData, experience_min_years: Number(e.target.value) })}
-                                min="0"
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Max Experience (years)</label>
-                              <input
-                                type="number"
-                                value={formData.experience_max_years || ''}
-                                onChange={(e) => setFormData({ ...formData, experience_max_years: e.target.value ? Number(e.target.value) : undefined })}
-                                min="0"
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Education Level</label>
-                              <select
-                                value={formData.education_level}
-                                onChange={(e) => setFormData({ ...formData, education_level: e.target.value as any })}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                              >
-                                <option value="any">Any</option>
-                                <option value="high_school">High School</option>
-                                <option value="diploma">Diploma</option>
-                                <option value="bachelor">Bachelor's Degree</option>
-                                <option value="master">Master's Degree</option>
-                                <option value="phd">PhD</option>
-                              </select>
-                            </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
 
-                      <div className="border border-gray-200 shadow-sm rounded-lg">
-                        <div className="pb-4 p-6 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <Settings className="h-5 w-5 mr-2 text-green-500" />
-                            Skills & Requirements
-                          </h3>
-                        </div>
-                        <div className="space-y-4 p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Required Skills (comma-separated)</label>
-                            <input
-                              type="text"
-                              value={formData.skills.join(', ')}
-                              onChange={(e) => {
-                                const skills = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
-                                setFormData({ ...formData, skills });
-                              }}
-                              placeholder="e.g., React, Node.js, JavaScript, TypeScript"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Notice Period (days)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Min Experience (years)</label>
                             <input
                               type="number"
-                              value={formData.notice_period || ''}
-                              onChange={(e) => setFormData({ ...formData, notice_period: e.target.value ? Number(e.target.value) : undefined })}
-                              placeholder="30"
+                              value={formData.experience_min_years}
+                              onChange={(e) => setFormData({ ...formData, experience_min_years: Number(e.target.value) })}
                               min="0"
                               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             />
                           </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Max Experience (years)</label>
+                            <input
+                              type="number"
+                              value={formData.experience_max_years || ''}
+                              onChange={(e) => setFormData({ ...formData, experience_max_years: e.target.value ? Number(e.target.value) : undefined })}
+                              min="0"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Education Level</label>
+                            <select
+                              value={formData.education_level}
+                              onChange={(e) => setFormData({ ...formData, education_level: e.target.value as any })}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            >
+                              <option value="any">Any</option>
+                              <option value="high_school">High School</option>
+                              <option value="diploma">Diploma</option>
+                              <option value="bachelor">Bachelor's Degree</option>
+                              <option value="master">Master's Degree</option>
+                              <option value="phd">PhD</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {currentFormTab === 'screening' && (
-                    <div className="space-y-6">
-                      <div className="border border-gray-200 shadow-sm rounded-lg">
-                        <div className="pb-4 p-6 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                            Random Questions Configuration
-                          </h3>
-                        </div>
-                        <div className="p-6">
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={randomQuestionsConfig.mcq_single}
-                                onChange={(e) => setRandomQuestionsConfig({
-                                  ...randomQuestionsConfig,
-                                  mcq_single: parseInt(e.target.value) || 0
-                                })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={randomQuestionsConfig.mcq_multiple}
-                                onChange={(e) => setRandomQuestionsConfig({
-                                  ...randomQuestionsConfig,
-                                  mcq_multiple: parseInt(e.target.value) || 0
-                                })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={randomQuestionsConfig.coding}
-                                onChange={(e) => setRandomQuestionsConfig({
-                                  ...randomQuestionsConfig,
-                                  coding: parseInt(e.target.value) || 0
-                                })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={randomQuestionsConfig.descriptive}
-                                onChange={(e) => setRandomQuestionsConfig({
-                                  ...randomQuestionsConfig,
-                                  descriptive: parseInt(e.target.value) || 0
-                                })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="0"
-                              />
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-3">
-                            Specify how many questions of each type should be randomly selected from the question bank for this job screening.
-                          </p>
-                        </div>
+                    <div className="border border-gray-200 shadow-sm rounded-lg">
+                      <div className="pb-4 p-6 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <Settings className="h-5 w-5 mr-2 text-green-500" />
+                          Skills & Requirements
+                        </h3>
                       </div>
-
-                      <div className="border border-gray-200 shadow-sm rounded-lg">
-                        <div className="pb-4 p-6 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                            Specific Question Selection
-                          </h3>
+                      <div className="space-y-4 p-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Required Skills (comma-separated)</label>
+                          <input
+                            type="text"
+                            value={formData.skills.join(', ')}
+                            onChange={(e) => {
+                              const skills = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
+                              setFormData({ ...formData, skills });
+                            }}
+                            placeholder="e.g., React, Node.js, JavaScript, TypeScript"
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
                         </div>
-                        <div className="p-6">
-                          <QuestionBank
-                            mode="selection"
-                            selectedQuestions={selectedQuestions}
-                            onQuestionsChange={handleQuestionsChange}
-                            allowMultipleSelection={true}
-                            showSplitView={true}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Notice Period (days)</label>
+                          <input
+                            type="number"
+                            value={formData.notice_period || ''}
+                            onChange={(e) => setFormData({ ...formData, notice_period: e.target.value ? Number(e.target.value) : undefined })}
+                            placeholder="30"
+                            min="0"
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                       </div>
                     </div>
-                  )}
+                  </TabsContent>
+
+                  <TabsContent value="screening" className="space-y-6">
+                    <div className="border border-gray-200 shadow-sm rounded-lg">
+                      <div className="pb-4 p-6 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <Settings className="h-5 w-5 mr-2 text-orange-500" />
+                          Random Questions Configuration
+                        </h3>
+                      </div>
+                      <div className="p-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={randomQuestionsConfig.mcq_single}
+                              onChange={(e) => setRandomQuestionsConfig({
+                                ...randomQuestionsConfig,
+                                mcq_single: parseInt(e.target.value) || 0
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={randomQuestionsConfig.mcq_multiple}
+                              onChange={(e) => setRandomQuestionsConfig({
+                                ...randomQuestionsConfig,
+                                mcq_multiple: parseInt(e.target.value) || 0
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={randomQuestionsConfig.coding}
+                              onChange={(e) => setRandomQuestionsConfig({
+                                ...randomQuestionsConfig,
+                                coding: parseInt(e.target.value) || 0
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={randomQuestionsConfig.descriptive}
+                              onChange={(e) => setRandomQuestionsConfig({
+                                ...randomQuestionsConfig,
+                                descriptive: parseInt(e.target.value) || 0
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-3">
+                          Specify how many questions of each type should be randomly selected from the question bank for this job screening.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 shadow-sm rounded-lg">
+                      <div className="pb-4 p-6 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                          <FileText className="h-5 w-5 mr-2 text-purple-500" />
+                          Specific Question Selection
+                        </h3>
+                      </div>
+                      <div className="p-6">
+                        <QuestionBank
+                          mode="selection"
+                          selectedQuestions={selectedQuestions}
+                          onQuestionsChange={handleQuestionsChange}
+                          allowMultipleSelection={true}
+                          showSplitView={true}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
 
                   <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowJobForm(false)}
-                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Cancel
-                    </button>
+                    </Button>
                     <button
                       onClick={handleSubmitJob}
                       className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
@@ -1196,7 +1146,7 @@ const Jobs: React.FC = () => {
                       {isEditing ? 'Update Job' : 'Post Job'}
                     </button>
                   </div>
-                </div>
+                </Tabs>
               </div>
             )}
 
@@ -1210,13 +1160,13 @@ const Jobs: React.FC = () => {
                     Are you sure you want to delete this job? This action cannot be undone.
                   </p>
                   <div className="flex justify-end space-x-4">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={closeDeleteModal}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
                       disabled={isDeleting}
                     >
                       Cancel
-                    </button>
+                    </Button>
                     <button
                       onClick={confirmDeleteJob}
                       className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -1232,6 +1182,21 @@ const Jobs: React.FC = () => {
 
           </div>
         </div>
+        {showJobDetails && selectedJob && (
+          <JobDetailsViewer
+            job={selectedJob}
+            onClose={() => setShowJobDetails(false)}
+            actions={
+              <button
+                onClick={() => { setShowJobDetails(false); openEditForm(selectedJob); }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Edit Job
+              </button>
+            }
+          />
+        )}
+
       </div>
     </div>
   );

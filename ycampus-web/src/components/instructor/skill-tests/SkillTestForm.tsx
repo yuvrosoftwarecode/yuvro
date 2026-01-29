@@ -15,12 +15,12 @@ export default function SkillTestForm() {
   const navigate = useNavigate();
   const { skillTestId } = useParams<{ skillTestId: string }>();
   const isEditMode = !!skillTestId;
-  
+
   // Get URL parameters for course and topic
   const urlParams = new URLSearchParams(window.location.search);
   const courseIdFromUrl = urlParams.get('courseId');
   const topicIdFromUrl = urlParams.get('topicId');
-  
+
   console.log('SkillTestForm - URL params:', { courseIdFromUrl, topicIdFromUrl, currentUrl: window.location.href });
 
   const [skillTest, setSkillTest] = useState<SkillTest | null>(null);
@@ -70,7 +70,7 @@ export default function SkillTestForm() {
     try {
       const questionPromises = questionIds.map(id => fetchQuestionById(id));
       const questions = await Promise.all(questionPromises);
-      
+
       const categorized = {
         mcq_single: [] as string[],
         mcq_multiple: [] as string[],
@@ -130,12 +130,12 @@ export default function SkillTestForm() {
 
   const fetchSkillTest = async () => {
     if (!skillTestId) return;
-    
+
     setLoading(true);
     try {
       const data = await skillTestService.getSkillTest(skillTestId);
       setSkillTest(data);
-      
+
       // Populate form with skill test data
       setFormData({
         title: data.title,
@@ -232,12 +232,12 @@ export default function SkillTestForm() {
         await skillTestService.createSkillTest(payload);
         toast.success('Skill test created successfully');
       }
-      
+
       // Navigate back to the course topics page and auto-select the topic for which skill test was created
       const skillTestTopicId = formData.topic; // Use the actual topic from the skill test
       const skillTestCourseId = formData.course; // Use the actual course from the skill test
       console.log('Skill test saved, navigating back. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-      
+
       try {
         if (skillTestCourseId) {
           let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
@@ -275,16 +275,16 @@ export default function SkillTestForm() {
     if (isEditMode) {
       return 'Modify skill test details and settings';
     }
-    
+
     const courseName = courses.find(c => c.id === courseIdFromUrl)?.name;
     const topicName = topics.find(t => t.id === topicIdFromUrl)?.name;
-    
+
     if (courseName && topicName) {
       return `Create a new skill test for ${courseName} - ${topicName}`;
     } else if (courseName) {
       return `Create a new skill test for ${courseName}`;
     }
-    
+
     return 'Create a new skill test';
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCertificationExamSubmissions, getCertificationExam, CertificationExam } from '@/services/certificationService';
 import { Card, CardContent } from '@/components/ui/card';
+import StatusBadge from '@/components/common/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -30,8 +31,8 @@ export default function CertificationExamSubmissions() {
                 getCertificationExam(id),
                 getCertificationExamSubmissions(id)
             ]);
-            setExam(examData);
-            setSubmissions(submissionsData);
+            setExam(examData as CertificationExam);
+            setSubmissions(submissionsData as any[]);
         } catch (error) {
             console.error('Failed to fetch data:', error);
             toast.error('Failed to load submissions');
@@ -40,15 +41,7 @@ export default function CertificationExamSubmissions() {
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'bg-green-100 text-green-700';
-            case 'submitted': return 'bg-blue-100 text-blue-700';
-            case 'in_progress': return 'bg-yellow-100 text-yellow-700';
-            case 'started': return 'bg-yellow-100 text-yellow-700';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
+
 
     const calculateDuration = (start: string, end: string) => {
         if (!start || !end) return '-';
@@ -119,9 +112,7 @@ export default function CertificationExamSubmissions() {
                                                         <div className="text-xs text-gray-500">{sub.user_email}</div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Badge className={getStatusColor(sub.status)} variant="outline">
-                                                            {sub.status.replace('_', ' ')}
-                                                        </Badge>
+                                                        <StatusBadge status={sub.status} />
                                                     </TableCell>
                                                     <TableCell className="font-medium">
                                                         {sub.marks !== null ? `${sub.marks} / ${exam?.passing_marks ? '100' : '100'}` : '-'}

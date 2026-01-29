@@ -363,7 +363,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         onValueChange={(v) => { setSelectedLanguage(v); setTestResults(null); setExecutionMetrics(null); }}
                                         className="w-full"
                                     >
-                                        <TabsList className="bg-gray-100/50 p-1 rounded-2xl w-fit">
+                                        <TabsList className="w-fit gap-1">
                                             {LANGUAGES.map(lang => (
                                                 <TabsTrigger
                                                     key={lang.id}
@@ -388,7 +388,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                             </pre>
                                         </div>
 
-                
+
                                     </div>
                                 </div>
                             </div>

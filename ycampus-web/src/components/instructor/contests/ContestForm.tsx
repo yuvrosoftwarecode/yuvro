@@ -119,7 +119,7 @@ export default function ContestForm() {
     try {
       const questionPromises = questionIds.map(id => fetchQuestionById(id));
       const questions = await Promise.all(questionPromises);
-      
+
       const categorized = {
         mcq_single: [] as string[],
         mcq_multiple: [] as string[],
@@ -172,13 +172,13 @@ export default function ContestForm() {
 
   const fetchContest = async () => {
     if (!contestId) return;
-    
+
     setLoading(true);
     try {
       const data = await contestService.getContest(contestId);
       const mappedContest = mapContestFromBackend(data);
       setContest(mappedContest);
-      
+
       // Populate form with contest data
       setFormData({
         title: mappedContest.title,
