@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navigation from "@/components/common/Navigation";
 import { Button } from "@/components/ui/button";
 
-import CourseSelection from "@/components/student/skill-test/CourseSelection";
+import SkillTestDashboard from "@/components/student/skill-test/SkillTestDashboard";
 import TopicSidebar from "@/components/student/skill-test/TopicSidebar";
 import TestCards from "@/components/student/skill-test/TestCards";
 import TestInstructions from "@/components/student/skill-test/TestInstructions";
@@ -503,10 +503,7 @@ const SkillTest: React.FC = () => {
     ? tests.filter((t) => t.topicId === selectedTopic.id)
     : [];
 
-  const hideNavigation =
-    currentView === "instructions" ||
-    currentView === "test" ||
-    currentView === "results";
+  const hideNavigation = currentView !== "courses";
 
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
@@ -642,7 +639,7 @@ const SkillTest: React.FC = () => {
 
         <div className="flex-1 overflow-auto">
           {currentView === "courses" ? (
-            <CourseSelection
+            <SkillTestDashboard
               courses={courses}
               onCourseSelect={handleCourseSelect}
             />

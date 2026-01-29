@@ -1,7 +1,7 @@
 import { Course } from '@/pages/student/SkillTest';
 import ModernCard from '@/components/common/ModernCard';
 
-interface CourseSelectionProps {
+interface SkillTestDashboardProps {
   courses: Course[];
   onCourseSelect: (course: Course) => void;
 }
@@ -22,9 +22,9 @@ const getCourseStyle = (id: string | number) => {
   return styles[index];
 };
 
-const CourseSelection = ({ courses, onCourseSelect }: CourseSelectionProps) => {
+const SkillTestDashboard = ({ courses, onCourseSelect }: SkillTestDashboardProps) => {
   return (
-    <div className="px-6 py-8 animate-fade-in max-w-[1600px] mx-auto">
+    <div className="px-8 py-6 animate-fade-in max-w-[1600px] mx-auto">
       <div className="mb-10 text-left">
         <h1 className="text-3xl font-bold text-gray-900">
           Skill Test
@@ -62,4 +62,4 @@ const CourseSelection = ({ courses, onCourseSelect }: CourseSelectionProps) => {
   );
 };
 
-export default CourseSelection;
+export default SkillTestDashboard;

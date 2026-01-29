@@ -250,7 +250,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   return (
     <div className="bg-background min-h-screen">
       <Navigation />
-      <div className="p-8 max-w-7xl mx-auto animate-fade-in">
+      <div className="px-8 py-6 max-w-[1600px] mx-auto animate-fade-in">
         {/* Header with Search */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-left w-full md:w-auto">

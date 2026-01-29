@@ -19,36 +19,7 @@ interface Insight {
   color: string;
 }
 
-const MOCK_INSIGHTS: Insight[] = [
-  {
-    type: 'weakness',
-    title: 'Time Complexity Struggles',
-    description: 'Detected O(n²) solutions where O(n) was possible. Focus on hash maps and two-pointer techniques.',
-    icon: BookOpen,
-    color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-  },
-  {
-    type: 'recommendation',
-    title: 'Master Graph Traversal',
-    description: 'You often skip Graph problems. Try solving "Number of Islands" to build confidence with DFS/BFS.',
-    icon: Lightbulb,
-    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-  },
-  {
-    type: 'strength',
-    title: 'Python Proficiency',
-    description: 'You demonstrate strong command of Python list comprehensions and standard libraries.',
-    icon: TrendingUp,
-    color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-  },
-  {
-    type: 'trend',
-    title: 'Consistent Night Owl',
-    description: 'You perform best between 8 PM and 11 PM. Your success rate is 20% higher during these hours.',
-    icon: Zap,
-    color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-  }
-];
+
 
 const PRO_TIPS = [
   "Consistency is key. Try to maintain a streak of at least 3 days to see the biggest improvements in your logic.",
@@ -98,19 +69,18 @@ const AIInsights = ({ onBack }: AIInsightsProps) => {
             });
           }
         } catch (err) {
-          console.warn("Backend fetch failed, falling back to mock data for demo", err);
+          console.warn("Backend fetch failed", err);
         }
 
-        // Use mock data if real data is empty (or fetch failed)
-        if (fetchedInsights.length === 0) {
-          setInsights(MOCK_INSIGHTS);
-        } else {
+        // Use fetched data (or empty array if fetch failed/empty)
+        if (fetchedInsights.length > 0) {
           setInsights(fetchedInsights);
+        } else {
+          setInsights([]);
         }
       } catch (error) {
         console.error('Failed to generate insights:', error);
-        // Even in outer catch, fallback to mock data so UI shows something
-        setInsights(MOCK_INSIGHTS);
+        setInsights([]);
       } finally {
         setLoading(false);
       }

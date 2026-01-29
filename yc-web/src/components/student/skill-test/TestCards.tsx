@@ -63,7 +63,7 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto animate-fade-in">
+    <div className="px-8 py-6 max-w-[1600px] mx-auto animate-fade-in">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
         <Button

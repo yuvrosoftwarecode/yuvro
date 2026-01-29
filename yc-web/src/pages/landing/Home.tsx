@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { redirectToDashboard } from '../../utils/redirectToDashboard';
-import { 
-  BookOpen, 
-  Code, 
-  Trophy, 
-  Briefcase, 
-  Target, 
-  MessageCircle, 
-  Users, 
+import Footer from '../../components/common/Footer';
+import {
+  BookOpen,
+  Code,
+  Trophy,
+  Briefcase,
+  Target,
+  MessageCircle,
+  Users,
   Building2,
   ArrowRight,
   Play,
@@ -165,7 +166,7 @@ const Home: React.FC = () => {
               </span>
             </h1>
             <p className="mt-6 max-w-3xl mx-auto text-xl text-gray-500">
-              The complete platform for coding education, skill assessment, and career advancement. 
+              The complete platform for coding education, skill assessment, and career advancement.
               Practice coding, take assessments, participate in contests, and connect with top employers.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -227,11 +228,10 @@ const Home: React.FC = () => {
               <button
                 key={role}
                 onClick={() => setActiveRole(role as any)}
-                className={`flex items-center px-6 py-3 rounded-md font-medium transition-all flex-1 justify-center ${
-                  activeRole === role
-                    ? `bg-gradient-to-r ${config.color} text-white shadow-md`
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-6 py-3 rounded-md font-medium transition-all flex-1 justify-center ${activeRole === role
+                  ? `bg-gradient-to-r ${config.color} text-white shadow-md`
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
               >
                 {React.createElement(config.icon, { className: "w-5 h-5 mr-2" })}
                 {config.title}
@@ -252,7 +252,7 @@ const Home: React.FC = () => {
                 {roleFeatures[activeRole].subtitle}
               </p>
             </div>
-            
+
             <div className="px-8 py-12">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {roleFeatures[activeRole].features.map((feature, index) => (
@@ -284,7 +284,7 @@ const Home: React.FC = () => {
               Why Choose Yuvro Code?
             </h2>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-8 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -295,7 +295,7 @@ const Home: React.FC = () => {
                 Practice coding with instant feedback and real-time code execution in multiple programming languages.
               </p>
             </div>
-            
+
             <div className="text-center p-8 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50">
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Award className="w-8 h-8 text-white" />
@@ -305,7 +305,7 @@ const Home: React.FC = () => {
                 Take assessments designed by industry experts to evaluate your skills and readiness for real-world challenges.
               </p>
             </div>
-            
+
             <div className="text-center p-8 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50">
               <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Clock className="w-8 h-8 text-white" />
@@ -351,22 +351,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-white mb-4">Yuvro Code</div>
-            <p className="text-gray-400 mb-8">
-              Empowering the next generation of developers
-            </p>
-            <div className="flex justify-center space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Support</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

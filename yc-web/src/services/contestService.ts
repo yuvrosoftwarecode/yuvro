@@ -6,8 +6,8 @@ export interface Contest {
   organizer: string;
   type: string;
   status: string;
-  start_date: string;
-  end_date: string;
+  start_datetime: string;
+  end_datetime: string;
   duration?: number;
   prize?: string;
   difficulty: string;
@@ -25,6 +25,13 @@ export interface Contest {
     descriptive: number;
   };
   participants_count: number;
+  is_registered?: boolean;
+  max_attempts?: number;
+  instructions?: string;
+  total_marks?: number;
+  passing_marks?: number;
+  enable_proctoring?: boolean;
+  publish_status?: string;
   created_by?: number;
   created_at: string;
   updated_at: string;
