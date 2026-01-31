@@ -117,7 +117,7 @@ class Command(BaseCommand):
         """Select up to `count` question UUIDs matching the filters."""
         qs = Question.objects.filter(type=qtype)
         if category:
-            qs = qs.filter(categories__contains=[category])
+            qs = qs.filter(categories__icontains=category)
         if topic_obj:
             qs = qs.filter(topic=topic_obj)
         elif course_obj:
@@ -129,7 +129,7 @@ class Command(BaseCommand):
             # relax filters: ignore topic/course restrictions and pick any remaining
             fallback = Question.objects.filter(type=qtype)
             if category:
-                fallback = fallback.filter(categories__contains=[category])
+                fallback = fallback.filter(categories__icontains=category)
             fallback = fallback.exclude(id__in=ids).order_by("created_at")
             extra = list(fallback.values_list("id", flat=True)[: (count - len(ids))])
             ids.extend(extra)
