@@ -152,7 +152,7 @@ const ContestPage = () => {
   const ongoingContest = contests.find(c => c.status === 'ongoing');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gray-50/50">
       <Navigation />
 
       {/* Hero Banner */}

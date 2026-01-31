@@ -52,7 +52,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white px-6 py-8">
+      <div className="min-h-screen bg-gray-50/50 px-6 py-8">
         <div className="max-w-[1600px] mx-auto animate-pulse space-y-8">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -66,7 +66,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
   }
 
   return (
-    <div className="min-h-screen bg-white px-6 py-8">
+    <div className="min-h-screen bg-gray-50/50 px-6 py-8">
       <div className="max-w-[1600px] mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>

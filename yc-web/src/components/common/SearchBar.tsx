@@ -11,7 +11,7 @@ interface Props {
 
 const SearchBar: React.FC<Props> = ({ searchQuery, setSearchQuery, placeholder, className = "" }) => {
   return (
-    <div className={`relative w-full max-w-[224px] ${className}`}>
+    <div className={`relative w-full max-w-[320px] ${className}`}>
       <div className="group relative bg-white rounded-[24px] border border-[#dfe1e5] h-[44px] flex items-center hover:shadow-[0_1px_6px_rgb(32_33_36_/_28%)] hover:border-transparent transition-all duration-200 ease-in-out">
         <Search className="absolute left-[14px] h-5 w-5 text-[#9aa0a6]" />
         <Input

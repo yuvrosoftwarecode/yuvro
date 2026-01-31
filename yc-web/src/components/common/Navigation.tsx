@@ -235,7 +235,7 @@ const Navigation: React.FC = () => {
                                             ? `${user.first_name} ${user.last_name}`
                                             : user?.username || 'User'}
                                     </div>
-                                    <div className="text-xs font-medium text-indigo-600 capitalize leading-tight mt-0.5">
+                                    <div className="text-xs font-medium text-gray-500 capitalize leading-tight mt-0.5">
                                         {user?.role || 'Student'}
                                     </div>
                                 </div>
@@ -306,12 +306,12 @@ const Navigation: React.FC = () => {
                                                 <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold capitalize mt-1 ${role === 'admin' ? 'bg-red-100 text-red-700 border border-red-200' :
                                                     role === 'instructor' ? 'bg-green-100 text-green-700 border border-green-200' :
                                                         role === 'recruiter' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                                                            'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                                                            'bg-gray-100 text-gray-700 border border-gray-200'
                                                     }`}>
                                                     <div className={`w-2 h-2 rounded-full mr-1 ${role === 'admin' ? 'bg-red-500' :
                                                         role === 'instructor' ? 'bg-green-500' :
                                                             role === 'recruiter' ? 'bg-purple-500' :
-                                                                'bg-indigo-500'
+                                                                'bg-gray-500'
                                                         }`}></div>
                                                     {user?.role || 'Student'}
                                                 </div>
@@ -325,7 +325,7 @@ const Navigation: React.FC = () => {
                                                 const iconClass = `w-5 h-5 mr-3 transition-colors duration-200 ${role === 'admin' ? 'text-red-400 group-hover:text-red-600' :
                                                     role === 'instructor' ? 'text-green-400 group-hover:text-green-600' :
                                                         role === 'recruiter' ? 'text-purple-400 group-hover:text-purple-600' :
-                                                            'text-indigo-400 group-hover:text-indigo-600'
+                                                            'text-gray-900 group-hover:text-black'
                                                     }`;
 
                                                 switch (iconType) {
@@ -382,7 +382,7 @@ const Navigation: React.FC = () => {
                                                     className={`group flex items-center px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r transition-all duration-200 transform hover:translate-x-1 ${role === 'admin' ? 'hover:from-red-50 hover:to-pink-50 hover:text-red-700' :
                                                         role === 'instructor' ? 'hover:from-green-50 hover:to-emerald-50 hover:text-green-700' :
                                                             role === 'recruiter' ? 'hover:from-purple-50 hover:to-violet-50 hover:text-purple-700' :
-                                                                'hover:from-indigo-50 hover:to-blue-50 hover:text-indigo-700'
+                                                                'hover:from-gray-50 hover:to-gray-100 hover:text-black'
                                                         }`}
                                                     style={{ animationDelay: `${index * 50}ms` }}
                                                 >

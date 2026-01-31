@@ -619,7 +619,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const viewedCount = viewed.size;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50/50 flex flex-col">
 
       <div className="flex justify-center">
         {cameraAlert && (

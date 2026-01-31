@@ -225,7 +225,7 @@ const CodePractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50/50">
       <Navigation />
       <div className="transition-all duration-300 ease-in-out">
         {isHydrating ? (

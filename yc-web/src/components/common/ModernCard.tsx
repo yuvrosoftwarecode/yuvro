@@ -44,7 +44,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
 }) => {
     return (
         <Card
-            className={`group relative h-full min-h-[280px] overflow-hidden border border-gray-200 bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${className}`}
+            className={`group relative h-full min-h-[280px] rounded-xl overflow-hidden border border-gray-200/60 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-[2px] ${className}`}
         >
             {/* Card Decoration (Hover Gradient) */}
             <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${gradientColor.split(' ')[0]} to-transparent`} />
@@ -56,14 +56,14 @@ const ModernCard: React.FC<ModernCardProps> = ({
                         <span className="text-2xl filter drop-shadow-sm">{icon}</span>
                     </div>
 
-                    {/* Tags (e.g. Difficulty, New, etc.) */}
+                    {/* Topics Badge (Modern Pill) */}
                     {tags.length > 0 && (
                         <div className="flex gap-2">
                             {tags.map((tag, i) => (
                                 <Badge
                                     key={i}
-                                    variant={tag.variant || "secondary"}
-                                    className={`uppercase text-[10px] tracking-wider font-semibold px-2 py-0.5 ${tag.className || ""}`}
+                                    variant="secondary"
+                                    className={`bg-[#EEF2FF] text-[#4F46E5] hover:bg-[#E0E7FF] border-0 rounded-full px-3 py-1 text-[10px] font-medium tracking-wide transition-colors ${tag.className || ""}`}
                                 >
                                     {tag.text}
                                 </Badge>
@@ -72,9 +72,9 @@ const ModernCard: React.FC<ModernCardProps> = ({
                     )}
                 </div>
 
-                {/* Content (Grows to push bottom section down) */}
+                {/* Content */}
                 <div className="flex-grow space-y-2">
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
+                    <h3 className="text-[1.15rem] font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 line-clamp-1 tracking-tight">
                         {title}
                     </h3>
                     <p className="text-sm text-muted-foreground/80 line-clamp-3 leading-relaxed">
@@ -120,7 +120,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
                             e.stopPropagation();
                             onAction && onAction();
                         }}
-                        className={`w-full text-white shadow-md rounded-lg h-10 text-sm font-semibold tracking-wide bg-gradient-to-r ${gradientColor} hover:opacity-90 border-0`}
+                        className={`w-full text-white shadow-md rounded-lg h-10 text-sm font-medium tracking-wide bg-gradient-to-r ${gradientColor} hover:opacity-90 border-0`}
                     >
                         <Play className="h-4 w-4 mr-2 fill-current" />
                         {actionLabel}

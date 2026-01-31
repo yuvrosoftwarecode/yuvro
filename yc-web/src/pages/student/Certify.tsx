@@ -82,7 +82,7 @@ const Certify: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col">
+            <div className="min-h-screen bg-gray-50/50 flex flex-col">
                 <Navigation />
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
@@ -92,7 +92,7 @@ const Certify: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-gray-50/50 flex flex-col">
             <Navigation />
             <div className="flex-1 px-8 py-1 pb-12">
                 <div className="max-w-[1600px] mx-auto space-y-8">

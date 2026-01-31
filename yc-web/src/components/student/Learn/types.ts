@@ -17,6 +17,7 @@ export interface Stats {
   time_spent: string;
   avg_progress: number;
   streak?: number;
+  max_streak?: number;
   xp?: number;
   level?: number;
 }
@@ -24,6 +25,7 @@ export interface Stats {
 export interface ContinueProgress {
   course_id: string;  // UUID
   course_name?: string;  // Display name
+  subtopic_name?: string;
   lesson: number;
   total_lessons: number;
   percent: number;

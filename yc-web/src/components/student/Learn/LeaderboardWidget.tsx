@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Trophy, Medal, Crown } from 'lucide-react';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
@@ -29,76 +29,103 @@ const LeaderboardWidget: React.FC = () => {
         fetchLeaderboard();
     }, []);
 
+    const getInitials = (name: string) => {
+        return name.slice(0, 2).toUpperCase();
+    };
+
     if (loading) {
         return (
-            <Card className="border shadow-sm h-full">
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-yellow-500" />
-                        Leaderboard
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="h-40 flex items-center justify-center text-gray-400">
-                    Loading...
-                </CardContent>
-            </Card>
+            <div className="h-64 flex flex-col items-center justify-center text-gray-400 gap-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                <span className="text-xs">Loading ranks...</span>
+            </div>
         );
     }
 
     return (
-        <Card className="border shadow-sm h-full bg-white">
-            <CardHeader className="pb-3 border-b border-gray-100">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold flex items-center gap-2 text-gray-800">
-                        <Trophy className="h-5 w-5 text-yellow-500" />
-                        Leaderboard
-                    </CardTitle>
-                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Top 10</span>
+        <div className="w-full pt-0">
+            {/* Simple Stats Summary (Optional, purely aesthetic for now) */}
+            <div className="flex justify-between items-end mb-0.5 px-1">
+                <div>
+                    <h3 className="text-sm font-bold text-gray-900">Top Learners</h3>
+                    <p className="text-xs text-gray-500">Compete for the top spot!</p>
                 </div>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                    {data.length === 0 ? (
-                        <div className="p-4 text-center text-gray-500 text-sm">No activity yet. Be the first!</div>
-                    ) : (
-                        data.map((entry, index) => (
-                            <div
-                                key={index}
-                                className={`flex items-center gap-3 p-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors
-                                ${entry.rank === 1 ? 'bg-yellow-50/30' : ''}`}
-                            >
-                                <div className="flex-shrink-0 w-6 flex justify-center font-bold text-sm text-gray-500">
-                                    {entry.rank === 1 ? <Crown className="h-4 w-4 text-yellow-500" /> :
-                                        entry.rank === 2 ? <Medal className="h-4 w-4 text-gray-400" /> :
-                                            entry.rank === 3 ? <Medal className="h-4 w-4 text-amber-700" /> :
-                                                <span className="text-xs text-gray-400">#{entry.rank}</span>}
-                                </div>
+                <span className="text-[10px] font-medium bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-full border border-yellow-100">
+                    Weekly
+                </span>
+            </div>
 
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-sm font-medium text-gray-900 truncate">
-                                            {entry.user}
-                                        </p>
-                                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                                            {entry.xp} XP
-                                        </span>
+            <div className="space-y-2 h-[170px] overflow-y-auto pr-1 custom-scrollbar">
+                {data.length === 0 ? (
+                    <div className="py-8 text-center text-gray-400 text-xs italic bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                        No activity yet. Be the first to earn XP!
+                    </div>
+                ) : (
+                    data.map((entry, index) => (
+                        <div
+                            key={index}
+                            className="group flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100"
+                        >
+                            {/* Rank */}
+                            <div className={`
+                                w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold
+                                ${entry.rank === 1 ? 'bg-yellow-100 text-yellow-700 ring-2 ring-yellow-50/50' :
+                                    entry.rank === 2 ? 'bg-gray-100 text-gray-700 ring-2 ring-gray-50/50' :
+                                        entry.rank === 3 ? 'bg-amber-100 text-amber-800 ring-2 ring-amber-50/50' :
+                                            'text-gray-400 bg-transparent'}
+                            `}>
+                                {entry.rank <= 3 ? (
+                                    entry.rank === 1 ? '1' : entry.rank === 2 ? '2' : '3'
+                                ) : (
+                                    <span className="font-medium">#{entry.rank}</span>
+                                )}
+                            </div>
+
+                            {/* Avatar */}
+                            <div className="relative">
+                                <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 border border-white shadow-sm overflow-hidden">
+                                    {entry.avatar ? (
+                                        <img src={entry.avatar} alt={entry.user} className="w-full h-full object-cover" />
+                                    ) : (
+                                        getInitials(entry.user)
+                                    )}
+                                </div>
+                                {entry.rank === 1 && (
+                                    <div className="absolute -top-1 -right-1 text-yellow-500 bg-white rounded-full p-0.5 shadow-sm">
+                                        <Crown className="w-3 h-3 fill-current" />
                                     </div>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <div className="h-1.5 flex-1 bg-gray-100 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full"
-                                                style={{ width: `${Math.min(100, (entry.xp % 200) / 2)}%` }} // Visual progress bar for level
-                                            />
-                                        </div>
-                                        <span className="text-[10px] text-gray-400 font-medium">Lvl {entry.level}</span>
+                                )}
+                            </div>
+
+                            {/* User Info */}
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-900 truncate leading-tight">
+                                    {entry.user}
+                                </p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-[10px] text-gray-500 font-medium">Lvl {entry.level}</span>
+                                    {/* Mini Progress Bar */}
+                                    <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-indigo-500 rounded-full"
+                                            style={{ width: `${Math.min(100, (entry.xp % 200) / 2)}%` }}
+                                        />
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+
+                            {/* XP Badge */}
+                            <div className="flex flex-col items-end">
+                                <span className="text-xs font-bold text-indigo-600">
+                                    {entry.xp}
+                                </span>
+                                <span className="text-[10px] text-gray-400 uppercase font-medium">XP</span>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
     );
 };
 

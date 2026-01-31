@@ -508,7 +508,7 @@ const SkillTest: React.FC = () => {
 
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50/50">
         {!hideNavigation && <Navigation />}
         <TestInstructions
           test={{
@@ -530,7 +530,7 @@ const SkillTest: React.FC = () => {
 
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50/50">
         {!hideNavigation && <Navigation />}
         <AssessmentInterface
           assessment={{
@@ -575,7 +575,7 @@ const SkillTest: React.FC = () => {
     });
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50/50">
         {!hideNavigation && <Navigation />}
         <TestResults
           test={{
@@ -598,7 +598,7 @@ const SkillTest: React.FC = () => {
   if (currentView === "results") {
     console.log('Results view requested but conditions not met. Showing fallback.');
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50/50">
         {!hideNavigation && <Navigation />}
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
