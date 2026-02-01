@@ -2,17 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Globe, Users, Briefcase, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { companyService } from '@/services/companyService';
-
-interface Company {
-  id?: number;
-  name: string;
-  domain: string;
-  website: string;
-  size: string;
-  description?: string;
-  location?: string;
-}
+import { companyService, Company } from '@/services/companyService';
 
 interface CompanyFormProps {
   onClose: () => void;

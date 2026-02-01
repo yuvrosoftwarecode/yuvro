@@ -9,6 +9,14 @@ export interface Subtopic {
   created_at: string;
 }
 
+export interface Video {
+  id: string;
+  title: string;
+  video_link: string;
+  ai_context?: string | null;
+  sub_topic: string;
+}
+
 export interface TopicBasic {
   id: string;
   course: string;
@@ -106,14 +114,14 @@ export async function createTopic(payload: {
   name: string;
   course: string;
   order_index?: number;
-}) {
+}): Promise<TopicBasic> {
   return restApiAuthUtil.post('/course/topics/', payload);
 }
 
 export async function updateTopic(
   topicId: string,
   payload: Partial<{ name: string; order_index: number }>
-) {
+): Promise<TopicBasic> {
   return restApiAuthUtil.put(`/course/topics/${topicId}/`, payload);
 }
 
@@ -131,14 +139,14 @@ export async function createSubtopic(payload: {
   topic: string;
   order_index?: number;
   content?: string;
-}) {
+}): Promise<Subtopic> {
   return restApiAuthUtil.post('/course/subtopics/', payload);
 }
 
 export async function updateSubtopic(
   subtopicId: string,
   payload: Partial<{ name: string; order_index: number; content?: string }>
-) {
+): Promise<Subtopic> {
   return restApiAuthUtil.put(`/course/subtopics/${subtopicId}/`, payload);
 }
 
@@ -147,15 +155,15 @@ export async function deleteSubtopic(subtopicId: string) {
   return true;
 }
 
-export async function fetchVideosBySubtopic(subtopicId: string) {
+export async function fetchVideosBySubtopic(subtopicId: string): Promise<Video[]> {
   return restApiAuthUtil.get('/course/videos/', { params: { sub_topic: subtopicId } });
 }
 
-export async function createVideo(payload: any) {
+export async function createVideo(payload: Omit<Video, 'id'>): Promise<Video> {
   return restApiAuthUtil.post('/course/videos/', payload);
 }
 
-export async function updateVideo(id: string, payload: any) {
+export async function updateVideo(id: string, payload: Partial<Omit<Video, 'id'>>): Promise<Video> {
   return restApiAuthUtil.put(`/course/videos/${id}/`, payload);
 }
 
@@ -164,20 +172,18 @@ export async function deleteVideo(id: string) {
   return true;
 }
 
-// Helper to map Backend Question -> Frontend Quiz
 function mapQuestionToQuiz(q: any) {
   const options = q.mcq_options?.map((o: any) => o.text) || [];
   const correctIndex = q.mcq_options?.findIndex((o: any) => o.is_correct) ?? -1;
   return {
     id: q.id,
-    question: q.title, // Map title to question
+    question: q.title,
     options: options,
     correct_answer_index: correctIndex,
     sub_topic: q.subtopic,
   };
 }
 
-// Helper to map Frontend Quiz payload -> Backend Question payload
 function mapQuizPayloadToQuestion(payload: any) {
   const mcqOptions = payload.options?.map((opt: string, idx: number) => ({
     text: opt,
@@ -185,12 +191,12 @@ function mapQuizPayloadToQuestion(payload: any) {
   })) || [];
 
   return {
-    type: 'mcq_single', // Default to single choice for simple quizzes
+    type: 'mcq_single',
     level: 'subtopic',
     title: payload.question,
-    content: payload.question, // Duplicate title to content for now
+    content: payload.question,
     subtopic: payload.sub_topic,
-    categories: ['learn'], // Default category
+    categories: ['learn'],
     mcq_options: mcqOptions,
     marks: 1,
     difficulty: 'easy'
@@ -201,13 +207,10 @@ export async function fetchQuizzesBySubtopic(subtopicId: string) {
   const questions = await restApiAuthUtil.get<any[]>('/course/questions/', {
     params: {
       subtopic: subtopicId,
-      type: 'mcq_single' // Fetch both types if possible, but start with single
-      // Note: Backend might need logic to fetch both mcq_single and mcq_multiple
+      type: 'mcq_single'
     }
   });
 
-  // Also fetch multiple choice if needed, or filter client side if the API returns all
-  // For now assuming we just want mcq_single as that matches the simple quiz component
   return questions.map(mapQuestionToQuiz);
 }
 
@@ -228,13 +231,12 @@ export async function deleteQuiz(id: string) {
   return true;
 }
 
-// Helper for Coding Problems
 function mapQuestionToCoding(q: any): CodingProblem {
   return {
     id: q.id,
     title: q.title,
     description: q.content,
-    input: '', // Backend doesn't store this, return empty
+    input: '',
     test_cases: q.test_cases_basic || []
   };
 }
@@ -245,7 +247,7 @@ function mapCodingPayloadToQuestion(payload: any) {
     level: 'subtopic',
     title: payload.title,
     content: payload.description,
-    subtopic: payload.sub_topic, // Note: Payload might use sub_topic
+    subtopic: payload.sub_topic,
     categories: ['practice'],
     test_cases_basic: payload.test_cases,
     marks: 10,
@@ -261,7 +263,6 @@ export async function fetchCodingProblemsBySubtopic(subtopicId: string) {
 }
 
 export async function createCodingProblem(payload: any) {
-  // Ensure subtopic ID is present. The UI might send it in 'sub_topic'
   const subtopicId = payload.sub_topic || payload.subtopic;
   if (!subtopicId) throw new Error("Subtopic ID required");
 
@@ -350,7 +351,6 @@ export async function submitCoding(
     coding_status: codingStatus
   };
 
-  // Add detailed submission data if provided
   if (submissionDetails) {
     payload.question_id = submissionDetails.questionId;
     payload.language = submissionDetails.language;
@@ -438,7 +438,6 @@ export async function removeInstructorFromCourse(courseId: string, instructorId:
 
 export async function fetchAllInstructors() {
   const response = await restApiAuthUtil.get<any>('/auth/users/', { params: { role: 'instructor' } });
-  // Handle both paginated and direct array responses
   const instructors = response.results || response || [];
   return instructors;
 }
@@ -495,7 +494,6 @@ export async function fetchSkillTestQuestions(topicId: string) {
   return [...mcqQuestions, ...codingQuestions];
 }
 
-// Question Bank Management Functions
 export async function fetchQuestionsByLevel(level: "course" | "topic" | "subtopic", id: string) {
   const params: any = {};
 

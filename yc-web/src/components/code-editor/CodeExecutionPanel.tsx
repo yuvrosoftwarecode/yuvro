@@ -213,7 +213,7 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
       const request: CodeExecutionRequest & { test_cases: any[] } = {
         code,
         language,
-        coding_problem_id: problem?.id || '',
+        question_id: problem?.id || '',
         test_cases: allTestCases
       };
 

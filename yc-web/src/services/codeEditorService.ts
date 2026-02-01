@@ -25,7 +25,8 @@ export interface CodeSubmission {
 export interface CodeExecutionRequest {
   code: string;
   language: string;
-  coding_problem_id: string;
+  coding_problem_id?: string;
+  question_id: string;
   course_id?: string;
   topic_id?: string;
   submission_type?: 'code_practice' | 'skill_test' | 'contest' | 'mock_interview';
@@ -226,7 +227,7 @@ class CodeEditorService {
   async executeCode(request: CodeExecutionRequest & { test_cases: any[] }): Promise<ExecutionResult> {
     return this.submitSolution({
       ...request,
-      question_id: request.coding_problem_id
+      question_id: request.coding_problem_id || request.question_id
     });
   }
 

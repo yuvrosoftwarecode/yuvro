@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, BookmarkIcon } from 'lucide-react';
+import { Search, Filter, BookmarkIcon, FileText, Eye, TrendingUp, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navigation from '@/components/common/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import Footer from '@/components/common/Footer';
+import SearchBar from '@/components/common/SearchBar';
 
 import { jobService, Job } from '@/services/jobService';
 import { JobApplicationData } from '@/services/jobApplicationService';
@@ -17,12 +21,6 @@ interface JobFilters {
   experienceLevel: string[];
   jobType: string[];
   salaryRange: string[];
-  currency: string[];
-  skills: string[];
-  companySize: string[];
-  educationLevel: string[];
-  noticePeriod: string[];
-  postedDate: string;
 }
 
 const Jobs = () => {
@@ -34,6 +32,10 @@ const Jobs = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 9;
 
   // Use the custom hook for job applications
   const {
@@ -52,12 +54,6 @@ const Jobs = () => {
     experienceLevel: [],
     jobType: [],
     salaryRange: [],
-    currency: [],
-    skills: [],
-    companySize: [],
-    educationLevel: [],
-    noticePeriod: [],
-    postedDate: ''
   });
 
   useEffect(() => {
@@ -147,6 +143,7 @@ const Jobs = () => {
     }
 
     setFilteredJobs(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const toggleFilter = (filterType: keyof JobFilters, value: string) => {
@@ -168,12 +165,6 @@ const Jobs = () => {
       experienceLevel: [],
       jobType: [],
       salaryRange: [],
-      currency: [],
-      skills: [],
-      companySize: [],
-      educationLevel: [],
-      noticePeriod: [],
-      postedDate: ''
     });
   };
 
@@ -194,27 +185,128 @@ const Jobs = () => {
 
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading job opportunities...</p>
+        <div className="max-w-[1600px] mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="animate-pulse">
+            <div className="bg-gray-200 rounded-lg h-32 mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-200 rounded-lg h-24"></div>
+              ))}
+            </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
 
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-8 py-6">
+        <div className="space-y-8">
+          {/* Modern Header */}
+          <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Job Opportunities</h1>
+                <p className="text-gray-600 mt-2">
+                  {activeTab === 'all' && `Find your dream job from ${filteredJobs.length} opportunities`}
+                  {activeTab === 'bookmarks' && `Your saved jobs (${bookmarks.length} total)`}
+                  {activeTab === 'applications' && `Track your applications (${myApplications.length} total)`}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="w-64">
+                  <SearchBar
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    placeholder="Search jobs..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>   {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Total Jobs Card */}
+            <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-blue-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 group-hover:text-blue-600 transition-colors">Total Jobs</p>
+                    <p className="text-3xl font-bold tracking-tight text-slate-900">
+                      {filteredJobs.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Applications Card */}
+            <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-green-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-green-100 to-green-50 text-green-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 group-hover:text-green-600 transition-colors">Applications</p>
+                    <p className="text-3xl font-bold tracking-tight text-slate-900">
+                      {myApplications.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bookmarks Card */}
+            <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-purple-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <BookmarkIcon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 group-hover:text-purple-600 transition-colors">Saved Jobs</p>
+                    <p className="text-3xl font-bold tracking-tight text-slate-900">
+                      {bookmarks.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Remote Jobs Card */}
+            <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-amber-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
+              <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <MapPin className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 group-hover:text-amber-600 transition-colors">Remote Jobs</p>
+                    <p className="text-3xl font-bold tracking-tight text-slate-900">
+                      {filteredJobs.filter(job => job.is_remote).length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
-            <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            {/* Filters Sidebar - Hidden by default on large screens */}
+            <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden'}`}>
               <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
@@ -314,78 +406,120 @@ const Jobs = () => {
 
             {/* Main Content */}
             <div className="flex-1">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Job Opportunities</h1>
-                  <p className="text-gray-600 mt-1">
-                    {activeTab === 'all' && `${filteredJobs.length} jobs found`}
-                    {activeTab === 'bookmarks' && `${bookmarks.length} bookmarked jobs`}
-                    {activeTab === 'applications' && `${myApplications.length} applications`}
-                  </p>
-                </div>
-              </div>
-
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="inline-flex w-auto gap-1">
-                  <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
-                  <TabsTrigger value="bookmarks" className="px-5">Bookmarks ({bookmarks.length})</TabsTrigger>
-                  <TabsTrigger value="applications" className="px-5">Applications ({myApplications.length})</TabsTrigger>
-                </TabsList>
+                <div className="flex items-center justify-between mb-6">
+                  <TabsList className="inline-flex w-auto gap-1">
+                    <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
+                    <TabsTrigger value="bookmarks" className="px-5">Bookmarks ({bookmarks.length})</TabsTrigger>
+                    <TabsTrigger value="applications" className="px-5">Applications ({myApplications.length})</TabsTrigger>
+                  </TabsList>
 
-                {/* Search and Filter Toggle - Only show for All Jobs tab */}
-                {activeTab === 'all' && (
-                  <div className="flex gap-4 mb-6">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <input
-                        type="text"
-                        placeholder="Search by title, skill, or company..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <button
-                      onClick={() => setShowFilters(!showFilters)}
-                      className="lg:hidden bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-                    >
-                      <Filter className="h-4 w-4" />
-                      Filters
-                    </button>
-                  </div>
-                )}
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {showFilters ? 'Hide Filters' : 'Show Filters'}
+                  </button>
+                </div>
 
                 {/* All Jobs Tab */}
                 <TabsContent value="all" className="space-y-4">
-                  {filteredJobs.map((job) => {
-                    const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
-                    const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
-                    const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
+                  {/* Pagination Logic */}
+                  {(() => {
+                    const indexOfLastJob = currentPage * jobsPerPage;
+                    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+                    const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+                    const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
                     return (
-                      <div key={job.id} className="relative">
-                        {/* Bookmarked indicator for recently bookmarked jobs */}
-                        {isBookmarked && (
-                          <div className="absolute top-4 right-4 z-10">
-                            <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
-                              <BookmarkIcon className="h-3 w-3 fill-current" />
-                              Saved
+                      <>
+                        {currentJobs.map((job) => {
+                          const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
+                          const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
+                          const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
+
+                          return (
+                            <div key={job.id} className="relative">
+                              {/* Bookmarked indicator for recently bookmarked jobs */}
+                              {isBookmarked && (
+                                <div className="absolute top-4 right-4 z-10">
+                                  <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
+                                    <BookmarkIcon className="h-3 w-3 fill-current" />
+                                    Saved
+                                  </div>
+                                </div>
+                              )}
+                              <JobCard
+                                job={job}
+                                isBookmarked={isBookmarked}
+                                isApplied={isApplied}
+                                onBookmark={handleBookmarkJob}
+                                onApply={handleApplyClick}
+                                bookmarkLoading={bookmarkLoading.has(job.id)}
+                              />
+                            </div>
+                          );
+                        })}
+
+                        {/* Premium Pagination Controls */}
+                        {filteredJobs.length > jobsPerPage && (
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 py-6 border-t border-gray-100">
+                            <div className="text-sm text-gray-500 font-medium order-2 sm:order-1">
+                              Showing <span className="text-gray-900">{indexOfFirstJob + 1}</span> to <span className="text-gray-900">{Math.min(indexOfLastJob, filteredJobs.length)}</span> of <span className="text-gray-900">{filteredJobs.length}</span> jobs
+                            </div>
+
+                            <div className="flex items-center gap-1 order-1 sm:order-2">
+                              <Button
+                                variant="ghost"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                              >
+                                <ChevronLeft className="h-4 w-4" />
+                              </Button>
+
+                              {/* Page Numbers */}
+                              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                                // Shorthand for simple pagination
+                                const isNear = pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
+                                const isEnds = pageNum === 1 || pageNum === totalPages;
+
+                                if (totalPages <= 7 || isNear || isEnds) {
+                                  return (
+                                    <Button
+                                      key={pageNum}
+                                      variant={currentPage === pageNum ? "default" : "ghost"}
+                                      onClick={() => setCurrentPage(pageNum)}
+                                      className={`h-9 w-9 p-0 rounded-xl transition-all duration-200 font-semibold ${currentPage === pageNum
+                                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
+                                        : "text-gray-600 hover:bg-white hover:shadow-sm"
+                                        }`}
+                                    >
+                                      {pageNum}
+                                    </Button>
+                                  );
+                                } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                  return <span key={pageNum} className="text-gray-400 px-1 select-none">...</span>;
+                                }
+                                return null;
+                              })}
+
+                              <Button
+                                variant="ghost"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                              >
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
                         )}
-                        <JobCard
-                          job={job}
-                          isBookmarked={isBookmarked}
-                          isApplied={isApplied}
-                          onBookmark={handleBookmarkJob}
-                          onApply={handleApplyClick}
-                          bookmarkLoading={bookmarkLoading.has(job.id)}
-                        />
-                      </div>
+                      </>
                     );
-                  })}
+                  })()}
                   {filteredJobs.length === 0 && !loading && (
                     <EmptyState
                       title="No jobs found"
@@ -450,16 +584,17 @@ const Jobs = () => {
             </div>
           </div>
         </div>
-
-        {/* Apply Dialog */}
-        <ApplyJobDialog
-          isOpen={applyDialogOpen}
-          onClose={() => setApplyDialogOpen(false)}
-          job={selectedJob}
-          onSubmit={handleApplySubmit}
-        />
       </div>
-    </>
+
+      {/* Apply Dialog */}
+      <ApplyJobDialog
+        isOpen={applyDialogOpen}
+        onClose={() => setApplyDialogOpen(false)}
+        job={selectedJob}
+        onSubmit={handleApplySubmit}
+      />
+      {/* <Footer /> */}
+    </div>
   );
 };
 

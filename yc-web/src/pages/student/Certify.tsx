@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Calendar, Clock, Award, BookOpen, Search } from "lucide-react";
 import { toast } from 'sonner';
 
+interface PaginatedResponse<T> {
+    results: T[];
+    count?: number;
+    next?: string | null;
+    previous?: string | null;
+}
+
 const Certify: React.FC = () => {
     const navigate = useNavigate();
     const [courses, setCourses] = useState<Course[]>([]);
@@ -42,8 +49,8 @@ const Certify: React.FC = () => {
         try {
             setLoading(true);
             const [examsData, coursesData] = await Promise.all([
-                getCertificationExams(),
-                fetchCourses()
+                getCertificationExams() as Promise<CertificationExam[] | PaginatedResponse<CertificationExam>>,
+                fetchCourses() as Promise<Course[] | PaginatedResponse<Course>>
             ]);
             setAllExams(Array.isArray(examsData) ? examsData : examsData.results || []);
             setCourses(Array.isArray(coursesData) ? coursesData : coursesData.results || []);

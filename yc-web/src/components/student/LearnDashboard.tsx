@@ -211,12 +211,12 @@ const LearnDashboard: React.FC = () => {
                 </div>
 
                 <div className="group relative cursor-pointer" onClick={() => setIsSidebarOpen(true)}>
-                  <div className="flex items-center gap-2 h-14 px-6 bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-yellow-200 text-yellow-700 text-lg shadow">
-                      <Flame className="w-4 h-4" />
+                  <div className="flex items-center gap-2 h-10.75 px-2 max-w-lg bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 text-sm shadow">
+                      <Flame className="w-3 h-3" />
                     </span>
                     <span className="text-sm font-bold text-gray-800">{stats.streak || 0}-day streak</span>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                    <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
                   </div>
                   <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                     🔥 View detailed progress

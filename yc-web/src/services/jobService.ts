@@ -130,7 +130,7 @@ export const jobService = {
     },
 
     async getJob(jobId: string): Promise<Job> {
-        return restApiUtil.get(`/jobs/${jobId}/`);
+        return restApiAuthUtil.get(`/jobs/${jobId}/`);
     },
 
     async createJob(data: CreateJobData): Promise<Job> {

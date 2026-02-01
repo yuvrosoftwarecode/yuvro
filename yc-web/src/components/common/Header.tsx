@@ -128,14 +128,14 @@ const Header: React.FC<HeaderProps> = ({ showMenu = false, menuItems = [] }) => 
             <Button variant="ghost" className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
-                  {(user?.name || user?.username || user?.email || "U")
+                  {((user?.first_name || user?.last_name || user?.username || user?.email || "U"))
                     .split(" ")[0][0]
                     .toUpperCase()}
                 </AvatarFallback>
 
               </Avatar>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
                 <Badge variant="secondary" className="text-xs">
                   {user?.role}
                 </Badge>

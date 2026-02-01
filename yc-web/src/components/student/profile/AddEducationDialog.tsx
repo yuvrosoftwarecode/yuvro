@@ -30,7 +30,7 @@ interface AddEducationDialogProps {
   editingData?: any | null;
 
   // Callback for add/update
-  onSave: (education: EducationForm) => void;
+  onSave: (education: EducationForm) => Promise<void>;
 }
 
 const AddEducationDialog: React.FC<AddEducationDialogProps> = ({

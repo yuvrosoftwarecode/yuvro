@@ -116,7 +116,6 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <Navigation />
         <div className="max-w-[1600px] mx-auto py-6 sm:px-6 lg:px-8">
           <div className="animate-pulse">
             <div className="bg-gray-300 rounded-lg h-32 mb-8"></div>
