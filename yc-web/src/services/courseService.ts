@@ -296,19 +296,19 @@ export interface Note {
   user?: number | string;
 }
 
-export async function fetchNotesBySubtopic(subtopicId: string) {
-  return restApiAuthUtil.get<Note[]>('/course/notes/', { params: { sub_topic: subtopicId } });
+export async function fetchNotesBySubtopic(subtopicId: string | number): Promise<Note[]> {
+  return restApiAuthUtil.get<Note[]>('/course/notes/', { params: { sub_topic: String(subtopicId) } });
 }
 
-export async function createNote(payload: any) {
-  return restApiAuthUtil.post('/course/notes/', payload);
+export async function createNote(payload: { sub_topic: string | number; content: string }): Promise<Note> {
+  return restApiAuthUtil.post<Note>('/course/notes/', payload);
 }
 
-export async function updateNote(id: string, payload: any) {
-  return restApiAuthUtil.patch(`/course/notes/${id}/`, payload);
+export async function updateNote(id: string | number, payload: Partial<Note>): Promise<Note> {
+  return restApiAuthUtil.patch<Note>(`/course/notes/${id}/`, payload);
 }
 
-export async function deleteNote(id: string) {
+export async function deleteNote(id: string | number): Promise<boolean> {
   await restApiAuthUtil.delete(`/course/notes/${id}/`);
   return true;
 }

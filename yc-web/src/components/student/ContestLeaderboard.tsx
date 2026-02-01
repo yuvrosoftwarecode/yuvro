@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Trophy, Medal, Crown } from 'lucide-react';
+import { Trophy, Medal, Crown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { contestService } from '@/services/contestService';
 
 interface LeaderboardEntry {
@@ -12,6 +13,13 @@ interface LeaderboardEntry {
     time_taken: string | null;
 }
 
+interface PaginatedResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: LeaderboardEntry[];
+}
+
 interface ContestLeaderboardProps {
     contestId: string | number;
     contestTitle: string;
@@ -20,23 +28,58 @@ interface ContestLeaderboardProps {
 const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, contestTitle }) => {
     const [data, setData] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasNext, setHasNext] = useState(false);
+    const [hasPrevious, setHasPrevious] = useState(false);
+    const pageSize = 20;
 
+    const fetchLeaderboard = async (page: number = 1) => {
+        setLoading(true);
+        try {
+            const res = await contestService.getContestLeaderboard(String(contestId), page);
 
+            // Handle both paginated and non-paginated responses for backwards compatibility
+            if (res && typeof res === 'object' && 'results' in res) {
+                // Paginated response
+                const paginatedRes = res as PaginatedResponse;
+                setData(paginatedRes.results || []);
+                setTotalCount(paginatedRes.count || 0);
+                setHasNext(!!paginatedRes.next);
+                setHasPrevious(!!paginatedRes.previous);
+            } else if (Array.isArray(res)) {
+                // Legacy non-paginated response
+                setData(res);
+                setTotalCount(res.length);
+                setHasNext(false);
+                setHasPrevious(false);
+            } else {
+                setData([]);
+                setTotalCount(0);
+            }
+        } catch (err) {
+            console.error("Failed to fetch leaderboard", err);
+            setData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLeaderboard = async () => {
-            try {
-                const res = await contestService.getContestLeaderboard(String(contestId));
-                setData(res || []);
-            } catch (err) {
-                console.error("Failed to fetch leaderboard", err);
-                setData([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchLeaderboard();
-    }, [contestId]);
+        fetchLeaderboard(currentPage);
+    }, [contestId, currentPage]);
+
+    const handleNextPage = () => {
+        if (hasNext) {
+            setCurrentPage(prev => prev + 1);
+        }
+    };
+
+    const handlePrevPage = () => {
+        if (hasPrevious) {
+            setCurrentPage(prev => prev - 1);
+        }
+    };
 
     if (loading) {
         return (
@@ -64,9 +107,9 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
         );
     }
 
-    // Separate top 3 and rest
-    const topThree = data.slice(0, 3);
-    const rest = data.slice(3);
+    // Separate top 3 and rest (only on first page)
+    const topThree = currentPage === 1 ? data.slice(0, 3) : [];
+    const rest = currentPage === 1 ? data.slice(3) : data;
 
     // Reorder for podium: [2nd, 1st, 3rd]
     const podiumOrder = topThree.length >= 3
@@ -110,6 +153,8 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
         }
     };
 
+    const totalPages = Math.ceil(totalCount / pageSize);
+
     return (
         <Card className="border border-gray-200 bg-white shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
@@ -118,12 +163,17 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
                         <Trophy className="h-5 w-5 text-amber-500" />
                         <CardTitle className="text-base font-bold text-gray-800">Top Rankers</CardTitle>
                     </div>
+                    {totalCount > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                            {totalCount} participants
+                        </span>
+                    )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate mt-1">{contestTitle}</p>
             </CardHeader>
             <CardContent className="p-0">
-                {/* Podium Section - Top 3 */}
-                {topThree.length > 0 && (
+                {/* Podium Section - Top 3 (only on first page) */}
+                {currentPage === 1 && topThree.length > 0 && (
                     <div className="bg-gradient-to-b from-slate-800 to-slate-900 p-4 pb-6">
                         <div className="flex items-end justify-center gap-3">
                             {podiumOrder.map((entry, index) => {
@@ -204,6 +254,35 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 bg-gray-50">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handlePrevPage}
+                            disabled={!hasPrevious}
+                            className="text-xs"
+                        >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Prev
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={!hasNext}
+                            className="text-xs"
+                        >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
                     </div>
                 )}
             </CardContent>
