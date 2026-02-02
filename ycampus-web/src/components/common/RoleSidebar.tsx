@@ -87,6 +87,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin', 'recruiter_admin']  
   },
   {
+    id: 'add-batches',
+    label: 'Add Batches',
+    icon: Users,
+    path: '/instructor/batches',
+    roles: ['admin']
+  },
+  {
     id: 'contests',
     label: 'Contests',
     icon: Trophy,

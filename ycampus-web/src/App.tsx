@@ -46,6 +46,7 @@ import CertificationExamForm from './components/instructor/certifications/Certif
 import CertificationExamSubmissions from './pages/instructor/CertificationExamSubmissions';
 import CertificationSubmissionAnalytics from './pages/instructor/CertificationSubmissionAnalytics';
 import InstructorAnalytics from './pages/instructor/Analytics';
+import Batches from './pages/instructor/AddBatches';
 import RecruiterJobs from "./pages/recruiter/Jobs";
 import RecruiterJobsApproval from "./pages/recruiter/JobsApproval";
 import RecruiterJobApplicants from "./pages/recruiter/JobApplicants";
@@ -353,8 +354,8 @@ function App() {
               <Route
                 path="/instructor/batches"
                 element={
-                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <div>Batches Management</div>
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Batches />
                   </ProtectedRoute>
                 }
               />

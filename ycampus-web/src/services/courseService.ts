@@ -371,6 +371,7 @@ export async function logSubtopicAccess(subtopicId: string) {
 }
 
 const courseService = {
+  fetchCourses,
   getCourses: fetchCourses,
   getCourse: fetchCourseById,
   createCourse,
