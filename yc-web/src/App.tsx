@@ -42,6 +42,9 @@ import InstructorProfile from './pages/instructor/Profile';
 import InstructorMockInterview from './pages/instructor/MockInterview';
 import MockInterviewForm from './components/instructor/mock-interviews/MockInterviewForm';
 import SkillTestSubmissions from './pages/instructor/SkillTestSubmissions';
+import MockInterviewReports from './pages/instructor/MockInterviewReports';
+import MockInterviewReportView from './pages/instructor/MockInterviewReportView';
+import MockInterviewAnalytics from './pages/instructor/MockInterviewAnalytics';
 import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
 import InstructorCertifications from './pages/instructor/Certifications';
 import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
@@ -592,11 +595,38 @@ function App() {
                 }
               />
 
-              <Route
+                <Route
                 path="/instructor/mock-interview/:mockInterviewId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <MockInterviewForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReports />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/reports/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReportView />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/:mockInterviewId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewAnalytics />
                   </ProtectedRoute>
                 }
               />

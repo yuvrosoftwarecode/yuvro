@@ -275,12 +275,32 @@ class InterviewSessionSerializer(serializers.ModelSerializer):
 
     report = InterviewReportSerializer(read_only=True)
     chat_session_id = serializers.UUIDField(source="chat_session.id", read_only=True)
+    transcript = ChatMessageSerializer(source="chat_session.messages", many=True, read_only=True)
+    user_details = serializers.SerializerMethodField()
+
+    def get_user_details(self, obj):
+        return {
+            "id": obj.user.id,
+            "username": obj.user.username,
+            "email": obj.user.email
+        }
+
+    actual_duration_display = serializers.SerializerMethodField()
+
+    def get_actual_duration_display(self, obj):
+        if not obj.actual_duration:
+            return None
+        total_seconds = int(obj.actual_duration.total_seconds())
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        return f"{minutes}m {seconds}s"
 
     class Meta:
         model = InterviewSession
         fields = [
             "id",
             "user",
+            "user_details",
             "chat_session",
             "chat_session_id",
             "role_title",
@@ -290,6 +310,9 @@ class InterviewSessionSerializer(serializers.ModelSerializer):
             "status",
             "resume_file",
             "report",
+            "transcript",
+            "actual_duration",
+            "actual_duration_display",
             "created_at",
             "updated_at",
             "completed_at",

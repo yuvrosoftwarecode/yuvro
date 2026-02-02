@@ -13,8 +13,10 @@ from pypdf import PdfReader
 from io import BytesIO
 import traceback
 import logging
+import asyncio
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage
+from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
+from ai_assistant.services import InterviewReportGenerator
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -28,7 +30,8 @@ from .models import (
 from .mixins import ProctoringMixin
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
-    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer
+    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer,
+    MockInterviewSubmissionSerializer
 )
 
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
@@ -719,6 +722,14 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             qs = qs.filter(q)
 
         return qs
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def submissions(self, request, pk=None):
+        mock_interview = self.get_object()
+        submissions = MockInterviewSubmission.objects.filter(mock_interview=mock_interview).order_by('-created_at')
+        
+        serializer = MockInterviewSubmissionSerializer(submissions, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start_interview(self, request, pk=None):

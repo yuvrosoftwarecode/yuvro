@@ -418,7 +418,7 @@ class InterviewReportGenerator:
         self.api_key = config("GEMINI_API_KEY", default=None)
         if not self.api_key:
             raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
-        self.service = GeminiService(self.api_key, model_name="gemini-2.0-flash-exp")
+        self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
         """

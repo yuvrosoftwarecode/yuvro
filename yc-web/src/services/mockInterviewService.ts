@@ -119,6 +119,16 @@ class MockInterviewService {
     }
   }
 
+  async getMockInterviewSubmissions(id: string): Promise<any[]> {
+    try {
+      const response = await restApiAuthUtil.get<any[]>(`/assessment/mock-interviews/${id}/submissions/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching mock interview submissions:', error);
+      throw error;
+    }
+  }
+
   async startInterview(id: string, experience_level: string, selected_duration: number, resume?: File): Promise<any> {
     try {
       const formData = new FormData();
@@ -216,6 +226,17 @@ class MockInterviewService {
       return response;
     } catch (error) {
       console.error('Error fetching interview session:', error);
+      throw error;
+    }
+  }
+
+  async getAllInterviewSessions(filters?: any): Promise<any> {
+    try {
+      // filters could be used for query params like ?user=... or ?search=...
+      const response = await restApiAuthUtil.get<any>('/interviews/', filters);
+      return response;
+    } catch (error) {
+      console.error('Error fetching all interview sessions:', error);
       throw error;
     }
   }

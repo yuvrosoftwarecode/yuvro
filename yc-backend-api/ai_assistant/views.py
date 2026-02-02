@@ -567,6 +567,12 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
         # Update status
         interview_session.status = "completed"
         interview_session.completed_at = timezone.now()
+        
+        # Calculate actual duration
+        if interview_session.created_at:
+            duration = interview_session.completed_at - interview_session.created_at
+            interview_session.actual_duration = duration
+            
         interview_session.save()
 
         # Generate Report
@@ -622,8 +628,10 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             )
 
         except Exception as e:
-            # logger.error(f"Error generating report: {str(e)}") # logger not imported at top level in snippet view
-            print(f"Error generating report: {str(e)}")
+            import sys
+            print(f"CRITICAL ERROR generating report: {str(e)}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
             return Response(
                 {"detail": "Interview ended but report generation failed.", "error": str(e)},
                 status=status.HTTP_200_OK, # Soft fail, we still ended the interview

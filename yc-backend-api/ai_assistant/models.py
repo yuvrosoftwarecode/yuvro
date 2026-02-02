@@ -183,6 +183,7 @@ class InterviewSession(models.Model):
     role_level = models.CharField(max_length=50, blank=True, null=True)
     difficulty = models.CharField(max_length=50, blank=True, null=True)
     duration_minutes = models.PositiveIntegerField(default=30)
+    actual_duration = models.DurationField(null=True, blank=True)
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="started")
     resume_file = models.FileField(upload_to="resumes/", null=True, blank=True)
