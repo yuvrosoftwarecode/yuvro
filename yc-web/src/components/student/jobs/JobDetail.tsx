@@ -55,8 +55,8 @@ const JobDetail = ({
   };
 
   const safeResponsibilities = safeArr(job.responsibilities);
-  const safeRequiredSkills = safeArr(job.required_skills || job.requiredSkills);
-  const safePreferredSkills = safeArr(job.preferred_skills || job.preferredSkills);
+  const safeRequiredSkills = safeArr(job.required_skills);
+  const safePreferredSkills = safeArr(job.preferred_skills);
   const safeBenefits = safeArr(job.benefits);
 
   const safeSkills =
@@ -90,23 +90,23 @@ const JobDetail = ({
 
               <div className="flex-1">
                 <h1 className="text-xl font-bold">{job.title}</h1>
-                <p className="text-muted-foreground">{job.company}</p>
+                <p className="text-muted-foreground">{job.company?.name || job.company_info?.name}</p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" />
-                {job.location} • {job.work_type || job.workType}
+                {job.location} • {job.work_type}
               </div>
               <div className="flex items-center gap-1.5">
                 <Briefcase className="h-4 w-4" />
-                {job.experience_level || job.experienceLevel} • {job.job_type || job.jobType}
+                {job.experience_level} • {job.job_type}
               </div>
-              {job.salaryRange && (
+              {job.salary_range && (
                 <div className="flex items-center gap-1.5">
                   <DollarSign className="h-4 w-4" />
-                  {job.salaryRange}
+                  {job.salary_range.min} - {job.salary_range.max} {job.salary_range.currency}
                 </div>
               )}
             </div>
@@ -117,7 +117,7 @@ const JobDetail = ({
                   <TrendingUp className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm font-medium">Match Score</p>
-                    <p className="text-2xl font-bold text-primary">{job.matchPercentage}%</p>
+                    <p className="text-2xl font-bold text-primary">{job.match_percentage}%</p>
                   </div>
                 </div>
 
@@ -198,7 +198,7 @@ const JobDetail = ({
 
             <TabsContent value="company" className="space-y-4 mt-4">
               <div>
-                <h3 className="font-semibold mb-2">About {job.company}</h3>
+                <h3 className="font-semibold mb-2">About {job.company?.name || job.company_info?.name}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {job.company_info?.about || "No company information available."}
                 </p>
@@ -248,10 +248,10 @@ const JobDetail = ({
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sm truncate">{similarJob.title}</p>
-                          <p className="text-xs text-muted-foreground">{similarJob.company}</p>
+                          <p className="text-xs text-muted-foreground">{similarJob.company?.name || similarJob.company_info?.name}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs">
-                              {similarJob.matchPercentage}% Match
+                              {similarJob.match_percentage}% Match
                             </Badge>
                             <span className="text-xs text-muted-foreground">{similarJob.location}</span>
                           </div>

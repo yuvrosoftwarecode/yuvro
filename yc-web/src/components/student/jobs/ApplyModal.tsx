@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Job } from '@/pages/student/Jobs';
+import { Job } from '@/services/jobService';
 import { FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,11 +22,11 @@ const ApplyModal = ({ isOpen, onClose, onConfirm, job }: ApplyModalProps) => {
   const generateAICoverLetter = () => {
     const aiGenerated = `Dear Hiring Manager,
 
-I am writing to express my strong interest in the ${job.title} position at ${job.company}. With my skills in ${job.skills.slice(0, 3).join(', ')}, I am confident that I would be a valuable addition to your team.
+I am writing to express my strong interest in the ${job.title} position at ${job.company?.name || 'the company'}. With my skills in ${job.skills.slice(0, 3).join(', ')}, I am confident that I would be a valuable addition to your team.
 
-I am particularly excited about this opportunity because of your company's work in ${job.companyInfo.domain}. My experience aligns well with your requirements, and I am eager to contribute to your team's success.
+I am particularly excited about this opportunity because of your company's work in ${job.company?.domain || 'various domains'}. My experience aligns well with your requirements, and I am eager to contribute to your team's success.
 
-Thank you for considering my application. I look forward to discussing how I can contribute to ${job.company}.
+Thank you for considering my application. I look forward to discussing how I can contribute to ${job.company?.name || 'the company'}.
 
 Best regards`;
     
@@ -46,7 +46,7 @@ Best regards`;
         <DialogHeader>
           <DialogTitle>Apply for {job.title}</DialogTitle>
           <DialogDescription>
-            Complete the form below to submit your application for the position at {job.company}.
+            Complete the form below to submit your application for the position at {job.company?.name || 'Unknown Company'}.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,10 +97,10 @@ Best regards`;
           <div className="p-3 bg-secondary/30 rounded-md space-y-1">
             <p className="text-sm font-medium">Application Summary</p>
             <p className="text-xs text-muted-foreground">
-              Applying for: {job.title} at {job.company}
+              Applying for: {job.title} at {job.company?.name || 'Unknown Company'}
             </p>
             <p className="text-xs text-muted-foreground">
-              Match Score: {job.matchPercentage}%
+              Match Score: {job.match_percentage}%
             </p>
           </div>
         </div>

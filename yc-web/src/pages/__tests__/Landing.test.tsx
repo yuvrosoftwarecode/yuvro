@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../../contexts/AuthContext';
-import Landing from '../Landing';
+import Landing from '../landing/Home';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(

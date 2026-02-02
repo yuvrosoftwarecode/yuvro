@@ -1,4 +1,4 @@
-import { RestApiUtil } from '@/utils/RestApiUtil';
+import restApiUtil from '@/utils/RestApiUtil';
 
 export interface InstructorDashboardStats {
     coursesCreated: number;
@@ -58,7 +58,7 @@ class InstructorDashboardService {
 
     async getDashboardData(): Promise<InstructorDashboardData> {
         try {
-            const response = await RestApiUtil.get<InstructorDashboardData>(`${this.baseUrl}/`);
+            const response = await restApiUtil.get<InstructorDashboardData>(`${this.baseUrl}/`);
             return response;
         } catch (error) {
             console.error('Error fetching instructor dashboard data:', error);
@@ -69,7 +69,7 @@ class InstructorDashboardService {
 
     async getStats(): Promise<InstructorDashboardStats> {
         try {
-            const response = await RestApiUtil.get<InstructorDashboardStats>(`${this.baseUrl}/stats/`);
+            const response = await restApiUtil.get<InstructorDashboardStats>(`${this.baseUrl}/stats/`);
             return response;
         } catch (error) {
             console.error('Error fetching instructor dashboard stats:', error);
@@ -86,7 +86,7 @@ class InstructorDashboardService {
 
     async getRecentActivity(): Promise<InstructorActivity[]> {
         try {
-            const response = await RestApiUtil.get<InstructorActivity[]>(`${this.baseUrl}/activity/`);
+            const response = await restApiUtil.get<InstructorActivity[]>(`${this.baseUrl}/activity/`);
             return response;
         } catch (error) {
             console.error('Error fetching instructor recent activity:', error);
@@ -96,7 +96,7 @@ class InstructorDashboardService {
 
     async getUpcomingEvents(): Promise<UpcomingEvent[]> {
         try {
-            const response = await RestApiUtil.get<UpcomingEvent[]>(`${this.baseUrl}/events/`);
+            const response = await restApiUtil.get<UpcomingEvent[]>(`${this.baseUrl}/events/`);
             return response;
         } catch (error) {
             console.error('Error fetching instructor upcoming events:', error);
@@ -106,7 +106,7 @@ class InstructorDashboardService {
 
     async getCourseAnalytics(): Promise<CourseAnalytics[]> {
         try {
-            const response = await RestApiUtil.get<CourseAnalytics[]>(`${this.baseUrl}/course-analytics/`);
+            const response = await restApiUtil.get<CourseAnalytics[]>(`${this.baseUrl}/course-analytics/`);
             return response;
         } catch (error) {
             console.error('Error fetching course analytics:', error);
@@ -116,7 +116,7 @@ class InstructorDashboardService {
 
     async getTopPerformers(): Promise<TopPerformer[]> {
         try {
-            const response = await RestApiUtil.get<TopPerformer[]>(`${this.baseUrl}/top-performers/`);
+            const response = await restApiUtil.get<TopPerformer[]>(`${this.baseUrl}/top-performers/`);
             return response;
         } catch (error) {
             console.error('Error fetching top performers:', error);

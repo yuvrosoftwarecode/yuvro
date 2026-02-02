@@ -486,12 +486,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   placeholder="Search questions (optional)..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white border-slate-300"
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                {searchTerm.trim() ? 'Searching...' : 'Showing all MCQ Single questions'}
-              </p>
             </div>
             <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
               <SelectTrigger className="w-40 bg-white border-slate-300">
@@ -959,7 +956,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
               {/* Save Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
-                <Button onClick={handleCancel} variant="outline">
+                <Button onClick={handleCancel} variant="secondary">
                   Cancel
                 </Button>
                 <Button onClick={handleSave} disabled={saving} className="min-w-24 bg-amber-600 hover:bg-amber-700 text-white">

@@ -14,6 +14,7 @@ import {
   fetchCourseInstructors,
   addInstructorToCourse,
   removeInstructorFromCourse,
+  Course,
 } from "@/services/courseService";
 
 import {
@@ -37,13 +38,6 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
-
-type Course = {
-  id: string | number;
-  short_code: string | null;
-  name: string;
-  category: "fundamentals" | "programming_languages" | "databases" | "ai_tools";
-};
 
 type Instructor = {
   id: string;
@@ -106,15 +100,15 @@ const Courses: React.FC = () => {
   const loadCourses = async () => {
     try {
       setLoading(true);
-      const data = await fetchCourses();
+      const data: Course[] = await fetchCourses();
 
       if (user?.role === "instructor") {
         // Filter only assigned courses
-        const myCourses = [];
+        const myCourses: Course[] = [];
 
         for (const c of data) {
-          const instructors = await fetchCourseInstructors(c.id);
-          const isAssigned = instructors.some(
+          const instructors = await fetchCourseInstructors(c.id.toString());
+          const isAssigned = (instructors as any[]).some(
             (ci: any) => ci.id === user.id
           );
 
@@ -213,13 +207,13 @@ const Courses: React.FC = () => {
       setSaving(true);
 
       // 1) Create the course
-      const created = await createCourse(newCourse);
+      const created = await createCourse(newCourse) as Course;
 
       // 2) Assign selected instructors
       if (selectedInstructors.length > 0) {
         for (const instructorId of selectedInstructors) {
           try {
-            await addInstructorToCourse(created.id, instructorId);
+            await addInstructorToCourse(created.id.toString(), instructorId);
           } catch (e) {
             console.error("Failed to assign instructor", e);
           }
@@ -246,9 +240,9 @@ const Courses: React.FC = () => {
   // OPEN EDIT MODAL (load instructors for course)
   // --------------------------------------------------
   const openEditCourseModal = async (course: Course) => {
-    setEditCourseId(course.id);
+    setEditCourseId(course.id.toString());
     setNewCourse({
-      name: course.name,
+      name: course.name || "",
       short_code: course.short_code || "",
       category: course.category,
     });
@@ -259,11 +253,11 @@ const Courses: React.FC = () => {
       await loadInstructors();
 
       // Fetch instructors for this course
-      const mappings = await fetchCourseInstructors(course.id);
+      const mappings = await fetchCourseInstructors(course.id.toString());
       console.log("Course instructors response:", mappings);  // 🔥 ADD THIS
 
       // mappings: [{ id, instructor: {...}, created_at }]
-      const instructorIds = mappings.map((m: any) => m.id) as string[];
+      const instructorIds = (mappings as any[]).map((m: any) => m.id) as string[];
 
       setEditSelectedInstructors(instructorIds);
       setEditInitialInstructors(instructorIds);
@@ -482,7 +476,7 @@ const Courses: React.FC = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setConfirmDelete(course.id)}
+                                onClick={() => setConfirmDelete(course.id.toString())}
                                 className="h-9 w-9 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
                                 title="Delete course"
                               >

@@ -1,0 +1,259 @@
+﻿src/App.tsx(58,20): error TS7016: Could not find a declaration file for module './components/student/AddJob'. 'C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/components/student/AddJob.jsx' implicitly has an 'any' type.
+src/components/code-editor/CodeExecutionPanel.tsx(223,70): error TS2345: Argument of type 'CodeExecutionRequest & { test_cases: any[]; }' is not assignable to parameter of type '{ code: string; language: string; question_id: string; course_id?: string | undefined; topic_id?: string | undefined; subtopic_id?: string | undefined; test_cases_basic?: any[] | undefined; ... 6 more ...; submissionType?: "learn" | ... 4 more ... | undefined; }'.
+  Property 'question_id' is missing in type 'CodeExecutionRequest & { test_cases: any[]; }' but required in type '{ code: string; language: string; question_id: string; course_id?: string | undefined; topic_id?: string | undefined; subtopic_id?: string | undefined; test_cases_basic?: any[] | undefined; ... 6 more ...; submissionType?: "learn" | ... 4 more ... | undefined; }'.
+src/components/common/Header.tsx(131,27): error TS2339: Property 'name' does not exist on type 'User'.
+src/components/common/Header.tsx(138,59): error TS2339: Property 'name' does not exist on type 'User'.
+src/components/instructor/certifications/CertificationExamForm.tsx(126,21): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<CertificationExam | null>'.
+src/components/instructor/certifications/CertificationExamForm.tsx(130,24): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(131,30): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(132,31): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(133,29): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(134,27): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(135,30): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(136,32): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(137,31): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(138,36): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(139,33): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(140,32): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(141,33): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(141,64): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(142,31): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(142,60): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(145,38): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(148,37): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/certifications/CertificationExamForm.tsx(162,38): error TS18046: 'data' is of type 'unknown'.
+src/components/instructor/contests/ContestEdit.tsx(88,16): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(88,37): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(90,32): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(90,54): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(91,27): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(91,64): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(93,48): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(96,62): error TS2339: Property 'question_ids' does not exist on type 'Contest'.
+src/components/instructor/contests/ContestEdit.tsx(244,56): error TS2353: Object literal may only specify known properties, and 'question_ids' does not exist in type 'Partial<Contest>'.
+src/components/instructor/courses/CourseEdit.tsx(162,17): error TS2345: Argument of type 'Course' is not assignable to parameter of type 'SetStateAction<Course | null>'.
+  Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/courseService").Course' is not assignable to type 'Course'.
+    Types of property 'id' are incompatible.
+      Type 'string | number' is not assignable to type 'string'.
+        Type 'number' is not assignable to type 'string'.
+src/components/instructor/courses/CourseEdit.tsx(168,9): error TS2322: Type 'string' is not assignable to type 'Category'.
+src/components/instructor/courses/CourseEdit.tsx(281,19): error TS2345: Argument of type '(prev: Topic[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Topic[]>'.
+  Type '(prev: Topic[]) => unknown[]' is not assignable to type '(prevState: Topic[]) => Topic[]'.
+    Type 'unknown[]' is not assignable to type 'Topic[]'.
+      Type 'unknown' is not assignable to type 'Topic'.
+src/components/instructor/courses/CourseEdit.tsx(291,19): error TS2345: Argument of type '(prev: Topic[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Topic[]>'.
+  Type '(prev: Topic[]) => unknown[]' is not assignable to type '(prevState: Topic[]) => Topic[]'.
+    Type 'unknown[]' is not assignable to type 'Topic[]'.
+      Type 'unknown' is not assignable to type 'Topic'.
+src/components/instructor/courses/CourseEdit.tsx(291,55): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/CourseEdit.tsx(375,25): error TS2345: Argument of type '(prev: Record<string, Subtopic[]>) => { [x: string]: unknown[] | Subtopic[]; }' is not assignable to parameter of type 'SetStateAction<Record<string, Subtopic[]>>'.
+  Type '(prev: Record<string, Subtopic[]>) => { [x: string]: unknown[] | Subtopic[]; }' is not assignable to type '(prevState: Record<string, Subtopic[]>) => Record<string, Subtopic[]>'.
+    Type '{ [x: string]: unknown[] | Subtopic[]; }' is not assignable to type 'Record<string, Subtopic[]>'.
+      'string' index signatures are incompatible.
+        Type 'unknown[] | Subtopic[]' is not assignable to type 'Subtopic[]'.
+          Type 'unknown[]' is not assignable to type 'Subtopic[]'.
+            Type 'unknown' is not assignable to type 'Subtopic'.
+src/components/instructor/courses/CourseEdit.tsx(392,28): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/CourseEdit.tsx(395,14): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/CourseEdit.tsx(396,24): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/CourseEdit.tsx(402,57): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/CourseEdit.tsx(403,31): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<Subtopic | null>'.
+src/components/instructor/courses/NotesManager.tsx(10,25): error TS7031: Binding element 'subtopicId' implicitly has an 'any' type.
+src/components/instructor/courses/NotesManager.tsx(27,16): error TS2345: Argument of type 'Note[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type 'Note[]' is not assignable to type 'never[]'.
+    Type 'Note' is not assignable to type 'never'.
+src/components/instructor/courses/NotesManager.tsx(41,26): error TS7006: Parameter 'note' implicitly has an 'any' type.
+src/components/instructor/courses/NotesManager.tsx(53,54): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/instructor/courses/NotesManager.tsx(54,18): error TS2345: Argument of type '(prev: never[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => unknown[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'unknown[]' is not assignable to type 'never[]'.
+      Type 'unknown' is not assignable to type 'never'.
+src/components/instructor/courses/NotesManager.tsx(54,47): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/instructor/courses/NotesManager.tsx(54,54): error TS18046: 'updated' is of type 'unknown'.
+src/components/instructor/courses/NotesManager.tsx(61,18): error TS2345: Argument of type '(prev: never[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type '(prev: never[]) => unknown[]' is not assignable to type '(prevState: never[]) => never[]'.
+    Type 'unknown[]' is not assignable to type 'never[]'.
+      Type 'unknown' is not assignable to type 'never'.
+src/components/instructor/courses/NotesManager.tsx(70,29): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/components/instructor/courses/NotesManager.tsx(73,47): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/instructor/courses/NotesManager.tsx(129,28): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/instructor/courses/NotesManager.tsx(138,29): error TS2339: Property 'content' does not exist on type 'never'.
+src/components/instructor/courses/NotesManager.tsx(156,52): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/instructor/courses/VideosPanel.tsx(56,17): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<Video[]>'.
+src/components/instructor/courses/VideosPanel.tsx(101,19): error TS2345: Argument of type '(prev: Video[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Video[]>'.
+  Type '(prev: Video[]) => unknown[]' is not assignable to type '(prevState: Video[]) => Video[]'.
+    Type 'unknown[]' is not assignable to type 'Video[]'.
+      Type 'unknown' is not assignable to type 'Video'.
+src/components/instructor/courses/VideosPanel.tsx(105,19): error TS2345: Argument of type '(prev: Video[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Video[]>'.
+  Type '(prev: Video[]) => unknown[]' is not assignable to type '(prevState: Video[]) => Video[]'.
+    Type 'unknown[]' is not assignable to type 'Video[]'.
+      Type 'unknown' is not assignable to type 'Video'.
+src/components/instructor/courses/VideosPanel.tsx(106,37): error TS18046: 'updated' is of type 'unknown'.
+src/components/recruiter/CompaniesList.tsx(125,9): error TS2322: Type '(company: Company) => Promise<void>' is not assignable to type '(company: Company) => void'.
+  Types of parameters 'company' and 'company' are incompatible.
+    Type 'Company' is not assignable to type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company'.
+      Types of property 'id' are incompatible.
+        Type 'number | undefined' is not assignable to type 'number'.
+          Type 'undefined' is not assignable to type 'number'.
+src/components/recruiter/CompaniesList.tsx(127,9): error TS2322: Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company | undefined' is not assignable to type 'Company | undefined'.
+  Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company' is not assignable to type 'Company'.
+    Types of property 'domain' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/components/recruiter/CompaniesModal.tsx(89,13): error TS2322: Type '(company: Company) => Promise<void>' is not assignable to type '(company: Company) => void'.
+  Types of parameters 'company' and 'company' are incompatible.
+    Type 'Company' is not assignable to type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company'.
+      Types of property 'id' are incompatible.
+        Type 'number | undefined' is not assignable to type 'number'.
+          Type 'undefined' is not assignable to type 'number'.
+src/components/recruiter/CompaniesModal.tsx(91,13): error TS2322: Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company | undefined' is not assignable to type 'Company | undefined'.
+  Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company' is not assignable to type 'Company'.
+    Types of property 'domain' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/components/recruiter/CompanyForm.tsx(48,9): error TS2322: Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company' is not assignable to type 'Company'.
+  Types of property 'domain' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/recruiter/CompanyForm.tsx(52,9): error TS2322: Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company' is not assignable to type 'Company'.
+  Types of property 'domain' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/components/student/AssessmentInterface.tsx(128,5): error TS2322: Type '"skill-tests" | "contests" | "mock-interviews" | "certification-exams"' is not assignable to type '"skill-tests" | "contests" | "mock-interviews" | "job-tests"'.
+  Type '"certification-exams"' is not assignable to type '"skill-tests" | "contests" | "mock-interviews" | "job-tests"'.
+src/components/student/AssessmentInterface.tsx(135,5): error TS2322: Type '"skill-tests" | "contests" | "mock-interviews" | "certification-exams"' is not assignable to type '"skill-tests" | "contests" | "mock-interviews" | "job-tests"'.
+  Type '"certification-exams"' is not assignable to type '"skill-tests" | "contests" | "mock-interviews" | "job-tests"'.
+src/components/student/jobs/ApplyModal.tsx(7,10): error TS2614: Module '"@/pages/student/Jobs"' has no exported member 'Job'. Did you mean to use 'import Job from "@/pages/student/Jobs"' instead?
+src/components/student/jobs/JobDetail.tsx(37,54): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(57,44): error TS2339: Property 'responsibilities' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(58,42): error TS2339: Property 'required_skills' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(58,65): error TS2339: Property 'requiredSkills' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(59,43): error TS2339: Property 'preferred_skills' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(59,67): error TS2339: Property 'preferredSkills' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(60,36): error TS2339: Property 'benefits' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(88,22): error TS2339: Property 'logo' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(93,54): error TS2322: Type 'Company' is not assignable to type 'ReactNode'.
+src/components/student/jobs/JobDetail.tsx(100,22): error TS2551: Property 'location' does not exist on type 'Job'. Did you mean 'locations'?
+src/components/student/jobs/JobDetail.tsx(100,39): error TS2339: Property 'work_type' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(100,56): error TS2339: Property 'workType' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(104,22): error TS2339: Property 'experience_level' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(104,46): error TS2339: Property 'experienceLevel' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(104,70): error TS2339: Property 'job_type' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(104,86): error TS2339: Property 'jobType' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(106,20): error TS2339: Property 'salaryRange' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(109,24): error TS2339: Property 'salaryRange' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(120,73): error TS2339: Property 'matchPercentage' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(201,58): error TS2322: Type 'Company' is not assignable to type 'ReactNode'.
+src/components/student/jobs/JobDetail.tsx(203,24): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(208,56): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(209,50): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(212,24): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(214,33): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(219,28): error TS2339: Property 'company_info' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(247,39): error TS2339: Property 'logo' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(251,72): error TS2322: Type 'Company' is not assignable to type 'ReactNode'.
+src/components/student/jobs/JobDetail.tsx(254,43): error TS2339: Property 'matchPercentage' does not exist on type 'Job'.
+src/components/student/jobs/JobDetail.tsx(256,89): error TS2551: Property 'location' does not exist on type 'Job'. Did you mean 'locations'?
+src/observability/telemetry.ts(28,45): error TS2345: Argument of type 'OTLPTraceExporter' is not assignable to parameter of type 'SpanExporter'.
+  Types of property 'export' are incompatible.
+    Type '(items: ReadableSpan[], resultCallback: (result: ExportResult) => void) => void' is not assignable to type '(spans: ReadableSpan[], resultCallback: (result: ExportResult) => void) => void'.
+      Types of parameters 'items' and 'spans' are incompatible.
+        Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/node_modules/@opentelemetry/sdk-trace-web/node_modules/@opentelemetry/sdk-trace-base/build/src/export/ReadableSpan").ReadableSpan[]' is not assignable to type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/node_modules/@opentelemetry/sdk-trace-base/build/src/export/ReadableSpan").ReadableSpan[]'.
+          Property 'instrumentationLibrary' is missing in type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/node_modules/@opentelemetry/sdk-trace-web/node_modules/@opentelemetry/sdk-trace-base/build/src/export/ReadableSpan").ReadableSpan' but required in type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/node_modules/@opentelemetry/sdk-trace-base/build/src/export/ReadableSpan").ReadableSpan'.
+src/pages/__tests__/Landing.test.tsx(4,21): error TS2307: Cannot find module '../Landing' or its corresponding type declarations.
+src/pages/common/CodeEditorTool.tsx(23,11): error TS2741: Property 'progress' is missing in type '{ id: string; name: string; problemCount: number; order_index: number; }' but required in type 'Topic'.
+src/pages/common/Login.tsx(50,11): error TS1345: An expression of type 'void' cannot be tested for truthiness.
+src/pages/common/Login.tsx(50,11): error TS1345: An expression of type 'void' cannot be tested for truthiness.
+src/pages/common/Login.tsx(50,40): error TS2339: Property 'role' does not exist on type 'never'.
+src/pages/instructor/Certifications.tsx(50,79): error TS2339: Property 'results' does not exist on type 'never'.
+src/pages/instructor/Certifications.tsx(217,103): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/instructor/Certifications.tsx(218,82): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/instructor/Certifications.tsx(222,79): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/instructor/Courses.tsx(116,60): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/instructor/Courses.tsx(117,30): error TS18046: 'instructors' is of type 'unknown'.
+src/pages/instructor/Courses.tsx(124,20): error TS2345: Argument of type 'Course[]' is not assignable to parameter of type 'SetStateAction<Course[]>'.
+  Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/courseService").Course[]' is not assignable to type 'Course[]'.
+    Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/courseService").Course' is not assignable to type 'Course'.
+      Types of property 'short_code' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string | null'.
+          Type 'undefined' is not assignable to type 'string | null'.
+src/pages/instructor/Courses.tsx(127,20): error TS2345: Argument of type 'Course[]' is not assignable to parameter of type 'SetStateAction<Course[]>'.
+  Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/courseService").Course[]' is not assignable to type 'Course[]'.
+    Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/courseService").Course' is not assignable to type 'Course'.
+      Types of property 'short_code' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string | null'.
+          Type 'undefined' is not assignable to type 'string | null'.
+src/pages/instructor/Courses.tsx(222,41): error TS18046: 'created' is of type 'unknown'.
+src/pages/instructor/Courses.tsx(249,21): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'SetStateAction<string | null>'.
+  Type 'number' is not assignable to type 'SetStateAction<string | null>'.
+src/pages/instructor/Courses.tsx(262,53): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/pages/instructor/Courses.tsx(266,29): error TS18046: 'mappings' is of type 'unknown'.
+src/pages/instructor/Courses.tsx(485,65): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'SetStateAction<string | null>'.
+  Type 'number' is not assignable to type 'SetStateAction<string | null>'.
+src/pages/recruiter/CompanyDetail.tsx(92,17): error TS2322: Type '(updatedCompany: Company) => Promise<void>' is not assignable to type '(company: Company) => void'.
+  Types of parameters 'updatedCompany' and 'company' are incompatible.
+    Type 'Company' is not assignable to type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company'.
+      Types of property 'id' are incompatible.
+        Type 'number | undefined' is not assignable to type 'number'.
+          Type 'undefined' is not assignable to type 'number'.
+src/pages/recruiter/CompanyDetail.tsx(94,17): error TS2322: Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/services/companyService").Company' is not assignable to type 'Company'.
+  Types of property 'domain' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/pages/recruiter/CompanyDetail.tsx(187,39): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+src/pages/student/CertificationExam.tsx(53,33): error TS18046: 'startRes' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(54,30): error TS18046: 'startRes' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(60,25): error TS18046: 'exam' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(61,28): error TS18046: 'exam' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(62,29): error TS18046: 'exam' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(63,31): error TS18046: 'startRes' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(63,52): error TS18046: 'exam' is of type 'unknown'.
+src/pages/student/CertificationExam.tsx(64,37): error TS18046: 'startRes' is of type 'unknown'.
+src/pages/student/Certify.tsx(48,64): error TS18046: 'examsData' is of type 'unknown'.
+src/pages/student/Certify.tsx(49,79): error TS2339: Property 'results' does not exist on type 'never'.
+src/pages/student/Certify.tsx(226,78): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/student/Certify.tsx(226,123): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/student/Certify.tsx(227,67): error TS2339: Property 'difficulty' does not exist on type 'CertificationExam'.
+src/pages/student/Certify.tsx(230,67): error TS2339: Property 'my_submissions' does not exist on type 'CertificationExam'.
+src/pages/student/ContestAttempt.tsx(63,13): error TS2322: Type '(answers: any, stats: { answeredCount: number; totalQuestions: number; timeSpent: number; }) => Promise<void>' is not assignable to type '(stats?: { answeredCount: number; totalQuestions: number; timeSpent: number; } | undefined) => void'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+src/pages/student/Profile.tsx(354,73): error TS2345: Argument of type 'CertificationForm' is not assignable to parameter of type 'Partial<Certification>'.
+  Types of property 'certificate_file' are incompatible.
+    Type 'File | null | undefined' is not assignable to type 'string | null | undefined'.
+      Type 'File' is not assignable to type 'string'.
+src/pages/student/Profile.tsx(356,45): error TS2345: Argument of type 'CertificationForm' is not assignable to parameter of type 'Partial<Certification>'.
+  Types of property 'certificate_file' are incompatible.
+    Type 'File | null | undefined' is not assignable to type 'string | null | undefined'.
+      Type 'File' is not assignable to type 'string'.
+src/pages/student/Profile.tsx(969,31): error TS2339: Property 'user' does not exist on type 'Profile'.
+src/pages/student/Profile.tsx(970,30): error TS2339: Property 'user' does not exist on type 'Profile'.
+src/pages/student/Profile.tsx(1002,9): error TS2322: Type 'Experience | undefined' is not assignable to type 'ExperienceForm | null'.
+  Type 'undefined' is not assignable to type 'ExperienceForm | null'.
+src/pages/student/Profile.tsx(1020,9): error TS2322: Type '(form: ProjectForm) => Promise<void>' is not assignable to type '(project: ProjectForm) => void'.
+  Types of parameters 'form' and 'project' are incompatible.
+    Property 'techStack' is missing in type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/components/student/profile/AddProjectDialog").ProjectForm' but required in type 'ProjectForm'.
+src/pages/student/Profile.tsx(1031,9): error TS2322: Type '(form: EducationForm) => Promise<void>' is not assignable to type '(education: EducationForm) => void'.
+  Types of parameters 'form' and 'education' are incompatible.
+    Type 'import("C:/Users/kadal/Desktop/Yuvro-code/yuvro-code/yc-web/src/components/student/profile/AddEducationDialog").EducationForm' is not assignable to type 'EducationForm'.
+      Types of property 'cgpa' are incompatible.
+        Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+          Type 'null' is not assignable to type 'string | undefined'.
+src/services/certificationService.ts(53,86): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/services/instructorDashboardService.ts(61,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/instructorDashboardService.ts(72,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/instructorDashboardService.ts(89,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/instructorDashboardService.ts(99,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/instructorDashboardService.ts(109,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/instructorDashboardService.ts(119,48): error TS2339: Property 'get' does not exist on type 'typeof RestApiUtil'.
+src/services/profileService.ts(178,5): error TS2698: Spread types may only be created from object types.
+src/services/profileService.ts(179,17): error TS18046: 'userRes' is of type 'unknown'.
+src/services/profileService.ts(180,16): error TS18046: 'userRes' is of type 'unknown'.

@@ -46,8 +46,12 @@ import AddSkillDialog from "@/components/student/profile/AddSkillDialog";
 import AddExperienceDialog, {
   ExperienceForm,
 } from "@/components/student/profile/AddExperienceDialog";
-import AddProjectDialog from "@/components/student/profile/AddProjectDialog";
-import AddEducationDialog from "@/components/student/profile/AddEducationDialog";
+import AddProjectDialog, {
+  ProjectForm,
+} from "@/components/student/profile/AddProjectDialog";
+import AddEducationDialog, {
+  EducationForm,
+} from "@/components/student/profile/AddEducationDialog";
 
 import AddCertificationDialog, {
   CertificationForm,
@@ -60,23 +64,6 @@ type SkillForm = {
   name: string;
   level: string;
   percentage: number;
-};
-
-type ProjectForm = {
-  title: string;
-  description: string;
-  role: string;
-  techStack: string[];
-  githubLink?: string;
-  liveLink?: string;
-};
-
-type EducationForm = {
-  institution: string;
-  degree: string;
-  field: string;
-  duration: string;
-  cgpa?: string;
 };
 
 // --------------------------------------------
@@ -305,19 +292,10 @@ const Profile = () => {
    * PROJECT HANDLERS
    * -------------------------------------------- */
   const handleSaveProject = async (form: ProjectForm) => {
-    const payload = {
-      title: form.title,
-      description: form.description,
-      role: form.role,
-      tech_stack: form.techStack,
-      github_link: form.githubLink,
-      live_link: form.liveLink,
-    };
-
     if (editingProject) {
-      await profileService.updateProject(editingProject.id, payload);
+      await profileService.updateProject(editingProject.id, form);
     } else {
-      await profileService.addProject(payload);
+      await profileService.addProject(form);
     }
     await loadProfile();
     setEditingProject(null);
@@ -835,7 +813,7 @@ const Profile = () => {
                         {cert.certificate_file && (
                           <div className="mt-4 pt-3 border-t border-border/50">
                             <a
-                              href={cert.certificate_file}
+                              href={cert.certificate_file as string}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-xs font-medium text-primary hover:underline flex items-center justify-center gap-2"
@@ -966,8 +944,8 @@ const Profile = () => {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         profileData={{
-          first_name: profile.user.first_name,
-          last_name: profile.user.last_name,
+          first_name: profile.user?.first_name || "",
+          last_name: profile.user?.last_name || "",
           title: profile.title || "",
           location: profile.location || "",
           about: profile.about || "",
@@ -999,7 +977,7 @@ const Profile = () => {
           setExperienceDialogOpen(open);
           if (!open) setExperienceEditData(null);
         }}
-        editingData={experienceEditData ?? undefined}
+        editingData={experienceEditData ?? null}
         onSave={async (exp) => {
           if (experienceEditData) {
             await handleEditExperience(experienceEditData.id, exp);

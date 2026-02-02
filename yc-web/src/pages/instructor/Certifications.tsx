@@ -45,9 +45,10 @@ export default function InstructorCertifications() {
                 fetchCourses()
             ]);
 
-            const data = examsData as any;
-            setAllExams(Array.isArray(data) ? data : data.results || []);
-            setCourses(Array.isArray(coursesData) ? coursesData : coursesData.results || []);
+            const exams = examsData as any;
+            const courses = coursesData as any;
+            setAllExams(Array.isArray(exams) ? exams : exams.results || []);
+            setCourses(Array.isArray(courses) ? courses : courses.results || []);
 
         } catch (error) {
             console.error('Failed to fetch data:', error);

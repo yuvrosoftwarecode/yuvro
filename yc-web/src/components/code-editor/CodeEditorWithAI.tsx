@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 're
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
@@ -106,8 +106,6 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     }
   }, [isEditorFullscreen, showAiBuddy]);
 
-
-
   // Handle fullscreen changes from CodeEditor
   const handleFullscreenChange = (isFullscreen: boolean) => {
     setIsEditorFullscreen(isFullscreen);
@@ -119,15 +117,14 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     getLanguage: () => codeEditorRef.current?.getLanguage() || 'python'
   }));
 
-  // Difficulty badge style (pure Tailwind)
-  const difficultyBadgeClass =
-    problem.difficulty === 'Easy'
-      ? 'bg-green-50 text-green-700 border border-green-200'
-      : problem.difficulty === 'Medium'
-        ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-        : problem.difficulty === 'Hard'
-          ? 'bg-red-50 text-red-700 border border-red-200'
-          : 'bg-gray-50 text-gray-700 border border-gray-200';
+  // Difficulty badge style
+  const getDifficultyStyles = (difficulty: string) => {
+    const diff = difficulty.toLowerCase();
+    if (diff === 'easy') return 'bg-green-50 text-green-700 border-green-100';
+    if (diff === 'medium') return 'bg-amber-50 text-amber-700 border-amber-100';
+    if (diff === 'hard') return 'bg-red-50 text-red-700 border-red-100';
+    return 'bg-gray-50 text-gray-700 border-gray-100';
+  };
 
   const getProblemContext = () => {
     return `
@@ -153,130 +150,130 @@ ${codeEditorRef.current?.getCode() || ''}
   };
 
   return (
-    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'h-full flex flex-col mx-auto px-[3px] py-6 max-w-[1500px]'}`}>
-      {/* Breadcrumb */}
-      {!isEditorFullscreen && showBreadcrumb && (
-        <div className="flex-none flex items-center gap-2 mb-3 ml-2 text-sm text-gray-500">
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">
-            {topic.name}
-          </Button>
-          <span>/</span>
-          <span className="text-gray-800 font-medium">{problem.title}</span>
+    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'h-full flex flex-col p-4 box-border bg-slate-50/50 font-sans'}`}>
+
+      {/* Premium Header / Breadcrumb */}
+      {!isEditorFullscreen && (
+        <div className="flex items-center justify-between mb-4 shrink-0 px-1">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all text-gray-500 hover:text-gray-900"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="h-4 w-px bg-gray-300 hidden sm:block mx-1" />
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">
+                {topic.name}
+              </p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-gray-900 leading-none">{problem.title}</h2>
+                <Badge variant="outline" className={`text-[9px] font-black uppercase px-1.5 py-0 border rounded-[4px] ${getDifficultyStyles(problem.difficulty)}`}>
+                  {problem.difficulty}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4 text-right pr-4 border-r border-gray-200">
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+                  <Target className="w-3 h-3 text-indigo-500" /> goal
+                </div>
+                <p className="text-xs font-bold text-gray-900 leading-none">{problem.score} Points</p>
+              </div>
+            </div>
+
+            {!editorOpen && (
+              <Button
+                onClick={() => setEditorOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold px-6 h-9 transition-all active:scale-95 text-xs uppercase tracking-widest"
+              >
+                Launch Workspace
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
       {/* 1) Problem-only view (editor hidden) */}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
-        <Card className="pt-1 border border-gray-200 shadow-sm bg-white">
-          <CardHeader className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-xl text-gray-900">{problem.title}</CardTitle>
-                <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
-                  <Badge className={`px-2 py-1 rounded ${difficultyBadgeClass}`}>{problem.difficulty}</Badge>
-                  <span>Score: {problem.score}</span>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <Card className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
+            <CardHeader className="p-8 bg-gray-50/50 border-b border-gray-100">
+              <div className="max-w-4xl mx-auto w-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100">
+                    <BrainCircuit className="w-5 h-5 text-white" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-900">{problem.title}</h1>
                 </div>
               </div>
+            </CardHeader>
 
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => setEditorOpen(true)}
-                  className="border border-gray-200 text-gray-700 hover:bg-gray-100"
-                  variant="outline"
-                >
-                  Open Code Editor
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-4 space-y-6">
-            <div className="space-y-6">
-              {/* Description */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-700 text-sm whitespace-pre-wrap">{problem.description}</p>
-              </div>
-
-              {/* Input format */}
-              {problem.inputFormat && (
+            <CardContent className="p-8">
+              <div className="max-w-4xl mx-auto space-y-10">
+                {/* Description */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Input Format</h3>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">{problem.inputFormat}</p>
-                </div>
-              )}
-
-              {/* Output format */}
-              {problem.outputFormat && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Output Format</h3>
-                  <p className="text-gray-700 text-sm">{problem.outputFormat}</p>
-                </div>
-              )}
-
-              {/* Examples */}
-              {problem.examples && problem.examples.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Examples</h3>
-                  <div className="space-y-3">
-                    {problem.examples.map((ex: any, idx: number) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                        <div className="text-sm mb-1">
-                          <strong>Input:</strong> <code className="font-mono">{ex.input}</code>
-                        </div>
-                        <div className="text-sm">
-                          <strong>Output:</strong> <code className="font-mono">{ex.output}</code>
-                        </div>
-                        {ex.explanation && (
-                          <p className="text-gray-600 text-sm mt-2">
-                            <strong>Explanation:</strong> {ex.explanation}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <Layout className="w-3.5 h-3.5 text-indigo-500" /> Challenge Overview
+                  </h3>
+                  <div className="prose prose-slate max-w-none">
+                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{problem.description}</p>
                   </div>
                 </div>
-              )}
 
-              {/* Test Cases - Basic Only */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Test Cases</h3>
-                <div className="space-y-4">
-                  {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                    <div key={i} className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                          {i + 1}
-                        </span>
-                        <span className="text-sm font-medium text-gray-700">Test Case</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Input</div>
-                        <pre className="bg-white/80 backdrop-blur-sm p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
-                          {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                        </pre>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Expected Output</div>
-                        <pre className="bg-white/80 backdrop-blur-sm p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
-                          {typeof tc.expected_output === 'string'
-                            ? tc.expected_output
-                            : JSON.stringify(tc.expected_output, null, 2)}
-                        </pre>
-                      </div>
+                {/* Input/Output Formats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {problem.inputFormat && (
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Input Format</h4>
+                      <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{problem.inputFormat}</p>
                     </div>
-                  ))}
-                  {(problem.test_cases_basic || []).length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      No basic test cases available
+                  )}
+                  {problem.outputFormat && (
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Output Format</h4>
+                      <p className="text-gray-700 text-sm leading-relaxed">{problem.outputFormat}</p>
                     </div>
                   )}
                 </div>
+
+                {/* Examples */}
+                {problem.examples && problem.examples.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Examples</h3>
+                    <div className="space-y-4">
+                      {problem.examples.map((ex: any, idx: number) => (
+                        <div key={idx} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6 hover:shadow-md transition-all">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Input</div>
+                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-indigo-600 border border-slate-100">{ex.input}</pre>
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Output</div>
+                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-emerald-600 border border-slate-100">{ex.output}</pre>
+                            </div>
+                          </div>
+                          {ex.explanation && (
+                            <p className="text-gray-500 text-sm mt-4 italic">
+                              <strong>Note:</strong> {ex.explanation}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* 2) Split view when editor is open (horizontal resizable) */}
@@ -296,74 +293,79 @@ ${codeEditorRef.current?.getCode() || ''}
                 minSize={20}
                 maxSize={50}
               >
-                <div className="h-full overflow-y-auto pr-1">
-                  <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full">
-                    <CardHeader className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-xl text-gray-900">{problem.title}</CardTitle>
-                          <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
-                            <Badge className={`px-2 py-1 rounded ${difficultyBadgeClass}`}>{problem.difficulty}</Badge>
-                            <span>Score: {problem.score}</span>
+                <div className="h-full pr-2 font-sans overflow-hidden">
+                  <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-2xl overflow-hidden">
+                    <CardHeader className="p-4 bg-gray-50/50 border-b border-gray-100 flex-none">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center shrink-0">
+                            <Layout className="w-3.5 h-3.5 text-white" />
                           </div>
+                          <CardTitle className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{problem.title}</CardTitle>
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsSidebarCollapsed(true)}
-                            className="text-gray-500 hover:text-gray-900"
-                            title="Collapse Sidebar"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsSidebarCollapsed(true)}
+                          className="h-8 w-8 p-0 rounded-lg text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-100"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
                       </div>
                     </CardHeader>
 
-                    <CardContent className="flex-1 overflow-y-auto p-4">
-                      <div className="space-y-6">
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{problem.description}</p>
+                    <CardContent className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-white">
+                      <div className="space-y-8">
+                        <div>
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Task</h4>
+                          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{problem.description}</p>
+                        </div>
 
                         {problem.examples && problem.examples.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Examples</h4>
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Example</h4>
                             <div className="space-y-3">
-                              {problem.examples.map((ex: any, idx: number) => (
-                                <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                                  <p><strong>Input:</strong> <code>{ex.input}</code></p>
-                                  <p><strong>Output:</strong> <code>{ex.output}</code></p>
+                              {problem.examples.slice(0, 1).map((ex: any, idx: number) => (
+                                <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-gray-100">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Input</div>
+                                      <code className="text-[11px] font-mono text-indigo-600">{ex.input}</code>
+                                    </div>
+                                    <div>
+                                      <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Output</div>
+                                      <code className="text-[11px] font-mono text-emerald-600">{ex.output}</code>
+                                    </div>
+                                  </div>
                                 </div>
                               ))}
                             </div>
                           </div>
                         )}
 
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-3">Example Test Cases</h4>
-                          <div className="space-y-3">
+                        <div className="pt-4 border-t border-gray-50">
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Sample Scenarios</h4>
+                          <div className="space-y-4">
                             {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                              <div key={i} className="bg-gradient-to-br from-gray-50 to-slate-50 p-3 rounded-lg border border-gray-200/60 shadow-sm">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                                    {i + 1}
-                                  </span>
+                              <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Scenario 0{i + 1}</div>
+                                <div className="space-y-3">
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Input</span>
+                                    <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-gray-700 leading-tight">
+                                      {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
+                                    </pre>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Expectation</span>
+                                    <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-emerald-600 leading-tight">
+                                      {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
+                                    </pre>
+                                  </div>
                                 </div>
-                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Input</div>
-                                <pre className="bg-white/80 p-2 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap border border-gray-100 font-mono">
-                                  {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                                </pre>
-
-                                <div className="text-xs mt-2 font-medium text-gray-500 uppercase tracking-wide mb-1">Expected Output</div>
-                                <pre className="bg-white/80 p-2 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap border border-gray-100 font-mono">
-                                  {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
-                                </pre>
                               </div>
                             ))}
-                            {(problem.test_cases_basic || []).length === 0 && (
-                              <p className="text-xs text-gray-500 italic text-center py-4">No example test cases provided.</p>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -374,34 +376,26 @@ ${codeEditorRef.current?.getCode() || ''}
             )}
             {/* COLLAPSED SIDEBAR GHOST */}
             {showProblemDescription && isSidebarCollapsed && (
-              <div className="w-10 border-r border-gray-200 bg-gray-50 flex flex-col items-center py-4 gap-4 transition-all">
+              <div className="w-10 border border-gray-200 bg-white rounded-2xl flex flex-col items-center py-6 gap-6 transition-all mr-2 shadow-sm">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsSidebarCollapsed(false)}
-                  className="w-8 h-8 p-0 rotate-180 text-gray-500 hover:text-gray-900"
-                  title="Expand Sidebar"
+                  className="w-8 h-8 p-0 rotate-180 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                  title="Expand Overview"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <div className="h-px w-6 bg-gray-200" />
-                <div className="[writing-mode:vertical-rl] text-[10px] font-bold text-gray-400 uppercase tracking-widest select-none py-2">
-                  Problem Description
+                <div className="[writing-mode:vertical-rl] text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] select-none py-2 cursor-pointer hover:text-indigo-600 transition-all" onClick={() => setIsSidebarCollapsed(false)}>
+                  Task Overview
                 </div>
               </div>
             )}
 
             {/* DRAGGABLE HANDLE */}
             {showProblemDescription && !isSidebarCollapsed && (
-              <ResizableHandle className="w-1 flex items-center justify-center px-1 cursor-col-resize select-none">
-                <div className="flex flex-col items-center justify-center gap-1 h-22">
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                </div>
+              <ResizableHandle className="w-3 -mx-1.5 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
+                <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
               </ResizableHandle>
             )}
 
@@ -412,45 +406,43 @@ ${codeEditorRef.current?.getCode() || ''}
               defaultSize={showProblemDescription && !isSidebarCollapsed ? 65 : (showAiBuddy && showAiChat ? 65 : 100)}
               minSize={30}
             >
-              <div className="h-full overflow-hidden pl-1 flex flex-col">
-                {/* Use CodeEditor component */}
-                <CodeEditor
-                  ref={codeEditorRef}
-                  initialCode={code}
-                  onCodeChange={setCode}
-                  initialLanguage={language}
-                  onLanguageChange={setLanguage}
-                  problemTitle={problem.title}
-                  problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
-                  testCases={problem.test_cases_basic || []}
-                  showTestCases={true}
-                  allowCustomTestCases={true}
-                  showFullscreenButton={true}
-                  showExamplesButton={true}
-                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                  isAiChatOpen={showAiChat}
-                  onFullscreenChange={handleFullscreenChange}
-                  isFullscreen={isEditorFullscreen}
-                  className="h-full"
-                  templates={apiTemplates}
-                  codeSubmissionType={codeSubmissionType}
-                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                />
+              <div className="h-full flex flex-col px-0">
+                <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
+                  {/* Use CodeEditor component */}
+                  <CodeEditor
+                    ref={codeEditorRef}
+                    initialCode={code}
+                    onCodeChange={setCode}
+                    initialLanguage={language}
+                    onLanguageChange={setLanguage}
+                    problemTitle={problem.title}
+                    problemId={problem.id}
+                    courseId={course.id}
+                    topicId={topic.id}
+                    subtopicId={subtopicId}
+                    testCases={problem.test_cases_basic || []}
+                    showTestCases={true}
+                    allowCustomTestCases={true}
+                    showFullscreenButton={true}
+                    showExamplesButton={true}
+                    onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+                    isAiChatOpen={showAiChat}
+                    onFullscreenChange={handleFullscreenChange}
+                    isFullscreen={isEditorFullscreen}
+                    className="h-full"
+                    templates={apiTemplates}
+                    codeSubmissionType={codeSubmissionType}
+                    onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                  />
+                </div>
               </div>
             </ResizablePanel>
 
             {/* AI Chat Sidebar in Split View */}
             {showAiBuddy && showAiChat && (
               <>
-                <ResizableHandle className="w-1.5 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                    <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                    <span className="block w-1 h-1 bg-gray-400 rounded-full" />
-                  </div>
+                <ResizableHandle className="w-3 -mx-1.5 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
+                  <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
                 </ResizableHandle>
                 <ResizablePanel
                   id="ai-chat-panel"
@@ -459,15 +451,17 @@ ${codeEditorRef.current?.getCode() || ''}
                   minSize={25}
                   maxSize={50}
                 >
-                  <div className="h-full min-h-0 border-l border-gray-200 bg-white shadow-lg overflow-hidden flex flex-col">
-                    <AIChatContainer
-                      className="w-full flex-1"
-                      contextGetter={getProblemContext}
-                      welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
-                      persistenceKey={chatSessionId}
-                      chatTitle={`${problem.title} - AI Buddy`}
-                      onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                    />
+                  <div className="h-full pl-2">
+                    <div className="h-full min-h-0 border border-gray-200 bg-white shadow-sm rounded-2xl overflow-hidden flex flex-col">
+                      <AIChatContainer
+                        className="w-full flex-1"
+                        contextGetter={getProblemContext}
+                        welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                        persistenceKey={chatSessionId}
+                        chatTitle={`${problem.title} - AI Buddy`}
+                        onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                      />
+                    </div>
                   </div>
                 </ResizablePanel>
               </>
@@ -479,20 +473,55 @@ ${codeEditorRef.current?.getCode() || ''}
       {/* 3) Fullscreen editor mode */}
       {isEditorFullscreen && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col overflow-hidden">
-          {/* Fullscreen Header - Hidden if embedded since the page has its own header */}
+          {/* Fullscreen Header - Elevated AI Workspace Design */}
           {!isEmbedded && (
-            <div className="bg-white border-b border-gray-200 px-6 h-16 flex items-center justify-between shadow-md shrink-0 relative z-[50]">
-              <div className="flex items-center gap-4 min-w-0 flex-1">
-                <h2 className="text-xl font-bold text-gray-900 truncate">{problem.title}</h2>
-                <Badge className={`px-3 py-1 rounded shrink-0 hidden md:inline-flex ${difficultyBadgeClass}`}>
-                  {problem.difficulty}
-                </Badge>
+            <div className="bg-white border-b border-gray-200 px-8 h-20 flex items-center justify-between shadow-sm shrink-0 relative z-[50]">
+              <div className="flex items-center gap-6 min-w-0 flex-1">
+                <Button variant="ghost" size="sm" onClick={() => handleFullscreenChange(false)} className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100 transition-all text-gray-500 hover:text-gray-900">
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                <div className="h-8 w-px bg-gray-200 hidden md:block" />
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] leading-none mb-1.5 flex items-center gap-2">
+                    <BrainCircuit className="w-3.5 h-3.5" /> AI Workspace
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-gray-900 truncate leading-none">{problem.title}</h2>
+                    <Badge variant="outline" className={`px-2 py-0.5 rounded-[6px] text-[10px] font-black uppercase shrink-0 border-2 ${getDifficultyStyles(problem.difficulty)}`}>
+                      {problem.difficulty}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-8">
+                <div className="hidden lg:flex items-center gap-6 pr-6 border-r border-gray-200">
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                      <Target className="w-3.5 h-3.5 text-indigo-500" /> potential
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 leading-none">{problem.score} Points</p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                      <Layout className="w-3.5 h-3.5 text-blue-500" /> Environment
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 leading-none capitalize">{language}</p>
+                  </div>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => handleFullscreenChange(false)}
+                  className="h-10 px-5 gap-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-gray-100"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Exit
+                </Button>
               </div>
             </div>
           )}
 
           <div className="flex-1 flex flex-col overflow-hidden h-full">
-            {/* Fullscreen Layout - Always use ResizablePanelGroup */}
             <ResizablePanelGroup
               direction="horizontal"
               className="flex-1 overflow-hidden"
@@ -502,9 +531,7 @@ ${codeEditorRef.current?.getCode() || ''}
               <ResizablePanel
                 id="fullscreen-editor-panel"
                 order={1}
-                defaultSize={showAiBuddy && showAiChat ? 65 : 100}
-                minSize={showAiBuddy && showAiChat ? 40 : 100}
-                maxSize={showAiBuddy && showAiChat ? 80 : 100}
+                defaultSize={showAiBuddy && showAiChat ? 70 : 100}
               >
                 <div className="h-full flex flex-col overflow-hidden">
                   <CodeEditor
@@ -535,24 +562,16 @@ ${codeEditorRef.current?.getCode() || ''}
                 </div>
               </ResizablePanel>
 
-              {/* AI Chat Sidebar - Only render when needed */}
+              {/* AI Chat Sidebar */}
               {showAiBuddy && showAiChat && (
                 <>
-                  <ResizableHandle className="w-1.5 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                    <div className="flex flex-col gap-1">
-                      <span className="w-1 h-1 bg-gray-400 rounded-full" />
-                      <span className="w-1 h-1 bg-gray-400 rounded-full" />
-                      <span className="w-1 h-1 bg-gray-400 rounded-full" />
-                    </div>
-                  </ResizableHandle>
+                  <ResizableHandle className="w-1 bg-gray-100 hover:bg-indigo-400 transition-colors" />
                   <ResizablePanel
                     id="fullscreen-ai-chat-panel"
                     order={2}
-                    defaultSize={35}
-                    minSize={20}
-                    maxSize={60}
+                    defaultSize={30}
                   >
-                    <div className="h-full min-h-0 bg-white border-l border-gray-200 shadow-lg overflow-hidden flex flex-col">
+                    <div className="h-full min-h-0 bg-white border-l border-gray-200 overflow-hidden flex flex-col">
                       <AIChatContainer
                         className="w-full flex-1"
                         contextGetter={getProblemContext}
@@ -572,5 +591,7 @@ ${codeEditorRef.current?.getCode() || ''}
     </div>
   );
 });
+
+CodeEditorWithAI.displayName = 'CodeEditorWithAI';
 
 export default CodeEditorWithAI;

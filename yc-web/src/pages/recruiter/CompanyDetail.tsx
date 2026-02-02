@@ -184,7 +184,7 @@ const CompanyDetail: React.FC = () => {
                         <div>
                           <p className="text-sm text-gray-500">Added</p>
                           <p className="text-gray-900">
-                            {new Date(company.created_at).toLocaleDateString()}
+                            {company.created_at ? new Date(company.created_at).toLocaleDateString() : 'Unknown'}
                           </p>
                         </div>
                       </div>

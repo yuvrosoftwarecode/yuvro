@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '../../components/common/Navigation';
+import Footer from '@/components/common/Footer';
 
 import {
   BookOpen,
@@ -115,8 +116,7 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <Navigation />
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto py-6 sm:px-6 lg:px-8">
           <div className="animate-pulse">
             <div className="bg-gray-300 rounded-lg h-32 mb-8"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -134,7 +134,7 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
 
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-8 py-6">
         {/* Header */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-8 text-white">
@@ -491,6 +491,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchNotesBySubtopic, createNote, updateNote, deleteNote } from "@/services/courseService";
+import { fetchNotesBySubtopic, createNote, updateNote, deleteNote, Note } from "@/services/courseService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -7,13 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Trash, Edit, Plus, FileText, StickyNote } from "lucide-react";
 import { toast } from "sonner";
 
-const NotesManager = ({ subtopicId }) => {
-  const [notes, setNotes] = useState([]);
+interface NotesManagerProps {
+  subtopicId: string | number;
+}
+
+const NotesManager: React.FC<NotesManagerProps> = ({ subtopicId }) => {
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentNote, setCurrentNote] = useState(null);
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [content, setContent] = useState("");
 
   useEffect(() => {
@@ -38,7 +42,7 @@ const NotesManager = ({ subtopicId }) => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (note) => {
+  const openEditModal = (note: Note) => {
     setEditMode(true);
     setCurrentNote(note);
     setContent(note.content);
@@ -67,7 +71,7 @@ const NotesManager = ({ subtopicId }) => {
     }
   };
 
-  const removeNote = async (id) => {
+  const removeNote = async (id: string | number) => {
     try {
       await deleteNote(id);
       setNotes((prev) => prev.filter((n) => n.id !== id));
@@ -98,8 +102,8 @@ const NotesManager = ({ subtopicId }) => {
             <p className="text-sm text-slate-600">Manage notes and documentation for this subtopic</p>
           </div>
         </div>
-        <Button 
-          onClick={openCreateModal} 
+        <Button
+          onClick={openCreateModal}
           className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -116,7 +120,7 @@ const NotesManager = ({ subtopicId }) => {
             </div>
             <h4 className="text-lg font-medium text-slate-700 mb-2">No notes yet</h4>
             <p className="text-slate-500 mb-4">Add your first note to get started</p>
-            <Button 
+            <Button
               onClick={openCreateModal}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
@@ -141,18 +145,18 @@ const NotesManager = ({ subtopicId }) => {
                 </div>
 
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => openEditModal(note)}
                     className="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600"
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
 
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => removeNote(note.id)}
                     className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                   >
@@ -198,14 +202,14 @@ const NotesManager = ({ subtopicId }) => {
           </div>
 
           <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsModalOpen(false)}
               className="border-slate-200 text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={saveNote}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
