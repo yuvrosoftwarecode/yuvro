@@ -2,14 +2,20 @@ import React from 'react';
 import AIChatMessages from './ChatMessages';
 import AIChatInput from './ChatInput';
 import useAIChat from './useAIChat';
+import { useAuth } from '@/contexts/AuthContext';
 import { History as HistoryIcon, Clock, X, Plus } from 'lucide-react';
 
-const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => string, welcomeMessage?: string, persistenceKey?: string, chatTitle?: string, onNewChat?: () => void }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onNewChat }) => {
+const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => string, welcomeMessage?: string, persistenceKey?: string, chatTitle?: string, onNewChat?: () => void, showHistory?: boolean }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onNewChat, showHistory = true }) => {
+  const { user } = useAuth();
+  const personalizedWelcome = welcomeMessage
+    ? welcomeMessage.replace(/^Hi!/, `Hi ${user?.first_name || 'Student'}!`)
+    : `Hi ${user?.first_name || 'Student'}! I'm here to help you. Ask me anything!`;
+
   const { messages, sendMessage, isLoading, clearMessages, history, loadSession } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
-  const [showHistory, setShowHistory] = React.useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
 
   return (
-    <div className={`ai-chat-container flex flex-col bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100 ${className || 'w-[360px] h-[500px]'}`}>
+    <div className={`ai-chat-container flex flex-col bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100 min-h-0 ${className || 'w-[360px] h-[500px]'}`}>
       <div className="px-6 py-4 border-b border-slate-50 bg-white shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -26,13 +32,15 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
                 >
                   <Plus size={20} className="stroke-[2.5px]" />
                 </button>
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className={`p-1.5 rounded-xl transition-all active:scale-95 ${showHistory ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
-                  title="Recent Chats"
-                >
-                  <HistoryIcon size={20} className="stroke-[2.5px]" />
-                </button>
+                {showHistory && (
+                  <button
+                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                    className={`p-1.5 rounded-xl transition-all active:scale-95 ${isHistoryOpen ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                    title="Recent Chats"
+                  >
+                    <HistoryIcon size={20} className="stroke-[2.5px]" />
+                  </button>
+                )}
               </>
             )}
             <span className="text-[10px] font-black px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-100 tracking-wider">PLUS</span>
@@ -40,12 +48,12 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
         </div>
 
         {/* History Dropdown */}
-        {showHistory && (
+        {isHistoryOpen && (
           <div className="absolute top-[72px] left-4 right-4 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 max-h-[400px] overflow-hidden flex flex-col animate-in slide-in-from-top-2 duration-200">
             <div className="p-4 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center shrink-0">
               <span className="text-xs font-black text-slate-400 uppercase tracking-widest pl-2">Recent Reviews</span>
               <button
-                onClick={() => setShowHistory(false)}
+                onClick={() => setIsHistoryOpen(false)}
                 className="text-slate-400 hover:text-slate-600 p-2 hover:bg-white rounded-xl transition-colors"
               >
                 <X size={18} className="stroke-[2.5px]" />
@@ -59,7 +67,7 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
                   {history.map((item) => (
                     <button
                       key={item.key}
-                      onClick={() => { loadSession(item.key); setShowHistory(false); }}
+                      onClick={() => { loadSession(item.key); setIsHistoryOpen(false); }}
                       className={`w-full text-left px-4 py-4 hover:bg-slate-50 rounded-2xl transition-all group ${persistenceKey === item.key ? 'bg-blue-50/50' : ''}`}
                     >
                       <div className="text-sm font-black text-slate-700 group-hover:text-blue-600 truncate">{item.title}</div>
@@ -76,18 +84,13 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
         )}
       </div>
 
-      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={welcomeMessage} />
+      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={personalizedWelcome} />
 
       <div className="p-4 border-t border-slate-50 bg-white shrink-0">
         <AIChatInput onSend={sendMessage} disabled={isLoading} />
         <div className="flex justify-between items-center mt-3 px-2">
           <span className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Powered by Yuvro AI</span>
-          <button
-            onClick={clearMessages}
-            className="text-[10px] font-black text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-wider"
-          >
-            Clear Chat
-          </button>
+
         </div>
       </div>
     </div>

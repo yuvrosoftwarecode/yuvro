@@ -7,7 +7,7 @@ import {
   X, ExternalLink, MapPin, Briefcase, DollarSign,
   HelpCircle, TrendingUp
 } from 'lucide-react';
-import { Job } from '@/pages/student/Jobs';
+import { Job } from '@/services/jobService';
 import { useState, useEffect } from 'react';
 import ApplyModal from './ApplyModal';
 import {
@@ -63,7 +63,7 @@ const JobDetail = ({
     Array.isArray(job.skills)
       ? job.skills
       : typeof job.skills === "string"
-        ? job.skills.split(',').map(s => s.trim())
+        ? (job.skills as string).split(',').map((s: string) => s.trim())
         : [];
 
 
@@ -82,7 +82,7 @@ const JobDetail = ({
 
           <div className="space-y-4">
 
-            
+
             <div className="flex items-start gap-3">
               <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center text-3xl">
                 {job.logo}
@@ -133,27 +133,27 @@ const JobDetail = ({
               </div>
             </Card>
 
-              <div className="flex gap-2">
-                <Button className="flex-1" onClick={handleApply} disabled={isApplied}>
-                  {isApplied ? "Applied" : "Apply Now"}
-                </Button>
+            <div className="flex gap-2">
+              <Button className="flex-1" onClick={handleApply} disabled={isApplied}>
+                {isApplied ? "Applied" : "Apply Now"}
+              </Button>
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline">Share</Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Share this job</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline">Share</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Share this job</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
           </div>
 
           <Separator />
 
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
               <TabsTrigger value="company" className="flex-1">Company</TabsTrigger>
             </TabsList>

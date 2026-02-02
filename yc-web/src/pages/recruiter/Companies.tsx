@@ -6,6 +6,8 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
+import { Button } from "../../components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 const RecruiterCompanies: React.FC = () => {
   const navigate = useNavigate();
@@ -238,55 +240,19 @@ const RecruiterCompanies: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Search and Filter */}
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div className="flex w-full items-center gap-4 h-12">
-                    <div className="flex items-center border border-gray-200 rounded-lg bg-white px-4 gap-4 h-full">
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => setSelectedSizeFilter('all')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === 'all' ? 'bg-gray-200 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                          }`}
-                        >
-                          All Companies
-                        </button>
-                        <button
-                          onClick={() => setSelectedSizeFilter('1-10')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '1-10' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                          }`}
-                        >
-                          Startup
-                        </button>
-                        <button
-                          onClick={() => setSelectedSizeFilter('11-50')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '11-50' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                          }`}
-                        >
-                          Small
-                        </button>
-                        <button
-                          onClick={() => setSelectedSizeFilter('51-200')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '51-200' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                          }`}
-                        >
-                          Medium
-                        </button>
-                        <button
-                          onClick={() => setSelectedSizeFilter('501-1000')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '501-1000' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
-                          }`}
-                        >
-                          Large
-                        </button>
-                      </div>
-                    </div>
+                    <Tabs value={selectedSizeFilter} onValueChange={setSelectedSizeFilter}>
+                      <TabsList className="inline-flex w-auto gap-1">
+                        <TabsTrigger value="all" className="px-5">All Companies</TabsTrigger>
+                        <TabsTrigger value="1-10" className="px-5">Startup</TabsTrigger>
+                        <TabsTrigger value="11-50" className="px-5">Small</TabsTrigger>
+                        <TabsTrigger value="51-200" className="px-5">Medium</TabsTrigger>
+                        <TabsTrigger value="501-1000" className="px-5">Large</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
 
-                    <div className="group relative h-full flex items-center">
+                    <div className="group relative h-full flex items-center flex-1">
                       <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} placeholder="Search companies..." />
                     </div>
                   </div>
@@ -298,7 +264,7 @@ const RecruiterCompanies: React.FC = () => {
                     <h2 className="text-lg font-semibold text-gray-900">Companies</h2>
                     <p className="text-sm text-gray-600">{filteredCompanies.length} company(ies) found</p>
                   </div>
-                  
+
                   <div className="divide-y divide-gray-200">
                     {filteredCompanies.length === 0 ? (
                       <div className="text-center py-12">
@@ -510,12 +476,12 @@ const RecruiterCompanies: React.FC = () => {
                   </div>
 
                   <div className="flex justify-end space-x-3">
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowCompanyForm(false)}
-                      className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Cancel
-                    </button>
+                    </Button>
                     <button
                       onClick={handleSubmitCompany}
                       className="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -539,13 +505,13 @@ const RecruiterCompanies: React.FC = () => {
               Are you sure you want to delete this company? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
+                variant="ghost"
                 onClick={closeDeleteModal}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
                 disabled={isDeleting}
               >
                 Cancel
-              </button>
+              </Button>
               <button
                 onClick={confirmDeleteCompany}
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"

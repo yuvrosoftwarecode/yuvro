@@ -142,8 +142,72 @@ services:
       - default
       - observability
 
+  ycampus-db:
+    image: postgres:15
+    env_file:
+      - ./ycampus-backend-api/.env.prod
+    volumes:
+      - ycampus_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+      - observability
+
+  ycampus-backend:
+    build:
+      context: ./ycampus-backend-api
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./ycampus-backend-api/.env.prod
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=ycampus-backend-api
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=ycampus-backend-api,service.version=1.0.0
+    depends_on:
+      ycampus-db:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 yc-backend-api.wsgi:application"
+    networks:
+      - default
+      - observability
+
+  ycampus-frontend:
+    build:
+      context: ./ycampus-web
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - BACKEND_API_BASE_URL=${YCAMPUS_BACKEND_API_BASE_URL}
+        - VITE_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+        - VITE_OTEL_SERVICE_NAME=ycampus-web
+    env_file:
+      - ./ycampus-web/.env.prod
+    ports:
+      - "81:80"
+    depends_on:
+      - ycampus-backend
+      - code-executor
+      - otel-collector
+    restart: unless-stopped
+    networks:
+      - default
+      - observability
+
 volumes:
   postgres_data:
+  ycampus_postgres_data:
   prometheus_data:
   grafana_data:
 

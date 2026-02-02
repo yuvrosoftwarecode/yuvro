@@ -484,7 +484,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                    <TabsList className="flex-shrink-0 justify-between h-12 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 px-6 shadow-sm">
+                    <TabsList className="flex-shrink-0 justify-between h-12 shadow-sm">
                       <div className="flex items-center gap-6">
                         <TabsTrigger value="output" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
                           <Terminal className="h-4 w-4 text-emerald-600" /> Console Output

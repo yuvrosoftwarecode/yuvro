@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getSkillTestSubmissions, getSkillTestSubmission, SkillTest } from '@/services/skillTestService';
 import skillTestService from '@/services/skillTestService';
 import { Card, CardContent } from '@/components/ui/card';
+import StatusBadge from '@/components/common/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -41,14 +42,7 @@ export default function SkillTestSubmissions() {
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'bg-green-100 text-green-700';
-            case 'submitted': return 'bg-blue-100 text-blue-700';
-            case 'in_progress': return 'bg-yellow-100 text-yellow-700';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
+
 
     const calculateDuration = (start: string, end: string) => {
         if (!start || !end) return '-';
@@ -119,9 +113,7 @@ export default function SkillTestSubmissions() {
                                                         <div className="text-xs text-gray-500">{sub.user_email}</div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Badge className={getStatusColor(sub.status)} variant="outline">
-                                                            {sub.status.replace('_', ' ')}
-                                                        </Badge>
+                                                        <StatusBadge status={sub.status} />
                                                     </TableCell>
                                                     <TableCell className="font-medium">
                                                         {sub.marks !== null ? `${sub.marks} / ${skillTest?.total_marks}` : '-'}

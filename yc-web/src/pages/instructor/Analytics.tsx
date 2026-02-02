@@ -53,7 +53,7 @@ export default function InstructorAnalytics() {
 
                     {/* Charts */}
                     <Tabs defaultValue="overview" className="space-y-4">
-                        <TabsList>
+                        <TabsList className="inline-flex w-auto gap-1">
                             <TabsTrigger value="overview">Overview</TabsTrigger>
                             <TabsTrigger value="courses">Courses Performance</TabsTrigger>
                             <TabsTrigger value="students">Student Engagement</TabsTrigger>

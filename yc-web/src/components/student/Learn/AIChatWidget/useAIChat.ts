@@ -11,6 +11,20 @@ export type ChatMessage = {
   created_at?: string;
 };
 
+export type ChatResponse = {
+  chat_session_id?: string;
+  message_id?: string;
+  response: string;
+  tokens_used?: number;
+  response_time_ms?: number;
+  metadata?: any;
+};
+
+export type SessionResponse = {
+  id: string;
+  [key: string]: any;
+};
+
 export type Agent = { id: string; name: string; provider?: string };
 
 const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string; chatTitle?: string }) => {
@@ -64,6 +78,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   useEffect(() => {
     if (activeKey) {
       try {
+        setSessionId(null); // Force reset session ID when key changes
         const stored = localStorage.getItem(activeKey);
         if (stored) {
           setMessages(JSON.parse(stored));
@@ -78,6 +93,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       }
     } else {
       setLoadedKey(null);
+      setSessionId(null);
     }
   }, [activeKey]);
 
@@ -134,7 +150,6 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     const agentId = selectedAgent ?? agents[0]?.id ?? null;
 
     if (!agentId) {
-      // no agent available; fallback to a client-only session id
       const localId = `local-${uuidv4()}`;
       setSessionId(localId);
       return localId;
@@ -146,7 +161,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       const page_content = getPageContentSnippet();
       // Use generic title to hide model details from student
       const payload: any = { ai_agent: agentId, page: 'learn', title: 'AI Tutor Chat', page_content };
-      const res = await restApiAuthUtil.post('/sessions/', payload);
+      const res = await restApiAuthUtil.post<SessionResponse>('/sessions/', payload);
       if (res && res.id) {
         setSessionId(res.id);
         return res.id;
@@ -175,7 +190,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
         try {
           const page_content = getPageContentSnippet();
           const payload = { message: content, temperature: 0.7, max_tokens: 4096, page_content };
-          const resp = await restApiAuthUtil.post(`/sessions/${sid}/send_message/`, payload);
+          const resp = await restApiAuthUtil.post<ChatResponse>(`/sessions/${sid}/send_message/`, payload);
 
           // Backend returns ChatResponseSerializer: { chat_session_id, message_id, response, ... }
           if (resp && resp.response) {
@@ -190,13 +205,14 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
           if (agentId) {
             try {
               const page_content = getPageContentSnippet();
-              const resp = await restApiAuthUtil.post('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
+              const resp = await restApiAuthUtil.post<ChatResponse>('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
               if (resp && resp.response) {
                 setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: resp.response, created_at: new Date().toISOString() }]);
               }
             } catch (err2) {
               console.error('Quick chat fallback failed', err2);
-              setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'Service unavailable. Try again later.', created_at: new Date().toISOString() }]);
+              const errorMsg = (err2 instanceof Error) ? err2.message : 'Service unavailable. Try again later.';
+              setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: errorMsg, created_at: new Date().toISOString() }]);
             }
           } else {
             setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'No AI agent available.', created_at: new Date().toISOString() }]);
@@ -208,7 +224,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
         if (agentId) {
           try {
             const page_content = getPageContentSnippet();
-            const resp = await restApiAuthUtil.post('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
+            const resp = await restApiAuthUtil.post<ChatResponse>('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
             if (resp && resp.response) {
               setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: resp.response, created_at: new Date().toISOString() }]);
             } else {
@@ -216,7 +232,8 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
             }
           } catch (err) {
             console.error('Quick chat failed', err);
-            setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'Service unavailable. Try again later.', created_at: new Date().toISOString() }]);
+            const errorMsg = (err instanceof Error) ? err.message : 'Service unavailable. Try again later.';
+            setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: errorMsg, created_at: new Date().toISOString() }]);
           }
         } else {
           setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'No AI agent available.', created_at: new Date().toISOString() }]);

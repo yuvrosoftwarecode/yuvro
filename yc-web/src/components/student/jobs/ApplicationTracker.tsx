@@ -1,25 +1,36 @@
+import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Job } from '@/pages/student/Jobs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Briefcase, Calendar, ExternalLink } from 'lucide-react';
+import StatusBadge from '@/components/common/StatusBadge';
 
 interface ApplicationTrackerProps {
-  appliedJobs: Job[];
+  appliedJobs: any[];
 }
 
 type ApplicationStatus = 'Applied' | 'Viewed' | 'Interview' | 'Offer' | 'Rejected';
 
-interface Application extends Job {
+interface Application {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  logo: string;
+  matchPercentage: number;
   appliedDate: string;
-  status: ApplicationStatus;
+  status: string;
 }
 
 const ApplicationTracker = ({ appliedJobs }: ApplicationTrackerProps) => {
   // Mock application data with statuses
   const applications: Application[] = appliedJobs.map((job, idx) => ({
-    ...job,
+    id: job.id || String(idx),
+    title: job.title || 'Unknown Position',
+    company: typeof job.company === 'string' ? job.company : (job.company?.name || 'Unknown Company'),
+    location: (Array.isArray(job.locations) ? job.locations[0] : job.location) || 'Remote',
+    logo: job.logo || (typeof job.company !== 'string' ? job.company?.name?.charAt(0) : job.company?.charAt(0)) || '?',
+    matchPercentage: job.matchPercentage || 85,
     appliedDate: new Date(Date.now() - idx * 86400000).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -28,24 +39,13 @@ const ApplicationTracker = ({ appliedJobs }: ApplicationTrackerProps) => {
     status: (['Applied', 'Viewed', 'Interview'] as ApplicationStatus[])[idx % 3] || 'Applied'
   }));
 
-  const activeApplications = applications.filter(app => 
+  const activeApplications = applications.filter(app =>
     !['Rejected', 'Offer'].includes(app.status)
   );
 
-  const closedApplications = applications.filter(app => 
+  const closedApplications = applications.filter(app =>
     ['Rejected', 'Offer'].includes(app.status)
   );
-
-  const getStatusColor = (status: ApplicationStatus) => {
-    switch (status) {
-      case 'Applied': return 'secondary';
-      case 'Viewed': return 'default';
-      case 'Interview': return 'default';
-      case 'Offer': return 'default';
-      case 'Rejected': return 'destructive';
-      default: return 'secondary';
-    }
-  };
 
   const ApplicationCard = ({ application }: { application: Application }) => (
     <Card className="p-4">
@@ -60,9 +60,7 @@ const ApplicationTracker = ({ appliedJobs }: ApplicationTrackerProps) => {
               <h3 className="font-semibold text-foreground">{application.title}</h3>
               <p className="text-sm text-muted-foreground">{application.company}</p>
             </div>
-            <Badge variant={getStatusColor(application.status)}>
-              {application.status}
-            </Badge>
+            <StatusBadge status={application.status} />
           </div>
 
           <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
@@ -99,7 +97,7 @@ const ApplicationTracker = ({ appliedJobs }: ApplicationTrackerProps) => {
   return (
     <div className="p-6">
       <Tabs defaultValue="active" className="w-full">
-        <TabsList className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="active" className="flex-1">
             Active ({activeApplications.length})
           </TabsTrigger>

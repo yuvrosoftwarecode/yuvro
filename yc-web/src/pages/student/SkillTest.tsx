@@ -511,7 +511,7 @@ const SkillTest: React.FC = () => {
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
       <div className="min-h-screen bg-background">
-        {!hideNavigation && <Navigation />}
+        <Navigation autoHide={hideNavigation} />
         <TestInstructions
           test={{
             id: selectedTest.id,
@@ -533,7 +533,7 @@ const SkillTest: React.FC = () => {
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
       <div className="min-h-screen bg-background">
-        {!hideNavigation && <Navigation />}
+        <Navigation autoHide={hideNavigation} />
         <AssessmentInterface
           assessment={{
             id: selectedTest.id,
@@ -578,7 +578,7 @@ const SkillTest: React.FC = () => {
 
     return (
       <div className="min-h-screen bg-background">
-        {!hideNavigation && <Navigation />}
+        <Navigation autoHide={hideNavigation} />
         <TestResults
           test={{
             id: selectedTest.id,
@@ -601,7 +601,7 @@ const SkillTest: React.FC = () => {
     console.log('Results view requested but conditions not met. Showing fallback.');
     return (
       <div className="min-h-screen bg-background">
-        {!hideNavigation && <Navigation />}
+        <Navigation autoHide={hideNavigation} />
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <h2 className="text-xl font-bold mb-4">Unable to Load Results</h2>
@@ -620,7 +620,7 @@ const SkillTest: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {!hideNavigation && <Navigation />}
+      <Navigation autoHide={hideNavigation} />
 
       <div className="flex h-[calc(100vh-64px)]">
         {selectedCourse && (currentView === "tests" || (actualTestId && !isResultsRoute)) && (

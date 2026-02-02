@@ -33,7 +33,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   // Track solved questions IDs
   const [solvedMap, setSolvedMap] = useState<Record<string, boolean>>({});
-  
+
   // Track processed submissions to prevent duplicate API calls
   const processedSubmissions = useRef<Set<string>>(new Set());
 
@@ -52,7 +52,8 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     id: topicId || subtopicId,
     name: "Coding Problems",
     problemCount: questions.length,
-    order_index: 1
+    order_index: 1,
+    progress: 0
   };
 
   useEffect(() => {
@@ -109,19 +110,19 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   const handleSubmissionComplete = async (problemId: string, success: boolean, submissionResult?: any) => {
     console.log('handleSubmissionComplete called:', { problemId, success, submissionResult });
-    
+
     if (success) {
       const submissionKey = `${problemId}-${success}`;
-      
+
       if (processedSubmissions.current.has(submissionKey)) {
         console.log('Submission already processed, skipping API call');
         return;
       }
-      
+
       // Update local state regardless of submission type
       const newSolvedMap = { ...solvedMap, [problemId]: true };
       setSolvedMap(newSolvedMap);
-      
+
       // Only call progress API for learn mode
       if (codeSubmissionType === 'learn') {
         // Validate that we have actual submission data
@@ -130,10 +131,10 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
           console.log('Available submissionResult keys:', submissionResult ? Object.keys(submissionResult) : 'null');
           return;
         }
-        
+
         try {
           processedSubmissions.current.add(submissionKey);
-          
+
           // Only update progress via StudentCourseProgressViewSet
           console.log('Updating progress via submit_coding API...');
           const submissionDetails = {
@@ -145,7 +146,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
             test_results: submissionResult.test_results || {},
             execution_output: submissionResult.output || ''
           };
-          
+
           await restApiAuthUtil.post('/course/student-course-progress/submit_coding/', submissionDetails);
           console.log('Coding progress updated successfully', {
             questionId: submissionDetails?.question_id,
@@ -153,7 +154,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
             testsPassed: submissionDetails?.test_results?.passed,
             testsTotal: submissionDetails?.test_results?.total
           });
-          
+
           // Notify parent component that progress has been updated (similar to quiz)
           if (onComplete) {
             console.log('Calling onComplete to refresh progress display');
@@ -279,7 +280,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
         onBack={handleBackToList}
         initialFullscreen={false}
         initialEditorOpen={true}
-        isEmbedded={false}
+        isEmbedded={true}
         codeSubmissionType={codeSubmissionType}
         onSubmissionComplete={handleSubmissionComplete}
       />
