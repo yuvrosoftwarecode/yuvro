@@ -514,7 +514,6 @@ class Batch(models.Model):
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     
-    # Many-to-many relationship with students through BatchStudent
     students = models.ManyToManyField(
         User, 
         through="BatchStudent", 
@@ -533,7 +532,7 @@ class Batch(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = [["course", "name"]]  # Prevent duplicate batch names within a course
+        unique_together = [["course", "name"]]  
 
     def __str__(self):
         return f"{self.course.name} - {self.name}"
@@ -551,11 +550,9 @@ class Batch(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
         
-        # Validate dates
         if self.end_date and self.start_date and self.end_date <= self.start_date:
             raise ValidationError("End date must be after start date")
         
-        # Validate max_students
         if self.max_students <= 0:
             raise ValidationError("Maximum students must be greater than 0")
 
@@ -576,7 +573,6 @@ class BatchStudent(models.Model):
     enrolled_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True, help_text="Whether student is actively enrolled")
     
-    # Progress tracking
     progress_percentage = models.FloatField(default=0.0, help_text="Overall progress in the batch")
     last_activity = models.DateTimeField(null=True, blank=True, help_text="Last activity timestamp")
     
@@ -584,7 +580,7 @@ class BatchStudent(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [["batch", "student"]]  # Prevent duplicate enrollments
+        unique_together = [["batch", "student"]]  
         ordering = ["-enrolled_at"]
 
     def __str__(self):
@@ -593,11 +589,9 @@ class BatchStudent(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
         
-        # Validate that student role is actually 'student'
         if self.student.role != 'student':
             raise ValidationError("Only users with 'student' role can be enrolled in batches")
         
-        # Check if batch is full (excluding current enrollment for updates)
         if self.batch.is_full and not self.pk:
             raise ValidationError(f"Batch '{self.batch.name}' is full (max {self.batch.max_students} students)")
 

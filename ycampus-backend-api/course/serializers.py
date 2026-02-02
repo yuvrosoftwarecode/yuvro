@@ -452,10 +452,8 @@ class BatchSerializer(serializers.ModelSerializer):
     enrolled_count = serializers.ReadOnlyField()
     is_full = serializers.ReadOnlyField()
     
-    # For detailed view with students
     batch_students = BatchStudentSerializer(many=True, read_only=True)
     
-    # For creating/updating with student IDs
     student_ids = serializers.ListField(
         child=serializers.UUIDField(),
         write_only=True,
@@ -493,11 +491,9 @@ class BatchSerializer(serializers.ModelSerializer):
         Validate student IDs and check for duplicates.
         """
         if value:
-            # Check for duplicates
             if len(value) != len(set(value)):
                 raise serializers.ValidationError("Duplicate student IDs are not allowed")
             
-            # Validate each student ID
             for student_id in value:
                 try:
                     student = User.objects.get(id=student_id)
@@ -506,7 +502,6 @@ class BatchSerializer(serializers.ModelSerializer):
                 except User.DoesNotExist:
                     raise serializers.ValidationError(f"Student with ID {student_id} does not exist")
             
-            # Check if adding these students would exceed max_students
             current_count = 0
             if self.instance:
                 current_count = self.instance.enrolled_count
@@ -523,14 +518,12 @@ class BatchSerializer(serializers.ModelSerializer):
         """
         Validate batch data.
         """
-        # Validate dates
         start_date = data.get('start_date')
         end_date = data.get('end_date')
         
         if end_date and start_date and end_date <= start_date:
             raise serializers.ValidationError("End date must be after start date")
         
-        # Validate max_students
         max_students = data.get('max_students', 50)
         if max_students <= 0:
             raise serializers.ValidationError("Maximum students must be greater than 0")
@@ -546,7 +539,6 @@ class BatchSerializer(serializers.ModelSerializer):
         
         batch = super().create(validated_data)
         
-        # Enroll students if provided
         if student_ids:
             batch_students = []
             for student_id in student_ids:
@@ -565,12 +557,9 @@ class BatchSerializer(serializers.ModelSerializer):
         
         batch = super().update(instance, validated_data)
         
-        # Handle student enrollment if student_ids provided
         if student_ids is not None:
-            # Remove existing enrollments
             BatchStudent.objects.filter(batch=batch).delete()
             
-            # Add new enrollments
             if student_ids:
                 batch_students = []
                 for student_id in student_ids:

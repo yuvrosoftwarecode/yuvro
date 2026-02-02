@@ -68,7 +68,6 @@ class CourseViewSet(viewsets.ModelViewSet):
         if category:
             queryset = queryset.filter(category=category)
 
-        # Count coding practice questions at all levels
         queryset = queryset.annotate(
             total_problems=Count(
                 'questions', 
@@ -1683,7 +1682,7 @@ class BatchViewSet(viewsets.ModelViewSet):
     Admin-only access for batch management.
     """
     queryset = Batch.objects.select_related('course', 'created_by').prefetch_related('batch_students__student')
-    permission_classes = [CanManageCourses]  # Admin and instructors can manage batches
+    permission_classes = [CanManageCourses]  
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'start_date', 'name']
     ordering = ['-created_at']
@@ -1698,17 +1697,14 @@ class BatchViewSet(viewsets.ModelViewSet):
         """Filter batches based on user role and query parameters"""
         queryset = super().get_queryset()
         
-        # Filter by course if provided
         course_id = self.request.query_params.get('course')
         if course_id:
             queryset = queryset.filter(course_id=course_id)
         
-        # Filter by status if provided
         status_filter = self.request.query_params.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
-        # For instructors, only show batches for courses they're assigned to
         user = self.request.user
         if user.role == 'instructor':
             assigned_course_ids = CourseInstructor.objects.filter(
@@ -1803,7 +1799,6 @@ class BatchViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Validate student IDs
         students = []
         for student_id in student_ids:
             try:
@@ -1820,7 +1815,6 @@ class BatchViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         
-        # Check capacity
         current_count = batch.enrolled_count
         if current_count + len(students) > batch.max_students:
             return Response(
@@ -1828,7 +1822,6 @@ class BatchViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Add students to batch
         batch_students = []
         added_count = 0
         for student in students:
@@ -1863,7 +1856,6 @@ class BatchViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Remove students from batch
         removed_count = BatchStudent.objects.filter(
             batch=batch,
             student_id__in=student_ids
