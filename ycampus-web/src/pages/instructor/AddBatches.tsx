@@ -138,7 +138,6 @@ const Batches: React.FC = () => {
     loadInitialData();
   }, [hasAccess]);
 
-  // Debug form data changes
   useEffect(() => {
     console.log('Form data changed:', formData);
   }, [formData]);
@@ -176,14 +175,12 @@ const Batches: React.FC = () => {
     if (selectedTab === 'all') {
       matchesTab = true;
     } else if (selectedTab === 'students') {
-      // Show all batches with students enrolled
       matchesTab = batch.enrolled_count > 0;
     } else if (selectedTab === 'inactive') {
       matchesTab = batch.status === 'inactive';
     } else if (selectedTab === 'completed') {
       matchesTab = batch.status === 'completed';
     } else {
-      // active or draft
       matchesTab = batch.status === selectedTab;
     }
     
@@ -197,14 +194,12 @@ const Batches: React.FC = () => {
 
   const batchCounts = batches.reduce((acc: any, batch) => {
     acc[batch.status] = (acc[batch.status] || 0) + 1;
-    // Count batches with students for the "students" filter
     if (batch.enrolled_count > 0) {
       acc.students = (acc.students || 0) + 1;
     }
     return acc;
   }, {});
   
-  // Calculate total enrolled students
   const totalEnrolledStudents = batches.reduce((sum, batch) => sum + batch.enrolled_count, 0);
 
   const handleTabChange = (tab: typeof selectedTab) => {
@@ -353,14 +348,12 @@ const Batches: React.FC = () => {
     console.log('  - Course ID:', batch.course, 'Type:', typeof batch.course);
     console.log('  - Status:', batch.status, 'Type:', typeof batch.status);
     
-    // Validate course ID exists in courses list
     const courseExists = courses.some(c => String(c.id) === String(batch.course));
     console.log('  - Course exists in list:', courseExists);
     if (!courseExists) {
       console.warn('Warning: Selected course not found in courses list');
     }
     
-    // Validate status is valid
     const validStatuses = ['active', 'inactive', 'completed', 'draft'];
     const statusValid = validStatuses.includes(batch.status);
     console.log('  - Status valid:', statusValid);
@@ -369,7 +362,7 @@ const Batches: React.FC = () => {
       name: batch.name,
       title: batch.title,
       description: batch.description || '',
-      course: String(batch.course), // Ensure it's a string for Select component
+      course: String(batch.course), 
       start_date: batch.start_date ? new Date(batch.start_date).toISOString().split('T')[0] : '',
       end_date: batch.end_date ? new Date(batch.end_date).toISOString().split('T')[0] : '',
       max_students: batch.max_students,
@@ -380,10 +373,8 @@ const Batches: React.FC = () => {
     console.log('  - Course (string):', newFormData.course, 'Type:', typeof newFormData.course);
     console.log('  - Status (string):', newFormData.status, 'Type:', typeof newFormData.status);
     
-    // Update state in correct order: batch first, then form data, then dialog
     setSelectedBatch(batch);
     setFormData(newFormData);
-    // Ensure dialog opens after state updates
     setTimeout(() => {
       setIsEditOpen(true);
     }, 0);
@@ -572,11 +563,6 @@ const Batches: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, max_students: parseInt(e.target.value) || 50 })}
                       />
                     </div>
-
-
-                    
-                
-
 
 
 
@@ -1097,7 +1083,6 @@ const Batches: React.FC = () => {
             </DialogContent>
           </Dialog>
 
-          {/* View Batch Details Modal */}
           <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
               {selectedBatch && (

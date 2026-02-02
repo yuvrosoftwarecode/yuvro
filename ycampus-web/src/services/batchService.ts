@@ -65,9 +65,6 @@ export interface BatchStats {
 class BatchService {
   private baseUrl = '/course/batches';
 
-  /**
-   * Fetch all batches with optional filters
-   */
   async fetchBatches(params?: {
     course?: string;
     status?: string;
@@ -76,37 +73,22 @@ class BatchService {
     return restApiAuthUtil.get(this.baseUrl + '/', { params });
   }
 
-  /**
-   * Fetch a single batch by ID with detailed information
-   */
   async fetchBatchById(batchId: string): Promise<Batch> {
     return restApiAuthUtil.get(`${this.baseUrl}/${batchId}/`);
   }
 
-  /**
-   * Create a new batch
-   */
   async createBatch(batchData: CreateBatchData): Promise<Batch> {
     return restApiAuthUtil.post(this.baseUrl + '/', batchData);
   }
 
-  /**
-   * Update an existing batch
-   */
   async updateBatch(batchId: string, batchData: Partial<CreateBatchData>): Promise<Batch> {
     return restApiAuthUtil.patch(`${this.baseUrl}/${batchId}/`, batchData);
   }
 
-  /**
-   * Delete a batch
-   */
   async deleteBatch(batchId: string): Promise<void> {
     return restApiAuthUtil.delete(`${this.baseUrl}/${batchId}/`);
   }
 
-  /**
-   * Add students to a batch
-   */
   async addStudentsToBatch(batchId: string, studentIds: string[]): Promise<{
     message: string;
     added_students: number;
@@ -118,9 +100,6 @@ class BatchService {
     });
   }
 
-  /**
-   * Remove students from a batch
-   */
   async removeStudentsFromBatch(batchId: string, studentIds: string[]): Promise<{
     message: string;
     removed_students: number;
@@ -131,9 +110,6 @@ class BatchService {
     });
   }
 
-  /**
-   * Get all students in a batch
-   */
   async getBatchStudents(batchId: string): Promise<{
     batch_id: string;
     batch_name: string;
@@ -144,44 +120,32 @@ class BatchService {
     return restApiAuthUtil.get(`${this.baseUrl}/${batchId}/students/`);
   }
 
-  /**
-   * Get batch statistics
-   */
+
   async getBatchStats(): Promise<BatchStats> {
     return restApiAuthUtil.get(`${this.baseUrl}/stats/`);
   }
 
-  /**
-   * Activate a batch (change status from draft to active)
-   */
+
   async activateBatch(batchId: string): Promise<Batch> {
     return restApiAuthUtil.post(`${this.baseUrl}/${batchId}/activate/`);
   }
 
-  /**
-   * Deactivate a batch (change status to inactive)
-   */
+
   async deactivateBatch(batchId: string): Promise<Batch> {
     return restApiAuthUtil.post(`${this.baseUrl}/${batchId}/deactivate/`);
   }
 
-  /**
-   * Get batches by course
-   */
+
   async getBatchesByCourse(courseId: string): Promise<Batch[]> {
     return this.fetchBatches({ course: courseId });
   }
 
-  /**
-   * Get active batches only
-   */
+
   async getActiveBatches(): Promise<Batch[]> {
     return this.fetchBatches({ status: 'active' });
   }
 
-  /**
-   * Get draft batches only
-   */
+
   async getDraftBatches(): Promise<Batch[]> {
     return this.fetchBatches({ status: 'draft' });
   }
