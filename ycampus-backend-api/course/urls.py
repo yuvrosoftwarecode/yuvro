@@ -9,7 +9,9 @@ from .views import (
     QuestionViewSet,
     StudentCourseProgressViewSet,
     StudentCodePracticeViewSet,
+    BatchViewSet,
 )
+
 
 router = DefaultRouter()
 router.register(r"courses", CourseViewSet)
@@ -20,6 +22,7 @@ router.register(r"notes", NoteViewSet)
 router.register(r"questions", QuestionViewSet)
 router.register(r"student-course-progress", StudentCourseProgressViewSet)
 router.register(r"student-code-practices", StudentCodePracticeViewSet)
+router.register(r"batches", BatchViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),

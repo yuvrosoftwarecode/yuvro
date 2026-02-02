@@ -9,6 +9,8 @@ from .models import (
     Question,
     StudentCodePractice,
     UserCourseProgress,
+    Batch,
+    BatchStudent,
 )
 
 
@@ -375,3 +377,124 @@ class UserCourseProgressAdmin(admin.ModelAdmin):
         )
 
     mark_as_completed.short_description = "Mark as completed"
+
+
+class BatchStudentInline(admin.TabularInline):
+    model = BatchStudent
+    extra = 0
+    fields = ["student", "enrolled_at", "is_active", "progress_percentage"]
+    readonly_fields = ["enrolled_at"]
+
+
+@admin.register(Batch)
+class BatchAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "title", 
+        "course",
+        "status",
+        "enrolled_count",
+        "max_students",
+        "start_date",
+        "end_date",
+        "created_by",
+        "created_at"
+    ]
+    list_filter = ["status", "course", "created_at", "start_date"]
+    search_fields = ["name", "title", "course__name", "course__short_code"]
+    readonly_fields = ["id", "enrolled_count", "is_full", "created_at", "updated_at"]
+    ordering = ["-created_at"]
+    
+    fieldsets = (
+        (
+            "Basic Information",
+            {
+                "fields": [
+                    "name",
+                    "title", 
+                    "description",
+                    "course",
+                    "status"
+                ]
+            },
+        ),
+        (
+            "Schedule & Capacity",
+            {
+                "fields": [
+                    "start_date",
+                    "end_date", 
+                    "max_students",
+                    "enrolled_count",
+                    "is_full"
+                ]
+            },
+        ),
+        (
+            "Metadata",
+            {
+                "fields": ["id", "created_by", "created_at", "updated_at"],
+                "classes": ("collapse",),
+            },
+        ),
+    )
+    
+    inlines = [BatchStudentInline]
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only set created_by on creation
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(BatchStudent)
+class BatchStudentAdmin(admin.ModelAdmin):
+    list_display = [
+        "batch",
+        "student", 
+        "enrolled_at",
+        "is_active",
+        "progress_percentage",
+        "last_activity"
+    ]
+    list_filter = ["is_active", "enrolled_at", "batch__course", "batch__status"]
+    search_fields = [
+        "batch__name",
+        "batch__title", 
+        "student__username",
+        "student__email",
+        "student__first_name",
+        "student__last_name"
+    ]
+    readonly_fields = ["id", "enrolled_at", "created_at", "updated_at"]
+    ordering = ["-enrolled_at"]
+    
+    fieldsets = (
+        (
+            "Enrollment Information",
+            {
+                "fields": [
+                    "batch",
+                    "student",
+                    "enrolled_at", 
+                    "is_active"
+                ]
+            },
+        ),
+        (
+            "Progress Tracking",
+            {
+                "fields": [
+                    "progress_percentage",
+                    "last_activity"
+                ]
+            },
+        ),
+        (
+            "Metadata",
+            {
+                "fields": ["id", "created_at", "updated_at"],
+                "classes": ("collapse",),
+            },
+        ),
+    )

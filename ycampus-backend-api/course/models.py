@@ -490,6 +490,122 @@ class Question(models.Model):
         return f"{self.type.upper()}: {self.title[:50]}..."
 
 
+class Batch(models.Model):
+    """
+    Batch model representing a group of students enrolled in a course.
+    """
+    
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("inactive", "Inactive"),
+        ("completed", "Completed"),
+        ("draft", "Draft"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, help_text="Batch name (e.g., 'Batch A - Jan 2024')")
+    title = models.CharField(max_length=255, help_text="Batch title for display")
+    description = models.TextField(blank=True, null=True, help_text="Batch description")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="batches")
+    
+    start_date = models.DateTimeField(help_text="Batch start date")
+    end_date = models.DateTimeField(null=True, blank=True, help_text="Batch end date")
+    max_students = models.PositiveIntegerField(default=50, help_text="Maximum number of students")
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    
+    # Many-to-many relationship with students through BatchStudent
+    students = models.ManyToManyField(
+        User, 
+        through="BatchStudent", 
+        related_name="batches",
+        blank=True
+    )
+    
+    created_by = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name="created_batches",
+        help_text="User who created this batch"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = [["course", "name"]]  # Prevent duplicate batch names within a course
+
+    def __str__(self):
+        return f"{self.course.name} - {self.name}"
+
+    @property
+    def enrolled_count(self):
+        """Get the current number of enrolled students"""
+        return self.students.count()
+
+    @property
+    def is_full(self):
+        """Check if batch has reached maximum capacity"""
+        return self.enrolled_count >= self.max_students
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Validate dates
+        if self.end_date and self.start_date and self.end_date <= self.start_date:
+            raise ValidationError("End date must be after start date")
+        
+        # Validate max_students
+        if self.max_students <= 0:
+            raise ValidationError("Maximum students must be greater than 0")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class BatchStudent(models.Model):
+    """
+    Through model for Batch-Student relationship with additional metadata.
+    """
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="batch_students")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="batch_enrollments")
+    
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, help_text="Whether student is actively enrolled")
+    
+    # Progress tracking
+    progress_percentage = models.FloatField(default=0.0, help_text="Overall progress in the batch")
+    last_activity = models.DateTimeField(null=True, blank=True, help_text="Last activity timestamp")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [["batch", "student"]]  # Prevent duplicate enrollments
+        ordering = ["-enrolled_at"]
+
+    def __str__(self):
+        return f"{self.student.username} in {self.batch.name}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        
+        # Validate that student role is actually 'student'
+        if self.student.role != 'student':
+            raise ValidationError("Only users with 'student' role can be enrolled in batches")
+        
+        # Check if batch is full (excluding current enrollment for updates)
+        if self.batch.is_full and not self.pk:
+            raise ValidationError(f"Batch '{self.batch.name}' is full (max {self.batch.max_students} students)")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
 class StudentCodePractice(BaseTimestampedModel):
     """
     Model for tracking student code practice submissions for learn and practice contexts
@@ -592,3 +708,5 @@ class StudentCodePractice(BaseTimestampedModel):
             if total_tests > 0:
                 success_rate = (total_passed / total_tests) * 100
         return f"{self.user.username} - {self.question.title[:30]} - {language} ({success_rate:.1f}%)"
+
+

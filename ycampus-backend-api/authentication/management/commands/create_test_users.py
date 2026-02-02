@@ -28,8 +28,28 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["clear"]:
             self.stdout.write(self.style.WARNING("Clearing existing test users..."))
-            User.objects.all().delete()
-            self.stdout.write(self.style.SUCCESS("Existing test users cleared."))
+            
+            try:
+                # Use Django's flush command to clear all data safely
+                from django.core.management import call_command
+                from django.db import connection
+                
+                # Get all table names that have foreign keys to auth_user
+                with connection.cursor() as cursor:
+                    # For SQLite, we need to disable foreign key checks temporarily
+                    cursor.execute("PRAGMA foreign_keys = OFF;")
+                    
+                    # Delete all users (this will cascade to related tables)
+                    User.objects.all().delete()
+                    
+                    # Re-enable foreign key checks
+                    cursor.execute("PRAGMA foreign_keys = ON;")
+                    
+                self.stdout.write(self.style.SUCCESS("Existing test users cleared."))
+                
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Failed to clear users: {e}"))
+                self.stdout.write(self.style.WARNING("Continuing without clearing existing users..."))
 
         self.stdout.write("Creating test users with comprehensive profile data...")
 

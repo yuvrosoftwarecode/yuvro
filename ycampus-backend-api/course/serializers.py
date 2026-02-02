@@ -10,6 +10,8 @@ from .models import (
     Question,
     UserCourseProgress,
     StudentCodePractice,
+    Batch,
+    BatchStudent,
 )
 from .gamification_models import UserGamificationProfile
 from authentication.serializers import UserSerializer
@@ -403,6 +405,217 @@ class UserCourseProgressSerializer(serializers.ModelSerializer):
         ]
 
 
+class BatchStudentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for BatchStudent through model.
+    """
+    student = UserSerializer(read_only=True)
+    student_id = serializers.UUIDField(write_only=True, required=False)
+
+    class Meta:
+        model = BatchStudent
+        fields = [
+            "id",
+            "student",
+            "student_id",
+            "enrolled_at",
+            "is_active",
+            "progress_percentage",
+            "last_activity",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "enrolled_at", "created_at", "updated_at"]
+
+    def validate_student_id(self, value):
+        """
+        Validate that the student exists and has student role.
+        """
+        if value:
+            try:
+                student = User.objects.get(id=value)
+                if student.role != 'student':
+                    raise serializers.ValidationError("Only users with 'student' role can be enrolled in batches")
+                return value
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Student with this ID does not exist")
+        return value
+
+
+class BatchSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Batch model with nested student information.
+    """
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    course_short_code = serializers.CharField(source='course.short_code', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.username', read_only=True)
+    enrolled_count = serializers.ReadOnlyField()
+    is_full = serializers.ReadOnlyField()
+    
+    # For detailed view with students
+    batch_students = BatchStudentSerializer(many=True, read_only=True)
+    
+    # For creating/updating with student IDs
+    student_ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        write_only=True,
+        required=False,
+        help_text="List of student IDs to enroll in this batch"
+    )
+
+    class Meta:
+        model = Batch
+        fields = [
+            "id",
+            "name",
+            "title",
+            "description",
+            "course",
+            "course_name",
+            "course_short_code",
+            "start_date",
+            "end_date",
+            "max_students",
+            "status",
+            "enrolled_count",
+            "is_full",
+            "created_by",
+            "created_by_name",
+            "created_at",
+            "updated_at",
+            "batch_students",
+            "student_ids",
+        ]
+        read_only_fields = ["id", "created_by", "created_at", "updated_at", "enrolled_count", "is_full"]
+
+    def validate_student_ids(self, value):
+        """
+        Validate student IDs and check for duplicates.
+        """
+        if value:
+            # Check for duplicates
+            if len(value) != len(set(value)):
+                raise serializers.ValidationError("Duplicate student IDs are not allowed")
+            
+            # Validate each student ID
+            for student_id in value:
+                try:
+                    student = User.objects.get(id=student_id)
+                    if student.role != 'student':
+                        raise serializers.ValidationError(f"User {student.username} is not a student")
+                except User.DoesNotExist:
+                    raise serializers.ValidationError(f"Student with ID {student_id} does not exist")
+            
+            # Check if adding these students would exceed max_students
+            current_count = 0
+            if self.instance:
+                current_count = self.instance.enrolled_count
+            
+            max_students = self.initial_data.get('max_students', getattr(self.instance, 'max_students', 50))
+            if current_count + len(value) > max_students:
+                raise serializers.ValidationError(
+                    f"Adding {len(value)} students would exceed maximum capacity of {max_students}"
+                )
+        
+        return value
+
+    def validate(self, data):
+        """
+        Validate batch data.
+        """
+        # Validate dates
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        if end_date and start_date and end_date <= start_date:
+            raise serializers.ValidationError("End date must be after start date")
+        
+        # Validate max_students
+        max_students = data.get('max_students', 50)
+        if max_students <= 0:
+            raise serializers.ValidationError("Maximum students must be greater than 0")
+        
+        return data
+
+    def create(self, validated_data):
+        """
+        Create batch and enroll students if provided.
+        """
+        student_ids = validated_data.pop('student_ids', [])
+        validated_data['created_by'] = self.context['request'].user
+        
+        batch = super().create(validated_data)
+        
+        # Enroll students if provided
+        if student_ids:
+            batch_students = []
+            for student_id in student_ids:
+                student = User.objects.get(id=student_id)
+                batch_students.append(BatchStudent(batch=batch, student=student))
+            
+            BatchStudent.objects.bulk_create(batch_students, ignore_conflicts=True)
+        
+        return batch
+
+    def update(self, instance, validated_data):
+        """
+        Update batch and handle student enrollment changes.
+        """
+        student_ids = validated_data.pop('student_ids', None)
+        
+        batch = super().update(instance, validated_data)
+        
+        # Handle student enrollment if student_ids provided
+        if student_ids is not None:
+            # Remove existing enrollments
+            BatchStudent.objects.filter(batch=batch).delete()
+            
+            # Add new enrollments
+            if student_ids:
+                batch_students = []
+                for student_id in student_ids:
+                    student = User.objects.get(id=student_id)
+                    batch_students.append(BatchStudent(batch=batch, student=student))
+                
+                BatchStudent.objects.bulk_create(batch_students, ignore_conflicts=True)
+        
+        return batch
+
+
+class BatchBasicSerializer(serializers.ModelSerializer):
+    """
+    Basic serializer for Batch model without nested data.
+    """
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    course_short_code = serializers.CharField(source='course.short_code', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.username', read_only=True)
+    enrolled_count = serializers.ReadOnlyField()
+    is_full = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Batch
+        fields = [
+            "id",
+            "name",
+            "title",
+            "description",
+            "course",
+            "course_name",
+            "course_short_code",
+            "start_date",
+            "end_date",
+            "max_students",
+            "status",
+            "enrolled_count",
+            "is_full",
+            "created_by",
+            "created_by_name",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_by", "created_at", "updated_at", "enrolled_count", "is_full"]
+
+
 class StudentCodePracticeSerializer(serializers.ModelSerializer):
     """
     Serializer for StudentCodePractice model
@@ -450,3 +663,5 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
                 f"Status must be one of: {', '.join(valid_statuses)}"
             )
         return value
+
+

@@ -6,11 +6,13 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import os
 import requests
+import asyncio
 from django.db.models import (
     Count, Q, F, Case, When, Value, IntegerField, FloatField, 
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
+from django.contrib.postgres.search import SearchVector
 from authentication.permissions import CanManageCourses, IsAuthenticatedUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
@@ -25,6 +27,8 @@ from .models import (
     Question,
     UserCourseProgress,
     StudentCodePractice,
+    Batch,
+    BatchStudent,
 )
 from .serializers import (
     CourseSerializer,
@@ -36,6 +40,9 @@ from .serializers import (
     NoteSerializer,
     QuestionSerializer,
     StudentCodePracticeSerializer,
+    BatchSerializer,
+    BatchBasicSerializer,
+    BatchStudentSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
@@ -61,20 +68,19 @@ class CourseViewSet(viewsets.ModelViewSet):
         if category:
             queryset = queryset.filter(category=category)
 
-        practice_questions_filter = Q(type='coding') & Q(categories__contains=['practice'])
-        
+        # Count coding practice questions at all levels
         queryset = queryset.annotate(
             total_problems=Count(
                 'questions', 
-                filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
+                filter=Q(questions__type='coding') & Q(questions__categories__icontains='practice'), 
                 distinct=True
             ) + Count(
                 'topics__questions',
-                filter=Q(topics__questions__type='coding') & Q(topics__questions__categories__contains=['practice']),
+                filter=Q(topics__questions__type='coding') & Q(topics__questions__categories__icontains='practice'),
                 distinct=True
             ) + Count(
                 'topics__subtopics__questions',
-                filter=Q(topics__subtopics__questions__type='coding') & Q(topics__subtopics__questions__categories__contains=['practice']),
+                filter=Q(topics__subtopics__questions__type='coding') & Q(topics__subtopics__questions__categories__icontains='practice'),
                 distinct=True
             )
         )
@@ -85,21 +91,21 @@ class CourseViewSet(viewsets.ModelViewSet):
                 course=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__icontains='practice'
             ).values('course').annotate(cnt=Count('id')).values('cnt')
             
             score_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 course=OuterRef('pk'),
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__icontains='practice'
             ).values('course').annotate(total_valid_score=Sum('marks_obtained')).values('total_valid_score')
 
             ai_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 course=OuterRef('pk'),
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__icontains='practice'
             ).values('course').annotate(total_ai=Sum('ai_help_count')).values('total_ai')
 
             queryset = queryset.annotate(
@@ -197,11 +203,11 @@ class TopicViewSet(viewsets.ModelViewSet):
         qs = qs.annotate(
             total_problems=Count(
                 'questions', 
-                filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
+                filter=Q(questions__type='coding') & Q(questions__categories__icontains='practice'), 
                 distinct=True
             ) + Count(
                 'subtopics__questions',
-                filter=Q(subtopics__questions__type='coding') & Q(subtopics__questions__categories__contains=['practice']),
+                filter=Q(subtopics__questions__type='coding') & Q(subtopics__questions__categories__icontains='practice'),
                 distinct=True
             )
         )
@@ -213,7 +219,7 @@ class TopicViewSet(viewsets.ModelViewSet):
                 topic=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__icontains='practice'
             ).values('topic').annotate(cnt=Count('id')).values('cnt')
             
             qs = qs.annotate(
@@ -499,7 +505,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if level and level != "all":
             qs = qs.filter(level=level)
         if categories:
-            qs = qs.filter(categories__contains=[categories])
+            qs = qs.filter(categories__icontains=categories)
         if search:
             qs = qs.filter(
                 models.Q(title__icontains=search) | models.Q(content__icontains=search)
@@ -1669,3 +1675,219 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
              return Response({"error": f"AI Service Error: {str(e)}"}, status=503)
         except Exception as e:
              return Response({"error": f"Unexpected Error: {str(e)}"}, status=500)
+
+
+class BatchViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing batches with CRUD operations and student enrollment.
+    Admin-only access for batch management.
+    """
+    queryset = Batch.objects.select_related('course', 'created_by').prefetch_related('batch_students__student')
+    permission_classes = [CanManageCourses]  # Admin and instructors can manage batches
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created_at', 'start_date', 'name']
+    ordering = ['-created_at']
+
+    def get_serializer_class(self):
+        """Return detailed serializer for retrieve, basic for list"""
+        if self.action == 'retrieve':
+            return BatchSerializer
+        return BatchBasicSerializer
+
+    def get_queryset(self):
+        """Filter batches based on user role and query parameters"""
+        queryset = super().get_queryset()
+        
+        # Filter by course if provided
+        course_id = self.request.query_params.get('course')
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+        
+        # Filter by status if provided
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        
+        # For instructors, only show batches for courses they're assigned to
+        user = self.request.user
+        if user.role == 'instructor':
+            assigned_course_ids = CourseInstructor.objects.filter(
+                instructor=user
+            ).values_list('course_id', flat=True)
+            queryset = queryset.filter(course_id__in=assigned_course_ids)
+        
+        return queryset
+
+    def perform_create(self, serializer):
+        """Set the created_by field to current user"""
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """
+        Get batch statistics.
+        Returns total batches, active, draft, completed, and total enrolled students.
+        """
+        queryset = self.get_queryset()
+        
+        stats = {
+            'total_batches': queryset.count(),
+            'active_batches': queryset.filter(status='active').count(),
+            'draft_batches': queryset.filter(status='draft').count(),
+            'completed_batches': queryset.filter(status='completed').count(),
+            'inactive_batches': queryset.filter(status='inactive').count(),
+            'total_enrolled_students': BatchStudent.objects.filter(
+                batch__in=queryset, 
+                is_active=True
+            ).count()
+        }
+        
+        return Response(stats)
+
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        """
+        Activate a batch (change status from draft to active).
+        """
+        batch = self.get_object()
+        
+        if batch.status == 'active':
+            return Response(
+                {"error": "Batch is already active"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        batch.status = 'active'
+        batch.save()
+        
+        serializer = self.get_serializer(batch)
+        return Response({
+            "message": "Batch activated successfully",
+            "batch": serializer.data
+        })
+
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+        """
+        Deactivate a batch (change status to inactive).
+        """
+        batch = self.get_object()
+        
+        if batch.status == 'inactive':
+            return Response(
+                {"error": "Batch is already inactive"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        batch.status = 'inactive'
+        batch.save()
+        
+        serializer = self.get_serializer(batch)
+        return Response({
+            "message": "Batch deactivated successfully",
+            "batch": serializer.data
+        })
+
+    @action(detail=True, methods=['post'])
+    def add_students(self, request, pk=None):
+        """
+        Add students to a batch.
+        Expected payload: {"student_ids": ["uuid1", "uuid2", ...]}
+        """
+        batch = self.get_object()
+        student_ids = request.data.get('student_ids', [])
+        
+        if not student_ids:
+            return Response(
+                {"error": "student_ids is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate student IDs
+        students = []
+        for student_id in student_ids:
+            try:
+                student = User.objects.get(id=student_id)
+                if student.role != 'student':
+                    return Response(
+                        {"error": f"User {student.username} is not a student"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                students.append(student)
+            except User.DoesNotExist:
+                return Response(
+                    {"error": f"Student with ID {student_id} does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Check capacity
+        current_count = batch.enrolled_count
+        if current_count + len(students) > batch.max_students:
+            return Response(
+                {"error": f"Adding {len(students)} students would exceed maximum capacity of {batch.max_students}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Add students to batch
+        batch_students = []
+        added_count = 0
+        for student in students:
+            batch_student, created = BatchStudent.objects.get_or_create(
+                batch=batch,
+                student=student,
+                defaults={'is_active': True}
+            )
+            if created:
+                batch_students.append(batch_student)
+                added_count += 1
+        
+        return Response({
+            "message": f"Successfully added {added_count} students to batch",
+            "added_students": added_count,
+            "total_enrolled": batch.enrolled_count,
+            "batch_students": BatchStudentSerializer(batch_students, many=True).data
+        })
+
+    @action(detail=True, methods=['post'])
+    def remove_students(self, request, pk=None):
+        """
+        Remove students from a batch.
+        Expected payload: {"student_ids": ["uuid1", "uuid2", ...]}
+        """
+        batch = self.get_object()
+        student_ids = request.data.get('student_ids', [])
+        
+        if not student_ids:
+            return Response(
+                {"error": "student_ids is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Remove students from batch
+        removed_count = BatchStudent.objects.filter(
+            batch=batch,
+            student_id__in=student_ids
+        ).delete()[0]
+        
+        return Response({
+            "message": f"Successfully removed {removed_count} students from batch",
+            "removed_students": removed_count,
+            "total_enrolled": batch.enrolled_count
+        })
+
+    @action(detail=True, methods=['get'])
+    def students(self, request, pk=None):
+        """Get all students enrolled in a batch with their progress"""
+        batch = self.get_object()
+        batch_students = BatchStudent.objects.filter(
+            batch=batch,
+            is_active=True
+        ).select_related('student').order_by('enrolled_at')
+        
+        return Response({
+            "batch_id": batch.id,
+            "batch_name": batch.name,
+            "total_enrolled": batch_students.count(),
+            "max_students": batch.max_students,
+            "students": BatchStudentSerializer(batch_students, many=True).data
+        })
