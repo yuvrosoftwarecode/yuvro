@@ -8,7 +8,7 @@ interface ProctoringConfig {
     questionId?: string; // Optional context
 }
 
-export const useProctoring = ({ assessmentId, assessmentType, enabled, questionId }: ProctoringConfig) => {
+export const useProctoring = ({ assessmentId, assessmentType, enabled, questionId, mediaStream }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
     const lastActiveRef = useRef<number>(Date.now());
 
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
@@ -188,18 +188,19 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
     useEffect(() => {
         if (!enabled) return;
 
-        let stream: MediaStream | null = null;
+        let internalStream: MediaStream | null = null;
+        let isActive = true;
         let intervalId: NodeJS.Timeout;
         const video = document.createElement('video');
         const canvas = document.createElement('canvas');
 
-        const takeAndUploadSnapshot = async (mediaStream: MediaStream) => {
-            if (!mediaStream.active) return;
+        const takeAndUploadSnapshot = async (currentStream: MediaStream) => {
+            if (!currentStream.active || !isActive) return;
 
             try {
                 // Ensure video is playing
-                if (video.paused || video.ended) {
-                    video.srcObject = mediaStream;
+                if (video.paused || video.ended || video.srcObject !== currentStream) {
+                    video.srcObject = currentStream;
                     await video.play().catch(() => { });
                 }
 
@@ -216,7 +217,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
                     canvas.toBlob(async (blob) => {
-                        if (blob) {
+                        if (blob && isActive) {
                             const formData = new FormData();
                             formData.append('snapshot', blob, 'snapshot.png');
                             // Add required fields expected by backend check
@@ -251,40 +252,68 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
 
         const initCamera = async () => {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                let streamToUse = mediaStream;
 
-                // Initial snapshot
-                // We need to wait a bit for the video to start
-                video.srcObject = stream;
-                video.onloadedmetadata = async () => {
-                    await video.play();
-                    takeAndUploadSnapshot(stream as MediaStream);
-                };
-
-                // Interval snapshot
-                intervalId = setInterval(() => {
-                    if (stream) {
-                        takeAndUploadSnapshot(stream);
+                if (!streamToUse) {
+                    // Only initialize internal stream if no external stream provided
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    if (!isActive) {
+                        stream.getTracks().forEach(t => t.stop());
+                        return;
                     }
-                }, 15000); // 15 seconds
+                    internalStream = stream;
+                    streamToUse = internalStream;
+                }
+
+                if (streamToUse && isActive) {
+                    logActivity('camera_enabled');
+                    // Initial snapshot
+                    const s = streamToUse; // capture for closure
+                    video.srcObject = s;
+                    video.onloadedmetadata = async () => {
+                        if (isActive) {
+                            await video.play().catch(() => { });
+                            takeAndUploadSnapshot(s);
+                        }
+                    };
+
+                    // Interval snapshot
+                    intervalId = setInterval(() => {
+                        if (s && s.active && isActive) {
+                            takeAndUploadSnapshot(s);
+                        }
+                    }, 15000); // 15 seconds
+                }
 
             } catch (err) {
-                console.error('Failed to access camera for proctoring', err);
-                logActivity('camera_disabled', { error: String(err) });
+                if (isActive) {
+                    console.error('Failed to access camera for proctoring', err);
+                    logActivity('camera_disabled', { error: String(err) });
+                }
             }
         };
 
-        logActivity('camera_enabled');
-        initCamera();
+        if (mediaStream) {
+             // If we have an external stream, use it immediately
+            if (mediaStream.active) {
+                 initCamera();
+            }
+        } else {
+             // Otherwise try to init our own
+             initCamera();
+        }
+
 
         return () => {
+            isActive = false;
             if (intervalId) clearInterval(intervalId);
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+            // Only stop tracks if we created them internally
+            if (internalStream) {
+                internalStream.getTracks().forEach(track => track.stop());
             }
             video.srcObject = null;
         };
-    }, [assessmentId, assessmentType, enabled, logActivity]); // Re-init if these change (e.g. enabled toggles)
+    }, [assessmentId, assessmentType, enabled, logActivity, mediaStream]); // Re-init if these change (e.g. enabled toggles)
 
     return { logActivity };
 };

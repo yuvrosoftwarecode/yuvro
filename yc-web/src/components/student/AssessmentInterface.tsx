@@ -123,36 +123,11 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const isCodingQuestion = currentQuestionData?.type === 'coding';
   const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
 
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: true,
-    questionId: undefined
-  });
-
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: isCodingQuestion,
-    questionId: proctoringQuestionId
-  });
-
-  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
-  const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
-  const [showExamples, setShowExamples] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
-  const [cameraAlert, setCameraAlert] = useState(false);
-  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
-  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
-  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
   const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
@@ -170,6 +145,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         console.log('Camera/microphone track stopped:', track.kind);
       });
       streamRef.current = null;
+      setMediaStream(null);
       setVideoTrackEnabled(false);
       setAudioTrackEnabled(false);
       console.log('Camera cleanup completed');
@@ -177,6 +153,35 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('No stream to cleanup');
     }
   };
+
+  useProctoring({
+    assessmentId: assessment.id,
+    assessmentType: assessmentType,
+    enabled: true,
+    questionId: undefined,
+    mediaStream: mediaStream
+  });
+
+  useProctoring({
+    assessmentId: assessment.id,
+    assessmentType: assessmentType,
+    enabled: isCodingQuestion,
+    questionId: proctoringQuestionId,
+    mediaStream: mediaStream
+  });
+
+  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
+  const [viewed, setViewed] = useState<Set<string>>(new Set());
+  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
+  const [showExamples, setShowExamples] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+  const [cameraAlert, setCameraAlert] = useState(false);
+  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
+  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     const initializeMedia = async () => {
@@ -187,6 +192,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         });
 
         streamRef.current = stream;
+        setMediaStream(stream);
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);

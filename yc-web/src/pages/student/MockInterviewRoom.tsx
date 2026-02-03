@@ -13,6 +13,7 @@ const MockInterviewRoom = () => {
     // Better to request permission here if stream is missing.
 
     const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +26,7 @@ const MockInterviewRoom = () => {
         const initStream = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                streamRef.current = stream; // Store in ref for cleanup
                 setMediaStream(stream);
                 setLoading(false);
             } catch (err) {
@@ -37,23 +39,23 @@ const MockInterviewRoom = () => {
         initStream();
 
         return () => {
-            // Cleanup stream on unmount
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
+            // Cleanup stream on unmount using ref
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
             }
         };
     }, []);
 
     const handleExit = () => {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
         }
         navigate('/student/mock-interview');
     };
 
     const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sessionId: string) => {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
         }
         navigate(`/student/mock-interview/report/${sessionId}`);
     };
