@@ -308,13 +308,50 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
     def register(self, request, pk=None):
         contest = self.get_object()
         user = request.user
+        now = timezone.now()
 
-        if ContestSubmission.objects.filter(contest=contest, user=user).exists():
-            return Response({'message': 'Already Registered'}, status=status.HTTP_200_OK)
+        # 1. Check if already registered
+        existing_submission = ContestSubmission.objects.filter(contest=contest, user=user).first()
+        if existing_submission:
+            return Response({
+                'message': 'Already Registered',
+                'is_late_entry': existing_submission.is_late_entry,
+                'remaining_time_minutes': None
+            }, status=status.HTTP_200_OK)
 
-        ContestSubmission.objects.create(contest=contest, user=user, status=ContestSubmission.STATUS_STARTED)
+        # 2. Validate registration window
+        is_late_entry = False
+        
+        if contest.registration_start_datetime and now < contest.registration_start_datetime:
+            return Response({'error': 'Registration has not started yet'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if contest.registration_end_datetime and now > contest.registration_end_datetime:
+            # Registration window closed - check for late entry
+            if not contest.allow_late_entry:
+                return Response({'error': 'Registration is closed'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if contest is still ongoing
+            if now > contest.end_datetime:
+                return Response({'error': 'Contest has ended'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            is_late_entry = True
 
+        # 3. Create submission record with late entry flag
+        ContestSubmission.objects.create(
+            contest=contest, 
+            user=user, 
+            status=ContestSubmission.STATUS_STARTED,
+            is_late_entry=is_late_entry
+        )
+
+        # 4. Calculate remaining time for late entrants
+        remaining_time = None
+        if is_late_entry:
+            remaining_time = int((contest.end_datetime - now).total_seconds() / 60)
+
+        # 5. Send confirmation email
         try:
+            late_entry_note = "\n        Note: This is a late entry. You will have reduced time to complete the contest." if is_late_entry else ""
             subject = f"Registration Confirmed: {contest.title}"
             message = f"""
         Hello {user.first_name or user.username},
@@ -322,7 +359,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         You have successfully registered for the contest: {contest.title}.
 
         Start Time: {contest.start_datetime.strftime('%Y-%m-%d %H:%M:%Z')}
-        End Time: {contest.end_datetime.strftime('%Y-%m-%d %H:%M:%Z')}
+        End Time: {contest.end_datetime.strftime('%Y-%m-%d %H:%M:%Z')}{late_entry_note}
         
         Good Luck!
 
@@ -340,12 +377,18 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         except Exception as e:
             logger.warning(f"Failed to send email: {str(e)}")
 
-        return Response({'status': 'Registered'}, status=status.HTTP_201_CREATED)
+        # 6. Return enhanced response
+        return Response({
+            'status': 'Registered',
+            'is_late_entry': is_late_entry,
+            'remaining_time_minutes': remaining_time
+        }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start(self, request, pk=None):
         contest = self.get_object()
         user = request.user
+        now = timezone.now()
 
         submission, created = ContestSubmission.objects.get_or_create(
             contest=contest, 
@@ -357,10 +400,23 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if contest.status != Contest.STATUS_ONGOING:
             return Response({'error': 'Contest is not live'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Calculate actual duration based on late entry status
+        if submission.is_late_entry:
+            # For late entrants, give them remaining time (but not more than contest duration)
+            remaining_seconds = (contest.end_datetime - now).total_seconds()
+            actual_duration = min(int(remaining_seconds / 60), contest.duration)
+        else:
+            actual_duration = contest.duration
+
         # Use shared helper for question fetching
         questions_to_send = self._fetch_questions_for_assessment(contest)
 
-        return Response({ 'submission_id': submission.id, 'duration': contest.duration, 'questions': questions_to_send})
+        return Response({
+            'submission_id': submission.id, 
+            'duration': actual_duration,
+            'questions': questions_to_send,
+            'is_late_entry': submission.is_late_entry
+        })
 
     @action(detail=True, methods=['post'], permission_classes= [permissions.IsAuthenticated])
     def submit(self, request, pk=None):

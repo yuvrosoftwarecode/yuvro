@@ -104,11 +104,20 @@ const ContestPage = () => {
   const handleRegister = async (contestId: string | number, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await contestService.registerContest(String(contestId));
-      toast.success("Successfully registered!");
+      const response = await contestService.registerContest(String(contestId));
+
+      if (response.is_late_entry && response.remaining_time_minutes) {
+        toast.success(
+          `Registered! ⚠️ Late Entry: You have ${response.remaining_time_minutes} minutes remaining`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.success("Successfully registered!");
+      }
       loadContests();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to register");
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || "Failed to register";
+      toast.error(errorMsg);
     }
   };
 

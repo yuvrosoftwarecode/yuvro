@@ -108,11 +108,20 @@ const ContestDetail: React.FC = () => {
         if (!contest) return;
         setRegistering(true);
         try {
-            await contestService.registerContest(String(contest.id));
+            const response = await contestService.registerContest(String(contest.id));
             setContest({ ...contest, isRegistered: true });
-            toast.success("Successfully registered for the contest!");
-        } catch (err) {
-            toast.error("Failed to register for contest");
+
+            if (response.is_late_entry && response.remaining_time_minutes) {
+                toast.success(
+                    `Registered! ⚠️ Late Entry: You have ${response.remaining_time_minutes} minutes remaining`,
+                    { duration: 6000 }
+                );
+            } else {
+                toast.success("Successfully registered for the contest!");
+            }
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.error || err.response?.data?.message || "Failed to register for contest";
+            toast.error(errorMsg);
         } finally {
             setRegistering(false);
         }

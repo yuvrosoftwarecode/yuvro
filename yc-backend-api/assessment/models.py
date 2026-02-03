@@ -329,6 +329,10 @@ class ContestSubmission(BaseUserSubmission):
     contest = models.ForeignKey(
         Contest, on_delete=models.CASCADE, related_name="contest_submissions"
     )
+    is_late_entry = models.BooleanField(
+        default=False,
+        help_text="Whether the user registered after the registration window closed (via late entry)"
+    )
 
     class Meta:
         ordering = ["-created_at"]

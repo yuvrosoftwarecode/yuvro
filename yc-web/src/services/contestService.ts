@@ -56,6 +56,21 @@ export interface Question {
   };
 }
 
+export interface RegisterContestResponse {
+  status: string;
+  message?: string;
+  error?: string;
+  is_late_entry: boolean;
+  remaining_time_minutes?: number | null;
+}
+
+export interface StartContestResponse {
+  submission_id: number;
+  duration: number;
+  questions: any[];
+  is_late_entry: boolean;
+}
+
 export const fetchContests = async (): Promise<Contest[]> => {
   return restApiAuthUtil.get('/assessment/contests/');
 };
@@ -113,11 +128,11 @@ export const contestService = {
     return restApiAuthUtil.delete(`/assessment/contests/${contestId}/`);
   },
 
-  async registerContest(contestId: string): Promise<any> {
+  async registerContest(contestId: string): Promise<RegisterContestResponse> {
     return restApiAuthUtil.post(`/assessment/contests/${contestId}/register/`);
   },
 
-  async startContest(contestId: string): Promise<any> {
+  async startContest(contestId: string): Promise<StartContestResponse> {
     return restApiAuthUtil.post(`/assessment/contests/${contestId}/start/`);
   },
 
