@@ -44,6 +44,7 @@ import {
   QUESTION_CATEGORIES,
   validateQuestion,
 } from '@/services/questionService';
+import { getDefaultMarks } from '@/constants/questionMarksConfig';
 
 interface QuestionBankManagerProps {
   course: any;
@@ -175,7 +176,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         formTopic = selectedTopic.id;
       }
 
-      setFormData(prev => ({
+      setFormData((prev: CreateQuestionData) => ({
         ...prev,
         level: defaultLevel,
         course: formCourse,
@@ -184,6 +185,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       }));
     }
   }, [course, selectedTopic, selectedSubtopic, editingQuestion, activeTab]);
+
+  // Update marks when type or difficulty changes
+  useEffect(() => {
+    if (!editingQuestion && activeTab === 'create') {
+      const marks = getDefaultMarks(formData.type, formData.difficulty);
+      setFormData((prev: CreateQuestionData) => ({
+        ...prev,
+        marks
+      }));
+    }
+  }, [formData.type, formData.difficulty, editingQuestion, activeTab]);
 
   const openCreateForm = () => {
     // Determine default level and set appropriate IDs based on current selection
@@ -757,11 +769,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   <Label className="text-sm font-medium text-slate-700">Marks</Label>
                   <Input
                     type="number"
-                    min="1"
-                    max="100"
                     value={formData.marks}
-                    onChange={(e) => setFormData(prev => ({ ...prev, marks: parseInt(e.target.value) || 1 }))}
-                    className="bg-white border-slate-300"
+                    readOnly
+                    className="bg-slate-100 border-slate-300 cursor-not-allowed opacity-75"
                   />
                 </div>
               </div>
