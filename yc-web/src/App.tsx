@@ -49,6 +49,8 @@ import MockInterviewReports from './pages/instructor/MockInterviewReports';
 import MockInterviewReportView from './pages/instructor/MockInterviewReportView';
 import MockInterviewAnalytics from './pages/instructor/MockInterviewAnalytics';
 import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
+import ContestAnalytics from './pages/instructor/ContestAnalytics';
+import ContestSubmissionAnalytics from './pages/instructor/ContestSubmissionAnalytics';
 import InstructorCertifications from './pages/instructor/Certifications';
 import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
 import CertificationExamSubmissions from './pages/instructor/CertificationExamSubmissions';
@@ -484,6 +486,22 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestEdit />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/contests/:contestId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <ContestAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/contests/submissions/:submissionId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <ContestSubmissionAnalytics />
                   </ProtectedRoute>
                 }
               />

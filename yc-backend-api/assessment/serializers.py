@@ -202,6 +202,9 @@ class ContestSerializer(serializers.ModelSerializer):
             "prize",
             "difficulty",
             "description",
+            "registration_start_datetime",
+            "registration_end_datetime",
+            "allow_late_entry",
             "participants_count",
             "max_attempts",
             "questions_config",
@@ -226,13 +229,38 @@ class ContestSerializer(serializers.ModelSerializer):
         ]
 
     def get_participants_count(self, obj):
+        # Deprecated: usage of 'participants' was ambiguous. 
+        # For backward compatibility, this returns total attempts for now.
         return obj.contest_submissions.count()
 
+    def get_unique_candidates_count(self, obj):
+        return obj.contest_submissions.values('user').distinct().count()
+
+    def get_completed_count(self, obj):
+        return obj.contest_submissions.filter(status__in=['completed', 'submitted']).count()
+
+    def get_attempted_count(self, obj):
+        return obj.contest_submissions.exclude(status='cancelled').count()
+
     def get_is_registered(self, obj):
-        user = self.context.get("request").user
-        if user.is_authenticated:
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated:
             return obj.contest_submissions.filter(user=user).exists()
         return False
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        computed_status = getattr(instance, "computed_status", None)
+        if computed_status:
+            data["status"] = computed_status
+        
+        # Inject the new metrics into the response
+        data['unique_candidates_count'] = self.get_unique_candidates_count(instance)
+        data['completed_count'] = self.get_completed_count(instance)
+        data['attempted_count'] = self.get_attempted_count(instance)
+        
+        return data
 
 
 class SkillTestSerializer(serializers.ModelSerializer):
@@ -271,6 +299,15 @@ class SkillTestSerializer(serializers.ModelSerializer):
     def get_participants_count(self, obj):
         return obj.skill_test_submissions.count()
 
+    def get_unique_candidates_count(self, obj):
+        return obj.skill_test_submissions.values('user').distinct().count()
+
+    def get_completed_count(self, obj):
+        return obj.skill_test_submissions.filter(status__in=['completed', 'submitted']).count()
+
+    def get_attempted_count(self, obj):
+        return obj.skill_test_submissions.exclude(status='cancelled').count()
+
     def get_total_questions(self, obj):
         fixed_count = 0
         if obj.questions_config:
@@ -285,6 +322,16 @@ class SkillTestSerializer(serializers.ModelSerializer):
                     random_count += count
 
         return fixed_count + random_count
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        # Inject the new metrics into the response
+        data['unique_candidates_count'] = self.get_unique_candidates_count(instance)
+        data['completed_count'] = self.get_completed_count(instance)
+        data['attempted_count'] = self.get_attempted_count(instance)
+        
+        return data
 
     def get_my_submissions(self, obj):
         request = self.context.get("request")

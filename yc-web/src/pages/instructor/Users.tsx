@@ -6,6 +6,42 @@ import { userService, User, PaginatedUsersResponse, UsersFilters } from '../../s
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchBar from '@/components/common/SearchBar';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogDescription,
+} from "@/components/ui/dialog";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { StatsCard } from "../../components/common/StatsCard";
+import { DataTable } from "../../components/common/DataTable";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+    PaginationEllipsis,
+} from "@/components/ui/pagination";
+import { Plus, Users as UsersIcon, Shield, UserCheck, UserX, Pencil, Trash } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UserFormData {
     email: string;
@@ -24,9 +60,7 @@ const Users: React.FC = () => {
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [formLoading, setFormLoading] = useState(false);
-    const [formError, setFormError] = useState<string | null>(null);
     const [pagination, setPagination] = useState({
         count: 0,
         next: null as string | null,
@@ -53,7 +87,6 @@ const Users: React.FC = () => {
     const fetchUsers = async (newFilters: UsersFilters = filters) => {
         try {
             setLoading(true);
-            setError(null);
             const response: PaginatedUsersResponse = await userService.getUsers(newFilters);
             setUsers(response.results);
             setPagination({
@@ -64,8 +97,8 @@ const Users: React.FC = () => {
                 totalPages: Math.ceil(response.count / (newFilters.page_size || 20))
             });
         } catch (err) {
-            setError('Failed to fetch users');
             console.error('Error fetching users:', err);
+            toast.error('Failed to fetch users');
         } finally {
             setLoading(false);
         }
@@ -110,6 +143,7 @@ const Users: React.FC = () => {
 
     // Handle pagination
     const handlePageChange = (page: number) => {
+        if (page < 1 || page > pagination.totalPages) return;
         const newFilters = { ...filters, page };
         setFilters(newFilters);
         fetchUsers(newFilters);
@@ -119,9 +153,11 @@ const Users: React.FC = () => {
     const handleToggleUserStatus = async (userId: string) => {
         try {
             await userService.toggleUserStatus(userId);
+            toast.success('User status updated');
             fetchUsers(); // Refresh the list
         } catch (err) {
             console.error('Error toggling user status:', err);
+            toast.error('Failed to update user status');
         }
     };
 
@@ -143,20 +179,19 @@ const Users: React.FC = () => {
             role: 'student',
             is_active: true
         });
-        setFormError(null);
     };
 
     // Handle add user
     const handleAddUser = async () => {
         try {
             setFormLoading(true);
-            setFormError(null);
             await userService.createUser(userForm);
             setShowAddUser(false);
             resetForm();
-            fetchUsers(); // Refresh the list
+            toast.success('User created successfully');
+            fetchUsers();
         } catch (err: any) {
-            setFormError(err.message || 'Failed to create user');
+            toast.error(err.message || 'Failed to create user');
         } finally {
             setFormLoading(false);
         }
@@ -182,37 +217,17 @@ const Users: React.FC = () => {
 
         try {
             setFormLoading(true);
-            setFormError(null);
             await userService.updateUser(editingUser.id, userForm);
             setShowEditUser(false);
             setEditingUser(null);
             resetForm();
-            fetchUsers(); // Refresh the list
+            toast.success('User updated successfully');
+            fetchUsers();
         } catch (err: any) {
-            setFormError(err.message || 'Failed to update user');
+            toast.error(err.message || 'Failed to update user');
         } finally {
             setFormLoading(false);
         }
-    };
-
-    // Close modals
-    const closeModals = () => {
-        setShowAddUser(false);
-        setShowEditUser(false);
-        setEditingUser(null);
-        resetForm();
-    };
-
-    const filteredUsers = users;
-
-    const getRoleBadge = (role: string) => {
-        const roleStyles = {
-            admin: 'bg-red-100 text-red-800',
-            instructor: 'bg-blue-100 text-blue-800',
-            recruiter: 'bg-purple-100 text-purple-800',
-            student: 'bg-green-100 text-green-800'
-        };
-        return roleStyles[role as keyof typeof roleStyles] || 'bg-gray-100 text-gray-800';
     };
 
     const formatDate = (dateString: string) => {
@@ -220,33 +235,136 @@ const Users: React.FC = () => {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
         });
     };
 
     // Only check role if we have user data
     if (user && user.role !== 'admin' && user.role !== 'instructor') {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 64px)' }}>
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-                        <p className="text-gray-600 mt-2">You don't have permission to access this page.</p>
-                    </div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
+                    <p className="text-gray-600 mt-2">You don't have permission to access this page.</p>
                 </div>
             </div>
         );
     }
 
     const headerActions = (
-        <button
-            onClick={() => setShowAddUser(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+        <Button
+            onClick={() => {
+                resetForm();
+                setShowAddUser(true);
+            }}
+            className="flex items-center space-x-2 bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all duration-200"
         >
-            + Add New User
-        </button>
+            <Plus className="h-4 w-4" />
+            <span>Add New User</span>
+        </Button>
     );
+
+    const getRoleIcon = (role: string) => {
+        switch (role) {
+            case 'admin': return Shield;
+            case 'instructor': return UserCheck;
+            case 'recruiter': return UsersIcon;
+            default: return UsersIcon;
+        }
+    };
+
+    const getRoleColor = (role: string) => {
+        switch (role) {
+            case 'admin': return 'bg-red-100 text-red-700 border-red-200';
+            case 'instructor': return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'recruiter': return 'bg-purple-100 text-purple-700 border-purple-200';
+            case 'student': return 'bg-green-100 text-green-700 border-green-200';
+            default: return 'bg-gray-100 text-gray-700 border-gray-200';
+        }
+    };
+
+    const columns = [
+        {
+            header: 'User',
+            cell: (user: User) => (
+                <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 flex-shrink-0">
+                        <div className="h-10 w-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-medium">
+                            {user.first_name?.charAt(0) || ''}{user.last_name?.charAt(0) || ''}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="font-medium text-gray-900">{user.first_name} {user.last_name}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Role',
+            cell: (user: User) => {
+                const Icon = getRoleIcon(user.role);
+                return (
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(user.role)}`}>
+                        <span className="mr-1.5"><Icon className="h-4 w-4" /></span>
+                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Status',
+            cell: (user: User) => (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${user.is_active
+                        ? 'bg-green-50 text-green-700 border-green-200'
+                        : 'bg-red-50 text-red-700 border-red-200'
+                    }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
+                    {user.is_active ? 'Active' : 'Inactive'}
+                </span>
+            )
+        },
+        {
+            header: 'Last Login',
+            cell: (user: User) => (
+                <span className="text-sm text-gray-600">
+                    {user.last_login ? formatDate(user.last_login) : 'Never'}
+                </span>
+            )
+        },
+        {
+            header: 'Created',
+            cell: (user: User) => (
+                <span className="text-sm text-gray-600">
+                    {formatDate(user.date_joined)}
+                </span>
+            )
+        },
+        {
+            header: 'Actions',
+            className: 'text-right',
+            cell: (user: User) => (
+                <div className="flex items-center justify-end gap-2">
+                    <button
+                        onClick={() => handleEditUser(user)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit User"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => handleToggleUserStatus(user.id)}
+                        className={`p-2 rounded-lg transition-colors ${user.is_active
+                                ? 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+                                : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                            }`}
+                        title={user.is_active ? 'Deactivate User' : 'Activate User'}
+                    >
+                        {user.is_active ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                    </button>
+                </div>
+            )
+        }
+    ];
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -259,19 +377,22 @@ const Users: React.FC = () => {
                         actions={headerActions}
                     />
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {/* Search and Filters */}
-                        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-                            <div className="flex-1">
-                                <SearchBar
-                                    searchQuery={searchTerm}
-                                    setSearchQuery={handleSearch}
-                                    placeholder="Search users by name, email, or username..."
-                                />
-                            </div>
+                        {/* Summary Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <StatsCard
+                                label={`Total ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}s`}
+                                value={pagination.count}
+                                icon={getRoleIcon(activeTab)}
+                                colorScheme={
+                                    activeTab === 'admin' ? 'red' :
+                                        activeTab === 'instructor' ? 'blue' :
+                                            activeTab === 'recruiter' ? 'purple' : 'green'
+                                }
+                            />
                         </div>
 
-                        {/* Tabs */}
-                        <div className="mb-6">
+                        {/* Search and Filters */}
+                        <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
                             <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)}>
                                 <TabsList className="inline-flex w-auto gap-1">
                                     <TabsTrigger value="admin" className="px-5">Admins</TabsTrigger>
@@ -279,459 +400,263 @@ const Users: React.FC = () => {
                                     <TabsTrigger value="recruiter" className="px-5">Recruiters</TabsTrigger>
                                     <TabsTrigger value="student" className="px-5">Students</TabsTrigger>
                                 </TabsList>
-
-                                <div className="mt-6">
-                                    <TabsContent value={activeTab}>
-                                        {/* Loading State */}
-                                        {loading && (
-                                            <div className="flex justify-center items-center py-12">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                                <span className="ml-2 text-gray-600">Loading users...</span>
-                                            </div>
-                                        )}
-
-                                        {/* Error State */}
-                                        {error && (
-                                            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-                                                <div className="flex">
-                                                    <div className="text-red-800">
-                                                        <p className="text-sm font-medium">Error loading users</p>
-                                                        <p className="text-sm">{error}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Users Table */}
-                                        {!loading && !error && (
-                                            <div className="bg-white shadow rounded-lg overflow-hidden">
-                                                <table className="min-w-full divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
-                                                        <tr>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                User
-                                                            </th>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Role
-                                                            </th>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Status
-                                                            </th>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Last Login
-                                                            </th>
-                                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Created
-                                                            </th>
-                                                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Actions
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                        {filteredUsers.map((user) => (
-                                                            <tr key={user.id} className="hover:bg-gray-50">
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <div className="flex items-center">
-                                                                        <div className="h-10 w-10 flex-shrink-0">
-                                                                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                                                                <span className="text-sm font-medium text-gray-700">
-                                                                                    {user.first_name?.charAt(0) || ''}{user.last_name?.charAt(0) || ''}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="ml-4">
-                                                                            <div className="text-sm font-medium text-gray-900">
-                                                                                {user.first_name} {user.last_name}
-                                                                            </div>
-                                                                            <div className="text-sm text-gray-500">{user.email}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadge(user.role)}`}>
-                                                                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                                        }`}>
-                                                                        {user.is_active ? 'Active' : 'Inactive'}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {user.last_login ? formatDate(user.last_login) : 'Never'}
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {formatDate(user.date_joined)}
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                    <button
-                                                                        onClick={() => handleEditUser(user)}
-                                                                        className="text-blue-600 hover:text-blue-900 mr-3"
-                                                                    >
-                                                                        Edit
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleToggleUserStatus(user.id)}
-                                                                        className={`${user.is_active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                                                                    >
-                                                                        {user.is_active ? 'Deactivate' : 'Activate'}
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-
-                                                {/* Pagination */}
-                                                {pagination.totalPages > 1 && (
-                                                    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                                                        <div className="flex-1 flex justify-between sm:hidden">
-                                                            <button
-                                                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                                                disabled={!pagination.previous}
-                                                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                            >
-                                                                Previous
-                                                            </button>
-                                                            <span className="text-sm text-gray-700">
-                                                                Page {pagination.currentPage} of {pagination.totalPages}
-                                                            </span>
-                                                            <button
-                                                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                                                disabled={!pagination.next}
-                                                                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                            >
-                                                                Next
-                                                            </button>
-                                                        </div>
-                                                        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                                            <div>
-                                                                <p className="text-sm text-gray-700">
-                                                                    Showing{' '}
-                                                                    <span className="font-medium">
-                                                                        {((pagination.currentPage - 1) * (filters.page_size || 20)) + 1}
-                                                                    </span>{' '}
-                                                                    to{' '}
-                                                                    <span className="font-medium">
-                                                                        {Math.min(pagination.currentPage * (filters.page_size || 20), pagination.count)}
-                                                                    </span>{' '}
-                                                                    of{' '}
-                                                                    <span className="font-medium">{pagination.count}</span> results
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex items-center space-x-2">
-                                                                <select
-                                                                    value={filters.page_size || 20}
-                                                                    onChange={(e) => {
-                                                                        const newFilters = { ...filters, page_size: parseInt(e.target.value), page: 1 };
-                                                                        setFilters(newFilters);
-                                                                        fetchUsers(newFilters);
-                                                                    }}
-                                                                    className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-                                                                >
-                                                                    <option value={10}>10 per page</option>
-                                                                    <option value={20}>20 per page</option>
-                                                                    <option value={50}>50 per page</option>
-                                                                    <option value={100}>100 per page</option>
-                                                                </select>
-                                                                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                                                    <button
-                                                                        onClick={() => handlePageChange(1)}
-                                                                        disabled={pagination.currentPage === 1}
-                                                                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    >
-                                                                        First
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                                                        disabled={!pagination.previous}
-                                                                        className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    >
-                                                                        Previous
-                                                                    </button>
-
-                                                                    {/* Page numbers */}
-                                                                    {(() => {
-                                                                        const startPage = Math.max(1, pagination.currentPage - 2);
-                                                                        const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
-                                                                        const pages = [];
-
-                                                                        for (let i = startPage; i <= endPage; i++) {
-                                                                            pages.push(
-                                                                                <button
-                                                                                    key={i}
-                                                                                    onClick={() => handlePageChange(i)}
-                                                                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === pagination.currentPage
-                                                                                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                                                                        }`}
-                                                                                >
-                                                                                    {i}
-                                                                                </button>
-                                                                            );
-                                                                        }
-                                                                        return pages;
-                                                                    })()}
-
-                                                                    <button
-                                                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                                                        disabled={!pagination.next}
-                                                                        className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    >
-                                                                        Next
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handlePageChange(pagination.totalPages)}
-                                                                        disabled={pagination.currentPage === pagination.totalPages}
-                                                                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    >
-                                                                        Last
-                                                                    </button>
-                                                                </nav>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Empty State */}
-                                        {!loading && !error && filteredUsers.length === 0 && (
-                                            <div className="bg-white shadow rounded-lg">
-                                                <div className="text-center py-12">
-                                                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                                    </svg>
-                                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
-                                                    <p className="mt-1 text-sm text-gray-500">
-                                                        {searchTerm ? `No users found matching "${searchTerm}"` : `No ${activeTab} users found.`}
-                                                    </p>
-                                                    {searchTerm && (
-                                                        <button
-                                                            onClick={() => handleSearch('')}
-                                                            className="mt-4 text-blue-600 hover:text-blue-500 text-sm font-medium"
-                                                        >
-                                                            Clear search
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </TabsContent>
-                                </div>
                             </Tabs>
+                            <div className="w-full sm:w-72">
+                                <SearchBar
+                                    searchQuery={searchTerm}
+                                    setSearchQuery={handleSearch}
+                                    placeholder="Search users..."
+                                />
+                            </div>
                         </div>
+
+                        {/* Users Table */}
+                        <DataTable
+                            data={users}
+                            columns={columns}
+                            keyExtractor={(user) => user.id}
+                            isLoading={loading}
+                            emptyState={{
+                                message: "No users found",
+                                subMessage: searchTerm ? `No users found matching "${searchTerm}"` : `No ${activeTab} users found`,
+                                action: (
+                                    <Button onClick={() => setShowAddUser(true)}>
+                                        Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                                    </Button>
+                                )
+                            }}
+                        />
+
+                        {/* Pagination */}
+                        {!loading && pagination.totalPages > 1 && (
+                            <div className="mt-4">
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                                className={pagination.previous ? "cursor-pointer" : "pointer-events-none opacity-50"}
+                                            />
+                                        </PaginationItem>
+
+                                        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
+                                            if (
+                                                page === 1 ||
+                                                page === pagination.totalPages ||
+                                                (page >= pagination.currentPage - 1 && page <= pagination.currentPage + 1)
+                                            ) {
+                                                return (
+                                                    <PaginationItem key={page}>
+                                                        <PaginationLink
+                                                            isActive={page === pagination.currentPage}
+                                                            onClick={() => handlePageChange(page)}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            {page}
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                );
+                                            }
+                                            if (
+                                                page === pagination.currentPage - 2 ||
+                                                page === pagination.currentPage + 2
+                                            ) {
+                                                return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>;
+                                            }
+                                            return null;
+                                        })}
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                                className={pagination.next ? "cursor-pointer" : "pointer-events-none opacity-50"}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Add User Modal */}
-            {showAddUser && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Add New User</h3>
+            {/* Add User Dialog */}
+            <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add New User</DialogTitle>
+                        <DialogDescription>
+                            Create a new user account. They will receive an email with their login details.
+                        </DialogDescription>
+                    </DialogHeader>
 
-                            {formError && (
-                                <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-3">
-                                    <p className="text-sm text-red-800">{formError}</p>
-                                </div>
-                            )}
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email *</label>
-                                    <input
-                                        type="email"
-                                        value={userForm.email}
-                                        onChange={(e) => handleFormChange('email', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Username *</label>
-                                    <input
-                                        type="text"
-                                        value={userForm.username}
-                                        onChange={(e) => handleFormChange('username', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">First Name *</label>
-                                        <input
-                                            type="text"
-                                            value={userForm.first_name}
-                                            onChange={(e) => handleFormChange('first_name', e.target.value)}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Last Name *</label>
-                                        <input
-                                            type="text"
-                                            value={userForm.last_name}
-                                            onChange={(e) => handleFormChange('last_name', e.target.value)}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Role *</label>
-                                    <select
-                                        value={userForm.role}
-                                        onChange={(e) => handleFormChange('role', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="student">Student</option>
-                                        <option value="instructor">Instructor</option>
-                                        <option value="recruiter">Recruiter</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="is_active"
-                                        checked={userForm.is_active}
-                                        onChange={(e) => handleFormChange('is_active', e.target.checked)}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                    />
-                                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                                        Active User
-                                    </label>
-                                </div>
-                                <div className="flex justify-end space-x-3 pt-4">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={closeModals}
-                                        disabled={formLoading}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <button
-                                        onClick={handleAddUser}
-                                        disabled={formLoading || !userForm.email || !userForm.username || !userForm.first_name || !userForm.last_name}
-                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {formLoading ? 'Adding...' : 'Add User'}
-                                    </button>
-                                </div>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Email *</Label>
+                            <Input
+                                type="email"
+                                value={userForm.email}
+                                onChange={(e) => handleFormChange('email', e.target.value)}
+                                placeholder="user@example.com"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Username *</Label>
+                            <Input
+                                value={userForm.username}
+                                onChange={(e) => handleFormChange('username', e.target.value)}
+                                placeholder="jdoe"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>First Name *</Label>
+                                <Input
+                                    value={userForm.first_name}
+                                    onChange={(e) => handleFormChange('first_name', e.target.value)}
+                                    placeholder="John"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Last Name *</Label>
+                                <Input
+                                    value={userForm.last_name}
+                                    onChange={(e) => handleFormChange('last_name', e.target.value)}
+                                    placeholder="Doe"
+                                />
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Edit User Modal */}
-            {showEditUser && editingUser && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Edit User</h3>
-
-                            {formError && (
-                                <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-3">
-                                    <p className="text-sm text-red-800">{formError}</p>
-                                </div>
-                            )}
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email *</label>
-                                    <input
-                                        type="email"
-                                        value={userForm.email}
-                                        onChange={(e) => handleFormChange('email', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Username *</label>
-                                    <input
-                                        type="text"
-                                        value={userForm.username}
-                                        onChange={(e) => handleFormChange('username', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">First Name *</label>
-                                        <input
-                                            type="text"
-                                            value={userForm.first_name}
-                                            onChange={(e) => handleFormChange('first_name', e.target.value)}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Last Name *</label>
-                                        <input
-                                            type="text"
-                                            value={userForm.last_name}
-                                            onChange={(e) => handleFormChange('last_name', e.target.value)}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Role *</label>
-                                    <select
-                                        value={userForm.role}
-                                        onChange={(e) => handleFormChange('role', e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="student">Student</option>
-                                        <option value="instructor">Instructor</option>
-                                        <option value="recruiter">Recruiter</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="edit_is_active"
-                                        checked={userForm.is_active}
-                                        onChange={(e) => handleFormChange('is_active', e.target.checked)}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                    />
-                                    <label htmlFor="edit_is_active" className="ml-2 block text-sm text-gray-900">
-                                        Active User
-                                    </label>
-                                </div>
-                                <div className="flex justify-end space-x-3 pt-4">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={closeModals}
-                                        disabled={formLoading}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <button
-                                        onClick={handleUpdateUser}
-                                        disabled={formLoading || !userForm.email || !userForm.username || !userForm.first_name || !userForm.last_name}
-                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {formLoading ? 'Updating...' : 'Update User'}
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="space-y-2">
+                            <Label>Role *</Label>
+                            <Select
+                                value={userForm.role}
+                                onValueChange={(value) => handleFormChange('role', value)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="student">Student</SelectItem>
+                                    <SelectItem value="instructor">Instructor</SelectItem>
+                                    <SelectItem value="recruiter">Recruiter</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-center space-x-2 pt-2">
+                            <input
+                                type="checkbox"
+                                id="is_active"
+                                checked={userForm.is_active}
+                                onChange={(e) => handleFormChange('is_active', e.target.checked)}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <Label htmlFor="is_active" className="font-normal cursor-pointer">
+                                Active User
+                            </Label>
                         </div>
                     </div>
-                </div>
-            )}
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowAddUser(false)} disabled={formLoading}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleAddUser}
+                            disabled={formLoading || !userForm.email || !userForm.username}
+                        >
+                            {formLoading ? 'Adding...' : 'Add User'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit User Dialog */}
+            <Dialog open={showEditUser} onOpenChange={setShowEditUser}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                        <DialogDescription>
+                            Update user details and permissions.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Email</Label>
+                            <Input
+                                type="email"
+                                value={userForm.email}
+                                onChange={(e) => handleFormChange('email', e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Username</Label>
+                            <Input
+                                value={userForm.username}
+                                onChange={(e) => handleFormChange('username', e.target.value)}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>First Name</Label>
+                                <Input
+                                    value={userForm.first_name}
+                                    onChange={(e) => handleFormChange('first_name', e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Last Name</Label>
+                                <Input
+                                    value={userForm.last_name}
+                                    onChange={(e) => handleFormChange('last_name', e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Role</Label>
+                            <Select
+                                value={userForm.role}
+                                onValueChange={(value) => handleFormChange('role', value)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="student">Student</SelectItem>
+                                    <SelectItem value="instructor">Instructor</SelectItem>
+                                    <SelectItem value="recruiter">Recruiter</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-center space-x-2 pt-2">
+                            <input
+                                type="checkbox"
+                                id="edit_is_active"
+                                checked={userForm.is_active}
+                                onChange={(e) => handleFormChange('is_active', e.target.checked)}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <Label htmlFor="edit_is_active" className="font-normal cursor-pointer">
+                                Active User
+                            </Label>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowEditUser(false)} disabled={formLoading}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleUpdateUser}
+                            disabled={formLoading}
+                        >
+                            {formLoading ? 'Updating...' : 'Update User'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

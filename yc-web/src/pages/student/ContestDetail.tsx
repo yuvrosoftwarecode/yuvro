@@ -27,6 +27,9 @@ interface Contest {
     prize?: string;
     status: string;
     isRegistered: boolean;
+    registrationStartDate?: Date;
+    registrationEndDate?: Date;
+    allowLateEntry?: boolean;
     description?: string;
     rules?: string[];
     prizes?: { rank: string; prize: string }[];
@@ -60,25 +63,36 @@ const ContestDetail: React.FC = () => {
 
     useEffect(() => {
         const loadContest = async () => {
+            if (!contestId) return;
             try {
-                const contests = await fetchContests();
-                const found = contests.find((c: any) => String(c.id) === contestId);
+                const found = await contestService.getContest(contestId);
+                // Map backend response to component state
+                // Note: backend response keys might differ slightly, checking both
+                const mapToState = (data: any) => ({
+                    id: data.id,
+                    title: data.title,
+                    organizer: data.organizer,
+                    type: data.type,
+                    difficulty: data.difficulty,
+                    startDate: new Date(data.start_datetime || data.start_date),
+                    endDate: (data.end_datetime || data.end_date) ? new Date(data.end_datetime || data.end_date) : undefined,
+                    duration: typeof data.duration === 'string' ? parseInt(data.duration) : (data.duration || 60),
+                    participants: data.participants_count || 0,
+                    prize: data.prize,
+                    status: data.status,
+                    isRegistered: data.is_registered || false,
+                    registrationStartDate: (data.registration_start_datetime || data.registration_start_date)
+                        ? new Date(data.registration_start_datetime || data.registration_start_date)
+                        : undefined,
+                    registrationEndDate: (data.registration_end_datetime || data.registration_end_date)
+                        ? new Date(data.registration_end_datetime || data.registration_end_date)
+                        : undefined,
+                    allowLateEntry: data.allow_late_entry || false,
+                    ...mockDetails
+                });
+
                 if (found) {
-                    setContest({
-                        id: found.id,
-                        title: found.title,
-                        organizer: found.organizer,
-                        type: found.type,
-                        difficulty: found.difficulty,
-                        startDate: new Date(found.start_datetime),
-                        endDate: found.end_datetime ? new Date(found.end_datetime) : undefined,
-                        duration: found.duration || 60,
-                        participants: found.participants_count || 0,
-                        prize: found.prize,
-                        status: found.status,
-                        isRegistered: found.is_registered || false,
-                        ...mockDetails
-                    });
+                    setContest(mapToState(found));
                 }
             } catch (err) {
                 console.error("Failed to fetch contest", err);
@@ -149,6 +163,47 @@ const ContestDetail: React.FC = () => {
         return `${minutes}m`;
     };
 
+    const formatDateTime = (date: Date) => {
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getRegistrationInfo = (start?: Date, end?: Date, allowLateEntry?: boolean, contestEndDate?: Date) => {
+        const now = new Date();
+        if (start && now < start) {
+            return {
+                state: 'not_started' as const,
+                message: `Registration opens on ${formatDateTime(start)}`,
+                subMessage: `Opens in ${getCountdown(start)}`
+            };
+        }
+        if (end && now > end) {
+            // Check for late entry
+            if (allowLateEntry && contestEndDate && now < contestEndDate) {
+                return {
+                    state: 'late_entry' as const,
+                    message: 'Late Entry Open',
+                    subMessage: `Late Entry ends in ${getCountdown(contestEndDate)}`
+                };
+            }
+            return {
+                state: 'closed' as const,
+                message: 'Registration Closed',
+                subMessage: 'Registration window has ended'
+            };
+        }
+        return {
+            state: 'open' as const,
+            message: 'Registration Open',
+            subMessage: end ? `Closes in ${getCountdown(end)}` : undefined
+        };
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
@@ -184,6 +239,8 @@ const ContestDetail: React.FC = () => {
     const isLive = contest.status === 'ongoing';
     const isPast = contest.status === 'past';
     const isUpcoming = contest.status === 'upcoming';
+    const registrationInfo = getRegistrationInfo(contest.registrationStartDate, contest.registrationEndDate, contest.allowLateEntry, contest.endDate);
+    const isRegistrationOpen = registrationInfo.state === 'open' || registrationInfo.state === 'late_entry';
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -275,15 +332,41 @@ const ContestDetail: React.FC = () => {
                                             </div>
                                         )}
                                         {isLive && (
-                                            <div className="flex items-center gap-2 text-green-600">
-                                                <Play className="h-5 w-5 fill-current" />
-                                                <span className="font-semibold">Contest is Live!</span>
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2 text-green-600">
+                                                    <Play className="h-5 w-5 fill-current" />
+                                                    <span className="font-semibold">Contest is Live!</span>
+                                                </div>
+                                                {contest.allowLateEntry && !contest.isRegistered && (registrationInfo.state === 'open' || registrationInfo.state === 'late_entry') && (
+                                                    <div className="flex items-center gap-2 text-amber-600 animate-pulse">
+                                                        <Timer className="h-4 w-4" />
+                                                        <span className="font-medium text-sm">
+                                                            Late Entry closes in {getCountdown(contest.registrationEndDate || contest.endDate || new Date())}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                         {isPast && (
                                             <div className="flex items-center gap-2 text-gray-500">
                                                 <CheckCircle2 className="h-5 w-5" />
                                                 <span className="font-semibold">Contest Ended</span>
+                                            </div>
+                                        )}
+                                        {!contest.isRegistered && !isPast && registrationInfo.state !== 'open' && (
+                                            <div className="mt-2 text-sm text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                                                    <span className="font-medium">{registrationInfo.message}</span>
+                                                </div>
+                                                {registrationInfo.subMessage && (
+                                                    <div className="text-xs text-gray-500 mt-1">{registrationInfo.subMessage}</div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {!contest.isRegistered && !isPast && registrationInfo.state === 'open' && !isLive && registrationInfo.subMessage && (
+                                            <div className="mt-2 text-xs text-gray-500">
+                                                {registrationInfo.subMessage}
                                             </div>
                                         )}
                                     </div>
@@ -297,10 +380,20 @@ const ContestDetail: React.FC = () => {
                                                     ? isLive
                                                         ? "bg-gradient-to-r from-green-500 to-emerald-600"
                                                         : "bg-gray-400"
-                                                    : `bg-gradient-to-r ${style.gradient}`
+                                                    : contest.allowLateEntry && isLive
+                                                        ? "bg-gradient-to-r from-amber-500 to-orange-600"
+                                                        : `bg-gradient-to-r ${style.gradient}`
                                             )}
-                                            disabled={contest.isRegistered && !isLive}
-                                            onClick={contest.isRegistered ? handleEnter : handleRegister}
+                                            disabled={(contest.isRegistered && !isLive) || (!contest.isRegistered && !isRegistrationOpen)}
+                                            onClick={() => {
+                                                if (contest.isRegistered) {
+                                                    handleEnter();
+                                                } else if (isRegistrationOpen) {
+                                                    handleRegister();
+                                                } else {
+                                                    toast(registrationInfo.message);
+                                                }
+                                            }}
                                         >
                                             {registering ? (
                                                 <span className="flex items-center gap-2">
@@ -316,13 +409,26 @@ const ContestDetail: React.FC = () => {
                                                 ) : (
                                                     <>
                                                         <CheckCircle2 className="h-5 w-5 mr-2" />
-                                                        Registered ✓
+                                                        Registered
                                                     </>
                                                 )
                                             ) : (
                                                 <>
-                                                    <Target className="h-5 w-5 mr-2" />
-                                                    Register Now
+                                                    {contest.allowLateEntry && isLive ? (
+                                                        <>
+                                                            <Zap className="h-5 w-5 mr-2 fill-current" />
+                                                            Late Entry
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Target className="h-5 w-5 mr-2" />
+                                                            {registrationInfo.state === 'not_started'
+                                                                ? 'Registration Opens Soon'
+                                                                : registrationInfo.state === 'closed'
+                                                                    ? 'Registration Closed'
+                                                                    : 'Register Now'}
+                                                        </>
+                                                    )}
                                                 </>
                                             )}
                                         </Button>
@@ -436,3 +542,6 @@ const ContestDetail: React.FC = () => {
 };
 
 export default ContestDetail;
+
+
+

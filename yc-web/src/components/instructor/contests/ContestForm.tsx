@@ -2,14 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import QuestionBank from '@/components/common/QuestionBank';
 import { contestService } from '@/services/contestService';
 import { fetchQuestionById, Question } from '@/services/questionService';
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 interface Contest {
   id: string;
@@ -24,6 +34,9 @@ interface Contest {
   prize?: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   description: string;
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  allowLateEntry?: boolean;
   questions_config?: {
     mcq_single: string[];
     mcq_multiple: string[];
@@ -52,6 +65,9 @@ function mapContestFromBackend(c: any): Contest {
     prize: c.prize ?? '',
     difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
     description: c.description ?? '',
+    registrationStartDate: c.registration_start_datetime || c.registration_start_date || '',
+    registrationEndDate: c.registration_end_datetime || c.registration_end_date || '',
+    allowLateEntry: c.allow_late_entry ?? false,
     questions_config: c.questions_config ?? {
       mcq_single: [],
       mcq_multiple: [],
@@ -103,7 +119,10 @@ export default function ContestForm() {
     passingMarks: '60',
     enableProctoring: true,
     publishStatus: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
-    prize: ''
+    prize: '',
+    registrationStartDate: '',
+    registrationEndDate: '',
+    allowLateEntry: false,
   });
 
   const categorizeQuestionsByType = async (questionIds: string[]) => {
@@ -160,10 +179,20 @@ export default function ContestForm() {
   // Helper function to format datetime for HTML datetime-local input
   const formatDateTimeForInput = (dateString: string) => {
     if (!dateString) return '';
+
+    // If it's already in the correct format (YYYY-MM-DDTHH:mm), return it
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateString)) {
+      return dateString.slice(0, 16);
+    }
+
     try {
       const date = new Date(dateString);
-      // Format as YYYY-MM-DDTHH:MM (required format for datetime-local)
-      return date.toISOString().slice(0, 16);
+      if (isNaN(date.getTime())) return ''; // Invalid date
+
+      // Create a date string in local time: YYYY-MM-DDTHH:MM
+      const offset = date.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+      return localISOTime;
     } catch (error) {
       console.error('Error formatting date:', error);
       return '';
@@ -190,6 +219,9 @@ export default function ContestForm() {
         prize: mappedContest.prize || '',
         difficulty: mappedContest.difficulty,
         description: mappedContest.description,
+        registrationStartDate: formatDateTimeForInput(mappedContest.registrationStartDate || ''),
+        registrationEndDate: formatDateTimeForInput(mappedContest.registrationEndDate || ''),
+        allowLateEntry: mappedContest.allowLateEntry ?? false,
         instructions: '',
         totalMarks: '100',
         passingMarks: '60',
@@ -232,6 +264,15 @@ export default function ContestForm() {
   }, [contestId]);
 
   const handleSubmit = async () => {
+    const totalQuestionCount = Object.values(selectedQuestionsByType).flat().length
+      + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0);
+
+    if (totalQuestionCount === 0) {
+      setCurrentFormTab('questions');
+      toast.error('Please add at least one question (selected or random) before saving.');
+      return;
+    }
+
     const payload = {
       title: formData.title,
       organizer: formData.organizer,
@@ -243,6 +284,9 @@ export default function ContestForm() {
       prize: formData.prize,
       difficulty: formData.difficulty.toLowerCase(),
       description: formData.description,
+      registration_start_datetime: formData.registrationStartDate ? new Date(formData.registrationStartDate).toISOString() : undefined,
+      registration_end_datetime: formData.registrationEndDate ? new Date(formData.registrationEndDate).toISOString() : undefined,
+      allow_late_entry: formData.allowLateEntry,
       questions_config: selectedQuestionsByType,
       questions_random_config: randomQuestionsConfig,
     };
@@ -259,6 +303,14 @@ export default function ContestForm() {
     } catch (error) {
       toast.error(isEditMode ? 'Failed to update contest' : 'Failed to create contest');
     }
+  };
+
+  const handlePrimaryAction = () => {
+    if (currentFormTab === 'details') {
+      setCurrentFormTab('questions');
+      return;
+    }
+    handleSubmit();
   };
 
   const getHeaderTitle = () => {
@@ -311,23 +363,6 @@ export default function ContestForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="inline-flex w-auto gap-1">
-                  <TabsTrigger
-                    value="details"
-                    className="flex items-center gap-2 px-5"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Contest Details
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="questions"
-                    className="flex items-center gap-2 px-5"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
-                  </TabsTrigger>
-                </TabsList>
-
                 <TabsContent value="details" className="space-y-6">
                   {/* Basic Information Card */}
                   <Card className="border border-gray-200 shadow-sm">
@@ -341,60 +376,62 @@ export default function ContestForm() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Contest Title *</label>
-                          <input
-                            type="text"
+                          <Input
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="e.g., Weekly Coding Challenge"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Organizer *</label>
-                          <input
-                            type="text"
+                          <Input
                             value={formData.organizer}
                             onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
                             placeholder="e.g., Yuvro Platform"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea
+                        <Textarea
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           placeholder="Describe the contest focus and topics..."
-                          rows={3}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Contest Type *</label>
-                          <select
+                          <Select
                             value={formData.type}
-                            onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            onValueChange={(value) => setFormData({ ...formData, type: value as any })}
                           >
-                            <option value="company">Company Contest</option>
-                            <option value="college">College Contest</option>
-                          </select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="company">Company Contest</SelectItem>
+                              <SelectItem value="college">College Contest</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level *</label>
-                          <select
+                          <Select
                             value={formData.difficulty}
-                            onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            onValueChange={(value) => setFormData({ ...formData, difficulty: value as any })}
                           >
-                            <option value="Easy">Easy</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Hard">Hard</option>
-                          </select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select difficulty" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Easy">Easy</SelectItem>
+                              <SelectItem value="Medium">Medium</SelectItem>
+                              <SelectItem value="Hard">Hard</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                     </CardContent>
@@ -412,33 +449,59 @@ export default function ContestForm() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Start Date *</label>
-                          <input
+                          <Input
                             type="datetime-local"
                             value={formData.startDate}
                             onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">End Date *</label>
-                          <input
+                          <Input
                             type="datetime-local"
                             value={formData.endDate}
                             onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes) *</label>
-                          <input
+                          <Input
                             type="number"
                             value={formData.duration}
                             onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                             placeholder="e.g., 120"
-                            min="1"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            min={1}
                           />
                         </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Registration Start Date</label>
+                          <Input
+                            type="datetime-local"
+                            value={formData.registrationStartDate}
+                            onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Registration End Date</label>
+                          <Input
+                            type="datetime-local"
+                            value={formData.registrationEndDate}
+                            onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Allow Late Entry</p>
+                          <p className="text-xs text-gray-500">Permit registrations after the registration end date.</p>
+                        </div>
+                        <Switch
+                          checked={formData.allowLateEntry}
+                          onCheckedChange={(checked) => setFormData({ ...formData, allowLateEntry: checked })}
+                          className="data-[state=unchecked]:bg-gray-200 data-[state=checked]:bg-emerald-500"
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -451,12 +514,10 @@ export default function ContestForm() {
                     <CardContent>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Prize (Optional)</label>
-                        <input
-                          type="text"
+                        <Input
                           value={formData.prize}
                           onChange={(e) => setFormData({ ...formData, prize: e.target.value })}
                           placeholder="e.g., $500 Cash Prize"
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </CardContent>
@@ -476,57 +537,53 @@ export default function ContestForm() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
-                          <input
+                          <Input
                             type="number"
-                            min="0"
+                            min={0}
                             value={randomQuestionsConfig.mcq_single}
                             onChange={(e) => setRandomQuestionsConfig({
                               ...randomQuestionsConfig,
-                              mcq_single: parseInt(e.target.value) || 0
+                              mcq_single: Number(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                          <input
+                          <Input
                             type="number"
-                            min="0"
+                            min={0}
                             value={randomQuestionsConfig.mcq_multiple}
                             onChange={(e) => setRandomQuestionsConfig({
                               ...randomQuestionsConfig,
-                              mcq_multiple: parseInt(e.target.value) || 0
+                              mcq_multiple: Number(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                          <input
+                          <Input
                             type="number"
-                            min="0"
+                            min={0}
                             value={randomQuestionsConfig.coding}
                             onChange={(e) => setRandomQuestionsConfig({
                               ...randomQuestionsConfig,
-                              coding: parseInt(e.target.value) || 0
+                              coding: Number(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                          <input
+                          <Input
                             type="number"
-                            min="0"
+                            min={0}
                             value={randomQuestionsConfig.descriptive}
                             onChange={(e) => setRandomQuestionsConfig({
                               ...randomQuestionsConfig,
-                              descriptive: parseInt(e.target.value) || 0
+                              descriptive: Number(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
@@ -558,20 +615,39 @@ export default function ContestForm() {
                 </TabsContent>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/instructor/contests')}
-                  >
-                    Cancel
-                  </Button>
-                  <button
-                    onClick={handleSubmit}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    {isEditMode ? 'Update Contest' : 'Create Contest'}
-                  </button>
+                <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
+                  {currentFormTab === 'questions' ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() => setCurrentFormTab('details')}
+                      className="bg-orange-500 hover:bg-orange-300 text-white"
+                    >
+                      ← Back to Details
+                    </Button>
+                  ) : (
+                    <div></div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="secondary"
+                      onClick={() => navigate('/instructor/contests')}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      onClick={handlePrimaryAction}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {currentFormTab === 'details'
+                        ? 'Next: Add Questions'
+                        : (isEditMode ? 'Update Contest' : 'Create Contest')}
+                    </Button>
+                  </div>
                 </div>
+
               </Tabs>
             </div>
           </div>

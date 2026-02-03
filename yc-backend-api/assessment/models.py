@@ -116,6 +116,11 @@ class Contest(BaseAssessmentModel):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     prize = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Registration Window
+    registration_start_datetime = models.DateTimeField(null=True, blank=True)
+    registration_end_datetime = models.DateTimeField(null=True, blank=True)
+    allow_late_entry = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-start_datetime"]

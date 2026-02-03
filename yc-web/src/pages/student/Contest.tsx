@@ -30,6 +30,9 @@ interface Contest {
   prize?: string | null;
   difficulty: 'Easy' | 'Medium' | 'Hard' | string;
   isRegistered: boolean;
+  registrationStartDate?: Date;
+  registrationEndDate?: Date;
+  allowLateEntry?: boolean;
 }
 
 const ContestPage = () => {
@@ -47,21 +50,45 @@ const ContestPage = () => {
     setLoading(true);
     try {
       const data = await fetchContests();
-      const formatted = data.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        organizer: item.organizer,
-        type: item.type,
-        status: item.status,
-        startDate: new Date(item.start_datetime || item.start_date),
-        endDate: new Date(item.end_datetime || item.end_date),
-        participants: item.participants_count,
-        prize: item.prize || null,
-        difficulty: item.difficulty
-          ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)
-          : 'Medium',
-        isRegistered: item.is_registered || false,
-      }));
+      const now = new Date();
+
+      const formatted = data.map((item: any) => {
+        const startDate = new Date(item.start_datetime || item.start_date);
+        const endDate = new Date(item.end_datetime || item.end_date);
+
+        // Override status if time window indicates it's live but backend says upcoming
+        let status = item.status;
+        if (status === 'upcoming' && now >= startDate && now < endDate) {
+          status = 'ongoing';
+        }
+
+        return {
+          id: item.id,
+          title: item.title,
+          organizer: item.organizer,
+          type: item.type,
+          status: status,
+          startDate: startDate,
+          endDate: endDate,
+          participants: item.participants_count,
+          prize: item.prize || null,
+          difficulty: item.difficulty
+            ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)
+            : 'Medium',
+          isRegistered: item.is_registered || false,
+          registrationStartDate: item.registration_start_datetime
+            ? new Date(item.registration_start_datetime)
+            : item.registration_start_date
+              ? new Date(item.registration_start_date)
+              : undefined,
+          registrationEndDate: item.registration_end_datetime
+            ? new Date(item.registration_end_datetime)
+            : item.registration_end_date
+              ? new Date(item.registration_end_date)
+              : undefined,
+          allowLateEntry: item.allow_late_entry || false,
+        };
+      });
       setContests(formatted);
     } catch (err) {
       console.error("Error fetching contests:", err);
@@ -101,6 +128,47 @@ const ContestPage = () => {
     if (days > 0) return `${days}d ${hours}h`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
+  };
+
+  const formatDateTime = (date: Date) => {
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getRegistrationInfo = (start?: Date, end?: Date, allowLateEntry?: boolean, contestEndDate?: Date) => {
+    const now = new Date();
+    if (start && now < start) {
+      return {
+        state: 'not_started' as const,
+        message: `Registration opens on ${formatDateTime(start)}`,
+        shortMessage: `Opens in ${getCountdown(start)}`
+      };
+    }
+    if (end && now > end) {
+      // Check for late entry
+      if (allowLateEntry && contestEndDate && now < contestEndDate) {
+        return {
+          state: 'late_entry' as const,
+          message: 'Late Entry Open',
+          shortMessage: `Late Entry ends in ${getCountdown(contestEndDate)}`
+        };
+      }
+      return {
+        state: 'closed' as const,
+        message: 'Registration Closed',
+        shortMessage: 'Registration closed'
+      };
+    }
+    return {
+      state: 'open' as const,
+      message: 'Registration Open',
+      shortMessage: end ? `Closes in ${getCountdown(end)}` : 'Registration open'
+    };
   };
 
   const getTypeIcon = (type: string) => {
@@ -144,6 +212,9 @@ const ContestPage = () => {
   });
 
   const ongoingContest = contests.find(c => c.status === 'ongoing');
+  const ongoingRegistrationInfo = ongoingContest
+    ? getRegistrationInfo(ongoingContest.registrationStartDate, ongoingContest.registrationEndDate, ongoingContest.allowLateEntry, ongoingContest.endDate)
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -243,6 +314,7 @@ const ContestPage = () => {
             >
               {[...contests.filter(c => c.status !== 'past'), ...contests.filter(c => c.status !== 'past')].map((contest, idx) => {
                 const style = getTypeStyle(contest.type);
+                const registrationInfo = getRegistrationInfo(contest.registrationStartDate, contest.registrationEndDate, contest.allowLateEntry, contest.endDate);
                 return (
                   <Card
                     key={`${contest.id}-${idx}`}
@@ -258,7 +330,10 @@ const ContestPage = () => {
                         <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${style.bg} ${style.text}`}>
                           {getTypeIcon(contest.type)}
                         </div>
-                        <StatusBadge status={contest.status} />
+                        <StatusBadge
+                          status={contest.status}
+                          label={contest.status === 'ongoing' ? 'Live Now' : undefined}
+                        />
                       </div>
                       <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{contest.title}</h3>
                       <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
@@ -274,6 +349,20 @@ const ContestPage = () => {
                           {getCountdown(contest.startDate)}
                         </span>
                       </div>
+                      {contest.status !== 'past' && (
+                        <div className={cn(
+                          "text-xs font-medium mb-4",
+                          registrationInfo.state === 'closed'
+                            ? "text-red-600"
+                            : registrationInfo.state === 'not_started'
+                              ? "text-amber-600"
+                              : registrationInfo.state === 'late_entry'
+                                ? "text-orange-600 animate-pulse font-bold"
+                                : "text-emerald-600"
+                        )}>
+                          {registrationInfo.shortMessage}
+                        </div>
+                      )}
                       <Button
                         className={`w-full bg-gradient-to-r ${style.gradient} text-white hover:opacity-90 border-0`}
                         disabled={contest.status === 'past'}
@@ -377,6 +466,7 @@ const ContestPage = () => {
                 <div className="divide-y divide-gray-50">
                   {filteredContests.map((contest) => {
                     const style = getTypeStyle(contest.type);
+                    const registrationInfo = getRegistrationInfo(contest.registrationStartDate, contest.registrationEndDate, contest.allowLateEntry, contest.endDate);
 
                     return (
                       <div
@@ -434,6 +524,20 @@ const ContestPage = () => {
                               {getCountdown(contest.startDate)}
                             </div>
                           )}
+                          {contest.status !== 'past' && (
+                            <div className={cn(
+                              "text-[11px] font-medium mt-1",
+                              registrationInfo.state === 'closed'
+                                ? "text-red-600"
+                                : registrationInfo.state === 'not_started'
+                                  ? "text-amber-600"
+                                  : registrationInfo.state === 'late_entry'
+                                    ? "text-orange-600 animate-pulse font-bold"
+                                    : "text-emerald-600"
+                            )}>
+                              {registrationInfo.shortMessage}
+                            </div>
+                          )}
                         </div>
 
                         {/* Participants */}
@@ -476,24 +580,62 @@ const ContestPage = () => {
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                      <span className={cn(
+                        "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                        ongoingRegistrationInfo?.state === 'late_entry' ? "bg-amber-400" : "bg-green-400"
+                      )}></span>
+                      <span className={cn(
+                        "relative inline-flex rounded-full h-3 w-3",
+                        ongoingRegistrationInfo?.state === 'late_entry' ? "bg-amber-500" : "bg-green-500"
+                      )}></span>
                     </span>
-                    <span className="text-sm font-bold text-green-600 uppercase tracking-wide">Live Now</span>
+                    <span className={cn(
+                      "text-sm font-bold uppercase tracking-wide",
+                      ongoingRegistrationInfo?.state === 'late_entry' ? "text-amber-600" : "text-green-600"
+                    )}>
+                      {ongoingRegistrationInfo?.state === 'late_entry' ? 'Late Entry Open' : 'Live Now'}
+                    </span>
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2">{ongoingContest.title}</h3>
+                  {ongoingRegistrationInfo?.state === 'late_entry' && (
+                    <div className="mb-3 text-xs font-medium text-amber-600 flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" />
+                      {ongoingRegistrationInfo.shortMessage}
+                    </div>
+                  )}
                   <Button
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:opacity-90 border-0"
+                    className={cn(
+                      "w-full text-white hover:opacity-90 border-0",
+                      ongoingRegistrationInfo?.state === 'late_entry'
+                        ? "bg-gradient-to-r from-amber-500 to-orange-600"
+                        : "bg-gradient-to-r from-green-500 to-emerald-600"
+                    )}
                     onClick={() => {
                       if (ongoingContest.isRegistered) {
                         handleEnter(ongoingContest.id);
+                      } else if (ongoingRegistrationInfo && (ongoingRegistrationInfo.state === 'open' || ongoingRegistrationInfo.state === 'late_entry')) {
+                        navigate(`/student/contests/${ongoingContest.id}`);
                       } else {
-                        toast("Please register for the contest first.");
+                        toast("Registration is closed for this contest.");
                       }
                     }}
                   >
-                    <Play className="h-4 w-4 mr-2 fill-current" />
-                    Join Now
+                    {ongoingContest.isRegistered ? (
+                      <>
+                        <Play className="h-4 w-4 mr-2 fill-current" />
+                        Enter Contest
+                      </>
+                    ) : ongoingRegistrationInfo?.state === 'late_entry' ? (
+                      <>
+                        <Zap className="h-4 w-4 mr-2 fill-current" />
+                        Late Entry
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2 fill-current" />
+                        Join Now
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>

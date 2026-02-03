@@ -8,6 +8,13 @@ export interface Contest {
   status: string;
   start_datetime: string;
   end_datetime: string;
+  start_date?: string;
+  end_date?: string;
+  registration_start_datetime?: string;
+  registration_end_datetime?: string;
+  registration_start_date?: string;
+  registration_end_date?: string;
+  allow_late_entry?: boolean;
   duration?: number;
   prize?: string;
   difficulty: string;
@@ -62,6 +69,11 @@ export interface CreateContestData {
   end_datetime?: string;
   start_date?: string;
   end_date?: string;
+  registration_start_datetime?: string;
+  registration_end_datetime?: string;
+  registration_start_date?: string;
+  registration_end_date?: string;
+  allow_late_entry?: boolean;
   duration?: number;
   prize?: string;
   difficulty: string;
@@ -118,6 +130,12 @@ export const contestService = {
 
   async getContestLeaderboard(contestId: string, page: number = 1): Promise<any> {
     return restApiAuthUtil.get(`/assessment/contests/${contestId}/leaderboard/?page=${page}`);
+  },
+  async getContestSubmissions(contestId: string): Promise<any[]> {
+    return restApiAuthUtil.get(`/assessment/contest/submissions/?contest=${contestId}`);
+  },
+  async getContestSubmission(submissionId: string): Promise<any> {
+    return restApiAuthUtil.get(`/assessment/contest/submissions/${submissionId}/`);
   },
 
   async getQuestion(questionId: number): Promise<Question> {

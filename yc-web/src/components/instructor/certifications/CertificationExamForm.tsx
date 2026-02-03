@@ -204,6 +204,15 @@ export default function CertificationExamForm() {
             return;
         }
 
+        const totalQuestionCount = Object.values(selectedQuestionsByType).flat().length
+            + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0);
+
+        if (totalQuestionCount === 0) {
+            setCurrentFormTab('questions');
+            toast.error('Please add at least one question (selected or random) before saving.');
+            return;
+        }
+
         const payload = {
             title: formData.title,
             description: formData.description,
@@ -235,6 +244,14 @@ export default function CertificationExamForm() {
         } catch (error: any) {
             toast.error(isEditMode ? 'Failed to update exam' : 'Failed to create exam');
         }
+    };
+
+    const handlePrimaryAction = () => {
+        if (currentFormTab !== 'questions') {
+            setCurrentFormTab('questions');
+            return;
+        }
+        handleSubmit();
     };
 
     const getHeaderTitle = () => {
@@ -565,10 +582,12 @@ export default function CertificationExamForm() {
                                     Cancel
                                 </Button>
                                 <button
-                                    onClick={handleSubmit}
+                                    onClick={handlePrimaryAction}
                                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                                 >
-                                    {isEditMode ? 'Update Exam' : 'Create Exam'}
+                                    {currentFormTab !== 'questions'
+                                        ? 'Add Questions'
+                                        : (isEditMode ? 'Update Exam' : 'Create Exam')}
                                 </button>
                             </div>
                         </Tabs>

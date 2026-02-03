@@ -3,15 +3,25 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Trophy, Calendar, Settings, FileText, Plus, Minus } from 'lucide-react';
+import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import QuestionBank from '@/components/common/QuestionBank';
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 import courseService, { Course, TopicBasic } from '@/services/courseService';
-import { fetchQuestionById, Question } from '@/services/questionService';
-import { getDefaultMarks, getDefaultDuration, DifficultyLevel } from '@/constants/questionMarksConfig';
+import { fetchQuestionById } from '@/services/questionService';
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 export default function SkillTestForm() {
   const navigate = useNavigate();
@@ -27,26 +37,18 @@ export default function SkillTestForm() {
 
   const [skillTest, setSkillTest] = useState<SkillTest | null>(null);
   const [currentFormTab, setCurrentFormTab] = useState('details');
-  const [questionsSubTab, setQuestionsSubTab] = useState('random');
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [selectedQuestionsByType, setSelectedQuestionsByType] = useState({
-
     mcq_single: [] as string[],
     mcq_multiple: [] as string[],
     coding: [] as string[],
     descriptive: [] as string[]
   });
-  const [selectedQuestionsData, setSelectedQuestionsData] = useState<Question[]>([]);
-  const [randomQuestionsConfig, setRandomQuestionsConfig] = useState<{
-    mcq_single: { easy: number; medium: number; hard: number };
-    mcq_multiple: { easy: number; medium: number; hard: number };
-    coding: { easy: number; medium: number; hard: number };
-    descriptive: { easy: number; medium: number; hard: number };
-  }>({
-    mcq_single: { easy: 0, medium: 0, hard: 0 },
-    mcq_multiple: { easy: 0, medium: 0, hard: 0 },
-    coding: { easy: 0, medium: 0, hard: 0 },
-    descriptive: { easy: 0, medium: 0, hard: 0 }
+  const [randomQuestionsConfig, setRandomQuestionsConfig] = useState({
+    mcq_single: 0,
+    mcq_multiple: 0,
+    coding: 0,
+    descriptive: 0
   });
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -61,43 +63,60 @@ export default function SkillTestForm() {
     duration: 60,
     total_marks: 100,
     passing_marks: 60,
-    passing_percentage: 60,
     enable_proctoring: false,
     publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
     course: courseIdFromUrl || '',
     topic: topicIdFromUrl || ''
   });
 
-  const categorizeQuestionsByType = (questions: Question[]) => {
-    const categorized = {
-      mcq_single: [] as string[],
-      mcq_multiple: [] as string[],
-      coding: [] as string[],
-      descriptive: [] as string[]
-    };
+  const categorizeQuestionsByType = async (questionIds: string[]) => {
+    if (questionIds.length === 0) {
+      return {
+        mcq_single: [],
+        mcq_multiple: [],
+        coding: [],
+        descriptive: []
+      };
+    }
 
-    questions.forEach(question => {
-      if (question.type === 'mcq_single') {
-        categorized.mcq_single.push(question.id);
-      } else if (question.type === 'mcq_multiple') {
-        categorized.mcq_multiple.push(question.id);
-      } else if (question.type === 'coding') {
-        categorized.coding.push(question.id);
-      } else if (question.type === 'descriptive') {
-        categorized.descriptive.push(question.id);
-      }
-    });
+    try {
+      const questionPromises = questionIds.map(id => fetchQuestionById(id));
+      const questions = await Promise.all(questionPromises);
 
-    return categorized;
+      const categorized = {
+        mcq_single: [] as string[],
+        mcq_multiple: [] as string[],
+        coding: [] as string[],
+        descriptive: [] as string[]
+      };
+
+      questions.forEach(question => {
+        if (question.type === 'mcq_single') {
+          categorized.mcq_single.push(question.id);
+        } else if (question.type === 'mcq_multiple') {
+          categorized.mcq_multiple.push(question.id);
+        } else if (question.type === 'coding') {
+          categorized.coding.push(question.id);
+        } else if (question.type === 'descriptive') {
+          categorized.descriptive.push(question.id);
+        }
+      });
+
+      return categorized;
+    } catch (error) {
+      console.error('Failed to categorize questions:', error);
+      return {
+        mcq_single: questionIds,
+        mcq_multiple: [],
+        coding: [],
+        descriptive: []
+      };
+    }
   };
 
-  const handleQuestionsChange = (questions: string[]) => {
+  const handleQuestionsChange = async (questions: string[]) => {
     setSelectedQuestions(questions);
-  };
-
-  const handleQuestionsChangeWithData = (questions: Question[]) => {
-    setSelectedQuestionsData(questions);
-    const categorizedQuestions = categorizeQuestionsByType(questions);
+    const categorizedQuestions = await categorizeQuestionsByType(questions);
     setSelectedQuestionsByType(categorizedQuestions);
   };
 
@@ -138,7 +157,6 @@ export default function SkillTestForm() {
         duration: data.duration,
         total_marks: data.total_marks,
         passing_marks: data.passing_marks,
-        passing_percentage: data.passing_percentage || 60,
         enable_proctoring: data.enable_proctoring,
         publish_status: data.publish_status,
         course: data.course,
@@ -163,41 +181,12 @@ export default function SkillTestForm() {
         coding: [],
         descriptive: []
       });
-      let loadedRandomConfig = {
-        mcq_single: { easy: 0, medium: 0, hard: 0 },
-        mcq_multiple: { easy: 0, medium: 0, hard: 0 },
-        coding: { easy: 0, medium: 0, hard: 0 },
-        descriptive: { easy: 0, medium: 0, hard: 0 }
-      };
-
-      if (data.questions_random_config) {
-         // Check if it's the new nested structure or old flat structure
-         // We cast to any to perform the check safely at runtime
-         const config = data.questions_random_config as any;
-         
-         if (typeof config.mcq_single === 'number') {
-             // Legacy format: assign all to 'medium' (or verify assumption)
-             loadedRandomConfig = {
-                 mcq_single: { easy: 0, medium: config.mcq_single || 0, hard: 0 },
-                 mcq_multiple: { easy: 0, medium: config.mcq_multiple || 0, hard: 0 },
-                 coding: { easy: 0, medium: config.coding || 0, hard: 0 },
-                 descriptive: { easy: 0, medium: config.descriptive || 0, hard: 0 }
-             };
-         } else {
-             // New format
-             loadedRandomConfig = data.questions_random_config;
-         }
-      }
-
-      setRandomQuestionsConfig(loadedRandomConfig);
-      // We don't have the full question objects for initial load unless we fetch them
-      // This might be an issue for calculating totals initially if backend doesn't provide them
-      // But fetchSkillTest currently doesn't return full questions for config, just IDs
-      // So we might need to fetch them here to populate selectedQuestionsData
-      if (allQuestions.length > 0) {
-          const fetchedQuestions = await Promise.all(allQuestions.map(id => fetchQuestionById(id)));
-          setSelectedQuestionsData(fetchedQuestions);
-      }
+      setRandomQuestionsConfig(data.questions_random_config || {
+        mcq_single: 0,
+        mcq_multiple: 0,
+        coding: 0,
+        descriptive: 0
+      });
     } catch (error) {
       console.error('Failed to fetch skill test:', error);
       toast.error('Failed to load skill test');
@@ -223,45 +212,18 @@ export default function SkillTestForm() {
 
   // Course and topic are auto-selected from URL parameters
 
-  // Calculate Totals Effect
-  useEffect(() => {
-    let totalMarks = 0;
-    let totalDuration = 0;
-
-    // specific questions
-    selectedQuestionsData.forEach(q => {
-      // Use config values if not present on question (fallback)
-      const marks = q.marks ?? getDefaultMarks(q.type, q.difficulty);
-      const duration = q.duration ?? getDefaultDuration(q.type, q.difficulty);
-      totalMarks += marks;
-      totalDuration += duration;
-    });
-
-    // random questions
-    (Object.entries(randomQuestionsConfig) as [string, { easy: number; medium: number; hard: number }][]).forEach(([type, difficulties]) => {
-      (Object.entries(difficulties) as [string, number][]).forEach(([difficulty, count]) => {
-        if (count > 0) {
-          const marks = getDefaultMarks(type, difficulty);
-          const duration = getDefaultDuration(type, difficulty);
-          totalMarks += marks * count;
-          totalDuration += duration * count;
-        }
-      });
-    });
-
-    const calculatedPassingMarks = Math.ceil((totalMarks * (formData.passing_percentage || 60)) / 100);
-
-    setFormData(prev => ({
-      ...prev,
-      total_marks: totalMarks,
-      duration: totalDuration,
-      passing_marks: calculatedPassingMarks
-    }));
-  }, [selectedQuestionsData, randomQuestionsConfig, formData.passing_percentage]);
-
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
       toast.error('Please enter a skill test title');
+      return;
+    }
+
+    const totalQuestionCount = Object.values(selectedQuestionsByType).flat().length
+      + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0);
+
+    if (totalQuestionCount === 0) {
+      setCurrentFormTab('questions');
+      toast.error('Please add at least one question (selected or random) before saving.');
       return;
     }
 
@@ -275,7 +237,6 @@ export default function SkillTestForm() {
       duration: formData.duration,
       total_marks: formData.total_marks,
       passing_marks: formData.passing_marks,
-      passing_percentage: formData.passing_percentage,
       enable_proctoring: formData.enable_proctoring,
       publish_status: formData.publish_status,
       course: formData.course,
@@ -325,6 +286,14 @@ export default function SkillTestForm() {
     } catch (error) {
       toast.error(isEditMode ? 'Failed to update skill test' : 'Failed to create skill test');
     }
+  };
+
+  const handlePrimaryAction = () => {
+    if (currentFormTab === 'details') {
+      setCurrentFormTab('questions');
+      return;
+    }
+    handleSubmit();
   };
 
   const getHeaderTitle = () => {
@@ -418,23 +387,6 @@ export default function SkillTestForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="inline-flex w-auto gap-1">
-                  <TabsTrigger
-                    value="details"
-                    className="flex items-center gap-2 px-5"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Test Details
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="questions"
-                    className="flex items-center gap-2 px-5"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Questions ({selectedQuestionsData.length + Object.values(randomQuestionsConfig).reduce((sum: number, diffs: any) => sum + Object.values(diffs).reduce((a: any, b: any) => (a as number) + (b as number), 0), 0)})
-                  </TabsTrigger>
-                </TabsList>
-
                 <TabsContent value="details" className="space-y-6">
                   {/* Basic Information Card */}
                   <Card className="border border-gray-200 shadow-sm">
@@ -448,47 +400,52 @@ export default function SkillTestForm() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Test Title *</label>
-                          <input
-                            type="text"
+                          <Input
                             value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({ ...formData, title: e.target.value })
+                            }
                             placeholder="e.g., JavaScript Fundamentals Test"
-                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level *</label>
-                          <select
+                          <Select
                             value={formData.difficulty}
-                            onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            onValueChange={(value) =>
+                              setFormData({ ...formData, difficulty: value as any })
+                            }
                           >
-                            <option value="easy">Easy</option>
-                            <option value="medium">Medium</option>
-                            <option value="hard">Hard</option>
-                          </select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select difficulty" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              <SelectItem value="easy">Easy</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="hard">Hard</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea
+                        <Textarea
                           value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, description: e.target.value })
+                          }
                           placeholder="Describe the skill test focus and topics..."
-                          rows={3}
-                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-                        <textarea
+                        <Textarea
                           value={formData.instructions}
                           onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                           placeholder="Instructions for students taking the test..."
-                          rows={3}
-                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
@@ -505,265 +462,259 @@ export default function SkillTestForm() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes) *</label>
+                          <Input
+                            type="number"
+                            value={formData.duration}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                duration: Number(e.target.value) || 60,
+                              })
+                            }
+                            placeholder="e.g., 60"
+                            min={1}
+                          />
+
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks</label>
+                          <Input
+                            type="number"
+                            value={formData.total_marks}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                total_marks: Number(e.target.value) || 100,
+                              })
+                            }
+                            placeholder="e.g., 100"
+                            min={1}
+                          />
+
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks</label>
+                          <Input
+                            type="number"
+                            value={formData.passing_marks}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                passing_marks: Number(e.target.value) || 60,
+                              })
+                            }
+                            placeholder="e.g., 60"
+                            min={1}
+                            max={formData.total_marks}
+                          />
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
-                          <select
+                          <Select
                             value={formData.publish_status}
-                            onChange={(e) => setFormData({ ...formData, publish_status: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            onValueChange={(value) =>
+                              setFormData({ ...formData, publish_status: value as any })
+                            }
                           >
-                            <option value="draft">Draft</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="archived">Archived</option>
-                          </select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              <SelectItem value="draft">Draft</SelectItem>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                              <SelectItem value="archived">Archived</SelectItem>
+                            </SelectContent>
+                          </Select>
+
                         </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
+                        <div className="flex h-23 items-center gap-2">
+                          <Checkbox
                             id="enable_proctoring"
                             checked={formData.enable_proctoring}
-                            onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, enable_proctoring: Boolean(checked) })
+                            }
                           />
-                          <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
+                          <label
+                            htmlFor="enable_proctoring"
+                            className="text-sm font-medium text-gray-900 select-none"
+                          >
                             Enable Proctoring
                           </label>
                         </div>
+
+
                       </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
 
                 <TabsContent value="questions" className="space-y-6">
-                  {/* Test Settings (Duration, Marks) - Moved to Top */}
-                  <Card className="border border-gray-200 shadow-sm bg-blue-50/50">
+                  {/* Random Questions Configuration */}
+                  <Card className="border border-gray-200 shadow-sm">
                     <CardHeader className="pb-4">
                       <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-green-500" />
-                        Test Settings Summary
+                        <Settings className="h-5 w-5 mr-2 text-orange-500" />
+                        Random Questions Configuration
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes) (Calculated)</label>
-                          <div className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 font-medium">
-                            {formData.duration}
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            MCQ Single Choice
+                          </label>
+
+                          <Input
+                            type="number"
+                            min={0}
+                            value={randomQuestionsConfig.mcq_single}
+                            onChange={(e) =>
+                              setRandomQuestionsConfig({
+                                ...randomQuestionsConfig,
+                                mcq_single: Number(e.target.value) || 0,
+                              })
+                            }
+                            placeholder="0"
+                          />
+
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks (Calculated)</label>
-                          <div className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 font-medium">
-                            {formData.total_marks}
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={randomQuestionsConfig.mcq_multiple}
+                            onChange={(e) => setRandomQuestionsConfig({
+                              ...randomQuestionsConfig,
+                              mcq_multiple: Number(e.target.value) || 0,
+                            })}
+                            placeholder="0"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Passing Percentage</label>
-                          <div className="relative">
-                            <input
-                              type="number"
-                              value={formData.passing_percentage}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                if (val >= 0 && val <= 100) {
-                                  setFormData({ ...formData, passing_percentage: val });
-                                }
-                              }}
-                              min="0"
-                              max="100"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                            />
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                              <span className="text-gray-500">%</span>
-                            </div>
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={randomQuestionsConfig.coding}
+                            onChange={(e) => setRandomQuestionsConfig({
+                              ...randomQuestionsConfig,
+                              coding: Number(e.target.value) || 0,
+                            })}
+                            placeholder="0"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks (Calculated)</label>
-                          <div className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 font-medium">
-                            {formData.passing_marks}
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={randomQuestionsConfig.descriptive}
+                            onChange={(e) => setRandomQuestionsConfig({
+                              ...randomQuestionsConfig,
+                              descriptive: Number(e.target.value) || 0,
+                            })}
+                            placeholder="0"
+                          />
                         </div>
                       </div>
+                      <p className="text-sm text-gray-500 mt-3">
+                        Specify how many questions of each type should be randomly selected from the question bank for this skill test.
+                      </p>
                     </CardContent>
                   </Card>
 
-                  {/* Sub-Tabs for Configuration */}
-                  <Tabs value={questionsSubTab} onValueChange={setQuestionsSubTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-6">
-                      <TabsTrigger value="random" className="flex items-center justify-center gap-2">
-                        <Settings className="h-4 w-4" />
-                        Random Configuration
-                      </TabsTrigger>
-                      <TabsTrigger value="specific" className="flex items-center justify-center gap-2">
-                         <FileText className="h-4 w-4" />
-                         Specific Selection
-                      </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="random">
-                      {/* Random Questions Configuration */}
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardHeader className="pb-4">
-                          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                            <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                            Random Questions Configuration
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className="bg-gray-50">
-                                <tr>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Question Type
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Easy
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Medium
-                                  </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Hard
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="bg-white divide-y divide-gray-200">
-                                {(['mcq_single', 'mcq_multiple', 'coding', 'descriptive'] as const).map(type => (
-                                  <tr key={type}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 capitalize">
-                                      {type.replace('_', ' ')}
-                                    </td>
-                                    {(['easy', 'medium', 'hard'] as const).map(difficulty => (
-                                      <td key={difficulty} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <div className="flex items-center space-x-2">
-                                          <button
-                                            type="button"
-                                            onClick={() => setRandomQuestionsConfig(prev => ({
-                                              ...prev,
-                                              [type]: {
-                                                ...prev[type],
-                                                [difficulty]: Math.max(0, prev[type][difficulty] - 1)
-                                              }
-                                            }))}
-                                            className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                          >
-                                            <Minus className="h-3 w-3" />
-                                          </button>
-                                          <input
-                                            type="number"
-                                            min="0"
-                                            value={randomQuestionsConfig[type][difficulty]}
-                                            onChange={(e) => setRandomQuestionsConfig(prev => ({
-                                              ...prev,
-                                              [type]: {
-                                                ...prev[type],
-                                                [difficulty]: parseInt(e.target.value) || 0
-                                              }
-                                            }))}
-                                            className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-center"
-                                            placeholder="0"
-                                          />
-                                          <button
-                                            type="button"
-                                            onClick={() => setRandomQuestionsConfig(prev => ({
-                                              ...prev,
-                                              [type]: {
-                                                ...prev[type],
-                                                [difficulty]: prev[type][difficulty] + 1
-                                              }
-                                            }))}
-                                            className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
-                                          >
-                                            <Plus className="h-3 w-3" />
-                                          </button>
-                                        </div>
-                                      </td>
-                                    ))}
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          <p className="text-sm text-gray-500 mt-3">
-                            Specify how many questions of each type should be randomly selected from the question bank for this skill test.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="specific">
-                      {/* Specific Question Selection */}
-                      <Card className="border border-gray-200 shadow-sm">
-                        <CardHeader className="pb-4">
-                          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                            <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                            Specific Question Selection
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <QuestionBank
-                            mode="selection"
-                            selectedQuestions={selectedQuestions}
-                            onQuestionsChange={handleQuestionsChange}
-                            onQuestionsChangeWithData={handleQuestionsChangeWithData}
-                            allowMultipleSelection={true}
-                            showSplitView={true}
-                            courseFilter={selectedCourse}
-                            topicFilter={formData.topic}
-                            categoryFilter="skill_test"
-                          />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  </Tabs>
+                  {/* Specific Question Selection */}
+                  <Card className="border border-gray-200 shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                        <FileText className="h-5 w-5 mr-2 text-purple-500" />
+                        Specific Question Selection
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <QuestionBank
+                        mode="selection"
+                        selectedQuestions={selectedQuestions}
+                        onQuestionsChange={handleQuestionsChange}
+                        allowMultipleSelection={true}
+                        showSplitView={true}
+                        courseFilter={selectedCourse}
+                        topicFilter={formData.topic}
+                        categoryFilter="skill_test"
+                      />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      const skillTestTopicId = formData.topic || topicIdFromUrl;
-                      const skillTestCourseId = formData.course || courseIdFromUrl;
-                      console.log('Cancel button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-                      try {
-                        if (skillTestCourseId) {
-                          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                          if (skillTestTopicId) {
-                            targetUrl += `?topicId=${skillTestTopicId}`;
+                <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
+                  {currentFormTab === 'questions' ? (
+                    <Button
+                      variant="secondary"
+                      onClick={() => setCurrentFormTab('details')}
+                      className="bg-orange-500 hover:bg-orange-300 text-white"
+                    >
+                      ← Back to Details
+                    </Button>
+                  ) : (
+                    <div></div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        const skillTestTopicId = formData.topic || topicIdFromUrl;
+                        const skillTestCourseId = formData.course || courseIdFromUrl;
+                        console.log('Cancel button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+                        try {
+                          if (skillTestCourseId) {
+                            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+                            if (skillTestTopicId) {
+                              targetUrl += `?topicId=${skillTestTopicId}`;
+                            }
+                            console.log('Navigating to course manage page with skill test topic:', targetUrl);
+                            navigate(targetUrl);
+                          } else {
+                            console.log('No courseId, navigating to main skill tests page');
+                            navigate('/instructor/skill-tests');
                           }
-                          console.log('Navigating to course manage page with skill test topic:', targetUrl);
-                          navigate(targetUrl);
-                        } else {
-                          console.log('No courseId, navigating to main skill tests page');
-                          navigate('/instructor/skill-tests');
-                        }
-                      } catch (error) {
-                        console.error('Navigation failed, using window.location:', error);
-                        if (skillTestCourseId) {
-                          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                          if (skillTestTopicId) {
-                            targetUrl += `?topicId=${skillTestTopicId}`;
+                        } catch (error) {
+                          console.error('Navigation failed, using window.location:', error);
+                          if (skillTestCourseId) {
+                            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+                            if (skillTestTopicId) {
+                              targetUrl += `?topicId=${skillTestTopicId}`;
+                            }
+                            window.location.href = targetUrl;
+                          } else {
+                            window.location.href = '/instructor/skill-tests';
                           }
-                          window.location.href = targetUrl;
-                        } else {
-                          window.location.href = '/instructor/skill-tests';
                         }
-                      }
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <button
-                    onClick={handleSubmit}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    {isEditMode ? 'Update Skill Test' : 'Create Skill Test'}
-                  </button>
+                      }}
+                      className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handlePrimaryAction}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {currentFormTab === 'details'
+                        ? 'Next: Add Questions'
+                        : (isEditMode ? 'Update Skill Test' : 'Create Skill Test')}
+                    </Button>
+                  </div>
                 </div>
               </Tabs>
             </div>

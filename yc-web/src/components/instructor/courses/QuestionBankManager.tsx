@@ -663,7 +663,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       type: value as 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive'
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 pl-2">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
@@ -877,11 +877,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                             <Checkbox
                               checked={option.is_correct}
                               onCheckedChange={() => toggleMCQCorrect(index)}
-                              className={`border-2 ${option.is_correct ? 'border-green-500 bg-green-500' : 'border-slate-400'}`}
+                              className={`border-2 ${option.is_correct ? 'data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500 text-white' : 'border-slate-400'}`}
                             />
-                            {option.is_correct && (
-                              <CheckCircle className="absolute -top-1 -right-1 w-4 h-4 text-green-600 bg-white rounded-full" />
-                            )}
+
                           </div>
                           <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${option.is_correct
                             ? 'bg-green-600 text-white'

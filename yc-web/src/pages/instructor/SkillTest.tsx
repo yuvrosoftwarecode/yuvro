@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DataTable } from '@/components/common/DataTable';
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, BookOpen, Plus, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -377,76 +377,72 @@ export default function InstructorSkillTest() {
                     </button>
                   </div>
 
-                  {filteredSkillTests.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                      <div className="text-center">
-                        <Trophy className="mx-auto h-12 w-12 text-gray-400" />
-                        <h3 className="mt-4 text-lg font-medium text-gray-900">No Skill Tests</h3>
-                        <p className="mt-2 text-sm text-gray-500">
-                          No skill tests found for this topic. Create your first skill test to get started.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <Card className="border border-gray-200 shadow-sm">
-                      <CardContent className="p-0">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="border-b border-gray-200">
-                              <TableHead className="text-left font-semibold text-gray-900">Title</TableHead>
-                              <TableHead className="text-left font-semibold text-gray-900">Difficulty</TableHead>
-                              <TableHead className="text-left font-semibold text-gray-900">Duration</TableHead>
-                              <TableHead className="text-left font-semibold text-gray-900">Status</TableHead>
-                              <TableHead className="text-left font-semibold text-gray-900">Participants</TableHead>
-                              <TableHead className="text-right font-semibold text-gray-900">Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredSkillTests.map((skillTest) => (
-                              <TableRow key={skillTest.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                <TableCell className="font-medium">{skillTest.title}</TableCell>
-                                <TableCell>
-                                  <Badge className={getDifficultyColor(skillTest.difficulty)} variant="outline">
-                                    {skillTest.difficulty}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>{skillTest.duration} min</TableCell>
-                                <TableCell>
-                                  <StatusBadge status={skillTest.publish_status} />
-                                </TableCell>
-                                <TableCell>{skillTest.participants_count}</TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex justify-end gap-2">
-                                    <button
-                                      onClick={() => navigate(`/instructor/skill-tests/${skillTest.id}/analytics`)}
-                                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                                      title="Analytics"
-                                    >
-                                      <BarChart2 className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                      onClick={() => openEditForm(skillTest)}
-                                      className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
-                                      title="Edit"
-                                    >
-                                      <Pencil className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteSkillTest(skillTest.id)}
-                                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                      title="Delete"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  )}
+                  <DataTable
+                    title={`${selectedTopic?.name} - Skill Tests`}
+                    description={`${filteredSkillTests.length} skill test(s) found`}
+                    data={filteredSkillTests}
+                    columns={[
+                      {
+                        header: 'Title',
+                        accessorKey: 'title',
+                        className: 'font-medium'
+                      },
+                      {
+                        header: 'Difficulty',
+                        cell: (skillTest) => (
+                          <Badge className={getDifficultyColor(skillTest.difficulty)} variant="outline">
+                            {skillTest.difficulty}
+                          </Badge>
+                        )
+                      },
+                      {
+                        header: 'Duration',
+                        cell: (skillTest) => `${skillTest.duration} min`
+                      },
+                      {
+                        header: 'Status',
+                        cell: (skillTest) => <StatusBadge status={skillTest.publish_status} />
+                      },
+                      {
+                        header: 'Participants',
+                        accessorKey: 'participants_count'
+                      },
+                      {
+                        header: 'Actions',
+                        cell: (skillTest) => (
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => navigate(`/instructor/skill-tests/${skillTest.id}/analytics`)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                              title="Analytics"
+                            >
+                              <BarChart2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => openEditForm(skillTest)}
+                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSkillTest(skillTest.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ),
+                        className: 'text-right'
+                      }
+                    ]}
+                    keyExtractor={(item) => item.id}
+                    emptyState={{
+                      message: "No Skill Tests Found",
+                      subMessage: "No skill tests found for this topic. Create your first skill test to get started."
+                    }}
+                  />
                 </div>
               </div>
             )}

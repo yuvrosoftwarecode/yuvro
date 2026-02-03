@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getSkillTestSubmissions, getSkillTestSubmission, SkillTest } from '@/services/skillTestService';
 import skillTestService from '@/services/skillTestService';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatsCard } from '@/components/common/StatsCard';
 import StatusBadge from '@/components/common/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -62,7 +63,13 @@ export default function SkillTestSubmissions() {
                         subtitle="View participant submissions and performance"
                         actions={
                             <button
-                                onClick={() => navigate('/instructor/skill-tests')}
+                                onClick={() => {
+                                    if (skillTest?.course && skillTest?.topic) {
+                                        navigate(`/instructor/skill-tests/courses/${skillTest.course}/manage?topicId=${skillTest.topic}`);
+                                    } else {
+                                        navigate('/instructor/skill-tests');
+                                    }
+                                }}
                                 className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
                             >
                                 ← Back to Tests
@@ -72,17 +79,13 @@ export default function SkillTestSubmissions() {
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <Card>
-                                <CardContent className="p-6 flex items-center gap-4">
-                                    <div className="p-3 bg-blue-100 rounded-full text-blue-600">
-                                        <CheckCircle className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Total Participants</p>
-                                        <h3 className="text-2xl font-bold text-gray-900">{submissions.length}</h3>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <StatsCard
+                                label="Total Participants"
+                                value={submissions.length}
+                                icon={CheckCircle}
+                                colorScheme="blue"
+                                size="md"
+                            />
                         </div>
 
                         <Card className="border border-gray-200 shadow-sm">

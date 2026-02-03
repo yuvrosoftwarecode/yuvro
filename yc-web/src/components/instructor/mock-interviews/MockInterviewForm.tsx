@@ -4,6 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import QuestionBank from '@/components/common/QuestionBank';
@@ -237,6 +244,16 @@ export default function MockInterviewForm() {
         return;
       }
 
+      const totalQuestionCount = selectedQuestions.length
+        + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0);
+
+      if (formData.ai_generation_mode !== 'full_ai' && totalQuestionCount === 0) {
+        setCurrentFormTab('questions');
+        toast.error('Please add at least one question (selected or random) before saving.');
+        setLoading(false);
+        return;
+      }
+
       // Process questions before submitting
       const questionsConfig = await categorizeQuestionsByType(selectedQuestions);
 
@@ -281,6 +298,14 @@ export default function MockInterviewForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePrimaryAction = () => {
+    if (currentFormTab !== 'questions') {
+      setCurrentFormTab('questions');
+      return;
+    }
+    handleSubmit();
   };
 
   if (loading) {
@@ -358,12 +383,20 @@ export default function MockInterviewForm() {
 
                       <div>
                         <label className="block text-sm font-medium mb-1">Publish Status</label>
-                        <select value={formData.publish_status} onChange={e => setFormData({ ...formData, publish_status: e.target.value as any })} className="w-full border rounded px-3 py-2">
-                          <option value="draft">Draft</option>
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                          <option value="archived">Archived</option>
-                        </select>
+                        <Select
+                          value={formData.publish_status}
+                          onValueChange={(value) => setFormData({ ...formData, publish_status: value as any })}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </CardContent>
                   </Card>
@@ -378,11 +411,19 @@ export default function MockInterviewForm() {
                     <CardContent className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">Generation Mode</label>
-                        <select value={formData.ai_generation_mode} onChange={e => setFormData({ ...formData, ai_generation_mode: e.target.value as any })} className="w-full border rounded px-3 py-2">
-                          <option value="full_ai">Full AI (AI decides everything based on skills)</option>
-                          <option value="mixed">Mixed (AI + Predefined Questions)</option>
-                          <option value="predefined">Predefined Questions Only</option>
-                        </select>
+                        <Select
+                          value={formData.ai_generation_mode}
+                          onValueChange={(value) => setFormData({ ...formData, ai_generation_mode: value as any })}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select generation mode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full_ai">Full AI (AI decides everything based on skills)</SelectItem>
+                            <SelectItem value="mixed">Mixed (AI + Predefined Questions)</SelectItem>
+                            <SelectItem value="predefined">Predefined Questions Only</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <p className="text-xs text-gray-500 mt-1">Controls how questions are selected for the interview.</p>
                       </div>
 
@@ -459,18 +500,24 @@ export default function MockInterviewForm() {
 
                       <div className="space-y-2">
                         <label className="block text-sm font-medium">Select Voice Actor</label>
-                        <select
+                        <Select
                           value={formData.interviewer_voice_id}
-                          onChange={e => setFormData({ ...formData, interviewer_voice_id: e.target.value })}
-                          className="w-full border rounded px-3 py-2"
+                          onValueChange={(value) => setFormData({ ...formData, interviewer_voice_id: value })}
                         >
-                          <option value="">-- Select a Google Voice --</option>
-                          {availableVoices.map((voice, idx) => (
-                            <option key={idx} value={voice.name}>
-                              {voice.name} ({voice.lang})
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="-- Select a Google Voice --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableVoices.map((voice, idx) => (
+                              <SelectItem key={`${voice.name}-${idx}`} value={voice.name}>
+                                {voice.name} ({voice.lang})
+                              </SelectItem>
+                            ))}
+                            {availableVoices.length === 0 && (
+                              <SelectItem value="placeholder" disabled>No voices available</SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
                         <p className="text-xs text-gray-500">
                           Note: Available voices depend on your browser and operating system. Google voices are recommended for best quality.
                         </p>
@@ -601,11 +648,13 @@ export default function MockInterviewForm() {
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleSubmit}
+                    onClick={handlePrimaryAction}
                     disabled={loading}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    {isEditMode ? 'Update Mock Interview' : 'Create Mock Interview'}
+                    {currentFormTab !== 'questions'
+                      ? 'Add Questions'
+                      : (isEditMode ? 'Update Mock Interview' : 'Create Mock Interview')}
                   </Button>
                 </div>
               </Tabs>
