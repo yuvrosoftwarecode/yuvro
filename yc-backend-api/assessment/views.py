@@ -377,10 +377,29 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         if contest.questions_random_config:
             existing_ids = [q['id'] for q in questions_to_send]
             
-            for q_type, count in contest.questions_random_config.items():
-                if count > 0:
+            for q_type, config in contest.questions_random_config.items():
+                requests_to_process = []
+                
+                if isinstance(config, dict):
+                    for diff, count in config.items():
+                        requests_to_process.append((diff, count))
+                else:
+                    requests_to_process.append((None, config))
+                    
+                for difficulty, count in requests_to_process:
+                    if not isinstance(count, int) or count <= 0:
+                        continue
+
+                    q_filter = Q(type=q_type)
+                    
+                    if difficulty:
+                        q_filter &= Q(difficulty=difficulty)
+                        
+                    # Contests might have course/topic context or not? 
+                    # Assuming basic filtering by type/difficulty for contests unless specified otherwise
+                    
                     candidates = list(Question.objects.filter(
-                        type=q_type
+                        q_filter
                     ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
                     
                     if len(candidates) >= count:
@@ -389,6 +408,7 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         selected = candidates
                     
                     questions_to_send.extend(selected)
+                    existing_ids.extend([q['id'] for q in selected])
 
         random.shuffle(questions_to_send)
 
@@ -569,14 +589,33 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            # Expected format: {'mcq_single': 10, 'coding': 2}
+            # Expected format: {'mcq_single': 10} OR {'mcq_single': {'easy': 2, 'medium': 1}}
             
             # Get IDs already selected to avoid duplicates
             existing_ids = [q['id'] for q in questions_to_send]
             
-            for q_type, count in skill_test.questions_random_config.items():
-                if count > 0:
+            for q_type, config in skill_test.questions_random_config.items():
+                requests_to_process = [] # List of (difficulty, count) tuples
+                
+                if isinstance(config, dict):
+                    # New format: {'easy': 2, 'medium': 1}
+                    for diff, count in config.items():
+                        requests_to_process.append((diff, count))
+                else:
+                    # Legacy format: simple integer count, assuming 'medium' or any if needed, 
+                    # but typically we filter just by type. For strictness let's assume no difficulty filter if not specified,
+                    # or better, just fetch any difficulty.
+                    # To minimize complexity, we can treat it as one request with difficulty=None
+                    requests_to_process.append((None, config))
+                    
+                for difficulty, count in requests_to_process:
+                    if not isinstance(count, int) or count <= 0:
+                        continue
+                        
                     q_filter = Q(type=q_type)
+                    
+                    if difficulty:
+                        q_filter &= Q(difficulty=difficulty)
                     
                     if skill_test.topic:
                         # Include questions linked to subtopics of this topic OR directly to the topic
@@ -585,6 +624,11 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         q_filter &= Q(course=skill_test.course)
                         
                     # Fetch candidate questions excluding already selected ones
+                    # Note: We must re-evaluate existing_ids inside the loop if we want to be strictly correct 
+                    # about not picking the same question twice across different criteria (unlikely but possible if criteria overlap)
+                    # But since we filter by difficulty, overlap is minimal unless difficulty is None.
+                    # For safety, we refer to existing_ids which we update.
+                    
                     candidates = list(Question.objects.filter(
                         q_filter
                     ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
@@ -595,6 +639,8 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         selected = candidates # Take all if not enough
                     
                     questions_to_send.extend(selected)
+                    # Update existing_ids to prevent selecting the same question again (relevant for legacy mixed with new)
+                    existing_ids.extend([q['id'] for q in selected])
                     
         # Shuffle final list
         random.shuffle(questions_to_send)

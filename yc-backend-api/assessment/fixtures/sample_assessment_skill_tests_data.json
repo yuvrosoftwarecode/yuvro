@@ -12,7 +12,13 @@
       "course_short_code": "PY101",
       "topic_name": "Python Basics",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Data Structures and Algorithms Assessment",
@@ -26,7 +32,13 @@
       "course_short_code": "DS101",
       "topic_name": "Arrays and Strings",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Java Programming Skills Test",
@@ -40,7 +52,13 @@
       "course_short_code": "JAVA101",
       "topic_name": "Java Fundamentals",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Database Management Systems Test",
@@ -54,7 +72,13 @@
       "course_short_code": "SQL101",
       "topic_name": "SQL Fundamentals",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Machine Learning Fundamentals",
@@ -68,7 +92,13 @@
       "course_short_code": "AI101",
       "topic_name": "AI Fundamentals",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Arrays and Strings Skill Test - Basic",
@@ -82,7 +112,13 @@
       "course_short_code": "DS101",
       "topic_name": "Arrays and Strings",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Arrays and Strings Skill Test - Advanced",
@@ -96,7 +132,13 @@
       "course_short_code": "DS101",
       "topic_name": "Arrays and Strings",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Linked Lists Skill Test - Basic",
@@ -110,7 +152,13 @@
       "course_short_code": "DS101",
       "topic_name": "Linked Lists",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Linked Lists Skill Test - Advanced",
@@ -124,7 +172,13 @@
       "course_short_code": "DS101",
       "topic_name": "Linked Lists",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Trees and Graphs Skill Test - Basic",
@@ -138,7 +192,13 @@
       "course_short_code": "DS101",
       "topic_name": "Trees and Graphs",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Trees and Graphs Skill Test - Advanced",
@@ -152,7 +212,13 @@
       "course_short_code": "DS101",
       "topic_name": "Trees and Graphs",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Python Basics Skill Test - Basic",
@@ -166,7 +232,13 @@
       "course_short_code": "PY101",
       "topic_name": "Python Basics",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Python Basics Skill Test - Advanced",
@@ -180,7 +252,13 @@
       "course_short_code": "PY101",
       "topic_name": "Python Basics",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Data Structures in Python - Skill Test Basic",
@@ -194,7 +272,13 @@
       "course_short_code": "PY101",
       "topic_name": "Data Structures in Python",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 7, "mcq_multiple": 1, "coding": 2, "descriptive": 0}
+      "questions_random_config": {
+        "mcq_single": 7,
+        "mcq_multiple": 1,
+        "coding": 2,
+        "descriptive": 0
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Data Structures in Python - Skill Test Advanced",
@@ -208,7 +292,13 @@
       "course_short_code": "PY101",
       "topic_name": "Data Structures in Python",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "OOP Concepts Skill Test - Basic",
@@ -222,7 +312,13 @@
       "course_short_code": "PY101",
       "topic_name": "Object-Oriented Programming",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "OOP Concepts Skill Test - Advanced",
@@ -236,7 +332,13 @@
       "course_short_code": "PY101",
       "topic_name": "Object-Oriented Programming",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "HTML & CSS Skill Test - Basic",
@@ -250,7 +352,13 @@
       "course_short_code": "WEB101",
       "topic_name": "HTML and CSS",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "HTML & CSS Skill Test - Advanced",
@@ -264,7 +372,13 @@
       "course_short_code": "WEB101",
       "topic_name": "HTML and CSS",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "JavaScript Fundamentals - Skill Test Basic",
@@ -278,7 +392,13 @@
       "course_short_code": "WEB101",
       "topic_name": "JavaScript Fundamentals",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "JavaScript Fundamentals - Skill Test Advanced",
@@ -292,7 +412,13 @@
       "course_short_code": "WEB101",
       "topic_name": "JavaScript Fundamentals",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Frontend Frameworks Skill Test - Basic",
@@ -306,7 +432,13 @@
       "course_short_code": "WEB101",
       "topic_name": "Frontend Frameworks",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 7, "mcq_multiple": 1, "coding": 2, "descriptive": 0}
+      "questions_random_config": {
+        "mcq_single": 7,
+        "mcq_multiple": 1,
+        "coding": 2,
+        "descriptive": 0
+      },
+      "passing_percentage": 60.0
     },
     {
       "title": "Frontend Frameworks Skill Test - Advanced",
@@ -320,7 +452,13 @@
       "course_short_code": "WEB101",
       "topic_name": "Frontend Frameworks",
       "publish_status": "active",
-      "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 3, "descriptive": 2}
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      },
+      "passing_percentage": 60.0
     }
   ]
 }

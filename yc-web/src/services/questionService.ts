@@ -17,6 +17,7 @@ export interface Question {
   subtopic?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
+  duration: number;
   categories: string[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
@@ -42,6 +43,7 @@ export interface CreateQuestionData {
   subtopic?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
+  duration: number;
   categories: string[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
@@ -280,6 +282,10 @@ export const validateQuestion = (data: CreateQuestionData): string[] => {
 
   if (data.marks <= 0) {
     errors.push('Question marks must be greater than 0');
+  }
+
+  if (data.duration <= 0) {
+    errors.push('Question duration must be greater than 0');
   }
 
   // Level-specific validation

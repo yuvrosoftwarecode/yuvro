@@ -372,6 +372,9 @@ class Question(models.Model):
         max_length=10, choices=DIFFICULTY_LEVELS, default="easy"
     )
     marks = models.PositiveIntegerField(default=1)
+    duration = models.PositiveIntegerField(
+        default=1, help_text="Duration in minutes"
+    )
     categories = models.JSONField(
         default=list,
         help_text="List of categories this question belongs to (learn, practice, skill_test, contest)",

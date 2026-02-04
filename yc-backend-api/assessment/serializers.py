@@ -252,6 +252,7 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "duration",
             "total_marks",
             "passing_marks",
+            "passing_percentage",
             "enable_proctoring",
             "questions_config",
             "questions_random_config",

@@ -219,6 +219,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "subtopic",
             "difficulty",
             "marks",
+            "duration",
             "categories",
             "mcq_options",
             "test_cases_basic",

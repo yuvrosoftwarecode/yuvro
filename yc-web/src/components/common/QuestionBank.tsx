@@ -14,6 +14,7 @@ interface QuestionBankProps {
   onQuestionSelect?: (questionId: string) => void;
   onQuestionDeselect?: (questionId: string) => void;
   onQuestionsChange?: (questions: string[]) => void;
+  onQuestionsChangeWithData?: (questions: Question[]) => void;
   allowMultipleSelection?: boolean;
   filters?: Partial<QuestionFilters>;
   title?: string;
@@ -30,6 +31,7 @@ export default function QuestionBank({
   onQuestionSelect,
   onQuestionDeselect,
   onQuestionsChange,
+  onQuestionsChangeWithData,
   allowMultipleSelection = true,
   filters: initialFilters = {},
   title = 'Question Bank',
@@ -194,6 +196,9 @@ export default function QuestionBank({
       if (onQuestionsChange) {
         onQuestionsChange(selectedQuestions.filter(id => id !== questionId));
       }
+      if (onQuestionsChangeWithData) {
+        onQuestionsChangeWithData(allSelectedQuestions.filter(q => q.id !== questionId));
+      }
     } else {
       // Add to selected questions
       if (question) {
@@ -203,6 +208,9 @@ export default function QuestionBank({
           onQuestionSelect?.(questionId);
           if (onQuestionsChange) {
             onQuestionsChange([questionId]);
+          }
+          if (onQuestionsChangeWithData) {
+            onQuestionsChangeWithData([question]);
           }
         } else {
           // Multiple selection mode - add to existing
@@ -214,6 +222,15 @@ export default function QuestionBank({
           onQuestionSelect?.(questionId);
           if (onQuestionsChange) {
             onQuestionsChange([...selectedQuestions, questionId]);
+          }
+          if (onQuestionsChangeWithData) {
+             // We need to construct the new list carefully
+             const isAlreadySelected = selectedQuestions.includes(questionId);
+             if (!isAlreadySelected) {
+                 onQuestionsChangeWithData([...allSelectedQuestions, question]);
+             } else {
+                 onQuestionsChangeWithData(allSelectedQuestions);
+             }
           }
         }
       }
@@ -291,6 +308,9 @@ export default function QuestionBank({
                         if (onQuestionsChange) {
                           onQuestionsChange([]);
                         }
+                        if (onQuestionsChangeWithData) {
+                          onQuestionsChangeWithData([]);
+                        }
                         toast.success('All questions cleared');
                       }
                     }}
@@ -324,7 +344,7 @@ export default function QuestionBank({
                             </Badge>
                           </div>
                           <h5 className="text-sm font-medium text-gray-900 line-clamp-2">{question.title}</h5>
-                          <p className="text-xs text-gray-500 mt-1">{question.marks} marks</p>
+                          <p className="text-xs text-gray-500 mt-1">{question.marks} marks • {question.duration} mins</p>
                         </div>
                         <button
                           onClick={() => handleQuestionToggle(question.id)}
@@ -414,6 +434,7 @@ export default function QuestionBank({
                               {question.difficulty}
                             </Badge>
                             <span className="text-xs text-gray-500">{question.marks} marks</span>
+                            <span className="text-xs text-gray-500">• {question.duration} mins</span>
                           </div>
                           <h5 className="text-sm font-medium text-gray-900 mb-1">{question.title}</h5>
                           <p className="text-xs text-gray-600 line-clamp-2">
@@ -589,6 +610,9 @@ export default function QuestionBank({
                     setAllSelectedQuestions([]);
                     if (onQuestionsChange) {
                       onQuestionsChange([]);
+                    }
+                    if (onQuestionsChangeWithData) {
+                      onQuestionsChangeWithData([]);
                     }
                     toast.success('All questions cleared');
                   }
