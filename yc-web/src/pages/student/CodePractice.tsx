@@ -225,9 +225,9 @@ const CodePractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <Navigation />
-      <div className="transition-all duration-300 ease-in-out">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <Navigation autoHide={currentView !== 'dashboard'} />
+      <div className="flex-1 flex flex-col transition-all duration-300 ease-in-out overflow-hidden">
         {isHydrating ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />

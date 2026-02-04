@@ -832,7 +832,7 @@ const CourseDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className={(rightTab === "coding" || rightTab === "videos" || rightTab === "materials" || rightTab === "my-notes" || rightTab === "quizzes") ? "flex-1 overflow-hidden" : "p-6 flex-1 overflow-y-auto"}>
+                    <div className={(rightTab === "coding" || rightTab === "videos" || rightTab === "materials" || rightTab === "my-notes" || rightTab === "quizzes") ? "flex-1 overflow-hidden flex flex-col" : "p-6 flex-1 overflow-y-auto"}>
                         {!selectedSubtopic ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
                                 <div className="text-lg font-medium mb-2">Select a subtopic on the left</div>

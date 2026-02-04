@@ -98,6 +98,45 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   // Editor & code state
   // If value is provided, we use it as initial state, but we also sync it via useEffect
   const [code, setCode] = useState(value !== undefined ? value : initialCode);
+
+  // Custom resize state
+  const [outputPanelHeight, setOutputPanelHeight] = useState(40); // % height of output panel
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const startDrag = () => setIsDragging(true);
+  const stopDrag = () => setIsDragging(false);
+
+  const onDrag = (e: MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+    const containerHeight = rect.height;
+
+    // Calculate new height relative to bottom (since it's the bottom panel)
+    const newHeight = ((containerHeight - relativeY) / containerHeight) * 100;
+
+    // Clamp between 20% and 80%
+    if (newHeight >= 20 && newHeight <= 80) {
+      setOutputPanelHeight(newHeight);
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onDrag);
+      window.addEventListener('mouseup', stopDrag);
+    } else {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDrag);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDrag);
+    };
+  }, [isDragging]);
   const [language, setLanguage] = useState(initialLanguage);
 
   // Sync value prop to internal state (Controlled mode support)
@@ -424,8 +463,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
       <div className="h-full flex flex-col overflow-hidden">
         {/* Fullscreen Header */}
         {shouldRenderFullscreenUI && (
-          <div className="bg-white border-b border-gray-200 px-6 h-16 flex items-center justify-between shadow-md shrink-0">
-            <h2 className="text-xl font-bold text-gray-900">{problemTitle}</h2>
+          <div className="bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between z-10">
+            <h2 className="text-lg font-bold text-gray-800">{problemTitle}</h2>
             <Button
               variant="ghost"
               size="sm"
@@ -433,23 +472,21 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 setInternalFullscreen(false);
                 onFullscreenChange?.(false);
               }}
-              className="text-gray-500 hover:text-gray-900"
+              className="text-gray-400 hover:text-gray-900"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
 
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <ResizablePanelGroup direction="vertical" className="flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden" ref={containerRef}>
+          <div className={`flex-1 overflow-hidden flex flex-col ${isDragging ? 'select-none pointer-events-none' : ''}`}>
             {/* Editor Panel */}
-            <ResizablePanel
-              id="code-editor-panel"
-              order={1}
-              defaultSize={showOutput ? 50 : 100}
-              minSize={30}
+            <div
+              className="w-full bg-white relative flex flex-col"
+              style={{ height: showOutput ? `${100 - outputPanelHeight}%` : '100%' }}
             >
-              <div className="h-full bg-white">
+              <div className="absolute inset-0">
                 <MonacoCodeEditor
                   value={code}
                   onChange={handleChange}
@@ -463,33 +500,37 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                   isFullscreen={isFullscreen}
                 />
               </div>
-            </ResizablePanel>
+            </div>
 
-            {/* Divider */}
+            {/* Drag Handle */}
             {showOutput && (
-              <ResizableHandle className="h-4 -my-2 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
-                <div className="w-12 h-1 bg-gray-300 rounded-full shadow-sm" />
-              </ResizableHandle>
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  startDrag();
+                }}
+                className="h-4 -my-2 w-full bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50 cursor-row-resize shrink-0"
+              >
+                <div className="w-12 h-1 bg-gray-300 rounded-full shadow-sm pointer-events-none" />
+              </div>
             )}
 
             {/* Output Panel */}
             {showOutput && (
-              <ResizablePanel
-                id="output-panel"
-                order={2}
-                defaultSize={50}
-                minSize={20}
+              <div
+                className="w-full bg-white flex flex-col overflow-hidden border-t border-gray-100"
+                style={{ height: `${outputPanelHeight}%` }}
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden p-4">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                    <TabsList className="flex-shrink-0 justify-between h-14 bg-slate-50 border border-gray-100 px-4">
-                      <div className="flex items-center gap-6">
-                        <TabsTrigger value="output" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
-                          <Terminal className="h-4 w-4 text-emerald-600" /> Console Output
+                    <TabsList className="flex-shrink-0 justify-between h-12 bg-white border-b border-gray-100 px-4">
+                      <div className="flex items-center gap-2">
+                        <TabsTrigger value="output" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                          <Terminal className="h-3.5 w-3.5" /> Console
                         </TabsTrigger>
                         {showTestCases && (
-                          <TabsTrigger value="testcases" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
-                            <FlaskConical className="h-4 w-4 text-blue-600" /> Test Cases
+                          <TabsTrigger value="testcases" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                            <FlaskConical className="h-3.5 w-3.5" /> Test Cases
                           </TabsTrigger>
                         )}
                       </div>
@@ -498,17 +539,17 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           onClick={runCode}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+                          className="h-8 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95"
                         >
-                          <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
+                          <Play className="h-3 w-3 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
                         <Button
                           onClick={submitSolution}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
+                          className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border-none"
                         >
-                          <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                          <Send className="h-3 w-3 mr-1.5 fill-current" /> {isSubmitting ? 'Submitting...' : 'Submit'}
                         </Button>
                         <div className="w-px h-6 bg-gray-200 mx-1" />
                         <Button
@@ -533,55 +574,46 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {executionMetrics.execution_time !== undefined && (
-                                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-xl border border-blue-200 shadow-md hover:shadow-lg transition-shadow">
-                                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Execution Time</div>
-                                  <div className="text-2xl font-bold text-blue-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
-                                  <div className="text-xs text-blue-600 mt-1">milliseconds</div>
+                                <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                                  <div className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-1">Time</div>
+                                  <div className="text-xl font-bold text-blue-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
+                                  <div className="text-[10px] text-blue-400">ms</div>
                                 </div>
                               )}
                               {executionMetrics.memory_usage !== undefined && (
-                                <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 p-5 rounded-xl border border-purple-200 shadow-md hover:shadow-lg transition-shadow">
-                                  <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-2">Memory Usage</div>
-                                  <div className="text-2xl font-bold text-purple-900">{(executionMetrics.memory_usage / 1024).toFixed(1)}</div>
-                                  <div className="text-xs text-purple-600 mt-1">KB</div>
+                                <div className="bg-purple-50/50 p-4 rounded-lg border border-purple-100">
+                                  <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-1">Memory</div>
+                                  <div className="text-xl font-bold text-purple-900">{(executionMetrics.memory_usage / 1024).toFixed(1)}</div>
+                                  <div className="text-[10px] text-purple-400">KB</div>
                                 </div>
                               )}
                               {(testResults?.passed !== undefined && testResults?.total !== undefined) ? (
-                                <div className={`p-5 rounded-xl border shadow-md hover:shadow-lg transition-shadow ${testResults.passed === testResults.total
-                                  ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200'
-                                  : 'bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200'
+                                <div className={`p-4 rounded-lg border ${testResults.passed === testResults.total
+                                  ? 'bg-green-50/50 border-green-100'
+                                  : 'bg-amber-50/50 border-amber-100'
                                   }`}>
-                                  <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${testResults.passed === testResults.total ? 'text-green-700' : 'text-amber-700'}`}>Test Cases</div>
-                                  <div className={`text-2xl font-bold ${testResults.passed === testResults.total ? 'text-green-900' : 'text-amber-900'}`}>
+                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${testResults.passed === testResults.total ? 'text-green-600' : 'text-amber-600'}`}>Test Cases</div>
+                                  <div className={`text-xl font-bold ${testResults.passed === testResults.total ? 'text-green-900' : 'text-amber-900'}`}>
                                     {testResults.passed}/{testResults.total}
-                                  </div>
-                                  <div className={`text-xs mt-1 ${testResults.passed === testResults.total ? 'text-green-600' : 'text-amber-600'}`}>
-                                    {testResults.passed === testResults.total ? 'All Passed' : 'Some Failed'}
                                   </div>
                                 </div>
                               ) : executionMetrics.status && (
-                                <div className={`p-5 rounded-xl border shadow-md hover:shadow-lg transition-shadow ${executionMetrics.status === 'completed'
-                                  ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-200'
-                                  : 'bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200'
+                                <div className={`p-4 rounded-lg border ${executionMetrics.status === 'completed'
+                                  ? 'bg-green-50/50 border-green-100'
+                                  : 'bg-amber-50/50 border-amber-100'
                                   }`}>
-                                  <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${executionMetrics.status === 'completed' ? 'text-green-700' : 'text-amber-700'}`}>Status</div>
-                                  <div className={`text-2xl font-bold capitalize ${executionMetrics.status === 'completed' ? 'text-green-900' : 'text-amber-900'}`}>{executionMetrics.status}</div>
-                                  <div className={`text-xs mt-1 ${executionMetrics.status === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>
-                                    {executionMetrics.status === 'completed' ? 'Success' : 'Failed'}
-                                  </div>
+                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${executionMetrics.status === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>Status</div>
+                                  <div className={`text-xl font-bold capitalize ${executionMetrics.status === 'completed' ? 'text-green-900' : 'text-amber-900'}`}>{executionMetrics.status}</div>
                                 </div>
                               )}
                               {executionMetrics.plagiarism_score !== undefined && (
-                                <div className={`p-5 rounded-xl border shadow-md hover:shadow-lg transition-shadow ${executionMetrics.plagiarism_score > 0.7
-                                  ? 'bg-gradient-to-br from-red-50 to-red-100/50 border-red-200'
-                                  : 'bg-gradient-to-br from-teal-50 to-teal-100/50 border-teal-200'
+                                <div className={`p-4 rounded-lg border ${executionMetrics.plagiarism_score > 0.7
+                                  ? 'bg-red-50/50 border-red-100'
+                                  : 'bg-teal-50/50 border-teal-100'
                                   }`}>
-                                  <div className={`text-xs font-semibold uppercase tracking-wide mb-2 ${executionMetrics.plagiarism_score > 0.7 ? 'text-red-700' : 'text-teal-700'}`}>Plagiarism</div>
-                                  <div className="text-2xl font-bold text-gray-900">
+                                  <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${executionMetrics.plagiarism_score > 0.7 ? 'text-red-600' : 'text-teal-600'}`}>Plagiarism</div>
+                                  <div className="text-xl font-bold text-gray-900">
                                     {(executionMetrics.plagiarism_score * 100).toFixed(0)}%
-                                  </div>
-                                  <div className={`text-xs mt-1 ${executionMetrics.plagiarism_score > 0.7 ? 'text-red-600' : 'text-teal-600'}`}>
-                                    {executionMetrics.plagiarism_score > 0.7 ? 'Flagged' : 'Clear'}
                                   </div>
                                 </div>
                               )}
@@ -740,61 +772,60 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     )}
                   </Tabs>
                 </div>
-              </ResizablePanel>
+              </div>
             )}
-          </ResizablePanelGroup>
-
-          {/* Minimal Console Bar when collapsed */}
-          {!showOutput && (
-            <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6">
-              <div className="flex items-center gap-4">
+          </div>
+        </div>   {/* Minimal Console Bar when collapsed */}
+        {!showOutput && (
+          <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
+                onClick={() => {
+                  setShowOutput(true);
+                  setActiveBottomTab('output');
+                }}
+              >
+                <Terminal className="h-4 w-4 text-emerald-500" />
+                Console
+              </Button>
+              {showTestCases && (
                 <Button
-                  variant="ghost"
-                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
                   onClick={() => {
                     setShowOutput(true);
-                    setActiveBottomTab('output');
+                    setActiveBottomTab('testcases');
                   }}
+                  variant="ghost"
+                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
                 >
-                  <Terminal className="h-4 w-4 text-emerald-500" />
-                  Console
+                  <FlaskConical className="h-4 w-4 text-blue-500" />
+                  Test Cases
                 </Button>
-                {showTestCases && (
-                  <Button
-                    onClick={() => {
-                      setShowOutput(true);
-                      setActiveBottomTab('testcases');
-                    }}
-                    variant="ghost"
-                    className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
-                  >
-                    <FlaskConical className="h-4 w-4 text-blue-500" />
-                    Test Cases
-                  </Button>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={runCode}
-                  disabled={isRunning || isSubmitting}
-                  size="sm"
-                  className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
-                >
-                  <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> Run
-                </Button>
-                <Button
-                  onClick={submitSolution}
-                  disabled={isRunning || isSubmitting}
-                  size="sm"
-                  className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
-                >
-                  <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
-                </Button>
-              </div>
+              )}
             </div>
-          )}
-        </div>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={runCode}
+                disabled={isRunning || isSubmitting}
+                size="sm"
+                className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+              >
+                <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> Run
+              </Button>
+              <Button
+                onClick={submitSolution}
+                disabled={isRunning || isSubmitting}
+                size="sm"
+                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
+              >
+                <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+
       {/* Example Gallery Modal */}
       {showExamples && (
         <ExampleCodeGallery

@@ -160,7 +160,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
+      <div className="flex-1 flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
         <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
@@ -173,7 +173,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   if (questions.length === 0) {
     return (
-      <div className="h-full flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
+      <div className="flex-1 flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
         <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center p-8 text-center">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
             <Terminal className="w-8 h-8 text-gray-300" />
@@ -187,7 +187,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   if (viewMode === 'list') {
     return (
-      <div className="h-full flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
+      <div className="flex-1 flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
         <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col transition-all duration-300">
           {/* Header */}
           <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex justify-between items-center shrink-0">
@@ -275,7 +275,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   // ===================== WORKSPACE VIEW =====================
   return (
-    <div className="h-full w-full relative font-sans">
+    <div className="flex-1 w-full relative font-sans flex flex-col overflow-hidden">
       <CodeEditorWithAI
         ref={codeEditorRef}
         problem={convertToCodingProblem(selectedQuestion!)}

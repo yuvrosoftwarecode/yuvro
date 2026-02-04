@@ -24,7 +24,7 @@ const getCourseStyle = (id: string | number) => {
 
 const SkillTestDashboard = ({ courses, onCourseSelect }: SkillTestDashboardProps) => {
   return (
-    <div className="px-8 py-6 animate-fade-in max-w-[1600px] mx-auto">
+    <div className="px-8 py-6 animate-fade-in max-w-[1600px] mx-auto min-h-full bg-background">
       <div className="mb-10 text-left">
         <h1 className="text-3xl font-bold text-gray-900">
           Skill Test
