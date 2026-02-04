@@ -9,8 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Award, BarChart2, Edit, Loader2, Plus, BookOpen, Trophy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { TOPIC_CATEGORY_LABELS } from '@/lib/instructorConstants';
+import InstructorCourseCard from '@/components/common/instructor/InstructorCourseCard';
+import InstructorCategoryTabs from '@/components/common/instructor/InstructorCategoryTabs';
 
 export default function InstructorCertifications() {
     const navigate = useNavigate();
@@ -22,20 +26,6 @@ export default function InstructorCertifications() {
     const [currentView, setCurrentView] = useState<'courses' | 'exams'>('courses');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTab, setSelectedTab] = useState('fundamentals');
-
-    const CATEGORY_LABELS: Record<string, string> = {
-        fundamentals: "Fundamentals",
-        programming_languages: "Programming Languages",
-        databases: "Databases",
-        ai_tools: "AI Tools",
-    };
-
-    const CATEGORY_GRADIENTS: Record<string, string> = {
-        fundamentals: "from-blue-900 to-blue-700",
-        programming_languages: "from-purple-900 to-purple-700",
-        databases: "from-green-900 to-green-700",
-        ai_tools: "from-orange-900 to-orange-700",
-    };
 
     useEffect(() => {
         fetchData();
@@ -55,8 +45,10 @@ export default function InstructorCertifications() {
                 fetchCourses()
             ]);
 
-            setAllExams(Array.isArray(examsData) ? examsData : examsData.results || []);
-            setCourses(Array.isArray(coursesData) ? coursesData : coursesData.results || []);
+            const exams = examsData as any;
+            const courses = coursesData as any;
+            setAllExams(Array.isArray(exams) ? exams : exams.results || []);
+            setCourses(Array.isArray(courses) ? courses : courses.results || []);
 
         } catch (error) {
             console.error('Failed to fetch data:', error);
@@ -149,94 +141,31 @@ export default function InstructorCertifications() {
                         <>
                             {currentView === 'courses' && (
                                 <>
-                                    {/* Tabs */}
-                                    <div className="mb-6">
-                                        <nav className="flex space-x-8">
-                                            {[
-                                                { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
-                                                { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
-                                                { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
-                                                { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
-                                            ].map((tab) => (
-                                                <button
-                                                    key={tab.key}
-                                                    onClick={() => setSelectedTab(tab.key)}
-                                                    className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${selectedTab === tab.key
-                                                        ? 'border-blue-500 text-blue-600'
-                                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                                        }`}
-                                                >
-                                                    <span>{tab.label}</span>
-                                                    <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                                                        }`}>
-                                                        {tab.count}
-                                                    </span>
-                                                </button>
-                                            ))}
-                                        </nav>
-                                    </div>
+                                    <InstructorCategoryTabs
+                                        selectedTab={selectedTab}
+                                        onTabChange={(v) => setSelectedTab(v)}
+                                        counts={courseCounts}
+                                    />
 
                                     {filteredCourses.length === 0 ? (
                                         <div className="bg-white shadow rounded-lg p-12 text-center">
                                             <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
                                             <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
                                             <p className="mt-1 text-sm text-gray-500">
-                                                No {CATEGORY_LABELS[selectedTab]} courses available.
+                                                No {TOPIC_CATEGORY_LABELS[selectedTab]} courses available.
                                             </p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                             {filteredCourses.map((course) => (
-                                                <Card
+                                                <InstructorCourseCard
                                                     key={course.id}
-                                                    className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl cursor-pointer"
+                                                    course={course as any}
                                                     onClick={() => handleCourseSelect(course)}
-                                                >
-                                                    <CardContent className="p-0">
-                                                        <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
-                                                            <div className="absolute inset-0 opacity-10">
-                                                                <div className="absolute inset-0" style={{
-                                                                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                                                                }} />
-                                                            </div>
-
-                                                            <div className="flex items-start justify-between relative z-10">
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center gap-2 mb-2">
-                                                                        <BookOpen className="h-4 w-4 text-white/70" />
-                                                                        <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
-                                                                            {CATEGORY_LABELS[course.category]}
-                                                                        </span>
-                                                                    </div>
-                                                                    <h3 className="font-bold text-lg leading-tight mb-2 text-white">
-                                                                        {course.name}
-                                                                    </h3>
-                                                                </div>
-                                                                {course.short_code && (
-                                                                    <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
-                                                                        <span className="text-xs font-bold text-white">
-                                                                            {course.short_code}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="p-5">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                                                    <Award className="h-3.5 w-3.5" />
-                                                                    <span>
-                                                                        {allExams.filter(e => String(e.course) === String(course.id)).length} Exams
-                                                                    </span>
-                                                                </div>
-                                                                <div className="text-blue-600 font-semibold text-sm">
-                                                                    Manage →
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
+                                                    actionLabel="Manage"
+                                                    statsLabel="Exams"
+                                                    statsCount={allExams.filter(e => String(e.course) === String(course.id)).length}
+                                                />
                                             ))}
                                         </div>
                                     )}
@@ -255,7 +184,8 @@ export default function InstructorCertifications() {
                                                 <div className="text-center py-12 text-muted-foreground">
                                                     <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-2" />
                                                     <p>No certification exams found for this course.</p>
-                                                    <Button variant="link" onClick={handleCreateExam} className="mt-2">
+                                                    <Button onClick={handleCreateExam} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
+                                                        <Plus className="mr-2 h-4 w-4" />
                                                         Create your first exam
                                                     </Button>
                                                 </div>

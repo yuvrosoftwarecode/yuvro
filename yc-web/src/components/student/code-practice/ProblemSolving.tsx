@@ -726,7 +726,7 @@ ${code}
                     <ResizablePanel defaultSize={35} minSize={15} maxSize={70}>
                       <div className="h-full overflow-hidden border-t border-gray-200 bg-white">
                         <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                          <TabsList className="flex-shrink-0 justify-between h-10 bg-gray-50 border-b px-2">
+                          <TabsList className="flex items-center justify-between gap-1 overflow-x-auto">
                             <div className="flex items-center gap-1">
                               <TabsTrigger value="output" className="h-8 text-[11px] flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm font-semibold uppercase tracking-tight">
                                 <Terminal className="h-3 w-3" /> Console
@@ -1079,7 +1079,8 @@ ${code}
             )}
           </ResizablePanelGroup>
         </div>
-      )}
+      )
+      }
 
       {/* 3) Fullscreen editor mode */}
       {isEditorFullscreen && (
@@ -1133,7 +1134,7 @@ ${code}
                       <ResizablePanel defaultSize={40} minSize={20}>
                         <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                           <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                            <TabsList className="flex-shrink-0 justify-between h-12 bg-gray-50 border-b px-6">
+                            <TabsList className="flex items-center justify-between gap-1">
                               <div className="flex items-center gap-4">
                                 <TabsTrigger value="output" className="h-9 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold uppercase tracking-wide">
                                   <Terminal className="h-4 w-4" /> Console Output
@@ -1386,14 +1387,16 @@ ${code}
       )}
 
       {/* Example Code Gallery */}
-      {showExamples && (
-        <ExampleCodeGallery
-          currentLanguage={language}
-          onClose={() => setShowExamples(false)}
-          onApplyCode={(exampleCode) => setCode(exampleCode)}
-        />
-      )}
-    </div>
+      {
+        showExamples && (
+          <ExampleCodeGallery
+            currentLanguage={language}
+            onClose={() => setShowExamples(false)}
+            onApplyCode={(exampleCode) => setCode(exampleCode)}
+          />
+        )
+      }
+    </div >
   );
 });
 

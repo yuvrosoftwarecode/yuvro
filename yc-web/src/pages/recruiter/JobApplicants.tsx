@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import StatusBadge from '@/components/common/StatusBadge';
 import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, MapPin, Clock, Building2, Filter, Download, Search, Eye, X, AlertTriangle } from 'lucide-react';
 import { jobService, Job } from '../../services/jobService';
 import { jobApplicationService, JobApplication } from '../../services/jobApplicationService';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
+import SearchBar from '../../components/common/SearchBar';
 import { toast } from 'sonner';
 
 // Error Boundary Component
@@ -91,7 +93,7 @@ const JobApplicantsContent: React.FC = () => {
       setLoading(true);
       const applicationsData = await jobApplicationService.getJobApplications(jobId!);
       console.log('Applications data received:', applicationsData);
-      
+
       // Ensure we have a valid array of applications
       const apps = applicationsData?.applications || applicationsData || [];
       setApplications(Array.isArray(apps) ? apps : []);
@@ -115,18 +117,7 @@ const JobApplicantsContent: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string | null | undefined) => {
-    if (!status) return 'bg-gray-100 text-gray-700 border-gray-200';
-    
-    switch (status) {
-      case 'under_review': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'shortlisted': return 'bg-green-100 text-green-700 border-green-200';
-      case 'interview_scheduled': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'selected': return 'bg-green-100 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
+
 
   const getStatusText = (status: string | null | undefined) => {
     if (!status) return 'Unknown';
@@ -135,7 +126,7 @@ const JobApplicantsContent: React.FC = () => {
 
   const filteredApplications = applications.filter(app => {
     const matchesStatus = selectedStatus === 'all' || app.status === selectedStatus;
-    const matchesSearch = searchQuery === '' || 
+    const matchesSearch = searchQuery === '' ||
       (app.applicant_name && app.applicant_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (app.applicant_email && app.applicant_email.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesStatus && matchesSearch;
@@ -255,18 +246,13 @@ const JobApplicantsContent: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <input
-                      type="text"
-                      placeholder="Search applicants..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+                  <SearchBar
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    placeholder="Search applicants..."
+                  />
                   <div className="text-sm text-gray-600">
                     {filteredApplications.length} of {applications.length} applications
                   </div>
@@ -362,9 +348,7 @@ const JobApplicantsContent: React.FC = () => {
                         </div>
 
                         <div className="flex flex-col items-end gap-3 ml-6">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(application.status || '')}`}>
-                            {getStatusText(application.status)}
-                          </span>
+                          <StatusBadge status={application.status || ''} />
 
                           <div className="flex items-center gap-2">
                             <button
@@ -465,7 +449,7 @@ const JobApplicantsContent: React.FC = () => {
                     <p className="text-gray-900">{selectedApplication.expected_salary} {selectedApplication.expected_currency}</p>
                   </div>
                 )}
-                
+
                 {selectedApplication.available_from && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center mb-2">
@@ -475,7 +459,7 @@ const JobApplicantsContent: React.FC = () => {
                     <p className="text-gray-900">{new Date(selectedApplication.available_from).toLocaleDateString()}</p>
                   </div>
                 )}
-                
+
                 {selectedApplication.notice_period_days && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center mb-2">
@@ -485,7 +469,7 @@ const JobApplicantsContent: React.FC = () => {
                     <p className="text-gray-900">{selectedApplication.notice_period_days} days</p>
                   </div>
                 )}
-                
+
                 {selectedApplication.portfolio_url && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center mb-2">
@@ -522,16 +506,14 @@ const JobApplicantsContent: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-sm font-medium text-gray-700">Current Status:</span>
-                    <span className={`ml-2 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedApplication.status || '')}`}>
-                      {getStatusText(selectedApplication.status)}
-                    </span>
+                    <StatusBadge status={selectedApplication.status || ''} className="ml-2" />
                   </div>
                   <div className="flex items-center gap-3">
                     <select
                       value={selectedApplication.status || 'under_review'}
                       onChange={(e) => {
                         handleStatusUpdate(selectedApplication.id, e.target.value);
-                        setSelectedApplication({...selectedApplication, status: e.target.value as any});
+                        setSelectedApplication({ ...selectedApplication, status: e.target.value as any });
                       }}
                       className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >

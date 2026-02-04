@@ -4,11 +4,15 @@ export interface CertificationExam {
     id: number;
     title: string;
     description: string;
+    instructions?: string;
     course: number;
     course_name?: string;
     duration: number; // minutes
+    difficulty?: 'easy' | 'medium' | 'hard';
+    total_marks?: number;
     passing_marks: number;
     max_attempts: number;
+    enable_proctoring?: boolean;
     questions_config?: any;
     questions_random_config?: any;
     is_active?: boolean; // Deprecated, use publish_status
@@ -19,6 +23,7 @@ export interface CertificationExam {
     end_datetime?: string;
     pass_rate?: number; // optionally from backend
     participants_count?: number;
+    my_submissions?: any[]; // submissions for current user
 }
 
 export const createCertificationExam = async (data: any) => {
@@ -29,7 +34,7 @@ export const getCertificationExams = async (params: any = {}) => {
     return restApiAuthUtil.get('/assessment/certification-exams/', { params });
 };
 
-export const getCertificationExam = async (id: string | number) => {
+export const getCertificationExam = async (id: string | number): Promise<CertificationExam> => {
     return restApiAuthUtil.get(`/assessment/certification-exams/${id}/`);
 };
 
@@ -50,7 +55,7 @@ export const submitCertificationExam = async (id: string | number, data: any) =>
 };
 
 export const getCertificationExamSubmissions = async (examId: string | number) => {
-    return restApiAuthUtil.get('/assessment/certification-submissions/', { params: { certification_exam: examId } });
+    return restApiAuthUtil.get('/assessment/certification-submissions/', { params: { certification_exam: examId.toString() } });
 };
 
 export const getCertificationSubmission = async (submissionId: string | number) => {

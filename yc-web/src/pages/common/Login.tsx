@@ -44,11 +44,11 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const loggedInUser = await login(email, password);
+      await login(email, password);
       
 
-      if (loggedInUser && loggedInUser.role) {
-        redirectToDashboard(loggedInUser, navigate);
+      if (user && user.role) {
+        redirectToDashboard(user, navigate);
       }
 
     } catch (err) {

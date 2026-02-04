@@ -85,15 +85,15 @@ export default function ContestEdit() {
       const data = await contestService.getContest(contestId!);
       setContest(data);
       
-      if (data.question_ids && data.question_ids.length > 0) {
+      if ((data as any).question_ids && (data as any).question_ids.length > 0) {
         // Check if it's the new section format or old simple array format
-        if (Array.isArray(data.question_ids) && data.question_ids.length > 0) {
-          if (typeof data.question_ids[0] === 'object' && data.question_ids[0].title) {
+        if (Array.isArray((data as any).question_ids) && (data as any).question_ids.length > 0) {
+          if (typeof (data as any).question_ids[0] === 'object' && (data as any).question_ids[0].title) {
             // New section format
-            await loadSectionsFromContest(data.question_ids);
+            await loadSectionsFromContest((data as any).question_ids);
           } else {
             // Old simple array format - convert to single section
-            const questions = await fetchQuestionsByIds(data.question_ids);
+            const questions = await fetchQuestionsByIds((data as any).question_ids);
             setSections([{
               id: 'default',
               title: 'Questions',

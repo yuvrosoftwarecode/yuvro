@@ -18,11 +18,9 @@ interface CustomTestCase {
 }
 
 interface CodeEditorProps {
-  // Controlled props
   value?: string;
   onChange?: (code: string) => void;
   language?: string;
-  // Uncontrolled / Hybrid props
   initialCode?: string;
   onCodeChange?: (code: string) => void;
   onLanguageChange?: (language: string) => void;
@@ -469,8 +467,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
             {/* Divider */}
             {showOutput && (
-              <ResizableHandle className="h-2 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                <div className="w-12 h-1 bg-gray-300 rounded-full" />
+              <ResizableHandle className="h-4 -my-2 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
+                <div className="w-12 h-1 bg-gray-300 rounded-full shadow-sm" />
               </ResizableHandle>
             )}
 
@@ -482,9 +480,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 defaultSize={50}
                 minSize={20}
               >
-                <div className="h-full bg-white flex flex-col overflow-hidden border-t">
+                <div className="h-full bg-white flex flex-col overflow-hidden p-4">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                    <TabsList className="flex-shrink-0 justify-between h-12 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 px-6 shadow-sm">
+                    <TabsList className="flex-shrink-0 justify-between h-14 bg-slate-50 border border-gray-100 px-4">
                       <div className="flex items-center gap-6">
                         <TabsTrigger value="output" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
                           <Terminal className="h-4 w-4 text-emerald-600" /> Console Output
@@ -500,27 +498,26 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           onClick={runCode}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          variant="outline"
-                          className="h-9 text-xs font-bold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
+                          className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
                         >
-                          <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
+                          <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
                         <Button
                           onClick={submitSolution}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
+                          className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
                         >
-                          <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                          <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> {isSubmitting ? 'Submitting...' : 'Submit'}
                         </Button>
-                        <div className="w-px h-5 bg-gray-300 mx-2" />
+                        <div className="w-px h-6 bg-gray-200 mx-1" />
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => setShowOutput(false)}
-                          className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-all"
+                          className="h-9 w-9 text-gray-400 hover:text-gray-900 hover:bg-white hover:border-gray-200 border border-transparent rounded-xl transition-all"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-5 w-5" />
                         </Button>
                       </div>
                     </TabsList>
@@ -749,18 +746,18 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
           {/* Minimal Console Bar when collapsed */}
           {!showOutput && (
-            <div className="flex-shrink-0 h-12 bg-gradient-to-r from-slate-50 to-gray-50 border-t border-gray-200 flex items-center justify-between px-6 shadow-lg">
+            <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6">
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
-                  className="h-8 text-sm font-medium text-gray-600 flex items-center gap-2 hover:bg-white hover:shadow-sm rounded-md px-3 transition-all"
+                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
                   onClick={() => {
                     setShowOutput(true);
                     setActiveBottomTab('output');
                   }}
                 >
-                  <Terminal className="h-4 w-4 text-emerald-600" />
-                  Console Output
+                  <Terminal className="h-4 w-4 text-emerald-500" />
+                  Console
                 </Button>
                 {showTestCases && (
                   <Button
@@ -769,47 +766,50 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                       setActiveBottomTab('testcases');
                     }}
                     variant="ghost"
-                    className="h-8 text-sm font-medium text-gray-600 flex items-center gap-2 hover:bg-white hover:shadow-sm rounded-md px-3 transition-all"
+                    className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
                   >
-                    <FlaskConical className="h-4 w-4 text-blue-600" />
+                    <FlaskConical className="h-4 w-4 text-blue-500" />
                     Test Cases
                   </Button>
                 )}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <Button
                   onClick={runCode}
                   disabled={isRunning || isSubmitting}
                   size="sm"
-                  variant="outline"
-                  className="h-9 text-xs font-bold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
+                  className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
                 >
-                  <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
+                  <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> Run
                 </Button>
                 <Button
                   onClick={submitSolution}
                   disabled={isRunning || isSubmitting}
                   size="sm"
-                  className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
+                  className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
                 >
-                  <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                  <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
                 </Button>
               </div>
             </div>
           )}
         </div>
       </div>
-
-      {/* Example Code Gallery */}
+      {/* Example Gallery Modal */}
       {showExamples && (
         <ExampleCodeGallery
-          currentLanguage={language}
           onClose={() => setShowExamples(false)}
-          onApplyCode={(exampleCode) => setCode(exampleCode)}
+          onApplyCode={(exampleCode: string) => {
+            setCode(exampleCode);
+            setShowExamples(false);
+          }}
+          currentLanguage={language}
         />
       )}
     </div>
   );
 });
+
+CodeEditor.displayName = 'CodeEditor';
 
 export default CodeEditor;

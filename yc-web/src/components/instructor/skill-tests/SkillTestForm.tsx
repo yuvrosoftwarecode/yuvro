@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
@@ -15,12 +16,12 @@ export default function SkillTestForm() {
   const navigate = useNavigate();
   const { skillTestId } = useParams<{ skillTestId: string }>();
   const isEditMode = !!skillTestId;
-  
+
   // Get URL parameters for course and topic
   const urlParams = new URLSearchParams(window.location.search);
   const courseIdFromUrl = urlParams.get('courseId');
   const topicIdFromUrl = urlParams.get('topicId');
-  
+
   console.log('SkillTestForm - URL params:', { courseIdFromUrl, topicIdFromUrl, currentUrl: window.location.href });
 
   const [skillTest, setSkillTest] = useState<SkillTest | null>(null);
@@ -70,7 +71,7 @@ export default function SkillTestForm() {
     try {
       const questionPromises = questionIds.map(id => fetchQuestionById(id));
       const questions = await Promise.all(questionPromises);
-      
+
       const categorized = {
         mcq_single: [] as string[],
         mcq_multiple: [] as string[],
@@ -130,12 +131,12 @@ export default function SkillTestForm() {
 
   const fetchSkillTest = async () => {
     if (!skillTestId) return;
-    
+
     setLoading(true);
     try {
       const data = await skillTestService.getSkillTest(skillTestId);
       setSkillTest(data);
-      
+
       // Populate form with skill test data
       setFormData({
         title: data.title,
@@ -232,12 +233,12 @@ export default function SkillTestForm() {
         await skillTestService.createSkillTest(payload);
         toast.success('Skill test created successfully');
       }
-      
+
       // Navigate back to the course topics page and auto-select the topic for which skill test was created
       const skillTestTopicId = formData.topic; // Use the actual topic from the skill test
       const skillTestCourseId = formData.course; // Use the actual course from the skill test
       console.log('Skill test saved, navigating back. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-      
+
       try {
         if (skillTestCourseId) {
           let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
@@ -275,16 +276,16 @@ export default function SkillTestForm() {
     if (isEditMode) {
       return 'Modify skill test details and settings';
     }
-    
+
     const courseName = courses.find(c => c.id === courseIdFromUrl)?.name;
     const topicName = topics.find(t => t.id === topicIdFromUrl)?.name;
-    
+
     if (courseName && topicName) {
       return `Create a new skill test for ${courseName} - ${topicName}`;
     } else if (courseName) {
       return `Create a new skill test for ${courseName}`;
     }
-    
+
     return 'Create a new skill test';
   };
 
@@ -358,17 +359,17 @@ export default function SkillTestForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsList className="inline-flex w-auto gap-1">
                   <TabsTrigger
                     value="details"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <Settings className="h-4 w-4" />
                     Test Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="questions"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <FileText className="h-4 w-4" />
                     Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
@@ -393,7 +394,7 @@ export default function SkillTestForm() {
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="e.g., JavaScript Fundamentals Test"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -401,7 +402,7 @@ export default function SkillTestForm() {
                           <select
                             value={formData.difficulty}
                             onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           >
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
@@ -417,7 +418,7 @@ export default function SkillTestForm() {
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           placeholder="Describe the skill test focus and topics..."
                           rows={3}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
@@ -428,7 +429,7 @@ export default function SkillTestForm() {
                           onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                           placeholder="Instructions for students taking the test..."
                           rows={3}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
@@ -454,7 +455,7 @@ export default function SkillTestForm() {
                             onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
                             placeholder="e.g., 60"
                             min="1"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -465,7 +466,7 @@ export default function SkillTestForm() {
                             onChange={(e) => setFormData({ ...formData, total_marks: parseInt(e.target.value) || 100 })}
                             placeholder="e.g., 100"
                             min="1"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -477,7 +478,7 @@ export default function SkillTestForm() {
                             placeholder="e.g., 60"
                             min="1"
                             max={formData.total_marks}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                       </div>
@@ -488,7 +489,7 @@ export default function SkillTestForm() {
                           <select
                             value={formData.publish_status}
                             onChange={(e) => setFormData({ ...formData, publish_status: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           >
                             <option value="draft">Draft</option>
                             <option value="active">Active</option>
@@ -502,7 +503,7 @@ export default function SkillTestForm() {
                             id="enable_proctoring"
                             checked={formData.enable_proctoring}
                             onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
                           />
                           <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
                             Enable Proctoring
@@ -534,7 +535,7 @@ export default function SkillTestForm() {
                               ...randomQuestionsConfig,
                               mcq_single: parseInt(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
@@ -548,7 +549,7 @@ export default function SkillTestForm() {
                               ...randomQuestionsConfig,
                               mcq_multiple: parseInt(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
@@ -562,7 +563,7 @@ export default function SkillTestForm() {
                               ...randomQuestionsConfig,
                               coding: parseInt(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
@@ -576,7 +577,7 @@ export default function SkillTestForm() {
                               ...randomQuestionsConfig,
                               descriptive: parseInt(e.target.value) || 0
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                           />
                         </div>
@@ -612,7 +613,8 @@ export default function SkillTestForm() {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       const skillTestTopicId = formData.topic || topicIdFromUrl;
                       const skillTestCourseId = formData.course || courseIdFromUrl;
@@ -642,10 +644,9 @@ export default function SkillTestForm() {
                         }
                       }
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
-                  </button>
+                  </Button>
                   <button
                     onClick={handleSubmit}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"

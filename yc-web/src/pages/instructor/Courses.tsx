@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Trash2, BookOpen, Users } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 import {
   fetchCourses,
@@ -13,6 +14,7 @@ import {
   fetchCourseInstructors,
   addInstructorToCourse,
   removeInstructorFromCourse,
+  Course,
 } from "@/services/courseService";
 
 import {
@@ -36,13 +38,6 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
-
-type Course = {
-  id: string;
-  short_code: string | null;
-  name: string;
-  category: "fundamentals" | "programming_languages" | "databases" | "ai_tools";
-};
 
 type Instructor = {
   id: string;
@@ -105,15 +100,15 @@ const Courses: React.FC = () => {
   const loadCourses = async () => {
     try {
       setLoading(true);
-      const data = await fetchCourses();
+      const data: Course[] = await fetchCourses();
 
       if (user?.role === "instructor") {
         // Filter only assigned courses
-        const myCourses = [];
+        const myCourses: Course[] = [];
 
         for (const c of data) {
-          const instructors = await fetchCourseInstructors(c.id);
-          const isAssigned = instructors.some(
+          const instructors = await fetchCourseInstructors(c.id.toString());
+          const isAssigned = (instructors as any[]).some(
             (ci: any) => ci.id === user.id
           );
 
@@ -212,13 +207,13 @@ const Courses: React.FC = () => {
       setSaving(true);
 
       // 1) Create the course
-      const created = await createCourse(newCourse);
+      const created = await createCourse(newCourse) as Course;
 
       // 2) Assign selected instructors
       if (selectedInstructors.length > 0) {
         for (const instructorId of selectedInstructors) {
           try {
-            await addInstructorToCourse(created.id, instructorId);
+            await addInstructorToCourse(created.id.toString(), instructorId);
           } catch (e) {
             console.error("Failed to assign instructor", e);
           }
@@ -245,9 +240,9 @@ const Courses: React.FC = () => {
   // OPEN EDIT MODAL (load instructors for course)
   // --------------------------------------------------
   const openEditCourseModal = async (course: Course) => {
-    setEditCourseId(course.id);
+    setEditCourseId(course.id.toString());
     setNewCourse({
-      name: course.name,
+      name: course.name || "",
       short_code: course.short_code || "",
       category: course.category,
     });
@@ -258,11 +253,11 @@ const Courses: React.FC = () => {
       await loadInstructors();
 
       // Fetch instructors for this course
-      const mappings = await fetchCourseInstructors(course.id);
+      const mappings = await fetchCourseInstructors(course.id.toString());
       console.log("Course instructors response:", mappings);  // 🔥 ADD THIS
 
       // mappings: [{ id, instructor: {...}, created_at }]
-      const instructorIds = mappings.map((m: any) => m.id) as string[];
+      const instructorIds = (mappings as any[]).map((m: any) => m.id) as string[];
 
       setEditSelectedInstructors(instructorIds);
       setEditInitialInstructors(instructorIds);
@@ -357,32 +352,23 @@ const Courses: React.FC = () => {
           />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Tabs */}
-            <div className="mb-6">
-              <nav className="flex space-x-8">
+            <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
+              <TabsList className="inline-flex w-auto gap-1">
                 {[
                   { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
                   { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
                   { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
                   { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
                 ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => handleTabChange(tab.key as any)}
-                    className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                  >
-                    <span>{tab.label}</span>
-                    <span className={`rounded-full px-2 py-1 text-xs ${activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                  <TabsTrigger key={tab.key} value={tab.key} className="px-5">
+                    <span className="mr-2">{tab.label}</span>
+                    <span className="opacity-70 text-xs py-0.5 px-2 rounded-full">
                       {tab.count}
                     </span>
-                  </button>
+                  </TabsTrigger>
                 ))}
-              </nav>
-            </div>
+              </TabsList>
+            </Tabs>
 
             {/* Loading State */}
             {loading && (
@@ -490,7 +476,7 @@ const Courses: React.FC = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setConfirmDelete(course.id)}
+                                onClick={() => setConfirmDelete(course.id.toString())}
                                 className="h-9 w-9 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
                                 title="Delete course"
                               >

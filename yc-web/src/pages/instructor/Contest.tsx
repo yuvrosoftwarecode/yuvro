@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import StatusBadge from '@/components/common/StatusBadge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -141,10 +142,6 @@ export default function OwnerContest() {
 
       // Ensure questionsConfig has the expected structure
       const normalizedQuestionsConfig = {
-        mcq_single: [],
-        mcq_multiple: [],
-        coding: [],
-        descriptive: [],
         ...questionsConfig
       };
 
@@ -220,14 +217,7 @@ export default function OwnerContest() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ongoing': return 'bg-green-100 text-green-700 border-green-200';
-      case 'upcoming': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'past': return 'bg-gray-100 text-gray-700 border-gray-200';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
+
 
   const getHeaderTitle = () => {
     switch (currentView) {
@@ -330,32 +320,12 @@ export default function OwnerContest() {
                 {/* Tabs and Search */}
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div className="flex w-full items-center gap-4 h-12">
-                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center border border-gray-200 rounded-lg">
-                      <TabsList className="flex rounded-lg overflow-hidden border border-gray-200 bg-white px-4 gap-4 h-full items-center">
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'all' ? 'bg-gray-200 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="all"
-                        >
-                          All Contests
-                        </TabsTrigger>
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'upcoming' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="upcoming"
-                        >
-                          Upcoming
-                        </TabsTrigger>
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'ongoing' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="ongoing"
-                        >
-                          Ongoing
-                        </TabsTrigger>
-                        <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'past' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
-                          value="past"
-                        >
-                          Completed
-                        </TabsTrigger>
+                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
+                      <TabsList className="inline-flex w-auto gap-1">
+                        <TabsTrigger value="all" className="px-6">All Contests</TabsTrigger>
+                        <TabsTrigger value="upcoming" className="px-6">Upcoming</TabsTrigger>
+                        <TabsTrigger value="ongoing" className="px-6">Ongoing</TabsTrigger>
+                        <TabsTrigger value="past" className="px-6">Completed</TabsTrigger>
                       </TabsList>
                     </Tabs>
 
@@ -453,9 +423,7 @@ export default function OwnerContest() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                          <Badge className={getStatusColor(selectedContest.status)} variant="outline">
-                            {selectedContest.status}
-                          </Badge>
+                          <StatusBadge status={selectedContest.status} />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Participants</label>
@@ -789,9 +757,7 @@ export default function OwnerContest() {
                                   </Badge>
                                 </TableCell>
                                 <TableCell>
-                                  <Badge className={getStatusColor(contest.status)} variant="outline">
-                                    {contest.status}
-                                  </Badge>
+                                  <StatusBadge status={contest.status} />
                                 </TableCell>
                                 <TableCell>
                                   <div className="text-sm">

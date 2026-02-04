@@ -30,9 +30,16 @@ export default function ContestAttempt() {
         start();
     }, [contestId, navigate]);
 
+    const handleComplete = (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
+        // Contest completion is handled by onSubmit
+    };
+
     const handleSubmit = async (
+        assessmentId: string,
+        submissionId: string,
         answers: any,
-        stats: { answeredCount: number; totalQuestions: number; timeSpent: number }
+        explanations: any,
+        q_ids: string[]
     ) => {
         if (!contestId || !submissionId) return;
         try {
@@ -60,7 +67,8 @@ export default function ContestAttempt() {
             }}
             questions={questions}
             submissionId={submissionId || ""}
-            onComplete={handleSubmit}
+            onComplete={handleComplete}
+            onSubmit={handleSubmit}
             onBack={() => navigate('/student/contests')}
         />
     );

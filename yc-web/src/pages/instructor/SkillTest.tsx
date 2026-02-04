@@ -13,6 +13,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 import { fetchQuestionById, Question } from '@/services/questionService';
 import courseService, { Course, TopicBasic } from '@/services/courseService';
+import StatusBadge from '@/components/common/StatusBadge';
+import { TOPIC_CATEGORY_LABELS } from '@/lib/instructorConstants';
+import InstructorCourseCard from '@/components/common/instructor/InstructorCourseCard';
+import InstructorCategoryTabs from '@/components/common/instructor/InstructorCategoryTabs';
 
 export default function InstructorSkillTest() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -184,29 +188,8 @@ export default function InstructorSkillTest() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      case 'draft': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'inactive': return 'bg-gray-100 text-gray-700 border-gray-200';
-      case 'archived': return 'bg-orange-100 text-orange-700 border-orange-200';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
 
-  const CATEGORY_LABELS: Record<string, string> = {
-    fundamentals: "Fundamentals",
-    programming_languages: "Programming Languages",
-    databases: "Databases",
-    ai_tools: "AI Tools",
-  };
 
-  const CATEGORY_GRADIENTS: Record<string, string> = {
-    fundamentals: "from-blue-900 to-blue-700",
-    programming_languages: "from-purple-900 to-purple-700",
-    databases: "from-green-900 to-green-700",
-    ai_tools: "from-orange-900 to-orange-700",
-  };
 
   const courseCounts = courses.reduce((acc: any, course) => {
     acc[course.category] = (acc[course.category] || 0) + 1;
@@ -236,14 +219,6 @@ export default function InstructorSkillTest() {
       case 'courses':
         return null;
       case 'topics':
-        return (
-          <button
-            onClick={handleBackToCourses}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-          >
-            ← Back to Courses
-          </button>
-        );
       case 'skillTests':
         return (
           <button
@@ -281,32 +256,11 @@ export default function InstructorSkillTest() {
             {/* Courses View */}
             {currentView === 'courses' && !loading && (
               <>
-                {/* Tabs */}
-                <div className="mb-6">
-                  <nav className="flex space-x-8">
-                    {[
-                      { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
-                      { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
-                      { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
-                      { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
-                    ].map((tab) => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setSelectedTab(tab.key)}
-                        className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${selectedTab === tab.key
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                          }`}
-                      >
-                        <span>{tab.label}</span>
-                        <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                          }`}>
-                          {tab.count}
-                        </span>
-                      </button>
-                    ))}
-                  </nav>
-                </div>
+                <InstructorCategoryTabs
+                  selectedTab={selectedTab}
+                  onTabChange={(v) => setSelectedTab(v)}
+                  counts={courseCounts}
+                />
 
                 {/* Courses Grid */}
                 {filteredCourses.length === 0 ? (
@@ -315,67 +269,20 @@ export default function InstructorSkillTest() {
                       <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
                       <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
                       <p className="mt-1 text-sm text-gray-500">
-                        No {CATEGORY_LABELS[selectedTab]} courses found.
+                        No {TOPIC_CATEGORY_LABELS[selectedTab]} courses found.
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredCourses.map((course) => (
-                      <Card
+                      <InstructorCourseCard
                         key={course.id}
-                        className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl cursor-pointer"
+                        course={course as any}
                         onClick={() => handleCourseSelect(course)}
-                      >
-                        <CardContent className="p-0">
-                          {/* Course Header with gradient */}
-                          <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
-                            <div className="absolute inset-0 opacity-10">
-                              <div className="absolute inset-0" style={{
-                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                              }} />
-                            </div>
-
-                            <div className="flex items-start justify-between relative z-10">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <BookOpen className="h-4 w-4 text-white/70" />
-                                  <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
-                                    {CATEGORY_LABELS[course.category]}
-                                  </span>
-                                </div>
-                                <h3 className="font-bold text-lg leading-tight mb-2 text-white">
-                                  {course.name}
-                                </h3>
-                              </div>
-
-                              {course.short_code && (
-                                <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
-                                  <span className="text-xs font-bold text-white">
-                                    {course.short_code}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Course Content */}
-                          <div className="p-5">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                <Trophy className="h-3.5 w-3.5" />
-                                <span>Skill Tests</span>
-                              </div>
-                              <div className="text-blue-600 font-semibold text-sm">
-                                Select →
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Hover Effect Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                        </CardContent>
-                      </Card>
+                        actionLabel="Select"
+                        statsLabel="Skill Tests"
+                      />
                     ))}
                   </div>
                 )}
@@ -505,9 +412,7 @@ export default function InstructorSkillTest() {
                                 </TableCell>
                                 <TableCell>{skillTest.duration} min</TableCell>
                                 <TableCell>
-                                  <Badge className={getStatusColor(skillTest.publish_status)} variant="outline">
-                                    {skillTest.publish_status}
-                                  </Badge>
+                                  <StatusBadge status={skillTest.publish_status} />
                                 </TableCell>
                                 <TableCell>{skillTest.participants_count}</TableCell>
                                 <TableCell className="text-right">

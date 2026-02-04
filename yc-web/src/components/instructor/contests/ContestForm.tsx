@@ -119,7 +119,7 @@ export default function ContestForm() {
     try {
       const questionPromises = questionIds.map(id => fetchQuestionById(id));
       const questions = await Promise.all(questionPromises);
-      
+
       const categorized = {
         mcq_single: [] as string[],
         mcq_multiple: [] as string[],
@@ -172,13 +172,13 @@ export default function ContestForm() {
 
   const fetchContest = async () => {
     if (!contestId) return;
-    
+
     setLoading(true);
     try {
       const data = await contestService.getContest(contestId);
       const mappedContest = mapContestFromBackend(data);
       setContest(mappedContest);
-      
+
       // Populate form with contest data
       setFormData({
         title: mappedContest.title,
@@ -311,17 +311,17 @@ export default function ContestForm() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsList className="inline-flex w-auto gap-1">
                   <TabsTrigger
                     value="details"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <Settings className="h-4 w-4" />
                     Contest Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="questions"
-                    className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
+                    className="flex items-center gap-2 px-5"
                   >
                     <FileText className="h-4 w-4" />
                     Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
@@ -559,12 +559,12 @@ export default function ContestForm() {
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => navigate('/instructor/contests')}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
-                  </button>
+                  </Button>
                   <button
                     onClick={handleSubmit}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"

@@ -3,25 +3,26 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
-import { 
-  Building2, 
-  Users, 
-  Trophy, 
-  Target, 
-  MessageCircle, 
+import StatusBadge from '../../components/common/StatusBadge';
+import {
+  Building2,
+  Users,
+  Trophy,
+  Target,
+  MessageCircle,
   FileText,
-  TrendingUp, 
+  TrendingUp,
   Calendar,
   Clock,
+  Plus,
+  Edit,
   Award,
   CheckCircle,
   ArrowRight,
   Play,
   Star,
   BarChart3,
-  Plus,
   Eye,
-  Edit,
   Settings,
   Briefcase,
   UserCheck,
@@ -136,35 +137,18 @@ const RecruiterDashboard: React.FC = () => {
     }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'closed':
-        return 'bg-gray-100 text-gray-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'under review':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'shortlisted':
-        return 'bg-blue-100 text-blue-800';
-      case 'interview scheduled':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+
 
   return (
     <div className="flex h-screen bg-gray-50">
       <RoleSidebar />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader 
-          title="Recruiter Dashboard" 
+        <RoleHeader
+          title="Recruiter Dashboard"
           subtitle={`Welcome back, ${user?.username || 'Recruiter'}`}
         />
-        
+
         <main className="flex-1 overflow-y-auto p-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -176,18 +160,16 @@ const RecruiterDashboard: React.FC = () => {
                     <p className="text-3xl font-bold text-gray-900 mt-2">{card.value}</p>
                     <p className="text-sm text-green-600 mt-1">{card.change}</p>
                   </div>
-                  <div className={`p-3 rounded-lg ${
-                    card.color === 'purple' ? 'bg-purple-100' :
+                  <div className={`p-3 rounded-lg ${card.color === 'purple' ? 'bg-purple-100' :
                     card.color === 'green' ? 'bg-green-100' :
-                    card.color === 'blue' ? 'bg-blue-100' :
-                    'bg-orange-100'
-                  }`}>
-                    <card.icon className={`h-6 w-6 ${
-                      card.color === 'purple' ? 'text-purple-600' :
+                      card.color === 'blue' ? 'bg-blue-100' :
+                        'bg-orange-100'
+                    }`}>
+                    <card.icon className={`h-6 w-6 ${card.color === 'purple' ? 'text-purple-600' :
                       card.color === 'green' ? 'text-green-600' :
-                      card.color === 'blue' ? 'text-blue-600' :
-                      'text-orange-600'
-                    }`} />
+                        card.color === 'blue' ? 'text-blue-600' :
+                          'text-orange-600'
+                      }`} />
                   </div>
                 </div>
               </div>
@@ -199,14 +181,14 @@ const RecruiterDashboard: React.FC = () => {
               <div className="p-6 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">Recent Job Postings</h3>
-                  <button 
+                  <button
                     onClick={() => navigate('/recruiter/jobs')}
                     className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center space-x-1"
                   >
                     <span>View All</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                  
+
                 </div>
               </div>
               <div className="p-6">
@@ -231,9 +213,7 @@ const RecruiterDashboard: React.FC = () => {
                         </div>
                         <div className="flex items-center space-x-4 mt-2">
                           <span className="text-sm text-gray-600">{job.applications} applications</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}>
-                            {job.status}
-                          </span>
+                          <StatusBadge status={job.status} className="px-2" />
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -254,7 +234,7 @@ const RecruiterDashboard: React.FC = () => {
               <div className="p-6 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">Recent Applications</h3>
-                  <button 
+                  <button
                     onClick={() => navigate('/recruiter/applications')}
                     className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center space-x-1"
                   >
@@ -283,9 +263,7 @@ const RecruiterDashboard: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                          {application.status}
-                        </span>
+                        <StatusBadge status={application.status} className="px-2" />
                         <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-white transition-colors">
                           <ArrowRight className="h-4 w-4" />
                         </button>
@@ -300,7 +278,7 @@ const RecruiterDashboard: React.FC = () => {
           <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button 
+              <button
                 onClick={() => navigate('/recruiter/jobs/add')}
                 className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group"
               >
@@ -313,7 +291,7 @@ const RecruiterDashboard: React.FC = () => {
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={() => navigate('/recruiter/jobs/companies')}
                 className="flex items-center space-x-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
               >
@@ -326,7 +304,7 @@ const RecruiterDashboard: React.FC = () => {
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={() => navigate('/recruiter/candidates')}
                 className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
               >
@@ -339,7 +317,7 @@ const RecruiterDashboard: React.FC = () => {
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={() => navigate('/recruiter/analytics')}
                 className="flex items-center space-x-3 p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors group"
               >

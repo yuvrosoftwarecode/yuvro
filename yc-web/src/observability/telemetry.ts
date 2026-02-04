@@ -25,7 +25,7 @@ if (isOtelEnabled) {
   });
 
   const provider = new WebTracerProvider({
-    spanProcessors: [new BatchSpanProcessor(exporter)]
+    spanProcessors: [new BatchSpanProcessor(exporter as any)]
   });
 
   provider.register();
