@@ -16,6 +16,7 @@ from .models import (
     InterviewSession,
     InterviewReport,
 )
+from assessment.models import MockInterviewSubmission
 from .serializers import (
     AIAgentSerializer,
     ChatSessionSerializer,
@@ -576,6 +577,22 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             interview_session.actual_duration = duration
             
         interview_session.save()
+
+        interview_session.save()
+
+        # SYNC: Update MockInterviewSubmission if it exists
+        try:
+            submission = MockInterviewSubmission.objects.filter(
+                chat_session=interview_session.chat_session
+            ).first()
+            if submission:
+                submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                submission.completed_at = timezone.now()
+                # Store actual duration if needed
+                # submission.selected_duration = ... 
+                submission.save()
+        except Exception as e:
+             print(f"Error syncing MockInterviewSubmission: {e}")
 
         # Generate Report
         try:

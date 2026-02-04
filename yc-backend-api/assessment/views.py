@@ -902,6 +902,18 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                             content=system_prompt
                         )
 
+                        # Create InterviewSession linking to ChatSession
+                        # This is crucial for the AI Assistant module to track it as an interview
+                        interview_session = InterviewSession.objects.create(
+                            user=user,
+                            chat_session=chat_session,
+                            role_title=mock_interview.title,
+                            role_level=experience_level,
+                            difficulty="Adaptive", # Mock interviews are generally adaptive
+                            duration_minutes=selected_duration or mock_interview.max_duration,
+                            status='started'
+                        )
+
                 # 4. Create NEW submission
                 submission = MockInterviewSubmission.objects.create(
                     mock_interview=mock_interview,
@@ -920,10 +932,17 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                      submission.resume = resume_file
                  submission.save()
                  chat_session = submission.chat_session
+                 # Try to get linked interview session
+                 try:
+                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
+                 except InterviewSession.DoesNotExist:
+                     interview_session = None
 
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
+                'interview_session_id': interview_session.id if interview_session else None,
+                'id': interview_session.id if interview_session else None, # Backwards compatibility for frontend
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,
