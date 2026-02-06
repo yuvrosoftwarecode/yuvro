@@ -68,25 +68,25 @@ class BaseAssessmentModel(BaseModel):
 
 
 class SkillTest(BaseAssessmentModel):
-    course = models.ForeignKey(
-        "course.Course",
+    subject = models.ForeignKey(
+        "course.Subject",
         on_delete=models.CASCADE,
         related_name="skill_test_assessments",
-        help_text="Course this skill test belongs to",
+        help_text="Subject this skill test belongs to",
         null=True,
         blank=True,
     )
-    topic = models.ForeignKey(
-        "course.Topic",
+    unit = models.ForeignKey(
+        "course.Unit",
         on_delete=models.CASCADE,
         related_name="skill_test_assessments",
         null=True,
         blank=True,
-        help_text="Specific topic within the course (optional)",
+        help_text="Specific unit within the subject (optional)",
     )
 
     def __str__(self):
-        return f"{self.title} - {self.course.name if self.course else 'No Course'} ({self.topic.name if self.topic else 'All Topics'})"
+        return f"{self.title} - {self.subject.name if self.subject else 'No Subject'} ({self.unit.name if self.unit else 'All Units'})"
 
 
 class Contest(BaseAssessmentModel):
@@ -618,11 +618,12 @@ class JobTestQuestionActivity(BaseQuestionActivity):
 
 
 class CertificationExam(BaseAssessmentModel):
-    course = models.ForeignKey(
-        "course.Course",
+    subject = models.ForeignKey(
+        "course.Subject",
         on_delete=models.CASCADE,
         related_name="certification_exams",
-        help_text="Course this certification exam belongs to",
+        help_text="Subject this certification exam belongs to",
+        null=True, blank=True
     )
     
     start_datetime = models.DateTimeField(null=True, blank=True, help_text="When the exam becomes available")
@@ -634,7 +635,7 @@ class CertificationExam(BaseAssessmentModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Certification: {self.course.name}"
+        return f"Certification: {self.subject.name}"
 
 
 class CertificationSubmission(BaseUserSubmission):
@@ -648,7 +649,7 @@ class CertificationSubmission(BaseUserSubmission):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.certification_exam.course.name}"
+        return f"{self.user.username} - {self.certification_exam.subject.name}"
 
 
 class CertificationQuestionActivity(BaseQuestionActivity):
@@ -669,7 +670,7 @@ class CertificationQuestionActivity(BaseQuestionActivity):
 class Certificate(BaseTimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="certificates")
-    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="certificates")
+    subject = models.ForeignKey("course.Subject", on_delete=models.CASCADE, related_name="certificates", null=True, blank=True)
     certification_exam = models.ForeignKey(CertificationExam, on_delete=models.SET_NULL, null=True, related_name="issued_certificates")
     submission = models.OneToOneField(CertificationSubmission, on_delete=models.SET_NULL, null=True, related_name="certificate")
     
@@ -681,7 +682,7 @@ class Certificate(BaseTimestampedModel):
         ordering = ["-issued_at"]
         
     def __str__(self):
-        return f"Certificate: {self.user.username} - {self.course.name}"
+        return f"Certificate: {self.user.username} - {self.subject.name}"
 
     def save(self, *args, **kwargs):
         if not self.certificate_id:

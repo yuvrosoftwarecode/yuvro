@@ -1,40 +1,40 @@
 from django.contrib import admin
 from .models import (
-    Course,
-    Topic,
-    Subtopic,
+    Subject,
+    Unit,
+    SubUnit,
     Video,
     Note,
-    CourseInstructor,
+    SubjectInstructor,
     Question,
     StudentCodePractice,
-    UserCourseProgress,
+    UserSubjectProgress,
 )
 
 
-class TopicInline(admin.TabularInline):
-    model = Topic
+class UnitInline(admin.TabularInline):
+    model = Unit
     extra = 0
     fields = ["name", "order_index"]
     ordering = ["order_index"]
 
 
-class SubtopicInline(admin.TabularInline):
-    model = Subtopic
+class SubUnitInline(admin.TabularInline):
+    model = SubUnit
     extra = 0
     fields = ["name", "content", "order_index"]
     ordering = ["order_index"]
 
 
-class CourseInstructorInline(admin.TabularInline):
-    model = CourseInstructor
+class SubjectInstructorInline(admin.TabularInline):
+    model = SubjectInstructor
     extra = 1
     fields = ["instructor", "created_at", "updated_at"]
     readonly_fields = ["created_at", "updated_at"]
 
 
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
     list_display = ["name", "short_code", "category", "created_at", "updated_at"]
     list_filter = ["category", "created_at", "updated_at"]
     search_fields = ["name", "short_code"]
@@ -48,46 +48,46 @@ class CourseAdmin(admin.ModelAdmin):
         "updated_at",
     ]
     ordering = ["category", "-created_at"]
-    inlines = [TopicInline, CourseInstructorInline]
+    inlines = [UnitInline, SubjectInstructorInline]
 
 
-@admin.register(Topic)
-class TopicAdmin(admin.ModelAdmin):
-    list_display = ["name", "course", "order_index", "created_at"]
-    list_filter = ["course", "created_at"]
-    search_fields = ["name", "course__name"]
+@admin.register(Unit)
+class UnitAdmin(admin.ModelAdmin):
+    list_display = ["name", "subject", "order_index", "created_at"]
+    list_filter = ["subject", "created_at"]
+    search_fields = ["name", "subject__name"]
     readonly_fields = ["id", "created_at"]
-    fields = ["name", "course", "order_index", "id", "created_at"]
-    ordering = ["course", "order_index"]
-    inlines = [SubtopicInline]
+    fields = ["name", "subject", "order_index", "id", "created_at"]
+    ordering = ["subject", "order_index"]
+    inlines = [SubUnitInline]
 
 
-@admin.register(Subtopic)
-class SubtopicAdmin(admin.ModelAdmin):
-    list_display = ["name", "topic", "order_index", "created_at"]
-    list_filter = ["topic__course", "topic", "created_at"]
-    search_fields = ["name", "topic__name", "topic__course__name"]
+@admin.register(SubUnit)
+class SubUnitAdmin(admin.ModelAdmin):
+    list_display = ["name", "unit", "order_index", "created_at"]
+    list_filter = ["unit__subject", "unit", "created_at"]
+    search_fields = ["name", "unit__name", "unit__subject__name"]
     readonly_fields = ["id", "created_at"]
-    fields = ["name", "topic", "content", "order_index", "id", "created_at"]
-    ordering = ["topic", "order_index"]
+    fields = ["name", "unit", "content", "order_index", "id", "created_at"]
+    ordering = ["unit", "order_index"]
 
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ["title", "sub_topic", "created_at", "updated_at"]
-    list_filter = ["sub_topic__topic__course", "sub_topic__topic", "created_at"]
-    search_fields = ["title", "sub_topic__name", "sub_topic__topic__name"]
+    list_display = ["title", "sub_unit", "created_at", "updated_at"]
+    list_filter = ["sub_unit__unit__subject", "sub_unit__unit", "created_at"]
+    search_fields = ["title", "sub_unit__name", "sub_unit__unit__name"]
     readonly_fields = ["id", "created_at", "updated_at"]
     fields = [
         "title",
-        "sub_topic",
+        "sub_unit",
         "video_link",
         "ai_context",
         "id",
         "created_at",
         "updated_at",
     ]
-    ordering = ["sub_topic", "created_at"]
+    ordering = ["sub_unit", "created_at"]
 
 
 @admin.register(Question)
@@ -122,7 +122,7 @@ class QuestionAdmin(admin.ModelAdmin):
                 ]
             },
         ),
-        ("Associations", {"fields": ["course", "topic", "subtopic"]}),
+        ("Associations", {"fields": ["subject", "unit", "sub_unit"]}),
         ("MCQ Fields", {"fields": ["mcq_options"], "classes": ("collapse",)}),
         (
             "Coding Fields",
@@ -149,18 +149,18 @@ class QuestionAdmin(admin.ModelAdmin):
 # ------------------ NOTE ADMIN ------------------
 @admin.register(Note)
 class NoteAdmin(admin.ModelAdmin):
-    list_display = ["content_preview", "user", "sub_topic", "created_at", "updated_at"]
-    list_filter = ["sub_topic__topic__course", "sub_topic__topic", "user", "created_at"]
+    list_display = ["content_preview", "user", "sub_unit", "created_at", "updated_at"]
+    list_filter = ["sub_unit__unit__subject", "sub_unit__unit", "user", "created_at"]
     search_fields = [
         "content",
         "user__username",
         "user__email",
-        "sub_topic__name",
-        "sub_topic__topic__name",
+        "sub_unit__name",
+        "sub_unit__unit__name",
     ]
     readonly_fields = ["id", "created_at", "updated_at"]
-    fields = ["content", "user", "sub_topic", "id", "created_at", "updated_at"]
-    ordering = ["sub_topic", "user", "created_at"]
+    fields = ["content", "user", "sub_unit", "id", "created_at", "updated_at"]
+    ordering = ["sub_unit", "user", "created_at"]
 
     def content_preview(self, obj):
         return obj.content[:30] + "..." if len(obj.content) > 30 else obj.content
@@ -168,13 +168,13 @@ class NoteAdmin(admin.ModelAdmin):
     content_preview.short_description = "Content"
 
 
-@admin.register(CourseInstructor)
-class CourseInstructorAdmin(admin.ModelAdmin):
-    list_display = ["course", "instructor", "created_at", "updated_at"]
-    list_filter = ["course", "instructor", "created_at"]
-    search_fields = ["course__name", "instructor__email", "instructor__username"]
+@admin.register(SubjectInstructor)
+class SubjectInstructorAdmin(admin.ModelAdmin):
+    list_display = ["subject", "instructor", "created_at", "updated_at"]
+    list_filter = ["subject", "instructor", "created_at"]
+    search_fields = ["subject__name", "instructor__email", "instructor__username"]
     readonly_fields = ["id", "created_at", "updated_at"]
-    fields = ["course", "instructor", "id", "created_at", "updated_at"]
+    fields = ["subject", "instructor", "id", "created_at", "updated_at"]
     ordering = ["-created_at"]
 
 
@@ -196,7 +196,7 @@ class StudentCodePracticeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ["user", "question", "course", "topic", "status"]},
+            {"fields": ["user", "question", "subject", "unit", "status"]},
         ),
         (
             "Answer Data",
@@ -230,35 +230,35 @@ class StudentCodePracticeAdmin(admin.ModelAdmin):
     question_title.admin_order_field = "question__title"
 
 
-@admin.register(UserCourseProgress)
-class UserCourseProgressAdmin(admin.ModelAdmin):
+@admin.register(UserSubjectProgress)
+class UserSubjectProgressAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "user",
-        "course_name",
-        "topic_name",
-        "subtopic_name",
+        "subject_name",
+        "unit_name",
+        "subunit_name",
         "progress_percent",
         "is_completed",
-        "is_current_subtopic",
+        "is_current_subunit",
         "last_accessed",
     ]
     list_filter = [
         "is_completed",
-        "is_current_subtopic",
+        "is_current_subunit",
         "is_videos_watched",
         "is_quiz_completed",
         "is_coding_completed",
-        "course",
-        "topic",
+        "subject",
+        "unit",
         "created_at",
     ]
     search_fields = [
         "user__username",
         "user__email",
-        "course__name",
-        "topic__name",
-        "subtopic__name",
+        "subject__name",
+        "unit__name",
+        "sub_unit__name",
     ]
     ordering = ["-last_accessed", "-updated_at"]
     readonly_fields = [
@@ -272,7 +272,7 @@ class UserCourseProgressAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Basic Information",
-            {"fields": ["user", "course", "topic", "subtopic", "is_current_subtopic"]},
+            {"fields": ["user", "subject", "unit", "sub_unit", "is_current_subunit"]},
         ),
         (
             "Progress Status",
@@ -304,29 +304,29 @@ class UserCourseProgressAdmin(admin.ModelAdmin):
         ),
     )
 
-    def course_name(self, obj):
-        return obj.course.name if obj.course else "N/A"
+    def subject_name(self, obj):
+        return obj.subject.name if obj.subject else "N/A"
 
-    course_name.short_description = "Course"
-    course_name.admin_order_field = "course__name"
+    subject_name.short_description = "Subject"
+    subject_name.admin_order_field = "subject__name"
 
-    def topic_name(self, obj):
-        return obj.topic.name if obj.topic else "N/A"
+    def unit_name(self, obj):
+        return obj.unit.name if obj.unit else "N/A"
 
-    topic_name.short_description = "Topic"
-    topic_name.admin_order_field = "topic__name"
+    unit_name.short_description = "Unit"
+    unit_name.admin_order_field = "unit__name"
 
-    def subtopic_name(self, obj):
-        return obj.subtopic.name if obj.subtopic else "N/A"
+    def subunit_name(self, obj):
+        return obj.sub_unit.name if obj.sub_unit else "N/A"
 
-    subtopic_name.short_description = "Subtopic"
-    subtopic_name.admin_order_field = "subtopic__name"
+    subunit_name.short_description = "SubUnit"
+    subunit_name.admin_order_field = "sub_unit__name"
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
-            .select_related("user", "course", "topic", "subtopic")
+            .select_related("user", "subject", "unit", "sub_unit")
         )
 
     actions = ["recalculate_progress", "mark_as_current", "mark_as_completed"]
@@ -346,21 +346,21 @@ class UserCourseProgressAdmin(admin.ModelAdmin):
     recalculate_progress.short_description = "Recalculate progress for selected items"
 
     def mark_as_current(self, request, queryset):
-        """Mark selected subtopics as current for their users"""
-        # First, unmark all current subtopics for the affected users
+        """Mark selected subunits as current for their users"""
+        # First, unmark all current subunits for the affected users
         user_ids = queryset.values_list("user_id", flat=True).distinct()
-        UserCourseProgress.objects.filter(
-            user_id__in=user_ids, is_current_subtopic=True
-        ).update(is_current_subtopic=False)
+        UserSubjectProgress.objects.filter(
+            user_id__in=user_ids, is_current_subunit=True
+        ).update(is_current_subunit=False)
 
         # Then mark the selected ones as current
-        updated_count = queryset.update(is_current_subtopic=True)
+        updated_count = queryset.update(is_current_subunit=True)
 
         self.message_user(
-            request, f"Successfully marked {updated_count} subtopics as current."
+            request, f"Successfully marked {updated_count} subunits as current."
         )
 
-    mark_as_current.short_description = "Mark as current subtopic"
+    mark_as_current.short_description = "Mark as current subunit"
 
     def mark_as_completed(self, request, queryset):
         """Mark selected progress records as completed"""

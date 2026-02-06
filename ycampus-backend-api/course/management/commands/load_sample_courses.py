@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from course.models import Course, Topic, Subtopic, Video, Question
+from Subject.models import Subject, Unit, SubUnit, Video, Question
 from assessment.models import SkillTest, Contest
 
 User = get_user_model()
@@ -25,9 +25,9 @@ class Command(BaseCommand):
             self.stdout.write("Clearing existing data...")
             Question.objects.all().delete()
             Video.objects.all().delete()
-            Subtopic.objects.all().delete()
-            Topic.objects.all().delete()
-            Course.objects.all().delete()
+            SubUnit.objects.all().delete()
+            Unit.objects.all().delete()
+            Subject.objects.all().delete()
             SkillTest.objects.all().delete()
             Contest.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing data cleared."))
@@ -109,9 +109,9 @@ class Command(BaseCommand):
         """Load courses, topics, subtopics, videos, and questions from JSON data"""
 
         for course_data in data.get("courses", []):
-            self.stdout.write(f'Loading course: {course_data["name"]}')
+            self.stdout.write(f'Loading Subject: {course_data["name"]}')
 
-            # Get the instructor for this course
+            # Get the instructor for this Subject
             instructor_email = course_data.get("instructor_email")
             instructor = None
             if instructor_email:
@@ -120,12 +120,12 @@ class Command(BaseCommand):
                 except User.DoesNotExist:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Instructor {instructor_email} not found, skipping course assignment"
+                            f"Instructor {instructor_email} not found, skipping Subject assignment"
                         )
                     )
 
-            # Get or create course
-            course, created = Course.objects.get_or_create(
+            # Get or create Subject
+            Subject, created = Subject.objects.get_or_create(
                 short_code=course_data["short_code"],
                 defaults={
                     "name": course_data["name"],
@@ -134,36 +134,36 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.stdout.write(f"✓ Created new course: {course.name}")
+                self.stdout.write(f"✓ Created new Subject: {Subject.name}")
             else:
-                self.stdout.write(f"→ Course already exists: {course.name}")
+                self.stdout.write(f"→ Subject already exists: {Subject.name}")
 
             # Add instructor if found and not already assigned
-            if instructor and instructor not in course.instructors.all():
-                course.instructors.add(instructor)
+            if instructor and instructor not in Subject.instructors.all():
+                Subject.instructors.add(instructor)
                 self.stdout.write(
-                    f"✓ Added instructor {instructor.email} to course {course.short_code}"
+                    f"✓ Added instructor {instructor.email} to Subject {Subject.short_code}"
                 )
 
             # Create topics and subtopics
-            topic_map = {}  # To store topic references for questions
-            subtopic_map = {}  # To store subtopic references for questions
+            topic_map = {}  # To store Unit references for questions
+            subtopic_map = {}  # To store SubUnit references for questions
 
             for topic_data in course_data.get("topics", []):
-                topic, topic_created = Topic.objects.get_or_create(
-                    course=course,
+                Unit, topic_created = Unit.objects.get_or_create(
+                    Subject=Subject,
                     name=topic_data["name"],
                     defaults={"order_index": topic_data["order_index"]},
                 )
-                topic_map[topic_data["name"]] = topic
+                topic_map[topic_data["name"]] = Unit
 
                 if topic_created:
-                    self.stdout.write(f"  ✓ Created topic: {topic.name}")
+                    self.stdout.write(f"  ✓ Created Unit: {Unit.name}")
 
                 # Create subtopics
                 for subtopic_data in topic_data.get("subtopics", []):
-                    subtopic, subtopic_created = Subtopic.objects.get_or_create(
-                        topic=topic,
+                    SubUnit, subtopic_created = SubUnit.objects.get_or_create(
+                        Unit=Unit,
                         name=subtopic_data["name"],
                         defaults={
                             "content": subtopic_data["content"],
@@ -171,17 +171,17 @@ class Command(BaseCommand):
                         },
                     )
 
-                    # Store subtopic reference with topic name for lookup
+                    # Store SubUnit reference with Unit name for lookup
                     subtopic_key = f"{topic_data['name']}::{subtopic_data['name']}"
-                    subtopic_map[subtopic_key] = subtopic
+                    subtopic_map[subtopic_key] = SubUnit
 
                     if subtopic_created:
-                        self.stdout.write(f"    ✓ Created subtopic: {subtopic.name}")
+                        self.stdout.write(f"    ✓ Created SubUnit: {SubUnit.name}")
 
-                    # Create videos for subtopic
+                    # Create videos for SubUnit
                     for video_data in subtopic_data.get("videos", []):
                         video, video_created = Video.objects.get_or_create(
-                            sub_topic=subtopic,
+                            sub_topic=SubUnit,
                             title=video_data["title"],
                             defaults={
                                 "video_link": video_data["video_link"],
@@ -192,23 +192,23 @@ class Command(BaseCommand):
                         if video_created:
                             self.stdout.write(f"      ✓ Created video: {video.title}")
 
-            # Create questions for the course
+            # Create questions for the Subject
             if instructor:  # Only create questions if instructor exists
                 for question_data in course_data.get("questions", []):
                     self.create_question(
-                        question_data, course, topic_map, subtopic_map, instructor
+                        question_data, Subject, topic_map, subtopic_map, instructor
                     )
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"No instructor found for course {course.short_code}, skipping questions"
+                        f"No instructor found for Subject {Subject.short_code}, skipping questions"
                     )
                 )
 
-            self.stdout.write(f"✓ Loaded course: {course.name}")
+            self.stdout.write(f"✓ Loaded Subject: {Subject.name}")
 
     def create_question(
-        self, question_data, course, topic_map, subtopic_map, instructor
+        self, question_data, Subject, topic_map, subtopic_map, instructor
     ):
         """Create a question with proper associations"""
 
@@ -236,53 +236,53 @@ class Command(BaseCommand):
             "created_by": instructor,
         }
 
-        # Set course/topic/subtopic associations
-        if question_data["level"] == "course":
-            question_kwargs["course"] = course
-        elif question_data["level"] == "topic":
+        # Set Subject/Unit/SubUnit associations
+        if question_data["level"] == "Subject":
+            question_kwargs["Subject"] = Subject
+        elif question_data["level"] == "Unit":
             topic_name = question_data.get("topic_name")
             if topic_name and topic_name in topic_map:
-                question_kwargs["topic"] = topic_map[topic_name]
-                question_kwargs["course"] = course
-        elif question_data["level"] == "subtopic":
+                question_kwargs["Unit"] = topic_map[topic_name]
+                question_kwargs["Subject"] = Subject
+        elif question_data["level"] == "SubUnit":
             topic_name = question_data.get("topic_name")
             subtopic_name = question_data.get("subtopic_name")
 
             if topic_name and subtopic_name:
-                # Find topic first
+                # Find Unit first
                 if topic_name in topic_map:
-                    topic = topic_map[topic_name]
-                    # Find subtopic within the topic
-                    subtopic = Subtopic.objects.filter(
-                        topic=topic, name=subtopic_name
+                    Unit = topic_map[topic_name]
+                    # Find SubUnit within the Unit
+                    SubUnit = SubUnit.objects.filter(
+                        Unit=Unit, name=subtopic_name
                     ).first()
 
-                    if subtopic:
-                        question_kwargs["subtopic"] = subtopic
-                        question_kwargs["topic"] = topic
-                        question_kwargs["course"] = course
+                    if SubUnit:
+                        question_kwargs["SubUnit"] = SubUnit
+                        question_kwargs["Unit"] = Unit
+                        question_kwargs["Subject"] = Subject
                     else:
                         self.stdout.write(
                             self.style.WARNING(
-                                f'Subtopic "{subtopic_name}" not found in topic "{topic_name}" for question "{question_data["title"]}"'
+                                f'SubUnit "{subtopic_name}" not found in Unit "{topic_name}" for question "{question_data["title"]}"'
                             )
                         )
-                        # Fallback to topic level if subtopic not found, but keep level as subtopic causing validation error?
+                        # Fallback to Unit level if SubUnit not found, but keep level as SubUnit causing validation error?
                         # Better to just link what we can or fail.
-                        # For now, let's link topic and course so it doesn't crash, but it might fail model validation if subtopic is required.
-                        question_kwargs["topic"] = topic
-                        question_kwargs["course"] = course
+                        # For now, let's link Unit and Subject so it doesn't crash, but it might fail model validation if SubUnit is required.
+                        question_kwargs["Unit"] = Unit
+                        question_kwargs["Subject"] = Subject
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Topic not found: {topic_name}, skipping question"
+                            f"Unit not found: {topic_name}, skipping question"
                         )
                     )
                     return
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        f'Missing topic_name or subtopic_name for subtopic-level question: {question_data["title"][:50]}...'
+                        f'Missing topic_name or subtopic_name for SubUnit-level question: {question_data["title"][:50]}...'
                     )
                 )
                 return
@@ -301,8 +301,8 @@ class Command(BaseCommand):
         # Check if question already exists to avoid duplicates
         existing_question = Question.objects.filter(
             title=question_kwargs["title"],
-            course=question_kwargs.get("course"),
-            topic=question_kwargs.get("topic"),
+            Subject=question_kwargs.get("Subject"),
+            Unit=question_kwargs.get("Unit"),
         ).first()
 
         if not existing_question:
@@ -320,32 +320,32 @@ class Command(BaseCommand):
 
         assessments_data = data.get("assessments", {})
 
-        # Create course mapping for quick lookup
-        course_map = {course.short_code: course for course in Course.objects.all()}
+        # Create Subject mapping for quick lookup
+        course_map = {Subject.short_code: Subject for Subject in Subject.objects.all()}
 
         # Load skill tests
         for skill_test_data in assessments_data.get("skill_tests", []):
             course_short_code = skill_test_data.get("course_short_code")
-            course = course_map.get(course_short_code)
+            Subject = course_map.get(course_short_code)
 
-            if course:
-                # Get the course instructor as creator
-                course_instructor = course.instructors.first()
+            if Subject:
+                # Get the Subject instructor as creator
+                course_instructor = Subject.instructors.first()
                 if not course_instructor:
                     # Fallback to admin user if no instructor found
                     course_instructor = User.objects.filter(role="admin").first()
 
                 if course_instructor:
-                    # Get questions for this course
+                    # Get questions for this Subject
                     course_questions = list(
-                        Question.objects.filter(course=course).values_list(
+                        Question.objects.filter(Subject=Subject).values_list(
                             "id", flat=True
                         )[:5]
                     )
 
                     skill_test, skill_test_created = SkillTest.objects.get_or_create(
                         title=skill_test_data["title"],
-                        course=course,
+                        Subject=Subject,
                         defaults={
                             "description": skill_test_data["description"],
                             "instructions": skill_test_data["instructions"],
@@ -381,27 +381,27 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"No instructor found for course {course_short_code}, skipping skill test"
+                            f"No instructor found for Subject {course_short_code}, skipping skill test"
                         )
                     )
 
         # Load contests
         for contest_data in assessments_data.get("contests", []):
             course_short_code = contest_data.get("course_short_code")
-            course = course_map.get(course_short_code)
+            Subject = course_map.get(course_short_code)
 
-            if course:
-                # Get the course instructor as creator
-                course_instructor = course.instructors.first()
+            if Subject:
+                # Get the Subject instructor as creator
+                course_instructor = Subject.instructors.first()
                 if not course_instructor:
                     # Fallback to admin user if no instructor found
                     course_instructor = User.objects.filter(role="admin").first()
 
                 if course_instructor:
-                    # Get coding questions for this course
+                    # Get coding questions for this Subject
                     coding_questions = list(
                         Question.objects.filter(
-                            course=course, type="coding"
+                            Subject=Subject, type="coding"
                         ).values_list("id", flat=True)[:3]
                     )
 
@@ -451,6 +451,7 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"No instructor found for course {course_short_code}, skipping contest"
+                            f"No instructor found for Subject {course_short_code}, skipping contest"
                         )
                     )
+

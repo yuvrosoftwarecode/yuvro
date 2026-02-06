@@ -16,14 +16,14 @@ from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
 from .models import (
-    Course,
-    Topic,
-    Subtopic,
+    Subject,
+    Unit,
+    SubUnit,
     Video,
     Note,
-    CourseInstructor,
+    SubjectInstructor,
     Question,
-    UserCourseProgress,
+    UserSubjectProgress,
     StudentCodePractice,
 )
 from .serializers import (
@@ -44,19 +44,19 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def instructor_assigned(user, course):
-    return CourseInstructor.objects.filter(instructor=user, course=course).exists()
+def instructor_assigned(user, Subject):
+    return SubjectInstructor.objects.filter(instructor=user, Subject=Subject).exists()
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+    queryset = Subject.objects.all()
     permission_classes = [CanManageCourses]
 
     def get_serializer_class(self):
         return CourseSerializer if self.action == "retrieve" else CourseBasicSerializer
 
     def get_queryset(self):
-        queryset = Course.objects.all()
+        queryset = Subject.objects.all()
         category = self.request.query_params.get("category")
         if category:
             queryset = queryset.filter(category=category)
@@ -82,25 +82,25 @@ class CourseViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated:
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
-                course=OuterRef('pk'),
+                Subject=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
                 question__categories__contains=['practice']
-            ).values('course').annotate(cnt=Count('id')).values('cnt')
+            ).values('Subject').annotate(cnt=Count('id')).values('cnt')
             
             score_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
-                course=OuterRef('pk'),
+                Subject=OuterRef('pk'),
                 question__type='coding',
                 question__categories__contains=['practice']
-            ).values('course').annotate(total_valid_score=Sum('marks_obtained')).values('total_valid_score')
+            ).values('Subject').annotate(total_valid_score=Sum('marks_obtained')).values('total_valid_score')
 
             ai_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
-                course=OuterRef('pk'),
+                Subject=OuterRef('pk'),
                 question__type='coding',
                 question__categories__contains=['practice']
-            ).values('course').annotate(total_ai=Sum('ai_help_count')).values('total_ai')
+            ).values('Subject').annotate(total_ai=Sum('ai_help_count')).values('total_ai')
 
             queryset = queryset.annotate(
                 solved_problems=Coalesce(Subquery(solved_subquery), 0, output_field=IntegerField()),
@@ -127,8 +127,8 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def instructors(self, request, pk=None):
-        course = self.get_object()
-        instructors = course.instructors.all()
+        Subject = self.get_object()
+        instructors = Subject.instructors.all()
         return Response(
             [
                 {"id": str(u.id), "name": u.username, "email": u.email}
@@ -138,7 +138,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def add_instructor(self, request, pk=None):
-        course = self.get_object()
+        Subject = self.get_object()
         instructor_id = request.data.get("instructor_id")
 
         if not instructor_id:
@@ -147,7 +147,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         instructor = get_object_or_404(User, id=instructor_id)
 
         try:
-            CourseInstructor.objects.create(course=course, instructor=instructor)
+            SubjectInstructor.objects.create(Subject=Subject, instructor=instructor)
         except IntegrityError:
             return Response({"error": "Instructor already assigned"}, status=400)
 
@@ -155,10 +155,10 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def remove_instructor(self, request, pk=None):
-        course = self.get_object()
+        Subject = self.get_object()
         instructor_id = request.data.get("instructor_id")
-        mapping = CourseInstructor.objects.filter(
-            course=course, instructor_id=instructor_id
+        mapping = SubjectInstructor.objects.filter(
+            Subject=Subject, instructor_id=instructor_id
         ).first()
 
         if not mapping:
@@ -173,23 +173,23 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class TopicViewSet(viewsets.ModelViewSet):
-    queryset = Topic.objects.select_related("course")
+    queryset = Unit.objects.select_related("Subject")
     permission_classes = [IsAuthenticatedUser]
 
     def get_serializer_class(self):
         return TopicSerializer if self.action == "retrieve" else TopicBasicSerializer
 
     def get_queryset(self):
-        qs = Topic.objects.select_related("course")
+        qs = Unit.objects.select_related("Subject")
         user = self.request.user
 
         if user.role == "instructor":
-            assigned_ids = CourseInstructor.objects.filter(instructor=user).values_list(
+            assigned_ids = SubjectInstructor.objects.filter(instructor=user).values_list(
                 "course_id", flat=True
             )
             qs = qs.filter(course_id__in=assigned_ids)
 
-        course_id = self.request.query_params.get("course")
+        course_id = self.request.query_params.get("Subject")
         if course_id:
             qs = qs.filter(course_id=course_id)
 
@@ -210,11 +210,11 @@ class TopicViewSet(viewsets.ModelViewSet):
         if self.request.user.is_authenticated:
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
-                topic=OuterRef('pk'),
+                Unit=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
                 question__categories__contains=['practice']
-            ).values('topic').annotate(cnt=Count('id')).values('cnt')
+            ).values('Unit').annotate(cnt=Count('id')).values('cnt')
             
             qs = qs.annotate(
                 solved_problems=Coalesce(Subquery(solved_subquery), 0, output_field=IntegerField())
@@ -235,35 +235,35 @@ class TopicViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *a, **kw):
         user = request.user
-        course_id = request.data.get("course")
-        course = get_object_or_404(Course, id=course_id)
+        course_id = request.data.get("Subject")
+        Subject = get_object_or_404(Subject, id=course_id)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
 
     def update(self, request, *a, **kw):
-        topic = self.get_object()
-        course = topic.course
+        Unit = self.get_object()
+        Subject = Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
 
     def destroy(self, request, *a, **kw):
-        topic = self.get_object()
-        course = topic.course
+        Unit = self.get_object()
+        Subject = Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -271,13 +271,13 @@ class TopicViewSet(viewsets.ModelViewSet):
 
 
 class SubtopicViewSet(viewsets.ModelViewSet):
-    queryset = Subtopic.objects.select_related("topic__course")
+    queryset = SubUnit.objects.select_related("topic__course")
     serializer_class = SubtopicSerializer
     permission_classes = [IsAuthenticatedUser]
 
     def get_queryset(self):
-        qs = Subtopic.objects.select_related("topic__course")
-        topic_id = self.request.query_params.get("topic")
+        qs = SubUnit.objects.select_related("topic__course")
+        topic_id = self.request.query_params.get("Unit")
 
         if topic_id:
             qs = qs.filter(topic_id=topic_id)
@@ -285,7 +285,7 @@ class SubtopicViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.role == "instructor":
             qs = qs.filter(
-                topic__course_id__in=CourseInstructor.objects.filter(
+                topic__course_id__in=SubjectInstructor.objects.filter(
                     instructor=user
                 ).values_list("course_id", flat=True)
             )
@@ -294,11 +294,11 @@ class SubtopicViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *a, **kw):
         user = request.user
-        topic = get_object_or_404(Topic, id=request.data.get("topic"))
-        course = topic.course
+        Unit = get_object_or_404(Unit, id=request.data.get("Unit"))
+        Subject = Unit.Subject
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().create(request, *a, **kw)
 
@@ -306,11 +306,11 @@ class SubtopicViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *a, **kw):
         sub = self.get_object()
-        course = sub.topic.course
+        Subject = sub.Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().update(request, *a, **kw)
 
@@ -318,11 +318,11 @@ class SubtopicViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *a, **kw):
         sub = self.get_object()
-        course = sub.topic.course
+        Subject = sub.Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -336,7 +336,7 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Video.objects.select_related("sub_topic__topic__course")
-        sub = self.request.query_params.get("sub_topic")
+        sub = self.request.query_params.get("sub_unit")
 
         if sub:
             qs = qs.filter(sub_topic_id=sub)
@@ -344,19 +344,19 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.role == "instructor":
             qs = qs.filter(
-                sub_topic__topic__course_id__in=CourseInstructor.objects.filter(
+                sub_topic__topic__course_id__in=SubjectInstructor.objects.filter(
                     instructor=user
                 ).values_list("course_id", flat=True)
             )
         return qs
 
     def create(self, request, *a, **kw):
-        subtopic = get_object_or_404(Subtopic, id=request.data.get("sub_topic"))
-        course = subtopic.topic.course
+        SubUnit = get_object_or_404(SubUnit, id=request.data.get("sub_unit"))
+        Subject = SubUnit.Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().create(request, *a, **kw)
 
@@ -364,11 +364,11 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *a, **kw):
         video = self.get_object()
-        course = video.sub_topic.topic.course
+        Subject = video.sub_unit.Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().update(request, *a, **kw)
 
@@ -376,11 +376,11 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *a, **kw):
         video = self.get_object()
-        course = video.sub_topic.topic.course
+        Subject = video.sub_unit.Unit.Subject
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -388,19 +388,19 @@ class VideoViewSet(viewsets.ModelViewSet):
 
 
 class NoteViewSet(viewsets.ModelViewSet):
-    queryset = Note.objects.select_related("sub_topic", "user")
+    queryset = Note.objects.select_related("sub_unit", "user")
     serializer_class = NoteSerializer
     permission_classes = [IsAuthenticatedUser]
 
     def get_queryset(self):
         from django.db.models import Q
         
-        qs = Note.objects.select_related("sub_topic", "user")
+        qs = Note.objects.select_related("sub_unit", "user")
         user = self.request.user
 
         if user.role == "instructor":
             qs = qs.filter(
-                sub_topic__topic__course_id__in=CourseInstructor.objects.filter(
+                sub_topic__topic__course_id__in=SubjectInstructor.objects.filter(
                     instructor=user
                 ).values_list("course_id", flat=True)
             )
@@ -410,7 +410,7 @@ class NoteViewSet(viewsets.ModelViewSet):
                 Q(user__role__in=["instructor", "admin"])
             )
 
-        if sid := self.request.query_params.get("sub_topic"):
+        if sid := self.request.query_params.get("sub_unit"):
             qs = qs.filter(sub_topic_id=sid)
 
         return qs
@@ -427,8 +427,8 @@ class NoteViewSet(viewsets.ModelViewSet):
         user = request.user
 
         is_owner = note.user == user
-        course = note.sub_topic.topic.course
-        is_instructor = user.role == "instructor" and instructor_assigned(user, course)
+        Subject = note.sub_unit.Unit.Subject
+        is_instructor = user.role == "instructor" and instructor_assigned(user, Subject)
         is_admin = user.role == "admin"
 
         if not (is_owner or is_instructor or is_admin):
@@ -441,8 +441,8 @@ class NoteViewSet(viewsets.ModelViewSet):
         user = request.user
 
         is_owner = note.user == user
-        course = note.sub_topic.topic.course
-        is_instructor = user.role == "instructor" and instructor_assigned(user, course)
+        Subject = note.sub_unit.Unit.Subject
+        is_instructor = user.role == "instructor" and instructor_assigned(user, Subject)
         is_admin = user.role == "admin"
 
         if not (is_owner or is_instructor or is_admin):
@@ -453,7 +453,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related(
-        "course", "topic", "subtopic", "created_by"
+        "Subject", "Unit", "SubUnit", "created_by"
     )
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticatedUser]
@@ -462,12 +462,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
         from django.db import models
 
         qs = Question.objects.select_related(
-            "course", "topic", "subtopic", "created_by"
+            "Subject", "Unit", "SubUnit", "created_by"
         )
         user = self.request.user
 
         if user.role == "instructor":
-            assigned_course_ids = CourseInstructor.objects.filter(
+            assigned_course_ids = SubjectInstructor.objects.filter(
                 instructor=user
             ).values_list("course_id", flat=True)
 
@@ -477,9 +477,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 | models.Q(subtopic__topic__course_id__in=assigned_course_ids)
             )
 
-        course_id = self.request.query_params.get("course")
-        topic_id = self.request.query_params.get("topic")
-        subtopic_id = self.request.query_params.get("subtopic")
+        course_id = self.request.query_params.get("Subject")
+        topic_id = self.request.query_params.get("Unit")
+        subtopic_id = self.request.query_params.get("SubUnit")
         question_type = self.request.query_params.get("type")
         difficulty = self.request.query_params.get("difficulty")
         level = self.request.query_params.get("level")
@@ -510,29 +510,29 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
 
-        course = None
+        Subject = None
         level = request.data.get("level")
 
-        if level == "course":
-            course_id = request.data.get("course")
-            course = get_object_or_404(Course, id=course_id) if course_id else None
-        elif level == "topic":
-            topic_id = request.data.get("topic")
-            topic = get_object_or_404(Topic, id=topic_id) if topic_id else None
-            course = topic.course if topic else None
-        elif level == "subtopic":
-            subtopic_id = request.data.get("subtopic")
-            subtopic = (
-                get_object_or_404(Subtopic, id=subtopic_id) if subtopic_id else None
+        if level == "Subject":
+            course_id = request.data.get("Subject")
+            Subject = get_object_or_404(Subject, id=course_id) if course_id else None
+        elif level == "Unit":
+            topic_id = request.data.get("Unit")
+            Unit = get_object_or_404(Unit, id=topic_id) if topic_id else None
+            Subject = Unit.Subject if Unit else None
+        elif level == "SubUnit":
+            subtopic_id = request.data.get("SubUnit")
+            SubUnit = (
+                get_object_or_404(SubUnit, id=subtopic_id) if subtopic_id else None
             )
-            course = subtopic.topic.course if subtopic else None
+            Subject = SubUnit.Unit.Subject if SubUnit else None
 
         # Check permissions
-        if not course:
-            return Response({"error": "Invalid course/topic/subtopic"}, status=400)
+        if not Subject:
+            return Response({"error": "Invalid Subject/Unit/SubUnit"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().create(request, *args, **kwargs)
 
@@ -542,19 +542,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         user = request.user
 
-        course = None
-        if question.course:
-            course = question.course
-        elif question.topic:
-            course = question.topic.course
-        elif question.subtopic:
-            course = question.subtopic.topic.course
+        Subject = None
+        if question.Subject:
+            Subject = question.Subject
+        elif question.Unit:
+            Subject = question.Unit.Subject
+        elif question.SubUnit:
+            Subject = question.SubUnit.Unit.Subject
 
-        if not course:
+        if not Subject:
             return Response({"error": "Invalid question association"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().update(request, *args, **kwargs)
 
@@ -564,20 +564,20 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         user = request.user
 
-        # Get the course for permission checking
-        course = None
-        if question.course:
-            course = question.course
-        elif question.topic:
-            course = question.topic.course
-        elif question.subtopic:
-            course = question.subtopic.topic.course
+        # Get the Subject for permission checking
+        Subject = None
+        if question.Subject:
+            Subject = question.Subject
+        elif question.Unit:
+            Subject = question.Unit.Subject
+        elif question.SubUnit:
+            Subject = question.SubUnit.Unit.Subject
 
-        if not course:
+        if not Subject:
             return Response({"error": "Invalid question association"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, course)
+            user.role == "instructor" and instructor_assigned(user, Subject)
         ):
             return super().destroy(request, *args, **kwargs)
 
@@ -587,10 +587,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class StudentCourseProgressViewSet(viewsets.GenericViewSet):
     """
     ViewSet to handle student-specific actions like progress, continue learning, etc.
-    Route: /api/course/student-course-progress/
+    Route: /api/Subject/student-Subject-progress/
     """
 
-    queryset = UserCourseProgress.objects.all()
+    queryset = UserSubjectProgress.objects.all()
     permission_classes = [IsAuthenticatedUser]
 
     @action(detail=False, methods=["post"])
@@ -601,12 +601,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not subtopic_id:
             return Response({"error": "subtopic_id is required"}, status=400)
 
-        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        SubUnit = get_object_or_404(SubUnit, id=subtopic_id)
 
-        progress, created = UserCourseProgress.objects.get_or_create(
+        progress, created = UserSubjectProgress.objects.get_or_create(
             user=user,
-            subtopic=subtopic,
-            defaults={"course": subtopic.topic.course, "topic": subtopic.topic},
+            SubUnit=SubUnit,
+            defaults={"Subject": SubUnit.Unit.Subject, "Unit": SubUnit.Unit},
         )
 
         progress.is_completed = True
@@ -629,12 +629,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not subtopic_id:
             return Response({"error": "subtopic_id is required"}, status=400)
 
-        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        SubUnit = get_object_or_404(SubUnit, id=subtopic_id)
 
-        progress, _ = UserCourseProgress.objects.get_or_create(
+        progress, _ = UserSubjectProgress.objects.get_or_create(
             user=user,
-            subtopic=subtopic,
-            defaults={"course": subtopic.topic.course, "topic": subtopic.topic},
+            SubUnit=SubUnit,
+            defaults={"Subject": SubUnit.Unit.Subject, "Unit": SubUnit.Unit},
         )
 
         progress.quiz_score = float(score_percent)
@@ -672,26 +672,26 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         test_cases_advanced = request.data.get("test_cases_advanced", [])
         test_cases_custom = request.data.get("test_cases_custom", [])
 
-        # Try to get subtopic from subtopic_id or derive from question
-        subtopic = None
+        # Try to get SubUnit from subtopic_id or derive from question
+        SubUnit = None
         if subtopic_id:
             try:
-                subtopic = Subtopic.objects.get(id=subtopic_id)
-            except Subtopic.DoesNotExist:
-                return Response({"error": "Subtopic not found"}, status=400)
+                SubUnit = SubUnit.objects.get(id=subtopic_id)
+            except SubUnit.DoesNotExist:
+                return Response({"error": "SubUnit not found"}, status=400)
         elif question_id:
-            # Try to get subtopic from question
+            # Try to get SubUnit from question
             try:
                 question = get_object_or_404(Question, id=question_id)
-                if question.subtopic:
-                    subtopic = question.subtopic
-                elif question.topic:
-                    # For topic-level questions without subtopic_id, we'll skip progress tracking
+                if question.SubUnit:
+                    SubUnit = question.SubUnit
+                elif question.Unit:
+                    # For Unit-level questions without subtopic_id, we'll skip progress tracking
                     # but still allow code execution
-                    subtopic = None
+                    SubUnit = None
                 else:
                     return Response(
-                        {"error": "Cannot determine subtopic from question"}, status=400
+                        {"error": "Cannot determine SubUnit from question"}, status=400
                     )
             except Question.DoesNotExist:
                 return Response({"error": "Question not found"}, status=400)
@@ -729,8 +729,8 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     execution_results=execution_results,
                     execution_output=execution_output,
                     test_results=test_results,
-                    course=subtopic.topic.course,
-                    topic=subtopic.topic,
+                    Subject=SubUnit.Unit.Subject,
+                    Unit=SubUnit.Unit,
                 )
 
             except requests.exceptions.RequestException as e:
@@ -747,12 +747,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     status=500,
                 )
 
-        # Only update progress if we have a subtopic
-        if subtopic:
-            progress, _ = UserCourseProgress.objects.get_or_create(
+        # Only update progress if we have a SubUnit
+        if SubUnit:
+            progress, _ = UserSubjectProgress.objects.get_or_create(
                 user=user,
-                subtopic=subtopic,
-                defaults={"course": subtopic.topic.course, "topic": subtopic.topic},
+                SubUnit=SubUnit,
+                defaults={"Subject": SubUnit.Unit.Subject, "Unit": SubUnit.Unit},
             )
 
             if not progress.coding_answers:
@@ -776,7 +776,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     progress.coding_answers[q_id] = is_solved
 
             total_questions = Question.objects.filter(
-                subtopic=subtopic, type="coding"
+                SubUnit=SubUnit, type="coding"
             ).count()
 
             solved_count = 0
@@ -809,13 +809,13 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             progress.save()
             
             # Gamification Hook: Coding
-            if subtopic and progress.coding_score > 0: # Or checks specific question success
+            if SubUnit and progress.coding_score > 0: # Or checks specific question success
                  # We probably want to award XP per question success, not just overall progress
                  # But checking question level success is tricky here as 'coding_status' might be partial
                  # Let's look at the 'question_solved' flag below
                  pass
         else:
-            # No subtopic
+            # No SubUnit
             pass
             
         # Check if current submission was successful to award XP
@@ -824,10 +824,10 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
         response_data = {
             "message": "Coding progress updated"
-            if subtopic
+            if SubUnit
             else "Code executed successfully",
             "progress": new_percent,
-            "is_completed": progress.is_completed if subtopic else False,
+            "is_completed": progress.is_completed if SubUnit else False,
             "coding_score": coding_score,
             "question_solved": question_id
             and test_results.get("passed", 0) == test_results.get("total", 0)
@@ -861,7 +861,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["post"])
     def mark_video_watched(self, request):
         """
-        Mark videos as watched for a subtopic (20% progress).
+        Mark videos as watched for a SubUnit (20% progress).
         """
         user = request.user
         subtopic_id = request.data.get("subtopic_id")
@@ -869,12 +869,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not subtopic_id:
             return Response({"error": "subtopic_id is required"}, status=400)
 
-        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        SubUnit = get_object_or_404(SubUnit, id=subtopic_id)
 
-        progress, created = UserCourseProgress.objects.get_or_create(
+        progress, created = UserSubjectProgress.objects.get_or_create(
             user=user,
-            subtopic=subtopic,
-            defaults={"course": subtopic.topic.course, "topic": subtopic.topic},
+            SubUnit=SubUnit,
+            defaults={"Subject": SubUnit.Unit.Subject, "Unit": SubUnit.Unit},
         )
 
         progress.is_videos_watched = True
@@ -899,9 +899,9 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["get"])
     def continue_learning(self, request):
         user = request.user
-        # Sort by last_accessed to ensure the most recently viewed subtopic is returned
+        # Sort by last_accessed to ensure the most recently viewed SubUnit is returned
         last_progress = (
-            UserCourseProgress.objects.filter(user=user)
+            UserSubjectProgress.objects.filter(user=user)
             .order_by("-last_accessed", "-updated_at")
             .first()
         )
@@ -909,11 +909,11 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not last_progress:
             return Response({"message": "No progress found"}, status=200)
 
-        course = last_progress.course
+        Subject = last_progress.Subject
 
-        total_lessons = Subtopic.objects.filter(topic__course=course).count()
+        total_lessons = SubUnit.objects.filter(topic__course=Subject).count()
 
-        user_progress_list = UserCourseProgress.objects.filter(user=user, course=course)
+        user_progress_list = UserSubjectProgress.objects.filter(user=user, Subject=Subject)
         total_percent_sum = sum(p.progress_percent for p in user_progress_list)
 
         avg_percent = 0
@@ -922,11 +922,11 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
         return Response(
             {
-                "course_id": course.id,
-                "course_name": course.name,
-                "topic_id": last_progress.topic.id if last_progress.topic else None,
-                "subtopic_id": last_progress.subtopic.id,
-                "subtopic_name": last_progress.subtopic.name,
+                "course_id": Subject.id,
+                "course_name": Subject.name,
+                "topic_id": last_progress.Unit.id if last_progress.Unit else None,
+                "subtopic_id": last_progress.SubUnit.id,
+                "subtopic_name": last_progress.SubUnit.name,
                 "total_lessons": total_lessons,
                 "percent": avg_percent,
                 "lesson": user_progress_list.count(),  # approximate 'current lesson' count
@@ -941,7 +941,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         user = request.user
 
         # Calculate stats
-        completed_count = UserCourseProgress.objects.filter(
+        completed_count = UserSubjectProgress.objects.filter(
             user=user, is_completed=True
         ).count()
 
@@ -949,7 +949,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         avg_progress = 0
         total_minutes = 0
 
-        progress_records = UserCourseProgress.objects.filter(user=user)
+        progress_records = UserSubjectProgress.objects.filter(user=user)
 
         if progress_records.exists():
             for p in progress_records:
@@ -966,10 +966,10 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                 cid = p.course_id
                 course_map[cid] = course_map.get(cid, 0) + p.progress_percent
 
-            # 2. Calculate % for each course
+            # 2. Calculate % for each Subject
             total_course_pct = 0
             for cid, current_sum in course_map.items():
-                total_subs = Subtopic.objects.filter(topic__course_id=cid).count()
+                total_subs = SubUnit.objects.filter(topic__course_id=cid).count()
                 if total_subs > 0:
                     c_pct = current_sum / total_subs
                     c_pct = min(c_pct, 100.0)
@@ -1070,22 +1070,22 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         user = request.user
 
         # Get all progress records
-        progress_records = UserCourseProgress.objects.filter(user=user).select_related(
-            "course"
+        progress_records = UserSubjectProgress.objects.filter(user=user).select_related(
+            "Subject"
         )
 
-        # Group by course
+        # Group by Subject
         course_stats = {}
         for p in progress_records:
-            cid = str(p.course.id)
+            cid = str(p.Subject.id)
             if cid not in course_stats:
                 course_stats[cid] = {"sum": 0.0}
             course_stats[cid]["sum"] += p.progress_percent
 
         results = []
         for cid, stats in course_stats.items():
-            # Count total subtopics for this course
-            total_subs = Subtopic.objects.filter(topic__course_id=cid).count()
+            # Count total subtopics for this Subject
+            total_subs = SubUnit.objects.filter(topic__course_id=cid).count()
             if total_subs > 0:
                 percent = round(stats["sum"] / total_subs, 1)
                 # Cap at 100% just in case
@@ -1102,11 +1102,11 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not course_id:
             return Response({"error": "course_id is required"}, status=400)
 
-        progress_qs = UserCourseProgress.objects.filter(user=user, course_id=course_id)
+        progress_qs = UserSubjectProgress.objects.filter(user=user, course_id=course_id)
 
         data = {}
         for p in progress_qs:
-            data[str(p.subtopic.id)] = {
+            data[str(p.SubUnit.id)] = {
                 "progress_percent": p.progress_percent,
                 "is_completed": p.is_completed,
             }
@@ -1116,8 +1116,8 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["get"])
     def get_user_progress_details(self, request):
         """
-        Get detailed progress for all subtopics in a course, including quiz/coding status.
-        Recalculates progress on-the-fly to ensure consistency with course content changes (e.g. added/removed questions).
+        Get detailed progress for all subtopics in a Subject, including quiz/coding status.
+        Recalculates progress on-the-fly to ensure consistency with Subject content changes (e.g. added/removed questions).
         """
         user = request.user
         course_id = request.query_params.get("course_id")
@@ -1126,8 +1126,8 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             return Response({"error": "course_id is required"}, status=400)
 
         progress_qs = (
-            UserCourseProgress.objects.filter(user=user, course_id=course_id)
-            .select_related("subtopic")
+            UserSubjectProgress.objects.filter(user=user, course_id=course_id)
+            .select_related("SubUnit")
             .prefetch_related("subtopic__questions")
         )
 
@@ -1137,7 +1137,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
             updated_records.append(p)
 
         if updated_records:
-            UserCourseProgress.objects.bulk_update(
+            UserSubjectProgress.objects.bulk_update(
                 updated_records, ["progress_percent", "is_completed"]
             )
 
@@ -1145,14 +1145,14 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
 
         serializer = UserCourseProgressSerializer(updated_records, many=True)
 
-        data = {str(item["subtopic"]): item for item in serializer.data}
+        data = {str(item["SubUnit"]): item for item in serializer.data}
 
         return Response(data)
 
     @action(detail=False, methods=["post"])
     def log_access(self, request):
         """
-        Log access to a subtopic to update 'Continue Learning' banner.
+        Log access to a SubUnit to update 'Continue Learning' banner.
         Does not change completion status, just updates timestamps.
         """
         user = request.user
@@ -1161,12 +1161,12 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         if not subtopic_id:
             return Response({"error": "subtopic_id is required"}, status=400)
 
-        subtopic = get_object_or_404(Subtopic, id=subtopic_id)
+        SubUnit = get_object_or_404(SubUnit, id=subtopic_id)
 
-        progress, created = UserCourseProgress.objects.get_or_create(
+        progress, created = UserSubjectProgress.objects.get_or_create(
             user=user,
-            subtopic=subtopic,
-            defaults={"course": subtopic.topic.course, "topic": subtopic.topic},
+            SubUnit=SubUnit,
+            defaults={"Subject": SubUnit.Unit.Subject, "Unit": SubUnit.Unit},
         )
 
         progress.last_accessed = timezone.now()
@@ -1249,27 +1249,27 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     code, language, question, request.user, service_url
                 )
 
-                course = None
-                topic = None
+                Subject = None
+                Unit = None
 
                 if course_id:
                     try:
-                        course = Course.objects.get(id=course_id)
-                    except Course.DoesNotExist:
+                        Subject = Subject.objects.get(id=course_id)
+                    except Subject.DoesNotExist:
                         pass
 
                 if topic_id:
                     try:
-                        topic = Topic.objects.get(id=topic_id)
-                    except Topic.DoesNotExist:
+                        Unit = Unit.objects.get(id=topic_id)
+                    except Unit.DoesNotExist:
                         pass
 
-                if not course:
-                    course = question.course
-                if not topic:
-                    topic = question.topic
-                    if not topic and question.subtopic:
-                        topic = question.subtopic.topic
+                if not Subject:
+                    Subject = question.Subject
+                if not Unit:
+                    Unit = question.Unit
+                    if not Unit and question.SubUnit:
+                        Unit = question.SubUnit.Unit
 
                 exec_res = execution_results.get("execution_result", {})
                 basic_results = execution_results.get("basic_results", [])
@@ -1335,21 +1335,21 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     }
                     submission.marks_obtained = question.marks if is_successful else 0
 
-                    if course_id and not submission.course:
-                        submission.course = course
-                    elif not submission.course and question.course:
-                        submission.course = question.course
+                    if course_id and not submission.Subject:
+                        submission.Subject = Subject
+                    elif not submission.Subject and question.Subject:
+                        submission.Subject = question.Subject
 
-                    if topic_id and not submission.topic:
-                        submission.topic = topic
-                    elif not submission.topic and question.topic:
-                        submission.topic = question.topic
+                    if topic_id and not submission.Unit:
+                        submission.Unit = Unit
+                    elif not submission.Unit and question.Unit:
+                        submission.Unit = question.Unit
                     elif (
-                        not submission.topic
-                        and question.subtopic
-                        and question.subtopic.topic
+                        not submission.Unit
+                        and question.SubUnit
+                        and question.SubUnit.Unit
                     ):
-                        submission.topic = question.subtopic.topic
+                        submission.Unit = question.SubUnit.Unit
 
                     submission.save()
 
@@ -1357,8 +1357,8 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                     submission = StudentCodePractice.objects.create(
                         user=request.user,
                         question=question,
-                        course=course,
-                        topic=topic,
+                        Subject=Subject,
+                        Unit=Unit,
                         status=StudentCodePractice.STATUS_COMPLETED,
                         answer_latest={
                             "code": code,
@@ -1669,3 +1669,4 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
              return Response({"error": f"AI Service Error: {str(e)}"}, status=503)
         except Exception as e:
              return Response({"error": f"Unexpected Error: {str(e)}"}, status=500)
+

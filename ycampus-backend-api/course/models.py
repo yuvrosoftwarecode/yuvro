@@ -9,9 +9,9 @@ from core.models import BaseTimestampedModel
 User = get_user_model()
 
 
-class Course(models.Model):
+class Subject(models.Model):
     """
-    Course model representing a complete learning course.
+    Subject model representing a complete learning subject.
     """
 
     CATEGORY_CHOICES = [
@@ -27,7 +27,7 @@ class Course(models.Model):
     name = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     instructors = models.ManyToManyField(
-        User, through="CourseInstructor", related_name="courses_taught"
+        User, through="SubjectInstructor", related_name="subjects_taught"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,9 +42,9 @@ class Course(models.Model):
         return self.name
 
 
-class Topic(models.Model):
+class Unit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="topics")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="units")
     name = models.CharField(max_length=255)
     order_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,34 +52,34 @@ class Topic(models.Model):
     class Meta:
         ordering = ["order_index"]
         unique_together = [
-            ["course", "name"]
-        ]  # Prevent duplicate topic names within a course
+            ["subject", "name"]
+        ]  # Prevent duplicate unit names within a subject
 
     def save(self, *args, **kwargs):
         if self.order_index is None:
             last = (
-                Topic.objects.filter(course=self.course)
+                Unit.objects.filter(subject=self.subject)
                 .order_by("-order_index")
                 .first()
             )
             self.order_index = (last.order_index + 1) if last else 0
 
         else:
-            conflict = Topic.objects.filter(
-                course=self.course, order_index=self.order_index
+            conflict = Unit.objects.filter(
+                subject=self.subject, order_index=self.order_index
             ).exclude(id=self.id)
 
             if conflict.exists():
-                Topic.objects.filter(
-                    course=self.course, order_index__gte=self.order_index
+                Unit.objects.filter(
+                    subject=self.subject, order_index__gte=self.order_index
                 ).exclude(id=self.id).update(order_index=models.F("order_index") + 1)
 
         super().save(*args, **kwargs)
 
 
-class Subtopic(models.Model):
+class SubUnit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name="subtopics")
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name="subunits")
     name = models.CharField(max_length=255)
     content = models.TextField(blank=True, null=True)
     order_index = models.PositiveIntegerField(validators=[MinValueValidator(0)])
@@ -88,26 +88,26 @@ class Subtopic(models.Model):
     class Meta:
         ordering = ["order_index"]
         unique_together = [
-            ["topic", "name"]
-        ]  # Prevent duplicate subtopic names within a topic
+            ["unit", "name"]
+        ]  # Prevent duplicate subunit names within a unit
 
     def save(self, *args, **kwargs):
         if self.order_index is None:
             last = (
-                Subtopic.objects.filter(topic=self.topic)
+                SubUnit.objects.filter(unit=self.unit)
                 .order_by("-order_index")
                 .first()
             )
             self.order_index = (last.order_index + 1) if last else 0
 
         else:
-            conflict = Subtopic.objects.filter(
-                topic=self.topic, order_index=self.order_index
+            conflict = SubUnit.objects.filter(
+                unit=self.unit, order_index=self.order_index
             ).exclude(id=self.id)
 
             if conflict.exists():
-                Subtopic.objects.filter(
-                    topic=self.topic, order_index__gte=self.order_index
+                SubUnit.objects.filter(
+                    unit=self.unit, order_index__gte=self.order_index
                 ).exclude(id=self.id).update(order_index=models.F("order_index") + 1)
 
         super().save(*args, **kwargs)
@@ -115,12 +115,12 @@ class Subtopic(models.Model):
 
 class Video(models.Model):
     """
-    Video model representing video content associated with a subtopic.
+    Video model representing video content associated with a subunit.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sub_topic = models.ForeignKey(
-        Subtopic, on_delete=models.CASCADE, related_name="videos"
+    sub_unit = models.ForeignKey(
+        SubUnit, on_delete=models.CASCADE, related_name="videos"
     )
     title = models.CharField(max_length=255)
     video_link = models.URLField()
@@ -132,7 +132,7 @@ class Video(models.Model):
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"{self.sub_topic.name} - {self.title}"
+        return f"{self.sub_unit.name} - {self.title}"
 
 
 class Note(models.Model):
@@ -141,8 +141,8 @@ class Note(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sub_topic = models.ForeignKey(
-        Subtopic, on_delete=models.CASCADE, related_name="notes"
+    sub_unit = models.ForeignKey(
+        SubUnit, on_delete=models.CASCADE, related_name="notes"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
@@ -155,35 +155,35 @@ class Note(models.Model):
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.sub_topic.name} - {self.content[:30]}..."
+        return f"{self.user.username} - {self.sub_unit.name} - {self.content[:30]}..."
 
 
-class CourseInstructor(models.Model):
+class SubjectInstructor(models.Model):
     """
-    Mapping table for assigning multiple instructors to a course.
+    Mapping table for assigning multiple instructors to a subject.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="course_instructors"
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name="subject_instructors"
     )
 
     instructor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="instructor_courses",
+        related_name="instructor_subjects",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("course", "instructor")  # Prevent duplicates
+        unique_together = ("subject", "instructor")  # Prevent duplicates
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.instructor.email} → {self.course.name}"
+        return f"{self.instructor.email} → {self.subject.name}"
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -191,7 +191,7 @@ class CourseInstructor(models.Model):
         # Only users with instructor/admin roles can be linked
         if self.instructor.role not in ["instructor", "admin"]:
             raise ValidationError(
-                "Only instructors or admins can be assigned to a course."
+                "Only instructors or admins can be assigned to a subject."
             )
 
     def save(self, *args, **kwargs):
@@ -199,28 +199,28 @@ class CourseInstructor(models.Model):
         super().save(*args, **kwargs)
 
 
-class UserCourseProgress(BaseTimestampedModel):
+class UserSubjectProgress(BaseTimestampedModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="course_progress",
+        related_name="subject_progress",
     )
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="user_progress"
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name="user_progress"
     )
-    topic = models.ForeignKey(
-        Topic,
+    unit = models.ForeignKey(
+        Unit,
         on_delete=models.CASCADE,
         related_name="user_progress",
         null=True,
         blank=True,
     )
-    subtopic = models.ForeignKey(
-        Subtopic, on_delete=models.CASCADE, related_name="user_progress"
+    sub_unit = models.ForeignKey(
+        SubUnit, on_delete=models.CASCADE, related_name="user_progress"
     )
 
     is_videos_watched = models.BooleanField(
-        default=False, help_text="Whether all videos in this subtopic have been watched"
+        default=False, help_text="Whether all videos in this subunit have been watched"
     )
     quiz_answers = models.JSONField(
         default=dict,
@@ -252,30 +252,30 @@ class UserCourseProgress(BaseTimestampedModel):
         help_text="Overall progress percentage considering videos + quiz + coding (0-100)",
     )
     is_completed = models.BooleanField(
-        default=False, help_text="Whether this subtopic is fully completed"
+        default=False, help_text="Whether this subunit is fully completed"
     )
 
     # Continue learning tracking
-    is_current_subtopic = models.BooleanField(
+    is_current_subunit = models.BooleanField(
         default=False,
-        help_text="Whether this is the current subtopic the user is working on",
+        help_text="Whether this is the current subunit the user is working on",
     )
     last_accessed = models.DateTimeField(
-        auto_now=True, help_text="Last time user accessed this subtopic"
+        auto_now=True, help_text="Last time user accessed this subunit"
     )
 
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ("user", "subtopic")
+        unique_together = ("user", "sub_unit")
         ordering = ["-updated_at"]
 
     def __str__(self):
-        return f"{self.user.username} - {self.subtopic.name} ({self.progress_percent:.1f}%)"
+        return f"{self.user.username} - {self.sub_unit.name} ({self.progress_percent:.1f}%)"
 
     def calculate_progress(self):
         # Use .all() to leverage prefetch_related if available
-        questions = self.subtopic.questions.all()
+        questions = self.sub_unit.questions.all()
 
         has_quiz = any(q.type in ["mcq_single", "mcq_multiple"] for q in questions)
         has_coding = any(q.type == "coding" for q in questions)
@@ -309,7 +309,7 @@ class UserCourseProgress(BaseTimestampedModel):
 
 class Question(models.Model):
     """
-    Unified Question Bank model for storing questions at different levels (course, topic, subtopic)
+    Unified Question Bank model for storing questions at different levels (subject, unit, subunit)
     Supports MCQ, Coding, and Descriptive question types with multiple categories
     """
 
@@ -327,9 +327,9 @@ class Question(models.Model):
     ]
 
     QUESTION_LEVELS = [
-        ("course", "Course Level"),
-        ("topic", "Topic Level"),
-        ("subtopic", "Subtopic Level"),
+        ("subject", "Subject Level"),
+        ("unit", "Unit Level"),
+        ("subunit", "SubUnit Level"),
     ]
 
     QUESTION_CATEGORIES = [
@@ -349,18 +349,18 @@ class Question(models.Model):
 
     # Level and associations
     level = models.CharField(max_length=20, choices=QUESTION_LEVELS)
-    course = models.ForeignKey(
-        Course,
+    subject = models.ForeignKey(
+        Subject,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="questions",
     )
-    topic = models.ForeignKey(
-        Topic, on_delete=models.CASCADE, null=True, blank=True, related_name="questions"
+    unit = models.ForeignKey(
+        Unit, on_delete=models.CASCADE, null=True, blank=True, related_name="questions"
     )
-    subtopic = models.ForeignKey(
-        Subtopic,
+    sub_unit = models.ForeignKey(
+        SubUnit,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -404,19 +404,19 @@ class Question(models.Model):
         indexes = [
             models.Index(fields=["type", "level"]),
             models.Index(fields=["difficulty"]),
-            models.Index(fields=["course", "topic", "subtopic"]),
+            models.Index(fields=["subject", "unit", "sub_unit"]),
         ]
 
     def clean(self):
         from django.core.exceptions import ValidationError
 
         # Validate level associations
-        if self.level == "course" and not self.course:
-            raise ValidationError("Course is required for course-level questions")
-        if self.level == "topic" and not self.topic:
-            raise ValidationError("Topic is required for topic-level questions")
-        if self.level == "subtopic" and not self.subtopic:
-            raise ValidationError("Subtopic is required for subtopic-level questions")
+        if self.level == "subject" and not self.subject:
+            raise ValidationError("Subject is required for subject-level questions")
+        if self.level == "unit" and not self.unit:
+            raise ValidationError("Unit is required for unit-level questions")
+        if self.level == "subunit" and not self.sub_unit:
+            raise ValidationError("SubUnit is required for subunit-level questions")
 
         # Validate categories
         if self.categories:
@@ -527,21 +527,21 @@ class StudentCodePractice(BaseTimestampedModel):
         help_text="The coding question being solved",
     )
 
-    course = models.ForeignKey(
-        Course,
+    subject = models.ForeignKey(
+        Subject,
         on_delete=models.CASCADE,
         related_name="student_code_practices",
         null=True,
         blank=True,
-        help_text="Course this submission belongs to",
+        help_text="Subject this submission belongs to",
     )
-    topic = models.ForeignKey(
-        Topic,
+    unit = models.ForeignKey(
+        Unit,
         on_delete=models.CASCADE,
         related_name="student_code_practices",
         null=True,
         blank=True,
-        help_text="Topic this submission belongs to",
+        help_text="Unit this submission belongs to",
     )
 
     status = models.CharField(

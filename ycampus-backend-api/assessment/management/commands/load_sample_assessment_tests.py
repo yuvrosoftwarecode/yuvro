@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from assessment.models import SkillTest, Contest, MockInterview, JobTest
-from course.models import Course, Topic, Question
+from Subject.models import Subject, Unit, Question
 
 User = get_user_model()
 
@@ -119,14 +119,14 @@ class Command(BaseCommand):
         if category:
             qs = qs.filter(categories__contains=[category])
         if topic_obj:
-            qs = qs.filter(topic=topic_obj)
+            qs = qs.filter(Unit=topic_obj)
         elif course_obj:
-            qs = qs.filter(course=course_obj)
+            qs = qs.filter(Subject=course_obj)
 
         qs = qs.order_by("created_at")
         ids = list(qs.values_list("id", flat=True)[:count])
         if len(ids) < count:
-            # relax filters: ignore topic/course restrictions and pick any remaining
+            # relax filters: ignore Unit/Subject restrictions and pick any remaining
             fallback = Question.objects.filter(type=qtype)
             if category:
                 fallback = fallback.filter(categories__contains=[category])
@@ -137,27 +137,27 @@ class Command(BaseCommand):
         return [str(i) for i in ids]
 
     def get_course_and_topic(self, course_short_code, topic_name=None):
-        """Get course and topic objects"""
+        """Get Subject and Unit objects"""
         try:
-            course = Course.objects.get(short_code=course_short_code)
-        except Course.DoesNotExist:
+            Subject = Subject.objects.get(short_code=course_short_code)
+        except Subject.DoesNotExist:
             self.stdout.write(
-                self.style.WARNING(f"Course {course_short_code} not found")
+                self.style.WARNING(f"Subject {course_short_code} not found")
             )
             return None, None
 
-        topic = None
+        Unit = None
         if topic_name:
             try:
-                topic = Topic.objects.get(course=course, name=topic_name)
-            except Topic.DoesNotExist:
+                Unit = Unit.objects.get(Subject=Subject, name=topic_name)
+            except Unit.DoesNotExist:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Topic {topic_name} not found in course {course_short_code}"
+                        f"Unit {topic_name} not found in Subject {course_short_code}"
                     )
                 )
 
-        return course, topic
+        return Subject, Unit
 
     def load_skill_tests_from_json(self, data):
         """Load skill tests from JSON data"""
@@ -174,15 +174,15 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading skill test: {skill_test_data["title"]}')
 
-                course, topic = self.get_course_and_topic(
+                Subject, Unit = self.get_course_and_topic(
                     skill_test_data.get("course_short_code"),
                     skill_test_data.get("topic_name"),
                 )
 
-                if not course:
+                if not Subject:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Skipping skill test '{skill_test_data.get('title')}' - course not found"
+                            f"Skipping skill test '{skill_test_data.get('title')}' - Subject not found"
                         )
                     )
                     continue
@@ -198,8 +198,8 @@ class Command(BaseCommand):
                     "enable_proctoring": skill_test_data.get(
                         "enable_proctoring", False
                     ),
-                    "course": course,
-                    "topic": topic,
+                    "Subject": Subject,
+                    "Unit": Unit,
                     "questions_random_config": skill_test_data.get(
                         "questions_random_config", {}
                     ),
@@ -215,7 +215,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "skill_test", course, topic
+                                qtype, count, "skill_test", Subject, Unit
                             )
                             if count > 0
                             else []
@@ -225,7 +225,7 @@ class Command(BaseCommand):
 
                 # Check if skill test already exists
                 existing_skill_test = SkillTest.objects.filter(
-                    title=skill_test_kwargs["title"], course=course
+                    title=skill_test_kwargs["title"], Subject=Subject
                 ).first()
 
                 if not existing_skill_test:
@@ -270,15 +270,15 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading contest: {contest_data["title"]}')
 
-                course, topic = self.get_course_and_topic(
+                Subject, Unit = self.get_course_and_topic(
                     contest_data.get("course_short_code"),
                     contest_data.get("topic_name"),
                 )
 
-                if not course:
+                if not Subject:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Skipping contest '{contest_data.get('title')}' - course not found"
+                            f"Skipping contest '{contest_data.get('title')}' - Subject not found"
                         )
                     )
                     continue
@@ -319,7 +319,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "contest", course, None
+                                qtype, count, "contest", Subject, None
                             )
                             if count > 0
                             else []
@@ -373,15 +373,15 @@ class Command(BaseCommand):
                     f'Loading mock interview: {mock_interview_data["title"]}'
                 )
 
-                # Attempt to resolve course/topic if provided; if not found, proceed without linking
-                course = None
-                topic = None
+                # Attempt to resolve Subject/Unit if provided; if not found, proceed without linking
+                Subject = None
+                Unit = None
                 course_code = mock_interview_data.get("course_short_code")
                 if course_code:
-                    course = Course.objects.filter(short_code=course_code).first()
+                    Subject = Subject.objects.filter(short_code=course_code).first()
                 topic_name = mock_interview_data.get("topic_name")
-                if topic_name and course:
-                    topic = Topic.objects.filter(course=course, name=topic_name).first()
+                if topic_name and Subject:
+                    Unit = Unit.objects.filter(Subject=Subject, name=topic_name).first()
 
                 mock_interview_kwargs = {
                     "title": mock_interview_data["title"],
@@ -431,7 +431,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "mock_interview", course, topic
+                                qtype, count, "mock_interview", Subject, Unit
                             )
                             if count > 0
                             else []
@@ -465,3 +465,4 @@ class Command(BaseCommand):
                         f'Error loading mock interview "{mock_interview_data.get("title", "Unknown")}": {str(e)}'
                     )
                 )
+
