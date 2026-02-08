@@ -120,7 +120,11 @@ class Video(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_unit = models.ForeignKey(
-        SubUnit, on_delete=models.CASCADE, related_name="videos"
+        SubUnit,
+        on_delete=models.CASCADE,
+        related_name="videos",
+        null=True,
+        blank=True,
     )
     title = models.CharField(max_length=255)
     video_link = models.URLField()
@@ -142,7 +146,11 @@ class Note(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_unit = models.ForeignKey(
-        SubUnit, on_delete=models.CASCADE, related_name="notes"
+        SubUnit,
+        on_delete=models.CASCADE,
+        related_name="notes",
+        null=True,
+        blank=True,
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
