@@ -1,15 +1,15 @@
-export interface Topic {
+export interface Unit {
   id: string;
   name: string;
   order_index?: number;
 }
 
-export interface Course {
+export interface Subject {
   id: string;
   name: string;
   category: string;
   short_code?: string;
-  topics?: Topic[];
+  units?: Unit[];
 }
 
 export interface Stats {
@@ -22,13 +22,13 @@ export interface Stats {
 }
 
 export interface ContinueProgress {
-  course_id: string;  // UUID
-  course_name?: string;  // Display name
+  subject_id: string;  // UUID
+  subject_name?: string;  // Display name
   lesson: number;
   total_lessons: number;
   percent: number;
 }
 
-export interface CourseProgressMap {
-  [courseId: string]: number; // percent
+export interface SubjectProgressMap {
+  [subjectId: string]: number; // percent
 }

@@ -7,7 +7,7 @@ import { CodeExecutionPanel } from '@/components/code-editor';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import codeEditorService from '@/services/codeEditorService';
 import ExampleCodeGallery from '@/components/code-editor/ExampleCodeGallery';
-import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
+import type { Subject, Unit, CodingProblem } from '@/pages/student/CodePractice';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
 import { toast } from 'sonner';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
@@ -24,8 +24,8 @@ interface CustomTestCase {
 
 interface ProblemSolvingProps {
   problem: CodingProblem;
-  course: Course;
-  topic: Topic;
+  subject: Subject;
+  unit: Unit;
   onBack: () => void;
   onViewAnalytics?: () => void;
   initialFullscreen?: boolean;
@@ -38,7 +38,7 @@ export interface ProblemSolvingHandle {
   getLanguage: () => string;
 }
 
-const ProblemSolving = forwardRef<ProblemSolvingHandle, ProblemSolvingProps>(({ problem, course, topic, onBack, initialFullscreen = false, initialEditorOpen = false, isEmbedded = false }, ref) => {
+const ProblemSolving = forwardRef<ProblemSolvingHandle, ProblemSolvingProps>(({ problem, subject, unit, onBack, initialFullscreen = false, initialEditorOpen = false, isEmbedded = false }, ref) => {
   // Editor & code state
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('python');
@@ -451,7 +451,7 @@ ${code}
       {!isEditorFullscreen && (
         <div className="flex items-center gap-2 mb-3 text-sm text-gray-500">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">
-            {topic.name}
+            {unit.name}
           </Button>
           <span>/</span>
           <span className="text-gray-800 font-medium">{problem.title}</span>

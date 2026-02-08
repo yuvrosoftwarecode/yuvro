@@ -1,7 +1,7 @@
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 export interface DashboardStats {
-  coursesEnrolled: number;
+  subjectsEnrolled: number;
   problemsSolved: number;
   contestsParticipated: number;
   jobApplications: number;
@@ -11,7 +11,7 @@ export interface DashboardStats {
 
 export interface RecentActivity {
   id: number;
-  type: 'course' | 'coding' | 'job' | 'contest' | 'skill-test' | 'interview';
+  type: 'subject' | 'coding' | 'job' | 'contest' | 'skill-test' | 'interview';
   action: string;
   target: string;
   time: string;
@@ -23,7 +23,7 @@ export interface UpcomingEvent {
   id: number;
   title: string;
   date: string;
-  type: 'contest' | 'interview' | 'job' | 'course';
+  type: 'contest' | 'interview' | 'job' | 'subject';
   participants?: number;
   duration?: string;
   company?: string;
@@ -38,7 +38,7 @@ export interface RecommendedJob {
   match: number;
 }
 
-export interface CourseProgress {
+export interface SubjectProgress {
   id: number;
   name: string;
   progress: number;
@@ -51,7 +51,7 @@ export interface DashboardData {
   recentActivity: RecentActivity[];
   upcomingEvents: UpcomingEvent[];
   recommendedJobs: RecommendedJob[];
-  courseProgress: CourseProgress[];
+  subjectProgress: SubjectProgress[];
 }
 
 class StudentDashboardService {
@@ -74,7 +74,7 @@ class StudentDashboardService {
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       return {
-        coursesEnrolled: 3,
+        subjectsEnrolled: 3,
         problemsSolved: 47,
         contestsParticipated: 8,
         jobApplications: 12,
@@ -114,12 +114,12 @@ class StudentDashboardService {
     }
   }
 
-  async getCourseProgress(): Promise<CourseProgress[]> {
+  async getSubjectProgress(): Promise<SubjectProgress[]> {
     try {
-      const response = await restApiAuthUtil.get<CourseProgress[]>(`${this.baseUrl}/course-progress/`);
+      const response = await restApiAuthUtil.get<SubjectProgress[]>(`${this.baseUrl}/subject-progress/`);
       return response;
     } catch (error) {
-      console.error('Error fetching course progress:', error);
+      console.error('Error fetching subject progress:', error);
       return [];
     }
   }
@@ -127,7 +127,7 @@ class StudentDashboardService {
   private getMockDashboardData(): DashboardData {
     return {
       stats: {
-        coursesEnrolled: 3,
+        subjectsEnrolled: 3,
         problemsSolved: 47,
         contestsParticipated: 8,
         jobApplications: 12,
@@ -137,7 +137,7 @@ class StudentDashboardService {
       recentActivity: [
         {
           id: 1,
-          type: 'course',
+          type: 'subject',
           action: 'Completed lesson',
           target: 'Arrays and Strings - Array Fundamentals',
           time: '2 hours ago'
@@ -205,7 +205,7 @@ class StudentDashboardService {
           match: 88
         }
       ],
-      courseProgress: [
+      subjectProgress: [
         {
           id: 1,
           name: 'Data Structures & Algorithms',

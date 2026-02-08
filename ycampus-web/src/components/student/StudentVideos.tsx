@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { fetchVideosBySubtopic } from "@/services/courseService";
+import { fetchVideosBySubUnit } from "@/services/subjectService";
 // Removed unused imports
 import { CodeEditor } from "@/components/code-editor";
 import AIChatContainer from "./Learn/AIChatWidget/AIChatContainer";
@@ -11,18 +11,18 @@ type Video = {
   title: string;
   video_link: string;
   ai_context?: string | null;
-  sub_topic: string;
+  sub_unit: string;
   description?: string;
 };
 
 export type LayoutMode = "video" | "video-chat" | "video-code" | "code-chat" | "video-chat-code";
 
 type StudentVideosProps = {
-  subtopicId: string;
-  courseName: string;
-  topicName: string;
-  subtopicName: string;
-  subtopicContent?: string | null;
+  subunitId: string;
+  subjectName: string;
+  unitName: string;
+  subunitName: string;
+  subunitContent?: string | null;
   sessionId: string;
   onNewSession: () => void;
   layout: LayoutMode;
@@ -30,11 +30,11 @@ type StudentVideosProps = {
 };
 
 const StudentVideos = ({
-  subtopicId,
-  courseName,
-  topicName,
-  subtopicName,
-  subtopicContent,
+  subunitId,
+  subjectName,
+  unitName,
+  subunitName,
+  subunitContent,
   sessionId,
   onNewSession,
   layout,
@@ -57,12 +57,12 @@ const StudentVideos = ({
 
   useEffect(() => {
     loadVideos();
-  }, [subtopicId]);
+  }, [subunitId]);
 
   const loadVideos = async () => {
     setLoading(true);
     try {
-      const res = (await fetchVideosBySubtopic(subtopicId)) as Video[];
+      const res = (await fetchVideosBySubUnit(subunitId)) as Video[];
       setVideos(res);
 
       if (res.length > 0) setSelectedVideo(res[0]);
@@ -141,10 +141,10 @@ const StudentVideos = ({
   };
 
   const getVideoContext = () => {
-    let ctx = `Course: ${courseName}.\n`;
-    ctx += `Topic: ${topicName}.\n`;
-    ctx += `Subtopic: ${subtopicName}.\n`;
-    if (subtopicContent) ctx += `Content: ${subtopicContent}\n`;
+    let ctx = `Subject: ${subjectName}.\n`;
+    ctx += `Unit: ${unitName}.\n`;
+    ctx += `SubUnit: ${subunitName}.\n`;
+    if (subunitContent) ctx += `Content: ${subunitContent}\n`;
     if (selectedVideo) {
       ctx += `Current Video: ${selectedVideo.title}.\n`;
       if (selectedVideo.ai_context) ctx += `Video Context: ${selectedVideo.ai_context}\n`;
@@ -220,7 +220,7 @@ const StudentVideos = ({
       <div className="w-full h-full flex flex-col">
         <AIChatContainer
           className="w-full h-full shadow-none border-none rounded-none"
-          welcomeMessage={`Hi! I can help you with understanding "${selectedVideo?.title || subtopicName}".`}
+          welcomeMessage={`Hi! I can help you with understanding "${selectedVideo?.title || subunitName}".`}
           persistenceKey={sessionId}
           chatTitle="AI Learning Buddy"
           contextGetter={getVideoContext}
@@ -235,7 +235,7 @@ const StudentVideos = ({
     <PaneWrapper>
       <CodeEditor
         problemTitle="Practice Coding"
-        problemId={`video-coding-${subtopicId}`}
+        problemId={`video-coding-${subunitId}`}
         initialCode="# Write your solution here\n"
         testCases={[]}
         showTestCases={true}

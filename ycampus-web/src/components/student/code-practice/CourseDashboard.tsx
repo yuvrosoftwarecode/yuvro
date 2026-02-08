@@ -5,13 +5,13 @@ import {
   Code2, Database, Cpu, FileCode, Braces, Terminal,
   Trophy, Target, Brain, CheckCircle2
 } from 'lucide-react';
-import { fetchCourses } from '@/services/courseService';
-import type { Course } from '@/pages/student/CodePractice';
+import { fetchSubjects } from '@/services/subjectService';
+import type { Subject } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
 import ModernCard from '@/components/common/ModernCard';
 
-interface CourseDashboardProps {
-  onCourseSelect: (course: Course) => void;
+interface SubjectDashboardProps {
+  onSubjectSelect: (subject: Subject) => void;
   onViewAnalytics: () => void;
 }
 
@@ -28,7 +28,7 @@ const getIcon = (category: string) => {
   return icons[category as keyof typeof icons] || Code2;
 };
 
-const getCourseStyle = (id: string | number) => {
+const getSubjectStyle = (id: string | number) => {
   const styles = [
     { bg: "bg-blue-50", text: "text-blue-600", gradient: "from-blue-500 to-indigo-600" },
     { bg: "bg-purple-50", text: "text-purple-600", gradient: "from-purple-500 to-violet-600" },
@@ -39,43 +39,43 @@ const getCourseStyle = (id: string | number) => {
     { bg: "bg-cyan-50", text: "text-cyan-600", gradient: "from-cyan-500 to-sky-600" },
   ];
 
-  // Simple hash to ensuring consistent color for the same course ID
+  // Simple hash to ensuring consistent color for the same subject ID
   const index = String(id).charCodeAt(0) % styles.length;
   return styles[index];
 };
 
-const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardProps) => {
-  const [courses, setCourses] = useState<Course[]>([]);
+const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboardProps) => {
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadCourses = async () => {
+    const loadSubjects = async () => {
       try {
-        const fetchedCourses = await fetchCourses();
+        const fetchedSubjects = await fetchSubjects();
 
-        const transformedCourses: Course[] = fetchedCourses.map(course => ({
-          id: course.id.toString(),
-          name: course.name || course.title || 'Untitled Course',
-          icon: course.category,
-          progress: Math.round(course.progress_percentage || 0),
-          totalProblems: course.total_problems || 0,
-          solvedProblems: course.solved_problems || 0,
-          totalScore: course.total_score || 0,
-          aiHelpUsed: course.ai_help_used || 0,
-          iconColor: '', // Will be handled dynamically by getCourseStyle
-          category: course.category,
+        const transformedSubjects: Subject[] = fetchedSubjects.map(subject => ({
+          id: subject.id.toString(),
+          name: subject.name || subject.title || 'Untitled Subject',
+          icon: subject.category,
+          progress: Math.round(subject.progress_percentage || 0),
+          totalProblems: subject.total_problems || 0,
+          solvedProblems: subject.solved_problems || 0,
+          totalScore: subject.total_score || 0,
+          aiHelpUsed: subject.ai_help_used || 0,
+          iconColor: '', // Will be handled dynamically by getSubjectStyle
+          category: subject.category,
         }));
 
-        setCourses(transformedCourses);
+        setSubjects(transformedSubjects);
       } catch (error) {
-        console.error('Failed to load courses:', error);
-        toast.error('Failed to load courses');
+        console.error('Failed to load subjects:', error);
+        toast.error('Failed to load subjects');
       } finally {
         setLoading(false);
       }
     };
 
-    loadCourses();
+    loadSubjects();
   }, []);
 
   if (loading) {
@@ -126,7 +126,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
                 <div>
                   <p className="text-sm font-medium text-slate-500 group-hover:text-green-600 transition-colors">Problems Solved</p>
                   <p className="text-3xl font-bold tracking-tight text-slate-900">
-                    {courses.reduce((sum, c) => sum + c.solvedProblems, 0)}
+                    {subjects.reduce((sum: number, c: any) => sum + c.solvedProblems, 0)}
                   </p>
                 </div>
               </div>
@@ -144,7 +144,7 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
                 <div>
                   <p className="text-sm font-medium text-slate-500 group-hover:text-purple-600 transition-colors">Total Score</p>
                   <p className="text-3xl font-bold tracking-tight text-slate-900">
-                    {courses.reduce((sum, c) => sum + (c.totalScore || 0), 0)}
+                    {subjects.reduce((sum: number, c: any) => sum + (c.totalScore || 0), 0)}
                   </p>
                 </div>
               </div>
@@ -162,14 +162,14 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
                 <div>
                   <p className="text-sm font-medium text-slate-500 group-hover:text-blue-600 transition-colors">AI Help Used</p>
                   <p className="text-3xl font-bold tracking-tight text-slate-900">
-                    {courses.reduce((sum, c) => sum + (c.aiHelpUsed || 0), 0)}
+                    {subjects.reduce((sum: number, c: any) => sum + (c.aiHelpUsed || 0), 0)}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Courses Available (Amber) */}
+          {/* Subjects Available (Amber) */}
           <Card className="group border-0 shadow-sm bg-gradient-to-br from-white to-amber-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative">
             <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardContent className="p-6 relative z-10">
@@ -178,8 +178,8 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
                   <Target className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500 group-hover:text-amber-600 transition-colors">Courses Available</p>
-                  <p className="text-3xl font-bold tracking-tight text-slate-900">{courses.length}</p>
+                  <p className="text-sm font-medium text-slate-500 group-hover:text-amber-600 transition-colors">Subjects Available</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-900">{subjects.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -187,30 +187,30 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
 
         </div>
 
-        {/* Course Grid */}
+        {/* Subject Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {courses.map(course => {
-            const Icon = getIcon(course.category);
-            const style = getCourseStyle(course.id);
+          {subjects.map(subject => {
+            const Icon = getIcon(subject.category);
+            const style = getSubjectStyle(subject.id);
 
             return (
               <ModernCard
-                key={course.id}
-                title={course.name}
-                description={`Master ${course.name} concepts with hands-on coding challenges and real-world scenarios.`}
+                key={subject.id}
+                title={subject.name}
+                description={`Master ${subject.name} concepts with hands-on coding challenges and real-world scenarios.`}
                 icon={<Icon className="h-6 w-6" />}
                 iconClassName={`${style.bg} ${style.text}`}
                 gradientColor={style.gradient}
-                progress={course.progress}
+                progress={subject.progress}
                 tags={[
-                  { text: course.category.replace('_', ' '), variant: "secondary" }
+                  { text: subject.category.replace('_', ' '), variant: "secondary" }
                 ]}
                 footerItems={[
-                  { icon: <Target className="w-3.5 h-3.5" />, text: `${course.totalProblems} Problems` },
-                  { icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: `${course.solvedProblems} Solved` }
+                  { icon: <Target className="w-3.5 h-3.5" />, text: `${subject.totalProblems} Problems` },
+                  { icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: `${subject.solvedProblems} Solved` }
                 ]}
                 actionLabel="Start Practice"
-                onAction={() => onCourseSelect(course)}
+                onAction={() => onSubjectSelect(subject)}
               />
             );
           })}
@@ -221,4 +221,4 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
   );
 };
 
-export default CourseDashboard;
+export default SubjectDashboard;

@@ -11,10 +11,10 @@ export interface Question {
   type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive';
   title: string;
   content: string;
-  level: 'course' | 'topic' | 'subtopic';
-  course?: string;
-  topic?: string;
-  subtopic?: string;
+  level: 'subject' | 'unit' | 'subunit';
+  subject?: string;
+  unit?: string;
+  sub_unit?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
   categories: string[];
@@ -36,10 +36,10 @@ export interface CreateQuestionData {
   type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive';
   title: string;
   content: string;
-  level: 'course' | 'topic' | 'subtopic';
-  course?: string;
-  topic?: string;
-  subtopic?: string;
+  level: 'subject' | 'unit' | 'subunit';
+  subject?: string;
+  unit?: string;
+  sub_unit?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
   categories: string[];
@@ -51,12 +51,12 @@ export interface CreateQuestionData {
 export interface UpdateQuestionData extends Partial<CreateQuestionData> { }
 
 export interface QuestionFilters {
-  course?: string;
-  topic?: string;
-  subtopic?: string;
+  subject?: string;
+  unit?: string;
+  sub_unit?: string;
   type?: 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive';
   difficulty?: 'easy' | 'medium' | 'hard';
-  level?: 'course' | 'topic' | 'subtopic';
+  level?: 'subject' | 'unit' | 'subunit';
   categories?: string;
   search?: string;
 }
@@ -126,20 +126,20 @@ export const deleteQuestion = async (id: string): Promise<void> => {
 
 // Utility functions for question management
 export const getQuestionsByLevel = async (
-  level: 'course' | 'topic' | 'subtopic',
+  level: 'subject' | 'unit' | 'subunit',
   levelId: string
 ): Promise<Question[]> => {
   const filters: QuestionFilters = { level };
 
   switch (level) {
-    case 'course':
-      filters.course = levelId;
+    case 'subject':
+      filters.subject = levelId;
       break;
-    case 'topic':
-      filters.topic = levelId;
+    case 'unit':
+      filters.unit = levelId;
       break;
-    case 'subtopic':
-      filters.subtopic = levelId;
+    case 'subunit':
+      filters.sub_unit = levelId;
       break;
   }
 
@@ -181,9 +181,9 @@ export const DIFFICULTY_LEVELS = [
 ] as const;
 
 export const QUESTION_LEVELS = [
-  { value: 'course', label: 'Course Level' },
-  { value: 'topic', label: 'Topic Level' },
-  { value: 'subtopic', label: 'Subtopic Level' },
+  { value: 'subject', label: 'Subject Level' },
+  { value: 'unit', label: 'Unit Level' },
+  { value: 'subunit', label: 'SubUnit Level' },
 ] as const;
 
 export const QUESTION_CATEGORIES = [
@@ -283,16 +283,16 @@ export const validateQuestion = (data: CreateQuestionData): string[] => {
   }
 
   // Level-specific validation
-  if (data.level === 'course' && !data.course) {
-    errors.push('Course is required for course-level questions');
+  if (data.level === 'subject' && !data.subject) {
+    errors.push('Subject is required for subject-level questions');
   }
 
-  if (data.level === 'topic' && !data.topic) {
-    errors.push('Topic is required for topic-level questions');
+  if (data.level === 'unit' && !data.unit) {
+    errors.push('Unit is required for unit-level questions');
   }
 
-  if (data.level === 'subtopic' && !data.subtopic) {
-    errors.push('Subtopic is required for subtopic-level questions');
+  if (data.level === 'subunit' && !data.sub_unit) {
+    errors.push('SubUnit is required for subunit-level questions');
   }
 
   // Type-specific validation

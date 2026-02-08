@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'course': return BookOpen;
+      case 'subject': return BookOpen;
       case 'coding': return Code;
       case 'job': return Briefcase;
       case 'contest': return Trophy;
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'course': return 'text-blue-600';
+      case 'subject': return 'text-blue-600';
       case 'coding': return 'text-green-600';
       case 'job': return 'text-purple-600';
       case 'contest': return 'text-yellow-600';
@@ -78,8 +78,8 @@ const Dashboard: React.FC = () => {
 
   const stats = [
     {
-      name: 'Courses Enrolled',
-      value: dashboardData.stats.coursesEnrolled.toString(),
+      name: 'Subjects Enrolled',
+      value: dashboardData.stats.subjectsEnrolled.toString(),
       change: '+2 this month',
       icon: BookOpen,
       color: 'bg-blue-500',
@@ -241,10 +241,10 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Course Progress */}
+            {/* Subject Progress */}
             <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Course Progress</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Subject Progress</h3>
                 <button
                   onClick={() => navigate('/student/learn')}
                   className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
@@ -254,20 +254,20 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {dashboardData.courseProgress.map((course) => (
-                    <div key={course.id} className="border-l-4 border-indigo-500 pl-4">
+                  {dashboardData.subjectProgress.map((subject) => (
+                    <div key={subject.id} className="border-l-4 border-indigo-500 pl-4">
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-gray-900">{course.name}</h4>
-                        <span className="text-sm text-gray-500">{course.progress}%</span>
+                        <h4 className="font-medium text-gray-900">{subject.name}</h4>
+                        <span className="text-sm text-gray-500">{subject.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                         <div
                           className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${course.progress}%` }}
+                          style={{ width: `${subject.progress}%` }}
                         ></div>
                       </div>
                       <p className="text-xs text-gray-500">
-                        {course.completedLessons} of {course.totalLessons} lessons completed
+                        {subject.completedLessons} of {subject.totalLessons} lessons completed
                       </p>
                     </div>
                   ))}

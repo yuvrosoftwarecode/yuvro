@@ -7,19 +7,19 @@ import { CodeEditorWithAI, CodeEditorWithAIHandle } from "@/components/code-edit
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 interface StudentCodingEmbedProps {
-  subtopicId: string;
+  subunitId: string;
   onComplete?: (status: boolean) => void;
   codeSubmissionType?: 'learn' | 'practice';
-  courseId?: string;
-  topicId?: string;
+  subjectId?: string;
+  unitId?: string;
 }
 
 // Import types from CodePractice for compatibility
-import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
+import type { Subject, Unit, CodingProblem } from '@/pages/student/CodePractice';
 
 // Layout components removed as CodeEditorWithAI handles layout internally
 
-const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'practice', courseId, topicId }: StudentCodingEmbedProps) => {
+const StudentCodingEmbed = ({ subunitId, onComplete, codeSubmissionType = 'practice', subjectId, unitId }: StudentCodingEmbedProps) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,9 +37,9 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
   // Track processed submissions to prevent duplicate API calls
   const processedSubmissions = useRef<Set<string>>(new Set());
 
-  // Mock course and topic data for CodeEditorWithAI
-  const mockCourse: Course = {
-    id: courseId || subtopicId,
+  // Mock subject and unit data for CodeEditorWithAI
+  const mockSubject: Subject = {
+    id: subjectId || subunitId,
     name: "Coding Practice",
     icon: "💻",
     progress: 0,
@@ -48,8 +48,8 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     category: "practice"
   };
 
-  const mockTopic: Topic = {
-    id: topicId || subtopicId,
+  const mockUnit: Unit = {
+    id: unitId || subunitId,
     name: "Coding Problems",
     problemCount: questions.length,
     order_index: 1,
@@ -61,11 +61,11 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     setViewMode('list');
     setSelectedQuestion(null);
     processedSubmissions.current.clear();
-  }, [subtopicId]);
+  }, [subunitId]);
 
   useEffect(() => {
     loadCodingQuestions();
-  }, [subtopicId]);
+  }, [subunitId]);
 
   useEffect(() => {
     if (questions.length > 0) {
@@ -85,7 +85,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     setLoading(true);
     try {
       const res = await fetchQuestions({
-        subtopic: subtopicId,
+        sub_unit: subunitId,
         type: 'coding'
       });
 
@@ -135,10 +135,10 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
         try {
           processedSubmissions.current.add(submissionKey);
 
-          // Only update progress via StudentCourseProgressViewSet
+          // Only update progress via StudentSubjectProgressViewSet
           console.log('Updating progress via submit_coding API...');
           const submissionDetails = {
-            subtopic_id: subtopicId,
+            subunit_id: subunitId,
             coding_status: {}, // Empty for detailed submissions
             question_id: problemId,
             language: submissionResult.language || 'python',
@@ -147,7 +147,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
             execution_output: submissionResult.output || ''
           };
 
-          await restApiAuthUtil.post('/course/student-course-progress/submit_coding/', submissionDetails);
+          await restApiAuthUtil.post('/course/student-subject-progress/submit_coding/', submissionDetails);
           console.log('Coding progress updated successfully', {
             questionId: submissionDetails?.question_id,
             language: submissionDetails?.language,
@@ -210,7 +210,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     return (
       <div className="text-center text-muted-foreground py-12 bg-gray-50 rounded-lg border border-dashed">
         <Code className="mx-auto h-12 w-12 mb-4 opacity-50" />
-        <p>No coding questions available for this subtopic.</p>
+        <p>No coding questions available for this subunit.</p>
         <p className="text-sm mt-2">Requirement automatically met.</p>
       </div>
     );
@@ -274,9 +274,9 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
       <CodeEditorWithAI
         ref={codeEditorRef}
         problem={convertToCodingProblem(selectedQuestion!)}
-        course={mockCourse}
-        topic={mockTopic}
-        subtopicId={subtopicId}
+        subject={mockSubject}
+        unit={mockUnit}
+        subunitId={subunitId}
         onBack={handleBackToList}
         initialFullscreen={false}
         initialEditorOpen={true}

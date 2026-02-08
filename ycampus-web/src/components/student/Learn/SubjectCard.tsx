@@ -1,4 +1,4 @@
-// src/features/Learn/components/CourseCard.tsx
+// src/features/Learn/components/SubjectCard.tsx
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ interface Props {
   completedActionLabel?: string;
 }
 
-const CourseCard: React.FC<Props> = ({
+const SubjectCard: React.FC<Props> = ({
   id,
   icon,
   title,
@@ -74,4 +74,4 @@ const CourseCard: React.FC<Props> = ({
   );
 };
 
-export default CourseCard;
+export default SubjectCard;

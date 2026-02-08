@@ -8,13 +8,15 @@ import StudentNotes from "./StudentNotes";
 import { toast } from "sonner";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import {
-    fetchCourseById,
-    fetchTopicsByCourse,
-    fetchSubtopicsByTopic,
-    markSubtopicVideoWatched,
-    fetchUserCourseProgress,
-    Course as CourseType
-} from "@/services/courseService";
+    fetchSubjectById,
+    fetchUnitsBySubject,
+    fetchSubUnitsByUnit,
+    markSubUnitVideoWatched,
+    fetchUserSubjectProgress,
+    Subject,
+    UnitBasic as Unit,
+    SubUnit
+} from "@/services/subjectService";
 import { fetchQuestions } from "@/services/questionService";
 import { Check } from "lucide-react";
 import ProgressBar from "@/components/ui/ProgressBar";
@@ -30,36 +32,22 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type Topic = {
-    id: string;
-    name: string;
-    order_index: number;
-};
+const SubjectDetail: React.FC = () => {
+    const { subjectId } = useParams<{ subjectId: string }>();
 
-type Subtopic = {
-    id: string;
-    name: string;
-    order_index: number;
-    topic: string;
-    content?: string | null;
-};
-
-const CourseDetail: React.FC = () => {
-    const { courseId } = useParams<{ courseId: string }>();
-
-    const [course, setCourse] = useState<CourseType | null>(null);
-    const [topics, setTopics] = useState<Topic[]>([]);
+    const [subject, setSubject] = useState<Subject | null>(null);
+    const [units, setUnits] = useState<Unit[]>([]);
 
     const [collapsed, setCollapsed] = useState(false);
 
-    const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
-    const [subtopicsMap, setSubtopicsMap] = useState<Record<string, Subtopic[]>>({});
+    const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({});
+    const [subunitsMap, setSubunitsMap] = useState<Record<string, SubUnit[]>>({});
 
     const [progressMap, setProgressMap] = useState<Record<string, number>>({});
     const [readMap, setReadMap] = useState<Record<string, boolean>>({});
 
     const [loading, setLoading] = useState(true);
-    const [chatSessionId, setChatSessionId] = useState(`course-chat-${courseId}-${crypto.randomUUID()}`);
+    const [chatSessionId, setChatSessionId] = useState(`subject-chat-${subjectId}-${crypto.randomUUID()}`);
     const [rightTab, setRightTab] = useState<'videos' | 'quizzes' | 'coding' | 'materials' | 'my-notes'>('videos');
 
     const [requirements, setRequirements] = useState<{ hasQuiz: boolean; hasCoding: boolean; loaded: boolean }>({
@@ -80,7 +68,7 @@ const CourseDetail: React.FC = () => {
         }
     }, [videoLayout]);
 
-    const [selectedSubtopic, setSelectedSubtopic] = useState<Subtopic | null>(
+    const [selectedSubUnit, setSelectedSubUnit] = useState<SubUnit | null>(
         null
     );
 
@@ -95,20 +83,19 @@ const CourseDetail: React.FC = () => {
         loadingProgressRef.current = false;
         lastProgressFetchRef.current = 0;
 
-        if (selectedSubtopic) {
+        if (selectedSubUnit) {
             // Context Isolation: Use a STABLE session ID for each subtopic
-            // This ensures persistence across refreshes without needing a history menu
-            setChatSessionId(`subtopic-chat-${selectedSubtopic.id}`);
-            checkRequirements(selectedSubtopic.id);
+            setChatSessionId(`subunit-chat-${selectedSubUnit.id}`);
+            checkRequirements(selectedSubUnit.id);
         }
-    }, [selectedSubtopic?.id]);
+    }, [selectedSubUnit?.id]);
 
-    const checkRequirements = async (subtopicId: string) => {
+    const checkRequirements = async (subunitId: string) => {
         try {
-            const quizzes = await fetchQuestions({ subtopic: subtopicId, level: 'subtopic', type: 'mcq_single' });
+            const quizzes = await fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'mcq_single' });
             const hasQuiz = quizzes.length > 0;
 
-            const coding = await fetchQuestions({ subtopic: subtopicId, level: 'subtopic', type: 'coding' });
+            const coding = await fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'coding' });
             const hasCoding = coding.length > 0;
 
             setRequirements({ hasQuiz, hasCoding, loaded: true });
@@ -120,11 +107,11 @@ const CourseDetail: React.FC = () => {
     };
 
     const handleProgressUpdate = useCallback(async () => {
-        if (!selectedSubtopic || loadingProgressRef.current) return;
+        if (!selectedSubUnit || loadingProgressRef.current) return;
 
-        console.log('handleProgressUpdate called for subtopic:', selectedSubtopic.id);
+        console.log('handleProgressUpdate called for subunit:', selectedSubUnit.id);
         await loadProgress();
-    }, [selectedSubtopic?.id]);
+    }, [selectedSubUnit?.id]);
 
     const debouncedProgressUpdate = useCallback(
         React.useMemo(() => {
@@ -139,8 +126,8 @@ const CourseDetail: React.FC = () => {
         [handleProgressUpdate]
     );
 
-    const getTopicProgress = (topicId: string): number => {
-        const subs = subtopicsMap[topicId] || [];
+    const getUnitProgress = (unitId: string): number => {
+        const subs = subunitsMap[unitId] || [];
         if (subs.length === 0) return 0;
 
         const totalProgress = subs.reduce((acc, s) => acc + (progressMap[s.id] || 0), 0);
@@ -150,75 +137,75 @@ const CourseDetail: React.FC = () => {
 
     useEffect(() => {
         loadPage();
-    }, [courseId]);
+    }, [subjectId]);
 
     const overallProgress = React.useMemo(() => {
-        const allSubs = Object.values(subtopicsMap).flat();
+        const allSubs = Object.values(subunitsMap).flat();
         if (allSubs.length === 0) return 0;
         const total = allSubs.reduce((acc, s) => acc + (progressMap[s.id] || 0), 0);
         return Math.round(total / allSubs.length);
-    }, [subtopicsMap, progressMap]);
+    }, [subunitsMap, progressMap]);
 
     const loadPage = async () => {
-        if (!courseId) return;
+        if (!subjectId) return;
 
         setLoading(true);
 
         try {
-            const c = await fetchCourseById(courseId);
-            setCourse(c);
+            const s = await fetchSubjectById(subjectId);
+            setSubject(s);
 
-            const t = await fetchTopicsByCourse(courseId);
-            setTopics(t);
+            const u = await fetchUnitsBySubject(subjectId);
+            setUnits(u);
 
-            const allSubtopics: Record<string, Subtopic[]> = {};
-            let firstSubtopic: Subtopic | null = null;
-            let firstTopicId: string | null = null;
+            const allSubUnits: Record<string, SubUnit[]> = {};
+            let firstSubUnit: SubUnit | null = null;
+            let firstUnitId: string | null = null;
 
             try {
-                const subtopicPromises = t.map(async (topic) => {
-                    const subs = await fetchSubtopicsByTopic(topic.id);
-                    return { topicId: topic.id, subs: subs as Subtopic[] };
+                const subunitPromises = u.map(async (unit) => {
+                    const subs = await fetchSubUnitsByUnit(unit.id);
+                    return { unitId: unit.id, subs: subs as SubUnit[] };
                 });
 
-                const results = await Promise.all(subtopicPromises);
+                const results = await Promise.all(subunitPromises);
 
-                results.forEach(({ topicId, subs }) => {
-                    allSubtopics[topicId] = subs;
+                results.forEach(({ unitId, subs }) => {
+                    allSubUnits[unitId] = subs;
                 });
 
                 const firstWithSubs = results.find(r => r.subs.length > 0);
 
                 if (firstWithSubs) {
-                    firstSubtopic = firstWithSubs.subs[0];
-                    firstTopicId = firstWithSubs.topicId;
+                    firstSubUnit = firstWithSubs.subs[0];
+                    firstUnitId = firstWithSubs.unitId;
                 }
 
-                setSubtopicsMap(allSubtopics);
+                setSubunitsMap(allSubUnits);
 
-                if (firstTopicId && firstSubtopic) {
+                if (firstUnitId && firstSubUnit) {
                     const newExpanded: Record<string, boolean> = {};
-                    t.forEach((topic) => (newExpanded[topic.id] = topic.id === firstTopicId));
-                    setExpandedTopics(newExpanded);
-                    setSelectedSubtopic(firstSubtopic);
+                    u.forEach((unit) => (newExpanded[unit.id] = unit.id === firstUnitId));
+                    setExpandedUnits(newExpanded);
+                    setSelectedSubUnit(firstSubUnit);
                 }
             } catch (err) {
-                console.warn("Could not fetch subtopics", err);
-                setSubtopicsMap({});
+                console.warn("Could not fetch subunits", err);
+                setSubunitsMap({});
             }
 
-            setSubtopicsMap(allSubtopics);
+            setSubunitsMap(allSubUnits);
 
             await loadProgress();
         } catch (err) {
-            toast.error("Failed to load course");
+            toast.error("Failed to load subject");
         } finally {
             setLoading(false);
         }
     };
 
     const loadProgress = async () => {
-        if (!courseId || loadingProgressRef.current) return;
+        if (!subjectId || loadingProgressRef.current) return;
 
         const now = Date.now();
         if (now - lastProgressFetchRef.current < 1000) {
@@ -228,10 +215,10 @@ const CourseDetail: React.FC = () => {
 
         loadingProgressRef.current = true;
         lastProgressFetchRef.current = now;
-        console.log('loadProgress called for course:', courseId);
+        console.log('loadProgress called for subject:', subjectId);
 
         try {
-            const progressData = await fetchUserCourseProgress(courseId) as any;
+            const progressData = await fetchUserSubjectProgress(subjectId) as any;
 
             const newProgressMap: Record<string, number> = {};
             const newReadMap: Record<string, boolean> = {};
@@ -240,7 +227,7 @@ const CourseDetail: React.FC = () => {
                 newProgressMap[subId] = data.progress_percent || 0;
                 newReadMap[subId] = data.is_completed || false;
 
-                if (selectedSubtopic && selectedSubtopic.id === subId) {
+                if (selectedSubUnit && selectedSubUnit.id === subId) {
                     setActiveProgress({
                         quiz: data.is_quiz_completed,
                         coding: data.is_coding_completed,
@@ -258,23 +245,23 @@ const CourseDetail: React.FC = () => {
         }
     };
 
-    const toggleExpandTopic = async (topicId: string) => {
-        const isOpen = expandedTopics[topicId];
+    const toggleExpandUnit = async (unitId: string) => {
+        const isOpen = expandedUnits[unitId];
         const newState: Record<string, boolean> = {};
-        topics.forEach((t) => (newState[t.id] = false));
-        newState[topicId] = !isOpen;
+        units.forEach((u) => (newState[u.id] = false));
+        newState[unitId] = !isOpen;
 
-        setExpandedTopics(newState);
+        setExpandedUnits(newState);
 
-        if (!isOpen && !subtopicsMap[topicId]) {
+        if (!isOpen && !subunitsMap[unitId]) {
             try {
-                const subs = await fetchSubtopicsByTopic(topicId);
-                setSubtopicsMap((prev) => {
-                    const updated: Record<string, Subtopic[]> = { ...prev, [topicId]: subs as Subtopic[] };
+                const subs = await fetchSubUnitsByUnit(unitId);
+                setSubunitsMap((prev) => {
+                    const updated: Record<string, SubUnit[]> = { ...prev, [unitId]: subs as SubUnit[] };
                     return updated;
                 });
             } catch (err) {
-                toast.error("Failed to load subtopics");
+                toast.error("Failed to load subunits");
             }
         }
     };
@@ -282,15 +269,15 @@ const CourseDetail: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-600">
-                Loading course...
+                Loading subject...
             </div>
         );
     }
 
-    if (!course) {
+    if (!subject) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-600">
-                Course not found.
+                Subject not found.
             </div>
         );
     }
@@ -310,30 +297,30 @@ const CourseDetail: React.FC = () => {
                     <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                         {collapsed ? (
                             <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={course.name}>
+                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={subject.name}>
                                     🗂️
                                 </div>
                                 <div className="flex flex-col items-center gap-3 w-full px-2">
-                                    {topics.map((topic) => {
-                                        const progress = getTopicProgress(topic.id);
+                                    {units.map((unit) => {
+                                        const progress = getUnitProgress(unit.id);
                                         const isCompleted = progress === 100;
                                         return (
                                             <div
-                                                key={topic.id}
+                                                key={unit.id}
                                                 className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer border-2 shadow-sm transition-all
-                            ${isCompleted
+                                                    ${isCompleted
                                                         ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
                                                         : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-gray-50"
                                                     }`}
-                                                title={topic.name}
+                                                title={unit.name}
                                                 onClick={() => {
                                                     setCollapsed(false);
-                                                    if (!expandedTopics[topic.id]) {
-                                                        toggleExpandTopic(topic.id);
+                                                    if (!expandedUnits[unit.id]) {
+                                                        toggleExpandUnit(unit.id);
                                                     }
                                                 }}
                                             >
-                                                {topic.name.charAt(0)}
+                                                {unit.name.charAt(0)}
                                             </div>
                                         );
                                     })}
@@ -345,7 +332,7 @@ const CourseDetail: React.FC = () => {
                                     <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
                                         🗂️
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
                                 </div>
 
                                 <p className="text-sm text-gray-500 mb-5 ml-1">Track your learning progress</p>
@@ -363,25 +350,25 @@ const CourseDetail: React.FC = () => {
 
                                 <div className="h-px bg-gray-100 w-full mb-5" />
 
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Course Topics</h3>
+                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
 
                                 <div className="space-y-3 pb-4">
-                                    {topics.map((topic) => {
-                                        const expanded = expandedTopics[topic.id];
-                                        const subs = subtopicsMap[topic.id] || [];
+                                    {units.map((unit) => {
+                                        const expanded = expandedUnits[unit.id];
+                                        const subs = subunitsMap[unit.id] || [];
                                         const allRead = subs.length > 0 && subs.every((s) => readMap[s.id]);
-                                        const progress = getTopicProgress(topic.id);
+                                        const progress = getUnitProgress(unit.id);
                                         return (
-                                            <div key={topic.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                                            <div key={unit.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
                                                 <div
                                                     className={`flex items-center justify-between cursor-pointer w-full p-3 transition-colors ${expanded ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}`}
-                                                    onClick={() => toggleExpandTopic(topic.id)}
+                                                    onClick={() => toggleExpandUnit(unit.id)}
                                                 >
                                                     <div className="flex items-center gap-3 overflow-hidden">
                                                         <div className={`p-1 rounded-full transition-transform duration-300 ${expanded ? 'bg-gray-200 rotate-90' : 'bg-transparent rotate-0'}`}>
                                                             <ChevronRight className="w-4 h-4 text-gray-600" />
                                                         </div>
-                                                        <span className="font-semibold text-gray-800 truncate text-sm">{topic.name}</span>
+                                                        <span className="font-semibold text-gray-800 truncate text-sm">{unit.name}</span>
                                                     </div>
                                                     {allRead && (
                                                         <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-sm">
@@ -411,13 +398,13 @@ const CourseDetail: React.FC = () => {
                                                             {subs.map((s) => (
                                                                 <div
                                                                     key={s.id}
-                                                                    className={`group p-2.5 rounded-lg cursor-pointer flex items-center justify-between transition-all duration-200 ${selectedSubtopic?.id === s.id
+                                                                    className={`group p-2.5 rounded-lg cursor-pointer flex items-center justify-between transition-all duration-200 ${selectedSubUnit?.id === s.id
                                                                         ? "bg-white text-blue-700 shadow-sm border border-blue-100 ring-1 ring-blue-50"
                                                                         : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent"
                                                                         }`}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        setSelectedSubtopic(s);
+                                                                        setSelectedSubUnit(s);
                                                                         setRightTab("videos");
                                                                     }}
                                                                 >
@@ -474,19 +461,19 @@ const CourseDetail: React.FC = () => {
                 <div className="flex-1 bg-white shadow-sm overflow-hidden flex flex-col">
                     <div className="border-b border-gray-200 py-3 flex items-center justify-between relative min-h-[4.5rem]">
                         <div className="ml-4 flex items-center gap-2 text-sm bg-white border border-gray-300 shadow-sm rounded-full px-4 py-1 font-medium text-gray-700 max-w-[30%] min-w-0">
-                            {selectedSubtopic && (
+                            {selectedSubUnit && (
                                 <>
-                                    <span className="text-gray-500 truncate hidden md:block max-w-[120px]" title={topics.find(t => t.id === selectedSubtopic.topic)?.name}>
+                                    <span className="text-gray-500 truncate hidden md:block max-w-[120px]" title={units.find(u => u.id === selectedSubUnit.unit)?.name}>
                                         {collapsed
-                                            ? topics.find(t => t.id === selectedSubtopic.topic)?.name
-                                            : topics.find(t => t.id === selectedSubtopic.topic)?.name.charAt(0)
+                                            ? units.find(u => u.id === selectedSubUnit.unit)?.name
+                                            : units.find(u => u.id === selectedSubUnit.unit)?.name.charAt(0)
                                         }
                                     </span>
                                     <ChevronRight className="w-3 h-3 text-gray-400 flex-shrink-0 hidden md:block" />
                                 </>
                             )}
-                            <span className="truncate" title={selectedSubtopic ? selectedSubtopic.name : ""}>
-                                {selectedSubtopic ? selectedSubtopic.name : "No subtopic selected"}
+                            <span className="truncate" title={selectedSubUnit ? selectedSubUnit.name : ""}>
+                                {selectedSubUnit ? selectedSubUnit.name : "No subunit selected"}
                             </span>
                         </div>
 
@@ -522,17 +509,17 @@ const CourseDetail: React.FC = () => {
                         <div className="flex items-center gap-4 ml-4 mr-6">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Course Guide">
+                                    <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Subject Guide">
                                         <Info className="w-5 h-5" />
                                     </button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden rounded-2xl">
                                     <DialogHeader className="p-6 pb-2">
                                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                                            <Info className="w-6 h-6 text-blue-600" /> Course Guide
+                                            <Info className="w-6 h-6 text-blue-600" /> Subject Guide
                                         </DialogTitle>
                                         <DialogDescription>
-                                            Everything you need to know to master this course.
+                                            Everything you need to know to master this subject.
                                         </DialogDescription>
                                     </DialogHeader>
 
@@ -549,10 +536,10 @@ const CourseDetail: React.FC = () => {
                                                 <TabsContent value="progress" className="space-y-4">
                                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4">
                                                         <h3 className="font-semibold text-blue-900 mb-1 flex items-center gap-2">
-                                                            <CheckCircle2 className="w-4 h-4" /> How to Complete a Topic?
+                                                            <CheckCircle2 className="w-4 h-4" /> How to Complete a Unit?
                                                         </h3>
                                                         <p className="text-sm text-blue-700">
-                                                            A subtopic is marked as <strong>100% Complete</strong> only when you have finished all required activities.
+                                                            A subunit is marked as <strong>100% Complete</strong> only when you have finished all required activities.
                                                         </p>
                                                     </div>
 
@@ -658,9 +645,9 @@ const CourseDetail: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={async () => {
-                                            if (selectedSubtopic) {
+                                            if (selectedSubUnit) {
                                                 try {
-                                                    await markSubtopicVideoWatched(selectedSubtopic.id);
+                                                    await markSubUnitVideoWatched(selectedSubUnit.id);
                                                     toast.success("Videos marked as watched");
                                                     loadProgress();
                                                 } catch (e) {
@@ -669,7 +656,7 @@ const CourseDetail: React.FC = () => {
                                             }
                                         }}
                                         className={`px-3 py-1.5 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-colors 
-                        ${activeProgress.video
+                                            ${activeProgress.video
                                                 ? "bg-green-100 text-green-700 hover:bg-green-200"
                                                 : "bg-blue-600 text-white hover:bg-blue-700"}`}
                                     >
@@ -685,43 +672,43 @@ const CourseDetail: React.FC = () => {
                     </div>
 
                     <div className={rightTab === "coding" ? "flex-1 overflow-hidden" : "p-6 flex-1 overflow-y-auto"}>
-                        {!selectedSubtopic ? (
+                        {!selectedSubUnit ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
-                                <div className="text-lg font-medium mb-2">Select a subtopic on the left</div>
+                                <div className="text-lg font-medium mb-2">Select a subunit on the left</div>
                                 <div className="text-sm">Then browse Videos / Quizzes / Notes</div>
                             </div>
                         ) : (
                             <>
                                 {rightTab === "videos" &&
                                     <StudentVideos
-                                        subtopicId={selectedSubtopic.id}
-                                        courseName={course?.name || "Unknown"}
-                                        topicName={topics.find(t => expandedTopics[t.id])?.name || "Topic"}
-                                        subtopicName={selectedSubtopic.name}
-                                        subtopicContent={selectedSubtopic.content}
+                                        subunitId={selectedSubUnit.id}
+                                        subjectName={subject?.name || "Unknown"}
+                                        unitName={units.find(u => expandedUnits[u.id])?.name || "Unit"}
+                                        subunitName={selectedSubUnit.name}
+                                        subunitContent={selectedSubUnit.content}
                                         sessionId={chatSessionId}
-                                        onNewSession={() => setChatSessionId(`course-chat-${courseId}-${crypto.randomUUID()}`)}
+                                        onNewSession={() => setChatSessionId(`subject-chat-${subjectId}-${crypto.randomUUID()}`)}
                                         layout={videoLayout}
                                         onLayoutChange={setVideoLayout}
                                     />
                                 }
                                 {rightTab === "quizzes" && (
                                     <StudentQuizEmbed
-                                        subtopicId={selectedSubtopic.id}
+                                        subunitId={selectedSubUnit.id}
                                         onComplete={() => debouncedProgressUpdate()}
                                     />
                                 )}
                                 {rightTab === "coding" && (
                                     <StudentCodingEmbed
-                                        subtopicId={selectedSubtopic.id}
+                                        subunitId={selectedSubUnit.id}
                                         onComplete={() => debouncedProgressUpdate()}
                                         codeSubmissionType="learn"
-                                        courseId={courseId}
-                                        topicId={selectedSubtopic.topic}
+                                        subjectId={subjectId}
+                                        unitId={selectedSubUnit.unit}
                                     />
                                 )}
-                                {rightTab === "materials" && <StudentNotes subtopicId={selectedSubtopic.id} mode="materials" />}
-                                {rightTab === "my-notes" && <StudentNotes subtopicId={selectedSubtopic.id} mode="my-notes" />}
+                                {rightTab === "materials" && <StudentNotes subunitId={selectedSubUnit.id} mode="materials" />}
+                                {rightTab === "my-notes" && <StudentNotes subunitId={selectedSubUnit.id} mode="my-notes" />}
 
                             </>
                         )}
@@ -732,4 +719,4 @@ const CourseDetail: React.FC = () => {
     );
 };
 
-export default CourseDetail;
+export default SubjectDetail;

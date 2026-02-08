@@ -11,12 +11,12 @@ import NotFound from './pages/common/NotFound';
 import ResetPassword from './pages/common/ResetPassword';
 import ForgotPassword from './pages/common/ForgotPassword';
 import InstructorDashboard from './pages/instructor/Dashboard';
-import Courses from './pages/instructor/Courses';
-import CourseEdit from './components/instructor/courses/CourseEdit';
+import Subjects from './pages/instructor/Subjects';
+import SubjectEdit from './components/instructor/subjects/SubjectEdit';
 
 import Users from './pages/instructor/Users';
 import StudentDashboard from './pages/student/StudentDashboard';
-import CourseDetail from './components/student/CourseDetail';
+import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
 import MockInterview from './pages/student/MockInterview';
 import StudentJobs from './pages/student/Jobs';
@@ -88,16 +88,16 @@ function App() {
               />
 
               <Route
-                path="/student/learn/:courseId"
+                path="/student/learn/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <CourseDetail />
+                    <SubjectDetail />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/learn/:subtopicId/quiz"
+                path="/student/learn/:subUnitId/quiz"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentQuiz />
@@ -106,7 +106,7 @@ function App() {
               />
 
               <Route
-                path="/student/learn/:subtopicId/coding"
+                path="/student/learn/:subUnitId/coding"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentCoding />
@@ -133,7 +133,7 @@ function App() {
               />
 
               <Route
-                path="/student/courses/:courseId/skill-tests"
+                path="/student/subjects/:subjectId/skill-tests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <SkillTest />
@@ -142,7 +142,7 @@ function App() {
               />
 
               <Route
-                path="/student/courses/:courseId/skill-tests/:testId"
+                path="/student/subjects/:subjectId/skill-tests/:testId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <SkillTest />
@@ -151,7 +151,7 @@ function App() {
               />
 
               <Route
-                path="/student/courses/:courseId/skill-tests/:testId/results"
+                path="/student/subjects/:subjectId/skill-tests/:testId/results"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <SkillTest />
@@ -213,7 +213,7 @@ function App() {
                 }
               />
               <Route
-                path="/student/code-practice/courses/:courseId"
+                path="/student/code-practice/subjects/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CodePractice />
@@ -221,7 +221,7 @@ function App() {
                 }
               />
               <Route
-                path="/student/code-practice/courses/:courseId/topics/:topicId"
+                path="/student/code-practice/subjects/:subjectId/units/:unitId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CodePractice />
@@ -229,7 +229,7 @@ function App() {
                 }
               />
               <Route
-                path="/student/code-practice/courses/:courseId/topics/:topicId/questions/:problemId"
+                path="/student/code-practice/subjects/:subjectId/units/:unitId/questions/:problemId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CodePractice />
@@ -321,10 +321,10 @@ function App() {
 
 
               <Route
-                path="/instructor/courses"
+                path="/instructor/subjects"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <Courses />
+                    <Subjects />
                   </ProtectedRoute>
                 }
               />
@@ -332,10 +332,10 @@ function App() {
 
 
               <Route
-                path="/instructor/courses/:id/manage"
+                path="/instructor/subjects/:id/manage"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <CourseEdit />
+                    <SubjectEdit />
                   </ProtectedRoute>
                 }
               />
@@ -459,7 +459,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/courses/:courseId/manage"
+                path="/instructor/skill-tests/subjects/:subjectId/manage"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorSkillTest />

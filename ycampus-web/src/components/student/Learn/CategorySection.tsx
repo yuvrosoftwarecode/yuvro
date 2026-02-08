@@ -1,16 +1,16 @@
 import React from "react";
 import ModernCard from "@/components/common/ModernCard";
-import type { Course } from "../Learn/types";
+import type { Subject } from "../Learn/types";
 
 interface Props {
   title: string;
   icon: React.ReactNode;
-  courses: Course[];
+  subjects: Subject[];
   progressMap: { [k: string]: number };
   onStartLearning: (id: string) => void;
 }
 
-const getCourseStyle = (id: string | number) => {
+const getSubjectStyle = (id: string | number) => {
   const styles = [
     { bg: "bg-blue-50", text: "text-blue-600", gradient: "from-blue-500 to-indigo-600" },
     { bg: "bg-purple-50", text: "text-purple-600", gradient: "from-purple-500 to-violet-600" },
@@ -21,12 +21,12 @@ const getCourseStyle = (id: string | number) => {
     { bg: "bg-cyan-50", text: "text-cyan-600", gradient: "from-cyan-500 to-sky-600" },
   ];
 
-  // Simple hash to ensuring consistent color for the same course ID
+  // Simple hash to ensuring consistent color for the same subject ID
   const index = String(id).charCodeAt(0) % styles.length;
   return styles[index];
 };
 
-const CategorySection: React.FC<Props> = ({ title, icon, courses, progressMap, onStartLearning }) => {
+const CategorySection: React.FC<Props> = ({ title, icon, subjects, progressMap, onStartLearning }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 mb-6">
@@ -37,28 +37,28 @@ const CategorySection: React.FC<Props> = ({ title, icon, courses, progressMap, o
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {courses.map((c) => {
-          const progress = Math.max(0, Math.min(100, progressMap[c.id] ?? 0));
-          const style = getCourseStyle(c.id);
+        {subjects.map((s) => {
+          const progress = Math.max(0, Math.min(100, progressMap[s.id] ?? 0));
+          const style = getSubjectStyle(s.id);
 
           return (
             <ModernCard
-              key={c.id}
-              title={c.name}
+              key={s.id}
+              title={s.name}
               description={
-                c.topics?.length
-                  ? c.topics.slice(0, 3).map(t => t.name).join(", ")
-                  : "No topics yet"
+                s.units?.length
+                  ? s.units.slice(0, 3).map(u => u.name).join(", ")
+                  : "No units yet"
               }
               icon={icon}
               iconClassName={`${style.bg} ${style.text}`}
               gradientColor={style.gradient}
               progress={progress}
               tags={[
-                { text: `${c.topics?.length || 0} Topics`, variant: "secondary" }
+                { text: `${s.units?.length || 0} Units`, variant: "secondary" }
               ]}
               actionLabel={progress > 0 ? "Continue Learning" : "Start Learning"}
-              onAction={() => onStartLearning(c.id)}
+              onAction={() => onStartLearning(s.id)}
             />
           );
         })}
