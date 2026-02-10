@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import (
+    Department,
     Subject,
     Unit,
     SubUnit,
@@ -33,16 +34,24 @@ class SubjectInstructorInline(admin.TabularInline):
     readonly_fields = ["created_at", "updated_at"]
 
 
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ["name", "description", "created_at", "updated_at"]
+    search_fields = ["name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_code", "category", "created_at", "updated_at"]
-    list_filter = ["category", "created_at", "updated_at"]
-    search_fields = ["name", "short_code"]
+    list_display = ["name", "short_code", "category", "department", "created_at", "updated_at"]
+    list_filter = ["department", "category", "created_at", "updated_at"]
+    search_fields = ["name", "short_code", "department__name"]
     readonly_fields = ["id", "created_at", "updated_at"]
     fields = [
         "name",
         "short_code",
         "category",
+        "department",
         "id",
         "created_at",
         "updated_at",

@@ -9,6 +9,23 @@ from core.models import BaseTimestampedModel
 User = get_user_model()
 
 
+class Department(models.Model):
+    """
+    Model representing a department within the institution.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Subject(models.Model):
     """
     Subject model representing a complete learning subject.
@@ -26,6 +43,13 @@ class Subject(models.Model):
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     name = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        related_name="subjects",
+        null=True,
+        blank=True,
+    )
     instructors = models.ManyToManyField(
         User, through="SubjectInstructor", related_name="subjects_taught"
     )
@@ -196,10 +220,10 @@ class SubjectInstructor(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
 
-        # Only users with instructor/admin roles can be linked
-        if self.instructor.role not in ["instructor", "admin"]:
+        # Only users with instructor/admin/faculty roles can be linked
+        if self.instructor.role not in ["instructor", "admin", "faculty"]:
             raise ValidationError(
-                "Only instructors or admins can be assigned to a subject."
+                "Only instructors, admins or faculty can be assigned to a subject."
             )
 
     def save(self, *args, **kwargs):

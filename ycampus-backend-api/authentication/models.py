@@ -7,6 +7,7 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ("student", "Student"),
         ("instructor", "Instructor"),
+        ("faculty", "Faculty"),
         ("recruiter", "Recruiter"),
         ("admin", "Administrator"),
     ]
@@ -28,6 +29,9 @@ class User(AbstractUser):
     def is_instructor(self):
         return self.role == "instructor"
 
+    def is_faculty(self):
+        return self.role == "faculty"
+
     def is_recruiter(self):
         return self.role == "recruiter"
 
@@ -35,7 +39,7 @@ class User(AbstractUser):
         return self.role == "student"
 
     def can_manage_content(self):
-        return self.role in ["admin", "instructor"]
+        return self.role in ["admin", "instructor", "faculty"]
 
     def can_manage_users(self):
         return self.role == "admin"
