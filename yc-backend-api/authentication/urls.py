@@ -30,4 +30,9 @@ urlpatterns = [
         views.UserToggleStatusView.as_view(),
         name="user_toggle_status",
     ),
+
+    path("user/", views.user_info_view, name="current_user"),
+    path("resume/generate-pdf/", views.generate_resume_pdf, name="generate_resume_pdf"),
+    path("resume/templates/", views.get_resume_templates, name="get_resume_templates"),
+    path("resume/config/", views.resume_config_view, name="resume_config"),
 ]

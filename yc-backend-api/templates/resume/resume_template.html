@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile.full_name|default:"Student Name" }} - Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '{{ colors.primary }}',
+                        'accent': '{{ colors.accent }}'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        .text-primary { color: {{ colors.primary }} !important; }
+        .text-accent { color: {{ colors.accent }} !important; }
+        .border-primary { border-color: {{ colors.primary }} !important; }
+        .bg-primary-light { background-color: {{ colors.primary }}20 !important; }
+        .gradient-primary { 
+            background: linear-gradient(135deg, {{ colors.primary }}, {{ colors.accent }}) !important; 
+        }
+    </style>
+</head>
+<body class="font-{{ font_family|default:'sans' }} leading-relaxed text-gray-800 bg-white text-sm w-full max-w-4xl mx-auto p-10">
+    <div class="resume-container w-full bg-white">
+        {% if template_id == 'modern' %}
+            <div class="flex gap-8">
+                <div class="sidebar w-2/5 gradient-primary text-white p-8 -m-10 mr-0 min-h-screen">
+                    <!-- Contact Info -->
+                    <div class="section mb-6">
+                        <h2 class="text-lg font-bold text-white border-b border-white/30 pb-1 mb-4 uppercase tracking-wide">Contact</h2>
+                        <div class="text-sm space-y-1">
+                            {% if profile.links.email %}
+                                <p class="text-white/90">{{ profile.links.email }}</p>
+                            {% endif %}
+                            {% if profile.location %}
+                                <p class="text-white/90">{{ profile.location }}</p>
+                            {% endif %}
+                            {% if profile.links.linkedin %}
+                                <p class="text-white/90">{{ profile.links.linkedin }}</p>
+                            {% endif %}
+                            {% if profile.links.github %}
+                                <p class="text-white/90">{{ profile.links.github }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    {% if profile.skills %}
+                    <div class="section mb-6">
+                        <h2 class="text-lg font-bold text-white border-b border-white/30 pb-1 mb-4 uppercase tracking-wide">Skills</h2>
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in profile.skills %}
+                                <span class="bg-white/20 text-white px-3 py-1 rounded border border-white/30 text-xs font-bold">{{ skill.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="main-content flex-1">
+                    <!-- Header -->
+                    <div class="header text-left pb-5 mb-8">
+                        <h1 class="text-3xl font-bold text-primary mb-2">{{ profile.full_name|default:"Student Name" }}</h1>
+                        <p class="text-lg text-accent mb-3">{{ profile.title|default:"Professional" }}</p>
+                    </div>
+        {% elif template_id == 'creative' %}
+            <!-- Creative Header -->
+            <div class="header text-center gradient-primary text-white p-10 -m-10 mb-8 rounded-b-3xl">
+                <h1 class="text-3xl font-bold text-white mb-2">{{ profile.full_name|default:"Student Name" }}</h1>
+                <p class="text-lg text-white/90 mb-3">{{ profile.title|default:"Professional" }}</p>
+                <div class="text-sm text-white/80 space-x-2">
+                    {% if profile.links.email %}<span>{{ profile.links.email }}</span>{% endif %}
+                    {% if profile.location %}<span>|</span><span>{{ profile.location }}</span>{% endif %}
+                    {% if profile.links.linkedin %}<span>|</span><span>{{ profile.links.linkedin }}</span>{% endif %}
+                </div>
+            </div>
+        {% elif template_id == 'compact' %}
+            <!-- Compact Header -->
+            <div class="header text-center border-b-2 border-primary pb-4 mb-5">
+                <h1 class="text-2xl font-bold text-primary mb-1">{{ profile.full_name|default:"Student Name" }}</h1>
+                <p class="text-base text-accent mb-2">{{ profile.title|default:"Professional" }}</p>
+                <div class="text-xs text-gray-600 space-x-2">
+                    {% if profile.links.email %}<span>{{ profile.links.email }}</span>{% endif %}
+                    {% if profile.location %}<span>|</span><span>{{ profile.location }}</span>{% endif %}
+                    {% if profile.links.linkedin %}<span>|</span><span>{{ profile.links.linkedin }}</span>{% endif %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Classic Header -->
+            <div class="header text-center border-b-2 border-primary pb-5 mb-8">
+                <h1 class="text-3xl font-bold text-primary mb-2">{{ profile.full_name|default:"Student Name" }}</h1>
+                <p class="text-lg text-accent mb-3">{{ profile.title|default:"Professional" }}</p>
+                <div class="text-sm text-gray-600 space-x-2">
+                    {% if profile.links.email %}<span>{{ profile.links.email }}</span>{% endif %}
+                    {% if profile.location %}<span>|</span><span>{{ profile.location }}</span>{% endif %}
+                    {% if profile.links.linkedin %}<span>|</span><span>{{ profile.links.linkedin }}</span>{% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if profile.about %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Professional Summary</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Professional Summary</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Professional Summary</h2>
+            {% endif %}
+            <div class="{% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} leading-relaxed">
+                <p class="text-gray-800">{{ profile.about }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if profile.experiences %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Experience</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Experience</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Experience</h2>
+            {% endif %}
+            <div class="{% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} leading-relaxed space-y-4">
+                {% for experience in profile.experiences %}
+                <div class="experience-item break-inside-avoid">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-primary {% if template_id == 'compact' %}text-sm{% else %}text-base{% endif %} flex-1">{{ experience.role|default:"Position" }}</span>
+                        <span class="text-xs text-gray-600 italic text-right">{{ experience.duration|default:"Duration" }}</span>
+                    </div>
+                    <p class="text-gray-600 {% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} mb-2">{{ experience.company|default:"Company" }}</p>
+                    {% if experience.description_list %}
+                    <div class="ml-5 mt-1">
+                        <ul class="list-disc space-y-1">
+                            {% for desc in experience.description_list %}
+                            <li class="text-gray-800">{{ desc }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if experience.technologies %}
+                    <div class="mt-2 text-xs text-gray-600">
+                        <strong class="text-accent">Technologies:</strong> {{ experience.technologies|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if profile.projects %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Projects</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Projects</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Projects</h2>
+            {% endif %}
+            <div class="{% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} leading-relaxed space-y-4">
+                {% for project in profile.projects %}
+                <div class="project-item break-inside-avoid">
+                    <div class="mb-1">
+                        <span class="font-bold text-primary {% if template_id == 'compact' %}text-sm{% else %}text-base{% endif %}">{{ project.title|default:"Project" }}</span>
+                    </div>
+                    <p class="text-gray-600 {% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} mb-2">{{ project.role|default:"Developer" }}</p>
+                    {% if project.description %}
+                    <div class="mb-2">
+                        <p class="text-gray-800">{{ project.description }}</p>
+                    </div>
+                    {% endif %}
+                    {% if project.tech_stack %}
+                    <div class="mt-2 text-xs text-gray-600">
+                        <strong class="text-accent">Technologies:</strong> {{ project.tech_stack|join:", " }}
+                    </div>
+                    {% endif %}
+                    {% if project.github_link or project.live_link %}
+                    <div class="mt-1 text-xs">
+                        {% if project.github_link %}<a href="{{ project.github_link }}" class="text-accent no-underline">GitHub</a>{% endif %}
+                        {% if project.live_link %}{% if project.github_link %} | {% endif %}<a href="{{ project.live_link }}" class="text-accent no-underline">Live Demo</a>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Education Section -->
+        {% if profile.education %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Education</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Education</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Education</h2>
+            {% endif %}
+            <div class="{% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} leading-relaxed space-y-3">
+                {% for edu in profile.education %}
+                <div class="education-item break-inside-avoid">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-primary {% if template_id == 'compact' %}text-sm{% else %}text-base{% endif %} flex-1">{{ edu.institution|default:"Institution" }}</span>
+                        <span class="text-xs text-gray-600 italic text-right">{{ edu.duration|default:"Duration" }}</span>
+                    </div>
+                    <p class="text-gray-600 {% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %}">{{ edu.degree|default:"Degree" }} in {{ edu.field|default:"Field" }}</p>
+                    {% if edu.cgpa %}
+                    <p class="text-gray-800 text-xs">CGPA: {{ edu.cgpa }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Skills Section (for non-modern templates) -->
+        {% if profile.skills and template_id != 'modern' %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Skills</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Skills</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Skills</h2>
+            {% endif %}
+            <div class="flex flex-wrap gap-2">
+                {% for skill in profile.skills %}
+                    <span class="bg-primary-light text-primary px-3 py-1 rounded border border-primary text-xs font-bold inline-block">{{ skill.name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if profile.certifications %}
+        <div class="section mb-6 break-inside-avoid">
+            {% if template_id == 'creative' %}
+                <h2 class="gradient-primary text-white px-4 py-2 -mx-4 rounded text-lg font-bold mb-4 uppercase tracking-wide">Certifications</h2>
+            {% elif template_id == 'compact' %}
+                <h2 class="text-sm font-bold text-primary border-b border-primary pb-1 mb-3 uppercase tracking-wide">Certifications</h2>
+            {% else %}
+                <h2 class="text-lg font-bold text-primary border-b-2 border-primary pb-1 mb-4 uppercase tracking-wide">Certifications</h2>
+            {% endif %}
+            <div class="{% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %} leading-relaxed space-y-3">
+                {% for cert in profile.certifications %}
+                <div class="education-item break-inside-avoid">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-primary {% if template_id == 'compact' %}text-sm{% else %}text-base{% endif %} flex-1">{{ cert.name|default:"Certification" }}</span>
+                        <span class="text-xs text-gray-600 italic text-right">{{ cert.completion_date|default:"Date" }}</span>
+                    </div>
+                    <p class="text-gray-600 {% if template_id == 'compact' %}text-xs{% else %}text-sm{% endif %}">{{ cert.issuer|default:"Issuer" }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if template_id == 'modern' %}
+                </div> <!-- Close main-content -->
+            </div> <!-- Close flex container -->
+        {% endif %}
+    </div>
+</body>
+</html>

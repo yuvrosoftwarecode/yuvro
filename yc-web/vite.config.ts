@@ -9,6 +9,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['jspdf'],
+    force: true
+  },
+  build: {
+    commonjsOptions: {
+      include: [/jspdf/, /node_modules/]
+    }
+  },
   server: {
     port: 3000,
     host: "0.0.0.0",
