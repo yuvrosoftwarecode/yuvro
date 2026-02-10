@@ -16,6 +16,7 @@ from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
 from .models import (
+    Department,
     Subject,
     Unit,
     SubUnit,
@@ -27,6 +28,7 @@ from .models import (
     StudentCodePractice,
 )
 from .serializers import (
+    DepartmentSerializer,
     SubjectSerializer,
     SubjectBasicSerializer,
     UnitSerializer,
@@ -46,6 +48,16 @@ User = get_user_model()
 
 def instructor_assigned(user, subject):
     return SubjectInstructor.objects.filter(instructor=user, subject=subject).exists()
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [CanManageCourses]
+
+    def get_queryset(self):
+        return Department.objects.all()
+
 
 
 class SubjectViewSet(viewsets.ModelViewSet):

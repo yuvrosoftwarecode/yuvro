@@ -12,54 +12,54 @@ import SearchBar from '@/components/common/SearchBar';
 import { useAuth } from "@/contexts/AuthContext";
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 import { fetchQuestionById, Question } from '@/services/questionService';
-import courseService, { Course, TopicBasic } from '@/services/courseService';
+import subjectService, { Subject, UnitBasic } from '@/services/subjectService';
 
 export default function InstructorSkillTest() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [topics, setTopics] = useState<TopicBasic[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [units, setUnits] = useState<UnitBasic[]>([]);
   const [skillTests, setSkillTests] = useState<SkillTest[]>([]);
-  const [selectedTopic, setSelectedTopic] = useState<TopicBasic | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<UnitBasic | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('fundamentals');
-  const [currentView, setCurrentView] = useState<'courses' | 'topics' | 'skillTests'>('courses');
+  const [currentView, setCurrentView] = useState<'subjects' | 'units' | 'skillTests'>('subjects');
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { courseId } = useParams<{ courseId: string }>();
+  const { subjectId: courseId } = useParams<{ subjectId: string }>();
 
-  const fetchCourses = async () => {
+  const fetchSubjects = async () => {
     try {
       setLoading(true);
-      const data = await courseService.getCourses();
-      setCourses(data);
+      const data = await subjectService.getSubjects();
+      setSubjects(data);
     } catch (err) {
-      console.error('Failed to fetch courses:', err);
-      toast.error('Failed to fetch courses');
+      console.error('Failed to fetch subjects:', err);
+      toast.error('Failed to fetch subjects');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTopics = async (courseId: string) => {
+  const fetchUnits = async (subjectId: string) => {
     try {
       setLoading(true);
-      const data = await courseService.getTopics(courseId);
-      setTopics(data);
+      const data = await subjectService.getUnits(subjectId);
+      setUnits(data);
     } catch (err) {
-      console.error('Failed to fetch topics:', err);
-      toast.error('Failed to fetch topics');
+      console.error('Failed to fetch units:', err);
+      toast.error('Failed to fetch units');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSkillTestsForTopic = async (topicId: string) => {
+  const fetchSkillTestsForUnit = async (unitId: string) => {
     try {
       setLoading(true);
       const data = await skillTestService.getSkillTests();
-      // Filter skill tests for the selected topic
-      const filteredTests = data.filter((test: SkillTest) => test.topic === topicId);
+      // Filter skill tests for the selected unit
+      const filteredTests = data.filter((test: SkillTest) => test.unit === unitId);
       setSkillTests(filteredTests);
     } catch (err) {
       console.error('Failed to fetch skill tests:', err);
@@ -73,9 +73,9 @@ export default function InstructorSkillTest() {
     console.log('SkillTest useEffect - courseId from params:', courseId);
     if (courseId) {
       // If we have a courseId in the URL, load that course directly
-      loadCourseAndTopics(courseId);
+      loadSubjectAndUnits(courseId);
     } else {
-      fetchCourses();
+      fetchSubjects();
     }
   }, [courseId]);
 
@@ -83,52 +83,52 @@ export default function InstructorSkillTest() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const topicIdFromUrl = urlParams.get('topicId');
-    console.log('SkillTest - checking for topicId in URL:', topicIdFromUrl, 'Topics loaded:', topics.length, 'Current view:', currentView, 'Selected topic:', selectedTopic?.id);
+    console.log('SkillTest - checking for unitId in URL:', topicIdFromUrl, 'Units loaded:', units.length, 'Current view:', currentView, 'Selected unit:', selectedUnit?.id);
 
-    if (topicIdFromUrl && topics.length > 0 && currentView === 'topics') {
-      const topic = topics.find(t => t.id === topicIdFromUrl);
-      if (topic && (!selectedTopic || selectedTopic.id !== topicIdFromUrl)) {
-        console.log('Auto-selecting topic from URL:', topic.name, 'Topic ID:', topic.id);
-        handleTopicSelect(topic);
+    if (topicIdFromUrl && units.length > 0 && currentView === 'units') {
+      const unit = units.find(t => t.id === topicIdFromUrl);
+      if (unit && (!selectedUnit || selectedUnit.id !== topicIdFromUrl)) {
+        console.log('Auto-selecting unit from URL:', unit.name, 'Unit ID:', unit.id);
+        handleUnitSelect(unit);
       }
     }
-  }, [topics, currentView]);
+  }, [units, currentView]);
 
-  const loadCourseAndTopics = async (courseId: string) => {
+  const loadSubjectAndUnits = async (subjectId: string) => {
     try {
       setLoading(true);
-      const [coursesData, topicsData] = await Promise.all([
-        courseService.getCourses(),
-        courseService.getTopics(courseId)
+      const [subjectsData, unitsData] = await Promise.all([
+        subjectService.getSubjects(),
+        subjectService.getUnits(subjectId)
       ]);
 
-      setCourses(coursesData);
-      const course = coursesData.find(c => c.id === courseId);
-      if (course) {
-        setSelectedCourse(course);
-        setTopics(topicsData);
-        setCurrentView('topics');
+      setSubjects(subjectsData);
+      const subject = subjectsData.find(c => c.id === subjectId);
+      if (subject) {
+        setSelectedSubject(subject);
+        setUnits(unitsData);
+        setCurrentView('units');
       }
     } catch (err) {
-      console.error('Failed to load course and topics:', err);
-      toast.error('Failed to load course and topics');
+      console.error('Failed to load subject and units:', err);
+      toast.error('Failed to load subject and units');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCourseSelect = (course: Course) => {
-    navigate(`/instructor/skill-tests/courses/${course.id}/manage`);
+  const handleCourseSelect = (subject: Subject) => {
+    navigate(`/instructor/skill-tests/courses/${subject.id}/manage`);
   };
 
-  const handleTopicSelect = (topic: TopicBasic) => {
-    setSelectedTopic(topic);
+  const handleUnitSelect = (unit: UnitBasic) => {
+    setSelectedUnit(unit);
     setCurrentView('skillTests');
-    fetchSkillTestsForTopic(topic.id);
+    fetchSkillTestsForUnit(unit.id);
   };
 
   const handleBackToCourses = () => {
-    console.log('Navigating back to courses');
+    console.log('Navigating back to subjects');
     try {
       navigate('/instructor/skill-tests');
     } catch (error) {
@@ -137,15 +137,15 @@ export default function InstructorSkillTest() {
     }
   };
 
-  const handleBackToTopics = () => {
-    setCurrentView('topics');
-    setSelectedTopic(null);
+  const handleBackToUnits = () => {
+    setCurrentView('units');
+    setSelectedUnit(null);
     setSkillTests([]);
   };
 
   const handleAddSkillTest = () => {
-    if (selectedTopic) {
-      navigate(`/instructor/skill-tests/add?courseId=${selectedCourse?.id}&topicId=${selectedTopic.id}`);
+    if (selectedUnit) {
+      navigate(`/instructor/skill-tests/add?courseId=${selectedSubject?.id}&topicId=${selectedUnit.id}`);
     }
   };
 
@@ -153,8 +153,8 @@ export default function InstructorSkillTest() {
     try {
       await skillTestService.deleteSkillTest(id);
       toast.success('Skill test deleted successfully');
-      if (selectedTopic) {
-        fetchSkillTestsForTopic(selectedTopic.id);
+      if (selectedUnit) {
+        fetchSkillTestsForUnit(selectedUnit.id);
       }
     } catch (err) {
       toast.error('Failed to delete skill test');
@@ -162,13 +162,13 @@ export default function InstructorSkillTest() {
   };
 
   const openEditForm = (skillTest: SkillTest) => {
-    console.log('Opening edit form for skill test:', skillTest.id, 'Course:', selectedCourse?.id);
-    const editUrl = `/instructor/skill-tests/${skillTest.id}/edit?courseId=${selectedCourse?.id}&topicId=${selectedTopic?.id}`;
+    console.log('Opening edit form for skill test:', skillTest.id, 'Subject:', selectedSubject?.id);
+    const editUrl = `/instructor/skill-tests/${skillTest.id}/edit?courseId=${selectedSubject?.id}&topicId=${selectedUnit?.id}`;
     console.log('Edit URL:', editUrl);
     navigate(editUrl);
   };
 
-  const filteredCourses = courses.filter(course => course.category === selectedTab);
+  const filteredSubjects = subjects.filter(subject => subject.category === selectedTab);
 
   const filteredSkillTests = skillTests.filter(skillTest => {
     return skillTest.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -208,40 +208,40 @@ export default function InstructorSkillTest() {
     ai_tools: "from-orange-900 to-orange-700",
   };
 
-  const courseCounts = courses.reduce((acc: any, course) => {
-    acc[course.category] = (acc[course.category] || 0) + 1;
+  const subjectCounts = subjects.reduce((acc: any, subject) => {
+    acc[subject.category] = (acc[subject.category] || 0) + 1;
     return acc;
   }, {});
 
   const getHeaderTitle = () => {
     switch (currentView) {
-      case 'courses': return 'Skill Test Management';
-      case 'topics': return `${selectedCourse?.name} - Topics`;
-      case 'skillTests': return `${selectedTopic?.name} - Skill Tests`;
+      case 'subjects': return 'Skill Test Management';
+      case 'units': return `${selectedSubject?.name} - Units`;
+      case 'skillTests': return `${selectedUnit?.name} - Skill Tests`;
       default: return 'Skill Test Management';
     }
   };
 
   const getHeaderSubtitle = () => {
     switch (currentView) {
-      case 'courses': return 'Select a course to manage skill tests for its topics';
-      case 'topics': return 'Select a topic to view and manage its skill tests';
-      case 'skillTests': return 'Manage skill tests for this topic';
-      default: return 'Create and manage skill tests for course topics';
+      case 'subjects': return 'Select a subject to manage skill tests for its units';
+      case 'units': return 'Select a unit to view and manage its skill tests';
+      case 'skillTests': return 'Manage skill tests for this unit';
+      default: return 'Create and manage skill tests for subject units';
     }
   };
 
   const getHeaderActions = () => {
     switch (currentView) {
-      case 'courses':
+      case 'subjects':
         return null;
-      case 'topics':
+      case 'units':
         return (
           <button
             onClick={handleBackToCourses}
             className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
           >
-            ← Back to Courses
+            ← Back to Subjects
           </button>
         );
       case 'skillTests':
@@ -250,7 +250,7 @@ export default function InstructorSkillTest() {
             onClick={handleBackToCourses}
             className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
           >
-            ← Back to Courses
+            ← Back to Subjects
           </button>
         );
       default:
@@ -278,17 +278,17 @@ export default function InstructorSkillTest() {
               </div>
             )}
 
-            {/* Courses View */}
-            {currentView === 'courses' && !loading && (
+            {/* Subjects View */}
+            {currentView === 'subjects' && !loading && (
               <>
                 {/* Tabs */}
                 <div className="mb-6">
                   <nav className="flex space-x-8">
                     {[
-                      { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
-                      { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
-                      { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
-                      { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
+                      { key: 'fundamentals', label: 'Fundamentals', count: subjectCounts.fundamentals || 0 },
+                      { key: 'programming_languages', label: 'Programming Languages', count: subjectCounts.programming_languages || 0 },
+                      { key: 'databases', label: 'Databases', count: subjectCounts.databases || 0 },
+                      { key: 'ai_tools', label: 'AI Tools', count: subjectCounts.ai_tools || 0 }
                     ].map((tab) => (
                       <button
                         key={tab.key}
@@ -308,28 +308,28 @@ export default function InstructorSkillTest() {
                   </nav>
                 </div>
 
-                {/* Courses Grid */}
-                {filteredCourses.length === 0 ? (
+                {/* Subjects Grid */}
+                {filteredSubjects.length === 0 ? (
                   <div className="bg-white shadow rounded-lg">
                     <div className="text-center py-12">
                       <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
+                      <h3 className="mt-2 text-sm font-medium text-gray-900">No subjects found</h3>
                       <p className="mt-1 text-sm text-gray-500">
-                        No {CATEGORY_LABELS[selectedTab]} courses found.
+                        No {CATEGORY_LABELS[selectedTab]} subjects found.
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredCourses.map((course) => (
+                    {filteredSubjects.map((subject) => (
                       <Card
-                        key={course.id}
+                        key={subject.id}
                         className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl cursor-pointer"
-                        onClick={() => handleCourseSelect(course)}
+                        onClick={() => handleCourseSelect(subject)}
                       >
                         <CardContent className="p-0">
-                          {/* Course Header with gradient */}
-                          <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
+                          {/* Subject Header with gradient */}
+                          <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[subject.category]} p-4 text-white relative overflow-hidden`}>
                             <div className="absolute inset-0 opacity-10">
                               <div className="absolute inset-0" style={{
                                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -341,25 +341,25 @@ export default function InstructorSkillTest() {
                                 <div className="flex items-center gap-2 mb-2">
                                   <BookOpen className="h-4 w-4 text-white/70" />
                                   <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
-                                    {CATEGORY_LABELS[course.category]}
+                                    {CATEGORY_LABELS[subject.category]}
                                   </span>
                                 </div>
                                 <h3 className="font-bold text-lg leading-tight mb-2 text-white">
-                                  {course.name}
+                                  {subject.name}
                                 </h3>
                               </div>
 
-                              {course.short_code && (
+                              {subject.short_code && (
                                 <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
                                   <span className="text-xs font-bold text-white">
-                                    {course.short_code}
+                                    {subject.short_code}
                                   </span>
                                 </div>
                               )}
                             </div>
                           </div>
 
-                          {/* Course Content */}
+                          {/* Subject Content */}
                           <div className="p-5">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-1.5 text-sm text-gray-500">
@@ -382,26 +382,26 @@ export default function InstructorSkillTest() {
               </>
             )}
 
-            {/* Topics View */}
-            {currentView === 'topics' && !loading && (
+            {/* Units View */}
+            {currentView === 'units' && !loading && (
               <div className="flex gap-6">
-                {/* Topics Sidebar */}
+                {/* Units Sidebar */}
                 <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                    Topics
+                    Units
                   </h3>
                   <div className="space-y-2">
-                    {topics.map((topic) => (
+                    {units.map((unit) => (
                       <div
-                        key={topic.id}
-                        onClick={() => handleTopicSelect(topic)}
+                        key={unit.id}
+                        onClick={() => handleUnitSelect(unit)}
                         className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200 group"
                       >
                         <div className="flex items-center justify-between">
                           <div>
                             <h4 className="font-medium text-gray-900 group-hover:text-blue-700">
-                              {topic.name}
+                              {unit.name}
                             </h4>
                           </div>
                           <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -418,9 +418,9 @@ export default function InstructorSkillTest() {
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                     <div className="text-center">
                       <Trophy className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">Select a Topic</h3>
+                      <h3 className="mt-4 text-lg font-medium text-gray-900">Select a Unit</h3>
                       <p className="mt-2 text-sm text-gray-500">
-                        Choose a topic from the left sidebar to view and manage its skill tests.
+                        Choose a unit from the left sidebar to view and manage its skill tests.
                       </p>
                     </div>
                   </div>
@@ -431,24 +431,24 @@ export default function InstructorSkillTest() {
             {/* Skill Tests View */}
             {currentView === 'skillTests' && !loading && (
               <div className="flex gap-6">
-                {/* Topics Sidebar */}
+                {/* Units Sidebar */}
                 <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                    Topics
+                    Units
                   </h3>
                   <div className="space-y-2">
-                    {topics.map((topic) => (
+                    {units.map((unit) => (
                       <div
-                        key={topic.id}
-                        onClick={() => handleTopicSelect(topic)}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedTopic?.id === topic.id
+                        key={unit.id}
+                        onClick={() => handleUnitSelect(unit)}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedUnit?.id === unit.id
                           ? 'border-blue-300 bg-blue-50 text-blue-700'
                           : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                           }`}
                       >
                         <h4 className="font-medium">
-                          {topic.name}
+                          {unit.name}
                         </h4>
                         <p className="text-sm text-gray-500 mt-1">
                           Click to view skill tests
@@ -476,7 +476,7 @@ export default function InstructorSkillTest() {
                         <Trophy className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-4 text-lg font-medium text-gray-900">No Skill Tests</h3>
                         <p className="mt-2 text-sm text-gray-500">
-                          No skill tests found for this topic. Create your first skill test to get started.
+                          No skill tests found for this unit. Create your first skill test to get started.
                         </p>
                       </div>
                     </div>

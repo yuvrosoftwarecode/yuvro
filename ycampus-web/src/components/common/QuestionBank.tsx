@@ -19,8 +19,8 @@ interface QuestionBankProps {
   title?: string;
   description?: string;
   showSplitView?: boolean;
-  courseFilter?: string;
-  topicFilter?: string;
+  subjectFilter?: string;
+  unitFilter?: string;
   categoryFilter?: string;
 }
 
@@ -35,8 +35,8 @@ export default function QuestionBank({
   title = 'Question Bank',
   description = 'Browse and manage questions from the question bank',
   showSplitView = false,
-  courseFilter,
-  topicFilter,
+  subjectFilter,
+  unitFilter,
   categoryFilter
 }: QuestionBankProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -46,8 +46,8 @@ export default function QuestionBank({
   const [filters, setFilters] = useState<QuestionFilters>({
     ...initialFilters,
     search: '',
-    course: courseFilter,
-    topic: topicFilter,
+    subject: subjectFilter,
+    unit: unitFilter,
     categories: categoryFilter
   });
   const [selectedType, setSelectedType] = useState<string>('mcq_single');
@@ -84,11 +84,11 @@ export default function QuestionBank({
   useEffect(() => {
     setFilters(prev => ({
       ...prev,
-      course: courseFilter,
-      topic: topicFilter,
+      subject: subjectFilter,
+      unit: unitFilter,
       categories: categoryFilter
     }));
-  }, [courseFilter, topicFilter, categoryFilter]);
+  }, [subjectFilter, unitFilter, categoryFilter]);
 
   // Handle selectedQuestions changes - manage allSelectedQuestions
   useEffect(() => {
@@ -100,25 +100,25 @@ export default function QuestionBank({
 
       // Get questions that are already loaded (from current questions array)
       const loadedSelected = questions.filter(q => selectedQuestions.includes(q.id));
-      
+
       // Get questions that are already in allSelectedQuestions
       const existingSelected = allSelectedQuestions.filter(q => selectedQuestions.includes(q.id));
-      
+
       // Find questions that need to be fetched
       const loadedIds = loadedSelected.map(q => q.id);
       const existingIds = existingSelected.map(q => q.id);
       const allKnownIds = [...new Set([...loadedIds, ...existingIds])];
       const missingIds = selectedQuestions.filter(id => !allKnownIds.includes(id));
-      
+
       let allSelected = [...loadedSelected];
-      
+
       // Add existing questions that are still selected (avoid duplicates)
       existingSelected.forEach(q => {
         if (!allSelected.some(existing => existing.id === q.id)) {
           allSelected.push(q);
         }
       });
-      
+
       // Fetch missing questions if any
       if (missingIds.length > 0) {
         try {
@@ -126,7 +126,7 @@ export default function QuestionBank({
           const missingQuestions = await Promise.all(
             missingIds.map(id => fetchQuestionById(id))
           );
-          
+
           // Add missing questions (avoid duplicates)
           missingQuestions.forEach(q => {
             if (!allSelected.some(existing => existing.id === q.id)) {
@@ -137,12 +137,12 @@ export default function QuestionBank({
           console.error('Failed to fetch missing questions:', error);
         }
       }
-      
+
       // Set the final list, ensuring no duplicates and maintaining order
-      const uniqueSelected = allSelected.filter((question, index, self) => 
+      const uniqueSelected = allSelected.filter((question, index, self) =>
         index === self.findIndex(q => q.id === question.id)
       );
-      
+
       setAllSelectedQuestions(uniqueSelected);
     };
 
@@ -157,10 +157,10 @@ export default function QuestionBank({
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return;
-    
+
     const containerRect = containerRef.current.getBoundingClientRect();
     const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-    
+
     if (newWidth >= 20 && newWidth <= 80) {
       setLeftPanelWidth(newWidth);
     }
@@ -186,7 +186,7 @@ export default function QuestionBank({
 
     const isSelected = selectedQuestions.includes(questionId);
     const question = questions.find(q => q.id === questionId);
-    
+
     if (isSelected) {
       // Remove from selected questions
       setAllSelectedQuestions(prev => prev.filter(q => q.id !== questionId));
@@ -273,10 +273,10 @@ export default function QuestionBank({
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
           <p className="text-sm text-gray-600">{description}</p>
         </div>
-        
+
         <div ref={containerRef} className="flex h-[600px] border border-gray-200 rounded-lg overflow-hidden">
           {/* Left Panel - Selected Questions */}
-          <div 
+          <div
             className="bg-gray-50 border-r border-gray-200 flex flex-col"
             style={{ width: `${leftPanelWidth}%` }}
           >
@@ -341,7 +341,7 @@ export default function QuestionBank({
           </div>
 
           {/* Drag Handle */}
-          <div 
+          <div
             className="w-1 bg-gray-300 hover:bg-gray-400 cursor-col-resize flex items-center justify-center"
             onMouseDown={handleMouseDown}
           >
@@ -349,7 +349,7 @@ export default function QuestionBank({
           </div>
 
           {/* Right Panel - Question Bank */}
-          <div 
+          <div
             className="bg-white flex flex-col"
             style={{ width: `${100 - leftPanelWidth}%` }}
           >
@@ -395,13 +395,12 @@ export default function QuestionBank({
               ) : (
                 <div className="p-4 space-y-3">
                   {questions.map((question) => (
-                    <div 
+                    <div
                       key={question.id}
-                      className={`p-4 border border-gray-200 rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                        selectedQuestions.includes(question.id) 
-                          ? 'bg-blue-50 border-blue-200' 
+                      className={`p-4 border border-gray-200 rounded-lg cursor-pointer transition-all hover:shadow-md ${selectedQuestions.includes(question.id)
+                          ? 'bg-blue-50 border-blue-200'
                           : 'bg-white hover:bg-gray-50'
-                      }`}
+                        }`}
                       onClick={() => handleQuestionToggle(question.id)}
                     >
                       <div className="flex items-start justify-between">
@@ -446,7 +445,7 @@ export default function QuestionBank({
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-semibold">{title}</CardTitle>
         <p className="text-sm text-gray-600">{description}</p>
-        
+
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <div className="flex-1 relative">
@@ -459,7 +458,7 @@ export default function QuestionBank({
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div className="flex gap-2">
             <select
               value={selectedType}
@@ -504,7 +503,7 @@ export default function QuestionBank({
               </TableHeader>
               <TableBody>
                 {questions.map((question) => (
-                  <TableRow 
+                  <TableRow
                     key={question.id}
                     className={mode === 'selection' ? 'cursor-pointer hover:bg-gray-50' : ''}
                     onClick={() => mode === 'selection' && handleQuestionToggle(question.id)}

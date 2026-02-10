@@ -6,7 +6,7 @@ export interface User {
   username: string;
   first_name: string;
   last_name: string;
-  role: 'admin' | 'instructor' | 'recruiter' | 'student';
+  role: 'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty';
   is_active: boolean;
   last_login: string | null;
   date_joined: string;
@@ -20,7 +20,7 @@ export interface PaginatedUsersResponse {
 }
 
 export interface UsersFilters {
-  role?: string;
+  role?: 'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty';
   search?: string;
   is_active?: boolean;
   page?: number;
@@ -31,7 +31,7 @@ export const userService = {
   // Get paginated users list
   getUsers: async (filters: UsersFilters = {}): Promise<PaginatedUsersResponse> => {
     const params = new URLSearchParams();
-    
+
     if (filters.role) params.append('role', filters.role);
     if (filters.search) params.append('search', filters.search);
     if (filters.is_active !== undefined) params.append('is_active', filters.is_active.toString());

@@ -106,6 +106,13 @@ const sidebarItems: SidebarItem[] = [
     icon: Trophy,
     path: '/instructor/certifications',
     roles: ['admin', 'instructor', 'recruiter']
+  },
+  {
+    id: 'departments',
+    label: 'Departments',
+    icon: Building2,
+    path: '/instructor/departments',
+    roles: ['admin']
   }
 ];
 

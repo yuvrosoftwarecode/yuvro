@@ -14,9 +14,10 @@ import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import { contestService, Contest, Question } from '@/services/contestService';
-import courseService from '@/services/courseService';
+import subjectService, { Subject } from '@/services/subjectService';
 
-interface Course {
+// Used for UI selection
+interface SubjectBasic {
   id: string | number;
   title?: string;
   name?: string;
@@ -35,12 +36,12 @@ interface PendingChanges {
 export default function ContestEdit() {
   const { contestId } = useParams<{ contestId: string }>();
   const navigate = useNavigate();
-  
+
   const [contest, setContest] = useState<Contest | null>(null);
   const [sections, setSections] = useState<ContestSection[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string | number | null>(null);
+  const [subjects, setSubjects] = useState<SubjectBasic[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string | number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('');
@@ -53,7 +54,7 @@ export default function ContestEdit() {
   useEffect(() => {
     if (contestId) {
       fetchContest();
-      fetchCourses();
+      fetchSubjects();
     }
   }, [contestId]);
 
@@ -71,20 +72,20 @@ export default function ContestEdit() {
   }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    if (selectedCourse) {
+    if (selectedSubject) {
       const timeoutId = setTimeout(() => {
-        fetchQuestionsByCourse(selectedCourse);
+        fetchQuestionsBySubject(selectedSubject);
       }, 300); // Debounce search by 300ms
 
       return () => clearTimeout(timeoutId);
     }
-  }, [selectedCourse, selectedDifficulty, selectedType, searchQuery]);
+  }, [selectedSubject, selectedDifficulty, selectedType, searchQuery]);
 
   const fetchContest = async () => {
     try {
       const data = await contestService.getContest(contestId!);
       setContest(data);
-      
+
       if (data.question_ids && data.question_ids.length > 0) {
         // Check if it's the new section format or old simple array format
         if (Array.isArray(data.question_ids) && data.question_ids.length > 0) {
@@ -152,16 +153,16 @@ export default function ContestEdit() {
     }
   };
 
-  const fetchCourses = async () => {
+  const fetchSubjects = async () => {
     try {
-      const data = await courseService.getCourses();
-      setCourses(data);
+      const data = await subjectService.getSubjects();
+      setSubjects(data);
     } catch (error) {
-      toast.error('Failed to fetch courses');
+      toast.error('Failed to fetch subjects');
     }
   };
 
-  const fetchQuestionsByCourse = async (courseId: string | number) => {
+  const fetchQuestionsBySubject = async (subjectId: string | number) => {
     setQuestionsLoading(true);
     try {
       const filters = {
@@ -169,7 +170,7 @@ export default function ContestEdit() {
         type: selectedType || undefined,
         search: searchQuery || undefined,
       };
-      const data = await contestService.getQuestionsByCourse(courseId, filters);
+      const data = await contestService.getQuestionsBySubject(subjectId, filters);
       setAvailableQuestions(data);
     } catch (error) {
       toast.error('Failed to fetch questions');
@@ -189,7 +190,7 @@ export default function ContestEdit() {
   };
 
   const updateSectionTitle = (sectionId: string, title: string) => {
-    setSections(sections.map(section => 
+    setSections(sections.map(section =>
       section.id === sectionId ? { ...section, title } : section
     ));
     setHasUnsavedChanges(true);
@@ -231,7 +232,7 @@ export default function ContestEdit() {
 
   const saveContestChanges = async () => {
     if (!contest) return;
-    
+
     setIsSaving(true);
     try {
       // Convert sections to the format expected by the backend
@@ -291,7 +292,7 @@ export default function ContestEdit() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
+          <RoleHeader
             title={`Manage Contest: ${contest.title}`}
             subtitle="Add questions and manage contest content"
           />
@@ -374,7 +375,7 @@ export default function ContestEdit() {
                             )}
                           </div>
                         </div>
-                        
+
                         {section.questions.length === 0 ? (
                           <div className="text-center py-4 text-gray-500 text-sm border-2 border-dashed rounded-lg">
                             No questions in this section. Add questions from the question bank.
@@ -388,7 +389,7 @@ export default function ContestEdit() {
                                   {getQuestionTypeIcon(question.type)}
                                   <div>
                                     <div className="font-medium text-sm">{question.title}</div>
-                                    <div className="text-xs text-gray-500">{question.course.title}</div>
+                                    <div className="text-xs text-gray-500">{question.subject.title}</div>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -425,12 +426,12 @@ export default function ContestEdit() {
                     {/* Course Selection */}
                     <div className="flex gap-2">
                       <select
-                        value={selectedCourse || ''}
+                        value={selectedSubject || ''}
                         onChange={(e) => {
-                          const courseId = e.target.value || null;
-                          setSelectedCourse(courseId);
-                          // Reset filters when course changes
-                          if (courseId !== selectedCourse) {
+                          const subjectId = e.target.value || null;
+                          setSelectedSubject(subjectId);
+                          // Reset filters when subject changes
+                          if (subjectId !== selectedSubject) {
                             setSearchQuery('');
                             setSelectedDifficulty('');
                             setSelectedType('');
@@ -438,16 +439,16 @@ export default function ContestEdit() {
                         }}
                         className="flex-1 rounded-md border border-gray-300 px-3 py-2"
                       >
-                        <option value="">Select a course</option>
-                        {courses.map((course) => (
-                          <option key={course.id} value={course.id}>
-                            {course.title || course.name}
+                        <option value="">Select a subject</option>
+                        {subjects.map((subject) => (
+                          <option key={subject.id} value={subject.id}>
+                            {subject.title || subject.name}
                           </option>
                         ))}
                       </select>
                     </div>
 
-                    {selectedCourse && (
+                    {selectedSubject && (
                       <>
                         {/* Search Bar */}
                         <div className="relative">
@@ -510,7 +511,7 @@ export default function ContestEdit() {
                       </>
                     )}
 
-                    {selectedCourse && (
+                    {selectedSubject && (
                       <div className="max-h-96 overflow-y-auto space-y-2">
                         {questionsLoading ? (
                           <div className="text-center py-8 text-gray-500">
@@ -525,7 +526,7 @@ export default function ContestEdit() {
                                 <p className="text-sm mt-1">Try adjusting your search criteria</p>
                               </div>
                             ) : (
-                              'No available questions found in this course'
+                              'No available questions found in this subject'
                             )}
                           </div>
                         ) : (
@@ -540,7 +541,7 @@ export default function ContestEdit() {
                                   <div>
                                     <div className="font-medium">{question.title}</div>
                                     <div className="text-sm text-gray-500 flex items-center gap-2">
-                                      <span>{question.course.title}</span>
+                                      <span>{question.subject.title}</span>
                                       <span>•</span>
                                       <span className="capitalize">{question.type}</span>
                                     </div>

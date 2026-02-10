@@ -9,13 +9,13 @@ interface UserFormData {
     username: string;
     first_name: string;
     last_name: string;
-    role: 'admin' | 'instructor' | 'recruiter' | 'student';
+    role: 'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty';
     is_active: boolean;
 }
 
 const Users: React.FC = () => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<'admin' | 'instructor' | 'recruiter' | 'student'>('admin');
+    const [activeTab, setActiveTab] = useState<'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty'>('admin');
     const [showAddUser, setShowAddUser] = useState(false);
     const [showEditUser, setShowEditUser] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -206,6 +206,7 @@ const Users: React.FC = () => {
         const roleStyles = {
             admin: 'bg-red-100 text-red-800',
             instructor: 'bg-blue-100 text-blue-800',
+            faculty: 'bg-emerald-100 text-emerald-800',
             recruiter: 'bg-purple-100 text-purple-800',
             student: 'bg-green-100 text-green-800'
         };
@@ -275,6 +276,7 @@ const Users: React.FC = () => {
                                 {[
                                     { key: 'admin', label: 'Admins' },
                                     { key: 'instructor', label: 'Instructors' },
+                                    { key: 'faculty', label: 'Faculty' },
                                     { key: 'recruiter', label: 'Recruiters' },
                                     { key: 'student', label: 'Students' }
                                 ].map((tab) => (
@@ -474,8 +476,8 @@ const Users: React.FC = () => {
                                                                     key={i}
                                                                     onClick={() => handlePageChange(i)}
                                                                     className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === pagination.currentPage
-                                                                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                                         }`}
                                                                 >
                                                                     {i}
@@ -598,6 +600,7 @@ const Users: React.FC = () => {
                                     >
                                         <option value="student">Student</option>
                                         <option value="instructor">Instructor</option>
+                                        <option value="faculty">Faculty</option>
                                         <option value="recruiter">Recruiter</option>
                                         <option value="admin">Admin</option>
                                     </select>
@@ -701,6 +704,7 @@ const Users: React.FC = () => {
                                     >
                                         <option value="student">Student</option>
                                         <option value="instructor">Instructor</option>
+                                        <option value="faculty">Faculty</option>
                                         <option value="recruiter">Recruiter</option>
                                         <option value="admin">Admin</option>
                                     </select>

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
+    Department,
     Subject,
     Unit,
     SubUnit,
@@ -16,6 +17,14 @@ from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "description", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class UserGamificationProfileSerializer(serializers.ModelSerializer):
@@ -93,6 +102,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     units = UnitSerializer(many=True, read_only=True)
     instructors = serializers.SerializerMethodField()
+    department_details = DepartmentSerializer(source="department", read_only=True)
 
     class Meta:
         model = Subject
@@ -101,6 +111,8 @@ class SubjectSerializer(serializers.ModelSerializer):
             "short_code",
             "name",
             "category",
+            "department",
+            "department_details",
             "created_at",
             "updated_at",
             "units",
@@ -156,6 +168,7 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "short_code",
             "name",
             "category",
+            "department",
             "created_at",
             "updated_at",
             "total_problems",

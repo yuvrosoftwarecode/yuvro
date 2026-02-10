@@ -12,6 +12,7 @@ export interface Contest {
   prize?: string;
   difficulty: string;
   description: string;
+  question_ids?: any[];
   questions_config: {
     mcq_single: string[];
     mcq_multiple: string[];
@@ -35,7 +36,7 @@ export interface Question {
   title: string;
   difficulty: string;
   type: string;
-  course: {
+  subject: {
     id: number;
     title: string;
   };
@@ -116,12 +117,12 @@ export const contestService = {
     return restApiAuthUtil.get(`/course/questions/${questionId}/`);
   },
 
-  async getQuestionsByCourse(courseId: string | number, filters?: {
+  async getQuestionsBySubject(subjectId: string | number, filters?: {
     difficulty?: string;
     type?: string;
     search?: string;
   }): Promise<Question[]> {
-    const params: any = { course: courseId };
+    const params: any = { subject: subjectId };
 
     if (filters?.difficulty) {
       params.difficulty = filters.difficulty;

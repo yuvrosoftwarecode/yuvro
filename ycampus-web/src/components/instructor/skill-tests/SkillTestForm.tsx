@@ -8,7 +8,7 @@ import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import QuestionBank from '@/components/common/QuestionBank';
 import skillTestService, { SkillTest } from '@/services/skillTestService';
-import courseService, { Course, TopicBasic } from '@/services/courseService';
+import subjectService, { Subject, UnitBasic } from '@/services/subjectService';
 import { fetchQuestionById } from '@/services/questionService';
 
 export default function SkillTestForm() {
@@ -16,12 +16,12 @@ export default function SkillTestForm() {
   const { skillTestId } = useParams<{ skillTestId: string }>();
   const isEditMode = !!skillTestId;
 
-  // Get URL parameters for course and topic
+  // Get URL parameters for subject and unit
   const urlParams = new URLSearchParams(window.location.search);
-  const courseIdFromUrl = urlParams.get('courseId');
-  const topicIdFromUrl = urlParams.get('topicId');
+  const subjectIdFromUrl = urlParams.get('subjectId') || urlParams.get('courseId');
+  const unitIdFromUrl = urlParams.get('unitId') || urlParams.get('topicId');
 
-  console.log('SkillTestForm - URL params:', { courseIdFromUrl, topicIdFromUrl, currentUrl: window.location.href });
+  console.log('SkillTestForm - URL params:', { subjectIdFromUrl, unitIdFromUrl, currentUrl: window.location.href });
 
   const [skillTest, setSkillTest] = useState<SkillTest | null>(null);
   const [currentFormTab, setCurrentFormTab] = useState('details');
@@ -39,9 +39,9 @@ export default function SkillTestForm() {
     descriptive: 0
   });
   const [loading, setLoading] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [topics, setTopics] = useState<TopicBasic[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string>('');
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [units, setUnits] = useState<UnitBasic[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -53,8 +53,8 @@ export default function SkillTestForm() {
     passing_marks: 60,
     enable_proctoring: false,
     publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
-    course: courseIdFromUrl || '',
-    topic: topicIdFromUrl || ''
+    subject: subjectIdFromUrl || '',
+    unit: unitIdFromUrl || ''
   });
 
   const categorizeQuestionsByType = async (questionIds: string[]) => {
@@ -108,23 +108,23 @@ export default function SkillTestForm() {
     setSelectedQuestionsByType(categorizedQuestions);
   };
 
-  const fetchCourses = async () => {
+  const fetchSubjects = async () => {
     try {
-      const data = await courseService.getCourses();
-      setCourses(data);
+      const data = await subjectService.getSubjects();
+      setSubjects(data);
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
-      toast.error('Failed to load courses');
+      console.error('Failed to fetch subjects:', error);
+      toast.error('Failed to load subjects');
     }
   };
 
-  const fetchTopics = async (courseId: string) => {
+  const fetchUnits = async (subjectId: string) => {
     try {
-      const data = await courseService.getTopics(courseId);
-      setTopics(data);
+      const data = await subjectService.getUnits(subjectId);
+      setUnits(data);
     } catch (error) {
-      console.error('Failed to fetch topics:', error);
-      toast.error('Failed to load topics');
+      console.error('Failed to fetch units:', error);
+      toast.error('Failed to load units');
     }
   };
 
@@ -147,13 +147,13 @@ export default function SkillTestForm() {
         passing_marks: data.passing_marks,
         enable_proctoring: data.enable_proctoring,
         publish_status: data.publish_status,
-        course: data.course,
-        topic: data.topic || ''
+        subject: data.subject,
+        unit: data.unit || ''
       });
 
-      setSelectedCourse(data.course);
-      if (data.course) {
-        await fetchTopics(data.course);
+      setSelectedSubject(data.subject);
+      if (data.subject) {
+        await fetchUnits(data.subject);
       }
 
       const allQuestions = [
@@ -186,17 +186,17 @@ export default function SkillTestForm() {
   };
 
   useEffect(() => {
-    fetchCourses();
+    fetchSubjects();
     if (isEditMode) {
       fetchSkillTest();
     } else {
-      // For new skill tests, set course and topic from URL params
-      if (courseIdFromUrl) {
-        setSelectedCourse(courseIdFromUrl);
-        fetchTopics(courseIdFromUrl);
+      // For new skill tests, set subject and unit from URL params
+      if (subjectIdFromUrl) {
+        setSelectedSubject(subjectIdFromUrl);
+        fetchUnits(subjectIdFromUrl);
       }
     }
-  }, [skillTestId, courseIdFromUrl, topicIdFromUrl]);
+  }, [skillTestId, subjectIdFromUrl, unitIdFromUrl]);
 
   // Course and topic are auto-selected from URL parameters
 
@@ -218,8 +218,8 @@ export default function SkillTestForm() {
       passing_marks: formData.passing_marks,
       enable_proctoring: formData.enable_proctoring,
       publish_status: formData.publish_status,
-      course: formData.course,
-      topic: formData.topic || undefined,
+      subject: formData.subject,
+      unit: formData.unit || undefined,
       questions_config: selectedQuestionsByType,
       questions_random_config: randomQuestionsConfig,
     };
@@ -233,18 +233,18 @@ export default function SkillTestForm() {
         toast.success('Skill test created successfully');
       }
 
-      // Navigate back to the course topics page and auto-select the topic for which skill test was created
-      const skillTestTopicId = formData.topic; // Use the actual topic from the skill test
-      const skillTestCourseId = formData.course; // Use the actual course from the skill test
-      console.log('Skill test saved, navigating back. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+      // Navigate back to the subject units page and auto-select the unit for which skill test was created
+      const skillTestUnitId = formData.unit; // Use the actual unit from the skill test
+      const skillTestSubjectId = formData.subject; // Use the actual subject from the skill test
+      console.log('Skill test saved, navigating back. SkillTest SubjectId:', skillTestSubjectId, 'SkillTest UnitId:', skillTestUnitId);
 
       try {
-        if (skillTestCourseId) {
-          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-          if (skillTestTopicId) {
-            targetUrl += `?topicId=${skillTestTopicId}`;
+        if (skillTestSubjectId) {
+          let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+          if (skillTestUnitId) {
+            targetUrl += `?topicId=${skillTestUnitId}`;
           }
-          console.log('Navigating to course manage page with skill test topic:', targetUrl);
+          console.log('Navigating to subject manage page with skill test unit:', targetUrl);
           navigate(targetUrl);
         } else {
           console.log('No courseId in skill test, navigating to main skill tests page');
@@ -252,10 +252,10 @@ export default function SkillTestForm() {
         }
       } catch (error) {
         console.error('Navigation failed, using window.location:', error);
-        if (skillTestCourseId) {
-          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-          if (skillTestTopicId) {
-            targetUrl += `?topicId=${skillTestTopicId}`;
+        if (skillTestSubjectId) {
+          let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+          if (skillTestUnitId) {
+            targetUrl += `?topicId=${skillTestUnitId}`;
           }
           window.location.href = targetUrl;
         } else {
@@ -276,13 +276,13 @@ export default function SkillTestForm() {
       return 'Modify skill test details and settings';
     }
 
-    const courseName = courses.find(c => c.id === courseIdFromUrl)?.name;
-    const topicName = topics.find(t => t.id === topicIdFromUrl)?.name;
+    const subjectName = subjects.find(c => c.id === subjectIdFromUrl)?.name;
+    const unitName = units.find(t => t.id === unitIdFromUrl)?.name;
 
-    if (courseName && topicName) {
-      return `Create a new skill test for ${courseName} - ${topicName}`;
-    } else if (courseName) {
-      return `Create a new skill test for ${courseName}`;
+    if (subjectName && unitName) {
+      return `Create a new skill test for ${subjectName} - ${unitName}`;
+    } else if (subjectName) {
+      return `Create a new skill test for ${subjectName}`;
     }
 
     return 'Create a new skill test';
@@ -321,27 +321,27 @@ export default function SkillTestForm() {
             actions={
               <button
                 onClick={() => {
-                  const skillTestTopicId = formData.topic || topicIdFromUrl;
-                  const skillTestCourseId = formData.course || courseIdFromUrl;
-                  console.log('Back button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+                  const skillTestUnitId = formData.unit || unitIdFromUrl;
+                  const skillTestSubjectId = formData.subject || subjectIdFromUrl;
+                  console.log('Back button clicked. SkillTest SubjectId:', skillTestSubjectId, 'SkillTest UnitId:', skillTestUnitId);
                   try {
-                    if (skillTestCourseId) {
-                      let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                      if (skillTestTopicId) {
-                        targetUrl += `?topicId=${skillTestTopicId}`;
+                    if (skillTestSubjectId) {
+                      let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+                      if (skillTestUnitId) {
+                        targetUrl += `?topicId=${skillTestUnitId}`;
                       }
-                      console.log('Navigating to course manage page with skill test topic:', targetUrl);
+                      console.log('Navigating to subject manage page with skill test unit:', targetUrl);
                       navigate(targetUrl);
                     } else {
-                      console.log('No courseId, navigating to main skill tests page');
+                      console.log('No subjectId, navigating to main skill tests page');
                       navigate('/instructor/skill-tests');
                     }
                   } catch (error) {
                     console.error('Navigation failed, using window.location:', error);
-                    if (skillTestCourseId) {
-                      let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                      if (skillTestTopicId) {
-                        targetUrl += `?topicId=${skillTestTopicId}`;
+                    if (skillTestSubjectId) {
+                      let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+                      if (skillTestUnitId) {
+                        targetUrl += `?topicId=${skillTestUnitId}`;
                       }
                       window.location.href = targetUrl;
                     } else {
@@ -351,7 +351,7 @@ export default function SkillTestForm() {
                 }}
                 className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
               >
-                ← Back to Courses
+                ← Back to Subjects
               </button>
             }
           />
@@ -602,8 +602,8 @@ export default function SkillTestForm() {
                         onQuestionsChange={handleQuestionsChange}
                         allowMultipleSelection={true}
                         showSplitView={true}
-                        courseFilter={selectedCourse}
-                        topicFilter={formData.topic}
+                        courseFilter={selectedSubject}
+                        topicFilter={formData.unit}
                         categoryFilter="skill_test"
                       />
                     </CardContent>
@@ -614,27 +614,27 @@ export default function SkillTestForm() {
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                   <button
                     onClick={() => {
-                      const skillTestTopicId = formData.topic || topicIdFromUrl;
-                      const skillTestCourseId = formData.course || courseIdFromUrl;
-                      console.log('Cancel button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+                      const skillTestUnitId = formData.unit || unitIdFromUrl;
+                      const skillTestSubjectId = formData.subject || subjectIdFromUrl;
+                      console.log('Cancel button clicked. SkillTest SubjectId:', skillTestSubjectId, 'SkillTest UnitId:', skillTestUnitId);
                       try {
-                        if (skillTestCourseId) {
-                          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                          if (skillTestTopicId) {
-                            targetUrl += `?topicId=${skillTestTopicId}`;
+                        if (skillTestSubjectId) {
+                          let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+                          if (skillTestUnitId) {
+                            targetUrl += `?topicId=${skillTestUnitId}`;
                           }
-                          console.log('Navigating to course manage page with skill test topic:', targetUrl);
+                          console.log('Navigating to subject manage page with skill test unit:', targetUrl);
                           navigate(targetUrl);
                         } else {
-                          console.log('No courseId, navigating to main skill tests page');
+                          console.log('No subjectId, navigating to main skill tests page');
                           navigate('/instructor/skill-tests');
                         }
                       } catch (error) {
                         console.error('Navigation failed, using window.location:', error);
-                        if (skillTestCourseId) {
-                          let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                          if (skillTestTopicId) {
-                            targetUrl += `?topicId=${skillTestTopicId}`;
+                        if (skillTestSubjectId) {
+                          let targetUrl = `/instructor/skill-tests/courses/${skillTestSubjectId}/manage`;
+                          if (skillTestUnitId) {
+                            targetUrl += `?topicId=${skillTestUnitId}`;
                           }
                           window.location.href = targetUrl;
                         } else {

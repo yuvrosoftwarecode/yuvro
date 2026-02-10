@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCertificationExams, CertificationExam, deleteCertificationExam } from '@/services/certificationService';
-import { fetchCourses, Course } from '@/services/courseService';
+import subjectService, { Subject } from '@/services/subjectService';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import SearchBar from '@/components/common/SearchBar';
@@ -14,12 +14,12 @@ import { toast } from 'sonner';
 
 export default function InstructorCertifications() {
     const navigate = useNavigate();
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
     const [exams, setExams] = useState<CertificationExam[]>([]);
     const [allExams, setAllExams] = useState<CertificationExam[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentView, setCurrentView] = useState<'courses' | 'exams'>('courses');
+    const [currentView, setCurrentView] = useState<'subjects' | 'exams'>('subjects');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTab, setSelectedTab] = useState('fundamentals');
 
@@ -39,10 +39,10 @@ export default function InstructorCertifications() {
 
     useEffect(() => {
         fetchData();
-        // Check for courseId in URL to auto-select
+        // Check for subjectId in URL to auto-select
         const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('courseId');
-        if (courseId) {
+        const subjectId = urlParams.get('courseId') || urlParams.get('subjectId');
+        if (subjectId) {
             // We need courses loaded first to find this course, handled in fetchData/useEffect logic
         }
     }, []);
@@ -50,13 +50,13 @@ export default function InstructorCertifications() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [examsData, coursesData] = await Promise.all([
+            const [examsData, subjectsData] = await Promise.all([
                 getCertificationExams(),
-                fetchCourses()
-            ]);
+                subjectService.getSubjects()
+            ]) as [any, any];
 
-            setAllExams(Array.isArray(examsData) ? examsData : examsData.results || []);
-            setCourses(Array.isArray(coursesData) ? coursesData : coursesData.results || []);
+            setAllExams(Array.isArray(examsData) ? examsData : (examsData as any).results || []);
+            setSubjects(Array.isArray(subjectsData) ? subjectsData : (subjectsData as any).results || []);
 
         } catch (error) {
             console.error('Failed to fetch data:', error);
@@ -66,23 +66,23 @@ export default function InstructorCertifications() {
         }
     };
 
-    const handleCourseSelect = (course: Course) => {
-        setSelectedCourse(course);
-        // Filter exams for this course
-        const courseExams = allExams.filter(e => String(e.course) === String(course.id));
-        setExams(courseExams);
+    const handleSubjectSelect = (subject: Subject) => {
+        setSelectedSubject(subject);
+        // Filter exams for this subject
+        const subjectExams = allExams.filter(e => String(e.subject) === String(subject.id));
+        setExams(subjectExams);
         setCurrentView('exams');
     };
 
-    const handleBackToCourses = () => {
-        setSelectedCourse(null);
-        setCurrentView('courses');
+    const handleBackToSubjects = () => {
+        setSelectedSubject(null);
+        setCurrentView('subjects');
         setExams([]);
     };
 
     const handleCreateExam = () => {
-        if (!selectedCourse) return;
-        navigate(`/instructor/certifications/create?courseId=${selectedCourse.id}`);
+        if (!selectedSubject) return;
+        navigate(`/instructor/certifications/create?courseId=${selectedSubject.id}`);
     };
 
     const handleDeleteExam = async (id: number) => {
@@ -97,25 +97,25 @@ export default function InstructorCertifications() {
         }
     };
 
-    const filteredCourses = courses.filter(course => course.category === selectedTab);
+    const filteredSubjects = subjects.filter(subject => subject.category === selectedTab);
 
     const filteredExams = exams.filter(exam =>
         exam.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const courseCounts = courses.reduce((acc: any, course) => {
-        acc[course.category] = (acc[course.category] || 0) + 1;
+    const subjectCounts = subjects.reduce((acc: any, subject) => {
+        acc[subject.category] = (acc[subject.category] || 0) + 1;
         return acc;
     }, {});
 
     const getHeaderTitle = () => {
-        return currentView === 'courses' ? 'Certifications Management' : `${selectedCourse?.name} - Exams`;
+        return currentView === 'subjects' ? 'Certifications Management' : `${selectedSubject?.name} - Exams`;
     };
 
     const getHeaderSubtitle = () => {
-        return currentView === 'courses'
-            ? 'Select a course to manage its certification exams'
-            : 'Manage certification exams for this course';
+        return currentView === 'subjects'
+            ? 'Select a subject to manage its certification exams'
+            : 'Manage certification exams for this subject';
     };
 
     return (
@@ -128,8 +128,8 @@ export default function InstructorCertifications() {
                     actions={
                         currentView === 'exams' ? (
                             <div className="flex gap-2">
-                                <Button variant="outline" onClick={handleBackToCourses} className="bg-white text-gray-700 hover:bg-gray-100">
-                                    ← Back to Courses
+                                <Button variant="outline" onClick={handleBackToSubjects} className="bg-white text-gray-700 hover:bg-gray-100">
+                                    ← Back to Subjects
                                 </Button>
                                 <Button onClick={handleCreateExam}>
                                     <Plus className="mr-2 h-4 w-4" /> Create Exam
@@ -147,16 +147,16 @@ export default function InstructorCertifications() {
                         </div>
                     ) : (
                         <>
-                            {currentView === 'courses' && (
+                            {currentView === 'subjects' && (
                                 <>
                                     {/* Tabs */}
                                     <div className="mb-6">
                                         <nav className="flex space-x-8">
                                             {[
-                                                { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
-                                                { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
-                                                { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
-                                                { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
+                                                { key: 'fundamentals', label: 'Fundamentals', count: subjectCounts.fundamentals || 0 },
+                                                { key: 'programming_languages', label: 'Programming Languages', count: subjectCounts.programming_languages || 0 },
+                                                { key: 'databases', label: 'Databases', count: subjectCounts.databases || 0 },
+                                                { key: 'ai_tools', label: 'AI Tools', count: subjectCounts.ai_tools || 0 }
                                             ].map((tab) => (
                                                 <button
                                                     key={tab.key}
@@ -176,24 +176,24 @@ export default function InstructorCertifications() {
                                         </nav>
                                     </div>
 
-                                    {filteredCourses.length === 0 ? (
+                                    {filteredSubjects.length === 0 ? (
                                         <div className="bg-white shadow rounded-lg p-12 text-center">
                                             <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                                            <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
+                                            <h3 className="mt-2 text-sm font-medium text-gray-900">No subjects found</h3>
                                             <p className="mt-1 text-sm text-gray-500">
-                                                No {CATEGORY_LABELS[selectedTab]} courses available.
+                                                No {CATEGORY_LABELS[selectedTab]} subjects available.
                                             </p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                            {filteredCourses.map((course) => (
+                                            {filteredSubjects.map((subject) => (
                                                 <Card
-                                                    key={course.id}
+                                                    key={subject.id}
                                                     className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl cursor-pointer"
-                                                    onClick={() => handleCourseSelect(course)}
+                                                    onClick={() => handleSubjectSelect(subject)}
                                                 >
                                                     <CardContent className="p-0">
-                                                        <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
+                                                        <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[subject.category]} p-4 text-white relative overflow-hidden`}>
                                                             <div className="absolute inset-0 opacity-10">
                                                                 <div className="absolute inset-0" style={{
                                                                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -205,17 +205,17 @@ export default function InstructorCertifications() {
                                                                     <div className="flex items-center gap-2 mb-2">
                                                                         <BookOpen className="h-4 w-4 text-white/70" />
                                                                         <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
-                                                                            {CATEGORY_LABELS[course.category]}
+                                                                            {CATEGORY_LABELS[subject.category]}
                                                                         </span>
                                                                     </div>
                                                                     <h3 className="font-bold text-lg leading-tight mb-2 text-white">
-                                                                        {course.name}
+                                                                        {subject.name}
                                                                     </h3>
                                                                 </div>
-                                                                {course.short_code && (
+                                                                {subject.short_code && (
                                                                     <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
                                                                         <span className="text-xs font-bold text-white">
-                                                                            {course.short_code}
+                                                                            {subject.short_code}
                                                                         </span>
                                                                     </div>
                                                                 )}
@@ -227,7 +227,7 @@ export default function InstructorCertifications() {
                                                                 <div className="flex items-center gap-1.5 text-sm text-gray-500">
                                                                     <Award className="h-3.5 w-3.5" />
                                                                     <span>
-                                                                        {allExams.filter(e => String(e.course) === String(course.id)).length} Exams
+                                                                        {allExams.filter(e => String(e.subject) === String(subject.id)).length} Exams
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-blue-600 font-semibold text-sm">
@@ -254,7 +254,7 @@ export default function InstructorCertifications() {
                                             {filteredExams.length === 0 ? (
                                                 <div className="text-center py-12 text-muted-foreground">
                                                     <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                                                    <p>No certification exams found for this course.</p>
+                                                    <p>No certification exams found for this subject.</p>
                                                     <Button variant="link" onClick={handleCreateExam} className="mt-2">
                                                         Create your first exam
                                                     </Button>

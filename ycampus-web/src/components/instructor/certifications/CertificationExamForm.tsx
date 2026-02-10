@@ -8,7 +8,7 @@ import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import QuestionBank from '@/components/common/QuestionBank';
 import { getCertificationExam, createCertificationExam, updateCertificationExam, CertificationExam } from '@/services/certificationService';
-import courseService, { Course, TopicBasic } from '@/services/courseService';
+import subjectService, { Subject } from '@/services/subjectService';
 import { fetchQuestionById } from '@/services/questionService';
 
 export default function CertificationExamForm() {
@@ -16,9 +16,9 @@ export default function CertificationExamForm() {
     const { examId } = useParams<{ examId: string }>();
     const isEditMode = !!examId;
 
-    // Get URL parameters for course
+    // Get URL parameters for subject
     const urlParams = new URLSearchParams(window.location.search);
-    const courseIdFromUrl = urlParams.get('courseId');
+    const subjectIdFromUrl = urlParams.get('subjectId') || urlParams.get('courseId');
 
     const [exam, setExam] = useState<CertificationExam | null>(null);
     const [currentFormTab, setCurrentFormTab] = useState('details');
@@ -36,8 +36,8 @@ export default function CertificationExamForm() {
         descriptive: 0
     });
     const [loading, setLoading] = useState(false);
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [selectedCourse, setSelectedCourse] = useState<string>('');
+    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [selectedSubject, setSelectedSubject] = useState<string>('');
 
     const [formData, setFormData] = useState({
         title: '',
@@ -50,7 +50,7 @@ export default function CertificationExamForm() {
         max_attempts: 3,
         enable_proctoring: false,
         publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
-        course: courseIdFromUrl || '',
+        subject: subjectIdFromUrl || '',
         start_datetime: '',
         end_datetime: '',
     });
@@ -106,13 +106,13 @@ export default function CertificationExamForm() {
         setSelectedQuestionsByType(categorizedQuestions);
     };
 
-    const fetchCoursesList = async () => {
+    const fetchSubjectsList = async () => {
         try {
-            const data = await courseService.getCourses();
-            setCourses(data);
+            const data = await subjectService.getSubjects();
+            setSubjects(data);
         } catch (error) {
-            console.error('Failed to fetch courses:', error);
-            toast.error('Failed to load courses');
+            console.error('Failed to fetch subjects:', error);
+            toast.error('Failed to load subjects');
         }
     };
 
@@ -121,27 +121,27 @@ export default function CertificationExamForm() {
 
         setLoading(true);
         try {
-            const data = await getCertificationExam(examId);
+            const data = await getCertificationExam(examId) as CertificationExam;
             setExam(data);
 
             // Populate form with exam data
             setFormData({
                 title: data.title,
                 description: data.description,
-                instructions: data.instructions,
+                instructions: data.instructions || '',
                 difficulty: data.difficulty || 'medium',
                 duration: data.duration,
-                total_marks: data.total_marks || 100, // Handle optional field if newly added
+                total_marks: data.total_marks || 100,
                 passing_marks: data.passing_marks,
                 max_attempts: data.max_attempts || 3,
                 enable_proctoring: data.enable_proctoring || false,
                 publish_status: data.publish_status,
-                course: String(data.course),
+                subject: String(data.subject),
                 start_datetime: data.start_datetime ? new Date(data.start_datetime).toISOString().slice(0, 16) : '',
                 end_datetime: data.end_datetime ? new Date(data.end_datetime).toISOString().slice(0, 16) : '',
             });
 
-            setSelectedCourse(String(data.course));
+            setSelectedSubject(String(data.subject));
 
             // Handle questions config which might be null/undefined initially
             const questionsConfig = data.questions_config || {};
@@ -173,24 +173,24 @@ export default function CertificationExamForm() {
     };
 
     useEffect(() => {
-        fetchCoursesList();
+        fetchSubjectsList();
         if (isEditMode) {
             fetchExamDetails();
         } else {
-            if (courseIdFromUrl) {
-                setSelectedCourse(courseIdFromUrl);
-                setFormData(prev => ({ ...prev, course: courseIdFromUrl }));
+            if (subjectIdFromUrl) {
+                setSelectedSubject(subjectIdFromUrl);
+                setFormData(prev => ({ ...prev, subject: subjectIdFromUrl }));
             }
         }
-    }, [examId, courseIdFromUrl]);
+    }, [examId, subjectIdFromUrl]);
 
     const handleSubmit = async () => {
         if (!formData.title.trim()) {
             toast.error('Please enter an exam title');
             return;
         }
-        if (!formData.course) {
-            toast.error('Please select a course');
+        if (!formData.subject) {
+            toast.error('Please select a subject');
             return;
         }
         if (!formData.start_datetime || !formData.end_datetime) {
@@ -214,7 +214,7 @@ export default function CertificationExamForm() {
             max_attempts: formData.max_attempts,
             enable_proctoring: formData.enable_proctoring,
             publish_status: formData.publish_status,
-            course: formData.course,
+            subject: formData.subject,
             start_datetime: formData.start_datetime,
             end_datetime: formData.end_datetime,
             questions_config: selectedQuestionsByType,
@@ -306,19 +306,19 @@ export default function CertificationExamForm() {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Course *</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
                                                 <select
-                                                    value={formData.course}
+                                                    value={formData.subject}
                                                     onChange={(e) => {
-                                                        setFormData({ ...formData, course: e.target.value });
-                                                        setSelectedCourse(e.target.value);
+                                                        setFormData({ ...formData, subject: e.target.value });
+                                                        setSelectedSubject(e.target.value);
                                                     }}
                                                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    disabled={isEditMode || !!courseIdFromUrl}
+                                                    disabled={isEditMode || !!subjectIdFromUrl}
                                                 >
-                                                    <option value="">Select a Course</option>
-                                                    {courses.map(course => (
-                                                        <option key={course.id} value={course.id}>{course.name || course.title}</option>
+                                                    <option value="">Select a Subject</option>
+                                                    {subjects.map(subject => (
+                                                        <option key={subject.id} value={subject.id}>{subject.name || subject.title}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -549,7 +549,7 @@ export default function CertificationExamForm() {
                                             allowMultipleSelection={true}
                                             showSplitView={true}
                                         // Removing courseFilter and categoryFilter to allow selecting ALL questions
-                                        // courseFilter={selectedCourse} 
+                                        // courseFilter={selectedSubject} 
                                         // categoryFilter="certification"
                                         />
                                     </CardContent>

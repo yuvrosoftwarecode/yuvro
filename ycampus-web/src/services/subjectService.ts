@@ -42,6 +42,7 @@ export interface Subject {
   description?: string;
   price?: number;
   modules?: Module[];
+  department?: string | { id: string | number; name: string };
   enrolled_count?: number;
   created_at: string;
   updated_at: string;
@@ -472,31 +473,31 @@ export async function fetchSkillTestQuestions(unitId: string) {
   }
 
   const questions = await restApiAuthUtil.get<any[]>('/course/questions/', { params: { unit: unitId, category: 'skill_test' } });
-  
+
   // Assuming frontend still expects split lists or combined
   // Need to adjust parsing based on new question endpoint if it changed?
   // Actually, 'fetchSkillTestQuizzesByUnit' above fetched questions directly. 
   // Let's assume 'questions' returns both types or filtered.
   // Wait, I see fetchSkillTestQuizzesByUnit above. 
-  
+
   // Re-implementing logic from original file:
   // const quizzes = await restApiAuthUtil.get<any[]>('/course/quizzes/', ...); // OLD
   // NEW: endpoint is /course/questions/ filtered by type? Or just /course/questions/ returns all?
   // ViewSet supports type filtering.
-  
-  const quizzes = await restApiAuthUtil.get<any[]>('/course/questions/', { 
-      params: { unit: unitId, category: 'skill_test', type: 'mcq_single' } // and 'mcq_multiple'
+
+  const quizzes = await restApiAuthUtil.get<any[]>('/course/questions/', {
+    params: { unit: unitId, category: 'skill_test', type: 'mcq_single' } // and 'mcq_multiple'
   });
-  
-  const coding = await restApiAuthUtil.get<any[]>('/course/questions/', { 
-      params: { unit: unitId, category: 'skill_test', type: 'coding' } 
+
+  const coding = await restApiAuthUtil.get<any[]>('/course/questions/', {
+    params: { unit: unitId, category: 'skill_test', type: 'coding' }
   });
 
   const mcqQuestions = quizzes.map((q: any) => ({
     id: q.id,
     type: "mcq",
     question: q.title,
-    options: safeParseOptions(q.mcq_options?.map((o:any)=>o.text)),
+    options: safeParseOptions(q.mcq_options?.map((o: any) => o.text)),
     multipleCorrect: q.type === 'mcq_multiple',
     marks: q.marks || 2,
   }));
