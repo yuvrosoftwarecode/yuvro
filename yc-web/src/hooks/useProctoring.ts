@@ -3,7 +3,7 @@ import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 interface ProctoringConfig {
     assessmentId: string;
-    assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests';
+    assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests' | 'certification-exams';
     enabled: boolean;
     questionId?: string; // Optional context
 }

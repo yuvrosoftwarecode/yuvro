@@ -63,6 +63,7 @@ import {
   createSubtopic,
   updateSubtopic,
   deleteSubtopic,
+  Course,
 } from "@/services/courseService";
 
 type Category = "fundamentals" | "programming_languages" | "databases" | "ai_tools";
@@ -72,13 +73,6 @@ const CATEGORY_LABELS: Record<Category, string> = {
   programming_languages: "Programming Languages",
   databases: "Databases",
   ai_tools: "AI Tools",
-};
-
-type Course = {
-  id: string;
-  short_code: string | null;
-  name: string;
-  category: Category;
 };
 
 type Topic = {
@@ -165,7 +159,7 @@ const CourseEdit: React.FC = () => {
       setEditCourseValues({
         name: c.name || "",
         short_code: c.short_code || "",
-        category: c.category || "fundamentals",
+        category: (c.category as Category) || "fundamentals",
       });
 
       const t = await fetchTopicsByCourse(courseId);
@@ -213,7 +207,7 @@ const CourseEdit: React.FC = () => {
         category: editCourseValues.category,
       };
 
-      await updateCourse(course.id, payload);
+      await updateCourse(String(course.id), payload);
 
       toast.success("Course updated successfully");
 
@@ -231,7 +225,7 @@ const CourseEdit: React.FC = () => {
 
     setDeleting(true);
     try {
-      await deleteCourse(course.id);
+      await deleteCourse(String(course.id));
       toast.success("Course deleted");
       navigate("/instructor/courses");
     } catch (err) {
@@ -273,7 +267,7 @@ const CourseEdit: React.FC = () => {
       if (topicModalMode === "create") {
         const payload = {
           name: topicNameValue,
-          course: course.id,
+          course: String(course.id),
           order_index: topicOrderValue ?? 0,
         };
 
@@ -454,7 +448,7 @@ const CourseEdit: React.FC = () => {
         <div className="flex-1">
           <RoleHeader
             title={course?.name ? course.name : 'Loading Course...'}
-            subtitle={course ? `Category: ${CATEGORY_LABELS[course.category] || course.category}${course.short_code ? ` • Code: ${course.short_code}` : ''}` : 'Loading course details...'}
+            subtitle={course ? `Category: ${CATEGORY_LABELS[course.category as Category] || course.category}${course.short_code ? ` • Code: ${course.short_code}` : ''}` : 'Loading course details...'}
           />
 
           {/* Main content */}
@@ -764,17 +758,17 @@ const CourseEdit: React.FC = () => {
           <div className="space-y-4 py-2">
             <div>
               <Label>Topic Name</Label>
-              <Input value={topicNameValue} onChange={(e) => setTopicNameValue(e.target.value)} />
+              <Input className="border-slate-300" value={topicNameValue} onChange={(e) => setTopicNameValue(e.target.value)} />
             </div>
 
             <div>
               <Label>Order Index (optional)</Label>
-              <Input type="number" value={topicOrderValue ?? ""} onChange={(e) => setTopicOrderValue(e.target.value ? Number(e.target.value) : null)} />
+              <Input type="number" className="border-slate-300" value={topicOrderValue ?? ""} onChange={(e) => setTopicOrderValue(e.target.value ? Number(e.target.value) : null)} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsTopicModalOpen(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setIsTopicModalOpen(false)}>Cancel</Button>
             <Button onClick={saveTopic} disabled={savingTopic}>{savingTopic ? "Saving..." : (topicModalMode === "create" ? "Create Topic" : "Save Changes")}</Button>
           </DialogFooter>
         </DialogContent>
@@ -790,22 +784,22 @@ const CourseEdit: React.FC = () => {
           <div className="space-y-4 py-2">
             <div>
               <Label>Subtopic Name</Label>
-              <Input value={subtopicNameValue} onChange={(e) => setSubtopicNameValue(e.target.value)} />
+              <Input className="border-slate-300" value={subtopicNameValue} onChange={(e) => setSubtopicNameValue(e.target.value)} />
             </div>
 
             <div>
               <Label>Order Index (optional)</Label>
-              <Input type="number" value={subtopicOrderValue ?? ""} onChange={(e) => setSubtopicOrderValue(e.target.value ? Number(e.target.value) : null)} />
+              <Input type="number" className="border-slate-300" value={subtopicOrderValue ?? ""} onChange={(e) => setSubtopicOrderValue(e.target.value ? Number(e.target.value) : null)} />
             </div>
 
             <div>
               <Label>Content (optional)</Label>
-              <Input value={subtopicContentValue} onChange={(e) => setSubtopicContentValue(e.target.value)} />
+              <Input className="border-slate-300" value={subtopicContentValue} onChange={(e) => setSubtopicContentValue(e.target.value)} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSubtopicModalOpen(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setIsSubtopicModalOpen(false)}>Cancel</Button>
             <Button onClick={saveSubtopic} disabled={savingSubtopic}>{savingSubtopic ? "Saving..." : (subtopicModalMode === "create" ? "Create Subtopic" : "Save Changes")}</Button>
           </DialogFooter>
         </DialogContent>
@@ -824,7 +818,7 @@ const CourseEdit: React.FC = () => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setConfirmDelete(null)}>Cancel</Button>
 
             {confirmDelete?.type === "course" && (
               <Button variant="destructive" onClick={handleDeleteCourse} disabled={deleting}>{deleting ? "Deleting..." : "Delete Course"}</Button>

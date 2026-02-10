@@ -453,7 +453,7 @@ export default function SkillTestForm() {
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="e.g., JavaScript Fundamentals Test"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div>
@@ -461,7 +461,7 @@ export default function SkillTestForm() {
                           <select
                             value={formData.difficulty}
                             onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           >
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
@@ -477,7 +477,7 @@ export default function SkillTestForm() {
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           placeholder="Describe the skill test focus and topics..."
                           rows={3}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
@@ -488,7 +488,7 @@ export default function SkillTestForm() {
                           onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                           placeholder="Instructions for students taking the test..."
                           rows={3}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                         />
                       </div>
 
@@ -511,7 +511,7 @@ export default function SkillTestForm() {
                           <select
                             value={formData.publish_status}
                             onChange={(e) => setFormData({ ...formData, publish_status: e.target.value as any })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           >
                             <option value="draft">Draft</option>
                             <option value="active">Active</option>
@@ -525,7 +525,7 @@ export default function SkillTestForm() {
                             id="enable_proctoring"
                             checked={formData.enable_proctoring}
                             onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
                           />
                           <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
                             Enable Proctoring

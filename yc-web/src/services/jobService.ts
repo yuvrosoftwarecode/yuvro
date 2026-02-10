@@ -34,6 +34,18 @@ export interface Job {
         coding: number;
         descriptive: number;
     };
+    logo?: string;
+    responsibilities?: string[];
+    required_skills?: string[];
+    preferred_skills?: string[];
+    benefits?: string[];
+    work_type?: string;
+    experience_level?: string;
+    job_type?: string;
+    salary_range?: { min: number; max: number; currency: string };
+    match_percentage?: number;
+    location?: string;
+    company_info?: Company;
 }
 
 export interface Company {
@@ -43,6 +55,7 @@ export interface Company {
     website?: string;
     size?: string;
     description?: string;
+    about?: string;
     benefits?: string;
     location?: string;
     created_at: string;
@@ -102,7 +115,7 @@ export interface JobFilterData {
     experience_min_years?: number;
     experience_max_years?: number;
     is_remote?: boolean;
-    company?: number; 
+    company?: number;
     skills?: string[];
     min_salary?: number;
     max_salary?: number;
@@ -117,7 +130,7 @@ export const jobService = {
     },
 
     async getJob(jobId: string): Promise<Job> {
-        return restApiUtil.get(`/jobs/${jobId}/`);
+        return restApiAuthUtil.get(`/jobs/${jobId}/`);
     },
 
     async createJob(data: CreateJobData): Promise<Job> {

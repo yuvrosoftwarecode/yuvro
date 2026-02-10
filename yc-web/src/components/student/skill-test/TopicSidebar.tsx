@@ -11,10 +11,12 @@ export interface SidebarTopic {
   problemCount?: number; // Added for CodePractice compatibility
 }
 
+import React from 'react';
+
 export interface SidebarCourse {
   id: string;
   name: string;
-  icon?: string;
+  icon?: React.ReactNode;
   topics: SidebarTopic[];
 }
 
@@ -52,7 +54,7 @@ const TopicSidebar = ({
         {/* CONTENT AREA */}
         {!isOpen ? (
           <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-            <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={course.name}>
+            <div className="w-10 h-10 flex items-center justify-center mb-2" title={course.name}>
               {course.icon || '🗂️'}
             </div>
             <div className="flex flex-col items-center gap-3 w-full px-2">
@@ -85,7 +87,7 @@ const TopicSidebar = ({
         ) : (
           <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
+              <div className="w-10 h-10 flex items-center justify-center">
                 {course.icon || '🗂️'}
               </div>
               <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>

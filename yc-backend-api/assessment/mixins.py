@@ -1,15 +1,116 @@
 import os
 import time
+import random
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.db.models import Case, When, Value, CharField
 from .models import BaseQuestionActivity
 from rest_framework import permissions
 from rest_framework.decorators import action
 import requests
 import json
+
+
+class LeaderboardPagination(PageNumberPagination):
+    """Pagination class for leaderboard endpoints."""
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class AssessmentMixin:
+    """
+    Mixin providing shared utilities for assessment ViewSets.
+    Includes:
+    - Question fetching from config
+    - Bulk status updates for time-based assessments
+    """
+
+    def _fetch_questions_for_assessment(self, assessment, course_filter=None, topic_filter=None):
+        """
+        Fetch questions based on assessment's questions_config and questions_random_config.
+        
+        Args:
+            assessment: The assessment object (Contest, SkillTest, CertificationExam, etc.)
+            course_filter: Optional course to filter random questions
+            topic_filter: Optional topic to filter random questions
+            
+        Returns:
+            List of question dictionaries shuffled
+        """
+        from course.models import Question
+        from django.db.models import Q
+        
+        questions_to_send = []
+        
+        # Option A: Fixed Configuration
+        if assessment.questions_config:
+            all_ids = []
+            for q_type, ids in assessment.questions_config.items():
+                if isinstance(ids, list):
+                    all_ids.extend(ids)
+            
+            if all_ids:
+                questions_to_send = list(Question.objects.filter(id__in=all_ids).values(
+                    'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                ))
+        
+        # Option B: Random Configuration (Additive)
+        if assessment.questions_random_config:
+            existing_ids = [q['id'] for q in questions_to_send]
+            
+            for q_type, count in assessment.questions_random_config.items():
+                if count > 0:
+                    q_filter = Q(type=q_type)
+                    
+                    # Apply filters if provided
+                    if topic_filter:
+                        q_filter &= (Q(subtopic__topic=topic_filter) | Q(topic=topic_filter))
+                    elif course_filter:
+                        q_filter &= Q(course=course_filter)
+                    
+                    candidates = list(Question.objects.filter(
+                        q_filter
+                    ).exclude(id__in=existing_ids).values(
+                        'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                    ))
+                    
+                    if len(candidates) >= count:
+                        selected = random.sample(candidates, count)
+                    else:
+                        selected = candidates
+                    
+                    questions_to_send.extend(selected)
+                    existing_ids.extend([q['id'] for q in selected])
+        
+        # Shuffle final list
+        random.shuffle(questions_to_send)
+        return questions_to_send
+
+    @classmethod
+    def bulk_update_contest_statuses(cls):
+        """
+        Efficiently update all contest statuses based on current time.
+        Call this from a Celery task or management command.
+        """
+        from .models import Contest
+        
+        now = timezone.now()
+        
+        # Update all contests in a single query using Case/When
+        Contest.objects.update(
+            status=Case(
+                When(start_datetime__gt=now, then=Value(Contest.STATUS_UPCOMING)),
+                When(start_datetime__lte=now, end_datetime__gte=now, then=Value(Contest.STATUS_ONGOING)),
+                When(end_datetime__lt=now, then=Value(Contest.STATUS_PAST)),
+                default=Value(Contest.STATUS_UPCOMING),
+                output_field=CharField()
+            )
+        )
 
 
 class ProctoringMixin:

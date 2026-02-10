@@ -27,7 +27,7 @@ from .models import (
     SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity,
     CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate
 )
-from .mixins import ProctoringMixin
+from .mixins import ProctoringMixin, AssessmentMixin, LeaderboardPagination
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
     SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer,
@@ -256,15 +256,13 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 from course.models import Question
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
-from .mixins import ProctoringMixin
 from django.core.mail import send_mail
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
+class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
     queryset = Contest.objects.all()
     serializer_class = ContestSerializer
     
@@ -298,16 +296,26 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             q &= Q(type=type_param)
         
         if date_from:
-            q &= Q(start_date__gte=date_from)
+            q &= Q(start_datetime__gte=date_from)
         
         if date_to:
-            q &= Q(start_date__lte=date_to)
+            q &= Q(start_datetime__lte=date_to)
 
         if q:
             qs = qs.filter(q)
-            
-        for obj in qs:
-            obj.update_status()
+        
+        # Bulk update statuses efficiently using database annotations
+        now = timezone.now()
+        from django.db.models import Case, When, Value, CharField
+        qs = qs.annotate(
+            computed_status=Case(
+                When(start_datetime__gt=now, then=Value(Contest.STATUS_UPCOMING)),
+                When(start_datetime__lte=now, end_datetime__gte=now, then=Value(Contest.STATUS_ONGOING)),
+                When(end_datetime__lt=now, then=Value(Contest.STATUS_PAST)),
+                default=Value(Contest.STATUS_UPCOMING),
+                output_field=CharField()
+            )
+        )
         return qs
     
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -481,20 +489,34 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             status__in=[ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED]
         ).select_related('user').order_by('-marks', 'submitted_at')
         
-        # 2. Build Leaderboard Data
-        leaderboard_data = []
-        rank = 1
+        # 2. Apply Pagination
+        paginator = LeaderboardPagination()
+        page = paginator.paginate_queryset(submissions, request)
         
-        for sub in submissions:
+        # Calculate starting rank based on page offset
+        page_size = paginator.page_size
+        page_number = request.query_params.get(paginator.page_query_param, 1)
+        try:
+            page_number = int(page_number)
+        except (TypeError, ValueError):
+            page_number = 1
+        start_rank = (page_number - 1) * page_size + 1
+        
+        # 3. Build Leaderboard Data
+        leaderboard_data = []
+        
+        for idx, sub in enumerate(page or submissions):
             leaderboard_data.append({
-                'rank': rank,
+                'rank': start_rank + idx,
                 'user': f"{sub.user.first_name} {sub.user.last_name}".strip() or sub.user.username,
                 'avatar': sub.user.avatar.url if hasattr(sub.user, 'avatar') and sub.user.avatar else None,
                 'score': sub.marks,
                 'time_taken': str(sub.submitted_at - sub.started_at) if sub.submitted_at and sub.started_at else None,
                 'submitted_at': sub.submitted_at
             })
-            rank += 1
+        
+        if page is not None:
+            return paginator.get_paginated_response(leaderboard_data)
             
         return Response(leaderboard_data, status=status.HTTP_200_OK)
 

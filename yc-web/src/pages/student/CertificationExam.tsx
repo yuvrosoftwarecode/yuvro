@@ -25,10 +25,10 @@ interface Assessment {
 }
 
 interface StartExamResponse {
-    submission_id: string;
+    submission_id: number;
     status: string;
     duration: number;
-    questions: any[];
+    questions: Question[];
 }
 
 const CertificationExam: React.FC = () => {
@@ -48,16 +48,16 @@ const CertificationExam: React.FC = () => {
                 const exam = await getCertificationExam(examId);
 
                 // 2. Start the exam
-                const startRes = await startCertificationExam(examId);
+                const startRes = await startCertificationExam(examId) as StartExamResponse;
 
-                setSubmissionId(startRes.submission_id);
+                setSubmissionId(startRes.submission_id.toString());
                 setQuestions(startRes.questions.map((q: any) => ({
                     ...q,
                     mcq_options: q.mcq_options || undefined
                 })));
 
                 setAssessment({
-                    id: exam.id,
+                    id: exam.id.toString(),
                     title: exam.title || "Certification Exam",
                     course: exam.course_name || "Certification",
                     duration: startRes.duration || exam.duration,

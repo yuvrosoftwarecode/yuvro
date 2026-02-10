@@ -129,7 +129,7 @@ export default function CertificationExamForm() {
             setFormData({
                 title: data.title,
                 description: data.description,
-                instructions: data.instructions,
+                instructions: data.instructions || '',
                 difficulty: data.difficulty || 'medium',
                 duration: data.duration,
                 total_marks: data.total_marks || 100, // Handle optional field if newly added

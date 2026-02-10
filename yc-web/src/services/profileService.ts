@@ -51,7 +51,7 @@ export interface Certification {
   name: string;
   issuer: string;
   completion_date: string;
-  certificate_file?: string | null;
+  certificate_file?: string | File | null;
 }
 
 export interface Profile {
@@ -64,6 +64,10 @@ export interface Profile {
   profile_image?: string | null;
   cover_image?: string | null;
   google_id?: string | null;
+  user?: {
+    first_name: string;
+    last_name: string;
+  };
   links: SocialLinks;
   skills: Skill[];
   experiences: Experience[];
@@ -163,12 +167,12 @@ export const deleteCertification = async (id: string) => {
 };
 
 export async function updateProfile(data: EditProfileData) {
-  const userRes = await restApiAuthUtil.patch('/auth/profile/', {
+  const userRes: any = await restApiAuthUtil.patch('/auth/profile/', {
     first_name: data.first_name,
     last_name: data.last_name,
   });
 
-  const profileRes = await restApiAuthUtil.patch('/auth/profile/detail/', {
+  const profileRes: any = await restApiAuthUtil.patch('/auth/profile/detail/', {
     title: data.title,
     location: data.location,
     about: data.about,

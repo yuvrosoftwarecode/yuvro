@@ -30,7 +30,7 @@ interface AddProjectDialogProps {
   open: boolean;
   editingData?: any | null; // Project data for edit mode
   onOpenChange: (open: boolean) => void;
-  onSave: (project: ProjectForm) => void;
+  onSave: (project: ProjectForm) => Promise<void>;
 }
 
 const AddProjectDialog: React.FC<AddProjectDialogProps> = ({

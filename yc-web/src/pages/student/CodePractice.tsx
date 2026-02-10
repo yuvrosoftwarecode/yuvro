@@ -225,8 +225,8 @@ const CodePractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation autoHide={currentView === 'problem'} />
+    <div className="min-h-screen bg-gray-50/50">
+      <Navigation />
       <div className="transition-all duration-300 ease-in-out">
         {isHydrating ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh]">

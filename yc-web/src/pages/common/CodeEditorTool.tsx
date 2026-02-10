@@ -24,7 +24,8 @@ const CodeEditorPage: React.FC = () => {
         id: 'playground-topic',
         name: 'General Programming',
         problemCount: 0,
-        order_index: 1
+        order_index: 1,
+        progress: 0
     };
 
     const dummyProblem: CodingProblem = {

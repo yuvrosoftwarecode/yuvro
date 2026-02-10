@@ -13,6 +13,8 @@ import ForgotPassword from './pages/common/ForgotPassword';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import Courses from './pages/instructor/Courses';
 import CourseEdit from './components/instructor/courses/CourseEdit';
+import ResumeBuilder from "./pages/student/ResumeBuilder";
+
 
 import Users from './pages/instructor/Users';
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -24,6 +26,7 @@ import MockInterviewReportPage from './pages/student/MockInterviewReportPage';
 import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
+import ContestDetail from './pages/student/ContestDetail';
 import ContestAttempt from './pages/student/ContestAttempt';
 import CodePractice from './pages/student/CodePractice';
 import StudentQuiz from './components/student/StudentQuiz';
@@ -91,6 +94,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route path="/student/resume-builder" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <ResumeBuilder />
+              </ProtectedRoute>
+            } />
 
               <Route
                 path="/student/learn/:courseId"
@@ -212,6 +221,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <Contest />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contests/:contestId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ContestDetail />
                   </ProtectedRoute>
                 }
               />

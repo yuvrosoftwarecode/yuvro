@@ -6,7 +6,7 @@ from .models import (
 )
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)

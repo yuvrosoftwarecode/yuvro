@@ -6,7 +6,13 @@ import StudentQuizEmbed from "./StudentQuizEmbed";
 import StudentCodingEmbed from "./StudentCodingEmbed";
 import StudentNotes from "./StudentNotes";
 import { toast } from "sonner";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Layout, Video as VideoIcon } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     fetchCourseById,
     fetchTopicsByCourse,
@@ -18,7 +24,7 @@ import {
 import { fetchQuestions } from "@/services/questionService";
 import { Check } from "lucide-react";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { PlayCircle, HelpCircle, StickyNote, Code, BookOpen, Info, CheckCircle2, MonitorPlay } from "lucide-react";
+import { PlayCircle, HelpCircle, StickyNote, Code, BookOpen, Info, CheckCircle2, MonitorPlay, Sparkles } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -471,7 +477,7 @@ const CourseDetail: React.FC = () => {
                     )}
                 </button>
 
-                <div className="flex-1 bg-white shadow-sm overflow-hidden flex flex-col">
+                <div className="flex-1 bg-white overflow-hidden flex flex-col">
                     <div className="border-b border-gray-200 py-3 flex items-center justify-between relative min-h-[4.5rem]">
                         <div className="ml-4 flex items-center gap-2 text-sm bg-white border border-gray-300 shadow-sm rounded-full px-4 py-1 font-medium text-gray-700 max-w-[30%] min-w-0">
                             {selectedSubtopic && (
@@ -607,11 +613,11 @@ const CourseDetail: React.FC = () => {
                                                         Practice makes perfect. Our built-in code editor lets you write and run code in the browser.
                                                     </p>
                                                     <div className="grid grid-cols-2 gap-4 mt-4">
-                                                        <div className="border p-3 rounded-lg bg-gray-50">
+                                                        <div className="border border-gray-200 p-3 rounded-lg bg-gray-50">
                                                             <h4 className="font-semibold text-xs uppercase text-gray-500 mb-2">Run Code</h4>
                                                             <p className="text-sm">Executes your code against sample inputs to verify logic.</p>
                                                         </div>
-                                                        <div className="border p-3 rounded-lg bg-gray-50">
+                                                        <div className="border border-gray-200 p-3 rounded-lg bg-gray-50">
                                                             <h4 className="font-semibold text-xs uppercase text-gray-500 mb-2">Submit</h4>
                                                             <p className="text-sm">Runs against hidden test cases. Required for completion.</p>
                                                         </div>
@@ -676,6 +682,148 @@ const CourseDetail: React.FC = () => {
                                         {activeProgress.video ? <Check className="w-3.5 h-3.5" /> : <PlayCircle className="w-3.5 h-3.5" />}
                                         {activeProgress.video ? "Watched" : "Mark as Watched"}
                                     </button>
+
+                                    <div className="h-4 w-px bg-gray-300 mx-1" />
+
+                                    {/* Layout Switcher Dropdown */}
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button
+                                                className="
+                                                h-9 px-4 text-gray-600 bg-white
+                                                border border-gray-300 rounded-full shadow-sm
+                                                flex items-center gap-2 text-sm font-semibold
+                                                transition-all duration-200
+                                                hover:text-blue-700 hover:bg-blue-50
+                                                active:scale-95
+                                            "
+                                            >
+                                                <Layout className="w-4 h-4" />
+                                                <span>Layouts</span>
+                                            </button>
+                                        </DropdownMenuTrigger>
+
+                                        <DropdownMenuContent
+                                            align="end"
+                                            className="
+                                            w-64 p-2 rounded-2xl border border-gray-100
+                                            bg-white backdrop-blur-md
+                                            shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)]
+                                            z-[100]
+
+                                            data-[state=open]:animate-in
+                                            data-[state=closed]:animate-out
+                                            data-[state=open]:fade-in-0
+                                            data-[state=closed]:fade-out-0
+                                            data-[state=open]:zoom-in-95
+                                            data-[state=closed]:zoom-out-95
+                                            
+                                            /* Override default slide-ins */
+                                            data-[side=bottom]:slide-in-from-top-0
+                                            data-[side=top]:slide-in-from-bottom-0
+                                            data-[side=left]:slide-in-from-right-0
+                                            data-[side=right]:slide-in-from-left-0
+
+                                            duration-200
+                                            ease-out
+                                            "
+                                        >
+                                            {[
+                                                {
+                                                    id: "video",
+                                                    label: "Standard View",
+                                                    sub: "Primary video focus",
+                                                    icon: <VideoIcon className="w-5 h-5" />,
+                                                },
+                                                {
+                                                    id: "video-chat",
+                                                    label: "Video + AI Chat",
+                                                    sub: "Interactive learning",
+                                                    icon: (
+                                                        <div className="flex gap-1">
+                                                            <VideoIcon className="w-4 h-4" />
+                                                            <Sparkles className="w-4 h-4" />
+                                                        </div>
+                                                    ),
+                                                },
+                                                {
+                                                    id: "video-code",
+                                                    label: "Video + Code",
+                                                    sub: "Follow & Practice",
+                                                    icon: (
+                                                        <div className="flex gap-1">
+                                                            <VideoIcon className="w-4 h-4" />
+                                                            <Code className="w-4 h-4" />
+                                                        </div>
+                                                    ),
+                                                },
+                                                {
+                                                    id: "code-chat",
+                                                    label: "Code + AI Chat",
+                                                    sub: "AI-assisted coding",
+                                                    icon: (
+                                                        <div className="flex gap-1">
+                                                            <Code className="w-4 h-4" />
+                                                            <Sparkles className="w-4 h-4" />
+                                                        </div>
+                                                    ),
+                                                },
+                                                {
+                                                    id: "video-chat-code",
+                                                    label: "Pro Workspace",
+                                                    sub: "Full-stack experience",
+                                                    icon: (
+                                                        <div className="flex flex-col gap-1 items-center">
+                                                            <div className="flex gap-1">
+                                                                <VideoIcon className="w-3 h-3" />
+                                                                <Sparkles className="w-3 h-3" />
+                                                            </div>
+                                                            <Code className="w-3 h-3" />
+                                                        </div>
+                                                    ),
+                                                },
+                                            ].map((opt) => (
+                                                <DropdownMenuItem
+                                                    key={opt.id}
+                                                    onClick={() => setVideoLayout(opt.id as LayoutMode)}
+                                                    className={`
+                                                group flex items-center gap-4 px-3.5 py-3 rounded-xl cursor-pointer
+                                                transition-[background,transform,box-shadow] duration-200 ease-out
+                                                hover:scale-[1.015] hover:shadow-md
+                                                active:scale-[0.98]
+                                                ${videoLayout === opt.id
+                                                            ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg"
+                                                            : "text-gray-700 hover:bg-gray-50"}
+                                                `}
+                                                >
+                                                    <div
+                                                        className={`
+                                                    w-10 h-10 flex items-center justify-center rounded-xl
+                                                    transition-all duration-300 ease-out
+                                                    group-hover:scale-110 group-hover:rotate-3
+                                                    ${videoLayout === opt.id
+                                                                ? "bg-white/20"
+                                                                : "bg-gray-100 group-hover:bg-white"}
+                                                `}
+                                                    >
+                                                        {opt.icon}
+                                                    </div>
+
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold">{opt.label}</span>
+                                                        <span className="text-[10px] opacity-70">{opt.sub}</span>
+                                                    </div>
+
+                                                    {videoLayout === opt.id && (
+                                                        <div className="ml-auto w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                        </div>
+                                                    )}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
                                     <div className="h-4 w-px bg-gray-300 mx-1" />
                                 </div>
                             )}
@@ -684,7 +832,7 @@ const CourseDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className={rightTab === "coding" ? "flex-1 overflow-hidden" : "p-6 flex-1 overflow-y-auto"}>
+                    <div className={(rightTab === "coding" || rightTab === "videos" || rightTab === "materials" || rightTab === "my-notes" || rightTab === "quizzes") ? "flex-1 overflow-hidden" : "p-6 flex-1 overflow-y-auto"}>
                         {!selectedSubtopic ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
                                 <div className="text-lg font-medium mb-2">Select a subtopic on the left</div>

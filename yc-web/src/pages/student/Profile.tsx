@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/common/Navigation";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import { FileText } from "lucide-react";
+
 
 import profileService, {
   Profile as ProfileType,
@@ -46,8 +48,12 @@ import AddSkillDialog from "@/components/student/profile/AddSkillDialog";
 import AddExperienceDialog, {
   ExperienceForm,
 } from "@/components/student/profile/AddExperienceDialog";
-import AddProjectDialog from "@/components/student/profile/AddProjectDialog";
-import AddEducationDialog from "@/components/student/profile/AddEducationDialog";
+import AddProjectDialog, {
+  ProjectForm,
+} from "@/components/student/profile/AddProjectDialog";
+import AddEducationDialog, {
+  EducationForm,
+} from "@/components/student/profile/AddEducationDialog";
 
 import AddCertificationDialog, {
   CertificationForm,
@@ -55,28 +61,14 @@ import AddCertificationDialog, {
 
 import ProfileStats from "@/components/student/profile/ProfileStats";
 
+import { generateResumePDF } from "../../utils/resumeGenerator";
+import resumeService from "../../services/resumeService";
+import { toast } from "sonner";
 // Local form shapes (must match dialog shapes)
 type SkillForm = {
   name: string;
   level: string;
   percentage: number;
-};
-
-type ProjectForm = {
-  title: string;
-  description: string;
-  role: string;
-  techStack: string[];
-  githubLink?: string;
-  liveLink?: string;
-};
-
-type EducationForm = {
-  institution: string;
-  degree: string;
-  field: string;
-  duration: string;
-  cgpa?: string;
 };
 
 // --------------------------------------------
@@ -177,6 +169,8 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<ProfileType | null>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
 
   // Images (preview only)
   const [profilePic, setProfilePic] = useState<string>("");
@@ -305,19 +299,10 @@ const Profile = () => {
    * PROJECT HANDLERS
    * -------------------------------------------- */
   const handleSaveProject = async (form: ProjectForm) => {
-    const payload = {
-      title: form.title,
-      description: form.description,
-      role: form.role,
-      tech_stack: form.techStack,
-      github_link: form.githubLink,
-      live_link: form.liveLink,
-    };
-
     if (editingProject) {
-      await profileService.updateProject(editingProject.id, payload);
+      await profileService.updateProject(editingProject.id, form);
     } else {
-      await profileService.addProject(payload);
+      await profileService.addProject(form);
     }
     await loadProfile();
     setEditingProject(null);
@@ -364,12 +349,31 @@ const Profile = () => {
     await loadProfile();
   };
 
-  /* -------------------------------------------- *
-   * MAIN RENDER
-   * -------------------------------------------- */
+  const handleDownloadResume = async () => {
+    if (!profile) {
+      toast.error("Profile data not available");
+      return;
+    }
+
+    try {
+      setIsGeneratingPDF(true);
+      toast.info("Generating your resume PDF...");
+
+      await generateResumePDF(profile);
+
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating resume:", error);
+      toast.error("Failed to generate resume. Please try again.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+ 
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-background">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-background">
       <Navigation />
 
       <div className="max-w-[1480px] mx-auto px-8 py-8 space-y-8">
@@ -446,10 +450,7 @@ const Profile = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-6 mt-2">
-                    <Button onClick={() => setEditDialogOpen(true)} className="shadow-sm rounded-xl px-6">
-                      <Edit className="h-4 w-4 mr-2" /> Edit Profile
-                    </Button>
-
+                    
                     {/* Social Links Row */}
                     <div className="flex gap-3">
                       {profile.links.github && (
@@ -475,6 +476,25 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => navigate('/student/resume-builder')}
+                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg transition"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Resume Builder
+                    </Button>
+
+                    <Button
+                      onClick={() => setEditDialogOpen(true)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </div>
+
+
                 </div>
               </CardContent>
             </Card>
@@ -835,7 +855,7 @@ const Profile = () => {
                         {cert.certificate_file && (
                           <div className="mt-4 pt-3 border-t border-border/50">
                             <a
-                              href={cert.certificate_file}
+                              href={cert.certificate_file as string}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-xs font-medium text-primary hover:underline flex items-center justify-center gap-2"
@@ -966,8 +986,8 @@ const Profile = () => {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         profileData={{
-          first_name: profile.user.first_name,
-          last_name: profile.user.last_name,
+          first_name: profile.user?.first_name || "",
+          last_name: profile.user?.last_name || "",
           title: profile.title || "",
           location: profile.location || "",
           about: profile.about || "",
@@ -999,7 +1019,7 @@ const Profile = () => {
           setExperienceDialogOpen(open);
           if (!open) setExperienceEditData(null);
         }}
-        editingData={experienceEditData ?? undefined}
+        editingData={experienceEditData ?? null}
         onSave={async (exp) => {
           if (experienceEditData) {
             await handleEditExperience(experienceEditData.id, exp);

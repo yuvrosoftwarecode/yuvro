@@ -26,7 +26,7 @@ export interface ExperienceForm {
 interface Props {
   open: boolean;
   onOpenChange: (value: boolean) => void;
-  onSave: (exp: ExperienceForm) => void;
+  onSave: (exp: ExperienceForm) => Promise<void>;
   editingData: ExperienceForm | null; // null = add mode, not null = edit mode
 }
 

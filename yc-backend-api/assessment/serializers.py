@@ -375,7 +375,7 @@ class JobTestSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_by", "created_at", "updated_at"]
 
     def get_participants_count(self, obj):
-        return obj.certification_submissions.count()
+        return obj.job_test_submissions.count()
 
 
 class ContestSubmissionSerializer(serializers.ModelSerializer):

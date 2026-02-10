@@ -72,5 +72,12 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    resume_config = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+        help_text="Resume builder configuration: template, typography, colors, section order, etc."
+    )
+
     def __str__(self):
         return f"{self.user.email}'s Profile"

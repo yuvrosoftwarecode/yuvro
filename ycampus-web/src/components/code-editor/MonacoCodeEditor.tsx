@@ -75,20 +75,14 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
           )}
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-500">
-            Lines: {value.split('\n').length}
-          </span>
-          <span className="text-xs text-gray-500">
-            Chars: {value.length}
-          </span>
           {(onToggleAiChat || onToggleFullscreen) && (
             <div className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-300">
               {onToggleAiChat && (
                 <button
                   onClick={onToggleAiChat}
                   className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors font-medium ${isAiChatOpen
-                      ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200'
-                      : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200'
+                    : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
                     }`}
                   title={isAiChatOpen ? "Close AI Buddy" : "Open AI Buddy"}
                 >
