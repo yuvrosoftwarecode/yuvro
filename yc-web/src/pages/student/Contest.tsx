@@ -145,13 +145,9 @@ const ContestPage = () => {
 
   const ongoingContest = contests.find(c => c.status === 'ongoing');
 
-  // Stats calculations
-  const stats = {
-    contestsJoined: contests.filter(c => c.isRegistered).length,
-    upcomingContests: contests.filter(c => c.status === 'upcoming').length,
-    ongoingContests: contests.filter(c => c.status === 'ongoing').length,
-    totalContests: contests.length,
-  };
+  return (
+    <div className="min-h-screen bg-gray-50/50">
+      <Navigation />
 
   if (loading) {
     return (

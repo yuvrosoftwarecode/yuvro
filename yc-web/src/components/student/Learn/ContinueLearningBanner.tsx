@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Flame, ArrowRight, BookOpen } from "lucide-react";
 import type { ContinueProgress } from "../Learn/types";
+import { getCourseIconConfig } from "@/utils/CourseIcons";
 
 interface Props {
     continueProgress: ContinueProgress;
@@ -14,14 +15,14 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
     if (!hasProgress) {
         // "Start New" State
         return (
-            <div className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-teal-100 rounded-2xl p-6 shadow-sm">
+            <div className="w-full bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow relative z-40">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="space-y-1">
-                        <h3 className="text-lg font-bold text-teal-900 flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <Flame className="w-5 h-5 text-orange-500 fill-orange-500" />
                             Start Your Journey
                         </h3>
-                        <p className="text-teal-700 text-sm">
+                        <p className="text-gray-600 text-sm">
                             Explore our courses and start building your career today.
                         </p>
                     </div>
@@ -43,9 +44,14 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
                 {/* Left: Info */}
                 <div className="flex-1 min-w-0 space-y-3">
                     <div className="flex items-center gap-2 text-blue-900">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600">
-                            <BookOpen className="w-4 h-4" />
-                        </span>
+                        {(() => {
+                            const { Icon, bg } = getCourseIconConfig(continueProgress.course_name || "");
+                            return (
+                                <span className={`flex items-center justify-center w-8 h-8 rounded-lg ${bg.replace('bg-', 'bg-').replace('600', '100').replace('500', '100')} ${bg.replace('bg-', 'text-').replace('100', '600') || 'text-blue-600'}`}>
+                                    <Icon className="w-4 h-4" />
+                                </span>
+                            );
+                        })()}
                         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600/80">Pick where you left off</span>
                     </div>
 

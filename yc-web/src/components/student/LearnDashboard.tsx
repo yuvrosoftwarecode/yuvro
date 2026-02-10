@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import restApiAuthUtil from "../../utils/RestApiAuthUtil";
 import { fetchTopicsByCourse } from '@/services/courseService';
 
-import ContinueLearningBanner from "@/components/student/Learn/ContinueLearningBanner";
-import StatsGrid from "@/components/student/Learn/StatsGrid";
-import GamificationSidebar from "@/components/student/Learn/GamificationSidebar";
+
+import LearningSummaryCard from "./Learn/LearningSummaryCard";
+import GamificationWidget from "./Learn/GamificationWidget";
 import SearchBar from "@/components/common/SearchBar";
 import CategorySection from "@/components/student/Learn/CatergorySection";
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 
-import { Binary, Code, Database, Sparkles, FileText, Flame, Award, X, ChevronRight } from "lucide-react";
+import { Binary, Code, Database, Sparkles, FileText, X } from "lucide-react";
 
 import type { Course, Stats, ContinueProgress, CourseProgressMap } from "@/components/student/Learn/types";
 
@@ -30,7 +30,6 @@ const LearnDashboard: React.FC = () => {
     total_lessons: 0,
     percent: 0,
   });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -71,12 +70,13 @@ const LearnDashboard: React.FC = () => {
         const c = await restApiAuthUtil.get("/course/student-course-progress/continue_learning/");
         const cp = c as ContinueProgress;
         setContinueProgress((prev) => ({
-          ...prev, // Keep existing if needed, though usually we overwrite
+          ...prev,
           course_id: String(cp.course_id || ""),
           course_name: cp.course_name || prev.course_name || "Python",
           lesson: cp.lesson || 0,
           total_lessons: cp.total_lessons || 0,
           percent: cp.percent || 0,
+          subtopic_name: cp.subtopic_name,
         }));
         return cp;
       } catch (err) {
@@ -114,7 +114,6 @@ const LearnDashboard: React.FC = () => {
           fetchProgressMap()
         ]);
 
-        // Merge course name if missing using the FRESH fetchedCourses
         if (fetchedContinue && fetchedCourses.length > 0) {
           const cp = fetchedContinue as ContinueProgress;
           const courseStrId = String(cp.course_id || "");
@@ -146,11 +145,7 @@ const LearnDashboard: React.FC = () => {
   }, []);
 
   const handleStartLearning = (courseId: string) => {
-    console.log("Starting learning for course:", courseId);
-    if (!courseId) {
-      console.warn("Attempted to start learning with empty courseId");
-      return;
-    }
+    if (!courseId) return;
     navigate(`/student/learn/${courseId}`);
   };
 
@@ -194,108 +189,93 @@ const LearnDashboard: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-white px-8 py-1 pb-12">
-        <div className="max-w-[1600px] mx-auto space-y-8">
-          {/* Header + badges */}
-          <div className="space-y-6 pt-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">Learn</h1>
-                <p className="text-gray-600 py-2 text-sm">Continue your learning journey — unlock badges and grow your streak.</p>
+      <div className="min-h-screen bg-white font-sans">
+        {/* Soft Hero Background Wrapper */}
+        <div className="bg-gradient-to-b from-[#F8FAFF] to-[#FFFFFF] pb-12 pt-8 px-8">
+          <div className="max-w-[1600px] mx-auto space-y-10">
+
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-bold tracking-tight text-gray-900">Learning Overview</h1>
+                  {continueProgress.course_name && (
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-blue-50/80 border border-blue-100 rounded-full text-xs font-medium text-blue-700 animate-in fade-in slide-in-from-left-4 duration-700">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                      </span>
+                      Today: Continue {continueProgress.course_name}
+                    </div>
+                  )}
+                </div>
+                <p className="text-gray-500 font-medium ml-0.5">Your progress and courses at a glance</p>
               </div>
 
-              <div className="flex gap-3">
-                {/* Search bar */}
-                <div className="group relative">
-                  <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-                </div>
-
-                <div className="group relative cursor-pointer" onClick={() => setIsSidebarOpen(true)}>
-                  <div className="flex items-center gap-2 h-10.75 px-2 max-w-lg bg-gradient-to-r from-yellow-100/60 to-orange-100/40 rounded-full border border-yellow-200 shadow-sm hover:shadow-md transition-shadow">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 text-sm shadow">
-                      <Flame className="w-3 h-3" />
-                    </span>
-                    <span className="text-sm font-bold text-gray-800">{stats.streak || 0}-day streak</span>
-                    <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                  </div>
-                  <div className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    🔥 View detailed progress
-                  </div>
-                </div>
+              <div className="w-full md:w-auto min-w-[320px] max-w-md">
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
               </div>
             </div>
 
-            <StatsGrid stats={stats} />
-
-            <div className="grid grid-cols-1 gap-8">
-              <div className="lg:col-span-3">
-                <ContinueLearningBanner continueProgress={continueProgress} />
+            {/* Dashboard Grid: Summary & Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left Column: Learning Summary (Visual Anchor) */}
+              <div className="lg:col-span-8 xl:col-span-9">
+                <LearningSummaryCard stats={stats} lastActivity={continueProgress} />
               </div>
+
+              {/* Right Column: Gamification (Secondary) */}
+              <div className="lg:col-span-4 xl:col-span-3">
+                <GamificationWidget stats={stats} />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Main Content Area (White Background) */}
+        <div className="px-8 pb-20">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="space-y-16">
+              {normalizedQuery && filteredCourses.length === 0 ? (
+                <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                  No courses match "{searchQuery}"
+                </div>
+              ) : (
+                Object.entries(groupedFiltered).map(([key, list]) =>
+                  list.length > 0 ? (
+                    <div key={key}>
+                      {/* Divider / Section Header handled in CategorySection (Clean separation) */}
+                      <CategorySection
+                        title={key.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
+                        icon={getIconFor(key)}
+                        courses={list}
+                        progressMap={progressMap}
+                        onStartLearning={handleStartLearning}
+                      />
+                    </div>
+                  ) : null
+                )
+              )}
             </div>
           </div>
-
-
-          {/* Category sections */}
-          {normalizedQuery && filteredCourses.length === 0 ? (
-            <div className="py-8 text-center text-gray-600">No courses match "{searchQuery}"</div>
-          ) : (
-            Object.entries(groupedFiltered).map(([key, list]) =>
-              list.length > 0 ? (
-                <div key={key} className="flex mb-8 gap-6">
-                  <CategorySection
-                    title={key.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
-                    icon={getIconFor(key)}
-                    courses={list}
-                    progressMap={progressMap}
-                    onStartLearning={handleStartLearning}
-                  />
-                </div>
-              ) : null
-            )
-          )}
-
-
         </div>
       </div>
 
-      <GamificationSidebar
-        stats={stats}
-        isOpen={isSidebarOpen}
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-      />
-
       {/* Chat toggle & Window */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
-
-        {/* Chat Window with Transition */}
-        <div
-          className={`transition-all duration-300 ease-in-out transform origin-bottom-right
-            ${showChat
-              ? 'opacity-100 scale-100 translate-y-0'
-              : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
-            }
-          `}
-        >
-          <AIChatContainer className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl" welcomeMessage="I can help you find courses or track your progress." />
+      <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div className={`transition-all duration-300 ease-in-out transform origin-bottom-right ${showChat ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}>
+          <AIChatContainer
+            className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl"
+            welcomeMessage="I can help you find courses or track your progress."
+          />
         </div>
-
-        {/* Toggle Button */}
         <button
           aria-label={showChat ? 'Close AI chat' : 'Open AI chat'}
           onClick={() => setShowChat((s) => !s)}
-          className={`
-            group flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 hover:scale-105 active:scale-95
-            ${showChat
-              ? 'bg-red-500 text-white rotate-0'
-              : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-4 ring-blue-50/50' // Open state with premium gradient
-            }
-          `}
+          className={`pointer-events-auto group flex items-center justify-center w-14 h-14 rounded-full shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 ${showChat ? 'bg-red-500 text-white' : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-4 ring-blue-50/50'}`}
         >
-          {showChat ? (
-            <X size={24} />
-          ) : (
-            <Sparkles size={24} className="animate-pulse" />
-          )}
+          {showChat ? <X size={24} /> : <Sparkles size={24} className="animate-pulse" />}
         </button>
       </div>
     </>

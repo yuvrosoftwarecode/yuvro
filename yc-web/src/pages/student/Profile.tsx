@@ -347,7 +347,7 @@ const Profile = () => {
    * -------------------------------------------- */
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-background">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-background">
       <Navigation />
 
       <div className="max-w-[1480px] mx-auto px-8 py-8 space-y-8">
