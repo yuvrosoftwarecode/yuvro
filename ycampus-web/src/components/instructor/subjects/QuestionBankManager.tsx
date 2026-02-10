@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -19,29 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import {
   Plus,
-  Search,
-  Filter,
-  MoreVertical,
-  Edit2,
+  Edit3,
   Trash2,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
+  FileQuestion,
   Code,
   FileText,
-  Video,
-  ChevronRight,
-  ChevronDown,
+  CheckCircle,
+  Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
-
 import {
   Question,
+  CreateQuestionData,
   fetchQuestions,
   createQuestion,
   updateQuestion,
@@ -49,372 +43,961 @@ import {
   QUESTION_TYPES,
   DIFFICULTY_LEVELS,
   QUESTION_CATEGORIES,
+  validateQuestion,
 } from '@/services/questionService';
 
-// Consistent with other components
 interface QuestionBankManagerProps {
-  subject?: any;
-  selectedUnit?: any;
-  selectedSubUnit?: any;
-  units?: any[];
+  subject: any;
+  selectedUnit: any;
+  selectedSubUnit: any;
+  units: any[];
 }
 
 const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   subject,
   selectedUnit,
   selectedSubUnit,
-  units = [],
+  units,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<any>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
+  const [filterLevel, setFilterLevel] = useState<string>('all');
+
+  // Tab and form states
+  const [activeTab, setActiveTab] = useState<'create' | 'questions'>('questions');
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Form State
-  const [formData, setFormData] = useState<any>({
+  // Form data
+  const [formData, setFormData] = useState<CreateQuestionData>({
+    type: 'mcq_single',
     title: '',
     content: '',
-    type: 'mcq_single',
+    level: 'subject',
     difficulty: 'easy',
-    categories: ['practice'],
-    level: 'subunit',
-    subject: subject?.id || '',
-    unit: selectedUnit?.id || '',
-    sub_unit: selectedSubUnit?.id || '',
     marks: 1,
+    categories: [],
     mcq_options: [
-      { text: '', is_correct: true },
       { text: '', is_correct: false },
+      { text: '', is_correct: false },
+      { text: '', is_correct: false },
+      { text: '', is_correct: false }
     ],
-    test_cases_basic: [],
+    test_cases_basic: [{ input: '', expected_output: '', description: '' }],
     test_cases_advanced: [],
   });
 
-  useEffect(() => {
-    loadQuestions();
-  }, [subject, selectedUnit, selectedSubUnit]);
+  // Delete confirmation
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadQuestions = async () => {
+    if (!subject) {
+      setQuestions([]);
+      return;
+    }
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const params: any = {};
-      if (selectedSubUnit) {
-        params.sub_unit = selectedSubUnit.id;
-        params.level = 'subunit';
-      } else if (selectedUnit) {
-        params.unit = selectedUnit.id;
-        params.level = 'unit';
-      } else if (subject) {
-        params.subject = subject.id;
-        params.level = 'subject';
+      const filters: any = {};
+
+      // Add search filter only if search term is provided
+      if (searchTerm.trim()) {
+        filters.search = searchTerm.trim();
       }
 
-      const data = await fetchQuestions(params);
+      // Apply level filter based strictly on dropdown selection
+      if (filterLevel === 'all') {
+        filters.subject = subject.id;
+        filters.level = 'all';
+      } else if (filterLevel === 'subject') {
+        filters.subject = subject.id;
+        filters.level = 'subject';
+      } else if (filterLevel === 'unit') {
+        if (selectedUnit) {
+          filters.unit = selectedUnit.id;
+        } else {
+          filters.subject = subject.id; // Fallback if no unit selected
+        }
+        filters.level = 'unit';
+      } else if (filterLevel === 'subunit') {
+        if (selectedSubUnit) {
+          filters.sub_unit = selectedSubUnit.id;
+        } else if (selectedUnit) {
+          filters.unit = selectedUnit.id; // Fallback if no subunit selected
+        } else {
+          filters.subject = subject.id; // Fallback if no unit/subunit selected
+        }
+        filters.level = 'subunit';
+      }
+
+      // Add type filter
+      if (filterType !== 'all') {
+        filters.type = filterType;
+      }
+
+      console.log('Loading questions with filters:', filters);
+      const data = await fetchQuestions(filters);
       setQuestions(data);
     } catch (error) {
-      console.error('Failed to load questions:', error);
+      console.error('Error loading questions:', error);
       toast.error('Failed to load questions');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLevelChange = (level: 'subject' | 'unit' | 'subunit') => {
-    setFormData((prev: any) => ({
-      ...prev,
-      level,
-      subject: subject?.id || '',
-      unit: level === 'subject' ? null : (selectedUnit?.id || ''),
-      sub_unit: level !== 'subunit' ? null : (selectedSubUnit?.id || ''),
-    }));
-  };
+  // Debounced search and auto-load
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      loadQuestions();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, subject, selectedUnit, selectedSubUnit, filterLevel, filterType]);
+
+  // Update form data when selection context changes (only if not editing)
+  useEffect(() => {
+    if (!editingQuestion && activeTab === 'create') {
+      let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
+      let formSubject = subject?.id;
+      let formUnit = undefined;
+      let formSubUnit = undefined;
+
+      if (selectedSubUnit) {
+        defaultLevel = 'subunit';
+        formUnit = selectedUnit?.id;
+        formSubUnit = selectedSubUnit.id;
+      } else if (selectedUnit) {
+        defaultLevel = 'unit';
+        formUnit = selectedUnit.id;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        level: defaultLevel,
+        subject: formSubject,
+        unit: formUnit,
+        sub_unit: formSubUnit,
+      }));
+    }
+  }, [subject, selectedUnit, selectedSubUnit, editingQuestion, activeTab]);
 
   const openCreateForm = () => {
-    setIsEditMode(false);
-    setCurrentQuestion(null);
+    // Determine default level and set appropriate IDs based on current selection
+    let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
+    let formSubject = subject?.id;
+    let formUnit = undefined;
+    let formSubUnit = undefined;
+
+    if (selectedSubUnit) {
+      defaultLevel = 'subunit';
+      formUnit = selectedUnit?.id;
+      formSubUnit = selectedSubUnit.id;
+    } else if (selectedUnit) {
+      defaultLevel = 'unit';
+      formUnit = selectedUnit.id;
+    }
+
     setFormData({
+      type: 'mcq_single',
       title: '',
       content: '',
-      type: 'mcq_single',
+      level: defaultLevel,
+      subject: formSubject,
+      unit: formUnit,
+      sub_unit: formSubUnit,
       difficulty: 'easy',
-      categories: ['practice'],
-      level: selectedSubUnit ? 'subunit' : (selectedUnit ? 'unit' : 'subject'),
-      subject: subject?.id || '',
-      unit: selectedUnit?.id || '',
-      sub_unit: selectedSubUnit?.id || '',
       marks: 1,
+      categories: [],
       mcq_options: [
-        { text: '', is_correct: true },
         { text: '', is_correct: false },
+        { text: '', is_correct: false },
+        { text: '', is_correct: false },
+        { text: '', is_correct: false }
       ],
-      test_cases_basic: [],
+      test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
     });
-    setIsModalOpen(true);
+    setActiveTab('create');
+    setEditingQuestion(null);
   };
 
-  const openEditForm = (q: Question) => {
-    setIsEditMode(true);
-    setCurrentQuestion(q);
+  const openEditForm = (question: Question) => {
+    setEditingQuestion(question);
     setFormData({
-      ...q,
-      subject: q.subject || subject?.id || '',
-      unit: q.unit || selectedUnit?.id || '',
-      sub_unit: q.sub_unit || selectedSubUnit?.id || '',
+      type: question.type,
+      title: question.title,
+      content: question.content,
+      level: question.level,
+      subject: question.subject,
+      unit: question.unit,
+      sub_unit: question.sub_unit,
+      difficulty: question.difficulty,
+      marks: question.marks,
+      categories: question.categories,
+      mcq_options: question.mcq_options || [
+        { text: '', is_correct: false },
+        { text: '', is_correct: false },
+        { text: '', is_correct: false },
+        { text: '', is_correct: false }
+      ],
+      test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
+      test_cases_advanced: question.test_cases_advanced || [],
     });
-    setIsModalOpen(true);
+    setActiveTab('create');
   };
 
   const handleSave = async () => {
-    if (!formData.title.trim() || !formData.content.trim()) {
-      toast.error('Title and content are required');
+    const errors = validateQuestion(formData);
+    if (errors.length > 0) {
+      toast.error(errors[0]);
       return;
     }
 
+    setSaving(true);
     try {
-      setSaving(true);
-      if (isEditMode && currentQuestion) {
-        await updateQuestion(currentQuestion.id, formData);
+      if (editingQuestion) {
+        const updated = await updateQuestion(editingQuestion.id, formData);
+        setQuestions(prev => prev.map(q => q.id === updated.id ? updated : q));
         toast.success('Question updated successfully');
+        // After editing, go back to questions tab
+        setActiveTab('questions');
+        setEditingQuestion(null);
       } else {
-        await createQuestion(formData);
+        const created = await createQuestion(formData);
+        setQuestions(prev => [created, ...prev]);
         toast.success('Question created successfully');
+        // After creating, stay on create tab and reset form for new question
+        openCreateForm();
       }
-      setIsModalOpen(false);
-      loadQuestions();
     } catch (error) {
+      console.error('Error saving question:', error);
       toast.error('Failed to save question');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleCancel = () => {
+    setActiveTab('questions');
+    setEditingQuestion(null);
+  };
+
   const handleDelete = async () => {
-    if (!questionToDelete) return;
+    if (!confirmDelete) return;
+
+    setDeleting(true);
     try {
-      setDeleting(true);
-      await deleteQuestion(questionToDelete);
-      toast.success('Question deleted');
-      setIsDeleteModalOpen(false);
-      loadQuestions();
+      await deleteQuestion(confirmDelete);
+      setQuestions(prev => prev.filter(q => q.id !== confirmDelete));
+      toast.success('Question deleted successfully');
+      setConfirmDelete(null);
     } catch (error) {
+      console.error('Error deleting question:', error);
       toast.error('Failed to delete question');
     } finally {
       setDeleting(false);
-      setQuestionToDelete(null);
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const updateMCQOption = (index: number, value: string) => {
+    const newOptions = [...(formData.mcq_options || [])];
+    newOptions[index] = { ...newOptions[index], text: value };
+    setFormData(prev => ({ ...prev, mcq_options: newOptions }));
+  };
 
-  const filteredQuestions = questions.filter((q) => {
-    const matchesType = filterType === 'all' || q.type === filterType;
-    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      q.content.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
+  const toggleMCQCorrect = (index: number) => {
+    const newOptions = [...(formData.mcq_options || [])];
+
+    // For single answer MCQ, uncheck all others first
+    if (formData.type === 'mcq_single') {
+      newOptions.forEach((option, i) => {
+        if (i !== index) {
+          option.is_correct = false;
+        }
+      });
+    }
+
+    newOptions[index] = { ...newOptions[index], is_correct: !newOptions[index].is_correct };
+    setFormData(prev => ({ ...prev, mcq_options: newOptions }));
+  };
+
+  const addMCQOption = () => {
+    setFormData(prev => ({
+      ...prev,
+      mcq_options: [...(prev.mcq_options || []), { text: '', is_correct: false }]
+    }));
+  };
+
+  const removeMCQOption = (index: number) => {
+    if ((formData.mcq_options?.length || 0) <= 2) return;
+
+    const newOptions = formData.mcq_options?.filter((_, i) => i !== index) || [];
+    setFormData(prev => ({
+      ...prev,
+      mcq_options: newOptions
+    }));
+  };
+
+  const updateTestCase = (index: number, field: 'input' | 'expected_output' | 'description', value: string) => {
+    const newTestCases = [...(formData.test_cases_basic || [])];
+    newTestCases[index] = { ...newTestCases[index], [field]: value };
+    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
+  };
+
+  const addTestCase = () => {
+    setFormData(prev => ({
+      ...prev,
+      test_cases_basic: [...(prev.test_cases_basic || []), { input: '', expected_output: '', description: '' }]
+    }));
+  };
+
+  const removeTestCase = (index: number) => {
+    if ((formData.test_cases_basic?.length || 0) <= 1) return;
+
+    const newTestCases = formData.test_cases_basic?.filter((_, i) => i !== index) || [];
+    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
+  };
+
+  const filteredQuestions = questions.filter(question => {
+    const matchesSearch = question.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      question.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'all' || question.type === filterType;
+    const matchesDifficulty = filterDifficulty === 'all' || question.difficulty === filterDifficulty;
+
+    return matchesSearch && matchesType && matchesDifficulty;
   });
 
+  const getQuestionIcon = (type: string) => {
+    switch (type) {
+      case 'mcq_single':
+      case 'mcq_multiple': return <CheckCircle className="w-4 h-4" />;
+      case 'coding': return <Code className="w-4 h-4" />;
+      case 'descriptive': return <FileText className="w-4 h-4" />;
+      default: return <FileQuestion className="w-4 h-4" />;
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'hard': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getQuestionTypeLabel = (type: string) => {
+    const questionType = QUESTION_TYPES.find(t => t.value === type);
+    return questionType ? questionType.label : type;
+  };
+
+  const handleLevelChange = (level: 'subject' | 'unit' | 'subunit') => {
+    setFormData(prev => {
+      const newData = { ...prev, level };
+
+      // Set appropriate IDs based on selected level
+      if (level === 'subject') {
+        newData.subject = subject?.id;
+        newData.unit = undefined;
+        newData.sub_unit = undefined;
+      } else if (level === 'unit') {
+        newData.subject = subject?.id;
+        newData.unit = selectedUnit?.id;
+        newData.sub_unit = undefined;
+      } else if (level === 'subunit') {
+        newData.subject = subject?.id;
+        newData.unit = selectedUnit?.id;
+        newData.sub_unit = selectedSubUnit?.id;
+      }
+
+      // Auto-select 'learn' category if sub_unit level is selected
+      if (level === 'subunit') {
+        if (!newData.categories.includes('learn')) {
+          newData.categories = [...newData.categories, 'learn'];
+          toast.success("Added 'learn' category for Subunit level");
+        }
+      }
+
+      return newData;
+    });
+  };
+
   return (
-    <div className="flex flex-col h-full bg-slate-50/50">
-      <div className="p-6 border-b bg-white">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <FileQuestion className="w-5 h-5 text-indigo-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900">Question Bank</h3>
-              <p className="text-sm text-slate-600">
-                {selectedSubUnit ? `Questions for: ${selectedSubUnit.name}` : (selectedUnit ? `Questions for: ${selectedUnit.name}` : 'All Subject Questions')}
-              </p>
-            </div>
-          </div>
-          <Button onClick={openCreateForm} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Question
-          </Button>
+    <div className="p-6 space-y-6">
+      {/* Header with Tabs */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-xl font-semibold text-slate-900">Question Bank</h3>
+          <p className="text-sm text-slate-600 mt-1">
+            Manage questions for {subject?.name || 'this subject'}
+          </p>
         </div>
 
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Search questions..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[180px]">
-              <Filter className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {QUESTION_TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-amber-50 p-1 rounded-lg border border-amber-200">
+          <button
+            onClick={() => { setActiveTab('questions'); setEditingQuestion(null); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'questions'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
+              }`}
+          >
+            <FileQuestion className="w-4 h-4" />
+            Questions
+          </button>
+          <button
+            onClick={openCreateForm}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'create'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
+              }`}
+          >
+            <Plus className="w-4 h-4" />
+            {editingQuestion ? 'Edit Question' : 'Create New Question'}
+          </button>
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-4">
-          {loading ? (
-            <div className="text-center py-12 text-slate-500">Loading questions...</div>
-          ) : filteredQuestions.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 border-2 border-dashed rounded-xl">
-              No questions found
-            </div>
-          ) : (
-            filteredQuestions.map((q) => (
-              <Card key={q.id} className="group hover:shadow-md transition-all">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-slate-50">{QUESTION_TYPES.find(t => t.value === q.type)?.label || q.type}</Badge>
-                        <Badge className={q.difficulty === 'easy' ? 'bg-green-100 text-green-700' : q.difficulty === 'medium' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}>
-                          {q.difficulty}
-                        </Badge>
-                      </div>
-                      <h4 className="font-bold text-slate-900">{q.title}</h4>
-                      <p className="text-sm text-slate-600 line-clamp-2">{q.content}</p>
-                    </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" onClick={() => openEditForm(q)} className="h-8 w-8">
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => { setQuestionToDelete(q.id); setIsDeleteModalOpen(true); }} className="h-8 w-8 text-red-500">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Question Form Dialog */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{isEditMode ? 'Edit Question' : 'Add New Question'}</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Question Type</Label>
-                <Select value={formData.type} onValueChange={(val) => setFormData({ ...formData, type: val })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {QUESTION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Difficulty</Label>
-                <Select value={formData.difficulty} onValueChange={(val) => setFormData({ ...formData, difficulty: val })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {DIFFICULTY_LEVELS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+      {/* Questions Tab */}
+      {activeTab === 'questions' && (
+        <>
+          {/* Search and Filters */}
+          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search questions (optional)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-10"
+                />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label>Level of Association</Label>
-              <div className="flex gap-2">
-                <Button variant={formData.level === 'subject' ? 'default' : 'outline'} onClick={() => handleLevelChange('subject')} size="sm">Subject</Button>
-                <Button variant={formData.level === 'unit' ? 'default' : 'outline'} onClick={() => handleLevelChange('unit')} size="sm" disabled={!selectedUnit && !units.length}>Unit</Button>
-                <Button variant={formData.level === 'subunit' ? 'default' : 'outline'} onClick={() => handleLevelChange('subunit')} size="sm" disabled={!selectedSubUnit}>Sub-unit</Button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Question Title</Label>
-              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Give this question a recognizable name" />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Question Content / Prompt</Label>
-              <textarea
-                className="w-full h-32 border rounded-md p-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="The actual question text visible to students..."
-              />
-            </div>
-
-            {/* MCQ Options */}
-            {(formData.type === 'mcq_single' || formData.type === 'mcq_multiple') && (
-              <div className="space-y-3">
-                <Label>Options</Label>
-                {formData.mcq_options.map((opt: any, idx: number) => (
-                  <div key={idx} className="flex gap-2 items-center">
-                    <input
-                      type={formData.type === 'mcq_single' ? 'radio' : 'checkbox'}
-                      checked={opt.is_correct}
-                      onChange={() => {
-                        const newOpts = [...formData.mcq_options];
-                        if (formData.type === 'mcq_single') {
-                          newOpts.forEach((o, i) => o.is_correct = i === idx);
-                        } else {
-                          newOpts[idx].is_correct = !newOpts[idx].is_correct;
-                        }
-                        setFormData({ ...formData, mcq_options: newOpts });
-                      }}
-                    />
-                    <Input value={opt.text} onChange={(e) => {
-                      const newOpts = [...formData.mcq_options];
-                      newOpts[idx].text = e.target.value;
-                      setFormData({ ...formData, mcq_options: newOpts });
-                    }} placeholder={`Option ${idx + 1}`} />
-                    <Button variant="ghost" size="icon" onClick={() => {
-                      setFormData({ ...formData, mcq_options: formData.mcq_options.filter((_: any, i: number) => i !== idx) });
-                    }}><XCircle className="w-4 h-4 text-slate-400" /></Button>
-                  </div>
+            <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
+              <SelectTrigger className="w-40 bg-white border-slate-300">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                <SelectItem value="all">All Types</SelectItem>
+                {QUESTION_TYPES.map(type => (
+                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                 ))}
-                <Button variant="outline" size="sm" onClick={() => setFormData({ ...formData, mcq_options: [...formData.mcq_options, { text: '', is_correct: false }] })}>Add Option</Button>
-              </div>
-            )}
+              </SelectContent>
+            </Select>
+            <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
+              <SelectTrigger className="w-40 bg-white border-slate-300">
+                <SelectValue placeholder="Difficulty" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                <SelectItem value="all">All Difficulty</SelectItem>
+                {DIFFICULTY_LEVELS.map(level => (
+                  <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
+              <SelectTrigger className="w-40 bg-white border-slate-300">
+                <SelectValue placeholder="Level" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                <SelectItem value="all">All Levels</SelectItem>
+                <SelectItem value="subject">Subject Level</SelectItem>
+                <SelectItem value="unit">Unit Level</SelectItem>
+                <SelectItem value="subunit">Subunit Level</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Question'}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          {/* Questions List */}
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : filteredQuestions.length === 0 ? (
+            <div className="text-center py-12">
+              <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
+              <p className="text-gray-500 mb-4">
+                No questions match your search criteria. Try different keywords or create a new question.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredQuestions.map(question => (
+                <Card key={question.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <div className="flex items-center gap-2">
+                            {getQuestionIcon(question.type)}
+                            <span className="font-semibold text-slate-900">{question.title}</span>
+                          </div>
+                          <Badge className={getDifficultyColor(question.difficulty)}>
+                            {question.difficulty}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {getQuestionTypeLabel(question.type)}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {question.level} level
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {question.marks} marks
+                          </Badge>
+                        </div>
+                        <p className="text-slate-600 text-sm mb-2 line-clamp-2">
+                          {question.content}
+                        </p>
+                        {question.categories.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {question.categories.map(category => (
+                              <Badge key={category} variant="secondary" className="text-xs">
+                                {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEditForm(question)}
+                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setConfirmDelete(question.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
-      {/* Delete Confirmation */}
-      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Delete Question?</DialogTitle></DialogHeader>
-          <div className="py-4 text-slate-600">This action cannot be undone.</div>
+      {/* Create New Question Tab */}
+      {activeTab === 'create' && (
+        <Card className="border-2 border-amber-200 bg-amber-50/30">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Form Header */}
+              <div className="border-b border-amber-200 pb-4">
+                <div className="flex items-center gap-3">
+                  {editingQuestion ? (
+                    <>
+                      <Edit3 className="w-5 h-5 text-amber-600" />
+                      <h4 className="text-lg font-semibold text-slate-900">Edit Question</h4>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5 text-amber-600" />
+                      <h4 className="text-lg font-semibold text-slate-900">Create New Question</h4>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Question Type</Label>
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) => setFormData(prev => ({
+                      ...prev,
+                      type: value as any
+                    }))}
+                  >
+                    <SelectTrigger className="bg-white border-slate-300">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                      {QUESTION_TYPES.map(type => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Level</Label>
+                  <Select
+                    value={formData.level}
+                    onValueChange={(value) => handleLevelChange(value as any)}
+                  >
+                    <SelectTrigger className="bg-white border-slate-300">
+                      <SelectValue placeholder="Level" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                      <SelectItem value="subject">Subject Level</SelectItem>
+                      <SelectItem value="unit">Unit Level</SelectItem>
+                      <SelectItem value="subunit">Subunit Level</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+
+                  {/* Unit Selection - Show if level is unit/subunit and no unit pre-selected */}
+                  {(formData.level === 'unit' || formData.level === 'subunit') && !selectedUnit && (
+                    <div className="mt-3">
+                      <Label className="text-sm font-medium text-slate-700">Select Unit</Label>
+                      <Select
+                        value={formData.unit}
+                        onValueChange={(value) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            unit: value,
+                            sub_unit: undefined
+                          }));
+                        }}
+                      >
+                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                          {units.map((unit: any) => (
+                            <SelectItem key={unit.id} value={unit.id}>
+                              {unit.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Subunit Selection - Show if level is subunit and no subunit pre-selected */}
+                  {formData.level === 'subunit' && !selectedSubUnit && (
+                    <div className="mt-3">
+                      <Label className="text-sm font-medium text-slate-700">Select Subunit</Label>
+                      <Select
+                        disabled={!formData.unit && !selectedUnit}
+                        value={formData.sub_unit}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, sub_unit: value }))}
+                      >
+                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                          <SelectValue placeholder="Select subunit" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                          {(() => {
+                            const activeUnitId = selectedUnit?.id || formData.unit;
+                            const activeUnit = units.find((t: any) => t.id === activeUnitId);
+                            // Assuming subUnits might be provided in the unit object as 'subUnits' or similar, 
+                            // but usually they are fetched separately. If not available, we show a message.
+                            return (activeUnit as any)?.subUnits?.map((sub: any) => (
+                              <SelectItem key={sub.id} value={sub.id}>
+                                {sub.name}
+                              </SelectItem>
+                            )) || <SelectItem value="none" disabled>Hierarchy depth exceeded</SelectItem>;
+                          })()}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Difficulty</Label>
+                  <Select
+                    value={formData.difficulty}
+                    onValueChange={(value) => setFormData(prev => ({
+                      ...prev,
+                      difficulty: value as any
+                    }))}
+                  >
+                    <SelectTrigger className="bg-white border-slate-300">
+                      <SelectValue placeholder="Difficulty" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                      {DIFFICULTY_LEVELS.map(level => (
+                        <SelectItem key={level.value} value={level.value}>
+                          {level.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Marks</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={formData.marks}
+                    onChange={(e) => setFormData(prev => ({ ...prev, marks: parseInt(e.target.value) || 1 }))}
+                    className="bg-white border-slate-300 h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-slate-700">Categories</Label>
+                <div className="flex flex-wrap gap-3 p-4 bg-white rounded-lg border border-slate-200">
+                  {QUESTION_CATEGORIES.map(category => (
+                    <div key={category.value} className="flex items-center space-x-2 p-2 px-3 bg-slate-50 rounded-md border border-slate-200 hover:border-amber-300 transition-colors">
+                      <Checkbox
+                        id={`category-${category.value}`}
+                        checked={formData.categories.includes(category.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({ ...prev, categories: [...prev.categories, category.value] }));
+                          } else {
+                            if (category.value === 'learn' && formData.level === 'subunit') {
+                              toast.error("Subunit questions must have the 'learn' category");
+                              return;
+                            }
+                            setFormData(prev => ({ ...prev, categories: prev.categories.filter(c => c !== category.value) }));
+                          }
+                        }}
+                        className="border-slate-400"
+                      />
+                      <Label htmlFor={`category-${category.value}`} className="text-xs font-medium text-slate-700 cursor-pointer leading-tight whitespace-nowrap">
+                        {category.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-slate-700">Question Title</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter a clear title"
+                  className="bg-white border-slate-300 h-10"
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-slate-700">Question Content</Label>
+                <Textarea
+                  value={formData.content}
+                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                  placeholder="Enter the detailed question text..."
+                  rows={4}
+                  className="bg-white border-slate-300"
+                />
+              </div>
+
+              {/* MCQ Options */}
+              {(formData.type === 'mcq_single' || formData.type === 'mcq_multiple') && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-slate-700">Answer Options</Label>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                      <CheckCircle className="w-3 h-3 text-amber-600" />
+                      {formData.type === 'mcq_single' ? 'Select one correct answer' : 'Select multiple correct answers'}
+                    </div>
+                  </div>
+                  <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    {formData.mcq_options?.map((option, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center gap-4 p-3 rounded-lg border transition-all duration-200 ${option.is_correct
+                          ? 'bg-green-50 border-green-300 shadow-sm'
+                          : 'bg-white border-slate-200 hover:border-slate-300'
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={option.is_correct}
+                            onCheckedChange={() => toggleMCQCorrect(index)}
+                            className={`border-2 ${option.is_correct ? 'border-green-500 bg-green-500' : 'border-slate-400'}`}
+                          />
+                          <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${option.is_correct
+                            ? 'bg-green-600 text-white'
+                            : 'bg-slate-200 text-slate-600'
+                            }`}>
+                            {String.fromCharCode(65 + index)}
+                          </div>
+                        </div>
+                        <Input
+                          value={option.text}
+                          onChange={(e) => updateMCQOption(index, e.target.value)}
+                          placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                          className={`flex-1 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-amber-200 ${option.is_correct ? 'font-medium text-green-900' : 'text-slate-700'
+                            }`}
+                        />
+                        {(formData.mcq_options?.length || 0) > 2 && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeMCQOption(index)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={addMCQOption}
+                      className="w-full border-dashed border-slate-300 text-slate-600 hover:bg-white hover:border-amber-400 py-3"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Another Option
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Coding Test Cases */}
+              {formData.type === 'coding' && (
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-slate-700">Test Cases</Label>
+                  <div className="space-y-3">
+                    {formData.test_cases_basic?.map((testCase, index) => (
+                      <div key={index} className="bg-white border rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-slate-800 text-sm">Test Case {index + 1}</h5>
+                          {(formData.test_cases_basic?.length || 0) > 1 && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeTestCase(index)}
+                              className="text-red-600 hover:text-red-700 h-8 w-8"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-[10px] uppercase font-bold text-slate-400">Input</Label>
+                            <Textarea
+                              value={testCase.input}
+                              onChange={(e) => updateTestCase(index, 'input', e.target.value)}
+                              placeholder="Input data"
+                              rows={2}
+                              className="text-sm bg-slate-50/50"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-[10px] uppercase font-bold text-slate-400">Expected Output</Label>
+                            <Textarea
+                              value={testCase.expected_output}
+                              onChange={(e) => updateTestCase(index, 'expected_output', e.target.value)}
+                              placeholder="Expected output"
+                              rows={2}
+                              className="text-sm bg-slate-50/50"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={addTestCase}
+                      className="w-full border-dashed border-slate-300 text-slate-600 hover:bg-white hover:border-amber-400"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Test Case
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Save Buttons */}
+              <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
+                <Button onClick={handleCancel} variant="ghost" className="hover:bg-slate-100">
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={saving} className="min-w-[140px] bg-amber-600 hover:bg-amber-700 text-white shadow-md">
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : editingQuestion ? (
+                    <>
+                      <Edit3 className="w-4 h-4 mr-2" />
+                      Update Question
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Question
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-red-700 flex items-center gap-2">
+              <Trash2 className="w-5 h-5" />
+              Delete Question
+            </DialogTitle>
+            <DialogDescription className="text-slate-600">
+              This action cannot be undone. The question will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-700 mb-4 text-sm">
+              Are you sure you want to delete this question? This action will permanently remove it from the system.
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-xs text-red-800 font-medium">
+                ⚠️ All associated submission data for this question will also be affected.
+              </p>
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>{deleting ? 'Deleting...' : 'Delete'}</Button>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDelete(null)}
+              className="border-slate-300 text-slate-700 hover:bg-slate-100"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? 'Deleting...' : 'Delete Permanently'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
-
-// Missing imports in previous view but I'll add common ones
-const FileQuestion = ({ className }: { className?: string }) => <HelpCircle className={className} />;
 
 export default QuestionBankManager;

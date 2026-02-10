@@ -224,7 +224,7 @@ const Subjects: React.FC = () => {
             name: subject.name,
             short_code: subject.short_code || "",
             category: subject.category,
-            department: typeof subject.department === 'object' ? subject.department.id : (subject.department || ""),
+            department: (subject.department && typeof subject.department === 'object') ? (subject.department as any).id : (subject.department || ""),
         });
         setIsEditOpen(true);
 
@@ -278,7 +278,7 @@ const Subjects: React.FC = () => {
     const headerActions = (
         <Button
             onClick={() => setIsAddOpen(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors cursor-pointer"
         >
             + Add New Subject
         </Button>
@@ -305,13 +305,13 @@ const Subjects: React.FC = () => {
                                     <button
                                         key={key}
                                         onClick={() => handleTabChange(key)}
-                                        className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === key
+                                        className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm transition-all cursor-pointer ${activeTab === key
                                             ? 'border-blue-500 text-blue-600'
                                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                             }`}
                                     >
                                         <span>{CATEGORY_LABELS[key]}</span>
-                                        <span className={`rounded-full px-2 py-1 text-xs ${activeTab === key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                                        <span className={`rounded-full px-2 py-1 text-xs transition-colors ${activeTab === key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
                                             }`}>
                                             {subjectCounts[key] || 0}
                                         </span>
@@ -336,9 +336,13 @@ const Subjects: React.FC = () => {
                         {!loading && filteredSubjects.length > 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {filteredSubjects.map((subject) => (
-                                    <Card key={subject.id} className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl bg-white rounded-xl">
+                                    <Card
+                                        key={subject.id}
+                                        className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white rounded-xl cursor-pointer border-none shadow-md"
+                                        onClick={() => navigate(`/instructor/subjects/${subject.id}/manage`)}
+                                    >
                                         <CardContent className="p-0">
-                                            <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[subject.category]} p-4 text-white`}>
+                                            <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[subject.category]} p-4 text-white hover:brightness-110 transition-all`}>
                                                 <div className="flex items-center gap-2 mb-2 text-white/70 text-xs uppercase font-medium">
                                                     <BookOpen className="h-4 w-4" />
                                                     {CATEGORY_LABELS[subject.category]}
@@ -354,17 +358,26 @@ const Subjects: React.FC = () => {
                                                 <Button
                                                     variant="default"
                                                     size="sm"
-                                                    onClick={() => navigate(`/instructor/subjects/${subject.id}/manage`)}
-                                                    className="bg-black hover:bg-gray-800 text-white"
+                                                    className="bg-black hover:bg-gray-800 text-white cursor-pointer px-4 font-medium"
                                                 >
                                                     Manage
                                                 </Button>
                                                 {user?.role === "admin" && (
                                                     <div className="flex gap-2">
-                                                        <Button variant="ghost" size="icon" onClick={() => openEditSubjectModal(subject)} className="h-8 w-8">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEditSubjectModal(subject); }}
+                                                            className="h-8 w-8 cursor-pointer hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                                                        >
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
-                                                        <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(subject.id)} className="h-8 w-8 text-red-500">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(subject.id); }}
+                                                            className="h-8 w-8 text-red-500 cursor-pointer hover:bg-red-50 transition-colors"
+                                                        >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
                                                     </div>
@@ -445,8 +458,8 @@ const Subjects: React.FC = () => {
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-                                <Button disabled={saving} onClick={handleCreateSubject}>
+                                <Button variant="outline" className="cursor-pointer" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                                <Button disabled={saving} className="cursor-pointer" onClick={handleCreateSubject}>
                                     {saving ? "Creating..." : "Create Subject"}
                                 </Button>
                             </DialogFooter>
@@ -520,8 +533,8 @@ const Subjects: React.FC = () => {
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
-                                <Button disabled={saving} onClick={handleUpdateSubject}>
+                                <Button variant="outline" className="cursor-pointer" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                                <Button disabled={saving} className="cursor-pointer" onClick={handleUpdateSubject}>
                                     {saving ? "Updating..." : "Save Changes"}
                                 </Button>
                             </DialogFooter>
@@ -536,8 +549,8 @@ const Subjects: React.FC = () => {
                             </DialogHeader>
                             <div className="py-4">Are you sure you want to delete this subject? This action cannot be undone.</div>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
-                                <Button variant="destructive" disabled={deleting} onClick={handleDelete}>
+                                <Button variant="outline" className="cursor-pointer" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+                                <Button variant="destructive" className="cursor-pointer" disabled={deleting} onClick={handleDelete}>
                                     {deleting ? "Deleting..." : "Delete"}
                                 </Button>
                             </DialogFooter>

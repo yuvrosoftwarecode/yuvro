@@ -258,7 +258,7 @@ const SubjectEdit: React.FC = () => {
           order_index: unitOrderValue ?? unitEditing.order_index,
           subject: unitEditing.subject,
         };
-        const updated = await updateUnit(unitEditing.id, payload);
+        const updated = (await updateUnit(unitEditing.id, payload)) as any;
         setUnits((prev) => prev.map((u) => (u.id === updated.id ? (updated as Unit) : u)));
         toast.success("Unit updated");
       }
@@ -341,7 +341,7 @@ const SubjectEdit: React.FC = () => {
           content: subUnitContentValue,
           unit: subUnitEditing.unit,
         };
-        const updated = await updateSubUnit(subUnitEditing.id, payload);
+        const updated = (await updateSubUnit(subUnitEditing.id, payload)) as any;
         setSubUnitsMap((prev) => {
           const arr = prev[updated.unit] || [];
           return { ...prev, [updated.unit]: arr.map((s) => (s.id === updated.id ? (updated as SubUnit) : s)) };
@@ -411,7 +411,7 @@ const SubjectEdit: React.FC = () => {
                         <p className="text-xs text-slate-600">Units & Sub-units</p>
                       </div>
                     </div>
-                    <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1">
+                    <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1 cursor-pointer">
                       <Plus className="w-3 h-3 mr-1" /> Add
                     </Button>
                   </div>
@@ -443,10 +443,10 @@ const SubjectEdit: React.FC = () => {
                               </div>
                             </div>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600">
+                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600 cursor-pointer">
                                 <Edit3 className="w-3 h-3" />
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600">
+                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer">
                                 <Trash2 className="w-3 h-3" />
                               </Button>
                             </div>
@@ -455,7 +455,7 @@ const SubjectEdit: React.FC = () => {
                             <div className="mt-3 pt-3 border-t border-slate-200/60">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="text-xs font-medium text-slate-700 flex items-center gap-1">Sub-units</div>
-                                <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2">
+                                <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2 cursor-pointer">
                                   <Plus className="w-2 h-2 mr-1" /> Add
                                 </Button>
                               </div>
@@ -465,8 +465,8 @@ const SubjectEdit: React.FC = () => {
                                     <div className="flex items-center justify-between">
                                       <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
                                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50"><Edit3 className="w-2.5 h-2.5" /></Button>
-                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50"><Trash2 className="w-2.5 h-2.5" /></Button>
+                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50 cursor-pointer"><Edit3 className="w-2.5 h-2.5" /></Button>
+                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50 cursor-pointer"><Trash2 className="w-2.5 h-2.5" /></Button>
                                       </div>
                                     </div>
                                   </div>
@@ -492,18 +492,23 @@ const SubjectEdit: React.FC = () => {
                     <div className="flex items-center gap-2">
                       {selectedSubUnit && (
                         <>
-                          <Button variant={rightTab === "videos" ? "default" : "outline"} onClick={() => setRightTab("videos")} className="gap-2"><Video className="w-4 h-4" /> Videos</Button>
-                          <Button variant={rightTab === "notes" ? "default" : "outline"} onClick={() => setRightTab("notes")} className="gap-2"><FileText className="w-4 h-4" /> Notes</Button>
+                          <Button variant={rightTab === "videos" ? "default" : "outline"} onClick={() => setRightTab("videos")} className="gap-2 cursor-pointer transition-all"><Video className="w-4 h-4" /> Videos</Button>
+                          <Button variant={rightTab === "notes" ? "default" : "outline"} onClick={() => setRightTab("notes")} className="gap-2 cursor-pointer transition-all"><FileText className="w-4 h-4" /> Notes</Button>
                         </>
                       )}
-                      <Button variant={rightTab === "questions" ? "default" : "outline"} onClick={() => setRightTab("questions")} className="gap-2"><FileQuestion className="w-4 h-4" /> Question Bank</Button>
+                      <Button variant={rightTab === "questions" ? "default" : "outline"} onClick={() => setRightTab("questions")} className="gap-2 cursor-pointer transition-all"><FileQuestion className="w-4 h-4" /> Question Bank</Button>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex-1 overflow-auto">
                   {rightTab === "questions" ? (
-                    <QuestionBankManager />
+                    <QuestionBankManager
+                      subject={subject}
+                      selectedUnit={selectedUnit}
+                      selectedSubUnit={selectedSubUnit}
+                      units={units}
+                    />
                   ) : rightTab === "videos" && selectedSubUnit ? (
                     <VideosPanel subUnitId={selectedSubUnit.id} />
                   ) : rightTab === "notes" && selectedSubUnit ? (
@@ -529,8 +534,8 @@ const SubjectEdit: React.FC = () => {
             <Input type="number" value={unitOrderValue ?? ""} onChange={(e) => setUnitOrderValue(Number(e.target.value))} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsUnitModalOpen(false)}>Cancel</Button>
-            <Button onClick={saveUnit}>{savingUnit ? "Saving..." : "Save"}</Button>
+            <Button variant="outline" className="cursor-pointer" onClick={() => setIsUnitModalOpen(false)}>Cancel</Button>
+            <Button className="cursor-pointer" onClick={saveUnit}>{savingUnit ? "Saving..." : "Save"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -546,8 +551,8 @@ const SubjectEdit: React.FC = () => {
             <textarea className="w-full h-32 border rounded p-2" value={subUnitContentValue} onChange={(e) => setSubUnitContentValue(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSubUnitModalOpen(false)}>Cancel</Button>
-            <Button onClick={saveSubUnit}>{savingSubUnit ? "Saving..." : "Save"}</Button>
+            <Button variant="outline" className="cursor-pointer" onClick={() => setIsSubUnitModalOpen(false)}>Cancel</Button>
+            <Button className="cursor-pointer" onClick={saveSubUnit}>{savingSubUnit ? "Saving..." : "Save"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
