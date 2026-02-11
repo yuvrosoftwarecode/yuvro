@@ -6,7 +6,10 @@ from django.db import models
 class User(AbstractUser):
     ROLE_CHOICES = [
         ("student", "Student"),
-        ("instructor", "Instructor"),
+        ("college_admin", "College Admin"),
+        ("principal", "Principal"),
+        ("hod", "HOD"),
+        ("incharge", "Incharge"),
         ("faculty", "Faculty"),
         ("recruiter", "Recruiter"),
         ("admin", "Administrator"),
@@ -26,8 +29,17 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
-    def is_instructor(self):
-        return self.role == "instructor"
+    def is_college_admin(self):
+        return self.role == "college_admin"
+
+    def is_principal(self):
+        return self.role == "principal"
+
+    def is_hod(self):
+        return self.role == "hod"
+
+    def is_incharge(self):
+        return self.role == "incharge"
 
     def is_faculty(self):
         return self.role == "faculty"
@@ -39,10 +51,10 @@ class User(AbstractUser):
         return self.role == "student"
 
     def can_manage_content(self):
-        return self.role in ["admin", "instructor", "faculty"]
+        return self.role in ["admin", "college_admin", "principal", "hod", "incharge", "faculty"]
 
     def can_manage_users(self):
-        return self.role == "admin"
+        return self.role in ["admin", "college_admin", "principal", "hod", "incharge"]
 
     def save(self, *args, **kwargs):
         if self.is_superuser:

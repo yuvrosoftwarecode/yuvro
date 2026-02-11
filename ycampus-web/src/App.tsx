@@ -59,6 +59,12 @@ import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
 
+import CollegeAdminDashboard from './pages/college-admin/Dashboard';
+import PrincipalDashboard from './pages/principal/Dashboard';
+import HODDashboard from './pages/hod/Dashboard';
+import InchargeDashboard from './pages/incharge/Dashboard';
+import FacultyDashboard from './pages/faculty/Dashboard';
+
 
 function App() {
   return (
@@ -252,6 +258,51 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["recruiter"]}>
                     <RecruiterDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/college-admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <CollegeAdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/principal/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <PrincipalDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/hod/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["hod"]}>
+                    <HODDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/incharge/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["incharge"]}>
+                    <InchargeDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/faculty/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <FacultyDashboard />
                   </ProtectedRoute>
                 }
               />

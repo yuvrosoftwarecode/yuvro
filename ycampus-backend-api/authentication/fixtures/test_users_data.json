@@ -18,104 +18,257 @@
       }
     },
     {
-      "email": "instructor_ds@yuvro.com",
-      "username": "instructor_ds",
-      "first_name": "Data Structures",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
-      "is_staff": false,
+      "email": "college_admin1@yuvro.com",
+      "username": "college_admin1",
+      "first_name": "College",
+      "last_name": "Admin One",
+      "role": "college_admin",
+      "password": "admin123",
+      "is_staff": true,
       "is_superuser": false,
       "profile": {
-        "full_name": "Dr. Sarah Johnson",
-        "title": "Data Structures & Algorithms Instructor",
-        "location": "Boston, MA",
-        "about": "Data Structures and Algorithms instructor with expertise in computer science fundamentals and 10+ years of teaching experience.",
-        "gender": "female"
-      }
-    },
-    {
-      "email": "instructor_python@yuvro.com",
-      "username": "instructor_python",
-      "first_name": "Python",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
-      "is_staff": false,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Michael Chen",
-        "title": "Python Programming Instructor",
-        "location": "Seattle, WA",
-        "about": "Python programming instructor specializing in web development and software engineering with industry experience at major tech companies.",
-        "gender": "male"
-      }
-    },
-    {
-      "email": "instructor_java@yuvro.com",
-      "username": "instructor_java",
-      "first_name": "Java",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
-      "is_staff": false,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Robert Martinez",
-        "title": "Java Programming Instructor",
-        "location": "Austin, TX",
-        "about": "Java programming instructor with expertise in enterprise applications and object-oriented design. Former senior developer at Fortune 500 companies.",
-        "gender": "male"
-      }
-    },
-    {
-      "email": "instructor_mysql@yuvro.com",
-      "username": "instructor_mysql",
-      "first_name": "MySQL",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
-      "is_staff": false,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Lisa Wang",
-        "title": "Database Systems Instructor",
+        "full_name": "College Administrator One",
+        "title": "College Administrator",
         "location": "New York, NY",
-        "about": "Database instructor specializing in MySQL, SQL optimization, and relational database design with extensive experience in data architecture.",
-        "gender": "female"
-      }
-    },
-    {
-      "email": "instructor_mongodb@yuvro.com",
-      "username": "instructor_mongodb",
-      "first_name": "MongoDB",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
-      "is_staff": false,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "David Kumar",
-        "title": "NoSQL Database Instructor",
-        "location": "Denver, CO",
-        "about": "NoSQL database instructor with expertise in MongoDB, document databases, and big data solutions. Certified MongoDB professional.",
+        "about": "Administrator for the College of Engineering.",
         "gender": "male"
       }
     },
     {
-      "email": "instructor_ai@yuvro.com",
-      "username": "instructor_ai",
-      "first_name": "AI",
-      "last_name": "Instructor",
-      "role": "instructor",
-      "password": "instructor123",
+      "email": "college_admin2@yuvro.com",
+      "username": "college_admin2",
+      "first_name": "College",
+      "last_name": "Admin Two",
+      "role": "college_admin",
+      "password": "admin123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "College Administrator Two",
+        "title": "College Administrator",
+        "location": "Chicago, IL",
+        "about": "Administrator for the College of Arts and Sciences.",
+        "gender": "female"
+      }
+    },
+    {
+      "email": "college_admin3@yuvro.com",
+      "username": "college_admin3",
+      "first_name": "College",
+      "last_name": "Admin Three",
+      "role": "college_admin",
+      "password": "admin123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "College Administrator Three",
+        "title": "College Administrator",
+        "location": "Los Angeles, CA",
+        "about": "Administrator for the Business School.",
+        "gender": "prefer_not_to_say"
+      }
+    },
+    {
+      "email": "principal1@yuvro.com",
+      "username": "principal1",
+      "first_name": "Principal",
+      "last_name": "One",
+      "role": "principal",
+      "password": "principal123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Principal One",
+        "title": "Principal",
+        "location": "New York, NY",
+        "about": "Principal of the College of Engineering.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "principal2@yuvro.com",
+      "username": "principal2",
+      "first_name": "Principal",
+      "last_name": "Two",
+      "role": "principal",
+      "password": "principal123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Principal Two",
+        "title": "Principal",
+        "location": "Chicago, IL",
+        "about": "Principal of the College of Arts and Sciences.",
+        "gender": "female"
+      }
+    },
+    {
+      "email": "principal3@yuvro.com",
+      "username": "principal3",
+      "first_name": "Principal",
+      "last_name": "Three",
+      "role": "principal",
+      "password": "principal123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Principal Three",
+        "title": "Principal",
+        "location": "Los Angeles, CA",
+        "about": "Principal of the Business School.",
+        "gender": "prefer_not_to_say"
+      }
+    },
+    {
+      "email": "hod1@yuvro.com",
+      "username": "hod1",
+      "first_name": "HOD",
+      "last_name": "CS",
+      "role": "hod",
+      "password": "hod123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Prof. HOD CS",
+        "title": "Head of Department",
+        "location": "New York, NY",
+        "about": "Head of Computer Science Department.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "hod2@yuvro.com",
+      "username": "hod2",
+      "first_name": "HOD",
+      "last_name": "ECE",
+      "role": "hod",
+      "password": "hod123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Prof. HOD ECE",
+        "title": "Head of Department",
+        "location": "Chicago, IL",
+        "about": "Head of Electronics and Communication Department.",
+        "gender": "female"
+      }
+    },
+    {
+      "email": "hod3@yuvro.com",
+      "username": "hod3",
+      "first_name": "HOD",
+      "last_name": "ME",
+      "role": "hod",
+      "password": "hod123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Prof. HOD ME",
+        "title": "Head of Department",
+        "location": "Los Angeles, CA",
+        "about": "Head of Mechanical Engineering Department.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "incharge1@yuvro.com",
+      "username": "incharge1",
+      "first_name": "Incharge",
+      "last_name": "Labs",
+      "role": "incharge",
+      "password": "incharge123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Lab Incharge One",
+        "title": "Lab Incharge",
+        "location": "New York, NY",
+        "about": "Incharge of Computer Labs.",
+        "gender": "female"
+      }
+    },
+    {
+      "email": "incharge2@yuvro.com",
+      "username": "incharge2",
+      "first_name": "Incharge",
+      "last_name": "Library",
+      "role": "incharge",
+      "password": "incharge123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Library Incharge Two",
+        "title": "Library Incharge",
+        "location": "Chicago, IL",
+        "about": "Incharge of Central Library.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "incharge3@yuvro.com",
+      "username": "incharge3",
+      "first_name": "Incharge",
+      "last_name": "Sports",
+      "role": "incharge",
+      "password": "incharge123",
+      "is_staff": true,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Sports Incharge Three",
+        "title": "Sports Incharge",
+        "location": "Los Angeles, CA",
+        "about": "Incharge of Sports Complex.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "faculty1@yuvro.com",
+      "username": "faculty1",
+      "first_name": "Faculty",
+      "last_name": "One",
+      "role": "faculty",
+      "password": "faculty123",
       "is_staff": false,
       "is_superuser": false,
       "profile": {
-        "full_name": "Dr. Emily Rodriguez",
-        "title": "AI & Machine Learning Instructor",
-        "location": "Palo Alto, CA",
-        "about": "Artificial Intelligence instructor specializing in machine learning, deep learning, and intelligent agent systems. PhD in Computer Science with research focus on neural networks.",
+        "full_name": "Dr. Faculty One",
+        "title": "Professor",
+        "location": "New York, NY",
+        "about": "Professor of Computer Science.",
+        "gender": "female"
+      }
+    },
+    {
+      "email": "faculty2@yuvro.com",
+      "username": "faculty2",
+      "first_name": "Faculty",
+      "last_name": "Two",
+      "role": "faculty",
+      "password": "faculty123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Faculty Two",
+        "title": "Associate Professor",
+        "location": "Chicago, IL",
+        "about": "Associate Professor of Mathematics.",
+        "gender": "male"
+      }
+    },
+    {
+      "email": "faculty3@yuvro.com",
+      "username": "faculty3",
+      "first_name": "Faculty",
+      "last_name": "Three",
+      "role": "faculty",
+      "password": "faculty123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Dr. Faculty Three",
+        "title": "Assistant Professor",
+        "location": "Los Angeles, CA",
+        "about": "Assistant Professor of Physics.",
         "gender": "female"
       }
     },

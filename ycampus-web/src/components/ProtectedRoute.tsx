@@ -57,8 +57,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   if (allowedRoles.length > 0 && user && user.role && !allowedRoles.includes(user.role)) {
     switch (user.role) {
       case "admin":
-      case "instructor":
+      case "instructor": // Keep for legacy or admin access
         return <Navigate to="/instructor/dashboard" replace />;
+      case "college_admin":
+        return <Navigate to="/college-admin/dashboard" replace />;
+      case "principal":
+        return <Navigate to="/principal/dashboard" replace />;
+      case "hod":
+        return <Navigate to="/hod/dashboard" replace />;
+      case "incharge":
+        return <Navigate to="/incharge/dashboard" replace />;
+      case "faculty":
+        return <Navigate to="/faculty/dashboard" replace />;
       case "recruiter":
         return <Navigate to="/recruiter/dashboard" replace />;
       default:

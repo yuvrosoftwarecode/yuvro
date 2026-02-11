@@ -45,6 +45,41 @@ const sidebarItems: SidebarItem[] = [
     roles: ['recruiter']
   },
   {
+    id: 'college-admin-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/college-admin/dashboard',
+    roles: ['college_admin']
+  },
+  {
+    id: 'principal-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/principal/dashboard',
+    roles: ['principal']
+  },
+  {
+    id: 'hod-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/hod/dashboard',
+    roles: ['hod']
+  },
+  {
+    id: 'incharge-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/incharge/dashboard',
+    roles: ['incharge']
+  },
+  {
+    id: 'faculty-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/faculty/dashboard',
+    roles: ['faculty']
+  },
+  {
     id: 'users',
     label: 'User Management',
     icon: UserCheck,
@@ -145,6 +180,16 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return 'Yuvro Instructor ';
       case 'recruiter':
         return 'Yuvro Recruiter';
+      case 'college_admin':
+        return 'College Admin';
+      case 'principal':
+        return 'Principal';
+      case 'hod':
+        return 'HOD';
+      case 'incharge':
+        return 'Incharge';
+      case 'faculty':
+        return 'Faculty';
       default:
         return 'Yuvro';
     }
