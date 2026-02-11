@@ -12,7 +12,7 @@ const StudentMockInterview = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50/50">
       <main>
         <MockInterviewLibrary onStartInterview={handleStartInterview} />
       </main>

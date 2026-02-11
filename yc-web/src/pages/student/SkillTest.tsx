@@ -16,6 +16,7 @@ import {
 } from "@/services/courseService";
 import { getSkillTestsByTopic, startSkillTest } from "@/services/skillTestService";
 import { toast } from "sonner";
+import { getCourseIconConfig } from "@/utils/CourseIcons";
 
 export interface Topic {
   id: string;
@@ -28,8 +29,10 @@ export interface Course {
   id: string;
   name: string;
   description: string;
-  icon: string;
-  color: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  gradient: string;
+  color?: string;
   topics: Topic[];
   category?: string;
   topicCount?: number;
@@ -60,18 +63,6 @@ type View =
   | "instructions"
   | "test"
   | "results";
-
-const ICONS = ["🧠", "🗂️", "⚙️", "🐍", "⚡", "⚛️", "📘", "💻"];
-const COLORS = [
-  "blue",
-  "green",
-  "orange",
-  "yellow",
-  "purple",
-  "cyan",
-  "pink",
-  "indigo",
-];
 
 const SkillTest: React.FC = () => {
   const { courseId, testId } = useParams();
@@ -130,16 +121,23 @@ const SkillTest: React.FC = () => {
         const backendCourses = await fetchCourses();
 
         const mapped: Course[] = backendCourses.map(
-          (c: any, index: number): Course => ({
-            id: c.id,
-            name: c.name,
-            description: `Skill tests for ${c.name}`,
-            icon: ICONS[index % ICONS.length],
-            color: COLORS[index % COLORS.length],
-            topics: [],
-            category: c.category || "General",
-            topicCount: c.topics ? c.topics.length : 0,
-          })
+          (c: any): Course => {
+            const config = getCourseIconConfig(c.name, c.category);
+            const Icon = config.Icon;
+
+            return {
+              id: c.id,
+              name: c.name,
+              description: `Skill tests for ${c.name}`,
+              icon: <Icon className="w-5 h-5 text-white" />,
+              iconBg: config.bg,
+              gradient: config.gradient || "from-blue-500 to-indigo-600",
+              color: config.bg,
+              topics: [],
+              category: c.category || "General",
+              topicCount: c.topics ? c.topics.length : 0,
+            };
+          }
         );
 
         setCourses(mapped);
@@ -507,8 +505,8 @@ const SkillTest: React.FC = () => {
 
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <div className="min-h-screen bg-gray-50/50">
+        {!hideNavigation && <Navigation />}
         <TestInstructions
           test={{
             id: selectedTest.id,
@@ -529,8 +527,8 @@ const SkillTest: React.FC = () => {
 
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <div className="min-h-screen bg-gray-50/50">
+        {!hideNavigation && <Navigation />}
         <AssessmentInterface
           assessment={{
             id: selectedTest.id,
@@ -574,8 +572,8 @@ const SkillTest: React.FC = () => {
     });
 
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <div className="min-h-screen bg-gray-50/50">
+        {!hideNavigation && <Navigation />}
         <TestResults
           test={{
             id: selectedTest.id,
@@ -597,8 +595,8 @@ const SkillTest: React.FC = () => {
   if (currentView === "results") {
     console.log('Results view requested but conditions not met. Showing fallback.');
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation autoHide={hideNavigation} />
+      <div className="min-h-screen bg-gray-50/50">
+        {!hideNavigation && <Navigation />}
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <h2 className="text-xl font-bold mb-4">Unable to Load Results</h2>

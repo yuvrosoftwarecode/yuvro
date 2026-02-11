@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'; // Assuming generic Sheet/Drawer components exist or using simple div
+import React, { useState, useEffect } from 'react';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Trophy, Calendar } from 'lucide-react';
 import StreakCalendarWidget from './StreakCalendarWidget';
@@ -13,6 +13,19 @@ interface GamificationSidebarProps {
 }
 
 const GamificationSidebar: React.FC<GamificationSidebarProps> = ({ stats, isOpen, onToggle }) => {
+    // Lock body scroll when sidebar is open to prevent double scrollbars and layout shifts from internal dropdowns
+    useEffect(() => {
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            // Optional: Add padding-right to body to prevent shift if needed, 
+            // but simple overflow hidden is usually enough to stop the double-scrollbar complaint.
+        }
+        return () => {
+            document.body.style.overflow = originalStyle;
+        };
+    }, [isOpen]);
+
     return (
         <>
             {/* Backdrop Overlay */}

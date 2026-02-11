@@ -15,7 +15,8 @@ import ReportsScreen from './ReportsScreen';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
 
 import { Role, InterviewSettings } from '@/types/mockInterview';
-import { getRoleIconConfig, getLevelBadgeVariant } from '@/utils/mockInterviewUtils';
+import { getLevelBadgeVariant } from '@/utils/mockInterviewUtils';
+import { getCourseIconConfig } from '@/utils/CourseIcons';
 
 interface MockInterviewLibraryProps {
   onStartInterview?: (role: Role, settings: any) => void;
@@ -48,7 +49,8 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
           // Future: map from description or tags if available
 
           // Determine icon based on title
-          const { icon, iconBg, iconColor, buttonGradient } = getRoleIconConfig(item.title);
+          const config = getCourseIconConfig(item.title, item.ai_generation_mode);
+          const IconComponent = config.Icon;
 
           return {
             id: item.id,
@@ -60,10 +62,10 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             interviewer_name: item.interviewer_name || 'Junnu',
             interviewer_voice_id: item.interviewer_voice_id || '',
             voice_speed: item.voice_speed || 1.0,
-            icon: icon,
-            iconBg: iconBg,
-            iconColor: iconColor,
-            buttonGradient: buttonGradient
+            icon: <IconComponent className="w-6 h-6 text-white" />,
+            iconBg: `${config.bg} p-2 rounded-lg`,
+            iconColor: config.text,
+            buttonGradient: config.gradient || "from-slate-700 to-slate-900"
           };
         });
         setMockRoles(mappedRoles);
@@ -248,7 +250,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   }
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-screen bg-gray-50/50">
       <Navigation />
       <div className="px-8 py-6 max-w-[1600px] mx-auto animate-fade-in">
         {/* Header with Search */}
@@ -303,8 +305,14 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             {/* styled header matching Profile modal */}
             <DialogHeader className="p-6 border-b border-slate-100/50 bg-gradient-to-r from-slate-50/50 to-white flex-shrink-0">
               <div className="flex items-center gap-3 mb-1">
-                <div className={`p-2 rounded-lg ${selectedRole?.iconBg || 'bg-slate-100'}`}>
-                  <span className="text-xl">{selectedRole?.icon}</span>
+                <div className={`p-2 rounded-lg ${selectedRole?.iconBg?.split(" ")[0] || 'bg-slate-100'}`}>
+                  {/* Extract just the bg color class from the composed string if possible, or just use iconBg if it works as wrapper class */}
+                  {/* Actually iconBg is now "bg-blue-500 p-2 rounded-lg". So we can just use it on the wrapper div? 
+                       But selectedRole.icon is the <Icon>. 
+                       The current modal code wraps it in a div with iconBg. 
+                       If I use existing iconBg which includes p-2 rounded-lg, I should just apply it.
+                   */}
+                  {selectedRole?.icon}
                 </div>
                 <div>
                   <DialogTitle className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">

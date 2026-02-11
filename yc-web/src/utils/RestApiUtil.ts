@@ -61,7 +61,16 @@ class RestApiUtil {
             trackApiCall(fetchOptions.method || 'GET', url, response.status, duration);
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
+                let errorData = {};
+                try {
+                    const text = await response.text();
+                    if (text && text.trim()) {
+                        errorData = JSON.parse(text);
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse error response as JSON:', e);
+                    errorData = {};
+                }
 
                 let errorMessage = 'Request failed';
 
@@ -89,7 +98,11 @@ class RestApiUtil {
 
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                return await response.json();
+                const text = await response.text();
+                if (text && text.trim()) {
+                    return JSON.parse(text);
+                }
+                return {} as T;
             }
 
             return response.text() as unknown as T;
