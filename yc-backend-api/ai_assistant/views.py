@@ -13,7 +13,10 @@ from .models import (
     ChatMessage,
     AIAgentUsage,
     AIAgentConfiguration,
+    InterviewSession,
+    InterviewReport,
 )
+from assessment.models import MockInterviewSubmission
 from .serializers import (
     AIAgentSerializer,
     ChatSessionSerializer,
@@ -23,8 +26,10 @@ from .serializers import (
     AIAgentConfigurationSerializer,
     ChatRequestSerializer,
     ChatResponseSerializer,
+    InterviewSessionSerializer,
+    InterviewReportSerializer,
 )
-from .services import AIServiceFactory, AIServiceError
+from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
 
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -215,8 +220,48 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         """Prepare messages for AI service."""
         messages = []
 
-        # Add system prompt if configured
-        if user_config and user_config.system_prompt:
+        # Check if this is a mock interview session and inject specialized persona
+        if chat_session.page == "mock_interview":
+            context = chat_session.context
+            role = context.get("role", "Software Engineer")
+            level = context.get("level", "Intermediate")
+            difficulty = context.get("difficulty", "Medium")
+            interviewer_name = context.get("interviewer_name", "AI Interviewer")
+            candidate_info = context.get("candidate_info", "No specific background provided.")
+            
+            # Richer Prompt Construction
+            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer.
+
+CRITICAL RULES:
+1. **Initial Greeting**: STRICTLY start with: "Hi, I'm {interviewer_name}. I'll be conducting your interview for the {role} position today. To get us started, could you please give me a quick introduction?"
+   - Do NOT add any other pleasantries.
+2. **NO Definitions**: NEVER ask "What is...", "Define...", or "Explain the concept of...".
+   - ❌ "What is a deadlock?"
+   - ❌ "Explain useEffect."
+3. **Scenario First**: EVERY question must be a practical situation, debugging challenge, or system design trade-off.
+   - ✅ "Two threads are stuck waiting for each other. How do you debug this?"
+   - ✅ "Your component renders too often. how do you optimize it?"
+4. **Brevity**: Max 1-2 sentences. Be direct and conversational.
+5. **Adaptive Chaining (Step-by-Step Strategy)**:
+   - **Step 1**: Analyze the candidate's last answer. Identify ONE specific concept, technology, or trade-off they mentioned.
+   - **Step 2**: Formulate a follow-up question that challenges THAT specific concept.
+   - **Rule**: Do NOT change the topic unless the candidate completely failed or the topic is fully exhausted.
+   - Example If they say "I use Redis for caching", ask: "What happens if your Redis instance fills up? How do you handle eviction?"
+6. **Coding Questions**: When you want the candidate to write code, you MUST start the sentence with **"Please write code to..."** or **"Write a function that..."**.
+   - This triggers the code editor for the candidate.
+
+
+INTERVIEW CONTEXT:
+- Role: {role}
+- Difficulty: {difficulty}
+- Candidate: {candidate_info}
+
+Start with the Initial Greeting.
+"""
+            messages.append({"role": "system", "content": interview_prompt})
+
+        # Add user-configured system prompt (if not in interview mode, or as secondary instruction)
+        elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
         # Add conversation history
@@ -229,6 +274,23 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             else:
                 role = "assistant"
             messages.append({"role": role, "content": msg.content})
+
+        if chat_session.page == "mock_interview":
+            # Find the last user message to enforce adaptive analysis
+            last_user_msg = None
+            for msg in reversed(messages):
+                if msg["role"] == "user":
+                    last_user_msg = msg["content"]
+                    break
+            
+            if last_user_msg:
+                adaptive_instruction = (
+                    f"The candidate's last answer was: \"{last_user_msg}\".\n"
+                    "TASK: Analyze this answer for technical accuracy and depth. "
+                    "Did they miss any edge cases? Did they mention a specific technology? "
+                    "Formulate your next question specifically to follow up on this answer."
+                )
+                messages.append({"role": "system", "content": adaptive_instruction})
 
         return messages
 
@@ -416,3 +478,180 @@ class ChatViewSet(viewsets.ViewSet):
                 )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InterviewSessionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Interview Sessions.
+    """
+
+    permission_classes = [IsAuthenticatedUser]
+    serializer_class = InterviewSessionSerializer
+
+    def get_queryset(self):
+        """
+        Users see their own interviews.
+        Admins can see all interviews.
+        """
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return InterviewSession.objects.all().select_related("report", "chat_session")
+        return InterviewSession.objects.filter(user=self.request.user).select_related("report", "chat_session")
+
+    def perform_create(self, serializer):
+        """
+        When creating an interview session, we also need to create a ChatSession
+        and link it.
+        """
+        # 1. Extract Resume Text & Context
+        resume_file = self.request.data.get('resume') # From FormData
+        interviewer_name = self.request.data.get('interviewer_name', 'Alex')
+        role_title = self.request.data.get('role_title', 'General Profile')
+        role_level = self.request.data.get('role_level', 'Intermediate')
+        difficulty = self.request.data.get('difficulty', 'Medium')
+        duration_minutes = self.request.data.get('duration_minutes', 30)
+
+        context_text = ""
+        if resume_file:
+            try:
+                # Basic PDF text extraction
+                from pypdf import PdfReader
+                reader = PdfReader(resume_file)
+                for page in reader.pages:
+                    text = page.extract_text()
+                    if text:
+                        context_text += text + "\n"
+            except Exception as e:
+                print(f"Error reading resume: {e}")
+                context_text = "Resume provided but could not be read."
+        
+        if not context_text.strip():
+             context_text = "No resume provided. Ask questions based on the role title."
+
+        # 2. Create a ChatSession
+        # We need an AI Agent. For now, we pick the first active Gemini agent or create a default one.
+        ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
+        if not ai_agent:
+            # Fallback for dev env for now
+            ai_agent = AIAgent.objects.first()
+            if not ai_agent:
+                raise serializers.ValidationError("No active AI Agent found for interview. Please configure at least one agent.")
+
+        chat_session = ChatSession.objects.create(
+            user=self.request.user,
+            ai_agent=ai_agent,
+            title=f"Mock Interview - {role_title}",
+            page="mock_interview",
+            context={
+                "role": role_title,
+                "level": role_level,
+                "difficulty": difficulty,
+                "interviewer_name": interviewer_name,
+                "duration_minutes": duration_minutes,
+                "candidate_info": context_text
+            }
+        )
+
+        # 3. Save InterviewSession with the linked ChatSession
+        serializer.save(user=self.request.user, chat_session=chat_session)
+
+    @action(detail=True, methods=["post"])
+    def end_interview(self, request, pk=None):
+        """
+        End the interview, mark as completed, and trigger report generation.
+        """
+        interview_session = self.get_object()
+
+        if interview_session.status == "completed":
+            return Response(
+                {"detail": "Interview already completed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update status
+        interview_session.status = "completed"
+        interview_session.completed_at = timezone.now()
+        
+        # Calculate actual duration
+        if interview_session.created_at:
+            duration = interview_session.completed_at - interview_session.created_at
+            interview_session.actual_duration = duration
+            
+        interview_session.save()
+
+        interview_session.save()
+
+        # SYNC: Update MockInterviewSubmission if it exists
+        try:
+            submission = MockInterviewSubmission.objects.filter(
+                chat_session=interview_session.chat_session
+            ).first()
+            if submission:
+                submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                submission.completed_at = timezone.now()
+                # Store actual duration if needed
+                # submission.selected_duration = ... 
+                submission.save()
+        except Exception as e:
+             print(f"Error syncing MockInterviewSubmission: {e}")
+
+        # Generate Report
+        try:
+            report_generator = InterviewReportGenerator()
+            
+            # Read resume content if file exists
+            resume_text = None
+            if interview_session.resume_file:
+                try:
+                    # Basic text extraction from PDF could go here.
+                    # For now, we will skip complex PDF parsing and just pass "Resume provided"
+                    # or implement a simple PDF reader if libraries available.
+                    # We'll stick to a placeholder to avoid dependency issues for this slice.
+                    resume_text = "The candidate has provided a resume file." 
+                except Exception:
+                    pass
+
+            # Prepare conversation text synchronously
+            messages = interview_session.chat_session.messages.order_by("created_at")
+            conversation_text = ""
+            for msg in messages:
+                role = "Interviewer" if msg.message_type != "user" else "Candidate"
+                conversation_text += f"{role}: {msg.content}\n\n"
+
+            # Run async generation in sync context
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                report_data = loop.run_until_complete(
+                    report_generator.generate_report(
+                        conversation_text, resume_content=resume_text
+                    )
+                )
+            finally:
+                loop.close()
+
+            # Create Report object
+            InterviewReport.objects.create(
+                interview_session=interview_session,
+                overall_score=report_data.get("overall_score", 0),
+                feedback_summary=report_data.get("feedback_summary", ""),
+                performance_metrics=report_data.get("performance_metrics", {}),
+                skill_analysis=report_data.get("skill_analysis", {}),
+                question_analysis=report_data.get("question_analysis", []),
+                key_takeaways=report_data.get("key_takeaways", {}),
+                meta_stats=report_data.get("meta_stats", {})
+            )
+
+            return Response(
+                {"detail": "Interview ended and report generated successfully."},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            import sys
+            print(f"CRITICAL ERROR generating report: {str(e)}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            return Response(
+                {"detail": "Interview ended but report generation failed.", "error": str(e)},
+                status=status.HTTP_200_OK, # Soft fail, we still ended the interview
+            )

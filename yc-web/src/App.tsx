@@ -21,6 +21,8 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import CourseDetail from './components/student/CourseDetail';
 import SkillTest from './pages/student/SkillTest';
 import MockInterview from './pages/student/MockInterview';
+import MockInterviewRoom from './pages/student/MockInterviewRoom';
+import MockInterviewReportPage from './pages/student/MockInterviewReportPage';
 import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
@@ -43,6 +45,9 @@ import InstructorProfile from './pages/instructor/Profile';
 import InstructorMockInterview from './pages/instructor/MockInterview';
 import MockInterviewForm from './components/instructor/mock-interviews/MockInterviewForm';
 import SkillTestSubmissions from './pages/instructor/SkillTestSubmissions';
+import MockInterviewReports from './pages/instructor/MockInterviewReports';
+import MockInterviewReportView from './pages/instructor/MockInterviewReportView';
+import MockInterviewAnalytics from './pages/instructor/MockInterviewAnalytics';
 import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
 import InstructorCertifications from './pages/instructor/Certifications';
 import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
@@ -168,6 +173,22 @@ function App() {
                 }
               />
 
+              <Route
+                path="/student/mock-interview/session"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <MockInterviewRoom />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/mock-interview/report/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <MockInterviewReportPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/student/mock-interview"
                 element={
@@ -592,11 +613,38 @@ function App() {
                 }
               />
 
-              <Route
+                <Route
                 path="/instructor/mock-interview/:mockInterviewId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <MockInterviewForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReports />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/reports/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReportView />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/mock-interview/:mockInterviewId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewAnalytics />
                   </ProtectedRoute>
                 }
               />

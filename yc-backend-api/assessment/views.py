@@ -13,8 +13,10 @@ from pypdf import PdfReader
 from io import BytesIO
 import traceback
 import logging
+import asyncio
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage
+from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
+from ai_assistant.services import InterviewReportGenerator
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -28,7 +30,8 @@ from .models import (
 from .mixins import ProctoringMixin, AssessmentMixin, LeaderboardPagination
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
-    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer
+    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer,
+    MockInterviewSubmissionSerializer
 )
 
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
@@ -368,8 +371,54 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if contest.status != Contest.STATUS_ONGOING:
             return Response({'error': 'Contest is not live'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Use shared helper for question fetching
-        questions_to_send = self._fetch_questions_for_assessment(contest)
+        questions_to_send = []
+
+        if contest.questions_config:
+            all_ids = []
+            for q_type, ids in contest.questions_config.items():
+                if isinstance(ids, list):
+                    all_ids.extend(ids)
+
+            if all_ids:
+                questions_to_send = list(Question.objects.filter(id__in=all_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
+
+        if contest.questions_random_config:
+            existing_ids = [q['id'] for q in questions_to_send]
+            
+            for q_type, config in contest.questions_random_config.items():
+                requests_to_process = []
+                
+                if isinstance(config, dict):
+                    for diff, count in config.items():
+                        requests_to_process.append((diff, count))
+                else:
+                    requests_to_process.append((None, config))
+                    
+                for difficulty, count in requests_to_process:
+                    if not isinstance(count, int) or count <= 0:
+                        continue
+
+                    q_filter = Q(type=q_type)
+                    
+                    if difficulty:
+                        q_filter &= Q(difficulty=difficulty)
+                        
+                    # Contests might have course/topic context or not? 
+                    # Assuming basic filtering by type/difficulty for contests unless specified otherwise
+                    
+                    candidates = list(Question.objects.filter(
+                        q_filter
+                    ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
+                    
+                    if len(candidates) >= count:
+                        selected = random.sample(candidates, count)
+                    else:
+                        selected = candidates
+                    
+                    questions_to_send.extend(selected)
+                    existing_ids.extend([q['id'] for q in selected])
+
+        random.shuffle(questions_to_send)
 
         return Response({ 'submission_id': submission.id, 'duration': contest.duration, 'questions': questions_to_send})
 
@@ -562,14 +611,33 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            # Expected format: {'mcq_single': 10, 'coding': 2}
+            # Expected format: {'mcq_single': 10} OR {'mcq_single': {'easy': 2, 'medium': 1}}
             
             # Get IDs already selected to avoid duplicates
             existing_ids = [q['id'] for q in questions_to_send]
             
-            for q_type, count in skill_test.questions_random_config.items():
-                if count > 0:
+            for q_type, config in skill_test.questions_random_config.items():
+                requests_to_process = [] # List of (difficulty, count) tuples
+                
+                if isinstance(config, dict):
+                    # New format: {'easy': 2, 'medium': 1}
+                    for diff, count in config.items():
+                        requests_to_process.append((diff, count))
+                else:
+                    # Legacy format: simple integer count, assuming 'medium' or any if needed, 
+                    # but typically we filter just by type. For strictness let's assume no difficulty filter if not specified,
+                    # or better, just fetch any difficulty.
+                    # To minimize complexity, we can treat it as one request with difficulty=None
+                    requests_to_process.append((None, config))
+                    
+                for difficulty, count in requests_to_process:
+                    if not isinstance(count, int) or count <= 0:
+                        continue
+                        
                     q_filter = Q(type=q_type)
+                    
+                    if difficulty:
+                        q_filter &= Q(difficulty=difficulty)
                     
                     if skill_test.topic:
                         # Include questions linked to subtopics of this topic OR directly to the topic
@@ -578,6 +646,11 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         q_filter &= Q(course=skill_test.course)
                         
                     # Fetch candidate questions excluding already selected ones
+                    # Note: We must re-evaluate existing_ids inside the loop if we want to be strictly correct 
+                    # about not picking the same question twice across different criteria (unlikely but possible if criteria overlap)
+                    # But since we filter by difficulty, overlap is minimal unless difficulty is None.
+                    # For safety, we refer to existing_ids which we update.
+                    
                     candidates = list(Question.objects.filter(
                         q_filter
                     ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
@@ -588,6 +661,8 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         selected = candidates # Take all if not enough
                     
                     questions_to_send.extend(selected)
+                    # Update existing_ids to prevent selecting the same question again (relevant for legacy mixed with new)
+                    existing_ids.extend([q['id'] for q in selected])
                     
         # Shuffle final list
         random.shuffle(questions_to_send)
@@ -716,6 +791,14 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
         return qs
 
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def submissions(self, request, pk=None):
+        mock_interview = self.get_object()
+        submissions = MockInterviewSubmission.objects.filter(mock_interview=mock_interview).order_by('-created_at')
+        
+        serializer = MockInterviewSubmissionSerializer(submissions, many=True)
+        return Response(serializer.data)
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start_interview(self, request, pk=None):
         try:
@@ -841,6 +924,18 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                             content=system_prompt
                         )
 
+                        # Create InterviewSession linking to ChatSession
+                        # This is crucial for the AI Assistant module to track it as an interview
+                        interview_session = InterviewSession.objects.create(
+                            user=user,
+                            chat_session=chat_session,
+                            role_title=mock_interview.title,
+                            role_level=experience_level,
+                            difficulty="Adaptive", # Mock interviews are generally adaptive
+                            duration_minutes=selected_duration or mock_interview.max_duration,
+                            status='started'
+                        )
+
                 # 4. Create NEW submission
                 submission = MockInterviewSubmission.objects.create(
                     mock_interview=mock_interview,
@@ -859,10 +954,17 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                      submission.resume = resume_file
                  submission.save()
                  chat_session = submission.chat_session
+                 # Try to get linked interview session
+                 try:
+                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
+                 except InterviewSession.DoesNotExist:
+                     interview_session = None
 
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
+                'interview_session_id': interview_session.id if interview_session else None,
+                'id': interview_session.id if interview_session else None, # Backwards compatibility for frontend
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,

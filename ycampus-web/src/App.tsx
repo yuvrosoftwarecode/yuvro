@@ -58,6 +58,7 @@ import RecruiterCandidates from "./pages/recruiter/Candidates";
 import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
+import Departments from './pages/instructor/Departments';
 
 
 function App() {
@@ -353,6 +354,24 @@ function App() {
 
               <Route
                 path="/instructor/colleges"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Colleges />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/departments"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Departments /> 
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/batches"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Colleges />

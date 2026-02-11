@@ -9,6 +9,7 @@ export interface SkillTest {
   duration: number;
   total_marks: number;
   passing_marks: number;
+  passing_percentage?: number;
   enable_proctoring: boolean;
   max_attempts: number;
   questions_config: {
@@ -18,10 +19,10 @@ export interface SkillTest {
     descriptive: string[];
   };
   questions_random_config: {
-    mcq_single: number;
-    mcq_multiple: number;
-    coding: number;
-    descriptive: number;
+    mcq_single: { easy: number; medium: number; hard: number };
+    mcq_multiple: { easy: number; medium: number; hard: number };
+    coding: { easy: number; medium: number; hard: number };
+    descriptive: { easy: number; medium: number; hard: number };
   };
   publish_status: 'draft' | 'active' | 'inactive' | 'archived';
   total_questions?: number;
@@ -41,6 +42,7 @@ export interface CreateSkillTestData {
   duration: number;
   total_marks?: number;
   passing_marks?: number;
+  passing_percentage?: number;
   enable_proctoring?: boolean;
   max_attempts?: number;
   questions_config?: {
@@ -50,10 +52,10 @@ export interface CreateSkillTestData {
     descriptive: string[];
   };
   questions_random_config?: {
-    mcq_single: number;
-    mcq_multiple: number;
-    coding: number;
-    descriptive: number;
+    mcq_single: { easy: number; medium: number; hard: number };
+    mcq_multiple: { easy: number; medium: number; hard: number };
+    coding: { easy: number; medium: number; hard: number };
+    descriptive: { easy: number; medium: number; hard: number };
   };
   publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
   course: string;

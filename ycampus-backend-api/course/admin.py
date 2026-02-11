@@ -13,7 +13,6 @@ from .models import (
 )
 
 
-
 class UnitInline(admin.TabularInline):
     model = Unit
     extra = 0

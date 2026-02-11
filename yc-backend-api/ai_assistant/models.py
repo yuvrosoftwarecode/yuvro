@@ -158,3 +158,81 @@ class AIAgentConfiguration(models.Model):
 
     def __str__(self):
         return f"{self.user.username} config for {self.ai_agent.name}"
+
+
+class InterviewSession(models.Model):
+    """
+    Model representing a mock interview session.
+    Wraps a ChatSession but adds interview-specific context.
+    """
+
+    STATUS_CHOICES = [
+        ("started", "Started"),
+        ("completed", "Completed"),
+        ("abandoned", "Abandoned"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="interview_sessions"
+    )
+    chat_session = models.OneToOneField(
+        ChatSession, on_delete=models.CASCADE, related_name="interview_session"
+    )
+    role_title = models.CharField(max_length=255)
+    role_level = models.CharField(max_length=50, blank=True, null=True)
+    difficulty = models.CharField(max_length=50, blank=True, null=True)
+    duration_minutes = models.PositiveIntegerField(default=30)
+    actual_duration = models.DurationField(null=True, blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="started")
+    resume_file = models.FileField(upload_to="resumes/", null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Interview: {self.role_title} - {self.user.username}"
+
+
+class InterviewReport(models.Model):
+    """
+    Model representing the detailed analysis/report of a completed interview.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    interview_session = models.OneToOneField(
+        InterviewSession, on_delete=models.CASCADE, related_name="report"
+    )
+    overall_score = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
+    )
+    feedback_summary = models.TextField(blank=True, null=True)
+    
+    # JSON Fields for structured data
+    # Structure: { "Communication": 80, "Technical": 70, ... }
+    performance_metrics = models.JSONField(default=dict)
+    
+    # Structure: { "Skill Name": { "score": 8, "feedback": "..." }, ... }
+    skill_analysis = models.JSONField(default=dict)
+    
+    # Structure: [ { "question": "...", "user_answer": "...", "ai_score": 75, "feedback": "...", "ideal_answer": "..." }, ... ]
+    question_analysis = models.JSONField(default=list)
+    
+    # Structure: { "strengths": ["...", ...], "improvements": ["...", ...] }
+    key_takeaways = models.JSONField(default=dict)
+    
+    # Meta stats if needed (time taken, words spoken etc)
+    meta_stats = models.JSONField(default=dict)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Report for {self.interview_session}"
