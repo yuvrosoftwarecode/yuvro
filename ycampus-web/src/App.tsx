@@ -360,14 +360,6 @@ function App() {
                 }
               />
 
-              <Route
-                path="/instructor/batches"
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <div>Batches Management</div>
-                  </ProtectedRoute>
-                }
-              />
 
               <Route
                 path="/instructor/students"

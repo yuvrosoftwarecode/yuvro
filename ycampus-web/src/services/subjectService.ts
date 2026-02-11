@@ -42,7 +42,7 @@ export interface Subject {
   description?: string;
   price?: number;
   modules?: Module[];
-  department?: string | { id: string | number; name: string };
+  semester?: string | { id: string | number; number: number };
   enrolled_count?: number;
   created_at: string;
   updated_at: string;

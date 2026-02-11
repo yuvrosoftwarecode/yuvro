@@ -1,14 +1,25 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
+export interface Batch {
+    id: string | number;
+    college?: string | number;
+    college_name?: string;
+    name: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface College {
     id: string | number;
     name: string;
     short_form?: string;
+    location: string;
+    website: string;
     college_type: 'government' | 'autonomous' | 'deemed' | 'private';
     affiliated_university: 'jntu' | 'anna' | 'vtu' | 'ou';
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
-    departments: { id: string | number; name: string }[];
+    batches: Batch[];
     created_at?: string;
     updated_at?: string;
 }
@@ -16,11 +27,13 @@ export interface College {
 export interface CollegeCreateData {
     name: string;
     short_form?: string;
+    location: string;
+    website: string;
     college_type: string;
     affiliated_university: string;
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
-    department_names: string[];
+    batch_names: string[];
 }
 
 export const collegeService = {

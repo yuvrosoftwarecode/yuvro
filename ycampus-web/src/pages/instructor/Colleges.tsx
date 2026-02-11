@@ -1,9 +1,20 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, School, CheckCircle2, XCircle, Search, Building2, Info, Eraser, CheckSquare, AlertCircle } from "lucide-react";
-import { collegeService, College, CollegeCreateData } from "@/services/collegeService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Plus, Edit, Trash2, School, CheckCircle2,
+    XCircle, Search, Building2, Info, Eraser,
+    CheckSquare, AlertCircle, Layers, Calendar,
+    ChevronRight, Hash, ArrowLeft, MoreVertical,
+    MapPin, Globe, ExternalLink, GraduationCap,
+    Clock, PlusCircle, LayoutGrid
+} from "lucide-react";
+import { collegeService, College, CollegeCreateData, Batch } from "@/services/collegeService";
+import { batchService } from "@/services/batchService";
+import departmentService, { Department } from "@/services/departmentService";
+import semesterService, { Semester } from "@/services/semesterService";
+import sectionService, { Section } from "@/services/sectionService";
 import {
     Dialog,
     DialogContent,
@@ -26,39 +37,16 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { Badge } from "@/components/ui/badge";
 
-const DEPARTMENT_GROUPS = [
-    {
-        name: "Computer & AI",
-        departments: [
-            { name: "Computer Science & Engineering", short: "CSE" },
-            { name: "Information Technology", short: "IT" },
-            { name: "Artificial Intelligence & Machine Learning", short: "AI & ML" },
-            { name: "Data Science", short: "DS" },
-        ]
-    },
-    {
-        name: "Electronics",
-        departments: [
-            { name: "Electronics & Communication Engineering", short: "ECE" },
-            { name: "Electrical & Electronics Engineering", short: "EEE" },
-        ]
-    },
-    {
-        name: "Core Engineering",
-        departments: [
-            { name: "Mechanical Engineering", short: "Mech" },
-            { name: "Civil Engineering", short: "Civil" },
-        ]
-    },
-    {
-        name: "Management",
-        departments: [
-            { name: "MBA", short: "MBA" }
-        ]
-    }
+const GRADUATION_BATCHES = [
+    { name: "2021-2025", short: "B21" },
+    { name: "2022-2026", short: "B22" },
+    { name: "2023-2027", short: "B23" },
+    { name: "2024-2028", short: "B24" },
+    { name: "2025-2029", short: "B25" },
+    { name: "2020-2024", short: "B20" },
 ];
 
-const ALL_DEPT_NAMES = DEPARTMENT_GROUPS.flatMap(g => g.departments.map(d => d.name));
+const ALL_BATCH_NAMES = GRADUATION_BATCHES.map(b => b.name);
 
 const Colleges: React.FC = () => {
     const { user } = useAuth();
@@ -75,16 +63,31 @@ const Colleges: React.FC = () => {
     const [formData, setFormData] = useState<CollegeCreateData>({
         name: "",
         short_form: "",
+        location: "",
+        website: "",
         college_type: "private",
         affiliated_university: "jntu",
         is_aicte_approved: false,
         is_ugc_approved: false,
-        department_names: []
+        batch_names: []
     });
     const [initialFormData, setInitialFormData] = useState<CollegeCreateData | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Hierarchy management state
+    const [isManageOpen, setIsManageOpen] = useState(false);
+    const [selectedManageCollege, setSelectedManageCollege] = useState<College | null>(null);
+    const [manageView, setManageView] = useState<'batches' | 'departments' | 'semesters' | 'sections'>('batches');
+    const [hierarchyPath, setHierarchyPath] = useState<{ id: string | number, name: string, view: any }[]>([]);
+    const [activeParent, setActiveParent] = useState<{ id: string | number, name: string } | null>(null);
+    const [hierarchyData, setHierarchyData] = useState<any[]>([]);
+    const [manageLoading, setManageLoading] = useState(false);
+    const [newItemName, setNewItemName] = useState("");
+    const [startYear, setStartYear] = useState("");
+    const [endYear, setEndYear] = useState("");
+    const [isAdding, setIsAdding] = useState(false);
 
     const isDirty = JSON.stringify(formData) !== JSON.stringify(initialFormData);
 
@@ -132,10 +135,10 @@ const Colleges: React.FC = () => {
             return;
         }
 
-        // Check for department removal
-        const removedDepts = initialFormData?.department_names.filter(d => !formData.department_names.includes(d)) || [];
-        if (removedDepts.length > 0) {
-            const confirmed = window.confirm(`Warning: You are removing ${removedDepts.length} department(s). This may affect existing subjects and faculty mappings. Do you want to proceed?`);
+        // Check for batch removal
+        const removedBatches = initialFormData?.batch_names.filter(d => !formData.batch_names.includes(d)) || [];
+        if (removedBatches.length > 0) {
+            const confirmed = window.confirm(`Warning: You are removing ${removedBatches.length} batch(es). This may affect existing data. Do you want to proceed?`);
             if (!confirmed) return;
         }
 
@@ -176,11 +179,13 @@ const Colleges: React.FC = () => {
         const data = {
             name: college.name,
             short_form: college.short_form || "",
+            location: college.location || "",
+            website: college.website || "",
             college_type: college.college_type,
             affiliated_university: college.affiliated_university,
             is_aicte_approved: college.is_aicte_approved,
             is_ugc_approved: college.is_ugc_approved,
-            department_names: college.departments.map(d => d.name)
+            batch_names: college.batches.map(b => b.name)
         };
         setFormData(data);
         setInitialFormData(data);
@@ -191,54 +196,239 @@ const Colleges: React.FC = () => {
         const resetData = {
             name: "",
             short_form: "",
+            location: "",
+            website: "",
             college_type: "private",
             affiliated_university: "jntu",
             is_aicte_approved: false,
             is_ugc_approved: false,
-            department_names: []
+            batch_names: []
         };
         setFormData(resetData);
         setInitialFormData(resetData);
-        setSearchTerm("");
     };
 
-    const handleDeptToggle = (deptName: string) => {
+    const handleDeptToggle = (name: string) => {
         setFormData(prev => ({
             ...prev,
-            department_names: prev.department_names.includes(deptName)
-                ? prev.department_names.filter(n => n !== deptName)
-                : [...prev.department_names, deptName]
+            batch_names: prev.batch_names.includes(name)
+                ? prev.batch_names.filter(n => n !== name)
+                : [...prev.batch_names, name]
         }));
     };
 
-    const handleSelectAll = (depts: string[]) => {
+    const handleSelectAll = (names: string[]) => {
         setFormData(prev => {
-            const otherDepts = prev.department_names.filter(n => !depts.includes(n));
+            const others = prev.batch_names.filter(n => !names.includes(n));
             return {
                 ...prev,
-                department_names: [...otherDepts, ...depts]
+                batch_names: [...others, ...names]
             };
         });
     };
 
-    const handleClearDepts = (depts: string[]) => {
+    const handleClearDepts = (names: string[]) => {
         setFormData(prev => ({
             ...prev,
-            department_names: prev.department_names.filter(n => !depts.includes(n))
+            batch_names: prev.batch_names.filter(n => !names.includes(n))
         }));
     };
 
+    const openManageHierarchy = async (college: College) => {
+        setSelectedManageCollege(college);
+        setIsManageOpen(true);
+        setManageView('batches');
+        setActiveParent({ id: college.id, name: college.name });
+        setHierarchyData(college.batches || []);
+        setHierarchyPath([{ id: college.id, name: college.name, view: 'batches' }]);
+    };
+
+    const handleHierarchyBack = () => {
+        if (hierarchyPath.length <= 1) return;
+
+        const newPath = [...hierarchyPath];
+        newPath.pop(); // Remove current
+        const previous = newPath[newPath.length - 1];
+        setHierarchyPath(newPath);
+
+        if (previous.view === 'batches') {
+            openManageHierarchy(selectedManageCollege!);
+        } else if (previous.view === 'departments') {
+            loadDepartmentsForManage(previous.id, false);
+        } else if (previous.view === 'semesters') {
+            loadSemestersForManage(previous.id, false);
+        }
+    };
+
+    const loadDepartmentsForManage = async (batchId: string | number, pushPath = true) => {
+        setManageLoading(true);
+        try {
+            const data = await departmentService.getDepartments(batchId);
+            const batch = hierarchyData.find(b => b.id === batchId) || (pushPath ? null : hierarchyPath[hierarchyPath.length - 1]);
+            setHierarchyData(data);
+            setManageView('departments');
+            const newActiveParent = { id: batchId, name: batch?.name || 'Batch' };
+            setActiveParent(newActiveParent);
+            if (pushPath) {
+                setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'departments' }]);
+            }
+        } catch (err) {
+            toast.error("Failed to load departments");
+        } finally {
+            setManageLoading(false);
+        }
+    };
+
+    const loadSemestersForManage = async (deptId: string | number, pushPath = true) => {
+        setManageLoading(true);
+        try {
+            const data = await semesterService.getSemesters(deptId);
+            const dept = hierarchyData.find(d => d.id === deptId) || (pushPath ? null : hierarchyPath[hierarchyPath.length - 1]);
+            setHierarchyData(data);
+            setManageView('semesters');
+            const newActiveParent = { id: deptId, name: dept?.name || 'Department' };
+            setActiveParent(newActiveParent);
+            if (pushPath) {
+                setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'semesters' }]);
+            }
+        } catch (err) {
+            toast.error("Failed to load semesters");
+        } finally {
+            setManageLoading(false);
+        }
+    };
+
+    const loadSectionsForManage = async (semId: string | number, pushPath = true) => {
+        setManageLoading(true);
+        try {
+            const data = await sectionService.getSections(semId);
+            const sem = hierarchyData.find(s => s.id === semId);
+            setHierarchyData(data);
+            setManageView('sections');
+            const newActiveParent = { id: semId, name: `Semester ${sem?.number || semId}` };
+            setActiveParent(newActiveParent);
+            if (pushPath) {
+                setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'sections' }]);
+            }
+        } catch (err) {
+            toast.error("Failed to load sections");
+        } finally {
+            setManageLoading(false);
+        }
+    };
+
+    const handleDeleteHierarchyItem = async (id: string | number) => {
+        if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
+        try {
+            if (manageView === 'batches') {
+                await batchService.deleteBatch(id);
+                const college = await collegeService.getCollege(selectedManageCollege!.id);
+                setHierarchyData(college.batches || []);
+                loadColleges(); // Refresh main list too
+            } else if (manageView === 'departments') {
+                await departmentService.deleteDepartment(id);
+                loadDepartmentsForManage(activeParent!.id, false);
+            } else if (manageView === 'semesters') {
+                await semesterService.deleteSemester(id);
+                loadSemestersForManage(activeParent!.id, false);
+            } else if (manageView === 'sections') {
+                await sectionService.deleteSection(id);
+                loadSectionsForManage(activeParent!.id, false);
+            }
+            toast.success("Item deleted");
+        } catch (err) {
+            toast.error("Failed to delete item");
+        }
+    };
+
+    const handleAutoGenerateSemesters = async () => {
+        if (!activeParent || manageView !== 'semesters') return;
+        setManageLoading(true);
+        try {
+            for (let i = 1; i <= 8; i++) {
+                await semesterService.createSemester({ department: activeParent.id, number: i });
+            }
+            toast.success("8 Semesters initialized");
+            loadSemestersForManage(activeParent.id);
+        } catch (err) {
+            toast.error("Failed to generate semesters");
+        } finally {
+            setManageLoading(false);
+        }
+    };
+
+    const handleAddItem = async () => {
+        let nameToAdd = newItemName.trim();
+        if (manageView === 'batches') {
+            if (!startYear || !endYear) {
+                toast.error("Start and End years are required");
+                return;
+            }
+            nameToAdd = `${startYear}-${endYear}`;
+        }
+
+        if (!nameToAdd && manageView !== 'batches') return;
+
+        setIsAdding(true);
+        try {
+            if (manageView === 'batches') {
+                await batchService.createBatch({ college: selectedManageCollege!.id, name: nameToAdd });
+                const college = await collegeService.getCollege(selectedManageCollege!.id);
+                setHierarchyData(college.batches || []);
+                loadColleges();
+            } else if (manageView === 'departments') {
+                await departmentService.createDepartment({ batch: activeParent!.id, name: nameToAdd });
+                loadDepartmentsForManage(activeParent!.id, false);
+            } else if (manageView === 'semesters') {
+                const number = parseInt(nameToAdd);
+                if (isNaN(number)) throw new Error("Invalid semester number");
+                await semesterService.createSemester({ department: activeParent!.id, number });
+                loadSemestersForManage(activeParent!.id, false);
+            } else if (manageView === 'sections') {
+                await sectionService.createSection({ semester: activeParent!.id, name: nameToAdd });
+                loadSectionsForManage(activeParent!.id, false);
+            }
+            setNewItemName("");
+            setStartYear("");
+            setEndYear("");
+            toast.success(`${manageView.slice(0, -1)} added successfully`);
+        } catch (err: any) {
+            toast.error(err.message || "Failed to add item");
+        } finally {
+            setIsAdding(false);
+        }
+    };
+
+    const filteredColleges = colleges.filter(c =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.short_form || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.location || "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const headerActions = (
-        <Button
-            onClick={() => {
-                resetForm();
-                setIsAddOpen(true);
-            }}
-            className="bg-indigo-600 text-white hover:bg-indigo-700"
-        >
-            <Plus className="h-4 w-4 mr-2" />
-            Add College
-        </Button>
+        <div className="flex items-center gap-4">
+            <div className="relative hidden md:block group">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                    <Search className="h-4 w-4" />
+                </div>
+                <Input
+                    placeholder="Scan colleges..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-10 pl-10 w-64 bg-slate-50 border-none rounded-xl text-[10px] font-bold tracking-widest uppercase focus-visible:ring-indigo-600 focus-visible:bg-white transition-all ring-1 ring-slate-100 shadow-inner"
+                />
+            </div>
+            <Button
+                onClick={() => {
+                    resetForm();
+                    setIsAddOpen(true);
+                }}
+                className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-100 font-bold px-6 h-11"
+            >
+                <Plus className="h-4 w-4 mr-2" />
+                Add College
+            </Button>
+        </div>
     );
 
     if (user?.role !== 'admin') {
@@ -262,79 +452,112 @@ const Colleges: React.FC = () => {
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
                                 <p className="text-gray-500 animate-pulse">Loading colleges...</p>
                             </div>
-                        ) : colleges.length === 0 ? (
-                            <div className="text-center py-24 bg-white rounded-xl border-2 border-dashed border-gray-200 shadow-sm">
-                                <div className="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <School className="h-8 w-8 text-indigo-600" />
+                        ) : filteredColleges.length === 0 ? (
+                            <div className="text-center py-32 bg-white rounded-[40px] border-4 border-dashed border-slate-50 shadow-2xl shadow-indigo-50/20 max-w-2xl mx-auto flex flex-col items-center">
+                                <div className="bg-indigo-50 w-24 h-24 rounded-full flex items-center justify-center mb-8 relative">
+                                    <div className="absolute inset-0 bg-indigo-200 rounded-full animate-ping opacity-20" />
+                                    <School className="h-10 w-10 text-indigo-600 relative z-10" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">No colleges found</h3>
-                                <p className="text-gray-500 mb-6">Start by adding your first educational institution.</p>
-                                <Button onClick={() => setIsAddOpen(true)} variant="outline" className="border-indigo-200 text-indigo-600 hover:bg-indigo-50">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add your first College
+                                <h3 className="text-xl font-black text-slate-900 mb-2 uppercase italic tracking-tight">No Entities Detected</h3>
+                                <p className="text-slate-400 text-xs font-bold leading-relaxed max-w-xs mb-10 tracking-widest uppercase text-center">
+                                    Our scanners found no educational institutions matching your criteria.
+                                </p>
+                                <Button onClick={() => { setSearchQuery(""); setIsAddOpen(true); }} className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-2xl h-14 px-10 text-[11px] font-black tracking-[0.2em] shadow-2xl shadow-indigo-100">
+                                    INITIALIZE FIRST NODE
                                 </Button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {colleges.map((college) => (
-                                    <Card key={college.id} className="overflow-hidden hover:shadow-lg transition-all border-none bg-white shadow-sm ring-1 ring-gray-200">
-                                        <div className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {filteredColleges.map((college) => (
+                                    <Card
+                                        key={college.id}
+                                        className="bg-white border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden cursor-pointer"
+                                        onClick={() => openManageHierarchy(college)}
+                                    >
+                                        <CardHeader className="p-5 pb-2">
                                             <div className="flex items-start justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                                                         <School className="h-6 w-6" />
                                                     </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{college.name}</h3>
-                                                        <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mt-1">{college.short_form || '---'}</p>
+                                                    <div className="flex flex-col">
+                                                        <h3 className="font-bold text-slate-900 text-lg leading-tight lowercase">
+                                                            {college.name}
+                                                        </h3>
+                                                        <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-tight">
+                                                            {college.short_form || "N/A"}
+                                                        </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-1">
-                                                    <Button variant="ghost" size="icon" onClick={() => openEditModal(college)} className="h-9 w-9 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50">
+                                                <div className="flex items-center gap-1">
+                                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); openEditModal(college); }} className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(college.id)} className="h-9 w-9 text-gray-400 hover:text-red-600 hover:bg-red-50">
+                                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setConfirmDelete(college.id); }} className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md">
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6 space-y-3">
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-gray-500">Type</span>
-                                                    <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 capitalize font-medium">{college.college_type}</Badge>
+                                            <div className="mt-5 space-y-3">
+                                                <div className="flex items-center justify-between text-[11px]">
+                                                    <span className="font-medium text-slate-500">Type</span>
+                                                    <Badge variant="secondary" className={`text-[10px] font-bold px-2 py-0 h-5 lowercase ${college.college_type === 'private' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-purple-50 text-purple-600 border-purple-100'
+                                                        }`}>
+                                                        {college.college_type}
+                                                    </Badge>
                                                 </div>
-                                                <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-gray-500">University</span>
-                                                    <span className="font-semibold text-gray-700 uppercase">{college.affiliated_university}</span>
+                                                <div className="flex items-center justify-between text-[11px]">
+                                                    <span className="font-medium text-slate-500">University</span>
+                                                    <span className="font-bold text-slate-700 uppercase">{college.affiliated_university}</span>
                                                 </div>
-                                                <div className="flex gap-4 pt-1">
-                                                    <div className="flex items-center gap-1.5 text-xs font-semibold">
-                                                        {college.is_aicte_approved ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : <XCircle className="h-3.5 w-3.5 text-gray-300" />}
-                                                        <span className={college.is_aicte_approved ? "text-gray-700" : "text-gray-400"}>AICTE</span>
+                                                <div className="flex items-center gap-4 pt-1">
+                                                    <div className="flex items-center gap-1.5 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all">
+                                                        {college.is_aicte_approved ? (
+                                                            <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={3} />
+                                                        ) : (
+                                                            <XCircle className="h-4 w-4 text-slate-300" strokeWidth={3} />
+                                                        )}
+                                                        <span className="text-[11px] font-bold text-slate-500">AICTE</span>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-xs font-semibold">
-                                                        {college.is_ugc_approved ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> : <XCircle className="h-3.5 w-3.5 text-gray-300" />}
-                                                        <span className={college.is_ugc_approved ? "text-gray-700" : "text-gray-400"}>UGC</span>
+                                                    <div className="flex items-center gap-1.5 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all">
+                                                        {college.is_ugc_approved ? (
+                                                            <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={3} />
+                                                        ) : (
+                                                            <XCircle className="h-4 w-4 text-slate-300" strokeWidth={3} />
+                                                        )}
+                                                        <span className="text-[11px] font-bold text-slate-500">UGC</span>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </CardHeader>
 
-                                            <div className="mt-6 pt-4 border-t border-gray-100">
-                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Active Departments</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {college.departments.length > 0 ? (
-                                                        college.departments.map(dept => (
-                                                            <Badge key={dept.id} variant="outline" className="text-[10px] font-medium bg-gray-50">
-                                                                {dept.name}
-                                                            </Badge>
-                                                        ))
-                                                    ) : (
-                                                        <span className="text-xs text-gray-400 italic">No departments linked</span>
-                                                    )}
+                                        <CardContent className="p-5 pt-4">
+                                            <div className="flex items-end justify-between gap-4">
+                                                <div className="flex-1">
+                                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">Active Batches</p>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {college.batches && college.batches.length > 0 ? (
+                                                            college.batches.slice(0, 4).map((batch) => (
+                                                                <Badge key={batch.id} variant="secondary" className="bg-slate-100/50 text-slate-500 text-[10px] px-2 py-0 h-5 font-bold border-slate-200/50 shadow-none">
+                                                                    {batch.name}
+                                                                </Badge>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-[10px] text-slate-300 italic font-bold">No Batches</span>
+                                                        )}
+                                                    </div>
                                                 </div>
+                                                <Button
+                                                    onClick={(e) => { e.stopPropagation(); openManageHierarchy(college); }}
+                                                    variant="outline"
+                                                    className="border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 rounded-lg h-9 px-4 text-[10px] font-black tracking-widest flex items-center gap-2"
+                                                >
+                                                    <Layers className="h-3.5 w-3.5" />
+                                                    MANAGE
+                                                </Button>
                                             </div>
-                                        </div>
+                                        </CardContent>
                                     </Card>
                                 ))}
                             </div>
@@ -435,6 +658,36 @@ const Colleges: React.FC = () => {
                                                 </Select>
                                             </div>
 
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Campus Location</Label>
+                                                <div className="relative group">
+                                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                                        <MapPin className="h-3.5 w-3.5" />
+                                                    </div>
+                                                    <Input
+                                                        value={formData.location}
+                                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                                        placeholder="e.g. Hyderabad, TS"
+                                                        className="h-10 text-xs focus-visible:ring-indigo-500 border-slate-200 rounded-lg bg-slate-50/50 pl-9 pr-3 font-semibold text-slate-700 transition-all focus:bg-white focus:ring-1"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Website URL</Label>
+                                                <div className="relative group">
+                                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                                        <Globe className="h-3.5 w-3.5" />
+                                                    </div>
+                                                    <Input
+                                                        value={formData.website}
+                                                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                                                        placeholder="e.g. https://oxford.it"
+                                                        className="h-10 text-xs focus-visible:ring-indigo-500 border-slate-200 rounded-lg bg-slate-50/50 pl-9 pr-3 font-semibold text-slate-700 transition-all focus:bg-white focus:ring-1"
+                                                    />
+                                                </div>
+                                            </div>
+
                                             <div className="lg:col-span-2 space-y-1.5">
                                                 <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Institutional Accreditations</Label>
                                                 <div className="flex items-center gap-3">
@@ -463,7 +716,7 @@ const Colleges: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Bottom Section: Departments */}
+                                    {/* Bottom Section: Batches */}
                                     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 border-t border-slate-100 pt-7">
                                         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                                             <div className="flex items-center gap-3 shrink-0">
@@ -471,93 +724,56 @@ const Colleges: React.FC = () => {
                                                     <CheckSquare className="h-4 w-4 text-amber-600" />
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Departmental Architecture</h4>
+                                                    <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Batch Architecture</h4>
                                                     <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Infrastructure mapping for curriculum</p>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-sm max-w-fit">
-                                                <div className="relative group/search">
-                                                    <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400 group-focus-within/search:text-indigo-500 transition-colors" />
-                                                    <Input
-                                                        placeholder="Quick Search Categories..."
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="h-8 pl-9 w-48 text-[11px] border-none bg-transparent focus-visible:ring-0 placeholder:text-slate-400 font-semibold"
-                                                    />
-                                                </div>
-                                                <div className="w-px h-4 bg-slate-300 mx-0.5" />
                                                 <Button
                                                     variant="ghost"
-                                                    onClick={() => handleSelectAll(ALL_DEPT_NAMES)}
+                                                    onClick={() => handleSelectAll(ALL_BATCH_NAMES)}
                                                     className="h-8 text-[9px] font-bold uppercase text-indigo-600 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
                                                 >
                                                     SELECT ALL
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    onClick={() => handleClearDepts(ALL_DEPT_NAMES)}
+                                                    onClick={() => handleClearDepts(ALL_BATCH_NAMES)}
                                                     className="h-8 text-[9px] font-bold uppercase text-rose-500 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
                                                 >
                                                     CLEAR ALL
                                                 </Button>
                                                 <div className="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-md flex items-center gap-2 ml-1">
                                                     <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                                                    {formData.department_names.length} ACTIVE UNITS
+                                                    {formData.batch_names.length} ACTIVE BATCHES
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            {DEPARTMENT_GROUPS.map((group) => {
-                                                const filteredDepts = group.departments.filter(d =>
-                                                    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                    d.short.toLowerCase().includes(searchTerm.toLowerCase())
-                                                );
-
-                                                if (filteredDepts.length === 0) return null;
-
-                                                const groupDeptNames = filteredDepts.map(d => d.name);
-                                                const allInGroupSelected = groupDeptNames.every(name => formData.department_names.includes(name));
-
+                                            {GRADUATION_BATCHES.map((batch) => {
+                                                const isSelected = formData.batch_names.includes(batch.name);
                                                 return (
-                                                    <div key={group.name} className="flex flex-col bg-white border border-slate-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-all group/card">
-                                                        <div className="flex items-center justify-between mb-3 px-1">
-                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{group.name}</span>
-                                                            <button
-                                                                onClick={() => allInGroupSelected ? handleClearDepts(groupDeptNames) : handleSelectAll(groupDeptNames)}
-                                                                className={`text-[8px] font-black px-1.5 py-0.5 rounded transition-all ${allInGroupSelected ? 'text-rose-600 bg-rose-50' : 'text-indigo-600 bg-indigo-50'}`}
-                                                            >
-                                                                {allInGroupSelected ? "NONE" : "ALL"}
-                                                            </button>
+                                                    <div
+                                                        key={batch.name}
+                                                        className={`group/dept flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer ${isSelected
+                                                            ? "bg-indigo-50/40 border-indigo-200 shadow-lg shadow-indigo-50/50"
+                                                            : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+                                                            }`}
+                                                        onClick={() => handleDeptToggle(batch.name)}
+                                                    >
+                                                        <div className={`w-5 h-5 rounded-lg flex items-center justify-center border-2 transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"
+                                                            }`}>
+                                                            {isSelected && <CheckCircle2 className="h-3 w-3 text-white" strokeWidth={4} />}
                                                         </div>
-                                                        <div className="space-y-1">
-                                                            {filteredDepts.map((dept) => {
-                                                                const isSelected = formData.department_names.includes(dept.name);
-                                                                return (
-                                                                    <div
-                                                                        key={dept.name}
-                                                                        className={`group/dept flex items-center gap-2 p-1.5 rounded-lg border transition-all cursor-pointer ${isSelected
-                                                                            ? "bg-indigo-50/30 border-indigo-500/20 shadow-sm"
-                                                                            : "bg-slate-50/20 border-transparent hover:border-slate-200 hover:bg-white"
-                                                                            }`}
-                                                                        onClick={() => handleDeptToggle(dept.name)}
-                                                                    >
-                                                                        <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"
-                                                                            }`}>
-                                                                            {isSelected && <CheckCircle2 className="h-2.5 w-2.5 text-white" strokeWidth={5} />}
-                                                                        </div>
-                                                                        <div className="flex flex-col min-w-0">
-                                                                            <span className={`text-[11px] font-bold truncate leading-tight ${isSelected ? "text-slate-900" : "text-slate-700"}`}>
-                                                                                {dept.name}
-                                                                            </span>
-                                                                            <span className={`text-[9px] font-black tracking-wide ${isSelected ? "text-indigo-600" : "text-slate-400"}`}>
-                                                                                {dept.short}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className={`text-[13px] font-black tracking-tight ${isSelected ? "text-slate-900" : "text-slate-700"}`}>
+                                                                {batch.name}
+                                                            </span>
+                                                            <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-indigo-600" : "text-slate-400"}`}>
+                                                                {batch.short}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 );
@@ -565,22 +781,12 @@ const Colleges: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {searchTerm && DEPARTMENT_GROUPS.every(g => !g.departments.some(d =>
-                                        d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        d.short.toLowerCase().includes(searchTerm.toLowerCase())
-                                    )) && (
-                                            <div className="py-24 text-center bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
-                                                <Search className="h-8 w-8 text-slate-200 mx-auto mb-4" />
-                                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">No Matches Identified</h3>
-                                            </div>
-                                        )}
-
                                     <div className="mt-4 flex items-center gap-4 px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl group/info relative overflow-hidden">
                                         <div className="p-1.5 bg-white rounded-lg shadow-sm border border-slate-100">
                                             <Info className="h-4 w-4 text-slate-400 shrink-0" />
                                         </div>
                                         <p className="text-[10px] text-slate-500 font-bold leading-relaxed tracking-wide">
-                                            SYSTEM ARCHITECTURE: Selected departments will be automatically bridged to this college context. Sub-structures and faculty associations will be initialized instantly upon profile commitment.
+                                            SYSTEM ARCHITECTURE: Graduation batches represent the academic lifespan of a student cohort. Selecting these will initialize the temporal structure for curriculum planning.
                                         </p>
                                     </div>
                                 </div>
@@ -623,7 +829,7 @@ const Colleges: React.FC = () => {
                             </DialogHeader>
                             <div className="py-4 text-gray-600">
                                 <p className="font-semibold text-gray-900 mb-2">Are you sure you want to delete this college?</p>
-                                <p className="text-sm">This will remove the college profile and its association with departments. Subjects linked to these departments might be affected.</p>
+                                <p className="text-sm">This will remove the college profile and its association with batches. Departments linked to these batches might be affected.</p>
                             </div>
                             <DialogFooter>
                                 <Button variant="ghost" onClick={() => setConfirmDelete(null)}>Cancel</Button>
@@ -631,6 +837,205 @@ const Colleges: React.FC = () => {
                                     {deleting ? "Deleting..." : "Delete Permanently"}
                                 </Button>
                             </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Hierarchy Management Dialog */}
+                    <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
+                        <DialogContent className="max-w-[95vw] w-[95vw] p-0 border-none shadow-2xl overflow-hidden rounded-2xl">
+                            <div className="bg-[#f8fafc] flex flex-col h-[90vh]">
+                                {/* Dialog Header */}
+                                <div className="px-8 py-6 flex items-center justify-between bg-white border-b border-slate-100">
+                                    <div className="flex flex-col">
+                                        <h2 className="text-2xl font-bold text-slate-900 lowercase leading-tight">
+                                            {selectedManageCollege?.name || "College"}
+                                        </h2>
+                                        <p className="text-sm text-slate-500 font-medium">
+                                            Institutional Hierarchy Management
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsManageOpen(false)}
+                                        className="h-10 px-4 border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 rounded-lg hover:bg-slate-50"
+                                    >
+                                        <ArrowLeft className="h-4 w-4" />
+                                        Back to Colleges
+                                    </Button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto bg-[#f8fafc]">
+                                    <div className="max-w-7xl mx-auto p-8 space-y-8">
+                                        {/* Breadcrumbs Section */}
+                                        <div className="bg-white p-3 px-6 rounded-xl border border-slate-200/60 shadow-sm flex items-center gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                                    <Globe className="h-4 w-4 text-indigo-500" />
+                                                </div>
+                                                <span className="text-[10px] font-black tracking-widest text-indigo-500 uppercase">COLLEGE</span>
+                                            </div>
+                                            {hierarchyPath.slice(1).map((crumb, idx) => (
+                                                <React.Fragment key={idx}>
+                                                    <ChevronRight className="h-4 w-4 text-slate-300 mx-1" />
+                                                    <button
+                                                        onClick={() => {
+                                                            if (crumb.view === 'departments') loadDepartmentsForManage(crumb.id, false);
+                                                            else if (crumb.view === 'semesters') loadSemestersForManage(crumb.id, false);
+                                                            setHierarchyPath(hierarchyPath.slice(0, idx + 2));
+                                                        }}
+                                                        className="text-[10px] font-black tracking-widest text-slate-400 hover:text-indigo-500 uppercase transition-colors cursor-pointer"
+                                                    >
+                                                        {crumb.name}
+                                                    </button>
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+
+                                        {/* Main Content Area */}
+                                        <div className="space-y-6">
+                                            <div className="flex items-end justify-between">
+                                                <div className="space-y-1">
+                                                    <h3 className="text-3xl font-bold text-slate-900">
+                                                        {manageView.charAt(0).toUpperCase() + manageView.slice(1)}
+                                                    </h3>
+                                                    <p className="text-slate-500 text-sm font-medium">
+                                                        Select a {manageView.slice(0, -1)} to manage {
+                                                            manageView === 'batches' ? 'departments' :
+                                                                manageView === 'departments' ? 'semesters' :
+                                                                    manageView === 'semesters' ? 'sections' : 'content'
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    {/* Inline Add Toggle/Form */}
+                                                    <div className="flex items-center gap-2">
+                                                        {manageView === 'batches' ? (
+                                                            <div className="flex items-center gap-2 mr-2">
+                                                                <Input
+                                                                    placeholder="Start Year"
+                                                                    value={startYear}
+                                                                    onChange={(e) => setStartYear(e.target.value)}
+                                                                    className="w-24 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500"
+                                                                />
+                                                                <Input
+                                                                    placeholder="End Year"
+                                                                    value={endYear}
+                                                                    onChange={(e) => setEndYear(e.target.value)}
+                                                                    className="w-24 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <Input
+                                                                placeholder={`Enter ${manageView.slice(0, -1)} name...`}
+                                                                value={newItemName}
+                                                                onChange={(e) => setNewItemName(e.target.value)}
+                                                                className="w-64 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500 mr-2"
+                                                            />
+                                                        )}
+                                                        <Button
+                                                            onClick={handleAddItem}
+                                                            disabled={isAdding}
+                                                            className="bg-indigo-600 text-white hover:bg-indigo-700 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-100 uppercase tracking-wide"
+                                                        >
+                                                            {isAdding ? <div className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full" /> : <Plus className="h-4 w-4" />}
+                                                            ADD {manageView.slice(0, -1).toUpperCase()}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {manageLoading ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-12">
+                                                    {[1, 2, 3, 4].map(i => (
+                                                        <div key={i} className="h-48 bg-slate-100 animate-pulse rounded-2xl border border-slate-200 shadow-sm" />
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                                    {hierarchyData.map((item: any) => (
+                                                        <Card
+                                                            key={item.id}
+                                                            className="bg-white border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer"
+                                                            onClick={() => {
+                                                                if (manageView === 'batches') loadDepartmentsForManage(item.id);
+                                                                else if (manageView === 'departments') loadSemestersForManage(item.id);
+                                                                else if (manageView === 'semesters') loadSectionsForManage(item.id);
+                                                            }}
+                                                        >
+                                                            <CardHeader className="p-6 pb-2">
+                                                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 mb-6 font-bold group-hover:scale-110 transition-transform">
+                                                                    {manageView === 'batches' ? <Calendar className="h-6 w-6" /> :
+                                                                        manageView === 'departments' ? <Building2 className="h-6 w-6" /> :
+                                                                            manageView === 'semesters' ? <Clock className="h-6 w-6" /> :
+                                                                                <Hash className="h-6 w-6" />}
+                                                                </div>
+                                                                <h4 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">
+                                                                    {manageView === 'batches' ? `BATCH ${item.name}` :
+                                                                        manageView === 'semesters' ? `SEMESTER ${item.number}` : item.name}
+                                                                </h4>
+                                                            </CardHeader>
+                                                            <CardContent className="p-6 pt-8 space-y-6">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: {item.id}</span>
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="text-[9px] font-medium text-slate-300 italic max-w-[150px] truncate">
+                                                                            {item.id.toString().substring(0, 18)}...
+                                                                        </span>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                if (manageView === 'batches') loadDepartmentsForManage(item.id);
+                                                                                else if (manageView === 'departments') loadSemestersForManage(item.id);
+                                                                                else if (manageView === 'semesters') loadSectionsForManage(item.id);
+                                                                            }}
+                                                                            className="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
+                                                                        >
+                                                                            MANAGE {manageView.slice(0, -1).toUpperCase()}
+                                                                            <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Absolute buttons for Edit/Delete that appear on hover */}
+                                                                <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleDeleteHierarchyItem(item.id);
+                                                                        }}
+                                                                        className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))}
+
+                                                    {hierarchyData.length === 0 && (
+                                                        <div className="col-span-full py-24 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
+                                                            <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mb-4">
+                                                                <Layers className="h-8 w-8 text-slate-200" />
+                                                            </div>
+                                                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">No Items Initialized</h3>
+                                                            {manageView === 'semesters' && (
+                                                                <Button
+                                                                    onClick={handleAutoGenerateSemesters}
+                                                                    className="mt-6 bg-indigo-600 text-white rounded-lg px-6 h-11 font-bold text-xs"
+                                                                >
+                                                                    AUTO-GENERATE 8 SEMESTERS
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </DialogContent>
                     </Dialog>
                 </div>

@@ -28,14 +28,19 @@ import { useNavigate } from "react-router-dom";
 import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { toast } from "sonner";
+import { collegeService, College as CollegeType } from "@/services/collegeService";
+import { batchService, Batch } from "@/services/batchService";
 import { departmentService, Department } from "@/services/departmentService";
+import { semesterService, Semester } from "@/services/semesterService";
+import sectionService, { Section } from "@/services/sectionService";
 
 type Subject = {
     id: string | number;
     short_code: string | null;
     name: string;
     category: "fundamentals" | "programming_languages" | "databases" | "ai_tools";
-    department?: string | { id: string | number; name: string };
+    semester?: string | { id: string | number; number: number; department_details: any };
+    section?: string | { id: string | number; name: string; semester_details: any };
 };
 
 type Instructor = {
@@ -72,8 +77,20 @@ const Subjects: React.FC = () => {
         name: "",
         short_code: "",
         category: "" as Subject["category"] | "",
-        department: "" as string | number,
+        semester: "" as string | number,
+        section: "" as string | number,
     });
+    const [selectedCollege, setSelectedCollege] = useState<string | number>("");
+    const [selectedBatch, setSelectedBatch] = useState<string | number>("");
+    const [selectedDepartment, setSelectedDepartment] = useState<string | number>("");
+
+    const [colleges, setColleges] = useState<CollegeType[]>([]);
+    const [batches, setBatches] = useState<Batch[]>([]);
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [semesters, setSemesters] = useState<Semester[]>([]);
+    const [sections, setSections] = useState<Section[]>([]);
+    const [selectedSection, setSelectedSection] = useState<string | number>("");
+
     const [saving, setSaving] = useState(false);
 
     // Delete Confirmation
@@ -83,7 +100,6 @@ const Subjects: React.FC = () => {
     // Edit Subject Modal
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editSubjectId, setEditSubjectId] = useState<string | number | null>(null);
-    const [departments, setDepartments] = useState<Department[]>([]);
 
     // Instructor-related state
     const [availableInstructors, setAvailableInstructors] = useState<Instructor[]>([]);
@@ -136,19 +152,59 @@ const Subjects: React.FC = () => {
         }
     };
 
-    const loadDepartments = async () => {
+    const loadColleges = async () => {
         try {
-            const data = await departmentService.getDepartments();
+            const data = await collegeService.getColleges();
+            setColleges(data);
+        } catch (err) {
+            console.error("Failed to load colleges", err);
+        }
+    };
+
+    const loadBatches = async (collegeId: string | number) => {
+        try {
+            const data = await batchService.getBatches(collegeId);
+            setBatches(data);
+            setDepartments([]);
+            setSemesters([]);
+        } catch (err) {
+            console.error("Failed to load batches", err);
+        }
+    };
+
+    const loadDepartments = async (batchId: string | number) => {
+        try {
+            const data = await departmentService.getDepartments(batchId);
             setDepartments(data);
+            setSemesters([]);
         } catch (err) {
             console.error("Failed to load departments", err);
+        }
+    };
+
+    const loadSemesters = async (deptId: string | number) => {
+        try {
+            const data = await semesterService.getSemesters(deptId);
+            setSemesters(data);
+            setSections([]);
+        } catch (err) {
+            console.error("Failed to load semesters", err);
+        }
+    };
+
+    const loadSections = async (semId: string | number) => {
+        try {
+            const data = await sectionService.getSections(semId);
+            setSections(data);
+        } catch (err) {
+            console.error("Failed to load sections", err);
         }
     };
 
     useEffect(() => {
         if (isAddOpen || isEditOpen) {
             loadInstructors();
-            loadDepartments();
+            loadColleges();
         }
     }, [isAddOpen, isEditOpen]);
 
@@ -193,20 +249,17 @@ const Subjects: React.FC = () => {
 
         try {
             setSaving(true);
-            const created = (await createSubject(newSubject)) as any;
-
-            if (selectedInstructors.length > 0) {
-                for (const instructorId of selectedInstructors) {
-                    try {
-                        await addInstructorToSubject(created.id, instructorId);
-                    } catch (e) {
-                        console.error("Failed to assign instructor", e);
-                    }
-                }
-            }
+            const payload = { ...newSubject, instructor_ids: selectedInstructors, section: selectedSection };
+            await createSubject(payload);
 
             toast.success("Subject created successfully");
-            setNewSubject({ name: "", short_code: "", category: "", department: "" });
+            setNewSubject({ name: "", short_code: "", category: "", semester: "", section: "" });
+            setSelectedCollege("");
+            setSelectedBatch("");
+            setSelectedDepartment("");
+            setSemesters([]);
+            setSections([]);
+            setSelectedSection("");
             setSelectedInstructors([]);
             setIsAddOpen(false);
             loadSubjects();
@@ -220,12 +273,40 @@ const Subjects: React.FC = () => {
 
     const openEditSubjectModal = async (subject: Subject) => {
         setEditSubjectId(subject.id);
+
+        const semesterId = (subject.semester && typeof subject.semester === 'object') ? (subject.semester as any).id : (subject.semester || "");
+
         setNewSubject({
             name: subject.name,
             short_code: subject.short_code || "",
             category: subject.category,
-            department: (subject.department && typeof subject.department === 'object') ? (subject.department as any).id : (subject.department || ""),
+            semester: semesterId,
+            section: (subject.section && typeof subject.section === 'object') ? (subject.section as any).id : (subject.section || ""),
         });
+        setSelectedSection((subject.section && typeof subject.section === 'object') ? (subject.section as any).id : (subject.section || ""));
+
+        // If we have semester details, we should ideally pre-load the hierarchy
+        if (subject.semester && typeof subject.semester === 'object') {
+            const sem = subject.semester as any;
+            if (sem.department_details) {
+                const dept = sem.department_details;
+                setSelectedDepartment(dept.id);
+                loadSemesters(dept.id);
+                loadSections(sem.id);
+
+                if (dept.batch_details) {
+                    const batch = dept.batch_details;
+                    setSelectedBatch(batch.id);
+                    loadDepartments(batch.id);
+
+                    if (batch.college_details) {
+                        setSelectedCollege(batch.college_details.id);
+                        loadBatches(batch.college_details.id);
+                    }
+                }
+            }
+        }
+
         setIsEditOpen(true);
 
         try {
@@ -244,28 +325,19 @@ const Subjects: React.FC = () => {
 
         try {
             setSaving(true);
-            await updateSubject(editSubjectId.toString(), newSubject);
-
-            const toAdd = editSelectedInstructors.filter((id) => !editInitialInstructors.includes(id));
-            const toRemove = editInitialInstructors.filter((id) => !editSelectedInstructors.includes(id));
-
-            for (const id of toAdd) {
-                try {
-                    await addInstructorToSubject(editSubjectId.toString(), id);
-                } catch (e) { console.error(e); }
-            }
-
-            for (const id of toRemove) {
-                try {
-                    await removeInstructorFromSubject(editSubjectId.toString(), id);
-                } catch (e) { console.error(e); }
-            }
+            const payload = { ...newSubject, instructor_ids: editSelectedInstructors, section: selectedSection };
+            await updateSubject(editSubjectId.toString(), payload);
 
             toast.success("Subject updated successfully");
-            setIsEditOpen(false);
-            setEditSubjectId(null);
+            setNewSubject({ name: "", short_code: "", category: "", semester: "", section: "" });
+            setSelectedCollege("");
+            setSelectedBatch("");
+            setSelectedDepartment("");
+            setSemesters([]);
+            setSections([]);
+            setSelectedSection("");
             setEditSelectedInstructors([]);
-            setEditInitialInstructors([]);
+            setIsEditOpen(false);
             loadSubjects();
         } catch (err) {
             console.error(err);
@@ -425,20 +497,94 @@ const Subjects: React.FC = () => {
                                         <option value="ai_tools">AI Tools</option>
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Department</Label>
-                                    <select
-                                        className="w-full border rounded-md p-2"
-                                        value={newSubject.department}
-                                        onChange={(e) => setNewSubject({ ...newSubject, department: e.target.value })}
-                                    >
-                                        <option value="">Select Department (Optional)</option>
-                                        {departments.map((dept) => (
-                                            <option key={dept.id} value={dept.id}>
-                                                {dept.name} {dept.college_name ? `(${dept.college_name})` : ""}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>College</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedCollege}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedCollege(val);
+                                                loadBatches(val);
+                                            }}
+                                        >
+                                            <option value="">Select College</option>
+                                            {colleges.map((col) => (
+                                                <option key={col.id} value={col.id}>{col.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Batch</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedBatch}
+                                            disabled={!selectedCollege}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedBatch(val);
+                                                loadDepartments(val);
+                                            }}
+                                        >
+                                            <option value="">Select Batch</option>
+                                            {batches.map((b) => (
+                                                <option key={b.id} value={b.id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Department</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedDepartment}
+                                            disabled={!selectedBatch}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedDepartment(val);
+                                                loadSemesters(val);
+                                            }}
+                                        >
+                                            <option value="">Select Department</option>
+                                            {departments.map((dept) => (
+                                                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Semester</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={newSubject.semester}
+                                            disabled={!selectedDepartment}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setNewSubject({ ...newSubject, semester: val });
+                                                loadSections(val);
+                                            }}
+                                        >
+                                            <option value="">Select Semester</option>
+                                            {semesters.map((sem) => (
+                                                <option key={sem.id} value={sem.id}>Semester {sem.number}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Section (Optional)</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedSection}
+                                            disabled={!newSubject.semester}
+                                            onChange={(e) => setSelectedSection(e.target.value)}
+                                        >
+                                            <option value="">Select Section</option>
+                                            {sections.map((sec) => (
+                                                <option key={sec.id} value={sec.id}>Section {sec.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Instructors</Label>
@@ -502,20 +648,94 @@ const Subjects: React.FC = () => {
                                         <option value="ai_tools">AI Tools</option>
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Department</Label>
-                                    <select
-                                        className="w-full border rounded-md p-2"
-                                        value={newSubject.department}
-                                        onChange={(e) => setNewSubject({ ...newSubject, department: e.target.value })}
-                                    >
-                                        <option value="">Select Department (Optional)</option>
-                                        {departments.map((dept) => (
-                                            <option key={dept.id} value={dept.id}>
-                                                {dept.name} {dept.college_name ? `(${dept.college_name})` : ""}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>College</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedCollege}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedCollege(val);
+                                                loadBatches(val);
+                                            }}
+                                        >
+                                            <option value="">Select College</option>
+                                            {colleges.map((col) => (
+                                                <option key={col.id} value={col.id}>{col.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Batch</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedBatch}
+                                            disabled={!selectedCollege}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedBatch(val);
+                                                loadDepartments(val);
+                                            }}
+                                        >
+                                            <option value="">Select Batch</option>
+                                            {batches.map((b) => (
+                                                <option key={b.id} value={b.id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Department</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedDepartment}
+                                            disabled={!selectedBatch}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedDepartment(val);
+                                                loadSemesters(val);
+                                            }}
+                                        >
+                                            <option value="">Select Department</option>
+                                            {departments.map((dept) => (
+                                                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Semester</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={newSubject.semester}
+                                            disabled={!selectedDepartment}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setNewSubject({ ...newSubject, semester: val });
+                                                loadSections(val);
+                                            }}
+                                        >
+                                            <option value="">Select Semester</option>
+                                            {semesters.map((sem) => (
+                                                <option key={sem.id} value={sem.id}>Semester {sem.number}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Section (Optional)</Label>
+                                        <select
+                                            className="w-full border rounded-md p-2 text-sm"
+                                            value={selectedSection}
+                                            disabled={!newSubject.semester}
+                                            onChange={(e) => setSelectedSection(e.target.value)}
+                                        >
+                                            <option value="">Select Section</option>
+                                            {sections.map((sec) => (
+                                                <option key={sec.id} value={sec.id}>Section {sec.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Instructors</Label>

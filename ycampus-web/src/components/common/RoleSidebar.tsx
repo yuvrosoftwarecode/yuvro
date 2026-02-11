@@ -113,7 +113,7 @@ const sidebarItems: SidebarItem[] = [
     icon: School,
     path: '/instructor/colleges',
     roles: ['admin']
-  }
+  },
 ];
 
 interface RoleSidebarProps {

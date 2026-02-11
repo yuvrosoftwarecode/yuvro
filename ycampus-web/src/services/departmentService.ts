@@ -2,18 +2,17 @@ import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface Department {
     id: string | number;
-    college?: string | number;
-    college_name?: string;
+    batch?: string | number;
+    batch_name?: string;
     name: string;
-    slug?: string;
     description?: string;
     created_at?: string;
     updated_at?: string;
 }
 
 export const departmentService = {
-    getDepartments: async (collegeId?: string | number): Promise<Department[]> => {
-        const url = collegeId ? `/course/departments/?college=${collegeId}` : '/course/departments/';
+    getDepartments: async (batchId?: string | number): Promise<Department[]> => {
+        const url = batchId ? `/course/departments/?batch=${batchId}` : '/course/departments/';
         return await restApiAuthUtil.get<Department[]>(url);
     },
 
