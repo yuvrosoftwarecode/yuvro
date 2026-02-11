@@ -25,8 +25,8 @@ export interface SkillTest {
   };
   publish_status: 'draft' | 'active' | 'inactive' | 'archived';
   total_questions?: number;
-  course: string;
-  topic?: string;
+  subject: string;
+  unit?: string;
   participants_count: number;
   created_by: string;
   created_at: string;
@@ -56,15 +56,15 @@ export interface CreateSkillTestData {
     descriptive: number;
   };
   publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
-  course: string;
-  topic?: string;
+  subject: string;
+  unit?: string;
 }
 
 export interface UpdateSkillTestData extends Partial<CreateSkillTestData> { }
 
 export interface SkillTestFilters {
-  course?: string;
-  topic?: string;
+  subject?: string;
+  unit?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   search?: string;
 }
@@ -175,12 +175,12 @@ export const submitSkillTest = async (testId: string, submissionId: string, answ
 
 
 // Utility functions
-export const getSkillTestsByCourse = async (courseId: string): Promise<SkillTest[]> => {
-  return fetchSkillTests({ course: courseId });
+export const getSkillTestsBySubject = async (subjectId: string): Promise<SkillTest[]> => {
+  return fetchSkillTests({ subject: subjectId });
 };
 
-export const getSkillTestsByTopic = async (topicId: string): Promise<SkillTest[]> => {
-  return fetchSkillTests({ topic: topicId });
+export const getSkillTestsByUnit = async (unitId: string): Promise<SkillTest[]> => {
+  return fetchSkillTests({ unit: unitId });
 };
 
 export const getSkillTestSubmissions = async (skillTestId: string): Promise<any[]> => {
@@ -222,8 +222,8 @@ const skillTestService = {
   createSkillTest,
   updateSkillTest,
   deleteSkillTest,
-  getSkillTestsByCourse,
-  getSkillTestsByTopic,
+  getSkillTestsBySubject,
+  getSkillTestsByUnit,
   getSkillTestSubmissions,
   getSkillTestSubmission,
   startSkillTest,

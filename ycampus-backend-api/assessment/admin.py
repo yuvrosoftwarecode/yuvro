@@ -24,19 +24,19 @@ from .models import (
 class SkillTestAdmin(admin.ModelAdmin):
     list_display = [
         "title",
-        "course",
-        "topic",
+        "subject",
+        "unit",
         "difficulty",
         "publish_status",
         "total_marks",
         "created_at",
     ]
-    list_filter = ["difficulty", "publish_status", "course", "created_at"]
-    search_fields = ["title", "description", "course__name", "topic__name"]
+    list_filter = ["difficulty", "publish_status", "subject", "created_at"]
+    search_fields = ["title", "description", "subject__name", "unit__name"]
     readonly_fields = ["id", "created_at", "updated_at", "total_attempts"]
     fieldsets = (
         ("Basic Information", {"fields": ("title", "description", "instructions")}),
-        ("Course Integration", {"fields": ("course", "topic")}),
+        ("Course Integration", {"fields": ("subject", "unit")}),
         (
             "Assessment Configuration",
             {
@@ -73,7 +73,7 @@ class SkillTestAdmin(admin.ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("course", "topic", "created_by")
+            .select_related("subject", "unit", "created_by")
         )
 
 
@@ -282,7 +282,7 @@ class SkillTestSubmissionAdmin(admin.ModelAdmin):
         "started_at",
         "submitted_at",
     ]
-    list_filter = ["status", "skill_test__course", "started_at", "submitted_at"]
+    list_filter = ["status", "skill_test__subject", "started_at", "submitted_at"]
     search_fields = ["user__username", "user__email", "skill_test__title"]
     readonly_fields = ["id", "created_at", "updated_at", "started_at"]
     fieldsets = (
@@ -533,13 +533,13 @@ class JobTestQuestionActivityAdmin(BaseQuestionActivityAdmin):
 
 @admin.register(CertificationExam)
 class CertificationExamAdmin(admin.ModelAdmin):
-    list_display = ["title", "course", "publish_status", "created_by", "created_at"]
+    list_display = ["title", "subject", "publish_status", "created_by", "created_at"]
     list_filter = ["publish_status", "created_at"]
-    search_fields = ["title", "description", "course__name"]
+    search_fields = ["title", "description", "subject__name"]
     readonly_fields = ["id", "created_at", "updated_at", "total_attempts"]
     fieldsets = (
         ("Basic Info", {"fields": ("title", "description", "instructions")}),
-        ("Course", {"fields": ("course", "certificate_template")}),
+        ("Course", {"fields": ("subject", "certificate_template")}),
         (
             "Configuration",
             {
@@ -568,5 +568,5 @@ class CertificationQuestionActivityAdmin(BaseQuestionActivityAdmin):
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
-    list_display = ["certificate_id", "user", "course", "issued_at"]
-    search_fields = ["certificate_id", "user__username", "course__name"]
+    list_display = ["certificate_id", "user", "subject", "issued_at"]
+    search_fields = ["certificate_id", "user__username", "subject__name"]

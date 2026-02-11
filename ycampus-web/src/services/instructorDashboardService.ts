@@ -1,7 +1,7 @@
 import { RestApiUtil } from '@/utils/RestApiUtil';
 
 export interface InstructorDashboardStats {
-    coursesCreated: number;
+    subjectsCreated: number;
     totalStudents: number;
     contestsHosted: number;
     skillTestsCreated: number;
@@ -11,7 +11,7 @@ export interface InstructorDashboardStats {
 
 export interface InstructorActivity {
     id: number;
-    type: 'course' | 'student' | 'contest' | 'assessment' | 'interview';
+    type: 'subject' | 'student' | 'contest' | 'assessment' | 'interview';
     action: string;
     target: string;
     time: string;
@@ -23,13 +23,13 @@ export interface UpcomingEvent {
     id: number;
     title: string;
     date: string;
-    type: 'contest' | 'course' | 'meeting' | 'interview';
+    type: 'contest' | 'subject' | 'meeting' | 'interview';
     participants?: number;
     duration?: string;
     attendees?: number;
 }
 
-export interface CourseAnalytics {
+export interface SubjectAnalytics {
     id: number;
     name: string;
     studentsEnrolled: number;
@@ -40,7 +40,7 @@ export interface CourseAnalytics {
 export interface TopPerformer {
     id: number;
     name: string;
-    course: string;
+    subject: string;
     score: number;
     progress: number;
 }
@@ -49,7 +49,7 @@ export interface InstructorDashboardData {
     stats: InstructorDashboardStats;
     recentActivity: InstructorActivity[];
     upcomingEvents: UpcomingEvent[];
-    courseProgress: CourseAnalytics[];
+    subjectProgress: SubjectAnalytics[];
     topPerformers: TopPerformer[];
 }
 
@@ -104,12 +104,12 @@ class InstructorDashboardService {
         }
     }
 
-    async getCourseAnalytics(): Promise<CourseAnalytics[]> {
+    async getSubjectAnalytics(): Promise<SubjectAnalytics[]> {
         try {
-            const response = await RestApiUtil.get<CourseAnalytics[]>(`${this.baseUrl}/course-analytics/`);
+            const response = await RestApiUtil.get<SubjectAnalytics[]>(`${this.baseUrl}/subject-analytics/`);
             return response;
         } catch (error) {
-            console.error('Error fetching course analytics:', error);
+            console.error('Error fetching subject analytics:', error);
             return [];
         }
     }
@@ -127,7 +127,7 @@ class InstructorDashboardService {
     private getMockDashboardData(): InstructorDashboardData {
         return {
             stats: {
-                coursesCreated: 5,
+                subjectsCreated: 5,
                 totalStudents: 247,
                 contestsHosted: 12,
                 skillTestsCreated: 28,
@@ -137,8 +137,8 @@ class InstructorDashboardService {
             recentActivity: [
                 {
                     id: 1,
-                    type: 'course',
-                    action: 'Created new course',
+                    type: 'subject',
+                    action: 'Created new subject',
                     target: 'Advanced React Patterns',
                     time: '2 hours ago'
                 },
@@ -176,7 +176,7 @@ class InstructorDashboardService {
                     id: 2,
                     title: 'Course Content Review',
                     date: 'Tomorrow, 10:00 AM',
-                    type: 'course',
+                    type: 'subject',
                     duration: '2 hours'
                 },
                 {
@@ -187,7 +187,7 @@ class InstructorDashboardService {
                     attendees: 8
                 }
             ],
-            courseProgress: [
+            subjectProgress: [
                 {
                     id: 1,
                     name: 'Data Structures & Algorithms',
@@ -214,21 +214,21 @@ class InstructorDashboardService {
                 {
                     id: 1,
                     name: 'Alice Johnson',
-                    course: 'Python Programming',
+                    subject: 'Python Programming',
                     score: 98,
                     progress: 95
                 },
                 {
                     id: 2,
                     name: 'Bob Smith',
-                    course: 'Data Structures',
+                    subject: 'Data Structures',
                     score: 94,
                     progress: 88
                 },
                 {
                     id: 3,
                     name: 'Carol Davis',
-                    course: 'Web Development',
+                    subject: 'Web Development',
                     score: 92,
                     progress: 90
                 }

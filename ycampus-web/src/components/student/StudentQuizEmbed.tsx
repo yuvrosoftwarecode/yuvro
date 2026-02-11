@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchRandomQuestions } from "@/services/questionService";
-import { submitQuiz } from "@/services/courseService";
+import { submitQuiz } from "@/services/subjectService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
@@ -14,11 +14,11 @@ type QuizQuestion = {
 };
 
 interface StudentQuizEmbedProps {
-  subtopicId: string;
+  subunitId: string;
   onComplete?: (status: boolean) => void;
 }
 
-const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => {
+const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,14 +36,14 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
 
     loadQuizzes();
     resetQuiz();
-  }, [subtopicId]);
+  }, [subunitId]);
 
   const loadQuizzes = async () => {
     setLoading(true);
     try {
-      // Fetch random 5 questions from question service with category 'learn' and level 'subtopic'
+      // Fetch random 5 questions from question service with category 'learn' and level 'subunit'
       const selectedQuestions = await fetchRandomQuestions({
-        subtopic: subtopicId,
+        sub_unit: subunitId,
         type: 'mcq_single'
       }, 5);
 
@@ -76,7 +76,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
     setScore(0);
     setUserAnswers({});
 
-    const passed = localStorage.getItem(`quiz_passed_${subtopicId}`) === 'true';
+    const passed = localStorage.getItem(`quiz_passed_${subunitId}`) === 'true';
     setQuizCompleted(false);
     if (!passed) setIsPassed(false);
   };
@@ -104,7 +104,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
         setIsPassed(true);
       }
 
-      submitQuiz(subtopicId, { ...userAnswers, [currentIndex]: selectedOption }, percentage, passed)
+      submitQuiz(subunitId, { ...userAnswers, [currentIndex]: selectedOption }, percentage, passed)
         .then(() => {
           if (onComplete) onComplete(true);
         })
@@ -149,7 +149,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
   if (quizzes.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8">
-        <div className="mb-4">No quizzes available for this subtopic.</div>
+        <div className="mb-4">No quizzes available for this subunit.</div>
         <p className="text-sm text-gray-500">Try the Coding tab for programming exercises.</p>
       </div>
     );

@@ -2,30 +2,31 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import restApiAuthUtil from "../../utils/RestApiAuthUtil";
-import { fetchTopicsByCourse } from '@/services/courseService';
+import { fetchUnitsBySubject } from '@/services/subjectService';
+import subjectService from '@/services/subjectService';
 
 import ContinueLearningBanner from "@/components/student/Learn/ContinueLearningBanner";
 import StatsGrid from "@/components/student/Learn/StatsGrid";
 import GamificationSidebar from "@/components/student/Learn/GamificationSidebar";
 import SearchBar from "@/components/common/SearchBar";
-import CategorySection from "@/components/student/Learn/CatergorySection";
+import CategorySection from "@/components/student/Learn/CategorySection";
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 
 import { Binary, Code, Database, Sparkles, FileText, Flame, Award, X, ChevronRight } from "lucide-react";
 
-import type { Course, Stats, ContinueProgress, CourseProgressMap } from "@/components/student/Learn/types";
+import type { Subject, Stats, ContinueProgress, SubjectProgressMap } from "@/components/student/Learn/types";
 
 const LearnDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [showChat, setShowChat] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [progressMap, setProgressMap] = useState<CourseProgressMap>({});
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [progressMap, setProgressMap] = useState<SubjectProgressMap>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats>({ lessons_completed: 0, time_spent: "0h", avg_progress: 0 });
   const [continueProgress, setContinueProgress] = useState<ContinueProgress>({
-    course_id: "",
-    course_name: "Python",
+    subject_id: "",
+    subject_name: "Python",
     lesson: 0,
     total_lessons: 0,
     percent: 0,
@@ -33,31 +34,31 @@ const LearnDashboard: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchSubjectsData = async () => {
       try {
-        const courseList = await restApiAuthUtil.get<Course[]>("/course/courses/");
-        const withTopics = await Promise.all(
-          courseList.map(async (c) => {
+        const subjectList = await subjectService.getSubjects();
+        const withUnits = await Promise.all(
+          subjectList.map(async (s) => {
             try {
-              const topics = await fetchTopicsByCourse(String(c.id));
-              return { ...c, topics };
+              const units = await fetchUnitsBySubject(String(s.id));
+              return { ...s, units };
             } catch {
-              return { ...c, topics: [] };
+              return { ...s, units: [] };
             }
           })
         );
-        setCourses(withTopics);
-        return withTopics;
+        setSubjects(withUnits as Subject[]);
+        return withUnits;
       } catch (err) {
-        console.error("Failed to fetch courses", err);
-        setCourses([]);
+        console.error("Failed to fetch subjects", err);
+        setSubjects([]);
         return [];
       }
     };
 
     const fetchStats = async () => {
       try {
-        const s = await restApiAuthUtil.get("/course/student-course-progress/stats/");
+        const s = await restApiAuthUtil.get("/course/student-subject-progress/stats/");
         setStats(s as Stats);
         return s;
       } catch (err) {
@@ -68,12 +69,12 @@ const LearnDashboard: React.FC = () => {
 
     const fetchContinue = async () => {
       try {
-        const c = await restApiAuthUtil.get("/course/student-course-progress/continue_learning/");
-        const cp = c as ContinueProgress;
+        const c = await restApiAuthUtil.get("/course/student-subject-progress/continue_learning/");
+        const cp = c as any;
         setContinueProgress((prev) => ({
-          ...prev, // Keep existing if needed, though usually we overwrite
-          course_id: String(cp.course_id || ""),
-          course_name: cp.course_name || prev.course_name || "Python",
+          ...prev,
+          subject_id: String(cp.subject_id || ""),
+          subject_name: cp.subject_name || prev.subject_name || "Python",
           lesson: cp.lesson || 0,
           total_lessons: cp.total_lessons || 0,
           percent: cp.percent || 0,
@@ -87,10 +88,10 @@ const LearnDashboard: React.FC = () => {
 
     const fetchProgressMap = async () => {
       try {
-        const list = await restApiAuthUtil.get<{ course_id: string; percent: number }[]>("/course/student-course-progress/progress/");
-        const map: CourseProgressMap = {};
+        const list = await restApiAuthUtil.get<{ subject_id: string; percent: number }[]>("/course/student-subject-progress/progress/");
+        const map: SubjectProgressMap = {};
         if (Array.isArray(list)) {
-          list.forEach((p) => { map[String(p.course_id)] = p.percent ?? 0; });
+          list.forEach((p) => { map[String(p.subject_id)] = p.percent ?? 0; });
         }
         setProgressMap(map);
         return map;
@@ -107,23 +108,23 @@ const LearnDashboard: React.FC = () => {
 
     const loadAll = async () => {
       try {
-        const [fetchedCourses, , fetchedContinue] = await Promise.all([
-          fetchCourses(),
+        const [fetchedSubjects, , fetchedContinue] = await Promise.all([
+          fetchSubjectsData(),
           fetchStats(),
           fetchContinue(),
           fetchProgressMap()
         ]);
 
-        // Merge course name if missing using the FRESH fetchedCourses
-        if (fetchedContinue && fetchedCourses.length > 0) {
-          const cp = fetchedContinue as ContinueProgress;
-          const courseStrId = String(cp.course_id || "");
-          const course = fetchedCourses.find((c) => String(c.id) === courseStrId);
+        // Merge subject name if missing using the FRESH fetchedSubjects
+        if (fetchedContinue && fetchedSubjects.length > 0) {
+          const cp = fetchedContinue as any;
+          const subjectStrId = String(cp.subject_id || "");
+          const subject = fetchedSubjects.find((s: any) => String(s.id) === subjectStrId);
 
-          if (course) {
+          if (subject) {
             setContinueProgress((prev) => ({
               ...prev,
-              course_name: course.name
+              subject_name: subject.name
             }));
           }
         }
@@ -145,33 +146,33 @@ const LearnDashboard: React.FC = () => {
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
-  const handleStartLearning = (courseId: string) => {
-    console.log("Starting learning for course:", courseId);
-    if (!courseId) {
-      console.warn("Attempted to start learning with empty courseId");
+  const handleStartLearning = (subjectId: string) => {
+    console.log("Starting learning for subject:", subjectId);
+    if (!subjectId) {
+      console.warn("Attempted to start learning with empty subjectId");
       return;
     }
-    navigate(`/student/learn/${courseId}`);
+    navigate(`/student/learn/${subjectId}`);
   };
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredCourses = normalizedQuery
-    ? courses.filter((c) => {
-      if (c.name && c.name.toLowerCase().includes(normalizedQuery)) return true;
-      if ((c as any).description && (c as any).description.toLowerCase().includes(normalizedQuery)) return true;
-      if (Array.isArray((c as any).topics)) {
-        const topics: any[] = (c as any).topics;
-        if (topics.some((t) => (t.name || '').toLowerCase().includes(normalizedQuery))) return true;
+  const filteredSubjects = normalizedQuery
+    ? subjects.filter((s) => {
+      if (s.name && s.name.toLowerCase().includes(normalizedQuery)) return true;
+      if ((s as any).description && (s as any).description.toLowerCase().includes(normalizedQuery)) return true;
+      if (Array.isArray((s as any).units)) {
+        const units: any[] = (s as any).units;
+        if (units.some((u) => (u.name || '').toLowerCase().includes(normalizedQuery))) return true;
       }
       return false;
     })
-    : courses;
+    : subjects;
 
   const groupedFiltered = {
-    fundamentals: filteredCourses.filter((c) => c.category === "fundamentals"),
-    programming_languages: filteredCourses.filter((c) => c.category === "programming_languages"),
-    databases: filteredCourses.filter((c) => c.category === "databases"),
-    ai_tools: filteredCourses.filter((c) => c.category === "ai_tools"),
+    fundamentals: filteredSubjects.filter((s) => s.category === "fundamentals"),
+    programming_languages: filteredSubjects.filter((s) => s.category === "programming_languages"),
+    databases: filteredSubjects.filter((s) => s.category === "databases"),
+    ai_tools: filteredSubjects.filter((s) => s.category === "ai_tools"),
   };
 
   const getIconFor = (category: string) => {
@@ -187,7 +188,7 @@ const LearnDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-600">
-        Loading courses...
+        Loading subjects...
       </div>
     );
   }
@@ -236,8 +237,8 @@ const LearnDashboard: React.FC = () => {
 
 
           {/* Category sections */}
-          {normalizedQuery && filteredCourses.length === 0 ? (
-            <div className="py-8 text-center text-gray-600">No courses match "{searchQuery}"</div>
+          {normalizedQuery && filteredSubjects.length === 0 ? (
+            <div className="py-8 text-center text-gray-600">No subjects match "{searchQuery}"</div>
           ) : (
             Object.entries(groupedFiltered).map(([key, list]) =>
               list.length > 0 ? (
@@ -245,7 +246,7 @@ const LearnDashboard: React.FC = () => {
                   <CategorySection
                     title={key.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}
                     icon={getIconFor(key)}
-                    courses={list}
+                    subjects={list}
                     progressMap={progressMap}
                     onStartLearning={handleStartLearning}
                   />
@@ -276,7 +277,7 @@ const LearnDashboard: React.FC = () => {
             }
           `}
         >
-          <AIChatContainer className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl" welcomeMessage="I can help you find courses or track your progress." />
+          <AIChatContainer className="w-[380px] h-[550px] max-h-[70vh] shadow-2xl" welcomeMessage="I can help you find subjects or track your progress." />
         </div>
 
         {/* Toggle Button */}

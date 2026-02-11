@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
-    const hasProgress = continueProgress.course_id && continueProgress.total_lessons > 0;
+    const hasProgress = continueProgress.subject_id && continueProgress.total_lessons > 0;
     const progressPercent = Math.max(0, Math.min(100, continueProgress.percent || 0));
 
     if (!hasProgress) {
@@ -22,7 +22,7 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
                             Start Your Journey
                         </h3>
                         <p className="text-teal-700 text-sm">
-                            Explore our courses and start building your career today.
+                            Explore our subjects and start building your career today.
                         </p>
                     </div>
                 </div>
@@ -33,7 +33,7 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
     // "Continue" State
     return (
         <Link
-            to={`/student/learn/${continueProgress.course_id}`}
+            to={`/student/learn/${continueProgress.subject_id}`}
             className="group block w-full relative overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm hover:shadow-md transition-all duration-300"
         >
             {/* Background Decor */}
@@ -51,7 +51,7 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
 
                     <div>
                         <h3 className="text-xl font-bold text-gray-900 truncate pr-4">
-                            {continueProgress.course_name || "Course"}
+                            {continueProgress.subject_name || "Subject"}
                         </h3>
                     </div>
 

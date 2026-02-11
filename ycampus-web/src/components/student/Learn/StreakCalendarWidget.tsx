@@ -32,7 +32,7 @@ const StreakCalendarWidget: React.FC<StreakCalendarProps> = ({ currentStreak, ma
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth() + 1; // API expects 1-12
                 const res = await restApiAuthUtil.get<{ active_dates: string[] }>(
-                    `/course/student-course-progress/calendar_activity/?year=${year}&month=${month}`
+                    `/course/student-subject-progress/calendar_activity/?year=${year}&month=${month}`
                 );
                 setActiveDates(res.active_dates || []);
             } catch (err) {

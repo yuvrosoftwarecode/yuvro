@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navigation from '@/components/common/Navigation';
-import CourseDashboard from '@/components/student/code-practice/CourseDashboard';
-import TopicSelection from '@/components/student/code-practice/TopicSelection';
+import SubjectDashboard from '@/components/student/code-practice/CourseDashboard';
+import UnitSelection from '@/components/student/code-practice/UnitSelection';
 import { CodeEditorWithAI } from '@/components/code-editor';
 import ScoreAnalytics from '@/components/student/code-practice/ScoreAnalytics';
 import AIInsights from '@/components/student/code-practice/AIInsights';
-import { fetchCourseById, fetchTopicsByCourse } from '@/services/courseService';
+import { fetchSubjectById, fetchUnitsBySubject } from '@/services/subjectService';
 import { fetchQuestionById, fetchQuestions } from '@/services/questionService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-export type ViewType = 'dashboard' | 'topics' | 'problem' | 'analytics' | 'insights';
+export type ViewType = 'dashboard' | 'units' | 'problem' | 'analytics' | 'insights';
 
-export interface Course {
+export interface Subject {
   id: string;
   name: string;
   icon: string;
@@ -26,7 +26,7 @@ export interface Course {
   aiHelpUsed?: number;
 }
 
-export interface Topic {
+export interface Unit {
   id: string;
   name: string;
   problemCount: number;
@@ -61,11 +61,11 @@ export interface CodingProblem {
 
 const CodePractice = () => {
   const navigate = useNavigate();
-  const { courseId, topicId, problemId } = useParams<{ courseId: string; topicId: string; problemId: string }>();
+  const { subjectId, unitId, problemId } = useParams<{ subjectId: string; unitId: string; problemId: string }>();
 
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedProblem, setSelectedProblem] = useState<CodingProblem | null>(null);
   const [isHydrating, setIsHydrating] = useState(false);
 
@@ -81,39 +81,39 @@ const CodePractice = () => {
   };
 
   const hydrateStateFromUrl = useCallback(async () => {
-    if (!courseId) return;
+    if (!subjectId) return;
 
     setIsHydrating(true);
     try {
-      // 1. Fetch Course
-      if (!selectedCourse || selectedCourse.id !== courseId) {
-        const course = await fetchCourseById(courseId);
-        const transformedCourse: Course = {
-          id: course.id.toString(),
-          name: course.name || course.title || 'Untitled Course',
-          icon: course.category,
-          progress: Math.round(course.progress_percentage || 0),
-          totalProblems: course.total_problems || 0,
-          solvedProblems: course.solved_problems || 0,
-          category: course.category,
-          iconColor: getIconColor(course.category),
-          totalScore: course.total_score || 0,
-          aiHelpUsed: course.ai_help_used || 0,
+      // 1. Fetch Subject
+      if (!selectedSubject || selectedSubject.id !== subjectId) {
+        const subject = await fetchSubjectById(subjectId);
+        const transformedSubject: Subject = {
+          id: subject.id.toString(),
+          name: subject.name || 'Untitled Subject',
+          icon: subject.category,
+          progress: Math.round(subject.progress_percentage || 0),
+          totalProblems: subject.total_problems || 0,
+          solvedProblems: subject.solved_problems || 0,
+          category: subject.category,
+          iconColor: getIconColor(subject.category),
+          totalScore: subject.total_score || 0,
+          aiHelpUsed: subject.ai_help_used || 0,
         };
-        setSelectedCourse(transformedCourse);
+        setSelectedSubject(transformedSubject);
       }
 
-      // 2. Fetch Topic
-      if (topicId && (!selectedTopic || selectedTopic.id !== topicId)) {
-        const topics = await fetchTopicsByCourse(courseId);
-        const topic = topics.find((t: any) => t.id === topicId);
-        if (topic) {
-          setSelectedTopic({
-            id: topic.id,
-            name: topic.name,
-            problemCount: topic.total_problems || 0,
-            order_index: topic.order_index,
-            progress: Math.round(topic.progress_percentage || 0),
+      // 2. Fetch Unit
+      if (unitId && (!selectedUnit || selectedUnit.id !== unitId)) {
+        const units = await fetchUnitsBySubject(subjectId);
+        const unit = units.find((t: any) => t.id === unitId);
+        if (unit) {
+          setSelectedUnit({
+            id: unit.id,
+            name: unit.name,
+            problemCount: unit.total_problems || 0,
+            order_index: unit.order_index,
+            progress: Math.round(unit.progress_percentage || 0),
           });
         }
       }
@@ -140,10 +140,10 @@ const CodePractice = () => {
         };
         setSelectedProblem(transformedProblem);
         setCurrentView('problem');
-      } else if (topicId) {
-        setCurrentView('topics');
+      } else if (unitId) {
+        setCurrentView('units');
       } else {
-        setCurrentView('topics'); // If only courseId is present
+        setCurrentView('units'); // If only subjectId is present
       }
     } catch (error) {
       console.error('Failed to hydrate state:', error);
@@ -152,65 +152,65 @@ const CodePractice = () => {
     } finally {
       setIsHydrating(false);
     }
-  }, [courseId, topicId, problemId, selectedCourse, selectedTopic, selectedProblem]);
+  }, [subjectId, unitId, problemId, selectedSubject, selectedUnit, selectedProblem]);
 
   // Sync view and state with URL parameters
   useEffect(() => {
-    if (courseId || topicId || problemId) {
+    if (subjectId || unitId || problemId) {
       // If we have IDs in URL but missing state, hydrate
-      if ((courseId && !selectedCourse) || (topicId && !selectedTopic) || (problemId && !selectedProblem)) {
+      if ((subjectId && !selectedSubject) || (unitId && !selectedUnit) || (problemId && !selectedProblem)) {
         hydrateStateFromUrl();
       } else if (problemId) {
         setCurrentView('problem');
-      } else if (courseId) {
-        setCurrentView('topics');
+      } else if (subjectId) {
+        setCurrentView('units');
       }
     } else {
       setCurrentView('dashboard');
     }
-  }, [courseId, topicId, problemId, hydrateStateFromUrl, selectedCourse, selectedTopic, selectedProblem]);
+  }, [subjectId, unitId, problemId, hydrateStateFromUrl, selectedSubject, selectedUnit, selectedProblem]);
 
-  const handleCourseSelect = (course: Course) => {
-    setSelectedCourse(course);
-    setCurrentView('topics');
-    navigate(`/student/code-practice/courses/${course.id}`);
+  const handleSubjectSelect = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setCurrentView('units');
+    navigate(`/student/code-practice/subjects/${subject.id}`);
   };
 
-  const handleTopicSelect = (topic: Topic) => {
-    setSelectedTopic(topic);
-    const cId = selectedCourse?.id || courseId;
-    if (cId) {
-      navigate(`/student/code-practice/courses/${cId}/topics/${topic.id}`);
+  const handleUnitSelect = (unit: Unit) => {
+    setSelectedUnit(unit);
+    const sId = selectedSubject?.id || subjectId;
+    if (sId) {
+      navigate(`/student/code-practice/subjects/${sId}/units/${unit.id}`);
     }
   };
 
   const handleProblemSelect = (problem: CodingProblem) => {
     setSelectedProblem(problem);
     setCurrentView('problem');
-    const cId = selectedCourse?.id || courseId;
-    const tId = selectedTopic?.id || topicId;
-    if (cId && tId) {
-      navigate(`/student/code-practice/courses/${cId}/topics/${tId}/questions/${problem.id}`);
+    const sId = selectedSubject?.id || subjectId;
+    const uId = selectedUnit?.id || unitId;
+    if (sId && uId) {
+      navigate(`/student/code-practice/subjects/${sId}/units/${uId}/questions/${problem.id}`);
     }
   };
 
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
-    setSelectedCourse(null);
-    setSelectedTopic(null);
+    setSelectedSubject(null);
+    setSelectedUnit(null);
     setSelectedProblem(null);
     navigate('/student/code-practice');
   };
 
-  const handleBackToTopics = () => {
-    setCurrentView('topics');
+  const handleBackToUnits = () => {
+    setCurrentView('units');
     setSelectedProblem(null);
-    const cId = selectedCourse?.id || courseId;
-    const tId = selectedTopic?.id || topicId;
-    if (cId && tId) {
-      navigate(`/student/code-practice/courses/${cId}/topics/${tId}`);
-    } else if (cId) {
-      navigate(`/student/code-practice/courses/${cId}`);
+    const sId = selectedSubject?.id || subjectId;
+    const uId = selectedUnit?.id || unitId;
+    if (sId && uId) {
+      navigate(`/student/code-practice/subjects/${sId}/units/${uId}`);
+    } else if (sId) {
+      navigate(`/student/code-practice/subjects/${sId}`);
     } else {
       navigate('/student/code-practice');
     }
@@ -236,28 +236,28 @@ const CodePractice = () => {
         ) : (
           <>
             {currentView === 'dashboard' && (
-              <CourseDashboard
-                onCourseSelect={handleCourseSelect}
+              <SubjectDashboard
+                onSubjectSelect={handleSubjectSelect}
                 onViewAnalytics={handleViewAnalytics}
               />
             )}
 
-            {currentView === 'topics' && selectedCourse && (
-              <TopicSelection
-                course={selectedCourse}
-                selectedTopic={selectedTopic}
-                onTopicSelect={handleTopicSelect}
+            {currentView === 'units' && selectedSubject && (
+              <UnitSelection
+                subject={selectedSubject}
+                selectedUnit={selectedUnit}
+                onUnitSelect={handleUnitSelect}
                 onProblemSelect={handleProblemSelect}
                 onBack={handleBackToDashboard}
               />
             )}
 
-            {currentView === 'problem' && selectedProblem && selectedCourse && selectedTopic && (
+            {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
               <CodeEditorWithAI
                 problem={selectedProblem}
-                course={selectedCourse}
-                topic={selectedTopic}
-                onBack={handleBackToTopics}
+                subject={selectedSubject}
+                unit={selectedUnit}
+                onBack={handleBackToUnits}
                 onViewAnalytics={handleViewAnalytics}
                 codeSubmissionType="practice"
               />

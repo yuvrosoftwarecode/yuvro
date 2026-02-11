@@ -3,36 +3,36 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Navigation from "@/components/common/Navigation";
 import { Button } from "@/components/ui/button";
 
-import CourseSelection from "@/components/student/skill-test/CourseSelection";
-import TopicSidebar from "@/components/student/skill-test/TopicSidebar";
+import SubjectSelection from "@/components/student/skill-test/SubjectSelection";
+import UnitSidebar from "@/components/student/skill-test/UnitSidebar";
 import TestCards from "@/components/student/skill-test/TestCards";
 import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
 
 import {
-  fetchCourses,
-  fetchTopicsByCourse,
-} from "@/services/courseService";
-import { getSkillTestsByTopic, startSkillTest } from "@/services/skillTestService";
+  fetchSubjects,
+  fetchUnitsBySubject,
+} from "@/services/subjectService";
+import { getSkillTestsByUnit, startSkillTest } from "@/services/skillTestService";
 import { toast } from "sonner";
 
-export interface Topic {
+export interface Unit {
   id: string;
   name: string;
   progress?: number;
   completed?: boolean;
 }
 
-export interface Course {
+export interface Subject {
   id: string;
   name: string;
   description: string;
   icon: string;
   color: string;
-  topics: Topic[];
+  units: Unit[];
   category?: string;
-  topicCount?: number;
+  unitCount?: number;
 }
 
 export interface Test {
@@ -42,8 +42,8 @@ export interface Test {
   totalQuestions: number;
   duration: number;
   totalMarks: number;
-  topicId: string;
-  course: string;
+  unitId: string;
+  subject: string;
   maxAttempts: number;
   my_submissions?: any[];
 }
@@ -55,7 +55,7 @@ interface TestStats {
 }
 
 type View =
-  | "courses"
+  | "subjects"
   | "tests"
   | "instructions"
   | "test"
@@ -74,20 +74,20 @@ const COLORS = [
 ];
 
 const SkillTest: React.FC = () => {
-  const { courseId, testId } = useParams();
+  const { subjectId, testId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   // State declarations first
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
 
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [currentView, setCurrentView] = useState<View>("courses");
+  const [currentView, setCurrentView] = useState<View>("subjects");
 
   const [tests, setTests] = useState<Test[]>([]);
   const [testCompleted, setTestCompleted] = useState<Set<string>>(new Set());
@@ -102,7 +102,7 @@ const SkillTest: React.FC = () => {
   // Extract testId from URL if not available from useParams (for results route)
   const extractTestIdFromPath = () => {
     if (isResultsRoute) {
-      // For path like /student/courses/courseId/skill-tests/testId/results
+      // For path like /student/subjects/subjectId/skill-tests/testId/results
       const pathParts = location.pathname.split('/');
       const skillTestsIndex = pathParts.indexOf('skill-tests');
       if (skillTestsIndex !== -1 && pathParts[skillTestsIndex + 1]) {
@@ -117,7 +117,7 @@ const SkillTest: React.FC = () => {
   console.log('SkillTest component - URL info:', {
     pathname: window.location.pathname,
     isResultsRoute,
-    courseId,
+    subjectId,
     testId,
     actualTestId,
     selectedTest: selectedTest?.id
@@ -126,59 +126,59 @@ const SkillTest: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        setLoadingCourses(true);
-        const backendCourses = await fetchCourses();
+        setLoadingSubjects(true);
+        const backendSubjects = await fetchSubjects();
 
-        const mapped: Course[] = backendCourses.map(
-          (c: any, index: number): Course => ({
+        const mapped: Subject[] = backendSubjects.map(
+          (c: any, index: number): Subject => ({
             id: c.id,
             name: c.name,
             description: `Skill tests for ${c.name}`,
             icon: ICONS[index % ICONS.length],
             color: COLORS[index % COLORS.length],
-            topics: [],
+            units: [],
             category: c.category || "General",
-            topicCount: c.topics ? c.topics.length : 0,
+            unitCount: c.units ? c.units.length : 0,
           })
         );
 
-        setCourses(mapped);
+        setSubjects(mapped);
       } catch (err) {
-        console.error("Failed to load courses", err);
-        toast.error("Failed to load courses");
+        console.error("Failed to load subjects", err);
+        toast.error("Failed to load subjects");
       } finally {
-        setLoadingCourses(false);
+        setLoadingSubjects(false);
       }
     };
 
     load();
   }, []);
 
-  const handleCourseSelect = (course: Course) => {
+  const handleSubjectSelect = (subject: Subject) => {
     setCurrentView("tests");
-    navigate(`/student/courses/${course.id}/skill-tests`);
+    navigate(`/student/subjects/${subject.id}/skill-tests`);
   };
 
   const handleStartTest = (test: Test) => {
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}`);
+    if (subjectId) {
+      navigate(`/student/subjects/${subjectId}/skill-tests/${test.id}`);
     }
   };
 
-  const handleBackToCourses = () => {
+  const handleBackToSubjects = () => {
     navigate("/student/skill-test");
   };
 
   const refreshTestsData = async () => {
-    if (!selectedCourse) return;
+    if (!selectedSubject) return;
 
     try {
       const realTests: Test[] = [];
-      const updatedTopics = [...selectedCourse.topics];
+      const updatedUnits = [...selectedSubject.units];
 
-      for (const topic of updatedTopics) {
+      for (const unit of updatedUnits) {
         try {
-          const apiTests = await getSkillTestsByTopic(topic.id);
+          const apiTests = await getSkillTestsByUnit(unit.id);
           const activeTests = apiTests.filter(t => t.publish_status === 'active');
 
           // Calculate Progress
@@ -194,8 +194,8 @@ const SkillTest: React.FC = () => {
           });
 
           if (totalTests > 0) {
-            topic.progress = Math.round((completedCount / totalTests) * 100);
-            topic.completed = topic.progress === 100;
+            unit.progress = Math.round((completedCount / totalTests) * 100);
+            unit.completed = unit.progress === 100;
           }
 
           const mappedTests: Test[] = activeTests.map(t => ({
@@ -208,20 +208,20 @@ const SkillTest: React.FC = () => {
               t.questions_config.descriptive.length),
             totalMarks: t.total_marks,
             duration: t.duration,
-            topicId: topic.id,
-            course: selectedCourse.name,
+            unitId: unit.id,
+            subject: selectedSubject.name,
             maxAttempts: t.max_attempts || 3,
             my_submissions: (t as any).my_submissions || []
           }));
           realTests.push(...mappedTests);
         } catch (e) {
-          console.error("Error loading tests for topic:", e);
+          console.error("Error loading tests for unit:", e);
         }
       }
 
       setTests(realTests);
-      // Update selectedCourse with new topic progress
-      setSelectedCourse(prev => prev ? ({ ...prev, topics: updatedTopics }) : null);
+      // Update selectedSubject with new unit progress
+      setSelectedSubject(prev => prev ? ({ ...prev, units: updatedUnits }) : null);
     } catch (err) {
       console.error("Failed to refresh tests data", err);
     }
@@ -230,45 +230,45 @@ const SkillTest: React.FC = () => {
   const handleBackToTests = async () => {
     await refreshTestsData();
 
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests`);
+    if (subjectId) {
+      navigate(`/student/subjects/${subjectId}/skill-tests`);
     } else {
       navigate("/student/skill-test");
     }
   };
 
   useEffect(() => {
-    if (loadingCourses || courses.length === 0) return;
+    if (loadingSubjects || subjects.length === 0) return;
 
-    const syncCourse = async () => {
-      if (courseId) {
-        const foundCourse = courses.find(c => c.id === courseId);
+    const syncSubject = async () => {
+      if (subjectId) {
+        const foundSubject = subjects.find(c => c.id === subjectId);
 
-        if (foundCourse) {
-          if (foundCourse.topics.length === 0) {
+        if (foundSubject) {
+          if (foundSubject.units.length === 0) {
             try {
-              const backendTopics = await fetchTopicsByCourse(foundCourse.id);
-              const uiTopics: Topic[] = backendTopics.map((t: any) => ({
+              const backendUnits = await fetchUnitsBySubject(foundSubject.id);
+              const uiUnits: Unit[] = backendUnits.map((t: any) => ({
                 id: t.id,
                 name: t.name,
                 progress: 0,
                 completed: false,
               }));
 
-              setCourses(prev =>
+              setSubjects(prev =>
                 prev.map(c =>
-                  c.id === foundCourse.id ? { ...c, topics: uiTopics } : c
+                  c.id === foundSubject.id ? { ...c, units: uiUnits } : c
                 )
               );
 
-              const updatedCourse = { ...foundCourse, topics: uiTopics };
-              setSelectedCourse(updatedCourse);
-              setSelectedTopic(uiTopics[0] || null);
+              const updatedSubject = { ...foundSubject, units: uiUnits };
+              setSelectedSubject(updatedSubject);
+              setSelectedUnit(uiUnits[0] || null);
 
               const realTests: Test[] = [];
-              for (const topic of uiTopics) {
+              for (const unit of uiUnits) {
                 try {
-                  const apiTests = await getSkillTestsByTopic(topic.id);
+                  const apiTests = await getSkillTestsByUnit(unit.id);
                   const activeTests = apiTests.filter(t => t.publish_status === 'active');
 
                   // Calculate Progress
@@ -285,8 +285,8 @@ const SkillTest: React.FC = () => {
                   });
 
                   if (totalTests > 0) {
-                    topic.progress = Math.round((completedCount / totalTests) * 100);
-                    topic.completed = topic.progress === 100;
+                    unit.progress = Math.round((completedCount / totalTests) * 100);
+                    unit.completed = unit.progress === 100;
                   }
 
                   const mappedTests: Test[] = activeTests.map(t => ({
@@ -299,28 +299,28 @@ const SkillTest: React.FC = () => {
                       t.questions_config.descriptive.length),
                     totalMarks: t.total_marks,
                     duration: t.duration,
-                    topicId: topic.id,
-                    course: foundCourse.name,
+                    unitId: unit.id,
+                    subject: foundSubject.name,
                     maxAttempts: t.max_attempts || 3,
                     my_submissions: (t as any).my_submissions || []
                   }));
                   realTests.push(...mappedTests);
                 } catch (e) {
-                  console.error("Error loading tests for topic:", e);
+                  console.error("Error loading tests for unit:", e);
                 }
               }
 
               setTests(realTests);
-              // Update course state to reflect the calculated progress
-              setSelectedCourse(prev => prev ? ({ ...prev, topics: [...uiTopics] }) : null);
+              // Update subject state to reflect the calculated progress
+              setSelectedSubject(prev => prev ? ({ ...prev, units: [...uiUnits] }) : null);
 
             } catch (err) {
-              console.error("Failed to load topics", err);
+              console.error("Failed to load units", err);
             }
           } else {
-            if (!selectedCourse || selectedCourse.id !== courseId) {
-              setSelectedCourse(foundCourse);
-              setSelectedTopic(foundCourse.topics[0] || null);
+            if (!selectedSubject || selectedSubject.id !== subjectId) {
+              setSelectedSubject(foundSubject);
+              setSelectedUnit(foundSubject.units[0] || null);
             }
           }
 
@@ -330,18 +330,18 @@ const SkillTest: React.FC = () => {
           setSidebarOpen(true);
         }
       } else {
-        setSelectedCourse(null);
-        setSelectedTopic(null);
+        setSelectedSubject(null);
+        setSelectedUnit(null);
         setTests([]);
-        setCurrentView("courses");
+        setCurrentView("subjects");
       }
     };
 
-    syncCourse();
-  }, [courseId, courses, loadingCourses]);
+    syncSubject();
+  }, [subjectId, subjects, loadingSubjects]);
 
   useEffect(() => {
-    if (selectedCourse && tests.length > 0) {
+    if (selectedSubject && tests.length > 0) {
       if (actualTestId) {
         const foundTest = tests.find(t => t.id === actualTestId);
         if (foundTest) {
@@ -350,9 +350,9 @@ const SkillTest: React.FC = () => {
           // Check if we're on the results route
           if (isResultsRoute) {
             // Set up for results view
-            const matchingTopic = selectedCourse.topics.find(t => t.id === foundTest.topicId);
-            if (matchingTopic) {
-              setSelectedTopic(matchingTopic);
+            const matchingUnit = selectedSubject.units.find(t => t.id === foundTest.unitId);
+            if (matchingUnit) {
+              setSelectedUnit(matchingUnit);
 
               // Get the latest submission ID from the test's submissions
               const submissions = foundTest.my_submissions || [];
@@ -369,22 +369,22 @@ const SkillTest: React.FC = () => {
             setCurrentView("instructions");
           }
 
-          const matchingTopic = selectedCourse.topics.find(t => t.id === foundTest.topicId);
-          if (matchingTopic) setSelectedTopic(matchingTopic);
+          const matchingUnit = selectedSubject.units.find(t => t.id === foundTest.unitId);
+          if (matchingUnit) setSelectedUnit(matchingUnit);
         }
       } else {
         setSelectedTest(null);
         setCurrentView("tests");
       }
     }
-  }, [actualTestId, tests, selectedCourse, testCompleted, isResultsRoute]);
+  }, [actualTestId, tests, selectedSubject, testCompleted, isResultsRoute]);
 
-  const handleTopicSelect = async (topic: Topic) => {
-    setSelectedTopic(topic);
+  const handleUnitSelect = async (unit: Unit) => {
+    setSelectedUnit(unit);
     await refreshTestsData();
 
     if (testId) {
-      navigate(`/student/courses/${selectedCourse?.id}/skill-tests`);
+      navigate(`/student/subjects/${selectedSubject?.id}/skill-tests`);
     } else {
       setCurrentView("tests");
     }
@@ -458,30 +458,30 @@ const SkillTest: React.FC = () => {
     await refreshTestsData();
 
     // Navigate to results URL instead of just changing view
-    if (courseId && selectedTest) {
-      navigate(`/student/courses/${courseId}/skill-tests/${selectedTest.id}/results`);
+    if (subjectId && selectedTest) {
+      navigate(`/student/subjects/${subjectId}/skill-tests/${selectedTest.id}/results`);
     }
   };
 
   const handleViewResult = (submissionId: string, test: Test) => {
     // Navigate to results URL with specific submission
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
+    if (subjectId) {
+      navigate(`/student/subjects/${subjectId}/skill-tests/${test.id}/results`);
     }
   };
 
   const handleRetakeTest = async () => {
-    console.log('handleRetakeTest called with:', { courseId, testId, actualTestId, selectedTest });
+    console.log('handleRetakeTest called with:', { subjectId, testId, actualTestId, selectedTest });
 
     await refreshTestsData();
 
     const testIdToUse = actualTestId || selectedTest?.id;
 
-    if (courseId && testIdToUse) {
-      console.log('Navigating to:', `/student/courses/${courseId}/skill-tests/${testIdToUse}`);
-      navigate(`/student/courses/${courseId}/skill-tests/${testIdToUse}`);
+    if (subjectId && testIdToUse) {
+      console.log('Navigating to:', `/student/subjects/${subjectId}/skill-tests/${testIdToUse}`);
+      navigate(`/student/subjects/${subjectId}/skill-tests/${testIdToUse}`);
     } else {
-      console.error('Cannot navigate - missing courseId or testId', { courseId, testIdToUse });
+      console.error('Cannot navigate - missing subjectId or testId', { subjectId, testIdToUse });
     }
   };
 
@@ -493,14 +493,14 @@ const SkillTest: React.FC = () => {
     console.log('handleViewAllResults called with test:', test.id, test.title);
 
     // Navigate to the results URL instead of just changing view state
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
+    if (subjectId) {
+      navigate(`/student/subjects/${subjectId}/skill-tests/${test.id}/results`);
     }
   };
 
 
-  const filteredTests: Test[] = selectedTopic
-    ? tests.filter((t) => t.topicId === selectedTopic.id)
+  const filteredTests: Test[] = selectedUnit
+    ? tests.filter((t) => t.unitId === selectedUnit.id)
     : [];
 
   const hideNavigation =
@@ -508,7 +508,7 @@ const SkillTest: React.FC = () => {
     currentView === "test" ||
     currentView === "results";
 
-  if (currentView === "instructions" && selectedTest && selectedTopic) {
+  if (currentView === "instructions" && selectedTest && selectedUnit) {
     return (
       <div className="min-h-screen bg-background">
         {!hideNavigation && <Navigation />}
@@ -516,11 +516,11 @@ const SkillTest: React.FC = () => {
           test={{
             id: selectedTest.id,
             title: selectedTest.title,
-            course: selectedCourse?.name || "",
+            course: selectedSubject?.name || "",
             duration: selectedTest.duration,
             totalQuestions: selectedTest.totalQuestions,
             difficulty: selectedTest.difficulty,
-            description: `${selectedTopic.name} - ${selectedTest.difficulty} level test`,
+            description: `${selectedUnit.name} - ${selectedTest.difficulty} level test`,
             marks: selectedTest.totalMarks,
           }}
           onStart={handleBeginTest}
@@ -530,7 +530,7 @@ const SkillTest: React.FC = () => {
     );
   }
 
-  if (currentView === "test" && selectedTest && selectedTopic) {
+  if (currentView === "test" && selectedTest && selectedUnit) {
     return (
       <div className="min-h-screen bg-background">
         {!hideNavigation && <Navigation />}
@@ -538,10 +538,10 @@ const SkillTest: React.FC = () => {
           assessment={{
             id: selectedTest.id,
             title: selectedTest.title,
-            course: selectedCourse?.name || "",
+            course: selectedSubject?.name || "",
             duration: selectedTest.duration,
             totalQuestions: selectedTest.totalQuestions,
-            topicId: selectedTopic.id,
+            topicId: selectedUnit.id,
           }}
           questions={questions}
           submissionId={currentSubmissionId || ""}
@@ -556,24 +556,24 @@ const SkillTest: React.FC = () => {
   if (currentView === "results") {
     console.log('Current view is results, checking conditions:');
     console.log('selectedTest:', selectedTest?.id, selectedTest?.title);
-    console.log('selectedTopic:', selectedTopic?.id, selectedTopic?.name);
+    console.log('selectedUnit:', selectedUnit?.id, selectedUnit?.name);
     console.log('currentSubmissionId:', currentSubmissionId);
 
     if (!selectedTest) {
       console.log('ERROR: selectedTest is null/undefined');
     }
-    if (!selectedTopic) {
-      console.log('ERROR: selectedTopic is null/undefined');
+    if (!selectedUnit) {
+      console.log('ERROR: selectedUnit is null/undefined');
     }
   }
 
-  if (currentView === "results" && selectedTest && selectedTopic) {
+  if (currentView === "results" && selectedTest && selectedUnit) {
     console.log('Rendering TestResults component with:', {
       testId: selectedTest.id,
       submissionId: testSubmissions[selectedTest.id] || currentSubmissionId || "",
-      course: selectedCourse?.name,
+      course: selectedSubject?.name,
       testTitle: selectedTest.title,
-      topicName: selectedTopic.name
+      topicName: selectedUnit.name
     });
 
     return (
@@ -583,7 +583,7 @@ const SkillTest: React.FC = () => {
           test={{
             id: selectedTest.id,
             title: selectedTest.title,
-            course: selectedCourse?.name || "",
+            course: selectedSubject?.name || "",
             duration: selectedTest.duration,
             totalQuestions: selectedTest.totalQuestions,
             marks: selectedTest.totalMarks,
@@ -608,7 +608,7 @@ const SkillTest: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               Missing required data:
               {!selectedTest && " selectedTest"}
-              {!selectedTopic && " selectedTopic"}
+              {!selectedUnit && " selectedUnit"}
             </p>
             <Button onClick={handleBackToTests}>Back to Tests</Button>
           </div>
@@ -623,17 +623,17 @@ const SkillTest: React.FC = () => {
       {!hideNavigation && <Navigation />}
 
       <div className="flex h-[calc(100vh-64px)]">
-        {selectedCourse && (currentView === "tests" || (actualTestId && !isResultsRoute)) && (
-          <TopicSidebar
-            course={selectedCourse}
-            selectedTopic={selectedTopic}
-            onTopicSelect={handleTopicSelect}
+        {selectedSubject && (currentView === "tests" || (actualTestId && !isResultsRoute)) && (
+          <UnitSidebar
+            subject={selectedSubject}
+            selectedUnit={selectedUnit}
+            onUnitSelect={handleUnitSelect}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
             overallProgress={
-              selectedCourse.topics.length > 0
+              selectedSubject.units.length > 0
                 ? Math.round(
-                  selectedCourse.topics.reduce((acc, t) => acc + (t.progress || 0), 0) / selectedCourse.topics.length
+                  selectedSubject.units.reduce((acc, t) => acc + (t.progress || 0), 0) / selectedSubject.units.length
                 )
                 : 0
             }
@@ -641,17 +641,17 @@ const SkillTest: React.FC = () => {
         )}
 
         <div className="flex-1 overflow-auto">
-          {currentView === "courses" ? (
-            <CourseSelection
-              courses={courses}
-              onCourseSelect={handleCourseSelect}
+          {currentView === "subjects" ? (
+            <SubjectSelection
+              subjects={subjects}
+              onSubjectSelect={handleSubjectSelect}
             />
           ) : (
             <TestCards
               tests={filteredTests}
-              courseName={selectedCourse?.name || ""}
-              topicName={selectedTopic?.name || ""}
-              onBack={handleBackToCourses}
+              courseName={selectedSubject?.name || ""}
+              topicName={selectedUnit?.name || ""}
+              onBack={handleBackToSubjects}
               onStartTest={handleStartTest}
               onViewResult={handleViewResult}
               onViewAllResults={handleViewAllResults}

@@ -1,14 +1,15 @@
 from rest_framework import serializers
 
 from .models import (
-    Course,
-    Topic,
-    Subtopic,
+    Department,
+    Subject,
+    Unit,
+    SubUnit,
     Video,
     Note,
-    CourseInstructor,
+    SubjectInstructor,
     Question,
-    UserCourseProgress,
+    UserSubjectProgress,
     StudentCodePractice,
 )
 from .gamification_models import UserGamificationProfile
@@ -18,6 +19,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "description", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
 class UserGamificationProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserGamificationProfile
@@ -25,14 +34,14 @@ class UserGamificationProfileSerializer(serializers.ModelSerializer):
 
 
 
-class SubtopicSerializer(serializers.ModelSerializer):
+class SubUnitSerializer(serializers.ModelSerializer):
     """
-    Serializer for Subtopic model.
+    Serializer for SubUnit model.
     """
 
     class Meta:
-        model = Subtopic
-        fields = ["id", "topic", "name", "content", "order_index", "created_at"]
+        model = SubUnit
+        fields = ["id", "unit", "name", "content", "order_index", "created_at"]
         read_only_fields = ["id", "created_at"]
 
     def validate_video_url(self, value):
@@ -46,16 +55,16 @@ class SubtopicSerializer(serializers.ModelSerializer):
         return value
 
 
-class TopicSerializer(serializers.ModelSerializer):
+class UnitSerializer(serializers.ModelSerializer):
     """
-    Serializer for Topic model with optional nested subtopics.
+    Serializer for Unit model with optional nested subunits.
     """
 
-    subtopics = SubtopicSerializer(many=True, read_only=True)
+    subunits = SubUnitSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Topic
-        fields = ["id", "course", "name", "order_index", "created_at", "subtopics", "total_problems", "solved_problems", "progress_percentage"]
+        model = Unit
+        fields = ["id", "subject", "name", "order_index", "created_at", "subunits", "total_problems", "solved_problems", "progress_percentage"]
         read_only_fields = ["id", "created_at"]
 
     total_problems = serializers.IntegerField(read_only=True)
@@ -63,14 +72,14 @@ class TopicSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
 
 
-class TopicBasicSerializer(serializers.ModelSerializer):
+class UnitBasicSerializer(serializers.ModelSerializer):
     """
-    Basic serializer for Topic model without nested subtopics.
+    Basic serializer for Unit model without nested subunits.
     """
 
     class Meta:
-        model = Topic
-        fields = ["id", "course", "name", "order_index", "created_at", "total_problems", "solved_problems", "progress_percentage"]
+        model = Unit
+        fields = ["id", "subject", "name", "order_index", "created_at", "total_problems", "solved_problems", "progress_percentage"]
         read_only_fields = ["id", "created_at"]
 
     total_problems = serializers.IntegerField(read_only=True)
@@ -78,32 +87,35 @@ class TopicBasicSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
 
 
-class CourseInstructorSerializer(serializers.ModelSerializer):
+class SubjectInstructorSerializer(serializers.ModelSerializer):
     instructor = UserSerializer(read_only=True)
 
     class Meta:
-        model = CourseInstructor
+        model = SubjectInstructor
         fields = ["id", "instructor", "created_at"]
 
 
-class CourseSerializer(serializers.ModelSerializer):
+class SubjectSerializer(serializers.ModelSerializer):
     """
-    Serializer for Course model with optional nested topics.
+    Serializer for Subject model with optional nested units.
     """
 
-    topics = TopicSerializer(many=True, read_only=True)
+    units = UnitSerializer(many=True, read_only=True)
     instructors = serializers.SerializerMethodField()
+    department_details = DepartmentSerializer(source="department", read_only=True)
 
     class Meta:
-        model = Course
+        model = Subject
         fields = [
             "id",
             "short_code",
             "name",
             "category",
+            "department",
+            "department_details",
             "created_at",
             "updated_at",
-            "topics",
+            "units",
             "instructors",
             "total_problems",
             "solved_problems",
@@ -116,23 +128,23 @@ class CourseSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
 
     def get_instructors(self, obj):
-        mappings = CourseInstructor.objects.filter(course=obj).select_related(
+        mappings = SubjectInstructor.objects.filter(subject=obj).select_related(
             "instructor"
         )
-        return CourseInstructorSerializer(mappings, many=True).data
+        return SubjectInstructorSerializer(mappings, many=True).data
 
     def validate_short_code(self, value):
         """
         Validate short_code uniqueness if provided.
         """
         if value:
-            # Check if another course with this short_code exists (excluding current instance)
-            queryset = Course.objects.filter(short_code=value)
+            # Check if another Subject with this short_code exists (excluding current instance)
+            queryset = Subject.objects.filter(short_code=value)
             if self.instance:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
                 raise serializers.ValidationError(
-                    "A course with this short code already exists."
+                    "A Subject with this short code already exists."
                 )
         return value
 
@@ -140,7 +152,7 @@ class CourseSerializer(serializers.ModelSerializer):
         """
         Validate category is one of the allowed choices.
         """
-        valid_categories = [choice[0] for choice in Course.CATEGORY_CHOICES]
+        valid_categories = [choice[0] for choice in Subject.CATEGORY_CHOICES]
         if value not in valid_categories:
             raise serializers.ValidationError(
                 f"Category must be one of: {', '.join(valid_categories)}"
@@ -148,14 +160,15 @@ class CourseSerializer(serializers.ModelSerializer):
         return value
 
 
-class CourseBasicSerializer(serializers.ModelSerializer):
+class SubjectBasicSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Course
+        model = Subject
         fields = [
             "id",
             "short_code",
             "name",
             "category",
+            "department",
             "created_at",
             "updated_at",
             "total_problems",
@@ -177,7 +190,7 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video
         fields = [
             "id",
-            "sub_topic",
+            "sub_unit",
             "title",
             "video_link",
             "ai_context",
@@ -190,7 +203,7 @@ class VideoSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = ["id", "sub_topic", "user", "content", "created_at", "updated_at"]
+        fields = ["id", "sub_unit", "user", "content", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at", "user"]
 
     def validate_content(self, value):
@@ -214,9 +227,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             "title",
             "content",
             "level",
-            "course",
-            "topic",
-            "subtopic",
+            "subject",
+            "unit",
+            "sub_unit",
             "difficulty",
             "marks",
             "categories",
@@ -246,17 +259,17 @@ class QuestionSerializer(serializers.ModelSerializer):
         level = data.get("level")
 
         # Validate level associations
-        if level == "course" and not data.get("course"):
+        if level == "subject" and not data.get("subject"):
             raise serializers.ValidationError(
-                "Course is required for course-level questions"
+                "Subject is required for subject-level questions"
             )
-        if level == "topic" and not data.get("topic"):
+        if level == "unit" and not data.get("unit"):
             raise serializers.ValidationError(
-                "Topic is required for topic-level questions"
+                "Unit is required for unit-level questions"
             )
-        if level == "subtopic" and not data.get("subtopic"):
+        if level == "subunit" and not data.get("sub_unit"):
             raise serializers.ValidationError(
-                "Subtopic is required for subtopic-level questions"
+                "SubUnit is required for subunit-level questions"
             )
 
         # Validate categories
@@ -353,33 +366,33 @@ class QuestionSerializer(serializers.ModelSerializer):
         # Auto-populate related fields based on question level
         level = validated_data.get("level")
 
-        if level == "subtopic" and "subtopic" in validated_data:
-            # If subtopic level, populate topic and course from subtopic
-            subtopic = validated_data["subtopic"]
-            if subtopic:
-                validated_data["topic"] = subtopic.topic
-                validated_data["course"] = subtopic.topic.course
+        if level == "subunit" and "sub_unit" in validated_data:
+            # If SubUnit level, populate Unit and Subject from SubUnit
+            sub_unit = validated_data["sub_unit"]
+            if sub_unit:
+                validated_data["unit"] = sub_unit.unit
+                validated_data["subject"] = sub_unit.unit.subject
 
-        elif level == "topic" and "topic" in validated_data:
-            # If topic level, populate course from topic
-            topic = validated_data["topic"]
-            if topic:
-                validated_data["course"] = topic.course
+        elif level == "unit" and "unit" in validated_data:
+            # If Unit level, populate Subject from Unit
+            unit = validated_data["unit"]
+            if unit:
+                validated_data["subject"] = unit.subject
 
-        # For course level, course is already set
+        # For Subject level, Subject is already set
 
         return super().create(validated_data)
 
 
-class UserCourseProgressSerializer(serializers.ModelSerializer):
+class UserSubjectProgressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserCourseProgress
+        model = UserSubjectProgress
         fields = [
             "id",
             "user",
-            "course",
-            "topic",
-            "subtopic",
+            "subject",
+            "unit",
+            "sub_unit",
             "is_videos_watched",
             "quiz_score",
             "is_quiz_completed",
@@ -388,15 +401,15 @@ class UserCourseProgressSerializer(serializers.ModelSerializer):
             "progress_percent",
             "is_completed",
             "completed_at",
-            "is_current_subtopic",
+            "is_current_subunit",
             "last_accessed",
         ]
         read_only_fields = [
             "id",
             "user",
-            "course",
-            "topic",
-            "subtopic",
+            "subject",
+            "unit",
+            "sub_unit",
             "progress_percent",
             "completed_at",
             "last_accessed",
@@ -410,8 +423,8 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
 
     user = serializers.StringRelatedField(read_only=True)
     question = serializers.StringRelatedField(read_only=True)
-    course = serializers.StringRelatedField(read_only=True)
-    topic = serializers.StringRelatedField(read_only=True)
+    subject = serializers.StringRelatedField(read_only=True)
+    unit = serializers.StringRelatedField(read_only=True)
     question_difficulty = serializers.SerializerMethodField()
     
     class Meta:
@@ -420,8 +433,8 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "question",
-            "course",
-            "topic",
+            "subject",
+            "unit",
             "status",
             "answer_latest",
             "answer_history",
@@ -450,3 +463,4 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
                 f"Status must be one of: {', '.join(valid_statuses)}"
             )
         return value
+

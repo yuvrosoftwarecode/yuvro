@@ -52,10 +52,10 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin']
   },
   {
-    id: 'courses',
-    label: 'Courses',
+    id: 'subjects',
+    label: 'Subjects',
     icon: BookOpen,
-    path: '/instructor/courses',
+    path: '/instructor/subjects',
     roles: ['admin', 'instructor']
   },
   {
@@ -84,7 +84,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Jobs Approval',
     icon: CheckCircle,
     path: '/recruiter/jobs-approval',
-    roles: ['admin', 'recruiter_admin']  
+    roles: ['admin', 'recruiter_admin']
   },
   {
     id: 'contests',
@@ -106,6 +106,13 @@ const sidebarItems: SidebarItem[] = [
     icon: Trophy,
     path: '/instructor/certifications',
     roles: ['admin', 'instructor', 'recruiter']
+  },
+  {
+    id: 'departments',
+    label: 'Departments',
+    icon: Building2,
+    path: '/instructor/departments',
+    roles: ['admin']
   }
 ];
 

@@ -6,16 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
-import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
+import type { Subject, Unit, CodingProblem } from '@/pages/student/CodePractice';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 import codeEditorService from '@/services/codeEditorService';
 
 interface CodeEditorWithAIProps {
   problem: CodingProblem;
-  course: Course;
-  topic: Topic;
-  subtopicId?: string;
+  subject: Subject;
+  unit: Unit;
+  subunitId?: string;
   onBack: () => void;
   onViewAnalytics?: () => void;
   initialFullscreen?: boolean;
@@ -37,9 +37,9 @@ export interface CodeEditorWithAIHandle {
 
 const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProps>(({
   problem,
-  course,
-  topic,
-  subtopicId,
+  subject,
+  unit,
+  subunitId,
   onBack,
   initialFullscreen = false,
   initialEditorOpen = false,
@@ -158,7 +158,7 @@ ${codeEditorRef.current?.getCode() || ''}
       {!isEditorFullscreen && showBreadcrumb && (
         <div className="flex-none flex items-center gap-2 mb-3 ml-2 text-sm text-gray-500">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">
-            {topic.name}
+            {unit.name}
           </Button>
           <span>/</span>
           <span className="text-gray-800 font-medium">{problem.title}</span>
@@ -422,9 +422,9 @@ ${codeEditorRef.current?.getCode() || ''}
                   onLanguageChange={setLanguage}
                   problemTitle={problem.title}
                   problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
+                  subjectId={subject.id}
+                  unitId={unit.id}
+                  subunitId={subunitId}
                   testCases={problem.test_cases_basic || []}
                   showTestCases={true}
                   allowCustomTestCases={true}
@@ -488,6 +488,15 @@ ${codeEditorRef.current?.getCode() || ''}
                   {problem.difficulty}
                 </Badge>
               </div>
+              {!isEditorFullscreen && showBreadcrumb && (
+                <div className="flex-none flex items-center gap-2 mb-3 ml-2 text-sm text-gray-500">
+                  <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">
+                    {unit.name}
+                  </Button>
+                  <span>/</span>
+                  <span className="text-gray-800 font-medium">{problem.title}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -515,9 +524,9 @@ ${codeEditorRef.current?.getCode() || ''}
                     onLanguageChange={setLanguage}
                     problemTitle={problem.title}
                     problemId={problem.id}
-                    courseId={course.id}
-                    topicId={topic.id}
-                    subtopicId={subtopicId}
+                    subjectId={subject.id}
+                    unitId={unit.id}
+                    subunitId={subunitId}
                     testCases={problem.test_cases_basic || []}
                     showTestCases={true}
                     allowCustomTestCases={true}

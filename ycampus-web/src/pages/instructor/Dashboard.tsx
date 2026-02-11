@@ -1,16 +1,17 @@
+// src/pages/instructor/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
-import { 
-  BookOpen, 
-  Users, 
-  Trophy, 
-  Target, 
-  MessageCircle, 
+import {
+  BookOpen,
+  Users,
+  Trophy,
+  Target,
+  MessageCircle,
   FileText,
-  TrendingUp, 
+  TrendingUp,
   Calendar,
   Clock,
   Award,
@@ -22,7 +23,8 @@ import {
   Plus,
   Eye,
   Edit,
-  Settings
+  Settings,
+  Layers
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -33,7 +35,7 @@ const Dashboard: React.FC = () => {
   // Mock data - replace with actual API calls
   const [dashboardData, setDashboardData] = useState({
     stats: {
-      coursesCreated: 5,
+      subjectsCreated: 5,
       totalStudents: 247,
       contestsHosted: 12,
       skillTestsCreated: 28,
@@ -43,8 +45,8 @@ const Dashboard: React.FC = () => {
     recentActivity: [
       {
         id: 1,
-        type: 'course',
-        action: 'Created new course',
+        type: 'subject',
+        action: 'Created new subject',
         target: 'Advanced React Patterns',
         time: '2 hours ago',
         icon: BookOpen,
@@ -88,9 +90,9 @@ const Dashboard: React.FC = () => {
       },
       {
         id: 2,
-        title: 'Course Content Review',
+        title: 'Subject Content Review',
         date: 'Tomorrow, 10:00 AM',
-        type: 'course',
+        type: 'subject',
         duration: '2 hours'
       },
       {
@@ -101,7 +103,7 @@ const Dashboard: React.FC = () => {
         attendees: 8
       }
     ],
-    courseProgress: [
+    subjectProgress: [
       {
         id: 1,
         name: 'Data Structures & Algorithms',
@@ -128,21 +130,21 @@ const Dashboard: React.FC = () => {
       {
         id: 1,
         name: 'Alice Johnson',
-        course: 'Python Programming',
+        subject: 'Python Programming',
         score: 98,
         progress: 95
       },
       {
         id: 2,
         name: 'Bob Smith',
-        course: 'Data Structures',
+        subject: 'Data Structures',
         score: 94,
         progress: 88
       },
       {
         id: 3,
         name: 'Carol Davis',
-        course: 'Web Development',
+        subject: 'Web Development',
         score: 92,
         progress: 90
       }
@@ -156,12 +158,12 @@ const Dashboard: React.FC = () => {
 
   const stats = [
     {
-      name: 'Courses Created',
-      value: dashboardData.stats.coursesCreated.toString(),
+      name: 'Subjects Created',
+      value: dashboardData.stats.subjectsCreated.toString(),
       change: '+2 this month',
-      icon: BookOpen,
+      icon: Layers,
       color: 'bg-blue-500',
-      path: '/instructor/courses'
+      path: '/instructor/subjects'
     },
     {
       name: 'Total Students',
@@ -195,7 +197,7 @@ const Dashboard: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
+            <RoleHeader
               title="Loading..."
               subtitle="Please wait while we load your dashboard."
             />
@@ -219,17 +221,17 @@ const Dashboard: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
+          <RoleHeader
             title={`Welcome back, ${user?.first_name || user?.username || 'Instructor'}! 👋`}
-            subtitle="Manage your courses, track student progress, and create engaging content."
+            subtitle="Manage your subjects, track student progress, and create engaging content."
           />
           <div className="p-6">
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {stats.map((stat, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="bg-white rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => navigate(stat.path)}
                 >
@@ -255,7 +257,7 @@ const Dashboard: React.FC = () => {
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Recent Activity & Course Analytics */}
+              {/* Left Column - Recent Activity & Subject Analytics */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Recent Activity */}
                 <div className="bg-white rounded-lg shadow">
@@ -281,12 +283,12 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Course Analytics */}
+                {/* Subject Analytics */}
                 <div className="bg-white rounded-lg shadow">
                   <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900">Course Analytics</h3>
-                    <button 
-                      onClick={() => navigate('/instructor/courses')}
+                    <h3 className="text-lg font-semibold text-gray-900">Subject Analytics</h3>
+                    <button
+                      onClick={() => navigate('/instructor/subjects')}
                       className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
                     >
                       View All <ArrowRight className="w-4 h-4 ml-1" />
@@ -294,30 +296,30 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="p-6">
                     <div className="space-y-6">
-                      {dashboardData.courseProgress.map((course) => (
-                        <div key={course.id} className="border-l-4 border-indigo-500 pl-4">
+                      {dashboardData.subjectProgress.map((subject) => (
+                        <div key={subject.id} className="border-l-4 border-indigo-500 pl-4">
                           <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-medium text-gray-900">{course.name}</h4>
-                            <span className="text-sm text-gray-500">{course.completionRate}% completion</span>
+                            <h4 className="font-medium text-gray-900">{subject.name}</h4>
+                            <span className="text-sm text-gray-500">{subject.completionRate}% completion</span>
                           </div>
                           <div className="grid grid-cols-3 gap-4 mb-3">
                             <div className="text-center">
-                              <div className="text-lg font-semibold text-blue-600">{course.studentsEnrolled}</div>
+                              <div className="text-lg font-semibold text-blue-600">{subject.studentsEnrolled}</div>
                               <div className="text-xs text-gray-500">Students</div>
                             </div>
                             <div className="text-center">
-                              <div className="text-lg font-semibold text-green-600">{course.completionRate}%</div>
+                              <div className="text-lg font-semibold text-green-600">{subject.completionRate}%</div>
                               <div className="text-xs text-gray-500">Completion</div>
                             </div>
                             <div className="text-center">
-                              <div className="text-lg font-semibold text-purple-600">{course.avgScore}</div>
+                              <div className="text-lg font-semibold text-purple-600">{subject.avgScore}</div>
                               <div className="text-xs text-gray-500">Avg Score</div>
                             </div>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
-                              style={{ width: `${course.completionRate}%` }}
+                            <div
+                              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${subject.completionRate}%` }}
                             ></div>
                           </div>
                         </div>
@@ -336,28 +338,28 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="p-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <button 
-                        onClick={() => navigate('/instructor/courses')}
+                      <button
+                        onClick={() => navigate('/instructor/subjects')}
                         className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center transition-colors"
                       >
-                        <BookOpen className="w-6 h-6 mx-auto mb-2" />
-                        <div className="text-sm font-medium">Create Course</div>
+                        <Layers className="w-6 h-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Create Subject</div>
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate('/instructor/skill-tests')}
                         className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center transition-colors"
                       >
                         <Target className="w-6 h-6 mx-auto mb-2" />
                         <div className="text-sm font-medium">New Test</div>
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate('/instructor/contests')}
                         className="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center transition-colors"
                       >
                         <Trophy className="w-6 h-6 mx-auto mb-2" />
                         <div className="text-sm font-medium">Host Contest</div>
                       </button>
-                      <button 
+                      <button
                         onClick={() => navigate('/instructor/mock-interview')}
                         className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center transition-colors"
                       >
@@ -399,7 +401,7 @@ const Dashboard: React.FC = () => {
                 <div className="bg-white rounded-lg shadow">
                   <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                     <h3 className="text-lg font-semibold text-gray-900">Top Performers</h3>
-                    <button 
+                    <button
                       onClick={() => navigate('/instructor/users')}
                       className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
                     >
@@ -411,15 +413,14 @@ const Dashboard: React.FC = () => {
                       {dashboardData.topPerformers.map((student, index) => (
                         <div key={student.id} className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                              index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
-                            }`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
+                              }`}>
                               {index + 1}
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{student.name}</p>
-                            <p className="text-xs text-gray-500">{student.course}</p>
+                            <p className="text-xs text-gray-500">{student.subject}</p>
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-semibold text-green-600">{student.score}%</p>

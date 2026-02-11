@@ -29,6 +29,9 @@ interface CodeEditorProps {
   initialLanguage?: string;
   problemTitle?: string;
   problemId?: string;
+  subjectId?: string; // New
+  unitId?: string;    // New
+  subunitId?: string; // New
   courseId?: string;
   topicId?: string;
   subtopicId?: string;
@@ -74,6 +77,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   initialLanguage = 'python',
   problemTitle = 'Code Practice',
   problemId = 'practice',
+  subjectId,
+  unitId,
+  subunitId,
   courseId,
   topicId,
   subtopicId,
@@ -345,16 +351,21 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
     try {
       let res;
 
+      // Resolve IDs (prefer new props, fallback to old)
+      const finalSubjectId = subjectId || courseId;
+      const finalUnitId = unitId || topicId;
+      const finalSubUnitId = subunitId || subtopicId;
+
       if (codeSubmissionType === 'learn') {
-        console.log('Learn mode: submitting to student-course-progress');
+        console.log('Learn mode: submitting to student-subject-progress');
 
         res = await codeEditorService.submitSolution({
           code,
           language,
-          subtopic_id: subtopicId || undefined,
+          subunit_id: finalSubUnitId,
           question_id: problemId,
-          course_id: courseId,
-          topic_id: topicId,
+          subject_id: finalSubjectId,
+          unit_id: finalUnitId,
           submissionType: 'learn',
           test_cases_basic: testCases.map(tc => ({
             input: typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input),
@@ -372,9 +383,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
           code,
           language,
           question_id: problemId,
-          course_id: courseId,
-          topic_id: topicId,
-          subtopic_id: subtopicId,
+          subject_id: finalSubjectId,
+          unit_id: finalUnitId,
+          subunit_id: finalSubUnitId,
           submissionType: 'practice',
           submission_id: submissionId,
           contest_id: contestId,

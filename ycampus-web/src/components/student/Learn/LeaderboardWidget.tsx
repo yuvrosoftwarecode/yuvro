@@ -18,7 +18,7 @@ const LeaderboardWidget: React.FC = () => {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const res = await restApiAuthUtil.get<LeaderboardEntry[]>("/course/student-course-progress/leaderboard/");
+                const res = await restApiAuthUtil.get<LeaderboardEntry[]>("/course/student-subject-progress/leaderboard/");
                 setData(res);
             } catch (err) {
                 console.error("Failed to fetch leaderboard", err);

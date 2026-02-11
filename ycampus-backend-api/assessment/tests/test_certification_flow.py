@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from course.models import Course, CourseCategory
+from Subject.models import Subject, SubjectCategory
 from assessment.models import CertificationExam, CertificationSubmission
 from assessment.serializers import CertificationSubmissionSerializer
 
@@ -22,13 +22,13 @@ class CertificationFlowTests(TestCase):
             first_name='Student',
             last_name='User'
         )
-        self.category = CourseCategory.objects.create(name="Test Category", slug="test-category")
+        self.category = SubjectCategory.objects.create(name="Test Category", slug="test-category")
 
     def test_exam_auto_creation(self):
-        """Test that a CertificationExam is automatically created when a Course is created."""
-        course = Course.objects.create(
-            name="Test Certification Course",
-            slug="test-cert-course",
+        """Test that a CertificationExam is automatically created when a Subject is created."""
+        Subject = Subject.objects.create(
+            name="Test Certification Subject",
+            slug="test-cert-Subject",
             headline="Headline",
             description="Description",
             category=self.category,
@@ -37,21 +37,21 @@ class CertificationFlowTests(TestCase):
             price=0
         )
         
-        self.assertTrue(CertificationExam.objects.filter(course=course).exists())
-        exam = CertificationExam.objects.get(course=course)
-        self.assertEqual(exam.title, f"{course.name} - Certification Exam")
+        self.assertTrue(CertificationExam.objects.filter(Subject=Subject).exists())
+        exam = CertificationExam.objects.get(Subject=Subject)
+        self.assertEqual(exam.title, f"{Subject.name} - Certification Exam")
         self.assertEqual(exam.duration, 60)
         self.assertEqual(exam.passing_marks, 60)
 
     def test_start_exam(self):
         """Test starting an exam creates a submission."""
-        course = Course.objects.create(
-            name="Exam Course",
-            slug="exam-course",
+        Subject = Subject.objects.create(
+            name="Exam Subject",
+            slug="exam-Subject",
             category=self.category,
             instructor=self.instructor
         )
-        exam = CertificationExam.objects.get(course=course)
+        exam = CertificationExam.objects.get(Subject=Subject)
         exam.publish_status = 'active'
         exam.save()
 
@@ -68,13 +68,13 @@ class CertificationFlowTests(TestCase):
 
     def test_submit_exam(self):
         """Test submitting an exam updates status."""
-        course = Course.objects.create(
-            name="Submit Course",
-            slug="submit-course",
+        Subject = Subject.objects.create(
+            name="Submit Subject",
+            slug="submit-Subject",
             category=self.category,
             instructor=self.instructor
         )
-        exam = CertificationExam.objects.get(course=course)
+        exam = CertificationExam.objects.get(Subject=Subject)
         submission = CertificationSubmission.objects.create(
             certification_exam=exam,
             user=self.student,
@@ -86,3 +86,4 @@ class CertificationFlowTests(TestCase):
         submission.save()
         
         self.assertEqual(submission.status, 'submitted')
+

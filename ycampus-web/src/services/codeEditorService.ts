@@ -26,8 +26,8 @@ export interface CodeExecutionRequest {
   code: string;
   language: string;
   coding_problem_id: string;
-  course_id?: string;
-  topic_id?: string;
+  subject_id?: string;
+  unit_id?: string;
   submission_type?: 'code_practice' | 'skill_test' | 'contest' | 'mock_interview';
 }
 
@@ -136,9 +136,9 @@ class CodeEditorService {
     code: string;
     language: string;
     question_id: string;
-    course_id?: string;
-    topic_id?: string;
-    subtopic_id?: string;
+    subject_id?: string;
+    unit_id?: string;
+    subunit_id?: string;
     test_cases_basic?: any[];
     test_cases_advanced?: any[];
     test_cases_custom?: any[];
@@ -153,7 +153,7 @@ class CodeEditorService {
       let endpoint = '';
 
       const payload = {
-        subtopic_id: request.subtopic_id,
+        subunit_id: request.subunit_id,
         question_id: request.question_id,
         language: request.language,
         code: request.code,
@@ -161,8 +161,8 @@ class CodeEditorService {
         test_cases_advanced: request.test_cases_advanced || [],
         test_cases_custom: request.test_cases_custom || [],
         coding_status: {},
-        course_id: request.course_id,
-        topic_id: request.topic_id,
+        subject_id: request.subject_id, // Updated key
+        unit_id: request.unit_id,       // Updated key
         submission_id: request.submission_id,
         contest_id: request.contest_id,
         skill_test_id: request.skill_test_id,
@@ -171,7 +171,7 @@ class CodeEditorService {
 
       switch (submissionType) {
         case 'learn':
-          endpoint = '/course/student-course-progress/submit_coding/';
+          endpoint = '/course/student-subject-progress/submit_coding/'; // Updated endpoint
           break;
         case 'practice':
           endpoint = '/course/student-code-practices/submit/';

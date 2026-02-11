@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchNotesBySubtopic, createNote, deleteNote, updateNote, Note } from "@/services/courseService";
+import { fetchNotesBySubUnit, createNote, deleteNote, updateNote, Note } from "@/services/subjectService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Trash2, Plus, StickyNote, BookOpen, Pencil, X, Check, Columns, Maximize2, Minimize2 } from "lucide-react";
 
-const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, mode?: "materials" | "my-notes" }) => {
+const StudentNotes = ({ subunitId, mode = "materials" }: { subunitId: string, mode?: "materials" | "my-notes" }) => {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,12 +25,12 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
 
   useEffect(() => {
     loadNotes();
-  }, [subtopicId]);
+  }, [subunitId]);
 
   const loadNotes = async () => {
     setLoading(true);
     try {
-      const res = await fetchNotesBySubtopic(subtopicId);
+      const res = await fetchNotesBySubUnit(subunitId);
       setNotes(res || []);
     } catch (err) {
       console.error("Failed to load notes", err);
@@ -47,7 +47,7 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
     setIsCreating(true);
     try {
       await createNote({
-        sub_topic: subtopicId,
+        sub_unit: subunitId,
         content: newNoteContent,
         // Backend handles user association
       });
@@ -127,7 +127,7 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
       {materials.length === 0 ? (
         <div className="text-center py-10 text-gray-500">
           <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p>No study materials available for this topic yet.</p>
+          <p>No study materials available for this unit yet.</p>
         </div>
       ) : (
         materials.map((note) => (
