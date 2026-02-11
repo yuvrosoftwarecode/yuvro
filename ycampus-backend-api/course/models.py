@@ -9,13 +9,37 @@ from core.models import BaseTimestampedModel
 User = get_user_model()
 
 
-class Department(models.Model):
+class College(models.Model):
     """
-    Model representing a department within the institution.
+    Model representing a college/institution.
     """
+
+    COLLEGE_TYPES = [
+        ("government", "Government"),
+        ("autonomous", "Autonomous"),
+        ("deemed", "Deemed"),
+        ("private", "Private"),
+    ]
+
+    UNIVERSITY_CHOICES = [
+        ("jntu", "JNTU"),
+        ("anna", "Anna"),
+        ("vtu", "VTU"),
+        ("ou", "OU"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True, null=True)
+    short_form = models.CharField(max_length=50, blank=True, null=True)
+    college_type = models.CharField(
+        max_length=20, choices=COLLEGE_TYPES, default="private"
+    )
+    affiliated_university = models.CharField(
+        max_length=20, choices=UNIVERSITY_CHOICES, default="jntu"
+    )
+    is_aicte_approved = models.BooleanField(default=False)
+    is_ugc_approved = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -23,6 +47,30 @@ class Department(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        return self.name
+
+
+class Department(models.Model):
+    """
+    Model representing a department within a college.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="departments", null=True
+    )
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = [["college", "name"]]
+
+    def __str__(self):
+        if self.college:
+            return f"{self.name} ({self.college.name})"
         return self.name
 
 

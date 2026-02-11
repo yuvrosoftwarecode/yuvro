@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import (
+    College,
     Department,
     Subject,
     Unit,
@@ -11,6 +12,28 @@ from .models import (
     StudentCodePractice,
     UserSubjectProgress,
 )
+
+
+class DepartmentInline(admin.TabularInline):
+    model = Department
+    extra = 0
+    fields = ["name", "description"]
+
+
+@admin.register(College)
+class CollegeAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "short_form",
+        "college_type",
+        "affiliated_university",
+        "is_aicte_approved",
+        "is_ugc_approved",
+    ]
+    list_filter = ["college_type", "affiliated_university", "is_aicte_approved", "is_ugc_approved"]
+    search_fields = ["name", "short_form"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [DepartmentInline]
 
 
 class UnitInline(admin.TabularInline):
@@ -36,8 +59,9 @@ class SubjectInstructorInline(admin.TabularInline):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "description", "created_at", "updated_at"]
-    search_fields = ["name"]
+    list_display = ["name", "college", "description", "created_at", "updated_at"]
+    list_filter = ["college", "created_at"]
+    search_fields = ["name", "college__name", "description"]
     readonly_fields = ["id", "created_at", "updated_at"]
 
 

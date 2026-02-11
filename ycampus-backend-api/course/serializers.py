@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
+    College,
     Department,
     Subject,
     Unit,
@@ -21,10 +22,67 @@ User = get_user_model()
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    college_name = serializers.CharField(source="college.name", read_only=True)
+
     class Meta:
         model = Department
-        fields = ["id", "name", "description", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "name", "description", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class DepartmentBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name"]
+
+
+class CollegeSerializer(serializers.ModelSerializer):
+    departments = DepartmentBasicSerializer(many=True, read_only=True)
+    department_names = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False
+    )
+
+    class Meta:
+        model = College
+        fields = [
+            "id",
+            "name",
+            "short_form",
+            "college_type",
+            "affiliated_university",
+            "is_aicte_approved",
+            "is_ugc_approved",
+            "departments",
+            "department_names",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        department_names = validated_data.pop("department_names", [])
+        college = College.objects.create(**validated_data)
+        for dept_name in department_names:
+            Department.objects.get_or_create(college=college, name=dept_name)
+        return college
+
+    def update(self, instance, validated_data):
+        department_names = validated_data.pop("department_names", None)
+        instance = super().update(instance, validated_data)
+
+        if department_names is not None:
+            # Sync departments: remove those not in the list, add those that are new
+            current_depts = set(instance.departments.values_list("name", flat=True))
+            new_depts = set(department_names)
+
+            # Delete departments not in the new list
+            Department.objects.filter(college=instance, name__in=current_depts - new_depts).delete()
+
+            # Create new departments
+            for dept_name in new_depts - current_depts:
+                Department.objects.get_or_create(college=instance, name=dept_name)
+
+        return instance
 
 
 class UserGamificationProfileSerializer(serializers.ModelSerializer):
