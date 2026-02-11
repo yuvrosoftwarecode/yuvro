@@ -17,7 +17,7 @@ import {
   FileText,
   HelpCircle,
   CheckCircle,
-  Building2,
+  School,
   Code
 } from 'lucide-react';
 
@@ -108,10 +108,10 @@ const sidebarItems: SidebarItem[] = [
     roles: ['admin', 'instructor', 'recruiter']
   },
   {
-    id: 'departments',
-    label: 'Departments',
-    icon: Building2,
-    path: '/instructor/departments',
+    id: 'colleges',
+    label: 'Colleges',
+    icon: School,
+    path: '/instructor/colleges',
     roles: ['admin']
   }
 ];

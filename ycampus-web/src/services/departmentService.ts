@@ -2,6 +2,8 @@ import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface Department {
     id: string | number;
+    college?: string | number;
+    college_name?: string;
     name: string;
     slug?: string;
     description?: string;
@@ -10,8 +12,9 @@ export interface Department {
 }
 
 export const departmentService = {
-    getDepartments: async (): Promise<Department[]> => {
-        return await restApiAuthUtil.get<Department[]>('/course/departments/');
+    getDepartments: async (collegeId?: string | number): Promise<Department[]> => {
+        const url = collegeId ? `/course/departments/?college=${collegeId}` : '/course/departments/';
+        return await restApiAuthUtil.get<Department[]>(url);
     },
 
     getDepartment: async (id: string | number): Promise<Department> => {

@@ -15,7 +15,7 @@ import Subjects from './pages/instructor/Subjects';
 import SubjectEdit from './components/instructor/subjects/SubjectEdit';
 
 import Users from './pages/instructor/Users';
-import Departments from './pages/instructor/Departments';
+import Colleges from './pages/instructor/Colleges';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
@@ -352,10 +352,10 @@ function App() {
               />
 
               <Route
-                path="/instructor/departments"
+                path="/instructor/colleges"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
-                    <Departments />
+                    <Colleges />
                   </ProtectedRoute>
                 }
               />

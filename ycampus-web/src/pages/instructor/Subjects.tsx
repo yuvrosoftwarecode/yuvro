@@ -434,7 +434,9 @@ const Subjects: React.FC = () => {
                                     >
                                         <option value="">Select Department (Optional)</option>
                                         {departments.map((dept) => (
-                                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                            <option key={dept.id} value={dept.id}>
+                                                {dept.name} {dept.college_name ? `(${dept.college_name})` : ""}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
@@ -509,7 +511,9 @@ const Subjects: React.FC = () => {
                                     >
                                         <option value="">Select Department (Optional)</option>
                                         {departments.map((dept) => (
-                                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                            <option key={dept.id} value={dept.id}>
+                                                {dept.name} {dept.college_name ? `(${dept.college_name})` : ""}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
