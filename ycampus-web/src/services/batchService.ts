@@ -2,16 +2,16 @@ import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface Batch {
     id: string | number;
-    college: string | number;
-    college_name?: string;
+    department: string | number;
+    department_name?: string;
     name: string;
     created_at?: string;
     updated_at?: string;
 }
 
 export const batchService = {
-    getBatches: async (collegeId?: string | number): Promise<Batch[]> => {
-        const url = collegeId ? `/course/batches/?college=${collegeId}` : '/course/batches/';
+    getBatches: async (departmentId?: string | number): Promise<Batch[]> => {
+        const url = departmentId ? `/course/batches/?department=${departmentId}` : '/course/batches/';
         return await restApiAuthUtil.get<Batch[]>(url);
     },
 

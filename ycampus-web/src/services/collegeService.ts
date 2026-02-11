@@ -1,4 +1,5 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
+import { Department } from './departmentService';
 
 export interface Batch {
     id: string | number;
@@ -19,7 +20,7 @@ export interface College {
     affiliated_university: 'jntu' | 'anna' | 'vtu' | 'ou';
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
-    batches: Batch[];
+    departments: Department[];
     created_at?: string;
     updated_at?: string;
 }
@@ -33,7 +34,7 @@ export interface CollegeCreateData {
     affiliated_university: string;
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
-    batch_names: string[];
+    department_names: string[];
 }
 
 export const collegeService = {

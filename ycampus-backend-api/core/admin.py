@@ -1,0 +1,77 @@
+from django.contrib import admin
+from .models import College, Batch, Department, Semester, Section
+
+
+class BatchInline(admin.TabularInline):
+    model = Batch
+    extra = 0
+    fields = ["name"]
+
+
+class DepartmentInline(admin.TabularInline):
+    model = Department
+    extra = 0
+    fields = ["name", "description"]
+
+
+class SemesterInline(admin.TabularInline):
+    model = Semester
+    extra = 0
+    fields = ["number", "is_current"]
+
+
+class SectionInline(admin.TabularInline):
+    model = Section
+    extra = 0
+    fields = ["name"]
+
+
+@admin.register(College)
+class CollegeAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "short_form",
+        "college_type",
+        "affiliated_university",
+        "is_aicte_approved",
+        "is_ugc_approved",
+    ]
+    list_filter = ["college_type", "affiliated_university", "is_aicte_approved", "is_ugc_approved"]
+    search_fields = ["name", "short_form"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [DepartmentInline]
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ["name", "college", "description", "created_at", "updated_at"]
+    list_filter = ["college", "created_at"]
+    search_fields = ["name", "college__name", "description"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [BatchInline]
+
+
+@admin.register(Batch)
+class BatchAdmin(admin.ModelAdmin):
+    list_display = ["name", "department", "created_at", "updated_at"]
+    list_filter = ["department", "created_at"]
+    search_fields = ["name", "department__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [SemesterInline]
+
+
+@admin.register(Semester)
+class SemesterAdmin(admin.ModelAdmin):
+    list_display = ["number", "batch", "is_current", "created_at", "updated_at"]
+    list_filter = ["batch", "is_current", "created_at"]
+    search_fields = ["batch__name", "number"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [SectionInline]
+
+
+@admin.register(Section)
+class SectionAdmin(admin.ModelAdmin):
+    list_display = ["name", "semester", "created_at"]
+    list_filter = ["semester__batch", "semester"]
+    search_fields = ["name", "semester__batch__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]

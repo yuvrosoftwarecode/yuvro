@@ -37,16 +37,18 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { Badge } from "@/components/ui/badge";
 
-const GRADUATION_BATCHES = [
-    { name: "2021-2025", short: "B21" },
-    { name: "2022-2026", short: "B22" },
-    { name: "2023-2027", short: "B23" },
-    { name: "2024-2028", short: "B24" },
-    { name: "2025-2029", short: "B25" },
-    { name: "2020-2024", short: "B20" },
+const COMMON_DEPARTMENTS = [
+    { name: "Computer Science and Engineering", short: "CSE" },
+    { name: "Electronics and Communication", short: "ECE" },
+    { name: "Information Technology", short: "IT" },
+    { name: "Mechanical Engineering", short: "ME" },
+    { name: "Civil Engineering", short: "CE" },
+    { name: "Electrical and Electronics", short: "EEE" },
+    { name: "Artificial Intelligence & Data Science", short: "AI&DS" },
+    { name: "Business Management", short: "MBA" },
 ];
 
-const ALL_BATCH_NAMES = GRADUATION_BATCHES.map(b => b.name);
+const ALL_DEPARTMENT_NAMES = COMMON_DEPARTMENTS.map(d => d.name);
 
 const Colleges: React.FC = () => {
     const { user } = useAuth();
@@ -69,7 +71,7 @@ const Colleges: React.FC = () => {
         affiliated_university: "jntu",
         is_aicte_approved: false,
         is_ugc_approved: false,
-        batch_names: []
+        department_names: []
     });
     const [initialFormData, setInitialFormData] = useState<CollegeCreateData | null>(null);
     const [saving, setSaving] = useState(false);
@@ -81,7 +83,7 @@ const Colleges: React.FC = () => {
 
     // Hierarchy management state
     const [selectedManageCollege, setSelectedManageCollege] = useState<College | null>(null);
-    const [manageView, setManageView] = useState<'batches' | 'departments' | 'semesters' | 'sections'>('batches');
+    const [manageView, setManageView] = useState<'departments' | 'batches' | 'semesters' | 'sections'>('departments');
     const [hierarchyPath, setHierarchyPath] = useState<{ id: string | number, name: string, view: any }[]>([]);
     const [activeParent, setActiveParent] = useState<{ id: string | number, name: string } | null>(null);
     const [hierarchyData, setHierarchyData] = useState<any[]>([]);
@@ -137,10 +139,10 @@ const Colleges: React.FC = () => {
             return;
         }
 
-        // Check for batch removal
-        const removedBatches = initialFormData?.batch_names.filter(d => !formData.batch_names.includes(d)) || [];
-        if (removedBatches.length > 0) {
-            const confirmed = window.confirm(`Warning: You are removing ${removedBatches.length} batch(es). This may affect existing data. Do you want to proceed?`);
+        // Check for department removal
+        const removedDepts = initialFormData?.department_names.filter(d => !formData.department_names.includes(d)) || [];
+        if (removedDepts.length > 0) {
+            const confirmed = window.confirm(`Warning: You are removing ${removedDepts.length} department(s). This may affect existing data. Do you want to proceed?`);
             if (!confirmed) return;
         }
 
@@ -178,7 +180,7 @@ const Colleges: React.FC = () => {
 
     const openEditModal = (college: College) => {
         setEditCollegeId(college.id);
-        const data = {
+        const data: CollegeCreateData = {
             name: college.name,
             short_form: college.short_form || "",
             location: college.location || "",
@@ -187,7 +189,7 @@ const Colleges: React.FC = () => {
             affiliated_university: college.affiliated_university,
             is_aicte_approved: college.is_aicte_approved,
             is_ugc_approved: college.is_ugc_approved,
-            batch_names: college.batches.map(b => b.name)
+            department_names: college.departments.map(d => d.name)
         };
         setFormData(data);
         setInitialFormData(data);
@@ -195,7 +197,7 @@ const Colleges: React.FC = () => {
     };
 
     const resetForm = () => {
-        const resetData = {
+        const resetData: CollegeCreateData = {
             name: "",
             short_form: "",
             location: "",
@@ -204,7 +206,7 @@ const Colleges: React.FC = () => {
             affiliated_university: "jntu",
             is_aicte_approved: false,
             is_ugc_approved: false,
-            batch_names: []
+            department_names: []
         };
         setFormData(resetData);
         setInitialFormData(resetData);
@@ -213,18 +215,18 @@ const Colleges: React.FC = () => {
     const handleDeptToggle = (name: string) => {
         setFormData(prev => ({
             ...prev,
-            batch_names: prev.batch_names.includes(name)
-                ? prev.batch_names.filter(n => n !== name)
-                : [...prev.batch_names, name]
+            department_names: prev.department_names.includes(name)
+                ? prev.department_names.filter(n => n !== name)
+                : [...prev.department_names, name]
         }));
     };
 
     const handleSelectAll = (names: string[]) => {
         setFormData(prev => {
-            const others = prev.batch_names.filter(n => !names.includes(n));
+            const others = prev.department_names.filter(n => !names.includes(n));
             return {
                 ...prev,
-                batch_names: [...others, ...names]
+                department_names: [...others, ...names]
             };
         });
     };
@@ -232,17 +234,17 @@ const Colleges: React.FC = () => {
     const handleClearDepts = (names: string[]) => {
         setFormData(prev => ({
             ...prev,
-            batch_names: prev.batch_names.filter(n => !names.includes(n))
+            department_names: prev.department_names.filter(n => !names.includes(n))
         }));
     };
 
     const openManageHierarchy = async (college: College) => {
         setSelectedManageCollege(college);
         setActiveView('hierarchy');
-        setManageView('batches');
+        setManageView('departments');
         setActiveParent({ id: college.id, name: college.name });
-        setHierarchyData(college.batches || []);
-        setHierarchyPath([{ id: college.id, name: college.name, view: 'batches' }]);
+        setHierarchyData(college.departments || []);
+        setHierarchyPath([{ id: college.id, name: college.name, view: 'departments' }]);
     };
 
     const handleHierarchyBack = () => {
@@ -253,23 +255,22 @@ const Colleges: React.FC = () => {
         const previous = newPath[newPath.length - 1];
         setHierarchyPath(newPath);
 
-        if (previous.view === 'batches') {
+        if (previous.view === 'departments') {
             openManageHierarchy(selectedManageCollege!);
-        } else if (previous.view === 'departments') {
-            loadDepartmentsForManage(previous.id, false);
+        } else if (previous.view === 'batches') {
+            loadBatchesForManage(previous.id, false);
         } else if (previous.view === 'semesters') {
             loadSemestersForManage(previous.id, false);
         }
     };
 
-    const loadDepartmentsForManage = async (batchId: string | number, pushPath = true) => {
+    const loadDepartmentsForManage = async (collegeId: string | number, pushPath = true) => {
         setManageLoading(true);
         try {
-            const data = await departmentService.getDepartments(batchId);
-            const batch = hierarchyData.find(b => b.id === batchId) || (pushPath ? null : hierarchyPath[hierarchyPath.length - 1]);
+            const data = await departmentService.getDepartments(collegeId);
             setHierarchyData(data);
             setManageView('departments');
-            const newActiveParent = { id: batchId, name: batch?.name || 'Batch' };
+            const newActiveParent = { id: collegeId, name: selectedManageCollege?.name || 'College' };
             setActiveParent(newActiveParent);
             if (pushPath) {
                 setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'departments' }]);
@@ -281,14 +282,33 @@ const Colleges: React.FC = () => {
         }
     };
 
-    const loadSemestersForManage = async (deptId: string | number, pushPath = true) => {
+    const loadBatchesForManage = async (deptId: string | number, pushPath = true) => {
         setManageLoading(true);
         try {
-            const data = await semesterService.getSemesters(deptId);
+            const data = await batchService.getBatches(deptId);
             const dept = hierarchyData.find(d => d.id === deptId) || (pushPath ? null : hierarchyPath[hierarchyPath.length - 1]);
             setHierarchyData(data);
-            setManageView('semesters');
+            setManageView('batches');
             const newActiveParent = { id: deptId, name: dept?.name || 'Department' };
+            setActiveParent(newActiveParent);
+            if (pushPath) {
+                setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'batches' }]);
+            }
+        } catch (err) {
+            toast.error("Failed to load batches");
+        } finally {
+            setManageLoading(false);
+        }
+    };
+
+    const loadSemestersForManage = async (batchId: string | number, pushPath = true) => {
+        setManageLoading(true);
+        try {
+            const data = await semesterService.getSemesters(batchId);
+            const batch = hierarchyData.find(b => b.id === batchId) || (pushPath ? null : hierarchyPath[hierarchyPath.length - 1]);
+            setHierarchyData(data);
+            setManageView('semesters');
+            const newActiveParent = { id: batchId, name: batch?.name || 'Batch' };
             setActiveParent(newActiveParent);
             if (pushPath) {
                 setHierarchyPath(prev => [...prev, { ...newActiveParent, view: 'semesters' }]);
@@ -322,14 +342,14 @@ const Colleges: React.FC = () => {
     const handleDeleteHierarchyItem = async (id: string | number) => {
         if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
         try {
-            if (manageView === 'batches') {
-                await batchService.deleteBatch(id);
-                const college = await collegeService.getCollege(selectedManageCollege!.id);
-                setHierarchyData(college.batches || []);
-                loadColleges(); // Refresh main list too
-            } else if (manageView === 'departments') {
+            if (manageView === 'departments') {
                 await departmentService.deleteDepartment(id);
-                loadDepartmentsForManage(activeParent!.id, false);
+                const college = await collegeService.getCollege(selectedManageCollege!.id);
+                setHierarchyData(college.departments || []);
+                loadColleges(); // Refresh main list too
+            } else if (manageView === 'batches') {
+                await batchService.deleteBatch(id);
+                loadBatchesForManage(activeParent!.id, false);
             } else if (manageView === 'semesters') {
                 await semesterService.deleteSemester(id);
                 loadSemestersForManage(activeParent!.id, false);
@@ -348,7 +368,7 @@ const Colleges: React.FC = () => {
         setManageLoading(true);
         try {
             for (let i = 1; i <= 8; i++) {
-                await semesterService.createSemester({ department: activeParent.id, number: i });
+                await semesterService.createSemester({ batch: activeParent.id, number: i });
             }
             toast.success("8 Semesters initialized");
             loadSemestersForManage(activeParent.id);
@@ -373,18 +393,18 @@ const Colleges: React.FC = () => {
 
         setIsAdding(true);
         try {
-            if (manageView === 'batches') {
-                await batchService.createBatch({ college: selectedManageCollege!.id, name: nameToAdd });
+            if (manageView === 'departments') {
+                await departmentService.createDepartment({ college: selectedManageCollege!.id, name: nameToAdd });
                 const college = await collegeService.getCollege(selectedManageCollege!.id);
-                setHierarchyData(college.batches || []);
+                setHierarchyData(college.departments || []);
                 loadColleges();
-            } else if (manageView === 'departments') {
-                await departmentService.createDepartment({ batch: activeParent!.id, name: nameToAdd });
-                loadDepartmentsForManage(activeParent!.id, false);
+            } else if (manageView === 'batches') {
+                await batchService.createBatch({ department: activeParent!.id, name: nameToAdd });
+                loadBatchesForManage(activeParent!.id, false);
             } else if (manageView === 'semesters') {
                 const number = parseInt(nameToAdd);
                 if (isNaN(number)) throw new Error("Invalid semester number");
-                await semesterService.createSemester({ department: activeParent!.id, number });
+                await semesterService.createSemester({ batch: activeParent!.id, number });
                 loadSemestersForManage(activeParent!.id, false);
             } else if (manageView === 'sections') {
                 await sectionService.createSection({ semester: activeParent!.id, name: nameToAdd });
@@ -547,16 +567,16 @@ const Colleges: React.FC = () => {
                                             <CardContent className="p-5 pt-4">
                                                 <div className="flex items-end justify-between gap-4">
                                                     <div className="flex-1">
-                                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">Active Batches</p>
+                                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2">Active Departments</p>
                                                         <div className="flex flex-wrap gap-1.5">
-                                                            {college.batches && college.batches.length > 0 ? (
-                                                                college.batches.slice(0, 4).map((batch) => (
-                                                                    <Badge key={batch.id} variant="secondary" className="bg-slate-100/50 text-slate-500 text-[10px] px-2 py-0 h-5 font-bold border-slate-200/50 shadow-none">
-                                                                        {batch.name}
+                                                            {college.departments && college.departments.length > 0 ? (
+                                                                college.departments.slice(0, 4).map((dept) => (
+                                                                    <Badge key={dept.id} variant="secondary" className="bg-slate-100/50 text-slate-500 text-[10px] px-2 py-0 h-5 font-bold border-slate-200/50 shadow-none">
+                                                                        {dept.name}
                                                                     </Badge>
                                                                 ))
                                                             ) : (
-                                                                <span className="text-[10px] text-slate-300 italic font-bold">No Batches</span>
+                                                                <span className="text-[10px] text-slate-300 italic font-bold">No Departments</span>
                                                             )}
                                                         </div>
                                                     </div>
@@ -590,6 +610,7 @@ const Colleges: React.FC = () => {
                                             <button
                                                 onClick={() => {
                                                     if (crumb.view === 'departments') loadDepartmentsForManage(crumb.id, false);
+                                                    else if (crumb.view === 'batches') loadBatchesForManage(crumb.id, false);
                                                     else if (crumb.view === 'semesters') loadSemestersForManage(crumb.id, false);
                                                     setHierarchyPath(hierarchyPath.slice(0, idx + 2));
                                                 }}
@@ -610,8 +631,8 @@ const Colleges: React.FC = () => {
                                             </h3>
                                             <p className="text-slate-500 text-sm font-medium">
                                                 Select a {manageView.slice(0, -1)} to manage {
-                                                    manageView === 'batches' ? 'departments' :
-                                                        manageView === 'departments' ? 'semesters' :
+                                                    manageView === 'departments' ? 'batches' :
+                                                        manageView === 'batches' ? 'semesters' :
                                                             manageView === 'semesters' ? 'sections' : 'content'
                                                 }
                                             </p>
@@ -667,15 +688,15 @@ const Colleges: React.FC = () => {
                                                     key={item.id}
                                                     className="bg-white border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer"
                                                     onClick={() => {
-                                                        if (manageView === 'batches') loadDepartmentsForManage(item.id);
-                                                        else if (manageView === 'departments') loadSemestersForManage(item.id);
+                                                        if (manageView === 'departments') loadBatchesForManage(item.id);
+                                                        else if (manageView === 'batches') loadSemestersForManage(item.id);
                                                         else if (manageView === 'semesters') loadSectionsForManage(item.id);
                                                     }}
                                                 >
                                                     <CardHeader className="p-6 pb-2">
                                                         <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 mb-6 font-bold group-hover:scale-110 transition-transform">
-                                                            {manageView === 'batches' ? <Calendar className="h-6 w-6" /> :
-                                                                manageView === 'departments' ? <Building2 className="h-6 w-6" /> :
+                                                            {manageView === 'departments' ? <Building2 className="h-6 w-6" /> :
+                                                                manageView === 'batches' ? <Calendar className="h-6 w-6" /> :
                                                                     manageView === 'semesters' ? <Clock className="h-6 w-6" /> :
                                                                         <Hash className="h-6 w-6" />}
                                                         </div>
@@ -694,8 +715,8 @@ const Colleges: React.FC = () => {
                                                                 <button
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        if (manageView === 'batches') loadDepartmentsForManage(item.id);
-                                                                        else if (manageView === 'departments') loadSemestersForManage(item.id);
+                                                                        if (manageView === 'departments') loadBatchesForManage(item.id);
+                                                                        else if (manageView === 'batches') loadSemestersForManage(item.id);
                                                                         else if (manageView === 'semesters') loadSectionsForManage(item.id);
                                                                     }}
                                                                     className="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
@@ -907,44 +928,44 @@ const Colleges: React.FC = () => {
                                                     <CheckSquare className="h-4 w-4 text-amber-600" />
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Batch Architecture</h4>
-                                                    <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Infrastructure mapping for curriculum</p>
+                                                    <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Departmental Architecture</h4>
+                                                    <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Infrastructure mapping for academic units</p>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-sm max-w-fit">
                                                 <Button
                                                     variant="ghost"
-                                                    onClick={() => handleSelectAll(ALL_BATCH_NAMES)}
+                                                    onClick={() => handleSelectAll(ALL_DEPARTMENT_NAMES)}
                                                     className="h-8 text-[9px] font-bold uppercase text-indigo-600 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
                                                 >
                                                     SELECT ALL
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    onClick={() => handleClearDepts(ALL_BATCH_NAMES)}
+                                                    onClick={() => handleClearDepts(ALL_DEPARTMENT_NAMES)}
                                                     className="h-8 text-[9px] font-bold uppercase text-rose-500 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
                                                 >
                                                     CLEAR ALL
                                                 </Button>
                                                 <div className="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-md flex items-center gap-2 ml-1">
                                                     <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                                                    {formData.batch_names.length} ACTIVE BATCHES
+                                                    {formData.department_names.length} ACTIVE DEPARTMENTS
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            {GRADUATION_BATCHES.map((batch) => {
-                                                const isSelected = formData.batch_names.includes(batch.name);
+                                            {COMMON_DEPARTMENTS.map((dept) => {
+                                                const isSelected = formData.department_names.includes(dept.name);
                                                 return (
                                                     <div
-                                                        key={batch.name}
+                                                        key={dept.name}
                                                         className={`group/dept flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer ${isSelected
                                                             ? "bg-indigo-50/40 border-indigo-200 shadow-lg shadow-indigo-50/50"
                                                             : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
                                                             }`}
-                                                        onClick={() => handleDeptToggle(batch.name)}
+                                                        onClick={() => handleDeptToggle(dept.name)}
                                                     >
                                                         <div className={`w-5 h-5 rounded-lg flex items-center justify-center border-2 transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"
                                                             }`}>
@@ -952,10 +973,10 @@ const Colleges: React.FC = () => {
                                                         </div>
                                                         <div className="flex flex-col min-w-0">
                                                             <span className={`text-[13px] font-black tracking-tight ${isSelected ? "text-slate-900" : "text-slate-700"}`}>
-                                                                {batch.name}
+                                                                {dept.name}
                                                             </span>
                                                             <span className={`text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-indigo-600" : "text-slate-400"}`}>
-                                                                {batch.short}
+                                                                {dept.short}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -969,7 +990,7 @@ const Colleges: React.FC = () => {
                                             <Info className="h-4 w-4 text-slate-400 shrink-0" />
                                         </div>
                                         <p className="text-[10px] text-slate-500 font-bold leading-relaxed tracking-wide">
-                                            SYSTEM ARCHITECTURE: Graduation batches represent the academic lifespan of a student cohort. Selecting these will initialize the temporal structure for curriculum planning.
+                                            SYSTEM ARCHITECTURE: Departments represent the academic units of an institution. Selecting these will initialize the structural organization for batches and curriculum.
                                         </p>
                                     </div>
                                 </div>
@@ -1012,7 +1033,7 @@ const Colleges: React.FC = () => {
                             </DialogHeader>
                             <div className="py-4 text-gray-600">
                                 <p className="font-semibold text-gray-900 mb-2">Are you sure you want to delete this college?</p>
-                                <p className="text-sm">This will remove the college profile and its association with batches. Departments linked to these batches might be affected.</p>
+                                <p className="text-sm">This will remove the college profile and its association with departments. Batches linked to these departments might be affected.</p>
                             </div>
                             <DialogFooter>
                                 <Button variant="ghost" onClick={() => setConfirmDelete(null)}>Cancel</Button>

@@ -1,11 +1,7 @@
 from rest_framework import serializers
 
+from core.models import College, Batch, Department, Semester, Section
 from .models import (
-    College,
-    Batch,
-    Department,
-    Semester,
-    Section,
     Subject,
     Unit,
     SubUnit,
@@ -30,33 +26,39 @@ class CollegeBasicSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "short_form"]
 
 
+class DepartmentBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name"]
+
+
 class BatchSerializer(serializers.ModelSerializer):
-    college_name = serializers.CharField(source="college.name", read_only=True)
-    college_details = CollegeBasicSerializer(source="college", read_only=True)
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    department_details = DepartmentBasicSerializer(source="department", read_only=True)
 
     class Meta:
         model = Batch
-        fields = ["id", "college", "college_name", "college_details", "name", "created_at", "updated_at"]
+        fields = ["id", "department", "department_name", "department_details", "name", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    batch_name = serializers.CharField(source="batch.name", read_only=True)
-    batch_details = BatchSerializer(source="batch", read_only=True)
+    college_name = serializers.CharField(source="college.name", read_only=True)
+    college_details = CollegeBasicSerializer(source="college", read_only=True)
 
     class Meta:
         model = Department
-        fields = ["id", "batch", "batch_name", "batch_details", "name", "description", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "college_details", "name", "description", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class SemesterSerializer(serializers.ModelSerializer):
-    department_name = serializers.CharField(source="department.name", read_only=True)
-    department_details = DepartmentSerializer(source="department", read_only=True)
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
+    batch_details = BatchSerializer(source="batch", read_only=True)
 
     class Meta:
         model = Semester
-        fields = ["id", "department", "department_name", "department_details", "number", "is_current", "created_at", "updated_at"]
+        fields = ["id", "batch", "batch_name", "batch_details", "number", "is_current", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
@@ -70,14 +72,10 @@ class SectionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
-class DepartmentBasicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Department
-        fields = ["id", "name"]
 
 
 class CollegeSerializer(serializers.ModelSerializer):
-    batches = BatchSerializer(many=True, read_only=True)
+    departments = DepartmentSerializer(many=True, read_only=True)
 
     class Meta:
         model = College
@@ -89,39 +87,39 @@ class CollegeSerializer(serializers.ModelSerializer):
             "affiliated_university",
             "is_aicte_approved",
             "is_ugc_approved",
-            "batch_names",
-            "batches",
+            "department_names",
+            "departments",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
-    batch_names = serializers.ListField(
+    department_names = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False
     )
 
     def create(self, validated_data):
-        batch_names = validated_data.pop("batch_names", [])
+        department_names = validated_data.pop("department_names", [])
         college = College.objects.create(**validated_data)
-        for batch_name in batch_names:
-            Batch.objects.get_or_create(college=college, name=batch_name)
+        for dept_name in department_names:
+            Department.objects.get_or_create(college=college, name=dept_name)
         return college
 
     def update(self, instance, validated_data):
-        batch_names = validated_data.pop("batch_names", None)
+        department_names = validated_data.pop("department_names", None)
         instance = super().update(instance, validated_data)
 
-        if batch_names is not None:
-            # Sync batches
-            current_batches = set(instance.batches.values_list("name", flat=True))
-            new_batches = set(batch_names)
+        if department_names is not None:
+            # Sync departments
+            current_depts = set(instance.departments.values_list("name", flat=True))
+            new_depts = set(department_names)
 
-            # Delete batches not in the new list
-            Batch.objects.filter(college=instance, name__in=current_batches - new_batches).delete()
+            # Delete departments not in the new list
+            Department.objects.filter(college=instance, name__in=current_depts - new_depts).delete()
 
-            # Create new batches
-            for batch_name in new_batches - current_batches:
-                Batch.objects.get_or_create(college=instance, name=batch_name)
+            # Create new departments
+            for dept_name in new_depts - current_depts:
+                Department.objects.get_or_create(college=instance, name=dept_name)
 
         return instance
 

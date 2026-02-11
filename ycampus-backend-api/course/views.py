@@ -16,12 +16,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
+from core.models import College, Batch, Department, Semester, Section
 from .models import (
-    College,
-    Batch,
-    Department,
-    Semester,
-    Section,
     Subject,
     Unit,
     SubUnit,
@@ -82,7 +78,7 @@ class BatchViewSet(viewsets.ModelViewSet):
     queryset = Batch.objects.all()
     serializer_class = BatchSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ["college"]
+    filterset_fields = ["department"]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
@@ -98,7 +94,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ["batch"]
+    filterset_fields = ["college"]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
@@ -113,7 +109,7 @@ class SemesterViewSet(viewsets.ModelViewSet):
     queryset = Semester.objects.all()
     serializer_class = SemesterSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ["department"]
+    filterset_fields = ["batch"]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
