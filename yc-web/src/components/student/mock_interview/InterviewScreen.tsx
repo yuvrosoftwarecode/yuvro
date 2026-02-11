@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock } from 'lucide-react';
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2 } from 'lucide-react';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { aiAssistantService } from '@/services/aiAssistantService';
@@ -17,7 +17,7 @@ interface InterviewScreenProps {
   mediaStream: MediaStream;
   resume?: File;
   onExit: () => void;
-  onInterviewComplete: (role: Role, difficulty: string, duration: string) => void;
+  onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
 
 const InterviewScreen: React.FC<InterviewScreenProps> = ({
@@ -31,14 +31,17 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   onInterviewComplete
 }) => {
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
+  const [loadingExit, setLoadingExit] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentUserAnswer, setCurrentUserAnswer] = useState('');
   const [isAITyping, setIsAITyping] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
 
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
@@ -47,6 +50,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const initializedRef = useRef(false);
 
 
   const speakText = (text: string) => {
@@ -119,15 +123,25 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     setTimeLeft(seconds);
 
     const initInterview = async () => {
+      if (initializedRef.current) return;
+      initializedRef.current = true;
+
       try {
         setIsAITyping(true);
 
+        const durationMatch = duration.match(/(\d+)/);
+        const durationMins = durationMatch ? parseInt(durationMatch[1]) : 30;
+
         const response = await mockInterviewService.startInterview(
-          role.id,
-          difficulty,
-          getDurationInSeconds(duration) / 60,
-          resume
+          role.id, // Pass ID
+          role.level || "Intermediate", // Pass level
+          durationMins, // Pass duration
+          resume // Pass resume file
         );
+
+        if (response.id) {
+          setInterviewSessionId(response.id);
+        }
 
         if (response.chat_session_id) {
           setChatSessionId(response.chat_session_id);
@@ -164,15 +178,35 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     initInterview();
   }, [role.id, difficulty, duration]); // dependency on role vars
 
-  const handleEndInterview = () => {
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
+  const handleEndInterview = async () => {
+    try {
+      setLoadingExit(true); // Start loading
+      // Stop recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+
+      // Stop media tracks
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+
+      window.speechSynthesis.cancel();
+
+      // End session via API
+      if (interviewSessionId) {
+        await mockInterviewService.endInterviewSession(interviewSessionId);
+        onInterviewComplete(role, difficulty, duration, interviewSessionId);
+      } else {
+        onExit(); // Fallback if no session
+      }
+    } catch (error) {
+      console.error("Failed to end interview", error);
+      // Even if API fails, we should probably exit
+      onExit();
+    } finally {
+      setLoadingExit(false);
     }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (e) { }
-    }
-    window.speechSynthesis.cancel();
-    onExit();
   };
 
 
@@ -278,7 +312,11 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         cleanAnswer = "I have written the code in the editor.";
       }
 
-      const combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : "");
+      let combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : "");
+
+      if (!combinedAnswer.trim()) {
+        combinedAnswer = "(No verbal answer provided)";
+      }
 
       const userMessage: Message = {
         type: 'user',
@@ -336,9 +374,19 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
 
         <div className="flex items-center gap-4 justify-self-start">
-          <Button variant="ghost" size="sm" onClick={onExit} className="text-slate-500 hover:text-slate-900">
-            <LogOut className="w-4 h-4 mr-2" />
-            Exit
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEndInterview}
+            disabled={loadingExit}
+            className="text-slate-500 hover:text-slate-900"
+          >
+            {loadingExit ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <LogOut className="w-4 h-4 mr-2" />
+            )}
+            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
           </Button>
           <div className="h-4 w-px bg-slate-200" />
           <div className="flex items-center gap-2">

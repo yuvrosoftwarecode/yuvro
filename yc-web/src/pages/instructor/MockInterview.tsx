@@ -412,27 +412,44 @@ export default function MockInterviewPage() {
                                 {interview.ai_verbal_question_count} / {interview.ai_coding_question_count}
                               </TableCell>
                               <TableCell>
-                                <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4 text-gray-500" />
-                                  {interview.participants}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    onClick={() => openEditForm(interview)}
-                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
-                                  >
-                                    <Pencil className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(interview.id)}
-                                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </TableCell>
+                                <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Users className="h-4 w-4 mr-1" />
+                        {interview.participants || 0} participants
+                      </div>
+                      <div className="flex gap-2">
+                         <button
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             navigate(`/instructor/mock-interview/${interview.id}/analytics`);
+                           }}
+                           className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                           title="View Analytics"
+                         >
+                           <Trophy className="h-4 w-4" />
+                         </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditForm(interview);
+                          }}
+                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(interview.id);
+                          }}
+                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>          </TableCell>
                             </TableRow>
                           ))}
                           {filteredMockInterviews.length === 0 && (

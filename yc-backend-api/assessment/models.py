@@ -84,6 +84,8 @@ class SkillTest(BaseAssessmentModel):
         blank=True,
         help_text="Specific topic within the course (optional)",
     )
+    passing_percentage = models.FloatField(default=60.0, help_text="Passing percentage (0-100)")
+
 
     def __str__(self):
         return f"{self.title} - {self.course.name if self.course else 'No Course'} ({self.topic.name if self.topic else 'All Topics'})"

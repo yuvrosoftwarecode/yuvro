@@ -119,6 +119,16 @@ class MockInterviewService {
     }
   }
 
+  async getMockInterviewSubmissions(id: string): Promise<any[]> {
+    try {
+      const response = await restApiAuthUtil.get<any[]>(`/assessment/mock-interviews/${id}/submissions/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching mock interview submissions:', error);
+      throw error;
+    }
+  }
+
   async startInterview(id: string, experience_level: string, selected_duration: number, resume?: File): Promise<any> {
     try {
       const formData = new FormData();
@@ -172,6 +182,61 @@ class MockInterviewService {
       return response;
     } catch (error) {
       console.error('Error fetching upcoming interviews:', error);
+      throw error;
+    }
+  }
+
+  // --- New Methods for Interview Sessions ---
+
+  async createInterviewSession(roleTitle: string, roleLevel: string, difficulty: string, duration: number, interviewer: string, resume?: File): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('role_title', roleTitle);
+      formData.append('role_level', roleLevel);
+      formData.append('difficulty', difficulty);
+      formData.append('duration_minutes', duration.toString());
+      formData.append('interviewer_name', interviewer);
+
+      if (resume) {
+        formData.append('resume', resume);
+      }
+
+      // Note: We're sending FormData, so we don't set Content-Type header manually (browser does it with boundary)
+      const response = await restApiAuthUtil.post<any>('/interviews/', formData);
+      return response;
+    } catch (error) {
+      console.error('Error creating interview session:', error);
+      throw error;
+    }
+  }
+
+  async endInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.post<any>(`/interviews/${sessionId}/end_interview/`, {});
+      return response;
+    } catch (error) {
+      console.error('Error ending interview session:', error);
+      throw error;
+    }
+  }
+
+  async getInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/interviews/${sessionId}/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching interview session:', error);
+      throw error;
+    }
+  }
+
+  async getAllInterviewSessions(filters?: any): Promise<any> {
+    try {
+      // filters could be used for query params like ?user=... or ?search=...
+      const response = await restApiAuthUtil.get<any>('/interviews/', filters);
+      return response;
+    } catch (error) {
+      console.error('Error fetching all interview sessions:', error);
       throw error;
     }
   }

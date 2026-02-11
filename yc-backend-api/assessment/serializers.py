@@ -252,6 +252,7 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "duration",
             "total_marks",
             "passing_marks",
+            "passing_percentage",
             "enable_proctoring",
             "questions_config",
             "questions_random_config",
@@ -475,11 +476,41 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+
 class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
     mock_interview_title = serializers.CharField(
         source="mock_interview.title", read_only=True
     )
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
+    user_email = serializers.EmailField(source="user.email", read_only=True)
+    report_summary = serializers.SerializerMethodField()
+    actual_duration_display = serializers.SerializerMethodField()
+    interview_session_id = serializers.SerializerMethodField()
+
+    def get_interview_session_id(self, obj):
+        if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
+            return obj.chat_session.interview_session.id
+        return None
+
+    def get_report_summary(self, obj):
+        if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
+             interview_session = obj.chat_session.interview_session
+             if hasattr(interview_session, 'report'):
+                 return {
+                     "overall_score": interview_session.report.overall_score,
+                     "feedback_summary": interview_session.report.feedback_summary
+                 }
+        return None
+
+    def get_actual_duration_display(self, obj):
+        if obj.chat_session and hasattr(obj.chat_session, 'interview_session'):
+             interview_session = obj.chat_session.interview_session
+             if interview_session.actual_duration:
+                total_seconds = int(interview_session.actual_duration.total_seconds())
+                minutes = total_seconds // 60
+                seconds = total_seconds % 60
+                return f"{minutes}m {seconds}s"
+        return None
 
     class Meta:
         model = MockInterviewSubmission
@@ -489,6 +520,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "mock_interview_title",
             "user",
             "user_name",
+            "user_email",
             "status",
             "experience_level",
             "started_at",
@@ -501,6 +533,9 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "user_agent",
             "created_at",
             "updated_at",
+            "report_summary",
+            "actual_duration_display",
+            "interview_session_id",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 

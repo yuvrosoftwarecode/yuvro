@@ -429,3 +429,88 @@ class AIServiceFactory:
     def get_supported_providers(cls) -> List[str]:
         """Get list of supported AI providers."""
         return list(cls._services.keys())
+
+
+class InterviewReportGenerator:
+    """
+    Service to generate detailed interview reports using AI.
+    """
+
+    def __init__(self):
+        # We'll use Gemini for report generation as it handles large contexts well
+        self.api_key = config("GEMINI_API_KEY", default=None)
+        if not self.api_key:
+            raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
+        self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
+
+    async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
+        """
+        Generate a comprehensive interview report based on the chat session.
+        """
+
+        prompt = f"""
+        You are an expert technical interviewer and career coach. 
+        Analyze the following mock interview transcript and generate a detailed performance report.
+        
+        RETURN ONLY RAW JSON. DO NOT USE MARKDOWN BLOCK.
+
+        TRANSCRIPT:
+        {conversation_text}
+
+        RESUME CONTEXT:
+        {resume_content if resume_content else "No resume provided."}
+
+        OUTPUT FORMAT (JSON):
+        {{
+            "overall_score": <float 0-100>,
+            "feedback_summary": "<string: executive summary of performance>",
+            "performance_metrics": {{
+                "Communication": <int 0-100>,
+                "Technical Proficiency": <int 0-100>,
+                "Problem Solving": <int 0-100>,
+                "Adaptability": <int 0-100>
+            }},
+            "skill_analysis": {{
+                "Skill Name 1": {{ "score": <int 0-10>, "feedback": "<string>" }},
+                "Skill Name 2": {{ "score": <int 0-10>, "feedback": "<string>" }}
+            }},
+            "question_analysis": [
+                {{
+                    "question": "<string: Identify the main question asked>",
+                    "type": "<string: behavioral|technical|coding>",
+                    "user_answer": "<string: summary of candidate answer>",
+                    "ai_score": <int 0-100>,
+                    "what_went_well": ["<string>", ...],
+                    "what_could_be_better": ["<string>", ...],
+                    "missing_terminologies": ["<string>", ...],
+                    "recommended_response": "<string: an ideal golden sample response>"
+                }}
+            ],
+            "key_takeaways": {{
+                "strengths": ["<string>", ...],
+                "improvements": ["<string>", ...]
+            }}
+        }}
+        """
+
+        try:
+            # We use a slightly higher temperature for creative feedback but constrained by JSON format
+            response = await self.service.generate_response(
+                [{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=4000
+            )
+
+            response_text = response["response"]
+            
+            # clean up potential markdown formatting if model ignores instruction
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+            
+            return json.loads(response_text)
+
+        except json.JSONDecodeError:
+            logger.error("Failed to parse AI report JSON")
+            raise AIServiceError("Failed to generate valid report format")
+        except Exception as e:
+            logger.error(f"Report generation error: {str(e)}")
+            raise e
