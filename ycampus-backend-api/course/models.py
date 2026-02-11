@@ -31,6 +31,8 @@ class College(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
     short_form = models.CharField(max_length=50, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
     college_type = models.CharField(
         max_length=20, choices=COLLEGE_TYPES, default="private"
     )
@@ -50,14 +52,33 @@ class College(models.Model):
         return self.name
 
 
-class Department(models.Model):
+class Batch(models.Model):
     """
-    Model representing a department within a college.
+    Model representing a student batch (e.g., 2021-2025) within a college.
     """
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     college = models.ForeignKey(
-        College, on_delete=models.CASCADE, related_name="departments", null=True
+        College, on_delete=models.CASCADE, related_name="batches"
+    )
+    name = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-name"]
+        unique_together = [["college", "name"]]
+
+    def __str__(self):
+        return f"{self.name} ({self.college.name})"
+
+
+class Department(models.Model):
+    """
+    Model representing a department within a batch.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    batch = models.ForeignKey(
+        Batch, on_delete=models.CASCADE, related_name="departments", null=True
     )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -66,12 +87,59 @@ class Department(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = [["college", "name"]]
+        unique_together = [["batch", "name"]]
 
     def __str__(self):
-        if self.college:
-            return f"{self.name} ({self.college.name})"
+        if self.batch:
+            return f"{self.name} ({self.batch.name})"
         return self.name
+
+
+class Semester(models.Model):
+    """
+    Model representing a semester within a department.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="semesters"
+    )
+    number = models.PositiveIntegerField()
+    is_current = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["number"]
+        unique_together = [["department", "number"]]
+
+    def __str__(self):
+        return f"Semester {self.number} - {self.department.name}"
+
+    def save(self, *args, **kwargs):
+        if self.is_current:
+            # Set all other semesters in this department to not current
+            Semester.objects.filter(department=self.department).exclude(id=self.id).update(is_current=False)
+        super().save(*args, **kwargs)
+
+
+class Section(models.Model):
+    """
+    Model representing a section within a semester.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    semester = models.ForeignKey(
+        Semester, on_delete=models.CASCADE, related_name="sections"
+    )
+    name = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = [["semester", "name"]]
+
+    def __str__(self):
+        return f"Section {self.name} - {self.semester.department.name} (S{self.semester.number})"
 
 
 class Subject(models.Model):
@@ -91,8 +159,15 @@ class Subject(models.Model):
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     name = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    department = models.ForeignKey(
-        Department,
+    semester = models.ForeignKey(
+        Semester,
+        on_delete=models.SET_NULL,
+        related_name="subjects",
+        null=True,
+        blank=True,
+    )
+    section = models.ForeignKey(
+        Section,
         on_delete=models.SET_NULL,
         related_name="subjects",
         null=True,

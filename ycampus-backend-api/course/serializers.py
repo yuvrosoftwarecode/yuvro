@@ -2,7 +2,10 @@ from rest_framework import serializers
 
 from .models import (
     College,
+    Batch,
     Department,
+    Semester,
+    Section,
     Subject,
     Unit,
     SubUnit,
@@ -21,12 +24,49 @@ User = get_user_model()
 
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
+class CollegeBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = College
+        fields = ["id", "name", "short_form"]
+
+
+class BatchSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
+    college_details = CollegeBasicSerializer(source="college", read_only=True)
+
+    class Meta:
+        model = Batch
+        fields = ["id", "college", "college_name", "college_details", "name", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
+    batch_details = BatchSerializer(source="batch", read_only=True)
 
     class Meta:
         model = Department
-        fields = ["id", "college", "college_name", "name", "description", "created_at", "updated_at"]
+        fields = ["id", "batch", "batch_name", "batch_details", "name", "description", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SemesterSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    department_details = DepartmentSerializer(source="department", read_only=True)
+
+    class Meta:
+        model = Semester
+        fields = ["id", "department", "department_name", "department_details", "number", "is_current", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    semester_number = serializers.IntegerField(source="semester.number", read_only=True)
+    semester_details = SemesterSerializer(source="semester", read_only=True)
+
+    class Meta:
+        model = Section
+        fields = ["id", "semester", "semester_number", "semester_details", "name", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
@@ -37,10 +77,7 @@ class DepartmentBasicSerializer(serializers.ModelSerializer):
 
 
 class CollegeSerializer(serializers.ModelSerializer):
-    departments = DepartmentBasicSerializer(many=True, read_only=True)
-    department_names = serializers.ListField(
-        child=serializers.CharField(), write_only=True, required=False
-    )
+    batches = BatchSerializer(many=True, read_only=True)
 
     class Meta:
         model = College
@@ -52,35 +89,39 @@ class CollegeSerializer(serializers.ModelSerializer):
             "affiliated_university",
             "is_aicte_approved",
             "is_ugc_approved",
-            "departments",
-            "department_names",
+            "batch_names",
+            "batches",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+    batch_names = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False
+    )
+
     def create(self, validated_data):
-        department_names = validated_data.pop("department_names", [])
+        batch_names = validated_data.pop("batch_names", [])
         college = College.objects.create(**validated_data)
-        for dept_name in department_names:
-            Department.objects.get_or_create(college=college, name=dept_name)
+        for batch_name in batch_names:
+            Batch.objects.get_or_create(college=college, name=batch_name)
         return college
 
     def update(self, instance, validated_data):
-        department_names = validated_data.pop("department_names", None)
+        batch_names = validated_data.pop("batch_names", None)
         instance = super().update(instance, validated_data)
 
-        if department_names is not None:
-            # Sync departments: remove those not in the list, add those that are new
-            current_depts = set(instance.departments.values_list("name", flat=True))
-            new_depts = set(department_names)
+        if batch_names is not None:
+            # Sync batches
+            current_batches = set(instance.batches.values_list("name", flat=True))
+            new_batches = set(batch_names)
 
-            # Delete departments not in the new list
-            Department.objects.filter(college=instance, name__in=current_depts - new_depts).delete()
+            # Delete batches not in the new list
+            Batch.objects.filter(college=instance, name__in=current_batches - new_batches).delete()
 
-            # Create new departments
-            for dept_name in new_depts - current_depts:
-                Department.objects.get_or_create(college=instance, name=dept_name)
+            # Create new batches
+            for batch_name in new_batches - current_batches:
+                Batch.objects.get_or_create(college=instance, name=batch_name)
 
         return instance
 
@@ -160,7 +201,11 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     units = UnitSerializer(many=True, read_only=True)
     instructors = serializers.SerializerMethodField()
-    department_details = DepartmentSerializer(source="department", read_only=True)
+    instructor_ids = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False
+    )
+    semester_details = SemesterSerializer(source="semester", read_only=True)
+    section_details = SectionSerializer(source="section", read_only=True)
 
     class Meta:
         model = Subject
@@ -169,8 +214,11 @@ class SubjectSerializer(serializers.ModelSerializer):
             "short_code",
             "name",
             "category",
-            "department",
-            "department_details",
+            "semester",
+            "semester_details",
+            "section",
+            "section_details",
+            "instructor_ids",
             "created_at",
             "updated_at",
             "units",
@@ -196,14 +244,11 @@ class SubjectSerializer(serializers.ModelSerializer):
         Validate short_code uniqueness if provided.
         """
         if value:
-            # Check if another Subject with this short_code exists (excluding current instance)
             queryset = Subject.objects.filter(short_code=value)
             if self.instance:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
-                raise serializers.ValidationError(
-                    "A Subject with this short code already exists."
-                )
+                raise serializers.ValidationError("A Subject with this short code already exists.")
         return value
 
     def validate_category(self, value):
@@ -217,8 +262,57 @@ class SubjectSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def create(self, validated_data):
+        instructor_ids = validated_data.pop("instructor_ids", [])
+        subject = Subject.objects.create(**validated_data)
+        for instr_id in instructor_ids:
+            try:
+                instructor = User.objects.get(id=instr_id)
+                SubjectInstructor.objects.create(subject=subject, instructor=instructor)
+            except (User.DoesNotExist, ValueError):
+                continue
+        return subject
+
+    def update(self, instance, validated_data):
+        instructor_ids = validated_data.pop("instructor_ids", None)
+        instance = super().update(instance, validated_data)
+
+        if instructor_ids is not None:
+            # Sync instructors
+            current_instr_ids = set(
+                SubjectInstructor.objects.filter(subject=instance).values_list("instructor_id", flat=True)
+            )
+            new_instr_ids = set(str(id) for id in instructor_ids)
+            current_instr_ids = set(str(id) for id in current_instr_ids)
+
+            # Remove instructors not in the new list
+            SubjectInstructor.objects.filter(
+                subject=instance, instructor_id__in=[id for id in current_instr_ids if id not in new_instr_ids]
+            ).delete()
+
+            # Add new instructors
+            for instr_id in new_instr_ids - current_instr_ids:
+                try:
+                    instructor = User.objects.get(id=instr_id)
+                    SubjectInstructor.objects.create(
+                        subject=instance, instructor=instructor
+                    )
+                except (User.DoesNotExist, ValueError):
+                    continue
+
+        return instance
+
 
 class SubjectBasicSerializer(serializers.ModelSerializer):
+    semester_number = serializers.SerializerMethodField()
+    section_name = serializers.SerializerMethodField()
+
+    def get_semester_number(self, obj):
+        return obj.semester.number if obj.semester else None
+
+    def get_section_name(self, obj):
+        return obj.section.name if obj.section else None
+
     class Meta:
         model = Subject
         fields = [
@@ -226,7 +320,10 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "short_code",
             "name",
             "category",
-            "department",
+            "semester",
+            "semester_number",
+            "section",
+            "section_name",
             "created_at",
             "updated_at",
             "total_problems",

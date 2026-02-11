@@ -18,7 +18,10 @@ from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
 from .models import (
     College,
+    Batch,
     Department,
+    Semester,
+    Section,
     Subject,
     Unit,
     SubUnit,
@@ -31,7 +34,10 @@ from .models import (
 )
 from .serializers import (
     CollegeSerializer,
+    BatchSerializer,
     DepartmentSerializer,
+    SemesterSerializer,
+    SectionSerializer,
     SubjectSerializer,
     SubjectBasicSerializer,
     UnitSerializer,
@@ -69,13 +75,12 @@ class CollegeViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-class DepartmentViewSet(viewsets.ModelViewSet):
+class BatchViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for viewing and editing department instances.
+    ViewSet for viewing and editing batch instances.
     """
-
-    queryset = Department.objects.all()
-    serializer_class = DepartmentSerializer
+    queryset = Batch.objects.all()
+    serializer_class = BatchSerializer
     permission_classes = [IsAuthenticated]
     filterset_fields = ["college"]
 
@@ -84,14 +89,58 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             return [IsAdminUser()]
         return super().get_permissions()
 
-    def get_queryset(self):
-        return Department.objects.all()
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing department instances.
+    """
+
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["batch"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class SemesterViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing semester instances.
+    """
+    queryset = Semester.objects.all()
+    serializer_class = SemesterSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["department"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class SectionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing section instances.
+    """
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["semester"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
 
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     permission_classes = [CanManageCourses]
+    filterset_fields = ["semester", "section"]
 
     def get_serializer_class(self):
         return SubjectSerializer if self.action == "retrieve" else SubjectBasicSerializer
