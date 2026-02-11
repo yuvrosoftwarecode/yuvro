@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, School, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Edit, Trash2, School, CheckCircle2, XCircle, Search, Building2, Info, Eraser, CheckSquare, AlertCircle } from "lucide-react";
 import { collegeService, College, CollegeCreateData } from "@/services/collegeService";
 import {
     Dialog,
@@ -26,17 +26,39 @@ import RoleSidebar from "../../components/common/RoleSidebar";
 import RoleHeader from "../../components/common/RoleHeader";
 import { Badge } from "@/components/ui/badge";
 
-const AVAILABLE_DEPARTMENTS = [
-    "Computer Science & Engineering",
-    "Electronics & Communication Engineering",
-    "Electrical & Electronics Engineering",
-    "Mechanical Engineering",
-    "Civil Engineering",
-    "Information Technology",
-    "Artificial Intelligence & Machine Learning",
-    "Data Science",
-    "MBA"
+const DEPARTMENT_GROUPS = [
+    {
+        name: "Computer & AI",
+        departments: [
+            { name: "Computer Science & Engineering", short: "CSE" },
+            { name: "Information Technology", short: "IT" },
+            { name: "Artificial Intelligence & Machine Learning", short: "AI & ML" },
+            { name: "Data Science", short: "DS" },
+        ]
+    },
+    {
+        name: "Electronics",
+        departments: [
+            { name: "Electronics & Communication Engineering", short: "ECE" },
+            { name: "Electrical & Electronics Engineering", short: "EEE" },
+        ]
+    },
+    {
+        name: "Core Engineering",
+        departments: [
+            { name: "Mechanical Engineering", short: "Mech" },
+            { name: "Civil Engineering", short: "Civil" },
+        ]
+    },
+    {
+        name: "Management",
+        departments: [
+            { name: "MBA", short: "MBA" }
+        ]
+    }
 ];
+
+const ALL_DEPT_NAMES = DEPARTMENT_GROUPS.flatMap(g => g.departments.map(d => d.name));
 
 const Colleges: React.FC = () => {
     const { user } = useAuth();
@@ -59,8 +81,12 @@ const Colleges: React.FC = () => {
         is_ugc_approved: false,
         department_names: []
     });
+    const [initialFormData, setInitialFormData] = useState<CollegeCreateData | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const isDirty = JSON.stringify(formData) !== JSON.stringify(initialFormData);
 
     useEffect(() => {
         loadColleges();
@@ -105,6 +131,14 @@ const Colleges: React.FC = () => {
             toast.error("College name is required");
             return;
         }
+
+        // Check for department removal
+        const removedDepts = initialFormData?.department_names.filter(d => !formData.department_names.includes(d)) || [];
+        if (removedDepts.length > 0) {
+            const confirmed = window.confirm(`Warning: You are removing ${removedDepts.length} department(s). This may affect existing subjects and faculty mappings. Do you want to proceed?`);
+            if (!confirmed) return;
+        }
+
         try {
             setSaving(true);
             await collegeService.updateCollege(editCollegeId, formData);
@@ -139,7 +173,7 @@ const Colleges: React.FC = () => {
 
     const openEditModal = (college: College) => {
         setEditCollegeId(college.id);
-        setFormData({
+        const data = {
             name: college.name,
             short_form: college.short_form || "",
             college_type: college.college_type,
@@ -147,12 +181,14 @@ const Colleges: React.FC = () => {
             is_aicte_approved: college.is_aicte_approved,
             is_ugc_approved: college.is_ugc_approved,
             department_names: college.departments.map(d => d.name)
-        });
+        };
+        setFormData(data);
+        setInitialFormData(data);
         setIsEditOpen(true);
     };
 
     const resetForm = () => {
-        setFormData({
+        const resetData = {
             name: "",
             short_form: "",
             college_type: "private",
@@ -160,7 +196,10 @@ const Colleges: React.FC = () => {
             is_aicte_approved: false,
             is_ugc_approved: false,
             department_names: []
-        });
+        };
+        setFormData(resetData);
+        setInitialFormData(resetData);
+        setSearchTerm("");
     };
 
     const handleDeptToggle = (deptName: string) => {
@@ -169,6 +208,23 @@ const Colleges: React.FC = () => {
             department_names: prev.department_names.includes(deptName)
                 ? prev.department_names.filter(n => n !== deptName)
                 : [...prev.department_names, deptName]
+        }));
+    };
+
+    const handleSelectAll = (depts: string[]) => {
+        setFormData(prev => {
+            const otherDepts = prev.department_names.filter(n => !depts.includes(n));
+            return {
+                ...prev,
+                department_names: [...otherDepts, ...depts]
+            };
+        });
+    };
+
+    const handleClearDepts = (depts: string[]) => {
+        setFormData(prev => ({
+            ...prev,
+            department_names: prev.department_names.filter(n => !depts.includes(n))
         }));
     };
 
@@ -293,155 +349,266 @@ const Colleges: React.FC = () => {
                             setEditCollegeId(null);
                         }
                     }}>
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                                    <School className="h-5 w-5 text-indigo-600" />
-                                    {isEditOpen ? "Edit College" : "Add New College"}
-                                </DialogTitle>
-                            </DialogHeader>
-                            <div className="flex flex-col md:flex-row gap-8 py-6">
-                                {/* Left Side: Details */}
-                                <div className="flex-1 space-y-6">
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-semibold text-gray-700">College Name</Label>
-                                            <Input
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                placeholder="e.g. Oxford Institute of Technology"
-                                                className="h-11 focus-visible:ring-indigo-500 border-gray-200"
-                                            />
+                        <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto p-0 border-none shadow-2xl">
+                            <div className="bg-white rounded-3xl overflow-hidden p-8">
+                                <DialogHeader>
+                                    <DialogTitle className="text-2xl font-black flex items-center gap-3 text-slate-900 tracking-tight">
+                                        <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200">
+                                            <School className="h-6 w-6 text-white" />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-semibold text-gray-700">Short Form</Label>
-                                            <Input
-                                                value={formData.short_form}
-                                                onChange={(e) => setFormData({ ...formData, short_form: e.target.value })}
-                                                placeholder="e.g. OIT"
-                                                className="h-11 focus-visible:ring-indigo-500 border-gray-200"
-                                            />
-                                        </div>
-                                    </div>
+                                        {isEditOpen ? "Update Institutional Profile" : "Onboard New College"}
+                                    </DialogTitle>
+                                </DialogHeader>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-semibold text-gray-700">College Type</Label>
-                                            <Select
-                                                value={formData.college_type}
-                                                onValueChange={(val) => setFormData({ ...formData, college_type: val })}
-                                            >
-                                                <SelectTrigger className="h-11 focus:ring-indigo-500 border-gray-200">
-                                                    <SelectValue placeholder="Select type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="government">Government</SelectItem>
-                                                    <SelectItem value="autonomous">Autonomous</SelectItem>
-                                                    <SelectItem value="deemed">Deemed</SelectItem>
-                                                    <SelectItem value="private">Private</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-semibold text-gray-700">Affiliated University</Label>
-                                            <Select
-                                                value={formData.affiliated_university}
-                                                onValueChange={(val) => setFormData({ ...formData, affiliated_university: val })}
-                                            >
-                                                <SelectTrigger className="h-11 focus:ring-indigo-500 border-gray-200">
-                                                    <SelectValue placeholder="Select university" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="jntu">JNTU</SelectItem>
-                                                    <SelectItem value="anna">Anna University</SelectItem>
-                                                    <SelectItem value="vtu">VTU</SelectItem>
-                                                    <SelectItem value="ou">Osmania University</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4 pt-2">
-                                        <Label className="text-sm font-semibold text-gray-700">Approvals & Recognitions</Label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-indigo-100 transition-all cursor-pointer" onClick={() => setFormData({ ...formData, is_aicte_approved: !formData.is_aicte_approved })}>
-                                                <Checkbox
-                                                    id="aicte"
-                                                    checked={formData.is_aicte_approved}
-                                                    onCheckedChange={(val: boolean) => setFormData({ ...formData, is_aicte_approved: val })}
-                                                    className="data-[state=checked]:bg-indigo-600 border-gray-300"
-                                                />
-                                                <Label htmlFor="aicte" className="text-sm font-medium leading-none cursor-pointer flex-1">AICTE Approved</Label>
+                                <div className="flex flex-col gap-6 py-6">
+                                    {/* Top Section: Institutional Details */}
+                                    <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-1.5 bg-indigo-50 rounded-lg shadow-inner">
+                                                <Building2 className="h-4 w-4 text-indigo-600" />
                                             </div>
-                                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-indigo-100 transition-all cursor-pointer" onClick={() => setFormData({ ...formData, is_ugc_approved: !formData.is_ugc_approved })}>
-                                                <Checkbox
-                                                    id="ugc"
-                                                    checked={formData.is_ugc_approved}
-                                                    onCheckedChange={(val: boolean) => setFormData({ ...formData, is_ugc_approved: val })}
-                                                    className="data-[state=checked]:bg-indigo-600 border-gray-300"
-                                                />
-                                                <Label htmlFor="ugc" className="text-sm font-medium leading-none cursor-pointer flex-1">UGC Approved</Label>
+                                            <div className="space-y-0.5">
+                                                <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Institutional Identity</h4>
+                                                <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Core details and legal recognition</p>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* Right Side: Departments */}
-                                <div className="w-full md:w-[280px] shrink-0 flex flex-col">
-                                    <div className="flex items-center justify-between mb-3 px-1">
-                                        <Label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Select Departments</Label>
-                                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-indigo-100 bg-indigo-50 text-indigo-600">
-                                            {formData.department_names.length} Selected
-                                        </Badge>
-                                    </div>
-                                    <div className="bg-gray-100/50 p-3 rounded-2xl border border-gray-200/60 grid grid-cols-1 gap-2 flex-1 max-h-[400px] overflow-y-auto">
-                                        {AVAILABLE_DEPARTMENTS.map((dept) => {
-                                            const isSelected = formData.department_names.includes(dept);
-                                            return (
-                                                <div
-                                                    key={dept}
-                                                    className={`flex items-center space-x-3 p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${isSelected
-                                                            ? "bg-white border-indigo-200 shadow-sm ring-1 ring-indigo-50"
-                                                            : "bg-transparent border-transparent hover:bg-white/50"
-                                                        }`}
-                                                    onClick={() => handleDeptToggle(dept)}
-                                                >
-                                                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-gray-300"
-                                                        }`}>
-                                                        {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">College Name</Label>
+                                                <Input
+                                                    value={formData.name}
+                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    placeholder="e.g. Oxford Institute of Technology"
+                                                    className="h-10 text-xs focus-visible:ring-indigo-500 border-slate-200 rounded-lg bg-slate-50/50 px-3 font-semibold text-slate-700 transition-all focus:bg-white focus:ring-1"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">
+                                                    Institutional Code
+                                                </Label>
+                                                <div className="relative group/code">
+                                                    <Input
+                                                        value={formData.short_form}
+                                                        onChange={(e) => setFormData({ ...formData, short_form: e.target.value.toUpperCase().replace(/\s/g, '') })}
+                                                        placeholder="e.g. OIT"
+                                                        className="h-10 text-xs focus-visible:ring-indigo-500 border-slate-200 rounded-lg font-black tracking-widest uppercase bg-indigo-50/30 pl-3 pr-16 text-indigo-600 transition-all focus:bg-white focus:ring-1"
+                                                    />
+                                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800 px-1.5 py-0.5 rounded text-[7px] text-white font-black tracking-tighter opacity-70 pointer-events-none">
+                                                        UNIQUE
                                                     </div>
-                                                    <span className={`text-[11px] font-semibold flex-1 leading-tight ${isSelected ? "text-indigo-900" : "text-gray-600"
-                                                        }`}>
-                                                        {dept}
-                                                    </span>
                                                 </div>
-                                            );
-                                        })}
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Category Type</Label>
+                                                <Select
+                                                    value={formData.college_type}
+                                                    onValueChange={(val) => setFormData({ ...formData, college_type: val })}
+                                                >
+                                                    <SelectTrigger className="h-10 text-xs focus:ring-indigo-500 border-slate-200 rounded-lg bg-white px-3 font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                                                        <SelectValue placeholder="Select type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-xl border-slate-200 shadow-2xl p-1 bg-white">
+                                                        <SelectItem value="government" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Government</SelectItem>
+                                                        <SelectItem value="autonomous" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Autonomous</SelectItem>
+                                                        <SelectItem value="deemed" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Deemed</SelectItem>
+                                                        <SelectItem value="private" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Private</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Affiliated University</Label>
+                                                <Select
+                                                    value={formData.affiliated_university}
+                                                    onValueChange={(val) => setFormData({ ...formData, affiliated_university: val })}
+                                                >
+                                                    <SelectTrigger className="h-10 text-xs focus:ring-indigo-500 border-slate-200 rounded-lg bg-white px-3 font-semibold text-slate-700 uppercase shadow-sm transition-all hover:bg-slate-50">
+                                                        <SelectValue placeholder="Select university" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-xl border-slate-200 shadow-2xl p-1 bg-white">
+                                                        <SelectItem value="jntu" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">JNTU</SelectItem>
+                                                        <SelectItem value="anna" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Anna University</SelectItem>
+                                                        <SelectItem value="vtu" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">VTU</SelectItem>
+                                                        <SelectItem value="ou" className="text-xs font-semibold py-2 px-3 focus:bg-indigo-50 rounded-md cursor-pointer transition-colors">Osmania University</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="lg:col-span-2 space-y-1.5">
+                                                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-0.5">Institutional Accreditations</Label>
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        type="button"
+                                                        className={`flex flex-1 items-center justify-between px-3 h-10 rounded-lg border transition-all ${formData.is_aicte_approved ? 'bg-emerald-50/40 border-emerald-500/20 text-emerald-700' : 'bg-white border-slate-200 text-slate-500'}`}
+                                                        onClick={() => setFormData({ ...formData, is_aicte_approved: !formData.is_aicte_approved })}
+                                                    >
+                                                        <span className="text-[11px] font-bold">AICTE Certified</span>
+                                                        <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${formData.is_aicte_approved ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-100 border-slate-200'}`}>
+                                                            {formData.is_aicte_approved && <CheckCircle2 className="h-2.5 w-2.5 text-white" strokeWidth={5} />}
+                                                        </div>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={`flex flex-1 items-center justify-between px-3 h-10 rounded-lg border transition-all ${formData.is_ugc_approved ? 'bg-indigo-50/40 border-indigo-500/20 text-indigo-700' : 'bg-white border-slate-200 text-slate-500'}`}
+                                                        onClick={() => setFormData({ ...formData, is_ugc_approved: !formData.is_ugc_approved })}
+                                                    >
+                                                        <span className="text-[11px] font-bold">UGC Recognized</span>
+                                                        <div className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${formData.is_ugc_approved ? 'bg-indigo-500 border-indigo-500' : 'bg-slate-100 border-slate-200'}`}>
+                                                            {formData.is_ugc_approved && <CheckCircle2 className="h-2.5 w-2.5 text-white" strokeWidth={5} />}
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="mt-3 px-1">
-                                        <p className="text-[10px] text-gray-400 italic leading-relaxed">
-                                            Departments will be automatically initialized for this college.
+
+                                    {/* Bottom Section: Departments */}
+                                    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 border-t border-slate-100 pt-7">
+                                        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                                            <div className="flex items-center gap-3 shrink-0">
+                                                <div className="p-1.5 bg-amber-50 rounded-lg shadow-inner">
+                                                    <CheckSquare className="h-4 w-4 text-amber-600" />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <h4 className="font-bold text-slate-800 text-[10px] uppercase tracking-wider">Departmental Architecture</h4>
+                                                    <p className="text-[8px] text-slate-400 font-bold tracking-widest uppercase">Infrastructure mapping for curriculum</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 shadow-sm max-w-fit">
+                                                <div className="relative group/search">
+                                                    <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400 group-focus-within/search:text-indigo-500 transition-colors" />
+                                                    <Input
+                                                        placeholder="Quick Search Categories..."
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="h-8 pl-9 w-48 text-[11px] border-none bg-transparent focus-visible:ring-0 placeholder:text-slate-400 font-semibold"
+                                                    />
+                                                </div>
+                                                <div className="w-px h-4 bg-slate-300 mx-0.5" />
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => handleSelectAll(ALL_DEPT_NAMES)}
+                                                    className="h-8 text-[9px] font-bold uppercase text-indigo-600 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
+                                                >
+                                                    SELECT ALL
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => handleClearDepts(ALL_DEPT_NAMES)}
+                                                    className="h-8 text-[9px] font-bold uppercase text-rose-500 hover:bg-white hover:shadow-sm px-3 rounded-lg transition-all"
+                                                >
+                                                    CLEAR ALL
+                                                </Button>
+                                                <div className="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[9px] font-bold shadow-md flex items-center gap-2 ml-1">
+                                                    <div className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                                                    {formData.department_names.length} ACTIVE UNITS
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            {DEPARTMENT_GROUPS.map((group) => {
+                                                const filteredDepts = group.departments.filter(d =>
+                                                    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    d.short.toLowerCase().includes(searchTerm.toLowerCase())
+                                                );
+
+                                                if (filteredDepts.length === 0) return null;
+
+                                                const groupDeptNames = filteredDepts.map(d => d.name);
+                                                const allInGroupSelected = groupDeptNames.every(name => formData.department_names.includes(name));
+
+                                                return (
+                                                    <div key={group.name} className="flex flex-col bg-white border border-slate-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-all group/card">
+                                                        <div className="flex items-center justify-between mb-3 px-1">
+                                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{group.name}</span>
+                                                            <button
+                                                                onClick={() => allInGroupSelected ? handleClearDepts(groupDeptNames) : handleSelectAll(groupDeptNames)}
+                                                                className={`text-[8px] font-black px-1.5 py-0.5 rounded transition-all ${allInGroupSelected ? 'text-rose-600 bg-rose-50' : 'text-indigo-600 bg-indigo-50'}`}
+                                                            >
+                                                                {allInGroupSelected ? "NONE" : "ALL"}
+                                                            </button>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            {filteredDepts.map((dept) => {
+                                                                const isSelected = formData.department_names.includes(dept.name);
+                                                                return (
+                                                                    <div
+                                                                        key={dept.name}
+                                                                        className={`group/dept flex items-center gap-2 p-1.5 rounded-lg border transition-all cursor-pointer ${isSelected
+                                                                            ? "bg-indigo-50/30 border-indigo-500/20 shadow-sm"
+                                                                            : "bg-slate-50/20 border-transparent hover:border-slate-200 hover:bg-white"
+                                                                            }`}
+                                                                        onClick={() => handleDeptToggle(dept.name)}
+                                                                    >
+                                                                        <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"
+                                                                            }`}>
+                                                                            {isSelected && <CheckCircle2 className="h-2.5 w-2.5 text-white" strokeWidth={5} />}
+                                                                        </div>
+                                                                        <div className="flex flex-col min-w-0">
+                                                                            <span className={`text-[11px] font-bold truncate leading-tight ${isSelected ? "text-slate-900" : "text-slate-700"}`}>
+                                                                                {dept.name}
+                                                                            </span>
+                                                                            <span className={`text-[9px] font-black tracking-wide ${isSelected ? "text-indigo-600" : "text-slate-400"}`}>
+                                                                                {dept.short}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {searchTerm && DEPARTMENT_GROUPS.every(g => !g.departments.some(d =>
+                                        d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                        d.short.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )) && (
+                                            <div className="py-24 text-center bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-100">
+                                                <Search className="h-8 w-8 text-slate-200 mx-auto mb-4" />
+                                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">No Matches Identified</h3>
+                                            </div>
+                                        )}
+
+                                    <div className="mt-4 flex items-center gap-4 px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl group/info relative overflow-hidden">
+                                        <div className="p-1.5 bg-white rounded-lg shadow-sm border border-slate-100">
+                                            <Info className="h-4 w-4 text-slate-400 shrink-0" />
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 font-bold leading-relaxed tracking-wide">
+                                            SYSTEM ARCHITECTURE: Selected departments will be automatically bridged to this college context. Sub-structures and faculty associations will be initialized instantly upon profile commitment.
                                         </p>
                                     </div>
                                 </div>
+
+                                <DialogFooter className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                                    <Button variant="ghost" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }} className="h-10 px-6 text-[10px] font-black text-slate-400 hover:text-slate-600 tracking-widest rounded-lg">DISMISS</Button>
+                                    <Button
+                                        disabled={saving || !isDirty}
+                                        onClick={isEditOpen ? handleUpdate : handleCreate}
+                                        className={`h-11 px-10 rounded-lg transition-all font-black tracking-widest text-[12px] shadow-xl ${isDirty
+                                            ? "bg-slate-900 text-white hover:bg-black hover:-translate-y-0.5"
+                                            : "bg-slate-100 text-slate-300 cursor-not-allowed shadow-none"
+                                            }`}
+                                    >
+                                        {saving ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                                COMMITTING...
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <CheckSquare className="h-4 w-4" />
+                                                {isEditOpen ? "UPDATE PROFILE" : "CONFIRM & ONBOARD"}
+                                            </div>
+                                        )}
+                                    </Button>
+                                </DialogFooter>
                             </div>
-                            <DialogFooter className="mt-6">
-                                <Button variant="ghost" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }} className="hover:bg-gray-100">Cancel</Button>
-                                <Button
-                                    disabled={saving}
-                                    onClick={isEditOpen ? handleUpdate : handleCreate}
-                                    className="bg-indigo-600 text-white hover:bg-indigo-700 min-w-[120px]"
-                                >
-                                    {saving ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                            Saving...
-                                        </div>
-                                    ) : (
-                                        isEditOpen ? "Save Changes" : "Create College"
-                                    )}
-                                </Button>
-                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 
