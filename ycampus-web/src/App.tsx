@@ -62,7 +62,7 @@ import CodeEditorTool from './pages/common/CodeEditorTool';
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/Dashboard';
 import HODDashboard from './pages/hod/Dashboard';
-import InchargeDashboard from './pages/incharge/Dashboard';
+
 import FacultyDashboard from './pages/faculty/Dashboard';
 
 
@@ -289,14 +289,7 @@ function App() {
                 }
               />
 
-              <Route
-                path="/incharge/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["incharge"]}>
-                    <InchargeDashboard />
-                  </ProtectedRoute>
-                }
-              />
+
 
               <Route
                 path="/faculty/dashboard"

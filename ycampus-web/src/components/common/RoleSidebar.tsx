@@ -65,13 +65,7 @@ const sidebarItems: SidebarItem[] = [
     path: '/hod/dashboard',
     roles: ['hod']
   },
-  {
-    id: 'incharge-dashboard',
-    label: 'Dashboard',
-    icon: BarChart3,
-    path: '/incharge/dashboard',
-    roles: ['incharge']
-  },
+
   {
     id: 'faculty-dashboard',
     label: 'Dashboard',
@@ -186,8 +180,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return 'Principal';
       case 'hod':
         return 'HOD';
-      case 'incharge':
-        return 'Incharge';
+
       case 'faculty':
         return 'Faculty';
       default:

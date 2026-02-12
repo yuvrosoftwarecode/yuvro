@@ -65,8 +65,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
         return <Navigate to="/principal/dashboard" replace />;
       case "hod":
         return <Navigate to="/hod/dashboard" replace />;
-      case "incharge":
-        return <Navigate to="/incharge/dashboard" replace />;
+
       case "faculty":
         return <Navigate to="/faculty/dashboard" replace />;
       case "recruiter":

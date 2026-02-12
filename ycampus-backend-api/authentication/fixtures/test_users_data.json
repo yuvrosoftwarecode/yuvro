@@ -170,58 +170,7 @@
         "gender": "male"
       }
     },
-    {
-      "email": "incharge1@yuvro.com",
-      "username": "incharge1",
-      "first_name": "Incharge",
-      "last_name": "Labs",
-      "role": "incharge",
-      "password": "incharge123",
-      "is_staff": true,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Lab Incharge One",
-        "title": "Lab Incharge",
-        "location": "New York, NY",
-        "about": "Incharge of Computer Labs.",
-        "gender": "female"
-      }
-    },
-    {
-      "email": "incharge2@yuvro.com",
-      "username": "incharge2",
-      "first_name": "Incharge",
-      "last_name": "Library",
-      "role": "incharge",
-      "password": "incharge123",
-      "is_staff": true,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Library Incharge Two",
-        "title": "Library Incharge",
-        "location": "Chicago, IL",
-        "about": "Incharge of Central Library.",
-        "gender": "male"
-      }
-    },
-    {
-      "email": "incharge3@yuvro.com",
-      "username": "incharge3",
-      "first_name": "Incharge",
-      "last_name": "Sports",
-      "role": "incharge",
-      "password": "incharge123",
-      "is_staff": true,
-      "is_superuser": false,
-      "profile": {
-        "full_name": "Sports Incharge Three",
-        "title": "Sports Incharge",
-        "location": "Los Angeles, CA",
-        "about": "Incharge of Sports Complex.",
-        "gender": "male"
-      }
-    },
-    {
+      {
       "email": "faculty1@yuvro.com",
       "username": "faculty1",
       "first_name": "Faculty",
