@@ -15,7 +15,7 @@ import Subjects from './pages/instructor/Subjects';
 import SubjectEdit from './components/instructor/subjects/SubjectEdit';
 
 import Users from './pages/instructor/Users';
-import Departments from './pages/instructor/Departments';
+import Colleges from './pages/instructor/Colleges';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
@@ -58,6 +58,7 @@ import RecruiterCandidates from "./pages/recruiter/Candidates";
 import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
+import Departments from './pages/instructor/Departments';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/Dashboard';
@@ -396,10 +397,19 @@ function App() {
               />
 
               <Route
+                path="/instructor/colleges"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Colleges />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
                 path="/instructor/departments"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
-                    <Departments />
+                    <Departments /> 
                   </ProtectedRoute>
                 }
               />
@@ -407,11 +417,12 @@ function App() {
               <Route
                 path="/instructor/batches"
                 element={
-                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <div>Batches Management</div>
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Colleges />
                   </ProtectedRoute>
                 }
               />
+
 
               <Route
                 path="/instructor/students"

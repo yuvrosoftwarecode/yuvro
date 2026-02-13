@@ -1,7 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
+    CollegeViewSet,
+    BatchViewSet,
     DepartmentViewSet,
+    SemesterViewSet,
+    SectionViewSet,
     SubjectViewSet,
     UnitViewSet,
     SubUnitViewSet,
@@ -13,7 +17,11 @@ from .views import (
 )
 
 router = DefaultRouter()
+router.register(r"colleges", CollegeViewSet)
+router.register(r"batches", BatchViewSet)
 router.register(r"departments", DepartmentViewSet)
+router.register(r"semesters", SemesterViewSet)
+router.register(r"sections", SectionViewSet)
 router.register(r"subjects", SubjectViewSet)
 router.register(r"units", UnitViewSet)
 router.register(r"subunits", SubUnitViewSet)

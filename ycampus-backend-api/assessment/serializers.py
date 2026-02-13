@@ -23,7 +23,7 @@ class CertificationExamSerializer(serializers.ModelSerializer):
     participants_count = serializers.SerializerMethodField()
     total_questions = serializers.SerializerMethodField()
     my_submissions = serializers.SerializerMethodField()
-    course_name = serializers.CharField(source='course.name', read_only=True)
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
     
     class Meta:
         model = CertificationExam
@@ -43,8 +43,8 @@ class CertificationExamSerializer(serializers.ModelSerializer):
             "questions_config",
             "questions_random_config",
             "publish_status",
-            "course",
-            "course_name",
+            "subject",
+            "subject_name",
             "participants_count",
             "total_questions",
             "my_submissions",
@@ -123,7 +123,7 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
 
 
 class CertificateSerializer(serializers.ModelSerializer):
-    course_name = serializers.CharField(source="course.name", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
     user_name = serializers.CharField(source="user.get_full_name", read_only=True)
     
     class Meta:
@@ -132,11 +132,11 @@ class CertificateSerializer(serializers.ModelSerializer):
             "id",
             "certificate_id",
             "user_name",
-            "course_name",
+            "subject_name",
             "issued_at",
             "certificate_url",
         ]
-        read_only_fields = ["id", "certificate_id", "issued_at", "user_name", "course_name"]
+        read_only_fields = ["id", "certificate_id", "issued_at", "user_name", "subject_name"]
 
 
 class CertificationSubmissionSerializer(serializers.ModelSerializer):
@@ -256,8 +256,8 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "questions_config",
             "questions_random_config",
             "publish_status",
-            "course",
-            "topic",
+            "subject",
+            "unit",
             "participants_count",
             "total_questions",
             "my_submissions",

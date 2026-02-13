@@ -4,26 +4,9 @@ from django.core.validators import MinValueValidator
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from core.models import BaseTimestampedModel
+from core.models import BaseTimestampedModel, College, Batch, Department, Semester, Section
 
 User = get_user_model()
-
-
-class Department(models.Model):
-    """
-    Model representing a department within the institution.
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
 
 
 class Subject(models.Model):
@@ -43,8 +26,15 @@ class Subject(models.Model):
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     name = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    department = models.ForeignKey(
-        Department,
+    semester = models.ForeignKey(
+        Semester,
+        on_delete=models.SET_NULL,
+        related_name="subjects",
+        null=True,
+        blank=True,
+    )
+    section = models.ForeignKey(
+        Section,
         on_delete=models.SET_NULL,
         related_name="subjects",
         null=True,

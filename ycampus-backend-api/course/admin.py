@@ -1,6 +1,6 @@
 from django.contrib import admin
+from core.models import College, Batch, Department, Semester, Section
 from .models import (
-    Department,
     Subject,
     Unit,
     SubUnit,
@@ -34,24 +34,19 @@ class SubjectInstructorInline(admin.TabularInline):
     readonly_fields = ["created_at", "updated_at"]
 
 
-@admin.register(Department)
-class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "description", "created_at", "updated_at"]
-    search_fields = ["name"]
-    readonly_fields = ["id", "created_at", "updated_at"]
-
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_code", "category", "department", "created_at", "updated_at"]
-    list_filter = ["department", "category", "created_at", "updated_at"]
-    search_fields = ["name", "short_code", "department__name"]
+    list_display = ["name", "short_code", "category", "semester", "section", "created_at", "updated_at"]
+    list_filter = ["semester", "section", "category", "created_at", "updated_at"]
+    search_fields = ["name", "short_code", "semester__number", "section__name"]
     readonly_fields = ["id", "created_at", "updated_at"]
     fields = [
         "name",
         "short_code",
         "category",
-        "department",
+        "semester",
+        "section",
         "id",
         "created_at",
         "updated_at",

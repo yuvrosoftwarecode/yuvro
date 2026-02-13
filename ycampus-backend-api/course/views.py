@@ -12,11 +12,12 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 from authentication.permissions import CanManageCourses, IsAuthenticatedUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
+from core.models import College, Batch, Department, Semester, Section
 from .models import (
-    Department,
     Subject,
     Unit,
     SubUnit,
@@ -28,7 +29,11 @@ from .models import (
     StudentCodePractice,
 )
 from .serializers import (
+    CollegeSerializer,
+    BatchSerializer,
     DepartmentSerializer,
+    SemesterSerializer,
+    SectionSerializer,
     SubjectSerializer,
     SubjectBasicSerializer,
     UnitSerializer,
@@ -37,6 +42,7 @@ from .serializers import (
     VideoSerializer,
     NoteSerializer,
     QuestionSerializer,
+    UserSubjectProgressSerializer,
     StudentCodePracticeSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
@@ -50,19 +56,87 @@ def instructor_assigned(user, subject):
     return SubjectInstructor.objects.filter(instructor=user, subject=subject).exists()
 
 
+class CollegeViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing college instances.
+    """
+
+    queryset = College.objects.all()
+    serializer_class = CollegeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class BatchViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing batch instances.
+    """
+    queryset = Batch.objects.all()
+    serializer_class = BatchSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["department"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
 class DepartmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing department instances.
+    """
+
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-    permission_classes = [CanManageCourses]
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["college"]
 
-    def get_queryset(self):
-        return Department.objects.all()
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class SemesterViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing semester instances.
+    """
+    queryset = Semester.objects.all()
+    serializer_class = SemesterSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["batch"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class SectionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing section instances.
+    """
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["semester"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
 
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     permission_classes = [CanManageCourses]
+    filterset_fields = ["semester", "section"]
 
     def get_serializer_class(self):
         return SubjectSerializer if self.action == "retrieve" else SubjectBasicSerializer
@@ -950,7 +1024,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         """
         Return user learning stats.
         """
-        user = request.user
+        user = self.request.user
 
         # Calculate stats
         completed_count = UserSubjectProgress.objects.filter(
@@ -1055,7 +1129,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         Get active dates for the current month (or specified).
         Request: ?year=2025&month=12
         """
-        user = request.user
+        user = self.request.user
         today = timezone.now().date()
         year = int(request.query_params.get('year', today.year))
         month = int(request.query_params.get('month', today.month))
@@ -1079,7 +1153,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         Get overall progress percentage for all subjects the user has started.
         Returns: [{'subject_id': 'uuid', 'percent': 45.5}, ...]
         """
-        user = request.user
+        user = self.request.user
 
         # Get all progress records
         progress_records = UserSubjectProgress.objects.filter(user=user).select_related(
@@ -1108,7 +1182,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=["get"])
     def get_subject_progress(self, request):
-        user = request.user
+        user = self.request.user
         subject_id = request.query_params.get("subject_id")
 
         if not subject_id:
@@ -1131,7 +1205,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         Get detailed progress for all subunits in a Subject, including quiz/coding status.
         Recalculates progress on-the-fly to ensure consistency with Subject content changes (e.g. added/removed questions).
         """
-        user = request.user
+        user = self.request.user
         subject_id = request.query_params.get("subject_id")
 
         if not subject_id:
@@ -1168,7 +1242,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         Log access to a SubUnit to update 'Continue Learning' banner.
         Does not change completion status, just updates timestamps.
         """
-        user = request.user
+        user = self.request.user
         sub_unit_id = request.data.get("sub_unit_id")
 
         if not sub_unit_id:
