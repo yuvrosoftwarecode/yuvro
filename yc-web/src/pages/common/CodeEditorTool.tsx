@@ -56,7 +56,7 @@ const CodeEditorPage: React.FC = () => {
                     title="Code Editor"
                     subtitle="A versatile playground for testing algorithms and code snippets."
                 />
-                <div className="flex-1 relative overflow-hidden">
+                <div className="flex-1 relative overflow-hidden flex flex-col">
                     <CodeEditorWithAI
                         ref={problemSolvingRef}
                         problem={dummyProblem}

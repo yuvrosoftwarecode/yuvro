@@ -2,8 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertTriangle, List } from 'lucide-react';
+import { Clock, AlertTriangle, List, Trophy, Activity } from 'lucide-react';
 import { format } from 'date-fns';
+import { StatsCard } from '@/components/common/StatsCard';
 
 interface ProctoringEvent {
     activity_type: string;
@@ -83,47 +84,37 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-sm font-medium text-gray-500">Total Score</p>
-                        <h3 className="text-3xl font-bold text-gray-900 mt-2">
-                            {submission.marks !== null ? submission.marks : '-'}
-                        </h3>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Total Score"
+                    value={submission.marks !== null ? submission.marks : '-'}
+                    icon={Trophy}
+                    colorScheme="amber"
+                    size="md"
+                />
 
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-sm font-medium text-gray-500">Status</p>
-                        <div className="mt-2">
-                            <Badge variant="outline" className="text-lg py-1 px-3">
-                                {submission.status.replace('_', ' ')}
-                            </Badge>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Status"
+                    value={submission.status.replace('_', ' ')}
+                    icon={Activity}
+                    colorScheme="blue"
+                    size="md"
+                />
 
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-sm font-medium text-gray-500">Total Violations</p>
-                        <div className="flex items-center mt-2 gap-2 text-red-600">
-                            <AlertTriangle className="h-6 w-6" />
-                            <h3 className="text-3xl font-bold">{totalViolations}</h3>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Total Violations"
+                    value={totalViolations}
+                    icon={AlertTriangle}
+                    colorScheme="red"
+                    size="md"
+                />
 
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-sm font-medium text-gray-500">Submitted At</p>
-                        <div className="flex items-center mt-2 gap-2 text-gray-700">
-                            <Clock className="h-5 w-5" />
-                            <span className="text-sm font-medium">
-                                {submission.submitted_at ? format(new Date(submission.submitted_at), 'MMM d, h:mm a') : '-'}
-                            </span>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Submitted At"
+                    value={submission.submitted_at ? format(new Date(submission.submitted_at), 'MMM d, h:mm a') : '-'}
+                    icon={Clock}
+                    colorScheme="purple"
+                    size="md"
+                />
             </div>
 
             {/* Question Breakdown */}
@@ -137,7 +128,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                             <div className="text-center py-8 text-gray-500">No question activity data recorded.</div>
                         ) : (
                             questionActivities.map((activity, index) => (
-                                <div key={activity.id} className="border rounded-lg p-4 bg-white">
+                                <div key={activity.id} className="border border-gray-200 rounded-lg p-4 bg-white">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">

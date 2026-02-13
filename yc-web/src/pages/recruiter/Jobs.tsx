@@ -11,15 +11,38 @@ import SearchBar from "../../components/common/SearchBar";
 import { fetchQuestionById } from "../../services/questionService";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Textarea } from "../../components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Label } from "../../components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import StatusBadge from "../../components/common/StatusBadge";
 import JobDetailsViewer from "../../components/common/recruiter/JobDetailsViewer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription
+} from "../../components/ui/dialog";
+import { DataTable } from "../../components/common/DataTable";
+import { StatsCard } from "../../components/common/StatsCard";
 
 const Jobs: React.FC = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [showJobForm, setShowJobForm] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -420,31 +443,31 @@ const Jobs: React.FC = () => {
 
   const headerActions = (
     <>
-      <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+      <Button className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm transition-all duration-200 flex items-center space-x-2">
         <Filter className="h-4 w-4" />
         <span>Filter</span>
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => navigate('/recruiter/jobs/companies')}
-        className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white"
       >
         <Building2 className="h-4 w-4" />
         <span>Companies</span>
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={openAddForm}
-        className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+        className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white"
       >
         <Plus className="h-4 w-4" />
         <span>Post New Job</span>
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => navigate('/recruiter/candidates')}
-        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg"
+        className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg"
       >
         <Users className="h-4 w-4" />
         <span>Find Candidates</span>
-      </button>
+      </Button>
     </>
 
   );
@@ -465,47 +488,34 @@ const Jobs: React.FC = () => {
             {!showJobForm && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Total Jobs</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">{jobs.length}</div>
-                      <Briefcase className="h-8 w-8 text-blue-500" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Active</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-green-600">{jobs.filter(j => j.status === 'active').length}</div>
-                      <CheckCircle className="h-8 w-8 text-green-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Draft</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-yellow-600">{jobs.filter(j => j.status === 'draft').length}</div>
-                      <FileText className="h-8 w-8 text-yellow-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Total Applicants</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">
-                        {jobsWithApplications.reduce((acc, job) => acc + (job.applications_count || 0), 0)}
-                      </div>
-                      <Users className="h-8 w-8 text-gray-600" />
-                    </div>
-                  </div>
+                  <StatsCard
+                    label="Total Jobs"
+                    value={jobs.length}
+                    icon={Briefcase}
+                    colorScheme="blue"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Active"
+                    value={jobs.filter(j => j.status === 'active').length}
+                    icon={CheckCircle}
+                    colorScheme="green"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Draft"
+                    value={jobs.filter(j => j.status === 'draft').length}
+                    icon={FileText}
+                    colorScheme="amber"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Total Applicants"
+                    value={jobsWithApplications.reduce((acc, job) => acc + (job.applications_count || 0), 0)}
+                    icon={Users}
+                    colorScheme="purple"
+                    size="md"
+                  />
                 </div>
 
                 <div className="mb-6 flex items-center justify-between gap-4">
@@ -537,179 +547,235 @@ const Jobs: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Job Details
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Company
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Location
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Experience
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Salary
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Applicants
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredJobs.map((job) => (
-                          <tr key={job.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                                <div className="text-sm text-gray-500">{job.employment_type.charAt(0).toUpperCase() + job.employment_type.slice(1).replace('-', ' ')}</div>
-                                {job.skills.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {job.skills.slice(0, 2).map((skill, idx) => (
-                                      <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-md">
-                                        {skill}
-                                      </span>
-                                    ))}
-                                    {job.skills.length > 2 && (
-                                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
-                                        +{job.skills.length - 2}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <Building2 className="h-4 w-4 mr-2 text-gray-400" />
-                                <div className="text-sm text-gray-900">{job.company.name}</div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center text-sm text-gray-900">
-                                <MapPin className="h-4 w-4 mr-1 text-gray-400" />
-                                {job.locations.join(', ') || (job.is_remote ? 'Remote' : 'Not specified')}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {job.experience_min_years > 0 || job.experience_max_years
-                                ? `${job.experience_min_years}-${job.experience_max_years || '+'} years`
-                                : 'Any'
-                              }
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {job.min_salary && job.max_salary
-                                ? `${job.min_salary}-${job.max_salary} ${job.currency}`
-                                : job.min_salary
-                                  ? `${job.min_salary}+ ${job.currency}`
-                                  : job.max_salary
-                                    ? `Up to ${job.max_salary} ${job.currency}`
-                                    : 'Not specified'
-                              }
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <StatusBadge
-                                status={job.status}
-                                label={job.status === 'active' && selectedTab === 'Approved' ? 'Approved' : undefined}
-                              />
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center justify-between">
-                                <button
-                                  onClick={() => navigate(`/recruiter/jobs/${job.id}/applicants`)}
-                                  className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors group"
-                                >
-                                  <Users className="h-4 w-4 mr-1" />
-                                  <span className="font-medium">{getApplicationsCount(job.id)}</span>
-                                  <span className="ml-1">applicant{getApplicationsCount(job.id) !== 1 ? 's' : ''}</span>
-                                  {getApplicationsCount(job.id) > 0 && (
-                                    <div className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                  )}
-                                </button>
-                                {getApplicationsCount(job.id) === 0 && (
-                                  <button
-                                    onClick={handleRefreshApplications}
-                                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                                    title="Refresh application count"
-                                  >
-                                    <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => { setSelectedJob(job); setShowJobDetails(true); }}
-                                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="View Details"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => openEditForm(job)}
-                                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="Edit Job"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => openDeleteModal(job.id)}
-                                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                  title="Delete Job"
-                                >
-                                  <Trash className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {filteredJobs.length === 0 && (
-                  <div className="text-center py-12">
-                    <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
-                    <p className="text-gray-600 mb-4">
-                      {searchQuery || selectedTab !== 'all'
-                        ? 'Try adjusting your search or filters'
-                        : 'Get started by posting your first job'
-                      }
-                    </p>
-                    {!searchQuery && selectedTab === 'all' && (
+                <DataTable
+                  title="Job Listings"
+                  description={`${filteredJobs.length} job(s) found`}
+                  data={filteredJobs}
+                  columns={[
+                    {
+                      header: 'Job Details',
+                      cell: (job) => (
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                          <div className="text-sm text-gray-500">{job.employment_type.charAt(0).toUpperCase() + job.employment_type.slice(1).replace('-', ' ')}</div>
+                          {job.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {job.skills.slice(0, 2).map((skill, idx) => (
+                                <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-md">
+                                  {skill}
+                                </span>
+                              ))}
+                              {job.skills.length > 2 && (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                  +{job.skills.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Company',
+                      cell: (job) => (
+                        <div className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-2 text-gray-400" />
+                          <div className="text-sm text-gray-900">{job.company.name}</div>
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Location',
+                      cell: (job) => (
+                        <div className="flex items-center text-sm text-gray-900">
+                          <MapPin className="h-4 w-4 mr-1 text-gray-400" />
+                          {job.locations.join(', ') || (job.is_remote ? 'Remote' : 'Not specified')}
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Experience',
+                      cell: (job) => (
+                        <div className="text-sm text-gray-900">
+                          {job.experience_min_years > 0 || job.experience_max_years
+                            ? `${job.experience_min_years}-${job.experience_max_years || '+'} years`
+                            : 'Any'
+                          }
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Salary',
+                      cell: (job) => (
+                        <div className="text-sm text-gray-900">
+                          {job.min_salary && job.max_salary
+                            ? `${job.min_salary}-${job.max_salary} ${job.currency}`
+                            : job.min_salary
+                              ? `${job.min_salary}+ ${job.currency}`
+                              : job.max_salary
+                                ? `Up to ${job.max_salary} ${job.currency}`
+                                : 'Not specified'
+                          }
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Status',
+                      cell: (job) => (
+                        <StatusBadge
+                          status={job.status}
+                          label={job.status === 'active' && selectedTab === 'Approved' ? 'Approved' : undefined}
+                        />
+                      )
+                    },
+                    {
+                      header: 'Applicants',
+                      cell: (job) => (
+                        <div className="flex items-center justify-between">
+                          <button
+                            onClick={() => navigate(`/recruiter/jobs/${job.id}/applicants`)}
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors group"
+                          >
+                            <Users className="h-4 w-4 mr-1" />
+                            <span className="font-medium">{getApplicationsCount(job.id)}</span>
+                            <span className="ml-1">applicant{getApplicationsCount(job.id) !== 1 ? 's' : ''}</span>
+                            {getApplicationsCount(job.id) > 0 && (
+                              <div className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            )}
+                          </button>
+                          {getApplicationsCount(job.id) === 0 && (
+                            <button
+                              onClick={handleRefreshApplications}
+                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                              title="Refresh application count"
+                            >
+                              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            </button>
+                          )}
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Actions',
+                      cell: (job) => (
+                        <div className="flex items-center gap-2 justify-end">
+                          <button
+                            onClick={() => { setSelectedJob(job); setShowJobDetails(true); }}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openEditForm(job)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Job"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(job.id)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Job"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ),
+                      className: 'text-right'
+                    }
+                  ]}
+                  keyExtractor={(item) => item.id}
+                  emptyState={{
+                    message: "No jobs found",
+                    subMessage: searchQuery || selectedTab !== 'all'
+                      ? 'Try adjusting your search or filters'
+                      : 'Get started by posting your first job',
+                    action: !searchQuery && selectedTab === 'all' ? (
                       <button
                         onClick={openAddForm}
                         className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
                       >
                         Post Your First Job
                       </button>
-                    )}
-                  </div>
-                )}
+                    ) : undefined
+                  }}
+                />
               </>
             )}
 
             {showJobForm && (
               <div className="mb-8 bg-white shadow rounded-lg p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {isEditing ? "Update Job" : "Post New Job"}
-                  </h2>
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {isEditing ? "Update Job" : "Post New Job"}
+                    </h2>
+                    {!isEditing && (
+                      <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="hidden md:flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-sm">
+                            <Copy className="h-4 w-4" />
+                            Import from Previous Job
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Import details from a previous job</DialogTitle>
+                            <DialogDescription>
+                              Select a job to auto-fill the form with its details, skills, and settings.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {jobs.map((job) => (
+                                <div
+                                  key={job.id}
+                                  onClick={() => {
+                                    fillFromPreviousJob(job);
+                                    setShowImportModal(false);
+                                  }}
+                                  className="relative p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all group"
+                                >
+                                  <h4 className="font-semibold text-gray-900 mb-1 pr-6 truncate">{job.title}</h4>
+                                  <p className="text-sm text-gray-600 mb-2 truncate">{job.company.name}</p>
+                                  <div className="text-xs text-gray-500 mb-2 space-y-1">
+                                    <div className="flex items-center">
+                                      <MapPin className="h-3 w-3 mr-1" />
+                                      {job.locations[0] || (job.is_remote ? 'Remote' : 'Not specified')}
+                                      {job.locations.length > 1 && ` +${job.locations.length - 1}`}
+                                    </div>
+                                    <div className="flex items-center">
+                                      <DollarSign className="h-3 w-3 mr-1" />
+                                      {job.min_salary ? `${job.min_salary / 1000}k` : '0'} - {job.max_salary ? `${job.max_salary / 1000}k` : '0'} {job.currency}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className={`px-2 py-1 rounded text-xs ${job.status === 'active' ? 'bg-green-100 text-green-700' :
+                                      job.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-gray-100 text-gray-700'
+                                      }`}>
+                                      {job.status}
+                                    </span>
+                                    {job.posted_at && (
+                                      <span className="text-xs text-gray-400">
+                                        {new Date(job.posted_at).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              {jobs.length === 0 && (
+                                <div className="col-span-full text-center py-8 text-gray-500">
+                                  No previous jobs found.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
                   <button
                     onClick={() => setShowJobForm(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -718,230 +784,160 @@ const Jobs: React.FC = () => {
                   </button>
                 </div>
 
-                {!isEditing && (
-                  <div className="mb-6 border border-gray-200 shadow-sm rounded-lg">
-                    <div className="pb-4 p-6 border-b">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                        Use Previous Post
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">Click on any previous job to auto-fill the form</p>
-                    </div>
-                    <div className="p-6">
-                      <div className={`grid gap-4 ${jobs.length === 1 ? 'grid-cols-1 md:grid-cols-1' :
-                        jobs.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
-                          'grid-cols-1 md:grid-cols-3'
-                        }`}>
-                        {jobs.slice(0, 3).map((job) => (
-                          <div
-                            key={job.id}
-                            onClick={() => fillFromPreviousJob(job)}
-                            className="relative p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all group"
-                          >
-                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Copy className="h-4 w-4 text-blue-500" />
-                            </div>
-                            <h4 className="font-semibold text-gray-900 mb-1 pr-6">{job.title}</h4>
-                            <p className="text-sm text-gray-600 mb-2">{job.company.name}</p>
-                            <div className="text-xs text-gray-500 mb-2 space-y-1">
-                              <div className="flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {job.locations.join(', ') || (job.is_remote ? 'Remote' : 'Not specified')}
-                              </div>
-                              {(job.experience_min_years > 0 || job.experience_max_years) && (
-                                <div className="flex items-center">
-                                  <Briefcase className="h-3 w-3 mr-1" />
-                                  {job.experience_min_years}-{job.experience_max_years || '+'} years exp
-                                </div>
-                              )}
-                              {(job.min_salary || job.max_salary) && (
-                                <div className="flex items-center">
-                                  <DollarSign className="h-3 w-3 mr-1" />
-                                  {job.min_salary && job.max_salary
-                                    ? `${job.min_salary}-${job.max_salary} ${job.currency}`
-                                    : job.min_salary
-                                      ? `${job.min_salary}+ ${job.currency}`
-                                      : `Up to ${job.max_salary} ${job.currency}`
-                                  }
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className={`px-2 py-1 rounded text-xs ${job.status === 'active' ? 'bg-green-100 text-green-700' :
-                                job.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-gray-100 text-gray-700'
-                                }`}>
-                                {job.status}
-                              </span>
-                              {job.posted_at && (
-                                <span className="text-xs text-gray-400">
-                                  {new Date(job.posted_at).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                        {jobs.length === 0 && (
-                          <div className="col-span-3 text-center py-8 text-gray-500">
-                            No previous jobs found. Create your first job posting!
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="details" className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Job Details
-                    </TabsTrigger>
-                    <TabsTrigger value="screening" className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Screening Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
-                    </TabsTrigger>
-                  </TabsList>
+                  {/* TabsList removed for wizard flow */}
 
                   <TabsContent value="details" className="space-y-6">
-                    <div className="border border-gray-200 shadow-sm rounded-lg">
-                      <div className="pb-4 p-6 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
                           <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
                           Basic Information
-                        </h3>
-                      </div>
-                      <div className="space-y-4 p-6">
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
-                            <input
-                              type="text"
+                          <div className="space-y-2">
+                            <Label>Job Title *</Label>
+                            <Input
                               value={formData.title}
                               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                               placeholder="e.g., Senior React Developer"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Employment Type *</label>
-                            <select
+                          <div className="space-y-2">
+                            <Label>Employment Type *</Label>
+                            <Select
                               value={formData.employment_type}
-                              onChange={(e) => setFormData({ ...formData, employment_type: e.target.value as any })}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              onValueChange={(value) => setFormData({ ...formData, employment_type: value as any })}
                             >
-                              <option value="full-time">Full Time</option>
-                              <option value="part-time">Part Time</option>
-                              <option value="contract">Contract</option>
-                              <option value="internship">Internship</option>
-                            </select>
+                              <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="full-time">Full Time</SelectItem>
+                                <SelectItem value="part-time">Part Time</SelectItem>
+                                <SelectItem value="contract">Contract</SelectItem>
+                                <SelectItem value="internship">Internship</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Job Description *</label>
-                          <textarea
+                        <div className="space-y-2">
+                          <Label>Job Description *</Label>
+                          <Textarea
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Describe the role, responsibilities, and what you're looking for..."
                             rows={4}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                            className="bg-white resize-none"
                           />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Company *</label>
-                            <select
+                          <div className="space-y-2">
+                            <Label>Company *</Label>
+                            <Select
                               value={selectedCompanyId}
-                              onChange={(e) => {
-                                setSelectedCompanyId(e.target.value);
-                                handleCompanySelect(e.target.value);
+                              onValueChange={(value) => {
+                                setSelectedCompanyId(value);
+                                handleCompanySelect(value);
                               }}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             >
-                              <option value="">Select Company</option>
-                              {companies.map(company => (
-                                <option key={company.id} value={company.id}>{company.name}</option>
-                              ))}
-                            </select>
+                              <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Select Company" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {companies.map(company => (
+                                  <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Remote Work</label>
-                            <div className="flex items-center space-x-4 pt-2">
-                              <label className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={formData.is_remote}
-                                  onChange={(e) => setFormData({ ...formData, is_remote: e.target.checked })}
-                                  className="mr-2"
-                                />
+                          <div className="space-y-2">
+                            <Label>Remote Work</Label>
+                            <div className="flex items-center space-x-2 pt-2">
+                              <Checkbox
+                                id="remote-work"
+                                checked={formData.is_remote}
+                                onCheckedChange={(checked) => setFormData({ ...formData, is_remote: checked as boolean })}
+                              />
+                              <Label htmlFor="remote-work" className="font-normal cursor-pointer">
                                 Remote Position
-                              </label>
+                              </Label>
                             </div>
                           </div>
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Locations (comma-separated)</label>
-                          <input
-                            type="text"
+                        <div className="space-y-2">
+                          <Label>Locations (comma-separated)</Label>
+                          <Input
                             value={formData.locations.join(', ')}
                             onChange={(e) => {
                               const locations = e.target.value.split(',').map(loc => loc.trim()).filter(loc => loc);
                               setFormData({ ...formData, locations });
                             }}
                             placeholder="e.g., Bangalore, Mumbai, Delhi"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Min Salary</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Min Salary</Label>
+                            <Input
                               type="number"
                               value={formData.min_salary || ''}
                               onChange={(e) => setFormData({ ...formData, min_salary: e.target.value ? Number(e.target.value) : undefined })}
                               placeholder="50000"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Max Salary</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Max Salary</Label>
+                            <Input
                               type="number"
                               value={formData.max_salary || ''}
                               onChange={(e) => setFormData({ ...formData, max_salary: e.target.value ? Number(e.target.value) : undefined })}
                               placeholder="100000"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                            <select
+                          <div className="space-y-2">
+                            <Label>Currency</Label>
+                            <Select
                               value={formData.currency}
-                              onChange={(e) => setFormData({ ...formData, currency: e.target.value as any })}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              onValueChange={(value) => setFormData({ ...formData, currency: value as any })}
                             >
-                              <option value="INR">INR</option>
-                              <option value="USD">USD</option>
-                              <option value="EUR">EUR</option>
-                              <option value="GBP">GBP</option>
-                            </select>
+                              <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Currency" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="INR">INR</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                                <SelectItem value="GBP">GBP</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select
+                          <div className="space-y-2">
+                            <Label>Status</Label>
+                            <Select
                               value={formData.status}
-                              onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                             >
-                              <option value="draft">Draft</option>
-                              <option value="active">Active</option>
-                              <option value="paused">Paused</option>
-                              <option value="closed">Closed</option>
-                            </select>
+                              <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="draft">Draft</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="paused">Paused</SelectItem>
+                                <SelectItem value="closed">Closed</SelectItem>
+                              </SelectContent>
+                            </Select>
                             {isEditing && jobs.find(job => job.id === selectedJobId)?.status === 'active' && (
                               <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                 <div className="flex items-start">
@@ -965,94 +961,106 @@ const Jobs: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Min Experience (years)</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Min Experience (years)</Label>
+                            <Input
                               type="number"
                               value={formData.experience_min_years}
                               onChange={(e) => setFormData({ ...formData, experience_min_years: Number(e.target.value) })}
                               min="0"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Max Experience (years)</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Max Experience (years)</Label>
+                            <Input
                               type="number"
                               value={formData.experience_max_years || ''}
                               onChange={(e) => setFormData({ ...formData, experience_max_years: e.target.value ? Number(e.target.value) : undefined })}
                               min="0"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Education Level</label>
-                            <select
+                          <div className="space-y-2">
+                            <Label>Education Level</Label>
+                            <Select
                               value={formData.education_level}
-                              onChange={(e) => setFormData({ ...formData, education_level: e.target.value as any })}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                              onValueChange={(value) => setFormData({ ...formData, education_level: value as any })}
                             >
-                              <option value="any">Any</option>
-                              <option value="high_school">High School</option>
-                              <option value="diploma">Diploma</option>
-                              <option value="bachelor">Bachelor's Degree</option>
-                              <option value="master">Master's Degree</option>
-                              <option value="phd">PhD</option>
-                            </select>
+                              <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Select Education" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="any">Any</SelectItem>
+                                <SelectItem value="high_school">High School</SelectItem>
+                                <SelectItem value="diploma">Diploma</SelectItem>
+                                <SelectItem value="bachelor">Bachelor's Degree</SelectItem>
+                                <SelectItem value="master">Master's Degree</SelectItem>
+                                <SelectItem value="phd">PhD</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
 
-                    <div className="border border-gray-200 shadow-sm rounded-lg">
-                      <div className="pb-4 p-6 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
                           <Settings className="h-5 w-5 mr-2 text-green-500" />
                           Skills & Requirements
-                        </h3>
-                      </div>
-                      <div className="space-y-4 p-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Required Skills (comma-separated)</label>
-                          <input
-                            type="text"
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 p-6">
+                        <div className="space-y-2">
+                          <Label>Required Skills (comma-separated)</Label>
+                          <Input
                             value={formData.skills.join(', ')}
                             onChange={(e) => {
                               const skills = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
                               setFormData({ ...formData, skills });
                             }}
                             placeholder="e.g., React, Node.js, JavaScript, TypeScript"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Notice Period (days)</label>
-                          <input
+                        <div className="space-y-2">
+                          <Label>Notice Period (days)</Label>
+                          <Input
                             type="number"
                             value={formData.notice_period || ''}
                             onChange={(e) => setFormData({ ...formData, notice_period: e.target.value ? Number(e.target.value) : undefined })}
                             placeholder="30"
                             min="0"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
-                      </div>
+                      </CardContent>
+                    </Card>
+                    <div className="flex justify-end pt-6 mt-6 border-t border-gray-100">
+                      <Button
+                        type="button"
+                        onClick={() => setCurrentFormTab('screening')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Next: Screening Questions
+                      </Button>
                     </div>
                   </TabsContent>
 
                   <TabsContent value="screening" className="space-y-6">
-                    <div className="border border-gray-200 shadow-sm rounded-lg">
-                      <div className="pb-4 p-6 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
                           <Settings className="h-5 w-5 mr-2 text-orange-500" />
                           Random Questions Configuration
-                        </h3>
-                      </div>
-                      <div className="p-6">
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-2">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>MCQ Single Choice</Label>
+                            <Input
                               type="number"
                               min="0"
                               value={randomQuestionsConfig.mcq_single}
@@ -1060,13 +1068,13 @@ const Jobs: React.FC = () => {
                                 ...randomQuestionsConfig,
                                 mcq_single: parseInt(e.target.value) || 0
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="0"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>MCQ Multiple Choice</Label>
+                            <Input
                               type="number"
                               min="0"
                               value={randomQuestionsConfig.mcq_multiple}
@@ -1074,13 +1082,13 @@ const Jobs: React.FC = () => {
                                 ...randomQuestionsConfig,
                                 mcq_multiple: parseInt(e.target.value) || 0
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="0"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Coding Questions</Label>
+                            <Input
                               type="number"
                               min="0"
                               value={randomQuestionsConfig.coding}
@@ -1088,13 +1096,13 @@ const Jobs: React.FC = () => {
                                 ...randomQuestionsConfig,
                                 coding: parseInt(e.target.value) || 0
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="0"
+                              className="bg-white"
                             />
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                            <input
+                          <div className="space-y-2">
+                            <Label>Descriptive Questions</Label>
+                            <Input
                               type="number"
                               min="0"
                               value={randomQuestionsConfig.descriptive}
@@ -1102,25 +1110,25 @@ const Jobs: React.FC = () => {
                                 ...randomQuestionsConfig,
                                 descriptive: parseInt(e.target.value) || 0
                               })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="0"
+                              className="bg-white"
                             />
                           </div>
                         </div>
                         <p className="text-sm text-gray-500 mt-3">
                           Specify how many questions of each type should be randomly selected from the question bank for this job screening.
                         </p>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
 
-                    <div className="border border-gray-200 shadow-sm rounded-lg">
-                      <div className="pb-4 p-6 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Card>
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
                           <FileText className="h-5 w-5 mr-2 text-purple-500" />
                           Specific Question Selection
-                        </h3>
-                      </div>
-                      <div className="p-6">
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-2">
                         <QuestionBank
                           mode="selection"
                           selectedQuestions={selectedQuestions}
@@ -1128,24 +1136,34 @@ const Jobs: React.FC = () => {
                           allowMultipleSelection={true}
                           showSplitView={true}
                         />
+                      </CardContent>
+                    </Card>
+                    <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
+                      <Button
+                        variant="secondary"
+                        onClick={() => setCurrentFormTab('details')}
+                        className="bg-orange-500 hover:bg-orange-300 text-white"
+                      >
+                        ← Back to Details
+                      </Button>
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="secondary"
+                          onClick={() => setShowJobForm(false)}
+                          className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleSubmitJob}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          {isEditing ? 'Update Job' : 'Post Job'}
+                        </Button>
                       </div>
                     </div>
                   </TabsContent>
-
-                  <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
-                    <Button
-                      variant="ghost"
-                      onClick={() => setShowJobForm(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <button
-                      onClick={handleSubmitJob}
-                      className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      {isEditing ? 'Update Job' : 'Post Job'}
-                    </button>
-                  </div>
                 </Tabs>
               </div>
             )}

@@ -9,14 +9,12 @@ import random
 import os
 import requests
 import json
-from pypdf import PdfReader
+from pypdf import PdfReader # type: ignore
 from io import BytesIO
 import traceback
 import logging
-import asyncio
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
-from ai_assistant.services import InterviewReportGenerator
+from ai_assistant.models import AIAgent, ChatSession, ChatMessage
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -30,8 +28,8 @@ from .models import (
 from .mixins import ProctoringMixin, AssessmentMixin, LeaderboardPagination
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
-    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer,
-    MockInterviewSubmissionSerializer
+    SkillTestSubmissionSerializer, ContestSubmissionSerializer,
+    CertificationExamSerializer, CertificationSubmissionSerializer
 )
 
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
@@ -243,18 +241,6 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         })
 
 
-class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CertificationSubmission.objects.all()
-    serializer_class = CertificationSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
-    
-    def get_queryset(self):
-        qs = super().get_queryset()
-        exam_id = self.request.query_params.get('exam')
-        if exam_id:
-            qs = qs.filter(certification_exam_id=exam_id)
-        return qs
-
 from course.models import Question
 from django.core.mail import send_mail
 from django.conf import settings
@@ -322,13 +308,50 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
     def register(self, request, pk=None):
         contest = self.get_object()
         user = request.user
+        now = timezone.now()
 
-        if ContestSubmission.objects.filter(contest=contest, user=user).exists():
-            return Response({'message': 'Already Registered'}, status=status.HTTP_200_OK)
+        # 1. Check if already registered
+        existing_submission = ContestSubmission.objects.filter(contest=contest, user=user).first()
+        if existing_submission:
+            return Response({
+                'message': 'Already Registered',
+                'is_late_entry': existing_submission.is_late_entry,
+                'remaining_time_minutes': None
+            }, status=status.HTTP_200_OK)
 
-        ContestSubmission.objects.create(contest=contest, user=user, status=ContestSubmission.STATUS_STARTED)
+        # 2. Validate registration window
+        is_late_entry = False
+        
+        if contest.registration_start_datetime and now < contest.registration_start_datetime:
+            return Response({'error': 'Registration has not started yet'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if contest.registration_end_datetime and now > contest.registration_end_datetime:
+            # Registration window closed - check for late entry
+            if not contest.allow_late_entry:
+                return Response({'error': 'Registration is closed'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if contest is still ongoing
+            if now > contest.end_datetime:
+                return Response({'error': 'Contest has ended'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            is_late_entry = True
 
+        # 3. Create submission record with late entry flag
+        ContestSubmission.objects.create(
+            contest=contest, 
+            user=user, 
+            status=ContestSubmission.STATUS_STARTED,
+            is_late_entry=is_late_entry
+        )
+
+        # 4. Calculate remaining time for late entrants
+        remaining_time = None
+        if is_late_entry:
+            remaining_time = int((contest.end_datetime - now).total_seconds() / 60)
+
+        # 5. Send confirmation email
         try:
+            late_entry_note = "\n        Note: This is a late entry. You will have reduced time to complete the contest." if is_late_entry else ""
             subject = f"Registration Confirmed: {contest.title}"
             message = f"""
         Hello {user.first_name or user.username},
@@ -336,7 +359,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         You have successfully registered for the contest: {contest.title}.
 
         Start Time: {contest.start_datetime.strftime('%Y-%m-%d %H:%M:%Z')}
-        End Time: {contest.end_datetime.strftime('%Y-%m-%d %H:%M:%Z')}
+        End Time: {contest.end_datetime.strftime('%Y-%m-%d %H:%M:%Z')}{late_entry_note}
         
         Good Luck!
 
@@ -354,12 +377,18 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         except Exception as e:
             logger.warning(f"Failed to send email: {str(e)}")
 
-        return Response({'status': 'Registered'}, status=status.HTTP_201_CREATED)
+        # 6. Return enhanced response
+        return Response({
+            'status': 'Registered',
+            'is_late_entry': is_late_entry,
+            'remaining_time_minutes': remaining_time
+        }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start(self, request, pk=None):
         contest = self.get_object()
         user = request.user
+        now = timezone.now()
 
         submission, created = ContestSubmission.objects.get_or_create(
             contest=contest, 
@@ -371,56 +400,23 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if contest.status != Contest.STATUS_ONGOING:
             return Response({'error': 'Contest is not live'}, status=status.HTTP_400_BAD_REQUEST)
 
-        questions_to_send = []
+        # Calculate actual duration based on late entry status
+        if submission.is_late_entry:
+            # For late entrants, give them remaining time (but not more than contest duration)
+            remaining_seconds = (contest.end_datetime - now).total_seconds()
+            actual_duration = min(int(remaining_seconds / 60), contest.duration)
+        else:
+            actual_duration = contest.duration
 
-        if contest.questions_config:
-            all_ids = []
-            for q_type, ids in contest.questions_config.items():
-                if isinstance(ids, list):
-                    all_ids.extend(ids)
+        # Use shared helper for question fetching
+        questions_to_send = self._fetch_questions_for_assessment(contest)
 
-            if all_ids:
-                questions_to_send = list(Question.objects.filter(id__in=all_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
-
-        if contest.questions_random_config:
-            existing_ids = [q['id'] for q in questions_to_send]
-            
-            for q_type, config in contest.questions_random_config.items():
-                requests_to_process = []
-                
-                if isinstance(config, dict):
-                    for diff, count in config.items():
-                        requests_to_process.append((diff, count))
-                else:
-                    requests_to_process.append((None, config))
-                    
-                for difficulty, count in requests_to_process:
-                    if not isinstance(count, int) or count <= 0:
-                        continue
-
-                    q_filter = Q(type=q_type)
-                    
-                    if difficulty:
-                        q_filter &= Q(difficulty=difficulty)
-                        
-                    # Contests might have course/topic context or not? 
-                    # Assuming basic filtering by type/difficulty for contests unless specified otherwise
-                    
-                    candidates = list(Question.objects.filter(
-                        q_filter
-                    ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
-                    
-                    if len(candidates) >= count:
-                        selected = random.sample(candidates, count)
-                    else:
-                        selected = candidates
-                    
-                    questions_to_send.extend(selected)
-                    existing_ids.extend([q['id'] for q in selected])
-
-        random.shuffle(questions_to_send)
-
-        return Response({ 'submission_id': submission.id, 'duration': contest.duration, 'questions': questions_to_send})
+        return Response({
+            'submission_id': submission.id, 
+            'duration': actual_duration,
+            'questions': questions_to_send,
+            'is_late_entry': submission.is_late_entry
+        })
 
     @action(detail=True, methods=['post'], permission_classes= [permissions.IsAuthenticated])
     def submit(self, request, pk=None):
@@ -611,33 +607,14 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            # Expected format: {'mcq_single': 10} OR {'mcq_single': {'easy': 2, 'medium': 1}}
+            # Expected format: {'mcq_single': 10, 'coding': 2}
             
             # Get IDs already selected to avoid duplicates
             existing_ids = [q['id'] for q in questions_to_send]
             
-            for q_type, config in skill_test.questions_random_config.items():
-                requests_to_process = [] # List of (difficulty, count) tuples
-                
-                if isinstance(config, dict):
-                    # New format: {'easy': 2, 'medium': 1}
-                    for diff, count in config.items():
-                        requests_to_process.append((diff, count))
-                else:
-                    # Legacy format: simple integer count, assuming 'medium' or any if needed, 
-                    # but typically we filter just by type. For strictness let's assume no difficulty filter if not specified,
-                    # or better, just fetch any difficulty.
-                    # To minimize complexity, we can treat it as one request with difficulty=None
-                    requests_to_process.append((None, config))
-                    
-                for difficulty, count in requests_to_process:
-                    if not isinstance(count, int) or count <= 0:
-                        continue
-                        
+            for q_type, count in skill_test.questions_random_config.items():
+                if count > 0:
                     q_filter = Q(type=q_type)
-                    
-                    if difficulty:
-                        q_filter &= Q(difficulty=difficulty)
                     
                     if skill_test.topic:
                         # Include questions linked to subtopics of this topic OR directly to the topic
@@ -646,11 +623,6 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         q_filter &= Q(course=skill_test.course)
                         
                     # Fetch candidate questions excluding already selected ones
-                    # Note: We must re-evaluate existing_ids inside the loop if we want to be strictly correct 
-                    # about not picking the same question twice across different criteria (unlikely but possible if criteria overlap)
-                    # But since we filter by difficulty, overlap is minimal unless difficulty is None.
-                    # For safety, we refer to existing_ids which we update.
-                    
                     candidates = list(Question.objects.filter(
                         q_filter
                     ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
@@ -661,8 +633,6 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         selected = candidates # Take all if not enough
                     
                     questions_to_send.extend(selected)
-                    # Update existing_ids to prevent selecting the same question again (relevant for legacy mixed with new)
-                    existing_ids.extend([q['id'] for q in selected])
                     
         # Shuffle final list
         random.shuffle(questions_to_send)
@@ -791,14 +761,6 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
         return qs
 
-    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
-    def submissions(self, request, pk=None):
-        mock_interview = self.get_object()
-        submissions = MockInterviewSubmission.objects.filter(mock_interview=mock_interview).order_by('-created_at')
-        
-        serializer = MockInterviewSubmissionSerializer(submissions, many=True)
-        return Response(serializer.data)
-
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start_interview(self, request, pk=None):
         try:
@@ -924,18 +886,6 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                             content=system_prompt
                         )
 
-                        # Create InterviewSession linking to ChatSession
-                        # This is crucial for the AI Assistant module to track it as an interview
-                        interview_session = InterviewSession.objects.create(
-                            user=user,
-                            chat_session=chat_session,
-                            role_title=mock_interview.title,
-                            role_level=experience_level,
-                            difficulty="Adaptive", # Mock interviews are generally adaptive
-                            duration_minutes=selected_duration or mock_interview.max_duration,
-                            status='started'
-                        )
-
                 # 4. Create NEW submission
                 submission = MockInterviewSubmission.objects.create(
                     mock_interview=mock_interview,
@@ -954,17 +904,10 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                      submission.resume = resume_file
                  submission.save()
                  chat_session = submission.chat_session
-                 # Try to get linked interview session
-                 try:
-                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
-                 except InterviewSession.DoesNotExist:
-                     interview_session = None
 
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
-                'interview_session_id': interview_session.id if interview_session else None,
-                'id': interview_session.id if interview_session else None, # Backwards compatibility for frontend
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,
@@ -1002,6 +945,21 @@ class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 
+class ContestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ContestSubmission.objects.all()
+    serializer_class = ContestSubmissionSerializer
+    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created_at', 'marks']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        contest_id = self.request.query_params.get('contest')
+        if contest_id:
+            qs = qs.filter(contest_id=contest_id)
+        return qs
+
+
 class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CertificationSubmission.objects.all()
     serializer_class = CertificationSubmissionSerializer
@@ -1015,8 +973,5 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         if exam_id:
             qs = qs.filter(certification_exam_id=exam_id)
         return qs
-
-
-
 
 

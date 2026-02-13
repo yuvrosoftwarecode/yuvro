@@ -64,6 +64,12 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [language, setLanguage] = useState("python");
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
+  // Custom drag-based resizing (like StudentVideos)
+  const [problemPanelWidth, setProblemPanelWidth] = useState(35); // % width for problem description
+  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30); // % width for AI chat
+  const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Code editor ref
   const codeEditorRef = useRef<CodeEditorHandle>(null);
 
@@ -92,6 +98,45 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
       setIsSidebarCollapsed(true);
     }
   };
+
+  // Custom drag handlers for resizing (like StudentVideos)
+  const startProblemDrag = () => setDragMode('problem');
+  const startAiChatDrag = () => setDragMode('ai-chat');
+  const stopDrag = () => setDragMode(null);
+
+  const onDrag = (e: MouseEvent) => {
+    if (!dragMode || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const relativeX = e.clientX - rect.left;
+    const containerWidth = rect.width;
+
+    if (dragMode === 'problem') {
+      const newWidth = (relativeX / containerWidth) * 100;
+      if (newWidth >= 15 && newWidth <= 60) {
+        setProblemPanelWidth(newWidth);
+      }
+    } else if (dragMode === 'ai-chat') {
+      // AI chat resize - calculate from right edge
+      const rightEdgeX = containerWidth - relativeX;
+      const newWidth = (rightEdgeX / containerWidth) * 100;
+      if (newWidth >= 20 && newWidth <= 50) {
+        setAiChatPanelWidth(newWidth);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleDrag = (e: MouseEvent) => onDrag(e);
+    window.addEventListener("mousemove", handleDrag);
+    window.addEventListener("mouseup", stopDrag);
+
+    return () => {
+      window.removeEventListener("mousemove", handleDrag);
+      window.removeEventListener("mouseup", stopDrag);
+    };
+  }, [dragMode]);
+
 
   // Generate a unique session key every time the problem is loaded to start fresh
   useEffect(() => {
@@ -150,11 +195,11 @@ ${codeEditorRef.current?.getCode() || ''}
   };
 
   return (
-    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'h-full flex flex-col p-4 box-border bg-slate-50/50 font-sans'}`}>
+    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'flex-1 flex flex-col p-6 box-border bg-slate-50/50 font-sans overflow-hidden'}`}>
 
       {/* Premium Header / Breadcrumb */}
       {!isEditorFullscreen && (
-        <div className="flex items-center justify-between mb-4 shrink-0 px-1">
+        <div className="flex items-center justify-between mb-6 shrink-0">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -187,15 +232,6 @@ ${codeEditorRef.current?.getCode() || ''}
                 <p className="text-xs font-bold text-gray-900 leading-none">{problem.score} Points</p>
               </div>
             </div>
-
-            {!editorOpen && (
-              <Button
-                onClick={() => setEditorOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold px-6 h-9 transition-all active:scale-95 text-xs uppercase tracking-widest"
-              >
-                Launch Workspace
-              </Button>
-            )}
           </div>
         </div>
       )}
@@ -273,200 +309,211 @@ ${codeEditorRef.current?.getCode() || ''}
               </div>
             </CardContent>
           </Card>
+
+          {/* Launch Workspace Button - Centered below question */}
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={() => setEditorOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 font-bold px-8 py-3 h-12 transition-all active:scale-95 text-sm uppercase tracking-widest hover:shadow-xl"
+            >
+              <Code className="w-5 h-5 mr-2" />
+              Launch Workspace
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* 2) Split view when editor is open (horizontal resizable) */}
+      {/* 2) Split view when editor is open (custom drag-based resizing) */}
       {editorOpen && !isEditorFullscreen && (
-        <div className="flex-1 min-h-0">
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="w-full h-full flex"
-            key={`split-view-${showProblemDescription ? 'desc' : 'nodesc'}-${isSidebarCollapsed ? 'collapsed' : 'expanded'}-${showAiChat ? 'chat' : 'nochat'}`}
-          >
-            {/* LEFT PANEL — Problem */}
-            {showProblemDescription && !isSidebarCollapsed && (
-              <ResizablePanel
-                id="problem-panel"
-                order={1}
-                defaultSize={35}
-                minSize={20}
-                maxSize={50}
+        <div
+          ref={containerRef}
+          className={`flex-1 min-h-0 overflow-hidden flex relative gap-3 ${dragMode ? 'select-none' : ''}`}
+        >
+          {/* Collapsed Sidebar */}
+          {showProblemDescription && isSidebarCollapsed && (
+            <div className="w-10 shrink-0 border border-gray-200 bg-white rounded-2xl flex flex-col items-center py-6 gap-6 transition-all shadow-sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="w-8 h-8 p-0 rotate-180 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                title="Expand Overview"
               >
-                <div className="h-full pr-2 font-sans overflow-hidden">
-                  <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-2xl overflow-hidden">
-                    <CardHeader className="p-4 bg-gray-50/50 border-b border-gray-100 flex-none">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center shrink-0">
-                            <Layout className="w-3.5 h-3.5 text-white" />
-                          </div>
-                          <CardTitle className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{problem.title}</CardTitle>
-                        </div>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <div className="[writing-mode:vertical-rl] text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] select-none py-2 cursor-pointer hover:text-indigo-600 transition-all" onClick={() => setIsSidebarCollapsed(false)}>
+                Task Overview
+              </div>
+            </div>
+          )}
 
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsSidebarCollapsed(true)}
-                          className="h-8 w-8 p-0 rounded-lg text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-100"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
+          {/* LEFT PANEL — Problem Description */}
+          {showProblemDescription && !isSidebarCollapsed && (
+            <div
+              className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
+              style={{ width: `calc(${problemPanelWidth}% - 6px)` }}
+            >
+              <div className="h-full font-sans overflow-hidden">
+                <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-2xl overflow-hidden">
+                  <CardHeader className="p-4 bg-gray-50/50 border-b border-gray-100 flex-none">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center shrink-0">
+                          <Layout className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <CardTitle className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{problem.title}</CardTitle>
                       </div>
-                    </CardHeader>
 
-                    <CardContent className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-white">
-                      <div className="space-y-8">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsSidebarCollapsed(true)}
+                        className="h-8 w-8 p-0 rounded-lg text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-100"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-white">
+                    <div className="space-y-8">
+                      <div>
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Task</h4>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{problem.description}</p>
+                      </div>
+
+                      {problem.examples && problem.examples.length > 0 && (
                         <div>
-                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Task</h4>
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{problem.description}</p>
-                        </div>
-
-                        {problem.examples && problem.examples.length > 0 && (
-                          <div>
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Example</h4>
-                            <div className="space-y-3">
-                              {problem.examples.slice(0, 1).map((ex: any, idx: number) => (
-                                <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-gray-100">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Input</div>
-                                      <code className="text-[11px] font-mono text-indigo-600">{ex.input}</code>
-                                    </div>
-                                    <div>
-                                      <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Output</div>
-                                      <code className="text-[11px] font-mono text-emerald-600">{ex.output}</code>
-                                    </div>
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Example</h4>
+                          <div className="space-y-3">
+                            {problem.examples.slice(0, 1).map((ex: any, idx: number) => (
+                              <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-gray-100">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Input</div>
+                                    <code className="text-[11px] font-mono text-indigo-600">{ex.input}</code>
                                   </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="pt-4 border-t border-gray-50">
-                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Sample Scenarios</h4>
-                          <div className="space-y-4">
-                            {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                              <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                <div className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Scenario 0{i + 1}</div>
-                                <div className="space-y-3">
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Input</span>
-                                    <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-gray-700 leading-tight">
-                                      {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                                    </pre>
-                                  </div>
-                                  <div className="flex flex-col gap-1">
-                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Expectation</span>
-                                    <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-emerald-600 leading-tight">
-                                      {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
-                                    </pre>
+                                  <div>
+                                    <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Output</div>
+                                    <code className="text-[11px] font-mono text-emerald-600">{ex.output}</code>
                                   </div>
                                 </div>
                               </div>
                             ))}
                           </div>
                         </div>
+                      )}
+
+                      <div className="pt-4 border-t border-gray-50">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Sample Scenarios</h4>
+                        <div className="space-y-4">
+                          {(problem.test_cases_basic || []).map((tc: any, i: number) => (
+                            <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                              <div className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Scenario 0{i + 1}</div>
+                              <div className="space-y-3">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[8px] font-bold text-gray-400 uppercase">Input</span>
+                                  <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-gray-700 leading-tight">
+                                    {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
+                                  </pre>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-[8px] font-bold text-gray-400 uppercase">Expectation</span>
+                                  <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-emerald-600 leading-tight">
+                                    {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
+                                  </pre>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </ResizablePanel>
-            )}
-            {/* COLLAPSED SIDEBAR GHOST */}
-            {showProblemDescription && isSidebarCollapsed && (
-              <div className="w-10 border border-gray-200 bg-white rounded-2xl flex flex-col items-center py-6 gap-6 transition-all mr-2 shadow-sm">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsSidebarCollapsed(false)}
-                  className="w-8 h-8 p-0 rotate-180 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                  title="Expand Overview"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-                <div className="[writing-mode:vertical-rl] text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] select-none py-2 cursor-pointer hover:text-indigo-600 transition-all" onClick={() => setIsSidebarCollapsed(false)}>
-                  Task Overview
-                </div>
-              </div>
-            )}
-
-            {/* DRAGGABLE HANDLE */}
-            {showProblemDescription && !isSidebarCollapsed && (
-              <ResizableHandle className="w-3 -mx-1.5 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
-                <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
-              </ResizableHandle>
-            )}
-
-            {/* RIGHT PANEL — Editor + Output */}
-            <ResizablePanel
-              id="editor-panel"
-              order={2}
-              defaultSize={showProblemDescription && !isSidebarCollapsed ? 65 : (showAiBuddy && showAiChat ? 65 : 100)}
-              minSize={30}
-            >
-              <div className="h-full flex flex-col px-0">
-                <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
-                  {/* Use CodeEditor component */}
-                  <CodeEditor
-                    ref={codeEditorRef}
-                    initialCode={code}
-                    onCodeChange={setCode}
-                    initialLanguage={language}
-                    onLanguageChange={setLanguage}
-                    problemTitle={problem.title}
-                    problemId={problem.id}
-                    courseId={course.id}
-                    topicId={topic.id}
-                    subtopicId={subtopicId}
-                    testCases={problem.test_cases_basic || []}
-                    showTestCases={true}
-                    allowCustomTestCases={true}
-                    showFullscreenButton={true}
-                    showExamplesButton={true}
-                    onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                    isAiChatOpen={showAiChat}
-                    onFullscreenChange={handleFullscreenChange}
-                    isFullscreen={isEditorFullscreen}
-                    className="h-full"
-                    templates={apiTemplates}
-                    codeSubmissionType={codeSubmissionType}
-                    onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-
-            {/* AI Chat Sidebar in Split View */}
-            {showAiBuddy && showAiChat && (
-              <>
-                <ResizableHandle className="w-3 -mx-1.5 bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50">
-                  <div className="w-1 h-12 bg-gray-300 rounded-full shadow-sm" />
-                </ResizableHandle>
-                <ResizablePanel
-                  id="ai-chat-panel"
-                  order={3}
-                  defaultSize={35}
-                  minSize={25}
-                  maxSize={50}
-                >
-                  <div className="h-full pl-2">
-                    <div className="h-full min-h-0 border border-gray-200 bg-white shadow-sm rounded-2xl overflow-hidden flex flex-col">
-                      <AIChatContainer
-                        className="w-full flex-1"
-                        contextGetter={getProblemContext}
-                        welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
-                        persistenceKey={chatSessionId}
-                        chatTitle={`${problem.title} - AI Buddy`}
-                        onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                      />
                     </div>
-                  </div>
-                </ResizablePanel>
-              </>
-            )}
-          </ResizablePanelGroup>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* PROBLEM RESIZE HANDLE */}
+          {showProblemDescription && !isSidebarCollapsed && (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                startProblemDrag();
+              }}
+              className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+            >
+              <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+            </div>
+          )}
+
+          {/* CENTER PANEL — Editor + Output */}
+          <div
+            className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
+          >
+            <div className="h-full flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
+                <CodeEditor
+                  ref={codeEditorRef}
+                  initialCode={code}
+                  onCodeChange={setCode}
+                  initialLanguage={language}
+                  onLanguageChange={setLanguage}
+                  problemTitle={problem.title}
+                  problemId={problem.id}
+                  courseId={course.id}
+                  topicId={topic.id}
+                  subtopicId={subtopicId}
+                  testCases={problem.test_cases_basic || []}
+                  showTestCases={true}
+                  allowCustomTestCases={true}
+                  showFullscreenButton={true}
+                  showExamplesButton={true}
+                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+                  isAiChatOpen={showAiChat}
+                  onFullscreenChange={handleFullscreenChange}
+                  isFullscreen={isEditorFullscreen}
+                  className="h-full"
+                  templates={apiTemplates}
+                  codeSubmissionType={codeSubmissionType}
+                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* AI CHAT RESIZE HANDLE */}
+          {showAiBuddy && showAiChat && (
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                startAiChatDrag();
+              }}
+              className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+            >
+              <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+            </div>
+          )}
+
+          {/* RIGHT PANEL — AI Chat */}
+          {showAiBuddy && showAiChat && (
+            <div
+              className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
+              style={{ width: `calc(${aiChatPanelWidth}% - 6px)` }}
+            >
+              <div className="h-full min-h-0 border border-gray-200 bg-white shadow-sm rounded-2xl overflow-hidden flex flex-col">
+                <AIChatContainer
+                  className="w-full flex-1"
+                  contextGetter={getProblemContext}
+                  welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                  persistenceKey={chatSessionId}
+                  chatTitle={`${problem.title} - AI Buddy`}
+                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -521,70 +568,72 @@ ${codeEditorRef.current?.getCode() || ''}
             </div>
           )}
 
-          <div className="flex-1 flex flex-col overflow-hidden h-full">
-            <ResizablePanelGroup
-              direction="horizontal"
-              className="flex-1 overflow-hidden"
-              key={`fullscreen-view-${showAiChat ? 'chat' : 'nochat'}`}
-            >
-              {/* Main Area (Editor + Output) */}
-              <ResizablePanel
-                id="fullscreen-editor-panel"
-                order={1}
-                defaultSize={showAiBuddy && showAiChat ? 70 : 100}
+          <div
+            ref={containerRef}
+            className={`flex-1 flex overflow-hidden p-4 gap-4 bg-gray-50 ${dragMode ? 'select-none' : ''}`}
+          >
+            {/* Main Area (Editor + Output) */}
+            <div className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>
+              <div className="h-full flex flex-col overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <CodeEditor
+                  ref={codeEditorRef}
+                  initialCode={code}
+                  onCodeChange={setCode}
+                  initialLanguage={language}
+                  onLanguageChange={setLanguage}
+                  problemTitle={problem.title}
+                  problemId={problem.id}
+                  courseId={course.id}
+                  topicId={topic.id}
+                  subtopicId={subtopicId}
+                  testCases={problem.test_cases_basic || []}
+                  showTestCases={true}
+                  allowCustomTestCases={true}
+                  showFullscreenButton={true}
+                  showExamplesButton={true}
+                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+                  isAiChatOpen={showAiChat}
+                  onFullscreenChange={handleFullscreenChange}
+                  isFullscreen={isEditorFullscreen}
+                  className="h-full"
+                  templates={apiTemplates}
+                  codeSubmissionType={codeSubmissionType}
+                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                />
+              </div>
+            </div>
+
+            {/* AI Chat Resize Handle */}
+            {showAiBuddy && showAiChat && (
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  startAiChatDrag();
+                }}
+                className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
               >
-                <div className="h-full flex flex-col overflow-hidden">
-                  <CodeEditor
-                    ref={codeEditorRef}
-                    initialCode={code}
-                    onCodeChange={setCode}
-                    initialLanguage={language}
-                    onLanguageChange={setLanguage}
-                    problemTitle={problem.title}
-                    problemId={problem.id}
-                    courseId={course.id}
-                    topicId={topic.id}
-                    subtopicId={subtopicId}
-                    testCases={problem.test_cases_basic || []}
-                    showTestCases={true}
-                    allowCustomTestCases={true}
-                    showFullscreenButton={true}
-                    showExamplesButton={true}
-                    onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                    isAiChatOpen={showAiChat}
-                    onFullscreenChange={handleFullscreenChange}
-                    isFullscreen={isEditorFullscreen}
-                    className="h-full"
-                    templates={apiTemplates}
-                    codeSubmissionType={codeSubmissionType}
-                    onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+              </div>
+            )}
+
+            {/* AI Chat Sidebar */}
+            {showAiBuddy && showAiChat && (
+              <div
+                className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
+                style={{ width: `calc(${aiChatPanelWidth}% - 8px)` }}
+              >
+                <div className="h-full min-h-0 bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden flex flex-col">
+                  <AIChatContainer
+                    className="w-full flex-1"
+                    contextGetter={getProblemContext}
+                    welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
+                    persistenceKey={chatSessionId}
+                    chatTitle={`${problem.title} - AI Buddy`}
+                    onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
                   />
                 </div>
-              </ResizablePanel>
-
-              {/* AI Chat Sidebar */}
-              {showAiBuddy && showAiChat && (
-                <>
-                  <ResizableHandle className="w-1 bg-gray-100 hover:bg-indigo-400 transition-colors" />
-                  <ResizablePanel
-                    id="fullscreen-ai-chat-panel"
-                    order={2}
-                    defaultSize={30}
-                  >
-                    <div className="h-full min-h-0 bg-white border-l border-gray-200 overflow-hidden flex flex-col">
-                      <AIChatContainer
-                        className="w-full flex-1"
-                        contextGetter={getProblemContext}
-                        welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
-                        persistenceKey={chatSessionId}
-                        chatTitle={`${problem.title} - AI Buddy`}
-                        onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                      />
-                    </div>
-                  </ResizablePanel>
-                </>
-              )}
-            </ResizablePanelGroup>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -123,11 +123,75 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const isCodingQuestion = currentQuestionData?.type === 'coding';
   const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
 
+  useProctoring({
+    assessmentId: assessment.id,
+    assessmentType: assessmentType,
+    enabled: true,
+    questionId: undefined
+  });
+
+  useProctoring({
+    assessmentId: assessment.id,
+    assessmentType: assessmentType,
+    enabled: isCodingQuestion,
+    questionId: proctoringQuestionId
+  });
+
+  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
+  const [viewed, setViewed] = useState<Set<string>>(new Set());
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('python');
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Custom resize state for coding split view
+  const [leftPanelWidth, setLeftPanelWidth] = useState(40); // % width
+  const [isDragging, setIsDragging] = useState(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+
+  const startDrag = () => setIsDragging(true);
+  const stopDrag = () => setIsDragging(false);
+
+  const onDrag = (e: MouseEvent) => {
+    if (!isDragging || !splitContainerRef.current) return;
+
+    const rect = splitContainerRef.current.getBoundingClientRect();
+    const relativeX = e.clientX - rect.left;
+    const containerWidth = rect.width;
+
+    // Calculate new width relative to left
+    const newWidth = (relativeX / containerWidth) * 100;
+
+    // Clamp between 20% and 80%
+    if (newWidth >= 20 && newWidth <= 80) {
+      setLeftPanelWidth(newWidth);
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onDrag);
+      window.addEventListener('mouseup', stopDrag);
+    } else {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDrag);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDrag);
+    };
+  }, [isDragging]);
+  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
+  const [showExamples, setShowExamples] = useState(false);
+  const [cameraAlert, setCameraAlert] = useState(false);
+  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
+  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
   const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
@@ -145,7 +209,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         console.log('Camera/microphone track stopped:', track.kind);
       });
       streamRef.current = null;
-      setMediaStream(null);
       setVideoTrackEnabled(false);
       setAudioTrackEnabled(false);
       console.log('Camera cleanup completed');
@@ -153,35 +216,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('No stream to cleanup');
     }
   };
-
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: true,
-    questionId: undefined,
-    mediaStream: mediaStream
-  });
-
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: isCodingQuestion,
-    questionId: proctoringQuestionId,
-    mediaStream: mediaStream
-  });
-
-  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
-  const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
-  const [showExamples, setShowExamples] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
-  const [cameraAlert, setCameraAlert] = useState(false);
-  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
-  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
-  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     const initializeMedia = async () => {
@@ -192,7 +226,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         });
 
         streamRef.current = stream;
-        setMediaStream(stream);
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);
@@ -667,10 +700,10 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         />
       </div>
 
-      <div className="bg-card shadow-lg relative z-30 px-6 py-4">
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 relative z-30 px-6 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="relative h-14 w-20 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+            <div className="relative h-10 w-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
               <video
                 ref={videoRef}
                 autoPlay
@@ -680,21 +713,21 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
               />
               {!videoTrackEnabled && (
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-                  <CameraOff className="h-6 w-6 text-slate-500" />
+                  <CameraOff className="h-4 w-4 text-slate-500" />
                 </div>
               )}
-              <div className="absolute bottom-1 right-1 flex space-x-1">
+              <div className="absolute bottom-0.5 right-0.5 flex space-x-0.5">
                 {videoTrackEnabled ?
-                  <Camera className="h-2 w-2 text-green-400" /> :
-                  <CameraOff className="h-2 w-2 text-red-400" />}
+                  <Camera className="h-1.5 w-1.5 text-green-400" /> :
+                  <CameraOff className="h-1.5 w-1.5 text-red-400" />}
                 {audioTrackEnabled ?
-                  <Mic className="h-2 w-2 text-green-400" /> :
-                  <MicOff className="h-2 w-2 text-red-400" />}
+                  <Mic className="h-1.5 w-1.5 text-green-400" /> :
+                  <MicOff className="h-1.5 w-1.5 text-red-400" />}
               </div>
             </div>
             <div>
-              <h1 className="text-xl font-bold">{assessment.title}</h1>
-              <Badge variant="outline">{assessment.course}</Badge>
+              <h1 className="text-lg font-bold text-gray-800">{assessment.title}</h1>
+              <Badge variant="secondary" className="text-xs font-normal">{assessment.course}</Badge>
             </div>
           </div>
 
@@ -708,7 +741,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="default" className="w-32 h-12 text-lg font-bold bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white shadow-md transition-all active:scale-95">
+                <Button size="sm" className="h-9 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all active:scale-95 text-xs font-bold uppercase tracking-wider rounded-lg">
                   Finish
                 </Button>
               </AlertDialogTrigger>
@@ -760,21 +793,21 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="flex flex-1 overflow-hidden">
 
         {/* Sidebar */}
-        <div className={`bg-card shadow-[4px_0_15px_-3px_rgba(0,0,0,0.05)] relative z-20 transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-80'
+        <div className={`border-r border-gray-200 bg-white relative z-20 transition-all duration-300 overflow-hidden ${isSidebarCollapsed ? 'w-20' : 'w-80'
           }`}>
-          <div className="p-4">
+          <div className={`h-full flex flex-col ${isSidebarCollapsed ? 'px-2 py-4' : 'px-6 py-6'}`}>
 
             {/* Top */}
-            <div className="flex items-center justify-between mb-4">
-              {!isSidebarCollapsed && <h3 className="font-semibold">Questions</h3>}
-              <Button variant="ghost" size="sm" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              {!isSidebarCollapsed && <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Question Navigator</h3>}
+              <Button variant="ghost" size="icon" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="h-8 w-8 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-sm">
                 {isSidebarCollapsed ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
 
-            <div className={`mt-4 ${isSidebarCollapsed ? 'flex flex-col items-center h-[calc(100vh-160px)] overflow-y-auto no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-20' : 'h-[calc(100vh-280px)] overflow-y-auto pr-2 custom-scrollbar'}`}>
+            <div className={`mt-2 flex-1 ${isSidebarCollapsed ? 'flex flex-col items-center overflow-y-auto no-scrollbar pb-20 w-full' : 'overflow-y-auto pr-2 custom-scrollbar'}`}>
               {isSidebarCollapsed && (
-                <div className="flex flex-col w-full items-center gap-4 py-4">
+                <div className="flex flex-col w-full items-center gap-3 py-2">
                   {questions.map((q, index) => {
                     const status = getQuestionStatus(q.id);
                     const isCurrent = index === currentQuestion;
@@ -784,7 +817,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                         key={q.id}
                         variant="ghost"
                         size="sm"
-                        className={`h-10 w-10 p-0 text-xs font-bold rounded-xl transition-all border-none outline-none ring-0 ${isCurrent ? 'bg-black text-white hover:bg-slate-800 shadow-lg scale-110 z-10' : getStatusColor(status)}`}
+                        className={`h-9 w-9 p-0 text-xs font-bold rounded-lg transition-all ${isCurrent ? 'bg-gray-900 text-white shadow-md z-10' : getStatusColor(status)}`}
                         onClick={() => setCurrentQuestion(index)}
                       >
                         {index + 1}
@@ -834,7 +867,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                             {group.label}
                             <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px]">{groupQuestions.length}</span>
                           </h4>
-                          <div className="grid grid-cols-5 gap-2">
+                          <div className="grid grid-cols-5 gap-2 justify-items-center">
                             {groupQuestions.map(q => {
                               const status = getQuestionStatus(q.id);
                               const isCurrent = q.globalIndex === currentQuestion;
@@ -843,7 +876,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                                   key={q.id}
                                   variant="ghost"
                                   size="sm"
-                                  className={`h-10 w-10 p-0 rounded-lg transition-all border-none outline-none ring-0 shadow-sm hover:shadow-md ${getStatusColor(status)} ${isCurrent ? 'bg-black text-white hover:bg-gray-800' : ''}`}
+                                  className={`h-9 w-9 p-0 rounded-lg transition-all shadow-sm hover:shadow ${getStatusColor(status)} ${isCurrent ? 'ring-2 ring-offset-2 ring-gray-900 z-10' : ''}`}
                                   onClick={() => setCurrentQuestion(q.globalIndex)}
                                 >
                                   {q.globalIndex + 1}
@@ -890,165 +923,178 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </div>
 
         {/* Main Question Area */}
-        <div className="flex-1 flex flex-col h-full overflow-y-auto">
+        <div className="flex-1 flex flex-col h-full overflow-y-auto bg-slate-50/50">
           <div className="p-6">
 
             {questions.length > 0 && (
               currentQuestionData.type === 'coding' ? (
                 <div className="h-[calc(100vh-140px)] flex flex-col">
-                  {/* Top Header Row (Outside Description) */}
-                  <div className="flex justify-between items-center mb-4 px-1">
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h2 className="text-xl font-bold line-clamp-1">{currentQuestionData.title}</h2>
-                        <Badge variant="outline">Q{currentQuestion + 1}/{questions.length}</Badge>
-                        <Badge variant="secondary">{currentQuestionData.marks} marks</Badge>
-                        <Badge variant="outline" className="capitalize">{currentQuestionData.type}</Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1}>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-muted-foreground hidden sm:inline-flex">
-                        Skip
-                      </Button>
-
-                      <Button
-                        variant={flagged.has(currentQuestionData.id) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleFlagQuestion(currentQuestionData.id)}
-                        className={flagged.has(currentQuestionData.id)
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500'
-                          : 'text-muted-foreground hover:text-foreground'
-                        }
-                      >
-                        <Flag className={`h-4 w-4 mr-2 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
-                        {flagged.has(currentQuestionData.id) ? 'Flagged' : 'Flag'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Split Content Area */}
-                  <ResizablePanelGroup direction="horizontal" className="flex-1 rounded-lg border-0 shadow-lg bg-card text-card-foreground my-1 overflow-hidden">
-                    {/* LEFT PANEL: Description & Test Cases */}
-                    <ResizablePanel
-                      defaultSize={40}
-                      minSize={20}
-                      className={`bg-white transition-all duration-300 ${isDescriptionCollapsed ? 'hidden' : ''}`}
-                    >
-                      <div className="h-full overflow-y-auto p-6 relative">
-                        <div className="absolute top-2 right-2 z-10">
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setIsDescriptionCollapsed(true)} title="Collapse Description">
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        {/* Description */}
-                        <div className="prose prose-sm max-w-none mb-8 mt-2">
-                          <div dangerouslySetInnerHTML={{ __html: currentQuestionData.content || '' }} />
-                        </div>
-
-                        {/* Test Cases */}
-                        {currentQuestionData.test_cases_basic && (
-                          <div className="mb-8">
-                            <h4 className="font-semibold text-sm mb-3 text-slate-800">Sample Test Cases</h4>
-                            <div className="space-y-3">
-                              {currentQuestionData.test_cases_basic.map((tc: any, idx: number) => (
-                                <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 grid grid-cols-2 gap-4 text-xs font-mono">
-                                  <div>
-                                    <div className="font-semibold text-slate-500 mb-1">Input</div>
-                                    <div className="bg-white p-2 rounded border border-slate-200">{tc.input}</div>
-                                  </div>
-                                  <div>
-                                    <div className="font-semibold text-slate-500 mb-1">Output</div>
-                                    <div className="bg-white p-2 rounded border border-slate-200">{tc.output}</div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </ResizablePanel>
-
-                    {/* Collapsed Sidebar Ghost */}
-                    {isDescriptionCollapsed && (
-                      <div className="w-10 bg-slate-50 border-r flex flex-col items-center py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setIsDescriptionCollapsed(false)}>
-                        <div className="rotate-180 mb-4">
-                          <ChevronLeft className="h-4 w-4 text-slate-500" />
-                        </div>
-                        <span className="writing-vertical-rl text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap" style={{ writingMode: 'vertical-rl' }}>
-                          Description
+                  <div className="flex-1 flex flex-col min-h-0 bg-white" ref={splitContainerRef}>
+                    {/* Toolbar */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white shrink-0">
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsDescriptionCollapsed(!isDescriptionCollapsed)}
+                          className={`h-8 w-8 p-0 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all ${isDescriptionCollapsed ? 'rotate-180' : ''}`}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <h3 className="text-sm font-bold text-gray-900">{currentQuestionData.title}</h3>
+                        <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
+                          {currentQuestionData.marks} marks
                         </span>
                       </div>
-                    )}
 
-                    {!isDescriptionCollapsed && <ResizableHandle />}
-
-                    {/* RIGHT PANEL: Editor */}
-                    <ResizablePanel defaultSize={60}>
-                      <div className="h-full flex flex-col bg-white">
-                        <div className="flex-1 overflow-hidden relative">
-                          <CodeEditor
-                            initialCode={answers[currentQuestionData.id] || ''}
-                            onCodeChange={(code) => handleAnswerChange(currentQuestionData.id, code)}
-                            initialLanguage={selectedLanguage}
-                            onLanguageChange={setSelectedLanguage}
-                            problemTitle={currentQuestionData.title}
-                            problemId={currentQuestionData.id}
-                            testCases={currentQuestionData.test_cases_basic || []}
-                            isFullscreen={isCodeEditorFullscreen}
-                            onFullscreenChange={setIsCodeEditorFullscreen}
-                            onSubmissionComplete={() => {
-                              setCodingSubmitted(prev => {
-                                const next = new Set(prev);
-                                next.add(currentQuestionData.id);
-                                return next;
-                              });
-                            }}
-                            className="h-full border-0"
-                          />
+                      {/* Coding Navigation */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-100 mr-2">
+                          <Button variant="ghost" size="sm" onClick={handlePreviousQuestion} disabled={currentQuestion === 0} className="h-7 w-7 p-0 rounded-md text-gray-400 hover:text-gray-900 hover:bg-white hover:shadow-sm">
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <div className="w-px h-4 bg-gray-200 mx-1" />
+                          <Button variant="ghost" size="sm" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1} className="h-7 w-7 p-0 rounded-md text-gray-400 hover:text-gray-900 hover:bg-white hover:shadow-sm">
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
                         </div>
-                        {/* Footer Removed */}
+                        <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-xs font-bold text-gray-500 uppercase tracking-widest hover:bg-gray-50 h-8 px-3 rounded-lg">
+                          Skip
+                        </Button>
+                        <Button
+                          variant={flagged.has(currentQuestionData.id) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleFlagQuestion(currentQuestionData.id)}
+                          className={`h-8 px-3 text-xs font-bold uppercase tracking-widest rounded-lg border-0 ${flagged.has(currentQuestionData.id)
+                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900'
+                            }`}
+                        >
+                          <Flag className={`h-3.5 w-3.5 mr-1.5 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
+                          {flagged.has(currentQuestionData.id) ? 'Flagged' : 'Flag'}
+                        </Button>
                       </div>
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
+                    </div>
+
+                    {/* Split View Content */}
+                    <div className={`flex-1 flex overflow-hidden ${isDragging ? 'select-none pointer-events-none' : ''}`}>
+                      {/* LEFT PANEL: Description & Test Cases */}
+                      {!isDescriptionCollapsed && (
+                        <div
+                          className="h-full flex flex-col border-r border-gray-100 bg-white overflow-hidden relative"
+                          style={{ width: `${leftPanelWidth}%` }}
+                        >
+                          <div className="flex-1 overflow-y-auto p-6">
+                            <div className="prose prose-slate max-w-none text-sm">
+                              <div dangerouslySetInnerHTML={{ __html: currentQuestionData.content || '' }} />
+                            </div>
+
+                            {/* Test Cases display if available in question data */}
+                            {currentQuestionData.test_cases_basic && currentQuestionData.test_cases_basic.length > 0 && (
+                              <div className="mt-8 pt-8 border-t border-gray-100">
+                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4">Sample Test Cases</h4>
+                                <div className="space-y-4">
+                                  {currentQuestionData.test_cases_basic.slice(0, 2).map((tc: any, idx: number) => (
+                                    <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <div className="text-[10px] font-bold text-gray-400 uppercase mb-2">Input</div>
+                                          <code className="text-xs font-mono text-gray-700 block bg-white p-2 rounded border border-gray-200">
+                                            {typeof tc.input === 'object' ? JSON.stringify(tc.input) : tc.input}
+                                          </code>
+                                        </div>
+                                        <div>
+                                          <div className="text-[10px] font-bold text-gray-400 uppercase mb-2">Output</div>
+                                          <code className="text-xs font-mono text-gray-700 block bg-white p-2 rounded border border-gray-200">
+                                            {typeof tc.expected_output === 'object' ? JSON.stringify(tc.expected_output) : tc.expected_output}
+                                          </code>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Drag Handle */}
+                      {!isDescriptionCollapsed && (
+                        <div
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            startDrag();
+                          }}
+                          className="w-4 -ml-2 h-full z-10 cursor-col-resize flex flex-col justify-center items-center hover:bg-blue-50/50 transition-colors group"
+                        >
+                          <div className="w-1 h-8 bg-gray-200 rounded-full group-hover:bg-blue-400 transition-colors" />
+                        </div>
+                      )}
+
+                      {/* RIGHT PANEL: Editor */}
+                      <div className="flex-1 h-full min-w-0 bg-white">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1 overflow-hidden relative">
+                            <CodeEditor
+                              initialCode={answers[currentQuestionData.id] || ''}
+                              onCodeChange={(code) => handleAnswerChange(currentQuestionData.id, code)}
+                              initialLanguage={selectedLanguage}
+                              onLanguageChange={setSelectedLanguage}
+                              problemTitle={currentQuestionData.title}
+                              problemId={currentQuestionData.id}
+                              testCases={currentQuestionData.test_cases_basic || []}
+                              isFullscreen={isCodeEditorFullscreen}
+                              onFullscreenChange={setIsCodeEditorFullscreen}
+                              onSubmissionComplete={() => {
+                                setCodingSubmitted(prev => {
+                                  const next = new Set(prev);
+                                  next.add(currentQuestionData.id);
+                                  return next;
+                                });
+                              }}
+                              className="h-full border-0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8 h-full overflow-y-auto">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="flex items-start justify-between mb-8">
                       <div>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h2 className="text-xl font-bold line-clamp-1">{currentQuestionData.title}</h2>
-
-                          <Badge variant="outline">
-                            Question {currentQuestion + 1} of {questions.length}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {currentQuestionData.marks} marks
-                          </Badge>
-                          <Badge variant="outline">{currentQuestionData.type}</Badge>
+                        <div className="flex items-center space-x-3 mb-4">
+                          <h2 className="text-2xl font-bold text-gray-900">{currentQuestionData.title}</h2>
                         </div>
 
+                        <div className="flex items-center gap-2 mb-6">
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                            Question {currentQuestion + 1} of {questions.length}
+                          </span>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                            {currentQuestionData.marks} marks
+                          </span>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 capitalize">
+                            {currentQuestionData.type.replace('_', ' ')}
+                          </span>
+                        </div>
 
-                        <div className="mt-4 prose prose-sm max-w-none">
+                        <div className="prose prose-slate max-w-none">
                           <div dangerouslySetInnerHTML={{ __html: currentQuestionData.content || '' }} />
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
+                        <Button variant="ghost" size="icon" onClick={handlePreviousQuestion} disabled={currentQuestion === 0} className="h-8 w-8 rounded-full border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50">
                           <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1}>
+                        <Button variant="ghost" size="icon" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1} className="h-8 w-8 rounded-full border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50">
                           <ChevronRight className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-muted-foreground hidden sm:inline-flex">
+                        <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-gray-500 hover:text-gray-900 hidden sm:inline-flex text-xs font-bold uppercase tracking-wider">
                           Skip
                         </Button>
 
@@ -1056,24 +1102,21 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                           variant={flagged.has(currentQuestionData.id) ? "default" : "outline"}
                           size="sm"
                           onClick={() => handleFlagQuestion(currentQuestionData.id)}
-                          className={flagged.has(currentQuestionData.id)
-                            ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500'
-                            : 'text-muted-foreground hover:text-foreground'
-                          }
+                          className={`h-8 px-3 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors border-0 ${flagged.has(currentQuestionData.id)
+                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
                         >
-                          <Flag className={`h-4 w-4 mr-2 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
+                          <Flag className={`h-3.5 w-3.5 mr-1.5 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
                           {flagged.has(currentQuestionData.id) ? 'Flagged' : 'Flag'}
                         </Button>
                       </div>
                     </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    {renderQuestion(currentQuestionData)}
-
-
-                  </CardContent>
-                </Card>
+                    <div className="mt-8">
+                      {renderQuestion(currentQuestionData)}
+                    </div>
+                  </div>
+                </div>
               )
             )}
 
@@ -1081,7 +1124,6 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </div>
 
       </div>
-
       <AlertDialog open={showTabSwitchDialog} onOpenChange={() => { }}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1111,7 +1153,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-    </div>
+    </div >
   );
 };
 

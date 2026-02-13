@@ -16,10 +16,30 @@ export default function ContestAttempt() {
         const start = async () => {
             try {
                 if (!contestId) return;
+                const contestDetails = await contestService.getContest(contestId);
                 const data = await contestService.startContest(contestId);
                 setQuestions(data.questions);
                 setSubmissionId(data.submission_id);
-                setDuration(data.duration);
+
+                const baseDuration = data.duration || contestDetails.duration || 60;
+                const contestEnd = contestDetails.end_datetime
+                    ? new Date(contestDetails.end_datetime)
+                    : contestDetails.end_date
+                        ? new Date(contestDetails.end_date)
+                        : null;
+                if (contestEnd) {
+                    const remainingMs = contestEnd.getTime() - Date.now();
+                    const remainingMinutes = Math.max(0, Math.ceil(remainingMs / 60000));
+                    const effectiveDuration = Math.min(baseDuration, remainingMinutes);
+                    if (effectiveDuration <= 0) {
+                        toast.error("Contest has ended.");
+                        navigate('/student/contests');
+                        return;
+                    }
+                    setDuration(effectiveDuration);
+                } else {
+                    setDuration(baseDuration);
+                }
             } catch (err: any) {
                 toast.error(err.response?.data?.error || "Failed to start contest");
                 navigate('/student/contests');

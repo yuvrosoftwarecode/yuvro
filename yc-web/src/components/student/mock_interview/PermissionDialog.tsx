@@ -7,12 +7,14 @@ interface PermissionDialogProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  startButtonText?: string;
 }
 
 const PermissionDialog: React.FC<PermissionDialogProps> = ({
   open,
   onConfirm,
-  onCancel
+  onCancel,
+  startButtonText = "Start Test"
 }) => {
   const [permissionState, setPermissionState] = useState<'requesting' | 'granted' | 'denied' | 'error'>('requesting');
   const [cameraGranted, setCameraGranted] = useState(false);
@@ -113,7 +115,7 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
               </div>
 
               <p className="text-sm text-slate-500">
-                You're all set to begin your test. Click "Start Interview" to continue.
+                You're all set to begin your test. Click "{startButtonText}" to continue.
               </p>
             </>
           )}
@@ -155,7 +157,7 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
               onClick={handleProceed}
               className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/10 font-semibold tracking-wide"
             >
-              Start Interview
+              {startButtonText}
             </Button>
           ) : permissionState === 'denied' ? (
             <Button

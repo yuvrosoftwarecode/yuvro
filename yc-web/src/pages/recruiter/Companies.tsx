@@ -8,6 +8,27 @@ import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Textarea } from "../../components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "../../components/ui/dialog";
+import { StatsCard } from "../../components/common/StatsCard";
+import { DataTable } from "../../components/common/DataTable";
 
 const RecruiterCompanies: React.FC = () => {
   const navigate = useNavigate();
@@ -162,19 +183,20 @@ const RecruiterCompanies: React.FC = () => {
 
   const headerActions = (
     <>
-      <button
+      <Button
+        variant="outline"
         onClick={() => navigate('/recruiter/jobs')}
-        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm transition-all duration-200"
       >
         <span>Back to Jobs</span>
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={openAddForm}
-        className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        className="flex items-center space-x-2 bg-blue-500 text-white hover:bg-blue-600 shadow-sm transition-all duration-200"
       >
         <Plus className="h-4 w-4" />
         <span>Add Company</span>
-      </button>
+      </Button>
     </>
   );
 
@@ -193,51 +215,40 @@ const RecruiterCompanies: React.FC = () => {
             actions={headerActions}
           />
 
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Stats Cards and Search - Only show when form is not open */}
             {!showCompanyForm && (
               <>
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Total Companies</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold">{companies.length}</div>
-                      <Building2 className="h-8 w-8 text-blue-500" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Small (1-50)</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold">{companies.filter(c => c.size === '1-10' || c.size === '11-50').length}</div>
-                      <Users className="h-8 w-8 text-green-500" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Medium (51-500)</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold">{companies.filter(c => c.size === '51-200' || c.size === '201-500').length}</div>
-                      <Building2 className="h-8 w-8 text-blue-500" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Large (500+)</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold">{companies.filter(c => c.size === '501-1000' || c.size === '1000+').length}</div>
-                      <Globe className="h-8 w-8 text-purple-500" />
-                    </div>
-                  </div>
+                  <StatsCard
+                    label="Total Companies"
+                    value={companies.length}
+                    icon={Building2}
+                    colorScheme="blue"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Small (1-50)"
+                    value={companies.filter(c => c.size === '1-10' || c.size === '11-50').length}
+                    icon={Users}
+                    colorScheme="green"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Medium (51-500)"
+                    value={companies.filter(c => c.size === '51-200' || c.size === '201-500').length}
+                    icon={Building2}
+                    colorScheme="blue"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Large (500+)"
+                    value={companies.filter(c => c.size === '501-1000' || c.size === '1000+').length}
+                    icon={Globe}
+                    colorScheme="purple"
+                    size="md"
+                  />
                 </div>
 
                 <div className="mb-6 flex items-center justify-between gap-4">
@@ -258,222 +269,221 @@ const RecruiterCompanies: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Company List */}
-                <div className="bg-white shadow rounded-lg">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">Companies</h2>
-                    <p className="text-sm text-gray-600">{filteredCompanies.length} company(ies) found</p>
-                  </div>
-
-                  <div className="divide-y divide-gray-200">
-                    {filteredCompanies.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                        <h3 className="mt-2 text-sm font-medium text-gray-900">No companies found</h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                          {searchQuery ? `No companies found matching "${searchQuery}"` : 'Get started by adding your first company.'}
-                        </p>
-                        {!searchQuery && (
-                          <div className="mt-6">
-                            <button
-                              onClick={openAddForm}
-                              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                            >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Add Company
-                            </button>
+                <DataTable
+                  title="Companies"
+                  description={`${filteredCompanies.length} company(ies) found`}
+                  data={filteredCompanies}
+                  columns={[
+                    {
+                      header: 'Company Name',
+                      cell: (company) => (
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <Building2 className="h-5 w-5 text-blue-600" />
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    ) : (
-                      filteredCompanies.map((company) => (
-                        <div key={company.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-3">
-                                <div className="flex-shrink-0">
-                                  <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                    <Building2 className="h-5 w-5 text-blue-600" />
-                                  </div>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center space-x-2">
-                                    <h3 className="text-sm font-semibold text-gray-900 truncate">{company.name}</h3>
-                                    {company.domain && (
-                                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getDomainColor(company.domain)}`}>
-                                        {company.domain}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center space-x-4 mt-1">
-                                    {company.size && (
-                                      <div className="flex items-center text-xs text-gray-500">
-                                        <Users className="h-3 w-3 mr-1" />
-                                        <span className={`px-2 py-0.5 rounded border ${getSizeColor(company.size)}`}>
-                                          {company.size} employees
-                                        </span>
-                                      </div>
-                                    )}
-                                    {company.location && (
-                                      <div className="flex items-center text-xs text-gray-500">
-                                        <MapPin className="h-3 w-3 mr-1" />
-                                        {company.location}
-                                      </div>
-                                    )}
-                                    {company.website && (
-                                      <a
-                                        href={company.website}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center text-xs text-blue-600 hover:text-blue-800"
-                                      >
-                                        <ExternalLink className="h-3 w-3 mr-1" />
-                                        Website
-                                      </a>
-                                    )}
-                                  </div>
-                                  {company.description && (
-                                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">{company.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2 ml-4">
-                              <button
-                                onClick={() => openEditForm(company)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Edit Company"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => openDeleteModal(company.id)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Delete Company"
-                              >
-                                <Trash className="h-4 w-4" />
-                              </button>
-                            </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{company.name}</div>
+                            {company.domain && (
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border mt-1 ${getDomainColor(company.domain)}`}>
+                                {company.domain}
+                              </span>
+                            )}
                           </div>
                         </div>
-                      ))
-                    )}
-                  </div>
-                </div>
+                      )
+                    },
+                    {
+                      header: 'Size',
+                      cell: (company) => (
+                        <div className="flex items-center text-sm text-gray-900">
+                          <Users className="h-4 w-4 mr-2 text-gray-400" />
+                          <span className={`${company.size ? `px-2 py-0.5 rounded text-xs border ${getSizeColor(company.size)}` : ''}`}>
+                            {company.size || 'N/A'}
+                          </span>
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Location',
+                      cell: (company) => (
+                        <div className="flex items-center text-sm text-gray-900">
+                          <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                          {company.location || 'N/A'}
+                        </div>
+                      )
+                    },
+                    {
+                      header: 'Website',
+                      cell: (company) => (
+                        company.website ? (
+                          <a
+                            href={company.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            Visit
+                          </a>
+                        ) : <span className="text-gray-400 text-sm">N/A</span>
+                      )
+                    },
+                    {
+                      header: 'Actions',
+                      cell: (company) => (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEditForm(company)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Company"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(company.id)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Company"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ),
+                      className: 'text-right'
+                    }
+                  ]}
+                  keyExtractor={(item) => item.id}
+                  emptyState={{
+                    message: "No companies found",
+                    subMessage: searchQuery ? `No companies found matching "${searchQuery}"` : "Get started by adding your first company",
+                    action: !searchQuery ? (
+                      <Button
+                        onClick={openAddForm}
+                        className="bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Company
+                      </Button>
+                    ) : undefined
+                  }}
+                />
               </>
             )}
 
             {/* Company Form */}
             {showCompanyForm && (
-              <div className="mb-8 bg-white shadow rounded-lg p-6">
+              <div className="mb-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">
                     {isEditing ? "Update Company" : "Add New Company"}
                   </h2>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowCompanyForm(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    className="rounded-full"
                   >
                     <X className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="space-y-6">
                   {/* Basic Information */}
-                  <div className="border border-gray-200 shadow-sm rounded-lg">
-                    <div className="pb-4 p-6 border-b">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <Card>
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
                         <Building2 className="h-5 w-5 mr-2 text-blue-500" />
                         Basic Information
-                      </h3>
-                    </div>
-                    <div className="space-y-4 p-6">
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
-                          <input
-                            type="text"
+                        <div className="space-y-2">
+                          <Label>Company Name *</Label>
+                          <Input
                             value={companyFormData.name}
                             onChange={(e) => setCompanyFormData({ ...companyFormData, name: e.target.value })}
                             placeholder="e.g., Tech Solutions Inc."
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Domain</label>
-                          <input
-                            type="text"
+                        <div className="space-y-2">
+                          <Label>Domain</Label>
+                          <Input
                             value={companyFormData.domain}
                             onChange={(e) => setCompanyFormData({ ...companyFormData, domain: e.target.value })}
                             placeholder="e.g., Technology, Healthcare"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                          <input
+                        <div className="space-y-2">
+                          <Label>Website</Label>
+                          <Input
                             type="url"
                             value={companyFormData.website}
                             onChange={(e) => setCompanyFormData({ ...companyFormData, website: e.target.value })}
                             placeholder="https://company.com"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            className="bg-white"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
-                          <select
+                        <div className="space-y-2">
+                          <Label>Company Size</Label>
+                          <Select
                             value={companyFormData.size}
-                            onChange={(e) => setCompanyFormData({ ...companyFormData, size: e.target.value })}
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            onValueChange={(value) => setCompanyFormData({ ...companyFormData, size: value })}
                           >
-                            <option value="">Select Size</option>
-                            <option value="1-10">1-10 employees</option>
-                            <option value="11-50">11-50 employees</option>
-                            <option value="51-200">51-200 employees</option>
-                            <option value="201-500">201-500 employees</option>
-                            <option value="501-1000">501-1000 employees</option>
-                            <option value="1000+">1000+ employees</option>
-                          </select>
+                            <SelectTrigger className="bg-white">
+                              <SelectValue placeholder="Select Size" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1-10">1-10 employees</SelectItem>
+                              <SelectItem value="11-50">11-50 employees</SelectItem>
+                              <SelectItem value="51-200">51-200 employees</SelectItem>
+                              <SelectItem value="201-500">201-500 employees</SelectItem>
+                              <SelectItem value="501-1000">501-1000 employees</SelectItem>
+                              <SelectItem value="1000+">1000+ employees</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                        <input
-                          type="text"
+                      <div className="space-y-2">
+                        <Label>Location</Label>
+                        <Input
                           value={companyFormData.location}
                           onChange={(e) => setCompanyFormData({ ...companyFormData, location: e.target.value })}
                           placeholder="e.g., San Francisco, CA"
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          className="bg-white"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
                           value={companyFormData.description}
                           onChange={(e) => setCompanyFormData({ ...companyFormData, description: e.target.value })}
                           placeholder="Brief description about the company..."
                           rows={4}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="bg-white resize-none"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
-                        <textarea
+                      <div className="space-y-2">
+                        <Label>Benefits</Label>
+                        <Textarea
                           value={companyFormData.benefits}
                           onChange={(e) => setCompanyFormData({ ...companyFormData, benefits: e.target.value })}
                           placeholder="Employee benefits, perks, and advantages..."
                           rows={4}
-                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="bg-white resize-none"
                         />
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
 
                   <div className="flex justify-end space-x-3">
                     <Button
@@ -482,12 +492,12 @@ const RecruiterCompanies: React.FC = () => {
                     >
                       Cancel
                     </Button>
-                    <button
+                    <Button
                       onClick={handleSubmitCompany}
-                      className="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       {isEditing ? "Update Company" : "Add Company"}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -496,34 +506,34 @@ const RecruiterCompanies: React.FC = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Delete Company</h3>
-            <p className="text-gray-600 mb-6">
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Company</DialogTitle>
+            <DialogDescription>
               Are you sure you want to delete this company? This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <Button
-                variant="ghost"
-                onClick={closeDeleteModal}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <button
-                onClick={confirmDeleteCompany}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={closeDeleteModal}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteCompany}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div >
   );
 };
 

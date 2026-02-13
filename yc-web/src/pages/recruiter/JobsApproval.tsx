@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { useAuth } from "../../contexts/AuthContext";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Button } from "../../components/ui/button";
+import { DataTable } from "../../components/common/DataTable";
+import { StatsCard } from "../../components/common/StatsCard";
 
 const JobsApproval: React.FC = () => {
   const { user } = useAuth();
@@ -376,57 +378,44 @@ const JobsApproval: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {selectedTab === 'pending' ? (
                 <>
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Pending Approval</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-yellow-600">{filteredJobs.length}</div>
-                      <Clock className="h-8 w-8 text-yellow-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Draft Jobs</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-blue-600">{jobs.filter(j => j.status === 'draft').length}</div>
-                      <Briefcase className="h-8 w-8 text-blue-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Paused Jobs</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-orange-600">{jobs.filter(j => j.status === 'paused').length}</div>
-                      <Clock className="h-8 w-8 text-orange-600" />
-                    </div>
-                  </div>
+                  <StatsCard
+                    label="Pending Approval"
+                    value={filteredJobs.length}
+                    icon={Clock}
+                    colorScheme="amber"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Draft Jobs"
+                    value={jobs.filter(j => j.status === 'draft').length}
+                    icon={Briefcase}
+                    colorScheme="blue"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Paused Jobs"
+                    value={jobs.filter(j => j.status === 'paused').length}
+                    icon={Clock}
+                    colorScheme="orange"
+                    size="md"
+                  />
                 </>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Total Approved</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-green-600">{approvedJobs.length}</div>
-                      <CheckCircle className="h-8 w-8 text-green-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="pb-3">
-                      <h3 className="text-md font-medium text-gray-600">Active Jobs</h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-orange-600">{approvedJobs.filter(j => j.status === 'active').length}</div>
-                      <Briefcase className="h-8 w-8 text-orange-600" />
-                    </div>
-                  </div>
+                <div className="col-span-3 grid grid-cols-2 gap-4">
+                  <StatsCard
+                    label="Total Approved"
+                    value={approvedJobs.length}
+                    icon={CheckCircle}
+                    colorScheme="green"
+                    size="md"
+                  />
+                  <StatsCard
+                    label="Active Jobs"
+                    value={approvedJobs.filter(j => j.status === 'active').length}
+                    icon={Briefcase}
+                    colorScheme="orange"
+                    size="md"
+                  />
                 </div>
               )}
             </div>
@@ -443,137 +432,118 @@ const JobsApproval: React.FC = () => {
             </div>
 
             {/* Jobs List */}
-            {filteredJobs.length === 0 ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {selectedTab === 'pending' ? 'No jobs pending approval' : 'No approved jobs found'}
-                </h3>
-                <p className="text-gray-600">
-                  {searchQuery
-                    ? 'No jobs match your search criteria.'
-                    : selectedTab === 'pending'
-                      ? 'All jobs have been reviewed.'
-                      : 'No jobs have been approved yet.'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Job Details
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Company
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Location
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Salary
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredJobs.map((job) => (
-                        <tr key={job.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                              </div>
-                              <div className="text-sm text-gray-500">{job.employment_type.charAt(0).toUpperCase() + job.employment_type.slice(1).replace('-', ' ')}</div>
-                              {job.skills.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {job.skills.slice(0, 3).map((skill, index) => (
-                                    <span key={index} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                      {skill}
-                                    </span>
-                                  ))}
-                                  {job.skills.length > 3 && (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                      +{job.skills.length - 3} more
-                                    </span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{job.company.name}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center text-sm text-gray-900">
-                              <MapPin className="h-4 w-4 mr-1 text-gray-400" />
-                              {job.locations.join(', ') || (job.is_remote ? 'Remote' : 'Not specified')}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {job.min_salary && job.max_salary
-                              ? `${job.min_salary}-${job.max_salary} ${job.currency}`
-                              : job.min_salary
-                                ? `${job.min_salary}+ ${job.currency}`
-                                : job.max_salary
-                                  ? `Up to ${job.max_salary} ${job.currency}`
-                                  : 'Not specified'
-                            }
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <StatusBadge status={job.status} />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center space-x-2">
-                              <button
-                                onClick={() => handleViewJob(job)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="View Details"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </button>
-                              {selectedTab === 'pending' ? (
-                                <>
-                                  <button
-                                    onClick={() => handleApproveJob(job.id)}
-                                    disabled={actionLoading === job.id}
-                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
-                                    title="Approve Job"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleRejectJob(job.id)}
-                                    disabled={actionLoading === job.id}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                                    title="Reject Job"
-                                  >
-                                    <XCircle className="h-4 w-4" />
-                                  </button>
-                                </>
-                              ) : (
-                                <div className="flex items-center text-sm text-green-600">
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  <span className="font-medium">Approved & Active</span>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+            <DataTable
+              title={selectedTab === 'pending' ? 'Pending Jobs' : 'Approved Jobs'}
+              description={`${filteredJobs.length} job(s) found`}
+              data={filteredJobs}
+              columns={[
+                {
+                  header: 'Job Details',
+                  cell: (job) => (
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                      </div>
+                      <div className="text-sm text-gray-500">{job.employment_type.charAt(0).toUpperCase() + job.employment_type.slice(1).replace('-', ' ')}</div>
+                      {job.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {job.skills.slice(0, 3).map((skill, index) => (
+                            <span key={index} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                              {skill}
+                            </span>
+                          ))}
+                          {job.skills.length > 3 && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                              +{job.skills.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                },
+                {
+                  header: 'Company',
+                  cell: (job) => <div className="text-sm text-gray-900">{job.company.name}</div>
+                },
+                {
+                  header: 'Location',
+                  cell: (job) => (
+                    <div className="flex items-center text-sm text-gray-900">
+                      <MapPin className="h-4 w-4 mr-1 text-gray-400" />
+                      {job.locations.join(', ') || (job.is_remote ? 'Remote' : 'Not specified')}
+                    </div>
+                  )
+                },
+                {
+                  header: 'Salary',
+                  cell: (job) => (
+                    <div className="text-sm text-gray-900">
+                      {job.min_salary && job.max_salary
+                        ? `${job.min_salary}-${job.max_salary} ${job.currency}`
+                        : job.min_salary
+                          ? `${job.min_salary}+ ${job.currency}`
+                          : job.max_salary
+                            ? `Up to ${job.max_salary} ${job.currency}`
+                            : 'Not specified'
+                      }
+                    </div>
+                  )
+                },
+                {
+                  header: 'Status',
+                  cell: (job) => <StatusBadge status={job.status} />
+                },
+                {
+                  header: 'Actions',
+                  cell: (job) => (
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleViewJob(job)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      {selectedTab === 'pending' ? (
+                        <>
+                          <button
+                            onClick={() => handleApproveJob(job.id)}
+                            disabled={actionLoading === job.id}
+                            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                            title="Approve Job"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleRejectJob(job.id)}
+                            disabled={actionLoading === job.id}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                            title="Reject Job"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex items-center text-sm text-green-600">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          <span className="font-medium">Approved & Active</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+              ]}
+              keyExtractor={(item) => item.id}
+              emptyState={{
+                message: selectedTab === 'pending' ? 'No jobs pending approval' : 'No approved jobs found',
+                subMessage: searchQuery
+                  ? 'No jobs match your search criteria.'
+                  : selectedTab === 'pending'
+                    ? 'All jobs have been reviewed.'
+                    : 'No jobs have been approved yet.'
+              }}
+            />
           </div>
         </div>
       </div>

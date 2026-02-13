@@ -5,6 +5,7 @@ from .views import (
     SkillTestViewSet,
     MockInterviewViewSet,
     SkillTestSubmissionViewSet,
+    ContestSubmissionViewSet,
     CertificationExamViewSet,
     CertificationSubmissionViewSet,
 )
@@ -17,6 +18,11 @@ router.register(
     r"skill-test/submissions",
     SkillTestSubmissionViewSet,
     basename="skill-test-submissions",
+)
+router.register(
+    r"contest/submissions",
+    ContestSubmissionViewSet,
+    basename="contest-submissions",
 )
 router.register(r"certification-exams", CertificationExamViewSet)
 router.register(r"certification-submissions", CertificationSubmissionViewSet)

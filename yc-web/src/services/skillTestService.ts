@@ -218,7 +218,7 @@ export const PUBLISH_STATUS_OPTIONS = [
   { value: 'archived', label: 'Archived' },
 ] as const;
 
-const skillTestService = {
+export const skillTestService = {
   getSkillTests: fetchSkillTests,
   getSkillTest: fetchSkillTestById,
   createSkillTest,
