@@ -1,0 +1,220 @@
+// src/pages/faculty/Dashboard.tsx
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import RoleSidebar from '../../components/common/RoleSidebar';
+import RoleHeader from '../../components/common/RoleHeader';
+import {
+  BookOpen,
+  Users,
+  Trophy,
+  Target,
+  MessageCircle,
+  TrendingUp,
+  ArrowRight,
+  Layers,
+  Calendar
+} from 'lucide-react';
+
+const Dashboard: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  // Mock data for Faculty
+  const [dashboardData] = useState({
+    stats: {
+      mySubjects: 3,
+      myStudents: 120,
+      classesToday: 2,
+      assignmentsPending: 15
+    },
+    recentActivity: [
+      {
+        id: 1,
+        type: 'subject',
+        action: 'Uploaded lecture notes',
+        target: 'Data Structures',
+        time: '1 hour ago',
+        icon: BookOpen,
+        color: 'text-blue-600'
+      },
+      {
+        id: 2,
+        type: 'student',
+        action: 'Graded assignment',
+        target: 'John Doe - Python',
+        time: '3 hours ago',
+        icon: Users,
+        color: 'text-green-600'
+      }
+    ]
+  });
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setLoading(false), 800);
+  }, []);
+
+  const stats = [
+    {
+      name: 'My Subjects',
+      value: dashboardData.stats.mySubjects.toString(),
+      change: 'Active',
+      icon: Layers,
+      color: 'bg-blue-500',
+      path: '/faculty/subjects'
+    },
+    {
+      name: 'My Students',
+      value: dashboardData.stats.myStudents.toString(),
+      change: '+5 this week',
+      icon: Users,
+      color: 'bg-green-500',
+      path: '/faculty/students'
+    },
+    {
+      name: 'Classes Today',
+      value: dashboardData.stats.classesToday.toString(),
+      change: 'Next at 2 PM',
+      icon: Calendar,
+      color: 'bg-yellow-500',
+      path: '/faculty/schedule'
+    },
+    {
+      name: 'Pending Grading',
+      value: dashboardData.stats.assignmentsPending.toString(),
+      change: '-2 from yesterday',
+      icon: Target,
+      color: 'bg-purple-500',
+      path: '/faculty/grading'
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex">
+          <RoleSidebar />
+          <div className="flex-1">
+            <RoleHeader
+              title="Loading..."
+              subtitle="Please wait while we load your dashboard."
+            />
+            <div className="p-6">
+               <div className="animate-pulse">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-gray-300 rounded-lg h-24"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        <RoleSidebar />
+        <div className="flex-1">
+          <RoleHeader
+            title={`Welcome back, ${user?.first_name || user?.username || 'Professor'}! 👋`}
+            subtitle="Manage your classes, students, and course content."
+          />
+          <div className="p-6">
+             {/* Stats Grid */}
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => navigate(stat.path)}
+                >
+                  <div className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                      </div>
+                      <div className={`${stat.color} p-3 rounded-lg`}>
+                        <stat.icon className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center">
+                      <span className="text-sm font-medium text-green-600">
+                        {stat.change}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Recent Activity */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white rounded-lg shadow">
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {dashboardData.recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                          <div className={`p-2 rounded-lg ${activity.color} bg-opacity-10`}>
+                            <activity.icon className={`w-5 h-5 ${activity.color}`} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">
+                              {activity.action} <span className="text-indigo-600">{activity.target}</span>
+                            </p>
+                            <p className="text-xs text-gray-500">{activity.time}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+               {/* Right Column - Quick Actions */}
+               <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow">
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => navigate('/faculty/subjects')}
+                        className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center transition-colors"
+                      >
+                        <Layers className="w-6 h-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">My Subjects</div>
+                      </button>
+                      <button
+                        onClick={() => navigate('/faculty/create-assignment')}
+                        className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center transition-colors"
+                      >
+                        <Target className="w-6 h-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Assignment</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
