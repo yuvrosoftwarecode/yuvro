@@ -21,6 +21,24 @@ export interface College {
     is_aicte_approved: boolean;
     is_ugc_approved: boolean;
     departments: Department[];
+    principal?: {
+        user_details: {
+            id: string;
+            email: string;
+            username: string;
+            first_name: string;
+            last_name: string;
+        };
+    };
+    college_admins?: {
+        user_details: {
+            id: string;
+            email: string;
+            username: string;
+            first_name: string;
+            last_name: string;
+        };
+    }[];
     created_at?: string;
     updated_at?: string;
 }
@@ -56,6 +74,14 @@ export const collegeService = {
 
     deleteCollege: async (id: string | number): Promise<void> => {
         await restApiAuthUtil.delete(`/course/colleges/${id}/`);
+    },
+
+    allocatePrincipal: async (collegeId: string | number, userId: string): Promise<void> => {
+        await restApiAuthUtil.post(`/core/college/${collegeId}/allocate-principal/`, { user_id: userId });
+    },
+
+    allocateCollegeAdmin: async (collegeId: string | number, userId: string): Promise<void> => {
+        await restApiAuthUtil.post(`/core/college/${collegeId}/allocate-admin/`, { user_id: userId });
     }
 };
 

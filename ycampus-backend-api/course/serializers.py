@@ -74,8 +74,12 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 
+from core.serializers import PrincipalProfileSerializer, CollegeAdminProfileSerializer
+
 class CollegeSerializer(serializers.ModelSerializer):
     departments = DepartmentSerializer(many=True, read_only=True)
+    principal = PrincipalProfileSerializer(read_only=True)
+    college_admins = CollegeAdminProfileSerializer(many=True, read_only=True)
 
     class Meta:
         model = College
@@ -89,6 +93,8 @@ class CollegeSerializer(serializers.ModelSerializer):
             "is_ugc_approved",
             "department_names",
             "departments",
+            "principal",
+            "college_admins",
             "created_at",
             "updated_at",
         ]

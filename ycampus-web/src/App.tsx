@@ -16,6 +16,7 @@ import SubjectEdit from './components/instructor/subjects/SubjectEdit';
 
 import Users from './pages/instructor/Users';
 import Colleges from './pages/instructor/Colleges';
+import CollegeDetails from './components/instructor/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
@@ -401,6 +402,34 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Colleges />
+                  </ProtectedRoute>
+                }
+              />
+              
+
+              <Route
+                path="/instructor/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/colleges/:collegeId/management"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/colleges/:collegeId/academic"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
                   </ProtectedRoute>
                 }
               />
