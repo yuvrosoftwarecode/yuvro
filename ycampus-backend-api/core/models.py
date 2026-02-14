@@ -82,7 +82,7 @@ class Department(models.Model):
         College, on_delete=models.CASCADE, related_name="departments", null=True
     )
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    short_form = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -101,8 +101,11 @@ class Batch(models.Model):
     Model representing a student batch (e.g., 2021-2025) within a department.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="college_batches", null=True, blank=True
+    )
     department = models.ForeignKey(
-        Department, on_delete=models.CASCADE, related_name="batches", null=True
+        Department, on_delete=models.CASCADE, related_name="batches", null=True, blank=True
     )
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
@@ -111,7 +114,7 @@ class Batch(models.Model):
 
     class Meta:
         ordering = ["-name"]
-        unique_together = [["department", "name"]]
+        unique_together = [["department", "name"], ["college", "name", "department"]]
 
     def __str__(self):
         if self.department:
@@ -217,6 +220,9 @@ class FacultyProfile(BaseTimestampedModel):
         related_name="faculty",
         null=True,
         blank=True,
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_faculty", blank=True
     )
     designation = models.CharField(max_length=100, blank=True, null=True)
 

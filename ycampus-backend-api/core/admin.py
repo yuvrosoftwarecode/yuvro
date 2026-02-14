@@ -11,7 +11,7 @@ class BatchInline(admin.TabularInline):
 class DepartmentInline(admin.TabularInline):
     model = Department
     extra = 0
-    fields = ["name", "description"]
+    fields = ["name", "short_form"]
 
 
 class SemesterInline(admin.TabularInline):
@@ -44,9 +44,9 @@ class CollegeAdmin(admin.ModelAdmin):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "college", "description", "created_at", "updated_at"]
+    list_display = ["name", "college", "short_form", "created_at", "updated_at"]
     list_filter = ["college", "created_at"]
-    search_fields = ["name", "college__name", "description"]
+    search_fields = ["name", "college__name", "short_form"]
     readonly_fields = ["id", "created_at", "updated_at"]
     inlines = [BatchInline]
 

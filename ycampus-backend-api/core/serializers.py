@@ -48,10 +48,16 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+class LinkedDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name"]
+
 class FacultyProfileSerializer(serializers.ModelSerializer):
     user_details = UserSerializer(source="user", read_only=True)
     college_name = serializers.CharField(source="college.name", read_only=True)
     department_name = serializers.CharField(source="department.name", read_only=True)
+    linked_departments_data = LinkedDepartmentSerializer(source="linked_departments", many=True, read_only=True)
 
     class Meta:
         model = FacultyProfile
@@ -63,6 +69,8 @@ class FacultyProfileSerializer(serializers.ModelSerializer):
             "college_name",
             "department",
             "department_name",
+            "linked_departments",
+            "linked_departments_data",
             "designation",
             "created_at",
             "updated_at",

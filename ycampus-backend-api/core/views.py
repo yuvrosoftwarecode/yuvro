@@ -21,6 +21,7 @@ from .serializers import (
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
 )
+from authentication.permissions import IsCollegeManagementAdmin
 
 User = get_user_model()
 
@@ -292,5 +293,136 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
                     "message": f"User {user.email} allocated as HOD of {department.name} in {college.name}"
                 }
             )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FacultyProfileViewSet(viewsets.ModelViewSet):
+    queryset = FacultyProfile.objects.all()
+    serializer_class = FacultyProfileSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    filterset_fields = ["college", "department"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # If user is a College Admin or Principal, filter by their college
+        if user.role in ["college_admin", "principal"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+            
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+        linked_departments_ids = data.pop("linked_departments", [])
+        
+        if not user_data:
+            return Response({"error": "User data is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        required_user_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in user_data for field in required_user_fields):
+            return Response(
+                {"error": f"Missing user fields: {', '.join(required_user_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # 1. Create User
+                user = User.objects.create_user(
+                    email=user_data["email"],
+                    username=user_data["username"],
+                    first_name=user_data["first_name"],
+                    last_name=user_data["last_name"],
+                    password=user_data["password"],
+                    role="faculty"
+                )
+
+                # 2. Create Faculty Profile
+                college_id = data.get("college")
+                department_id = data.get("department")
+                designation = data.get("designation")
+
+                college = get_object_or_404(College, pk=college_id) if college_id else None
+                department = get_object_or_404(Department, pk=department_id) if department_id else None
+
+                profile = FacultyProfile.objects.create(
+                    user=user,
+                    college=college,
+                    department=department,
+                    designation=designation
+                )
+                
+                # 3. Set LinkedIn Departments
+                if linked_departments_ids:
+                    profile.linked_departments.set(linked_departments_ids)
+                
+                serializer = self.get_serializer(profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+        linked_departments_ids = data.pop("linked_departments", None)
+
+        try:
+            with transaction.atomic():
+                # 1. Update User if data provided
+                if user_data:
+                    user = instance.user
+                    if "first_name" in user_data:
+                        user.first_name = user_data["first_name"]
+                    if "last_name" in user_data:
+                        user.last_name = user_data["last_name"]
+                    if "email" in user_data:
+                        user.email = user_data["email"]
+                    if "username" in user_data:
+                        user.username = user_data["username"]
+                    user.save()
+
+                # 2. Update Profile with remaining data
+                if "college" in data and isinstance(data["college"], str):
+                    try:
+                        data["college"] = College.objects.get(pk=data["college"]).id
+                    except College.DoesNotExist:
+                        pass
+                
+                if "department" in data and isinstance(data["department"], str):
+                    try:
+                        data["department"] = Department.objects.get(pk=data["department"]).id
+                    except Department.DoesNotExist:
+                        pass
+
+                serializer = self.get_serializer(instance, data=data, partial=partial)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+
+                # 3. Update Linked Departments if provided
+                if linked_departments_ids is not None:
+                    instance.linked_departments.set(linked_departments_ids)
+
+                return Response(self.get_serializer(instance).data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            with transaction.atomic():
+                user = instance.user
+                instance.delete()
+                # Also delete the user account
+                user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

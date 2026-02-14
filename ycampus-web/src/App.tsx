@@ -67,6 +67,9 @@ import PrincipalDashboard from './pages/principal/Dashboard';
 import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
+import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
+import BatchesScreen from './pages/college-admin/BatchesScreen';
+import FacultyScreen from './pages/college-admin/FacultyScreen';
 
 
 function App() {
@@ -308,7 +311,7 @@ function App() {
                 path="/college-admin/departments"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <DepartmentsScreen />
                   </ProtectedRoute>
                 }
               />
@@ -316,15 +319,15 @@ function App() {
                 path="/college-admin/batches"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <BatchesScreen />
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/faculty"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <FacultyScreen />
                   </ProtectedRoute>
                 }
               />

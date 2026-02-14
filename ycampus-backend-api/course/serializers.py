@@ -35,11 +35,14 @@ class DepartmentBasicSerializer(serializers.ModelSerializer):
 class BatchSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source="department.name", read_only=True)
     department_details = DepartmentBasicSerializer(source="department", read_only=True)
+    college = serializers.PrimaryKeyRelatedField(queryset=College.objects.all(), required=False, allow_null=True)
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = Batch
-        fields = ["id", "department", "department_name", "department_details", "name", "created_at", "updated_at"]
+        fields = ["id", "college", "department", "department_name", "department_details", "name", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+        validators = []  # Disable automatic UniqueTogetherValidator to allow optional department
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -48,7 +51,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ["id", "college", "college_name", "college_details", "name", "description", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "college_details", "name", "short_form", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 

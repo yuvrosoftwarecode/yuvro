@@ -75,6 +75,10 @@ export const collegeService = {
         return response;
     },
 
+    deleteCollege: async (id: string | number): Promise<void> => {
+        await restApiAuthUtil.delete(`/course/colleges/${id}/`);
+    },
+
     allocatePrincipal: async (collegeId: string | number, userId: string): Promise<void> => {
         // Kept for backward compatibility if needed, but UI uses createPrincipal now
         await restApiAuthUtil.post(`/core/college/${collegeId}/allocate-principal/`, { user_id: userId });
@@ -98,6 +102,14 @@ export const collegeService = {
 
     deleteStaffMember: async (collegeId: string | number, userId: string): Promise<void> => {
         await restApiAuthUtil.post(`/core/college/${collegeId}/delete-staff/`, { user_id: userId });
+    },
+
+    getUniqueBatches: async (collegeId: string | number): Promise<string[]> => {
+        return await restApiAuthUtil.get<string[]>(`/course/colleges/${collegeId}/unique_batches/`);
+    },
+
+    bulkInitializeSemesters: async (collegeId: string | number, batchName: string): Promise<any> => {
+        return await restApiAuthUtil.post(`/course/colleges/${collegeId}/bulk_initialize_semesters/`, { batch_name: batchName });
     }
 };
 

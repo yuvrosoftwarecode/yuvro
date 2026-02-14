@@ -5,7 +5,7 @@ export interface Department {
     college?: string | number;
     college_name?: string;
     name: string;
-    description?: string;
+    short_form?: string;
     created_at?: string;
     updated_at?: string;
 }
