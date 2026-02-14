@@ -69,20 +69,11 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
                 user.save()
 
                 # Create or update profile
-                PrincipalProfile.objects.update_or_create(
-                    college=college, defaults={"user": user}
-                )
-                
-                # Check if this user was assigned to another college as principal and remove?
-                # For now, assuming one user can be principal of one college only (OneToOne)
-                # If user already had a principal profile for another college, it would fail unique constraint?
-                # Actually PrincipalProfile definition: 
-                # user = OneToOneField(User...)
-                # college = OneToOneField(College...)
-                # So update_or_create on college might fail if we don't handle the user side.
-                
-                # Let's try to get profile by user first
+                # Check if this user is already a principal elsewhere and remove?
                 PrincipalProfile.objects.filter(user=user).delete()
+                
+                # Check if college already has THIS principal?
+                # No need to delete existing principals of the college as we now support multiple.
                 
                 PrincipalProfile.objects.create(user=user, college=college)
 
@@ -128,9 +119,139 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="create-principal")
+    def create_principal(self, request, pk=None):
+        """
+        Create a new user and allocate as Principal.
+        Payload: { "email", "username", "first_name", "last_name", "password" }
+        """
+        college = get_object_or_404(College, pk=pk)
+        data = request.data
+        
+        required_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in data for field in required_fields):
+             return Response(
+                {"error": f"Missing required fields: {', '.join(required_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # Create User
+                user = User.objects.create_user(
+                    email=data["email"],
+                    username=data["username"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    password=data["password"],
+                    role="principal"
+                )
+
+                # Create Principal Profile
+                # We do NOT remove existing principals of the college anymore.
+                PrincipalProfile.objects.create(user=user, college=college)
+
+            return Response(
+                {"message": f"User {user.email} created and allocated as Principal of {college.name}"},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="create-admin")
+    def create_college_admin(self, request, pk=None):
+        """
+        Create a new user and allocate as College Admin.
+        Payload: { "email", "username", "first_name", "last_name", "password" }
+        """
+        college = get_object_or_404(College, pk=pk)
+        data = request.data
+        
+        required_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in data for field in required_fields):
+             return Response(
+                {"error": f"Missing required fields: {', '.join(required_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # Create User
+                user = User.objects.create_user(
+                    email=data["email"],
+                    username=data["username"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    password=data["password"],
+                    role="college_admin"
+                )
+
+                # Create College Admin Profile
+                CollegeAdminProfile.objects.create(user=user, college=college)
+
+            return Response(
+                {"message": f"User {user.email} created and allocated as College Admin of {college.name}"},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="update-staff")
+    def update_staff_member(self, request, pk=None):
+        """
+        Update staff member details.
+        Payload: { "user_id": "uuid", "first_name", "last_name", "email" }
+        """
+        user_id = request.data.get("user_id")
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
             
+        user = get_object_or_404(User, pk=user_id)
+        
+        try:
+            if "first_name" in request.data:
+                user.first_name = request.data["first_name"]
+            if "last_name" in request.data:
+                user.last_name = request.data["last_name"]
+            if "email" in request.data:
+                user.email = request.data["email"]
+                # Ideally we should validate email uniqueness here if changed
+            
+            user.save()
+            return Response({"message": "Staff member updated successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="delete-staff")
+    def delete_staff_member(self, request, pk=None):
+        """
+        Delete staff member (Principal or College Admin).
+        Payload: { "user_id": "uuid" }
+        """
+        user_id = request.data.get("user_id")
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user = get_object_or_404(User, pk=user_id)
+        
+        try:
+            with transaction.atomic():
+                # Delete profiles
+                PrincipalProfile.objects.filter(user=user).delete()
+                CollegeAdminProfile.objects.filter(user=user).delete()
+                
+                # Delete user account (Assuming they are created for this purpose)
+                user.delete()
+                
+            return Response({"message": "Staff member deleted successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=["post"], url_path="allocate-hod")
     def allocate_hod(self, request, pk=None):
+            
+
         """
         Allocate a user as HOD of a department in the college.
         Payload: { "user_id": "uuid", "department_id": "uuid" }

@@ -241,8 +241,8 @@ class PrincipalProfile(BaseTimestampedModel):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="principal_profile"
     )
-    college = models.OneToOneField(
-        College, on_delete=models.CASCADE, related_name="principal"
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="principals"
     )
 
     def __str__(self):
