@@ -2,10 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
     ChevronRight, Building2, Calendar, Clock, Hash,
-    Plus, Trash2, Layers, AlertCircle
+    Plus, Trash2, Layers, AlertCircle, Loader2, Search
 } from "lucide-react";
 import { collegeService, College } from "@/services/collegeService";
 import departmentService from "@/services/departmentService";
@@ -25,6 +33,12 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const [activeParent, setActiveParent] = useState<{ id: string | number, name: string } | null>(null);
     const [hierarchyData, setHierarchyData] = useState<any[]>([]);
     const [manageLoading, setManageLoading] = useState(false);
+    
+    // Search State
+    const [searchQuery, setSearchQuery] = useState("");
+    
+    // Dialog & Form State
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [newItemName, setNewItemName] = useState("");
     const [startYear, setStartYear] = useState("");
     const [endYear, setEndYear] = useState("");
@@ -39,6 +53,11 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         }
     }, [college]);
 
+    // Clear search when view changes
+    useEffect(() => {
+        setSearchQuery("");
+    }, [manageView, activeParent]);
+
     const loadDepartmentsForManage = async (collegeId: string | number, pushPath = true) => {
         setManageLoading(true);
         try {
@@ -48,8 +67,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             const newActiveParent = { id: collegeId, name: college.name };
             setActiveParent(newActiveParent);
             if (pushPath) {
-                // Reset to root if we are forcing a load, or handle path properly.
-                // For simplicity in this local component context, root is always departments of the college.
                 setHierarchyPath([{ id: collegeId, name: college.name, view: 'departments' }]);
             }
         } catch (err) {
@@ -63,13 +80,11 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         setManageLoading(true);
         try {
             const data = await batchService.getBatches(deptId);
-            // Find dept name either in current data or path
             let deptName = "Department";
             const dept = hierarchyData.find(d => d.id === deptId);
              if(dept) deptName = dept.name;
             else if (hierarchyPath.length > 0) {
                  // Try to resolve from path if we are navigating back/forward
-                 // This might need robust lookups if data isn't in current view
             }
 
             setHierarchyData(data);
@@ -135,7 +150,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         try {
             if (manageView === 'departments') {
                 await departmentService.deleteDepartment(id);
-                // Refresh top level
                  const updatedCollege = await collegeService.getCollege(college.id);
                  setActiveCollege(updatedCollege);
                 setHierarchyData(updatedCollege.departments || []);
@@ -181,7 +195,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             nameToAdd = `${startYear}-${endYear}`;
         }
 
-        if (!nameToAdd && manageView !== 'batches') return;
+        if (!nameToAdd && manageView !== 'batches') {
+             toast.error("Name is required");
+             return;
+        }
 
         setIsAdding(true);
         try {
@@ -202,9 +219,12 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 await sectionService.createSection({ semester: activeParent!.id, name: nameToAdd });
                 loadSectionsForManage(activeParent!.id, false);
             }
+            
+            // Clean up
             setNewItemName("");
             setStartYear("");
             setEndYear("");
+            setIsAddDialogOpen(false);
             toast.success(`${manageView.slice(0, -1)} added successfully`);
         } catch (err: any) {
             toast.error(err.message || "Failed to add item");
@@ -213,8 +233,32 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         }
     };
 
+    const getFilteredData = () => {
+        if (!searchQuery) return hierarchyData;
+        
+        return hierarchyData.filter((item: any) => {
+            const name = item.name ? item.name.toString().toLowerCase() : '';
+            const number = item.number ? item.number.toString() : '';
+            const query = searchQuery.toLowerCase();
+            
+            return name.includes(query) || number.includes(query);
+        });
+    };
+
+    const getDialogTitle = () => {
+        switch(manageView) {
+            case 'departments': return "Add New Department";
+            case 'batches': return "Add New Batch";
+            case 'semesters': return "Add New Semester";
+            case 'sections': return "Add New Section";
+            default: return "Add Item";
+        }
+    };
+
+    const filteredData = getFilteredData();
+
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
             {/* Breadcrumbs Section */}
             <div className="bg-white p-3 px-6 rounded-xl border border-slate-200/60 shadow-sm flex items-center gap-2">
                 <div className="flex items-center gap-2">
@@ -245,7 +289,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
             {/* Main Content Area */}
             <div className="space-y-6">
-                <div className="flex items-end justify-between">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="space-y-1">
                         <h3 className="text-3xl font-bold text-slate-900">
                             {manageView.charAt(0).toUpperCase() + manageView.slice(1)}
@@ -258,41 +302,25 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             }
                         </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        {/* Inline Add Toggle/Form */}
-                        <div className="flex items-center gap-2">
-                            {manageView === 'batches' ? (
-                                <div className="flex items-center gap-2 mr-2">
-                                    <Input
-                                        placeholder="Start Year"
-                                        value={startYear}
-                                        onChange={(e) => setStartYear(e.target.value)}
-                                        className="w-24 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500"
-                                    />
-                                    <Input
-                                        placeholder="End Year"
-                                        value={endYear}
-                                        onChange={(e) => setEndYear(e.target.value)}
-                                        className="w-24 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500"
-                                    />
-                                </div>
-                            ) : (
-                                <Input
-                                    placeholder={`Enter ${manageView.slice(0, -1)} name...`}
-                                    value={newItemName}
-                                    onChange={(e) => setNewItemName(e.target.value)}
-                                    className="w-64 h-11 text-xs font-bold border-slate-200 rounded-lg focus:ring-indigo-500 mr-2"
-                                />
-                            )}
-                            <Button
-                                onClick={handleAddItem}
-                                disabled={isAdding}
-                                className="bg-indigo-600 text-white hover:bg-indigo-700 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-100 uppercase tracking-wide"
-                            >
-                                {isAdding ? <div className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full" /> : <Plus className="h-4 w-4" />}
-                                ADD {manageView.slice(0, -1).toUpperCase()}
-                            </Button>
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        {/* Search Input */}
+                        <div className="relative flex-grow md:flex-grow-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Input
+                                placeholder={`Search ${manageView}...`}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 h-11 w-full md:w-64 border-slate-200 bg-white"
+                            />
                         </div>
+
+                        <Button
+                            onClick={() => setIsAddDialogOpen(true)}
+                            className="bg-indigo-600 text-white hover:bg-indigo-700 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-100 uppercase tracking-wide whitespace-nowrap"
+                        >
+                            <Plus className="h-4 w-4" />
+                            ADD {manageView.slice(0, -1).toUpperCase()}
+                        </Button>
                     </div>
                 </div>
 
@@ -304,7 +332,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {hierarchyData.map((item: any) => (
+                        {filteredData.map((item: any) => (
                             <Card
                                 key={item.id}
                                 className="bg-white border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer"
@@ -366,13 +394,15 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             </Card>
                         ))}
 
-                        {hierarchyData.length === 0 && (
+                        {filteredData.length === 0 && (
                             <div className="col-span-full py-24 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
                                 <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mb-4">
-                                    <Layers className="h-8 w-8 text-slate-200" />
+                                    <Search className="h-8 w-8 text-slate-200" />
                                 </div>
-                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">No Items Initialized</h3>
-                                {manageView === 'semesters' && (
+                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                                    {searchQuery ? `No results for "${searchQuery}"` : "No Items Initialized"}
+                                </h3>
+                                {!searchQuery && manageView === 'semesters' && (
                                     <Button
                                         onClick={handleAutoGenerateSemesters}
                                         className="mt-6 bg-indigo-600 text-white rounded-lg px-6 h-11 font-bold text-xs"
@@ -385,6 +415,73 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                     </div>
                 )}
             </div>
+
+            {/* Add Item Dialog */}
+             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{getDialogTitle()}</DialogTitle>
+                        <DialogDescription>
+                            Enter the details below to add a new {manageView.slice(0, -1)}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4 py-4">
+                        {manageView === 'batches' ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Start Year</label>
+                                    <Input
+                                        placeholder="YYYY"
+                                        value={startYear}
+                                        onChange={(e) => setStartYear(e.target.value)}
+                                        className="font-bold border-slate-200"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">End Year</label>
+                                    <Input
+                                        placeholder="YYYY"
+                                        value={endYear}
+                                        onChange={(e) => setEndYear(e.target.value)}
+                                        className="font-bold border-slate-200"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{manageView.slice(0, -1)} Name/Number</label>
+                                <Input
+                                    placeholder={manageView === 'semesters' ? "e.g. 1" : `Enter ${manageView.slice(0, -1)} name`}
+                                    value={newItemName}
+                                    onChange={(e) => setNewItemName(e.target.value)}
+                                    className="font-bold border-slate-200"
+                                    type={manageView === 'semesters' ? 'number' : 'text'}
+                                />
+                                {manageView === 'semesters' && <p className="text-xs text-slate-500">Enter the semester number (e.g., 1 for Semester 1)</p>}
+                            </div>
+                        )}
+                    </div>
+
+                    <DialogFooter>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsAddDialogOpen(false)}
+                            disabled={isAdding}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleAddItem}
+                            disabled={isAdding}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                            {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Create {manageView.slice(0, -1)}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

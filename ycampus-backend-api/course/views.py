@@ -11,7 +11,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser
+from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsCollegeManagementAdmin
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
@@ -67,6 +67,8 @@ class CollegeViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
+            # Only platform admins should create/delete colleges, but maybe updates are allowed?
+            # Keeping strictly Admin for now as per original code, unless requested otherwise.
             return [IsAdminUser()]
         return super().get_permissions()
 
@@ -82,7 +84,7 @@ class BatchViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -98,7 +100,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -113,7 +115,7 @@ class SemesterViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -128,7 +130,7 @@ class SectionViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
