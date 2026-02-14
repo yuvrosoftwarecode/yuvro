@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
         <div className="flex-1">
           <RoleHeader
             title={`Welcome back, ${user?.first_name || user?.username || 'Admin'}! 👋`}
-            subtitle="Overview of college performance and administration."
+            subtitle={user?.college_name ? `${user.college_name} | Overview of college performance and administration.` : "Overview of college performance and administration."}
           />
           <div className="p-6">
 

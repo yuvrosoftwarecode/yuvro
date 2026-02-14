@@ -101,7 +101,7 @@ const Dashboard: React.FC = () => {
         <div className="flex-1">
           <RoleHeader
             title={`Welcome back, ${user?.first_name || user?.username || 'Principal'}! 👋`}
-            subtitle="Overview of college operations and academic progress."
+            subtitle={user?.college_name ? `${user.college_name} | Overview of college operations and academic progress.` : "Overview of college operations and academic progress."}
           />
           <div className="p-6">
             {/* Stats Grid */}

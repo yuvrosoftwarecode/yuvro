@@ -22,6 +22,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    college_name = serializers.CharField(source="college.name", read_only=True)
+    college_id = serializers.UUIDField(source="college.id", read_only=True)
+
     class Meta:
         model = User
         fields = [
@@ -34,8 +37,10 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "date_joined",
             "last_login",
+            "college_name",
+            "college_id",
         ]
-        read_only_fields = ["id", "date_joined", "last_login"]
+        read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id"]
 
 
 class UserLoginSerializer(serializers.Serializer):

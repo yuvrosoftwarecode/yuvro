@@ -53,6 +53,21 @@ class User(AbstractUser):
     def can_manage_users(self):
         return self.role in ["admin", "college_admin", "principal", "hod"]
 
+    @property
+    def college(self):
+        """Unified access to the associated college based on user role."""
+        if self.role == "student" and hasattr(self, "student_profile"):
+            return self.student_profile.college
+        elif self.role == "college_admin" and hasattr(self, "college_admin_profile"):
+            return self.college_admin_profile.college
+        elif self.role == "principal" and hasattr(self, "principal_profile"):
+            return self.principal_profile.college
+        elif self.role == "hod" and hasattr(self, "hod_profile"):
+            return self.hod_profile.college
+        elif self.role == "faculty" and hasattr(self, "faculty_profile"):
+            return self.faculty_profile.college
+        return None
+
     def save(self, *args, **kwargs):
         if self.is_superuser:
             self.role = "admin"

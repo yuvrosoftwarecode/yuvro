@@ -13,11 +13,13 @@ export interface User {
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
-  profile?: {
-    about?: string;
-    avatar?: string;
-  };
-}
+    profile?: {
+      about?: string;
+      avatar?: string;
+    };
+    college_name?: string;
+    college_id?: string;
+  }
 
 interface AuthState {
   user: User | null;
