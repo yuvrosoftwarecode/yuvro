@@ -135,10 +135,23 @@ class CollegeViewSet(viewsets.ModelViewSet):
                 semesters_to_create = []
                 for i in range(1, 9):
                     if i not in existing_sem_numbers:
-                        semesters_to_create.append(Semester(batch=batch, number=i))
+                        # Set 1st semester as current by default
+                        is_current = (i == 1)
+                        semesters_to_create.append(Semester(batch=batch, number=i, is_current=is_current))
                 
                 if semesters_to_create:
                     Semester.objects.bulk_create(semesters_to_create)
+
+                # 5. Ensure Semester 1 is set to current even if it already existed
+                # Using .save() instead of .update() to trigger Semester.save() logic 
+                # (which handles setting others to False) and update timestamps.
+                sem1 = Semester.objects.filter(batch=batch, number=1).first()
+                if sem1:
+                    sem1.is_current = True
+                    sem1.save()
+                else:
+                    # Fallback if somehow it doesn't exist yet
+                    Semester.objects.create(batch=batch, number=1, is_current=True)
                 
                 processed_depts.append(dept.name)
 

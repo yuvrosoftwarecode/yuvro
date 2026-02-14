@@ -1,12 +1,13 @@
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
 
 export interface Section {
-    id: string;
-    semester: string;
-    semester_number: number;
+    id: string | number;
+    semester: string | number;
+    semester_number?: number;
     name: string;
-    created_at: string;
-    updated_at: string;
+    student_count?: number;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export const fetchSections = async (semesterId?: string | number): Promise<Section[]> => {

@@ -42,10 +42,18 @@ class IsCollegeAdminOrPrincipal(permissions.BasePermission):
 
 class CollegeUserAllocationViewSet(viewsets.ViewSet):
     """
-    ViewSet to handle allocation of Principal and College Admin
+    ViewSet to handle allocation of Principal, College Admin and HOD
     """
 
-    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsCollegeAdminOrPrincipal]
+
+    def _check_admin_only(self, user):
+        if user.role != "admin":
+             return Response(
+                {"detail": "Only platform administrators can perform this action."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return None
 
     @action(detail=True, methods=["post"], url_path="allocate-principal")
     def allocate_principal(self, request, pk=None):
@@ -53,6 +61,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Allocate a user as Principal of a college.
         Payload: { "user_id": "uuid" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         college = get_object_or_404(College, pk=pk)
         user_id = request.data.get("user_id")
 
@@ -91,6 +102,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Allocate a user as College Admin.
         Payload: { "user_id": "uuid" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         college = get_object_or_404(College, pk=pk)
         user_id = request.data.get("user_id")
 
@@ -127,6 +141,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Create a new user and allocate as Principal.
         Payload: { "email", "username", "first_name", "last_name", "password" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         college = get_object_or_404(College, pk=pk)
         data = request.data
         
@@ -166,6 +183,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Create a new user and allocate as College Admin.
         Payload: { "email", "username", "first_name", "last_name", "password" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         college = get_object_or_404(College, pk=pk)
         data = request.data
         
@@ -204,6 +224,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Update staff member details.
         Payload: { "user_id": "uuid", "first_name", "last_name", "email" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         user_id = request.data.get("user_id")
         if not user_id:
             return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -230,6 +253,9 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         Delete staff member (Principal or College Admin).
         Payload: { "user_id": "uuid" }
         """
+        if resp := self._check_admin_only(request.user):
+            return resp
+            
         user_id = request.data.get("user_id")
         if not user_id:
             return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -249,49 +275,121 @@ class CollegeUserAllocationViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["post"], url_path="allocate-hod")
-    def allocate_hod(self, request, pk=None):
-            
-
+    @action(detail=True, methods=["post"], url_path="create-hod")
+    def create_hod(self, request, pk=None):
         """
-        Allocate a user as HOD of a department in the college.
-        Payload: { "user_id": "uuid", "department_id": "uuid" }
+        Create a new user and allocate as HOD.
+        Payload: { "email", "username", "first_name", "last_name", "password", "department_id" }
         """
         college = get_object_or_404(College, pk=pk)
-        user_id = request.data.get("user_id")
-        department_id = request.data.get("department_id")
-
-        if not user_id or not department_id:
-            return Response(
-                {"error": "user_id and department_id are required"},
-                status=status.HTTP_400_BAD_REQUEST,
+        data = request.data
+        
+        required_fields = ["email", "username", "first_name", "last_name", "password", "department_id"]
+        if not all(field in data for field in required_fields):
+             return Response(
+                {"error": f"Missing required fields: {', '.join(required_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        user = get_object_or_404(User, pk=user_id)
-        department = get_object_or_404(Department, pk=department_id, college=college)
+        department = get_object_or_404(Department, pk=data["department_id"], college=college)
 
         try:
             with transaction.atomic():
-                # Update user role
-                user.role = "hod"
-                user.save()
+                # 1. Handle existing HOD if any
+                existing_hod_profile = HODProfile.objects.filter(department=department).first()
+                if existing_hod_profile:
+                    old_hod_user = existing_hod_profile.user
+                    # Demote to faculty role
+                    old_hod_user.role = "faculty"
+                    old_hod_user.save()
+                    # Delete HOD profile
+                    existing_hod_profile.delete()
+                    # Create Faculty profile if not exists
+                    FacultyProfile.objects.get_or_create(
+                        user=old_hod_user,
+                        college=college,
+                        defaults={'department': department}
+                    )
 
-                # Clean up existing HOD profile for this user
-                HODProfile.objects.filter(user=user).delete()
+                # 2. Create New User
+                user = User.objects.create_user(
+                    email=data["email"],
+                    username=data["username"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    password=data["password"],
+                    role="hod"
+                )
+
+                # 3. Create HOD Profile
+                HODProfile.objects.create(user=user, college=college, department=department)
+
+            return Response(
+                {"message": f"User {user.email} created and allocated as HOD of {department.name}"},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="allocate-hod")
+    def allocate_hod(self, request, pk=None):
+        """
+        Allocate an existing user (usually faculty) as HOD of a department.
+        If the user was faculty, they become HOD.
+        If there was an existing HOD, they become faculty.
+        Payload: { "user_id": "uuid", "department_id": "uuid" }
+        """
+        college = get_object_or_404(College, pk=pk)
+        data = request.data
+        
+        required_fields = ["user_id", "department_id"]
+        if not all(field in data for field in required_fields):
+             return Response(
+                {"error": f"Missing required fields: {', '.join(required_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        department = get_object_or_404(Department, pk=data["department_id"], college=college)
+        new_hod_user = get_object_or_404(User, pk=data["user_id"])
+
+        try:
+            with transaction.atomic():
+                # 1. Handle existing HOD for this department
+                existing_hod_profile = HODProfile.objects.filter(department=department).first()
+                if existing_hod_profile:
+                    if existing_hod_profile.user == new_hod_user:
+                        return Response({"message": "User is already HOD of this department"}, status=status.HTTP_200_OK)
+                    
+                    old_hod_user = existing_hod_profile.user
+                    # Demote to faculty
+                    old_hod_user.role = "faculty"
+                    old_hod_user.save()
+                    existing_hod_profile.delete()
+                    # Create faculty profile
+                    FacultyProfile.objects.get_or_create(
+                        user=old_hod_user, 
+                        college=college, 
+                        defaults={'department': department}
+                    )
+
+                # 2. Handle the new HOD user
+                # If they were faculty, delete faculty profile
+                FacultyProfile.objects.filter(user=new_hod_user).delete()
                 
-                # Check if department already has an HOD
-                if hasattr(department, 'hod'):
-                     department.hod.delete()
+                # Update role
+                new_hod_user.role = "hod"
+                new_hod_user.save()
 
-                # Create profile
-                HODProfile.objects.create(
-                    user=user, college=college, department=department
+                # Create HOD Profile
+                HODProfile.objects.get_or_create(
+                    user=new_hod_user, 
+                    college=college, 
+                    department=department
                 )
 
             return Response(
-                {
-                    "message": f"User {user.email} allocated as HOD of {department.name} in {college.name}"
-                }
+                {"message": f"User {new_hod_user.email} allocated as HOD of {department.name}"},
+                status=status.HTTP_200_OK
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -426,3 +524,27 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentProfileViewSet(viewsets.ModelViewSet):
+    queryset = StudentProfile.objects.all()
+    serializer_class = StudentProfileSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    filterset_fields = ["college", "department", "batch", "semester", "section"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # If user is a College Admin or Principal, filter by their college
+        if user.role in ["college_admin", "principal"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+            
+        return queryset
+
+    def perform_create(self, serializer):
+        # We might need custom logic for creating students later (e.g. creating User first)
+        serializer.save()

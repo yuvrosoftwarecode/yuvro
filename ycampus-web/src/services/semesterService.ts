@@ -6,6 +6,7 @@ export interface Semester {
     batch_name?: string;
     number: number;
     is_current: boolean;
+    sections?: any[];
     created_at?: string;
     updated_at?: string;
 }

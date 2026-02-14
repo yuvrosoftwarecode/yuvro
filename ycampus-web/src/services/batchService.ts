@@ -6,6 +6,7 @@ export interface Batch {
     department_name?: string;
     college?: string | number;
     name: string;
+    semesters?: any[]; // Avoiding circular dependency for now, or I can import Semester
     created_at?: string;
     updated_at?: string;
 }

@@ -316,6 +316,14 @@ function App() {
                 }
               />
               <Route
+                path="/college-admin/departments/:id"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <DepartmentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/college-admin/batches"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>

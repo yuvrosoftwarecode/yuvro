@@ -280,7 +280,11 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         setManageLoading(true);
         try {
             for (let i = 1; i <= 8; i++) {
-                await semesterService.createSemester({ batch: batchId, number: i });
+                await semesterService.createSemester({ 
+                    batch: batchId, 
+                    number: i,
+                    is_current: i === 1 
+                });
             }
             toast.success("8 Semesters initialized");
             loadSemestersForManager(activeParent.id, false);
@@ -299,32 +303,17 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
         setManageLoading(true);
         try {
-            let initializedCount = 0;
-            for (const dept of hierarchyData) {
-                // Check if semesters exist for this department-batch combo
-                // 1. Get batches for this department
-                const batches = await batchService.getBatches(dept.id);
-                const targetBatch = batches.find(b => b.name === selectedBatchName);
-                
-                if (targetBatch) {
-                    const existingSemesters = await semesterService.getSemesters(targetBatch.id);
-                    if (existingSemesters.length === 0) {
-                        // Initialize 8 semesters
-                        for (let i = 1; i <= 8; i++) {
-                            await semesterService.createSemester({ batch: targetBatch.id, number: i });
-                        }
-                        initializedCount++;
-                    }
-                }
-            }
+            const response = await collegeService.bulkInitializeSemesters(college.id, selectedBatchName);
             
-            if (initializedCount > 0) {
-                toast.success(`Successfully initialized 8 semesters for ${initializedCount} departments`);
+            if (response.departments_processed_count > 0) {
+                toast.success(response.message || `Successfully initialized semesters for ${response.departments_processed_count} departments`);
+                // Reload data to show results
+                loadDepartmentsForBatch(selectedBatchName, false);
             } else {
-                toast.info("All departments already have semesters initialized");
+                toast.info("No empty departments found to initialize.");
             }
-        } catch (err) {
-            toast.error("Failed during bulk initialization");
+        } catch (err: any) {
+            toast.error(err.response?.data?.error || "Failed during bulk initialization");
         } finally {
             setManageLoading(false);
         }

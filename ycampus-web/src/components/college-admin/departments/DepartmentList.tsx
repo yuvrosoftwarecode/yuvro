@@ -28,7 +28,7 @@ const DepartmentList: React.FC<DepartmentListProps> = ({ departments, onSelectDe
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">{dept.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-1">{dept.description || 'No description available'}</p>
+                  <p className="text-sm text-gray-500 line-clamp-1">{dept.short_form || dept.name}</p>
                 </div>
               </div>
               <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform ${selectedId === dept.id ? 'rotate-90' : ''}`} />

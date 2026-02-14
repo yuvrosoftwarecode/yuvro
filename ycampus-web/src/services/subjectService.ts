@@ -66,9 +66,15 @@ export async function markVideoAsRead(videoId: string) {
   return restApiAuthUtil.post(`/course/videos/${videoId}/mark-read/`);
 }
 
-export async function fetchSubjects(category?: string): Promise<Subject[]> {
-  const params = category ? { category } : undefined;
-  return restApiAuthUtil.get('/course/subjects/', { params });
+export async function fetchSubjects(params?: { category?: string; semester?: string | number }): Promise<Subject[]> {
+  const queryParams: Record<string, string> = {};
+  if (params?.category) queryParams.category = params.category;
+  if (params?.semester) queryParams.semester = params.semester.toString();
+  return restApiAuthUtil.get('/course/subjects/', { params: queryParams });
+}
+
+export async function getSubjectsForSemester(semesterId: string | number): Promise<Subject[]> {
+  return fetchSubjects({ semester: semesterId });
 }
 
 export async function fetchSubjectById(subjectId: string): Promise<Subject> {
