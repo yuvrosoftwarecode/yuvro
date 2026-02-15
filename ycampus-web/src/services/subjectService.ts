@@ -33,16 +33,16 @@ export interface Module {
 
 export interface Subject {
   id: string | number;
+  yuvro_id?: string;
   short_code?: string;
-  name?: string;
-  title?: string;
-  category: string;
+  subject_name: string;
+  name?: string; // Deprecated, use subject_name
+  title?: string; // Deprecated, use subject_name
   level?: string;
   duration?: number;
   description?: string;
   price?: number;
   modules?: Module[];
-  semester?: string | { id: string | number; number: number };
   enrolled_count?: number;
   created_at: string;
   updated_at: string;
@@ -52,6 +52,27 @@ export interface Subject {
   progress_percentage?: number;
   total_score?: number;
   ai_help_used?: number;
+}
+
+export interface CollegeSubject {
+  id: string;
+  college: string;
+  college_name?: string;
+  subject: string;
+  subject_code?: string;
+  subject_details?: Subject;
+  created_at: string;
+}
+
+export async function assignSubjectToCollege(payload: { college: string; subject: string; subject_code?: string }) {
+  return restApiAuthUtil.post(`/course/college-subjects/`, payload);
+}
+
+export interface CollegeBasic {
+  id: string;
+  name: string;
+  location?: string;
+  created_at?: string;
 }
 
 export interface CodingProblem {
@@ -99,7 +120,7 @@ export async function createSubject(subjectData: any) {
 
 export async function updateSubject(
   subjectId: string,
-  payload: Partial<{ name: string; short_code: string | null; category: string }>
+  payload: Partial<{ subject_name: string; short_code: string | null }>
 ) {
   return restApiAuthUtil.patch(`/course/subjects/${subjectId}/`, payload);
 }
@@ -546,4 +567,29 @@ export async function updateQuestion(questionId: string, payload: any) {
 export async function deleteQuestion(questionId: string) {
   await restApiAuthUtil.delete(`/course/questions/${questionId}/`);
   return true;
+}
+
+// ==================== College-Subject Management ====================
+
+export async function fetchColleges(): Promise<CollegeBasic[]> {
+  return restApiAuthUtil.get('/course/colleges/');
+}
+
+export async function fetchCollegeSubjects(collegeId?: string): Promise<CollegeSubject[]> {
+  const params: Record<string, string> | undefined = collegeId ? { college: collegeId } : undefined;
+  return restApiAuthUtil.get('/course/college-subjects/', { params });
+}
+
+
+export async function updateCollegeSubject(id: string, payload: { subject_code?: string }) {
+  return restApiAuthUtil.patch<CollegeSubject>(`/course/college-subjects/${id}/`, payload);
+}
+
+export async function removeSubjectFromCollege(assignmentId: string): Promise<void> {
+  await restApiAuthUtil.delete(`/course/college-subjects/${assignmentId}/`);
+}
+
+export async function fetchSubjectsByCollege(collegeId: string): Promise<Subject[]> {
+  const assignments = await fetchCollegeSubjects(collegeId);
+  return assignments.map(a => a.subject_details).filter(Boolean) as Subject[];
 }

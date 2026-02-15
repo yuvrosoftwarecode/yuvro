@@ -434,7 +434,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         <div>
           <h3 className="text-xl font-semibold text-slate-900">Question Bank</h3>
           <p className="text-sm text-slate-600 mt-1">
-            Manage questions for {subject?.name || 'this subject'}
+            Manage questions for {subject?.subject_name || subject?.name || 'this subject'}
           </p>
         </div>
 

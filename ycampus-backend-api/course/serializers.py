@@ -7,10 +7,10 @@ from .models import (
     SubUnit,
     Video,
     Note,
-    SubjectInstructor,
     Question,
     UserSubjectProgress,
     StudentCodePractice,
+    CollegeSubject,
 )
 from .gamification_models import UserGamificationProfile
 from authentication.serializers import UserSerializer
@@ -251,12 +251,17 @@ class UnitBasicSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
 
 
-class SubjectInstructorSerializer(serializers.ModelSerializer):
-    instructor = UserSerializer(read_only=True)
+class CollegeSubjectSerializer(serializers.ModelSerializer):
+    college_name = serializers.CharField(source="college.name", read_only=True)
+    subject_details = serializers.SerializerMethodField()
 
     class Meta:
-        model = SubjectInstructor
-        fields = ["id", "instructor", "created_at"]
+        model = CollegeSubject
+        fields = ["id", "college", "college_name", "subject", "subject_code", "subject_details", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+    def get_subject_details(self, obj):
+        return SubjectBasicSerializer(obj.subject).data
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -265,44 +270,26 @@ class SubjectSerializer(serializers.ModelSerializer):
     """
 
     units = UnitSerializer(many=True, read_only=True)
-    instructors = serializers.SerializerMethodField()
-    instructor_ids = serializers.ListField(
-        child=serializers.CharField(), write_only=True, required=False
-    )
-    semester_details = SemesterSerializer(source="semester", read_only=True)
-    section_details = SectionSerializer(source="section", read_only=True)
 
     class Meta:
         model = Subject
         fields = [
             "id",
+            "yuvro_id",
             "short_code",
-            "name",
-            "category",
-            "semester",
-            "semester_details",
-            "section",
-            "section_details",
-            "instructor_ids",
+            "subject_name",
             "created_at",
             "updated_at",
             "units",
-            "instructors",
             "total_problems",
             "solved_problems",
             "progress_percentage",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "yuvro_id", "created_at", "updated_at"]
 
     total_problems = serializers.IntegerField(read_only=True)
     solved_problems = serializers.IntegerField(read_only=True)
     progress_percentage = serializers.FloatField(read_only=True)
-
-    def get_instructors(self, obj):
-        mappings = SubjectInstructor.objects.filter(subject=obj).select_related(
-            "instructor"
-        )
-        return SubjectInstructorSerializer(mappings, many=True).data
 
     def validate_short_code(self, value):
         """
@@ -316,79 +303,15 @@ class SubjectSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("A Subject with this short code already exists.")
         return value
 
-    def validate_category(self, value):
-        """
-        Validate category is one of the allowed choices.
-        """
-        valid_categories = [choice[0] for choice in Subject.CATEGORY_CHOICES]
-        if value not in valid_categories:
-            raise serializers.ValidationError(
-                f"Category must be one of: {', '.join(valid_categories)}"
-            )
-        return value
-
-    def create(self, validated_data):
-        instructor_ids = validated_data.pop("instructor_ids", [])
-        subject = Subject.objects.create(**validated_data)
-        for instr_id in instructor_ids:
-            try:
-                instructor = User.objects.get(id=instr_id)
-                SubjectInstructor.objects.create(subject=subject, instructor=instructor)
-            except (User.DoesNotExist, ValueError):
-                continue
-        return subject
-
-    def update(self, instance, validated_data):
-        instructor_ids = validated_data.pop("instructor_ids", None)
-        instance = super().update(instance, validated_data)
-
-        if instructor_ids is not None:
-            # Sync instructors
-            current_instr_ids = set(
-                SubjectInstructor.objects.filter(subject=instance).values_list("instructor_id", flat=True)
-            )
-            new_instr_ids = set(str(id) for id in instructor_ids)
-            current_instr_ids = set(str(id) for id in current_instr_ids)
-
-            # Remove instructors not in the new list
-            SubjectInstructor.objects.filter(
-                subject=instance, instructor_id__in=[id for id in current_instr_ids if id not in new_instr_ids]
-            ).delete()
-
-            # Add new instructors
-            for instr_id in new_instr_ids - current_instr_ids:
-                try:
-                    instructor = User.objects.get(id=instr_id)
-                    SubjectInstructor.objects.create(
-                        subject=instance, instructor=instructor
-                    )
-                except (User.DoesNotExist, ValueError):
-                    continue
-
-        return instance
-
 
 class SubjectBasicSerializer(serializers.ModelSerializer):
-    semester_number = serializers.SerializerMethodField()
-    section_name = serializers.SerializerMethodField()
-
-    def get_semester_number(self, obj):
-        return obj.semester.number if obj.semester else None
-
-    def get_section_name(self, obj):
-        return obj.section.name if obj.section else None
-
     class Meta:
         model = Subject
         fields = [
             "id",
+            "yuvro_id",
             "short_code",
-            "name",
-            "category",
-            "semester",
-            "semester_number",
-            "section",
-            "section_name",
+            "subject_name",
             "created_at",
             "updated_at",
             "total_problems",

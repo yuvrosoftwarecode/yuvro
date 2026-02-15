@@ -61,6 +61,7 @@ import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
 import Departments from './pages/instructor/Departments';
+import CollegeSubjects from './pages/instructor/CollegeSubjects';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/Dashboard';
@@ -380,6 +381,16 @@ function App() {
                 }
               />
 
+              {/* College Subject Management Route */}
+              <Route
+                path="/instructor/subjects/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
+                    <CollegeSubjects />
+                  </ProtectedRoute>
+                }
+              />
+
 
               {/* Principal Routes */}
               <Route
@@ -507,6 +518,10 @@ function App() {
 
               <Route
                 path="/instructor/subjects"
+                element={<Navigate to="/instructor/subjects/global" replace />}
+              />
+              <Route
+                path="/instructor/subjects/:tab"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Subjects />

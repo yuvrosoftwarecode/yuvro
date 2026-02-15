@@ -9,6 +9,7 @@ import RoleSidebar from "../../common/RoleSidebar";
 import RoleHeader from "../../common/RoleHeader";
 
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,20 +48,12 @@ import {
   deleteSubUnit,
 } from "@/services/subjectService";
 
-type Category = "fundamentals" | "programming_languages" | "databases" | "ai_tools";
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  fundamentals: "Fundamentals",
-  programming_languages: "Programming Languages",
-  databases: "Databases",
-  ai_tools: "AI Tools",
-};
 
 interface Subject {
   id: string;
   short_code: string | null;
-  name: string;
-  category: Category;
+  subject_name: string;
+  yuvro_id?: string;
 }
 
 interface Unit {
@@ -123,9 +116,8 @@ const SubjectEdit: React.FC = () => {
 
   // Subject editing state
   const [editSubjectValues, setEditSubjectValues] = useState({
-    name: "",
+    subject_name: "",
     short_code: "",
-    category: "fundamentals" as Category,
   });
 
   // Load data
@@ -142,9 +134,8 @@ const SubjectEdit: React.FC = () => {
       setSubject(s as Subject);
 
       setEditSubjectValues({
-        name: s.name || "",
+        subject_name: s.subject_name || s.name || "",
         short_code: s.short_code || "",
-        category: (s.category as Category) || "fundamentals",
       });
 
       const u = await fetchUnitsBySubject(subjectId);
@@ -186,9 +177,8 @@ const SubjectEdit: React.FC = () => {
 
     try {
       const payload = {
-        name: editSubjectValues.name,
+        subject_name: editSubjectValues.subject_name,
         short_code: editSubjectValues.short_code || null,
-        category: editSubjectValues.category,
       };
 
       await updateSubject(subject.id, payload);
@@ -392,8 +382,18 @@ const SubjectEdit: React.FC = () => {
         <RoleSidebar />
         <div className="flex-1">
           <RoleHeader
-            title={subject?.name ? subject.name : 'Loading Subject...'}
-            subtitle={subject ? `Category: ${CATEGORY_LABELS[subject.category] || subject.category}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
+            title={subject?.subject_name || 'Loading Subject...'}
+            subtitle={subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
+            actions={
+              <Button
+                variant="outline"
+                onClick={() => navigate("/instructor/subjects/global")}
+                className="cursor-pointer"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Subjects
+              </Button>
+            }
           />
 
           <div className="p-6">

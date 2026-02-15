@@ -297,7 +297,7 @@ class UsersListCreateView(generics.ListCreateAPIView):
             if (
                 role_filter == "instructor"
                 and self.request.user.is_authenticated
-                and self.request.user.is_instructor()
+                and self.request.user.can_manage_content()
             ):
                 return [IsInstructorOrAdmin()]
             else:

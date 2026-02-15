@@ -33,14 +33,14 @@ class IsAuthenticatedUser(BasePermission):
 
 class IsInstructorOrAdmin(BasePermission):
     """
-    Permission class that allows access to instructors and admins.
+    Permission class that allows access to content managers and admins.
     """
 
     def has_permission(self, request, view):
         return (
             request.user
             and request.user.is_authenticated
-            and (request.user.is_instructor() or request.user.is_admin())
+            and (request.user.can_manage_content() or request.user.is_admin())
         )
 
 
@@ -166,7 +166,7 @@ class CanManageContent(BasePermission):
 class CanManageCourses(BasePermission):
     """
     Permission class for course management operations.
-    Allows instructors and admins to manage courses.
+    Allows admins and content managers to manage courses.
     """
 
     def has_permission(self, request, view):
@@ -177,12 +177,8 @@ class CanManageCourses(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # Write permissions only for instructors and admins
-        return (
-            request.user.is_instructor()
-            or request.user.is_admin()
-            or request.user.can_manage_content()
-        )
+        # Write permissions only for admins and content managers
+        return request.user.is_admin() or request.user.can_manage_content()
 
 
 class CanManageUsers(BasePermission):
@@ -224,7 +220,7 @@ class IsHRorReadOnly(BasePermission):
 class IsInstructorOrAdminOrReadOnly(BasePermission):
     """
     Permission class that allows read access to everyone,
-    but write access only to instructors and admins.
+    but write access only to content managers and admins.
     """
 
     def has_permission(self, request, view):
@@ -234,7 +230,7 @@ class IsInstructorOrAdminOrReadOnly(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and (request.user.is_admin() or request.user.is_instructor())
+            and (request.user.is_admin() or request.user.can_manage_content())
         )
 
 
@@ -242,7 +238,7 @@ class IsOwnerOrInstructorOrAdmin(BasePermission):
     """
     Permission class that allows access to:
     - Object owners
-    - Instructors (for content they can manage)
+    - Content managers (for content they can manage)
     - Admins (full access)
     """
 
@@ -262,8 +258,8 @@ class IsOwnerOrInstructorOrAdmin(BasePermission):
         ):
             return True
 
-        # Instructors have access to content management
-        if request.user.is_instructor():
+        # Content managers have access to content management
+        if request.user.can_manage_content():
             return True
 
         # Check ownership

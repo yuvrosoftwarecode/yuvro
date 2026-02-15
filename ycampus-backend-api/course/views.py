@@ -23,10 +23,10 @@ from .models import (
     SubUnit,
     Video,
     Note,
-    SubjectInstructor,
     Question,
     UserSubjectProgress,
     StudentCodePractice,
+    CollegeSubject,
 )
 from .serializers import (
     CollegeSerializer,
@@ -44,6 +44,7 @@ from .serializers import (
     QuestionSerializer,
     UserSubjectProgressSerializer,
     StudentCodePracticeSerializer,
+    CollegeSubjectSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
@@ -52,8 +53,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def instructor_assigned(user, subject):
-    return SubjectInstructor.objects.filter(instructor=user, subject=subject).exists()
+def subject_assigned_to_college_instructor(user, subject):
+    """
+    Check if the user (instructor/faculty) is linked to a college that has this subject.
+    """
+    if not hasattr(user, 'college') or not user.college:
+        return False
+    return CollegeSubject.objects.filter(college=user.college, subject=subject).exists()
 
 
 class CollegeViewSet(viewsets.ModelViewSet):
@@ -227,19 +233,19 @@ class SectionViewSet(viewsets.ModelViewSet):
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     permission_classes = [CanManageCourses]
-    filterset_fields = ["semester", "section"]
+    filterset_fields = ["short_code", "yuvro_id"]
 
     def get_serializer_class(self):
         return SubjectSerializer if self.action == "retrieve" else SubjectBasicSerializer
 
     def get_queryset(self):
         queryset = Subject.objects.all()
-        category = self.request.query_params.get("category")
-        if category:
-            queryset = queryset.filter(category=category)
+        search = self.request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(subject_name__icontains=search) | Q(short_code__icontains=search) | Q(yuvro_id__icontains=search)
+            )
 
-        practice_questions_filter = Q(type='coding') & Q(categories__contains=['practice'])
-        
         queryset = queryset.annotate(
             total_problems=Count(
                 'questions', 
@@ -302,51 +308,24 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @action(detail=True, methods=["get"])
-    def instructors(self, request, pk=None):
-        subject = self.get_object()
-        instructors = subject.instructors.all()
-        return Response(
-            [
-                {"id": str(u.id), "name": u.username, "email": u.email}
-                for u in instructors
-            ]
-        )
-
-    @action(detail=True, methods=["post"])
-    def add_instructor(self, request, pk=None):
-        subject = self.get_object()
-        instructor_id = request.data.get("instructor_id")
-
-        if not instructor_id:
-            return Response({"error": "instructor_id is required"}, status=400)
-
-        instructor = get_object_or_404(User, id=instructor_id)
-
-        try:
-            SubjectInstructor.objects.create(subject=subject, instructor=instructor)
-        except IntegrityError:
-            return Response({"error": "Instructor already assigned"}, status=400)
-
-        return Response({"message": "Instructor assigned successfully"})
-
-    @action(detail=True, methods=["post"])
-    def remove_instructor(self, request, pk=None):
-        subject = self.get_object()
-        instructor_id = request.data.get("instructor_id")
-        mapping = SubjectInstructor.objects.filter(
-            subject=subject, instructor_id=instructor_id
-        ).first()
-
-        if not mapping:
-            return Response({"error": "Instructor not assigned"}, status=400)
-
-        mapping.delete()
-        return Response({"message": "Removed successfully"})
-
     def update(self, request, *a, **kw):
         kw["partial"] = True
         return super().update(request, *a, **kw)
+
+
+class CollegeSubjectViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage subjects assigned to colleges.
+    """
+    queryset = CollegeSubject.objects.all()
+    serializer_class = CollegeSubjectSerializer
+    permission_classes = [CanManageCourses]
+    filterset_fields = ["college", "subject"]
+
+    def perform_create(self, serializer):
+        # Allow creating and assigning in one go if needed
+        # But mostly used for linking existing subjects
+        serializer.save()
 
 
 class UnitViewSet(viewsets.ModelViewSet):
@@ -361,10 +340,14 @@ class UnitViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.role == "instructor":
-            assigned_ids = SubjectInstructor.objects.filter(instructor=user).values_list(
-                "subject_id", flat=True
-            )
-            qs = qs.filter(subject_id__in=assigned_ids)
+            # For instructors, they can only see units of subjects linked to their college
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
 
         subject_id = self.request.query_params.get("subject")
         if subject_id:
@@ -462,11 +445,13 @@ class SubUnitViewSet(viewsets.ModelViewSet):
 
         user = self.request.user
         if user.role == "instructor":
-            qs = qs.filter(
-                unit__subject_id__in=SubjectInstructor.objects.filter(
-                    instructor=user
-                ).values_list("subject_id", flat=True)
-            )
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
 
         return qs
 
@@ -534,7 +519,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().create(request, *a, **kw)
 
@@ -546,7 +531,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().update(request, *a, **kw)
 
@@ -558,7 +543,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -607,7 +592,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and instructor_assigned(user, subject)
+        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         is_admin = user.role == "admin"
 
         if not (is_owner or is_instructor or is_admin):
@@ -621,7 +606,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and instructor_assigned(user, subject)
+        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         is_admin = user.role == "admin"
 
         if not (is_owner or is_instructor or is_admin):
@@ -645,11 +630,23 @@ class QuestionViewSet(viewsets.ModelViewSet):
         )
         user = self.request.user
 
-        if user.role == "instructor":
-            assigned_subject_ids = SubjectInstructor.objects.filter(
-                instructor=user
-            ).values_list("subject_id", flat=True)
+    def get_assigned_subject_ids(self, user):
+        if user.is_staff or user.role == 'admin':
+            return Subject.objects.values_list('id', flat=True)
+        if hasattr(user, 'college') and user.college:
+            return CollegeSubject.objects.filter(college=user.college).values_list('subject_id', flat=True)
+        return []
 
+    def get_queryset(self):
+        from django.db import models
+
+        qs = Question.objects.select_related(
+            "subject", "unit", "sub_unit", "created_by"
+        )
+        user = self.request.user
+
+        if user.role == "instructor":
+            assigned_subject_ids = self.get_assigned_subject_ids(user)
             qs = qs.filter(
                 models.Q(subject_id__in=assigned_subject_ids)
                 | models.Q(unit__subject_id__in=assigned_subject_ids)
