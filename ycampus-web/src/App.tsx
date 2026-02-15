@@ -5,6 +5,7 @@ import './observability/telemetry';
 import Home from './pages/landing/Home';
 import Login from './pages/common/Login';
 import Register from './pages/common/Register';
+import ComingSoon from './pages/common/ComingSoon';
 import Profile from './pages/student/Profile';
 import Learn from './pages/student/Learn';
 import NotFound from './pages/common/NotFound';
@@ -16,6 +17,7 @@ import SubjectEdit from './components/instructor/subjects/SubjectEdit';
 
 import Users from './pages/instructor/Users';
 import Colleges from './pages/instructor/Colleges';
+import CollegeDetails from './components/instructor/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
@@ -65,6 +67,9 @@ import PrincipalDashboard from './pages/principal/Dashboard';
 import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
+import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
+import BatchesScreen from './pages/college-admin/BatchesScreen';
+import FacultyScreen from './pages/college-admin/FacultyScreen';
 
 
 function App() {
@@ -301,6 +306,140 @@ function App() {
                 }
               />
 
+              {/* College Admin Routes */}
+              <Route
+                path="/college-admin/departments"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <DepartmentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/departments/:id"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <DepartmentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/batches"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <BatchesScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/faculty"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <FacultyScreen />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/college-admin/students"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/college-admin/subjects"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/college-admin/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/college-admin/activity-logs"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/college-admin/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+
+
+              {/* Principal Routes */}
+              <Route
+                path="/principal/departments"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/hods"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/faculty"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/students"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/courses"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/principal/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+
+
               <Route
                 path="/recruiter/jobs"
                 element={
@@ -401,6 +540,34 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Colleges />
+                  </ProtectedRoute>
+                }
+              />
+              
+
+              <Route
+                path="/instructor/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/colleges/:collegeId/management"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/instructor/colleges/:collegeId/academic"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <CollegeDetails />
                   </ProtectedRoute>
                 }
               />

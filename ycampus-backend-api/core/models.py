@@ -82,7 +82,7 @@ class Department(models.Model):
         College, on_delete=models.CASCADE, related_name="departments", null=True
     )
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    short_form = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -101,8 +101,11 @@ class Batch(models.Model):
     Model representing a student batch (e.g., 2021-2025) within a department.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="college_batches", null=True, blank=True
+    )
     department = models.ForeignKey(
-        Department, on_delete=models.CASCADE, related_name="batches", null=True
+        Department, on_delete=models.CASCADE, related_name="batches", null=True, blank=True
     )
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
@@ -111,7 +114,7 @@ class Batch(models.Model):
 
     class Meta:
         ordering = ["-name"]
-        unique_together = [["department", "name"]]
+        unique_together = [["department", "name"], ["college", "name", "department"]]
 
     def __str__(self):
         if self.department:
@@ -162,5 +165,103 @@ class Section(models.Model):
         ordering = ["name"]
         unique_together = [["semester", "name"]]
 
+
+class StudentProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="student_profile"
+    )
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="students"
+    )
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        related_name="students",
+        null=True,
+        blank=True,
+    )
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.SET_NULL,
+        related_name="students",
+        null=True,
+        blank=True,
+    )
+    semester = models.ForeignKey(
+        Semester,
+        on_delete=models.SET_NULL,
+        related_name="students",
+        null=True,
+        blank=True,
+    )
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.SET_NULL,
+        related_name="students",
+        null=True,
+        blank=True,
+    )
+    roll_number = models.CharField(max_length=50, unique=True)
+
     def __str__(self):
-        return f"Section {self.name} - {self.semester.batch.name} (S{self.semester.number})"
+        return f"{self.user.username} - {self.roll_number}"
+
+
+class FacultyProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="faculty_profile"
+    )
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="faculty"
+    )
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        related_name="faculty",
+        null=True,
+        blank=True,
+    )
+    linked_departments = models.ManyToManyField(
+        Department, related_name="linked_faculty", blank=True
+    )
+    designation = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.designation}"
+
+
+class HODProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="hod_profile"
+    )
+    college = models.ForeignKey(College, on_delete=models.CASCADE, related_name="hods")
+    department = models.OneToOneField(
+        Department, on_delete=models.CASCADE, related_name="hod"
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - HOD {self.department.name}"
+
+
+class PrincipalProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="principal_profile"
+    )
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="principals"
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - Principal {self.college.name}"
+
+
+class CollegeAdminProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="college_admin_profile"
+    )
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="college_admins"
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - Admin {self.college.name}"

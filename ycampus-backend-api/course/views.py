@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import os
@@ -11,7 +11,7 @@ from django.db.models import (
     OuterRef, Subquery, Sum, Exists
 )
 from django.db.models.functions import Coalesce
-from authentication.permissions import CanManageCourses, IsAuthenticatedUser
+from authentication.permissions import CanManageCourses, IsAuthenticatedUser, IsCollegeManagementAdmin
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
@@ -61,14 +61,105 @@ class CollegeViewSet(viewsets.ModelViewSet):
     ViewSet for viewing and editing college instances.
     """
 
-    queryset = College.objects.all()
     serializer_class = CollegeSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            if user.role == "admin":
+                return College.objects.all()
+            
+            # For college_admin, principal, hod, faculty - they are linked to a specific college via profiles
+            college = user.college
+            if college:
+                return College.objects.filter(id=college.id)
+                
+        return College.objects.none()
 
     def get_permissions(self):
-        if self.action in ["create", "update", "partial_update", "destroy"]:
+        if self.action in ["create", "destroy"]:
+            # Only platform admins should create/delete colleges
             return [IsAdminUser()]
+        if self.action in ["update", "partial_update", "bulk_initialize_semesters", "unique_batches"]:
+            # Platform admins, College Admins, and Principals can manage their college details/academics
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
+
+    @action(detail=True, methods=["get"])
+    def unique_batches(self, request, pk=None):
+        """
+        Returns unique batch names for a college.
+        Includes names from global batches and department-linked batches.
+        """
+        college = self.get_object()
+        global_names = Batch.objects.filter(college=college).values_list("name", flat=True)
+        dept_names = Batch.objects.filter(department__college=college).values_list("name", flat=True)
+        all_names = set(list(global_names) + list(dept_names))
+        return Response(sorted(list(all_names), reverse=True))
+
+    @action(detail=True, methods=["post"])
+    def bulk_initialize_semesters(self, request, pk=None):
+        """
+        Initialize a batch and 8 semesters for all departments in a college.
+        Payload: { "batch_name": "2021-2025" }
+        """
+        college = self.get_object()
+        batch_name = request.data.get("batch_name")
+        if not batch_name:
+            return Response({"error": "batch_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        departments = college.departments.all()
+        processed_depts = []
+        
+        with transaction.atomic():
+            # 1. Ensure the Global Batch entry exists (if it doesn't already)
+            # This makes the batch 'official' for the college
+            global_batch, _ = Batch.objects.get_or_create(
+                college=college,
+                name=batch_name,
+                department=None
+            )
+
+            for dept in departments:
+                # 2. Ensure Batch exists for this department
+                batch, created = Batch.objects.get_or_create(
+                    department=dept,
+                    name=batch_name,
+                    college=college # Maintain the link
+                )
+                
+                # 3. Check existing semesters to avoid duplicates/integrity errors
+                existing_sem_numbers = set(Semester.objects.filter(batch=batch).values_list('number', flat=True))
+                
+                # 4. Create missing semesters (1-8)
+                semesters_to_create = []
+                for i in range(1, 9):
+                    if i not in existing_sem_numbers:
+                        # Set 1st semester as current by default
+                        is_current = (i == 1)
+                        semesters_to_create.append(Semester(batch=batch, number=i, is_current=is_current))
+                
+                if semesters_to_create:
+                    Semester.objects.bulk_create(semesters_to_create)
+
+                # 5. Ensure Semester 1 is set to current even if it already existed
+                # Using .save() instead of .update() to trigger Semester.save() logic 
+                # (which handles setting others to False) and update timestamps.
+                sem1 = Semester.objects.filter(batch=batch, number=1).first()
+                if sem1:
+                    sem1.is_current = True
+                    sem1.save()
+                else:
+                    # Fallback if somehow it doesn't exist yet
+                    Semester.objects.create(batch=batch, number=1, is_current=True)
+                
+                processed_depts.append(dept.name)
+
+        return Response({
+            "message": f"Initialized batch '{batch_name}' for {len(processed_depts)} departments.",
+            "departments_processed_count": len(processed_depts),
+            "departments": processed_depts
+        })
 
 
 class BatchViewSet(viewsets.ModelViewSet):
@@ -78,11 +169,11 @@ class BatchViewSet(viewsets.ModelViewSet):
     queryset = Batch.objects.all()
     serializer_class = BatchSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ["department"]
+    filterset_fields = ["department", "college", "name"]
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -98,7 +189,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -113,7 +204,7 @@ class SemesterViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 
@@ -128,7 +219,7 @@ class SectionViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAdminUser()]
+            return [IsCollegeManagementAdmin()]
         return super().get_permissions()
 
 

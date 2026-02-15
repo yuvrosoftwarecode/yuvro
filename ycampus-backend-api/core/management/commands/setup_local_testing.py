@@ -34,8 +34,8 @@ class Command(BaseCommand):
             self.stdout.write("👥 Setting up test users...")
             if options["clear"]:
                 call_command("create_test_users", "--clear", verbosity=1)
-            else:
-                call_command("create_test_users", verbosity=1)
+            # else:
+            #     call_command("create_test_users", verbosity=1)
             self.stdout.write("")
 
             # self.stdout.write("📚 Loading sample course data...")

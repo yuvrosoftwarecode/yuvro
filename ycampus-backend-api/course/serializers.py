@@ -32,50 +32,107 @@ class DepartmentBasicSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
+class BatchBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Batch
+        fields = ["id", "name", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
 class BatchSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source="department.name", read_only=True)
     department_details = DepartmentBasicSerializer(source="department", read_only=True)
+    college = serializers.PrimaryKeyRelatedField(queryset=College.objects.all(), required=False, allow_null=True)
+    department = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = Batch
-        fields = ["id", "department", "department_name", "department_details", "name", "created_at", "updated_at"]
+        fields = ["id", "college", "department", "department_name", "department_details", "name", "semesters", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+        validators = []  # Disable automatic UniqueTogetherValidator to allow optional department
+    
+    semesters = serializers.SerializerMethodField()
+
+    def get_semesters(self, obj):
+        return SemesterSerializer(obj.semesters.all(), many=True).data
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_details = CollegeBasicSerializer(source="college", read_only=True)
+    hod_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
-        fields = ["id", "college", "college_name", "college_details", "name", "description", "created_at", "updated_at"]
+        fields = ["id", "college", "college_name", "college_details", "hod_details", "name", "short_form", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_hod_details(self, obj):
+        try:
+            from core.serializers import HODProfileSerializer
+            if hasattr(obj, 'hod'):
+                return HODProfileSerializer(obj.hod, context=self.context).data
+        except Exception:
+            pass
+        return None
+
+
+class SemesterBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Semester
+        fields = ["id", "number", "is_current", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class SemesterSerializer(serializers.ModelSerializer):
     batch_name = serializers.CharField(source="batch.name", read_only=True)
-    batch_details = BatchSerializer(source="batch", read_only=True)
+    batch_details = BatchBasicSerializer(source="batch", read_only=True)
 
     class Meta:
         model = Semester
-        fields = ["id", "batch", "batch_name", "batch_details", "number", "is_current", "created_at", "updated_at"]
+        fields = ["id", "batch", "batch_name", "batch_details", "number", "is_current", "sections", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    sections = serializers.SerializerMethodField()
+
+    def get_sections(self, obj):
+        return SectionBasicSerializer(obj.sections.all(), many=True).data
+
+
+class SectionBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ["id", "name", "student_count", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+    
+    student_count = serializers.SerializerMethodField()
+
+    def get_student_count(self, obj):
+        return obj.students.count()
 
 
 class SectionSerializer(serializers.ModelSerializer):
     semester_number = serializers.IntegerField(source="semester.number", read_only=True)
-    semester_details = SemesterSerializer(source="semester", read_only=True)
+    semester_details = SemesterBasicSerializer(source="semester", read_only=True)
 
     class Meta:
         model = Section
-        fields = ["id", "semester", "semester_number", "semester_details", "name", "created_at", "updated_at"]
+        fields = ["id", "semester", "semester_number", "semester_details", "name", "student_count", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    student_count = serializers.SerializerMethodField()
+
+    def get_student_count(self, obj):
+        return obj.students.count()
+
 
 
 
 
 class CollegeSerializer(serializers.ModelSerializer):
     departments = DepartmentSerializer(many=True, read_only=True)
+    principals = serializers.SerializerMethodField()
+    college_admins = serializers.SerializerMethodField()
 
     class Meta:
         model = College
@@ -89,10 +146,20 @@ class CollegeSerializer(serializers.ModelSerializer):
             "is_ugc_approved",
             "department_names",
             "departments",
+            "principals",
+            "college_admins",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_principals(self, obj):
+        from core.serializers import PrincipalProfileSerializer
+        return PrincipalProfileSerializer(obj.principals.all(), many=True, context=self.context).data
+
+    def get_college_admins(self, obj):
+        from core.serializers import CollegeAdminProfileSerializer
+        return CollegeAdminProfileSerializer(obj.college_admins.all(), many=True, context=self.context).data
 
     department_names = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False

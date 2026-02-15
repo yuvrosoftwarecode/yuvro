@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import College, Batch, Department, Semester, Section
+from .models import (
+    College, Batch, Department, Semester, Section,
+    StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile
+)
 
 
 class BatchInline(admin.TabularInline):
@@ -11,7 +14,7 @@ class BatchInline(admin.TabularInline):
 class DepartmentInline(admin.TabularInline):
     model = Department
     extra = 0
-    fields = ["name", "description"]
+    fields = ["name", "short_form"]
 
 
 class SemesterInline(admin.TabularInline):
@@ -44,9 +47,9 @@ class CollegeAdmin(admin.ModelAdmin):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "college", "description", "created_at", "updated_at"]
+    list_display = ["name", "college", "short_form", "created_at", "updated_at"]
     list_filter = ["college", "created_at"]
-    search_fields = ["name", "college__name", "description"]
+    search_fields = ["name", "college__name", "short_form"]
     readonly_fields = ["id", "created_at", "updated_at"]
     inlines = [BatchInline]
 
@@ -74,4 +77,44 @@ class SectionAdmin(admin.ModelAdmin):
     list_display = ["name", "semester", "created_at"]
     list_filter = ["semester__batch", "semester"]
     search_fields = ["name", "semester__batch__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
+@admin.register(StudentProfile)
+class StudentProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "roll_number", "college", "department"]
+    list_filter = ["college", "department", "batch"]
+    search_fields = ["user__email", "roll_number", "user__first_name", "user__last_name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
+@admin.register(FacultyProfile)
+class FacultyProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "designation", "college", "department"]
+    list_filter = ["college", "department"]
+    search_fields = ["user__email", "user__first_name", "user__last_name", "designation"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
+@admin.register(HODProfile)
+class HODProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "department", "college"]
+    list_filter = ["college", "department"]
+    search_fields = ["user__email", "user__first_name", "user__last_name", "department__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
+@admin.register(PrincipalProfile)
+class PrincipalProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "college"]
+    list_filter = ["college"]
+    search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+
+@admin.register(CollegeAdminProfile)
+class CollegeAdminProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "college"]
+    list_filter = ["college"]
+    search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
     readonly_fields = ["id", "created_at", "updated_at"]

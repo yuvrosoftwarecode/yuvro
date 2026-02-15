@@ -17,7 +17,7 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r"colleges", CollegeViewSet)
+router.register(r"colleges", CollegeViewSet, basename="college")
 router.register(r"batches", BatchViewSet)
 router.register(r"departments", DepartmentViewSet)
 router.register(r"semesters", SemesterViewSet)

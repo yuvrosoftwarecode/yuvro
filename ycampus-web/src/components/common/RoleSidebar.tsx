@@ -18,7 +18,11 @@ import {
   HelpCircle,
   CheckCircle,
   School,
-  Code
+  Code,
+  Building2,
+  Layers,
+  GraduationCap,
+  Activity
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -58,6 +62,115 @@ const sidebarItems: SidebarItem[] = [
     path: '/principal/dashboard',
     roles: ['principal']
   },
+  // College Admin Items
+  {
+    id: 'college-departments',
+    label: 'Departments',
+    icon: Building2,
+    path: '/college-admin/departments',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-batches',
+    label: 'Batch IDs',
+    icon: Layers,
+    path: '/college-admin/batches',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-faculty',
+    label: 'Faculty',
+    icon: Users,
+    path: '/college-admin/faculty',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-students',
+    label: 'Students',
+    icon: GraduationCap,
+    path: '/college-admin/students',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-subjects',
+    label: 'Subjects',
+    icon: BookOpen,
+    path: '/college-admin/subjects',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-reports',
+    label: 'Reports',
+    icon: FileText,
+    path: '/college-admin/reports',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-logs',
+    label: 'Activity Logs',
+    icon: Activity,
+    path: '/college-admin/activity-logs',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-settings',
+    label: 'Settings',
+    icon: Settings,
+    path: '/college-admin/settings',
+    roles: ['college_admin']
+  },
+  
+  // Principal Items
+  {
+    id: 'principal-departments',
+    label: 'Departments',
+    icon: Building2,
+    path: '/principal/departments',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-hods',
+    label: 'HODs',
+    icon: Users,
+    path: '/principal/hods',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-faculty',
+    label: 'Faculty',
+    icon: Users,
+    path: '/principal/faculty',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-students',
+    label: 'Students',
+    icon: GraduationCap,
+    path: '/principal/students',
+    roles: ['principal']
+  },
+   {
+    id: 'principal-courses',
+    label: 'Courses',
+    icon: BookOpen,
+    path: '/principal/courses',
+    roles: ['principal']
+  },
+   {
+    id: 'principal-reports',
+    label: 'Reports',
+    icon: FileText,
+    path: '/principal/reports',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-settings',
+    label: 'Settings',
+    icon: Settings,
+    path: '/principal/settings',
+    roles: ['principal']
+  },
+
   {
     id: 'hod-dashboard',
     label: 'Dashboard',
