@@ -545,6 +545,142 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
             
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+        
+        if not user_data:
+            return Response({"error": "User data is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        required_user_fields = ["email", "username", "first_name", "last_name"]
+        if not all(field in user_data for field in required_user_fields):
+            return Response(
+                {"error": f"Missing user fields: {', '.join(required_user_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Roll number is required for student profile
+        roll_number = data.get("roll_number")
+        if not roll_number:
+            return Response({"error": "Roll number is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            with transaction.atomic():
+                # Get college from current user (College Admin/Principal)
+                college = request.user.college
+                if not college:
+                    return Response({"error": "Could not determine college for the admin"}, status=status.HTTP_400_BAD_REQUEST)
+
+                # 1. Create User
+                # Password is not required as per user feedback - it will be set to unusable
+                user = User.objects.create_user(
+                    email=user_data["email"],
+                    username=user_data["username"],
+                    first_name=user_data["first_name"],
+                    last_name=user_data["last_name"],
+                    role="student"
+                )
+                user.set_unusable_password()
+                user.save()
+
+                # 2. Create Student Profile
+                from .models import College, Department, Batch, Semester, Section
+                
+                # Fetch objects if IDs provided
+                dept_id = data.get("department")
+                batch_id = data.get("batch")
+                semester_id = data.get("semester")
+                section_id = data.get("section")
+                
+                department = Department.objects.filter(id=dept_id).first() if dept_id else None
+                batch = Batch.objects.filter(id=batch_id).first() if batch_id else None
+                semester = Semester.objects.filter(id=semester_id).first() if semester_id else None
+                section = Section.objects.filter(id=section_id).first() if section_id else None
+
+                profile = StudentProfile.objects.create(
+                    user=user,
+                    college=college,
+                    department=department,
+                    batch=batch,
+                    semester=semester,
+                    section=section,
+                    roll_number=roll_number,
+                    phone_number=data.get("phone_number"),
+                    admission_type=data.get("admission_type", "regular"),
+                    is_detained=data.get("is_detained", False)
+                )
+                
+                serializer = self.get_serializer(profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+
+        try:
+            with transaction.atomic():
+                # 1. Update User if data provided
+                if user_data:
+                    user = instance.user
+                    if "email" in user_data:
+                        user.email = user_data["email"]
+                    if "username" in user_data:
+                        user.username = user_data["username"]
+                    if "first_name" in user_data:
+                        user.first_name = user_data["first_name"]
+                    if "last_name" in user_data:
+                        user.last_name = user_data["last_name"]
+                    user.save()
+
+                # 2. Update Profile fields
+                # Fetch objects if IDs provided
+                dept_id = data.get("department")
+                batch_id = data.get("batch")
+                semester_id = data.get("semester")
+                section_id = data.get("section")
+                
+                from .models import Department, Batch, Semester, Section
+                if dept_id is not None:
+                    instance.department = Department.objects.filter(id=dept_id).first() if dept_id else None
+                if batch_id is not None:
+                    instance.batch = Batch.objects.filter(id=batch_id).first() if batch_id else None
+                if semester_id is not None:
+                    instance.semester = Semester.objects.filter(id=semester_id).first() if semester_id else None
+                if section_id is not None:
+                    instance.section = Section.objects.filter(id=section_id).first() if section_id else None
+
+                if "roll_number" in data:
+                    instance.roll_number = data["roll_number"]
+                if "phone_number" in data:
+                    instance.phone_number = data["phone_number"]
+                if "admission_type" in data:
+                    instance.admission_type = data["admission_type"]
+                if "is_detained" in data:
+                    instance.is_detained = data["is_detained"]
+                
+                instance.save()
+                
+                serializer = self.get_serializer(instance)
+                return Response(serializer.data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            with transaction.atomic():
+                user = instance.user
+                instance.delete()
+                # Also delete the user account
+                user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def perform_create(self, serializer):
-        # We might need custom logic for creating students later (e.g. creating User first)
-        serializer.save()
+        pass
