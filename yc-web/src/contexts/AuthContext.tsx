@@ -35,7 +35,7 @@ type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean };
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   loginWithGoogle: () => Promise<void>;
   register: (
     email: string,
@@ -104,10 +104,10 @@ const getInitialState = (): AuthState => {
 
   if (accessToken) {
     return {
-      user, 
+      user,
       token: accessToken,
-      isLoading: true, 
-      isAuthenticated: true, 
+      isLoading: true,
+      isAuthenticated: true,
     };
   }
   return {
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<User> => {
     dispatch({ type: 'LOGIN_START' });
     try {
       const response = await authService.login(email, password);
@@ -178,6 +178,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type: 'LOGIN_SUCCESS',
         payload: { user: response.user, token: response.access },
       });
+
+      return response.user;
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
       throw error;

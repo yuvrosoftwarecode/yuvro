@@ -25,30 +25,30 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!email.trim()) {
       setError('Please enter your email address.');
       return;
     }
-    
+
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
     }
-    
+
     if (!email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      
+      const loggedInUser = await login(email, password);
 
-      if (user && user.role) {
-        redirectToDashboard(user, navigate);
+
+      if (loggedInUser && loggedInUser.role) {
+        redirectToDashboard(loggedInUser, navigate);
       }
 
     } catch (err) {
@@ -115,14 +115,13 @@ const Login: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
-                className={`w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 ${
-                  error ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
+                className={`w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 ${error ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (error) setError(''); 
+                  if (error) setError('');
                 }}
                 disabled={isLoading}
                 required
@@ -135,14 +134,13 @@ const Login: React.FC = () => {
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 ${
-                    error ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800 ${error ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (error) setError(''); 
+                    if (error) setError('');
                   }}
                   disabled={isLoading}
                   required
