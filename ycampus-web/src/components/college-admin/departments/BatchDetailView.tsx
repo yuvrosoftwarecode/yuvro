@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
@@ -9,9 +9,11 @@ import { studentService, Student } from "@/services/studentService";
 import subjectService, { Subject } from "@/services/subjectService";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StudentDetailModal from './StudentDetailModal';
 import SubjectAddModal from './SubjectAddModal';
+import { StudentAddModal } from '../students/StudentAddModal';
 
 interface BatchDetailViewProps {
     batchId: string | number;
@@ -30,6 +32,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [activeTab, setActiveTab] = useState<string>("students");
 
     useEffect(() => {
@@ -38,11 +42,11 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                 setLoading(true);
                 const batchData = await batchService.getBatch(batchId);
                 setBatch(batchData);
-                
+
                 const semestersData = await semesterService.getSemesters(batchId);
                 // Filter for current semester only
                 const current = semestersData.find(s => s.is_current) || semestersData[0];
-                
+
                 if (current) {
                     setCurrentSemester(current);
                     if (current.sections && current.sections.length > 0) {
@@ -74,6 +78,43 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
         loadStudents();
     }, [selectedSection]);
 
+    const loadStudentsList = async () => {
+        if (!selectedSection) return;
+        try {
+            setStudentsLoading(true);
+            const studentsData = await studentService.getStudents({ section: selectedSection.id });
+            setStudents(studentsData);
+        } catch (err) {
+            console.error("Failed to load students", err);
+        } finally {
+            setStudentsLoading(false);
+        }
+    };
+
+    const handleDeleteStudent = async (student: Student) => {
+        if (!window.confirm(`Are you sure you want to delete ${student.user_details.first_name} ${student.user_details.last_name}?`)) {
+            return;
+        }
+
+        try {
+            await studentService.deleteStudent(student.id);
+            // toast.success("Student deleted successfully"); // toast is not imported here, I should import it if I want to use it
+            loadStudentsList();
+        } catch (err) {
+            console.error("Failed to delete student", err);
+        }
+    };
+
+    const handleEditStudent = (student: Student) => {
+        setEditingStudent(student);
+        setIsStudentModalOpen(true);
+    };
+
+    const handleCloseStudentModal = () => {
+        setIsStudentModalOpen(false);
+        setEditingStudent(null);
+    };
+
     useEffect(() => {
         const loadSubjects = async () => {
             if (!currentSemester) return;
@@ -98,12 +139,12 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
         );
     }
 
-    const filteredStudents = students.filter(s => 
+    const filteredStudents = students.filter(s =>
         `${s.user_details.first_name} ${s.user_details.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.roll_number.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const filteredSubjects = subjects.filter(sub => 
+    const filteredSubjects = subjects.filter(sub =>
         (sub.name || sub.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (sub.short_code || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -117,10 +158,10 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                     </Button>
                     <div>
                         <div className="flex items-center gap-2">
-                             <h2 className="text-2xl font-bold text-gray-900">{batch.name}</h2>
-                             <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                            <h2 className="text-2xl font-bold text-gray-900">{batch.name}</h2>
+                            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
                                 Semester {currentSemester?.number || "N/A"}
-                             </Badge>
+                            </Badge>
                         </div>
                         <p className="text-sm text-gray-500">{batch.department_name}</p>
                     </div>
@@ -141,15 +182,15 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                 <div className="lg:col-span-1 space-y-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-4 bg-orange-50/50 p-1 border border-orange-100 rounded-lg">
-                            <TabsTrigger 
-                                value="students" 
+                            <TabsTrigger
+                                value="students"
                                 className="text-xs font-bold uppercase py-2 data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm"
                             >
                                 <Users className="h-3 w-3 mr-1.5" />
                                 Students
                             </TabsTrigger>
-                            <TabsTrigger 
-                                value="subjects" 
+                            <TabsTrigger
+                                value="subjects"
                                 className="text-xs font-bold uppercase py-2 data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm"
                             >
                                 <BookOpen className="h-3 w-3 mr-1.5" />
@@ -187,6 +228,19 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                         <p className="text-xs italic">No sections initialized</p>
                                     </div>
                                 )}
+                                <div className="p-3 border-t border-orange-100 bg-orange-50/20">
+                                    <Button
+                                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs uppercase"
+                                        onClick={() => {
+                                            setEditingStudent(null);
+                                            setIsStudentModalOpen(true);
+                                        }}
+                                        disabled={!selectedSection}
+                                    >
+                                        <Plus className="h-3 w-3 mr-2" />
+                                        Add Student
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     )}
@@ -201,7 +255,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                 <p className="text-[11px] text-gray-500 italic leading-relaxed">
                                     Manage educational material and instructors for the current semester here.
                                 </p>
-                                <Button 
+                                <Button
                                     className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase"
                                     onClick={() => setIsSubjectModalOpen(true)}
                                 >
@@ -220,7 +274,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input 
+                                    <Input
                                         placeholder={`Search ${activeTab === 'students' ? 'students' : 'subjects'}...`}
                                         className="pl-10 border-gray-200 focus:border-orange-300 focus:ring-orange-200"
                                         value={searchQuery}
@@ -265,8 +319,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                     {filteredStudents.map((student) => (
-                                        <Card 
-                                            key={student.id} 
+                                        <Card
+                                            key={student.id}
                                             className="hover:shadow-lg transition-all cursor-pointer border-gray-100 hover:border-orange-200 group overflow-hidden"
                                             onClick={() => setSelectedStudent(student)}
                                         >
@@ -279,10 +333,47 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="font-bold text-gray-800 truncate group-hover:text-orange-600 transition-colors">
-                                                        {student.user_details.first_name} {student.user_details.last_name}
-                                                    </h4>
+                                                    <div className="flex items-center justify-between gap-1">
+                                                        <h4 className="font-bold text-gray-800 truncate group-hover:text-orange-600 transition-colors">
+                                                            {student.user_details.first_name} {student.user_details.last_name}
+                                                        </h4>
+                                                        <div className="flex items-center gap-1">
+                                                            <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[8px] uppercase px-1 py-0 scale-90`}>
+                                                                {student.admission_type === 'lateral_entry' ? 'LE' : 'Reg'}
+                                                            </Badge>
+                                                            {student.is_detained && (
+                                                                <Badge variant="destructive" className="text-[8px] uppercase px-1 py-0 scale-90 flex items-center gap-0.5">
+                                                                    <AlertCircle className="h-2 w-2" />
+                                                                    Detained
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                     <p className="text-[11px] text-gray-500 font-mono tracking-tighter uppercase">{student.roll_number}</p>
+                                                </div>
+                                                <div className="flex flex-col gap-1 ml-auto translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-7 w-7 text-gray-400 hover:text-orange-600 hover:bg-orange-50"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditStudent(student);
+                                                        }}
+                                                    >
+                                                        <Edit2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteStudent(student);
+                                                        }}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
                                                 </div>
                                             </CardContent>
                                             <div className="h-1 w-full bg-orange-50 group-hover:bg-orange-500 transition-colors" />
@@ -307,8 +398,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-700">No subjects listed</h3>
                                         <p className="text-gray-400 text-sm max-w-xs">There are currently no subjects assigned to this semester.</p>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="mt-4 border-orange-200 text-orange-600 hover:bg-orange-50"
                                             onClick={() => setIsSubjectModalOpen(true)}
                                         >
@@ -319,8 +410,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                     {filteredSubjects.map((subject) => (
-                                        <Card 
-                                            key={subject.id} 
+                                        <Card
+                                            key={subject.id}
                                             className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden"
                                         >
                                             <CardContent className="p-4 flex flex-col gap-3">
@@ -363,15 +454,15 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
             </div>
 
             {selectedStudent && (
-                <StudentDetailModal 
-                    student={selectedStudent} 
-                    isOpen={!!selectedStudent} 
-                    onClose={() => setSelectedStudent(null)} 
+                <StudentDetailModal
+                    student={selectedStudent}
+                    isOpen={!!selectedStudent}
+                    onClose={() => setSelectedStudent(null)}
                 />
             )}
 
             {currentSemester && (
-                <SubjectAddModal 
+                <SubjectAddModal
                     semesterId={currentSemester.id}
                     isOpen={isSubjectModalOpen}
                     onClose={() => setIsSubjectModalOpen(false)}
@@ -381,6 +472,21 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                     }}
                 />
             )}
+
+            <StudentAddModal
+                isOpen={isStudentModalOpen}
+                onClose={handleCloseStudentModal}
+                onSuccess={async () => {
+                    loadStudentsList();
+                }}
+                student={editingStudent}
+                initialData={{
+                    department_id: batch.department,
+                    batch_id: batch.id,
+                    semester_id: currentSemester?.id,
+                    section_id: selectedSection?.id
+                }}
+            />
         </div>
     );
 };

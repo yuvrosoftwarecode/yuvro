@@ -70,6 +70,7 @@ import FacultyDashboard from './pages/faculty/Dashboard';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
+import StudentsScreen from './pages/college-admin/StudentsScreen';
 
 
 function App() {
@@ -339,15 +340,15 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/students"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <StudentsScreen />
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/subjects"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -355,7 +356,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/reports"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -363,7 +364,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/activity-logs"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -371,7 +372,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/college-admin/settings"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -390,7 +391,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/hods"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -398,7 +399,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/faculty"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -406,7 +407,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/students"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -414,7 +415,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/courses"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -422,7 +423,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/reports"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -430,7 +431,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-               <Route
+              <Route
                 path="/principal/settings"
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
@@ -543,7 +544,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
 
               <Route
                 path="/instructor/colleges/:collegeId"
@@ -576,7 +577,7 @@ function App() {
                 path="/instructor/departments"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
-                    <Departments /> 
+                    <Departments />
                   </ProtectedRoute>
                 }
               />

@@ -23,6 +23,9 @@ export interface Student {
     section?: string | number;
     section_name?: string;
     roll_number: string;
+    phone_number?: string;
+    admission_type: 'regular' | 'lateral_entry';
+    is_detained: boolean;
     created_at?: string;
     updated_at?: string;
 }
@@ -39,6 +42,18 @@ export const studentService = {
 
     getStudent: async (id: string | number): Promise<Student> => {
         return await restApiAuthUtil.get<Student>(`/core/student/${id}/`);
+    },
+
+    createStudent: async (data: any): Promise<Student> => {
+        return await restApiAuthUtil.post<Student>('/core/student/', data);
+    },
+
+    updateStudent: async (id: string | number, data: any): Promise<Student> => {
+        return await restApiAuthUtil.patch<Student>(`/core/student/${id}/`, data);
+    },
+
+    deleteStudent: async (id: string | number): Promise<void> => {
+        return await restApiAuthUtil.delete(`/core/student/${id}/`);
     }
 };
 
