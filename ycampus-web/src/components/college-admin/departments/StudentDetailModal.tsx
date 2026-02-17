@@ -22,15 +22,7 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, isOpen
         <div className="h-32 bg-gradient-to-r from-orange-400 to-orange-600 w-full" />
         <div className="px-6 pb-6 -mt-16">
           <div className="flex flex-col items-center">
-            <div className="h-32 w-32 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden mb-4">
-              {student.user_details.profile?.profile_image ? (
-                <img src={student.user_details.profile.profile_image} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full bg-orange-100 flex items-center justify-center text-orange-600">
-                  <User size={64} />
-                </div>
-              )}
-            </div>
+            <div className="h-16" />
             <h2 className="text-2xl font-bold text-gray-900">
               {student.user_details.first_name} {student.user_details.last_name}
             </h2>
@@ -84,11 +76,11 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, isOpen
           </div>
 
           <Separator className="my-6" />
-          
+
           <div className="flex justify-center">
             <div className="flex items-center gap-2 text-xs text-gray-400">
-               <GraduationCap size={14} />
-               <span>Student Member since {new Date(student.created_at || "").toLocaleDateString()}</span>
+              <GraduationCap size={14} />
+              <span>Student Member since {new Date(student.created_at || "").toLocaleDateString()}</span>
             </div>
           </div>
         </div>

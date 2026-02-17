@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Edit2, Trash2, AlertCircle, X } from "lucide-react";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StudentDetailModal from './StudentDetailModal';
 import SubjectAddModal from './SubjectAddModal';
 import { StudentAddModal } from '../students/StudentAddModal';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 
 interface BatchDetailViewProps {
     batchId: string | number;
@@ -139,10 +140,17 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
         );
     }
 
-    const filteredStudents = students.filter(s =>
-        `${s.user_details.first_name} ${s.user_details.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.roll_number.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredStudents = students
+        .filter(s =>
+            `${s.user_details.first_name} ${s.user_details.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.roll_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.user_details.email.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+            const nameA = `${a.user_details.first_name} ${a.user_details.last_name}`.toLowerCase();
+            const nameB = `${b.user_details.first_name} ${b.user_details.last_name}`.toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
 
     const filteredSubjects = subjects.filter(sub =>
         (sub.name || sub.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -177,7 +185,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                 </Card>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 {/* Sidebar: Sub-navigation/Filters */}
                 <div className="lg:col-span-1 space-y-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -213,7 +221,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                         <Button
                                             key={section.id}
                                             variant={selectedSection?.id === section.id ? "secondary" : "ghost"}
-                                            className={`w-full justify-start h-12 ${selectedSection?.id === section.id ? "bg-orange-100 text-orange-700 hover:bg-orange-200" : "hover:bg-orange-50 text-gray-600"}`}
+                                            className={`w - full justify - start h - 12 ${selectedSection?.id === section.id ? "bg-orange-100 text-orange-700 hover:bg-orange-200" : "hover:bg-orange-50 text-gray-600"} `}
                                             onClick={() => setSelectedSection(section)}
                                         >
                                             <div className="flex flex-col items-start min-w-0">
@@ -268,7 +276,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                 </div>
 
                 {/* Main Content: List */}
-                <div className="lg:col-span-3 space-y-4">
+                <div className="lg:col-span-4 space-y-4">
                     <Card className="border-gray-100 shadow-none">
                         <CardContent className="p-4">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -276,10 +284,18 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <Input
                                         placeholder={`Search ${activeTab === 'students' ? 'students' : 'subjects'}...`}
-                                        className="pl-10 border-gray-200 focus:border-orange-300 focus:ring-orange-200"
+                                        className="pl-10 pr-10 border-gray-200 focus:border-orange-300 focus:ring-orange-200"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="flex items-center gap-4 text-sm font-medium text-gray-600">
                                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg">
@@ -317,68 +333,86 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                     </CardContent>
                                 </Card>
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                                    {filteredStudents.map((student) => (
-                                        <Card
-                                            key={student.id}
-                                            className="hover:shadow-lg transition-all cursor-pointer border-gray-100 hover:border-orange-200 group overflow-hidden"
-                                            onClick={() => setSelectedStudent(student)}
-                                        >
-                                            <CardContent className="p-4 flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:scale-110 transition-transform overflow-hidden border">
-                                                    {student.user_details.profile?.profile_image ? (
-                                                        <img src={student.user_details.profile.profile_image} alt="" className="h-full w-full object-cover" />
-                                                    ) : (
-                                                        <User className="h-6 w-6" />
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between gap-1">
-                                                        <h4 className="font-bold text-gray-800 truncate group-hover:text-orange-600 transition-colors">
-                                                            {student.user_details.first_name} {student.user_details.last_name}
-                                                        </h4>
-                                                        <div className="flex items-center gap-1">
-                                                            <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[8px] uppercase px-1 py-0 scale-90`}>
-                                                                {student.admission_type === 'lateral_entry' ? 'LE' : 'Reg'}
+                                <div className="rounded-xl border border-gray-100 bg-white overflow-hidden">
+                                    <Table>
+                                        <TableHeader className="bg-gray-50/50">
+                                            <TableRow>
+                                                <TableHead className="w-[60px] text-center">Sl. No</TableHead>
+                                                <TableHead>Student Name</TableHead>
+                                                <TableHead>Email Address</TableHead>
+                                                <TableHead>Phone</TableHead>
+                                                <TableHead>Roll Number</TableHead>
+                                                <TableHead>Type</TableHead>
+                                                <TableHead>Department</TableHead>
+                                                <TableHead>Batch</TableHead>
+                                                <TableHead>Section</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right px-4">Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {filteredStudents.map((student, index) => (
+                                                <TableRow
+                                                    key={student.id}
+                                                    className="group hover:bg-orange-50/30 transition-colors"
+                                                >
+                                                    <TableCell className="text-center font-medium text-gray-500">{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        <span className="font-semibold text-gray-900">{student.user_details.first_name} {student.user_details.last_name}</span>
+                                                    </TableCell>
+                                                    <TableCell className="text-gray-900 text-xs">{student.user_details.email}</TableCell>
+                                                    <TableCell className="text-gray-900 text-xs whitespace-nowrap">{student.phone_number}</TableCell>
+                                                    <TableCell>
+                                                        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
+                                                    </TableCell>
+                                                    <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[11px] uppercase px-1.5 py-0 font-bold`}>
+                                                        {student.admission_type === 'lateral_entry' ? 'LE' : 'Reg'}
+                                                    </Badge>
+                                                    <TableCell className="text-gray-700 text-xs truncate max-w-[120px]" title={batch.department_name}>{batch.department_name}</TableCell>
+                                                    <TableCell className="text-gray-700 text-xs whitespace-nowrap">{batch.name}</TableCell>
+                                                    <TableCell className="text-gray-700 text-xs whitespace-nowrap">Sec {selectedSection?.name || 'N/A'}</TableCell>
+                                                    <TableCell>
+                                                        {student.is_detained ? (
+                                                            <Badge variant="destructive" className="text-[11px] uppercase px-1.5 py-0 flex items-center gap-1 w-fit font-bold">
+                                                                <AlertCircle className="h-3 w-3" />
+                                                                Detained
                                                             </Badge>
-                                                            {student.is_detained && (
-                                                                <Badge variant="destructive" className="text-[8px] uppercase px-1 py-0 scale-90 flex items-center gap-0.5">
-                                                                    <AlertCircle className="h-2 w-2" />
-                                                                    Detained
-                                                                </Badge>
-                                                            )}
+                                                        ) : (
+                                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[11px] uppercase px-1.5 py-0 font-bold italic">
+                                                                Active
+                                                            </Badge>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right px-4">
+                                                        <div className="flex items-center justify-end gap-1 transition-all duration-300">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 text-gray-400 hover:text-orange-600 hover:bg-orange-50"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleEditStudent(student);
+                                                                }}
+                                                            >
+                                                                <Edit2 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteStudent(student);
+                                                                }}
+                                                            >
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
                                                         </div>
-                                                    </div>
-                                                    <p className="text-[11px] text-gray-500 font-mono tracking-tighter uppercase">{student.roll_number}</p>
-                                                </div>
-                                                <div className="flex flex-col gap-1 ml-auto translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7 text-gray-400 hover:text-orange-600 hover:bg-orange-50"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleEditStudent(student);
-                                                        }}
-                                                    >
-                                                        <Edit2 className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteStudent(student);
-                                                        }}
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </div>
-                                            </CardContent>
-                                            <div className="h-1 w-full bg-orange-50 group-hover:bg-orange-500 transition-colors" />
-                                        </Card>
-                                    ))}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
                                 </div>
                             )}
                         </>
