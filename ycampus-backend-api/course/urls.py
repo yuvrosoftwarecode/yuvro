@@ -15,6 +15,7 @@ from .views import (
     StudentSubjectProgressViewSet,
     StudentCodePracticeViewSet,
     CollegeSubjectViewSet,
+    SemesterSubjectViewSet,
 )
 
 router = DefaultRouter()
@@ -25,6 +26,7 @@ router.register(r"semesters", SemesterViewSet)
 router.register(r"sections", SectionViewSet)
 router.register(r"subjects", SubjectViewSet)
 router.register(r"college-subjects", CollegeSubjectViewSet)
+router.register(r"semester-subjects", SemesterSubjectViewSet)
 router.register(r"units", UnitViewSet)
 router.register(r"subunits", SubUnitViewSet)
 router.register(r"videos", VideoViewSet)

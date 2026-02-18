@@ -11,6 +11,7 @@ from .models import (
     UserSubjectProgress,
     StudentCodePractice,
     CollegeSubject,
+    SemesterSubject,
 )
 from .gamification_models import UserGamificationProfile
 from authentication.serializers import UserSerializer
@@ -259,6 +260,27 @@ class CollegeSubjectSerializer(serializers.ModelSerializer):
         model = CollegeSubject
         fields = ["id", "college", "college_name", "subject", "subject_code", "subject_details", "created_at"]
         read_only_fields = ["id", "created_at"]
+
+    def get_subject_details(self, obj):
+        return SubjectBasicSerializer(obj.subject).data
+
+
+class SemesterSubjectSerializer(serializers.ModelSerializer):
+    subject_details = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SemesterSubject
+        fields = [
+            "id",
+            "semester",
+            "subject",
+            "subject_details",
+            "is_elective",
+            "is_lab",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
     def get_subject_details(self, obj):
         return SubjectBasicSerializer(obj.subject).data

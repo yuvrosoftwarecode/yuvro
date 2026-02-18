@@ -94,8 +94,33 @@ export async function fetchSubjects(params?: { category?: string; semester?: str
   return restApiAuthUtil.get('/course/subjects/', { params: queryParams });
 }
 
+
+export interface SemesterSubject {
+  id: string;
+  semester: string | number;
+  subject: string | number;
+  subject_details: Subject;
+  is_elective: boolean;
+  is_lab: boolean;
+  created_at: string;
+}
+
+export async function addSubjectToSemester(semesterId: string | number, subjectId: string | number) {
+ return restApiAuthUtil.post(`/course/semester-subjects/`, { semester: semesterId, subject: subjectId });
+}
+
+export async function removeSubjectFromSemester(assignmentId: string | number) {
+  return restApiAuthUtil.delete(`/course/semester-subjects/${assignmentId}/`);
+}
+
 export async function getSubjectsForSemester(semesterId: string | number): Promise<Subject[]> {
-  return fetchSubjects({ semester: semesterId });
+  const response = await restApiAuthUtil.get<SemesterSubject[]>('/course/semester-subjects/', { params: { semester: semesterId } });
+  return response.map(ss => ({
+    ...ss.subject_details,
+    assignment_id: ss.id,
+    is_lab: ss.is_lab,
+    is_elective: ss.is_elective
+  } as any));
 }
 
 export async function fetchSubjectById(subjectId: string): Promise<Subject> {
@@ -436,6 +461,10 @@ const subjectService = {
   submitCoding,
   fetchUserSubjectProgress,
   logSubUnitAccess,
+  fetchCollegeSubjects,
+  addSubjectToSemester,
+  removeSubjectFromSemester,
+  getSubjectsForSemester,
 };
 
 export default subjectService;

@@ -27,6 +27,7 @@ from .models import (
     UserSubjectProgress,
     StudentCodePractice,
     CollegeSubject,
+    SemesterSubject,
 )
 from .serializers import (
     CollegeSerializer,
@@ -45,6 +46,7 @@ from .serializers import (
     UserSubjectProgressSerializer,
     StudentCodePracticeSerializer,
     CollegeSubjectSerializer,
+    SemesterSubjectSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
@@ -322,9 +324,34 @@ class CollegeSubjectViewSet(viewsets.ModelViewSet):
     permission_classes = [CanManageCourses]
     filterset_fields = ["college", "subject"]
 
+class SemesterSubjectViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage subjects assigned to a specific semester.
+    """
+    queryset = SemesterSubject.objects.all()
+    serializer_class = SemesterSubjectSerializer
+    permission_classes = [IsCollegeManagementAdmin]
+    filterset_fields = ["semester"]
+
+    def get_queryset(self):
+        qs = SemesterSubject.objects.select_related("subject", "semester")
+        semester_id = self.request.query_params.get("semester")
+        if semester_id:
+            qs = qs.filter(semester_id=semester_id)
+        return qs
+
     def perform_create(self, serializer):
-        # Allow creating and assigning in one go if needed
-        # But mostly used for linking existing subjects
+        # Validate that the subject is allowed for this college
+        semester = serializer.validated_data['semester']
+        subject = serializer.validated_data['subject']
+        
+        # Check if subject is assigned to the college of the batch/semester
+        college = semester.batch.college
+        if not CollegeSubject.objects.filter(college=college, subject=subject).exists():
+            raise serializers.ValidationError(
+                f"Subject '{subject.subject_name}' is not assigned to this college."
+            )
+        
         serializer.save()
 
 

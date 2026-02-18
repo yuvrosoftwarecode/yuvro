@@ -194,6 +194,30 @@ class CollegeSubject(models.Model):
         return f"{self.college.name} - {self.subject.subject_name}"
 
 
+class SemesterSubject(models.Model):
+    """
+    Mapping table to assign subjects to a specific semester in a batch.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    semester = models.ForeignKey(
+        "core.Semester", on_delete=models.CASCADE, related_name="semester_subjects"
+    )
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name="semester_subjects"
+    )
+    is_elective = models.BooleanField(default=False)
+    is_lab = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("semester", "subject")
+        ordering = ["is_elective", "subject__subject_name"]
+
+    def __str__(self):
+        return f"{self.semester} - {self.subject.subject_name}"
+
+
 class UserSubjectProgress(BaseTimestampedModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

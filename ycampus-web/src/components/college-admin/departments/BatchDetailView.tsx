@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
@@ -15,10 +16,11 @@ import SubjectAddModal from './SubjectAddModal';
 
 interface BatchDetailViewProps {
     batchId: string | number;
+    collegeId?: string | number;
     onBack: () => void;
 }
 
-const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) => {
+const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, onBack }) => {
     const [batch, setBatch] = useState<Batch | null>(null);
     const [currentSemester, setCurrentSemester] = useState<Semester | null>(null);
     const [selectedSection, setSelectedSection] = useState<Section | null>(null);
@@ -321,15 +323,44 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                     {filteredSubjects.map((subject) => (
                                         <Card 
                                             key={subject.id} 
-                                            className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden"
+                                            className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden relative"
                                         >
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full bg-white shadow-sm border border-gray-100"
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        if (window.confirm("Are you sure you want to remove this subject from the semester?")) {
+                                                            try {
+                                                                if ((subject as any).assignment_id) {
+                                                                    await subjectService.removeSubjectFromSemester((subject as any).assignment_id);
+                                                                    toast.success("Subject removed successfully");
+                                                                    
+                                                                    // Refresh subjects
+                                                                    const subjectsData = await subjectService.getSubjectsForSemester(currentSemester.id);
+                                                                    setSubjects(subjectsData);
+                                                                } else {
+                                                                    toast.error("Cannot remove this subject (missing assignment ID)");
+                                                                }
+                                                            } catch (err) {
+                                                                console.error("Failed to remove subject", err);
+                                                                toast.error("Failed to remove subject");
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                             <CardContent className="p-4 flex flex-col gap-3">
                                                 <div className="flex items-start justify-between">
                                                     <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
                                                         <BookOpen className="h-5 w-5" />
                                                     </div>
                                                     <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-[9px] uppercase tracking-tighter">
-                                                        {subject.category.replace('_', ' ')}
+                                                        {(subject as any).is_lab ? "Lab" : (subject as any).is_elective ? "Elective" : "Core"}
                                                     </Badge>
                                                 </div>
                                                 <div className="min-w-0">
@@ -373,6 +404,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
             {currentSemester && (
                 <SubjectAddModal 
                     semesterId={currentSemester.id}
+                    collegeId={collegeId || ""} // Pass collegeId, handle undefined with empty string or check logic
+                    existingSubjectIds={subjects.map(s => s.id)}
                     isOpen={isSubjectModalOpen}
                     onClose={() => setIsSubjectModalOpen(false)}
                     onSubjectAdded={async () => {
