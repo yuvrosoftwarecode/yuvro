@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Edit2, Trash2, AlertCircle, X } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Edit2, Trash2, AlertCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
@@ -26,6 +26,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
     const [currentSemester, setCurrentSemester] = useState<Semester | null>(null);
     const [selectedSection, setSelectedSection] = useState<Section | null>(null);
     const [students, setStudents] = useState<Student[]>([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [loading, setLoading] = useState(true);
     const [studentsLoading, setStudentsLoading] = useState(false);
@@ -64,29 +66,25 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
     }, [batchId]);
 
     useEffect(() => {
-        const loadStudents = async () => {
-            if (!selectedSection) return;
-            try {
-                setStudentsLoading(true);
-                const studentsData = await studentService.getStudents({ section: selectedSection.id });
-                setStudents(studentsData);
-            } catch (err) {
-                console.error("Failed to load students", err);
-            } finally {
-                setStudentsLoading(false);
-            }
-        };
-        loadStudents();
-    }, [selectedSection]);
+        loadStudentsList(1);
+    }, [selectedSection, searchQuery]);
 
-    const loadStudentsList = async () => {
+    const loadStudentsList = async (page: number = currentPage) => {
         if (!selectedSection) return;
         try {
             setStudentsLoading(true);
-            const studentsData = await studentService.getStudents({ section: selectedSection.id });
-            setStudents(studentsData);
+            const params: any = {
+                section: selectedSection.id,
+                page: page,
+                search: searchQuery
+            };
+            const response = await studentService.getStudents(params);
+            setStudents(response.results);
+            setTotalCount(response.count);
+            setCurrentPage(page);
         } catch (err) {
             console.error("Failed to load students", err);
+            toast.error("Failed to load students");
         } finally {
             setStudentsLoading(false);
         }
@@ -140,17 +138,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
         );
     }
 
-    const filteredStudents = students
-        .filter(s =>
-            `${s.user_details.first_name} ${s.user_details.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.roll_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.user_details.email.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-        .sort((a, b) => {
-            const nameA = `${a.user_details.first_name} ${a.user_details.last_name}`.toLowerCase();
-            const nameB = `${b.user_details.first_name} ${b.user_details.last_name}`.toLowerCase();
-            return nameA.localeCompare(nameB);
-        });
+    const totalPages = Math.ceil(totalCount / 25);
 
     const filteredSubjects = subjects.filter(sub =>
         (sub.name || sub.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -302,7 +290,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                         {activeTab === 'students' ? (
                                             <>
                                                 <Users className="h-4 w-4 text-orange-500" />
-                                                <span>{filteredStudents.length} Students</span>
+                                                <span>{totalCount} Students</span>
                                             </>
                                         ) : (
                                             <>
@@ -322,7 +310,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                 <div className="flex justify-center py-20">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                                 </div>
-                            ) : filteredStudents.length === 0 ? (
+                            ) : students.length === 0 ? (
                                 <Card className="border-dashed border-2 border-gray-100 shadow-none">
                                     <CardContent className="flex flex-col items-center justify-center py-20 text-center">
                                         <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
@@ -333,7 +321,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                     </CardContent>
                                 </Card>
                             ) : (
-                                <div className="rounded-xl border border-gray-100 bg-white overflow-hidden">
+                                <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
                                     <Table>
                                         <TableHeader className="bg-gray-50/50">
                                             <TableRow>
@@ -351,12 +339,12 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {filteredStudents.map((student, index) => (
+                                            {students.map((student, index) => (
                                                 <TableRow
                                                     key={student.id}
                                                     className="group hover:bg-orange-50/30 transition-colors"
                                                 >
-                                                    <TableCell className="text-center font-medium text-gray-500">{index + 1}</TableCell>
+                                                    <TableCell className="text-center font-medium text-gray-500">{(currentPage - 1) * 25 + index + 1}</TableCell>
                                                     <TableCell>
                                                         <span className="font-semibold text-gray-900">{student.user_details.first_name} {student.user_details.last_name}</span>
                                                     </TableCell>
@@ -365,9 +353,11 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                                     <TableCell>
                                                         <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
                                                     </TableCell>
-                                                    <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[11px] uppercase px-1.5 py-0 font-bold`}>
-                                                        {student.admission_type === 'lateral_entry' ? 'LE' : 'Reg'}
-                                                    </Badge>
+                                                    <TableCell>
+                                                        <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[11px] uppercase px-1.5 py-0 font-bold`}>
+                                                            {student.admission_type === 'lateral_entry' ? 'LE' : 'Reg'}
+                                                        </Badge>
+                                                    </TableCell>
                                                     <TableCell className="text-gray-700 text-xs truncate max-w-[120px]" title={batch.department_name}>{batch.department_name}</TableCell>
                                                     <TableCell className="text-gray-700 text-xs whitespace-nowrap">{batch.name}</TableCell>
                                                     <TableCell className="text-gray-700 text-xs whitespace-nowrap">Sec {selectedSection?.name || 'N/A'}</TableCell>
@@ -413,6 +403,81 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, onBack }) =>
                                             ))}
                                         </TableBody>
                                     </Table>
+
+                                    {/* Pagination Controls */}
+                                    {totalPages > 1 && (
+                                        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100">
+                                            <div className="flex flex-1 justify-between sm:hidden">
+                                                <Button
+                                                    onClick={() => loadStudentsList(currentPage - 1)}
+                                                    disabled={currentPage === 1}
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    Previous
+                                                </Button>
+                                                <Button
+                                                    onClick={() => loadStudentsList(currentPage + 1)}
+                                                    disabled={currentPage === totalPages}
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    Next
+                                                </Button>
+                                            </div>
+                                            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                                <div>
+                                                    <p className="text-sm text-gray-700">
+                                                        Showing <span className="font-medium">{(currentPage - 1) * 25 + 1}</span> to <span className="font-medium">{Math.min(currentPage * 25, totalCount)}</span> of{' '}
+                                                        <span className="font-medium">{totalCount}</span> results
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                                        <Button
+                                                            onClick={() => loadStudentsList(currentPage - 1)}
+                                                            disabled={currentPage === 1}
+                                                            variant="outline"
+                                                            className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                        >
+                                                            <span className="sr-only">Previous</span>
+                                                            <ChevronLeft className="h-5 w-5" />
+                                                        </Button>
+
+                                                        {[...Array(totalPages)].map((_, i) => {
+                                                            const page = i + 1;
+                                                            if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                                                                return (
+                                                                    <Button
+                                                                        key={page}
+                                                                        onClick={() => loadStudentsList(page)}
+                                                                        variant={currentPage === page ? "default" : "outline"}
+                                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}`}
+                                                                    >
+                                                                        {page}
+                                                                    </Button>
+                                                                );
+                                                            }
+                                                            if (page === currentPage - 2 || page === currentPage + 2) {
+                                                                return <span key={page} className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">...</span>;
+                                                            }
+                                                            return null;
+                                                        })}
+
+                                                        <Button
+                                                            onClick={() => loadStudentsList(currentPage + 1)}
+                                                            disabled={currentPage === totalPages}
+                                                            variant="outline"
+                                                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                        >
+                                                            <span className="sr-only">Next</span>
+                                                            <ChevronRight className="h-5 w-5" />
+                                                        </Button>
+                                                    </nav>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </>

@@ -6,8 +6,9 @@ import { studentService, Student } from '@/services/studentService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, User, Filter, GraduationCap, Mail, Phone, Hash, Edit2, Trash2, AlertCircle, X } from 'lucide-react';
+import { Plus, Search, User, Filter, GraduationCap, Mail, Phone, Hash, Edit2, Trash2, AlertCircle, X, ChevronLeft, ChevronRight, Upload } from 'lucide-react';
 import { StudentAddModal } from '@/components/college-admin/students/StudentAddModal';
+import { StudentBulkImportModal } from '@/components/college-admin/students/StudentBulkImportModal';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
@@ -17,9 +18,12 @@ import { batchService, Batch } from '@/services/batchService';
 const StudentsScreen: React.FC = () => {
     const { user } = useAuth();
     const [students, setStudents] = useState<Student[]>([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'detained'>('all');
     const [filterDept, setFilterDept] = useState<string | 'all'>('all');
@@ -30,9 +34,12 @@ const StudentsScreen: React.FC = () => {
     const [batches, setBatches] = useState<Batch[]>([]);
 
     useEffect(() => {
-        loadStudents();
         loadFilterOptions();
     }, []);
+
+    useEffect(() => {
+        loadStudents(1);
+    }, [searchQuery, filterStatus, filterDept, filterBatch, filterAdmissionType]);
 
     const loadFilterOptions = async () => {
         try {
@@ -40,11 +47,6 @@ const StudentsScreen: React.FC = () => {
             if (collegeId) {
                 const depts = await departmentService.getDepartments(collegeId);
                 setDepartments(depts);
-
-                // Fetch all batches for the college (using getBatches without dept id if possible, 
-                // or we'll fetch them per department)
-                // For global filtering, we might need all batches. 
-                // Let's fetch all batches for the college.
                 const allBatches = await batchService.getBatches();
                 setBatches(allBatches.filter(b => b.college === collegeId));
             }
@@ -53,12 +55,26 @@ const StudentsScreen: React.FC = () => {
         }
     };
 
-    const loadStudents = async () => {
+    const loadStudents = async (page: number = currentPage) => {
         try {
             setLoading(true);
             const collegeId = (user as any)?.college_id;
-            const data = await studentService.getStudents({ college: collegeId });
-            setStudents(data);
+            const params: any = {
+                college: collegeId,
+                page: page,
+                search: searchQuery
+            };
+
+            if (filterStatus === 'active') params.is_detained = false;
+            if (filterStatus === 'detained') params.is_detained = true;
+            if (filterDept !== 'all') params.department = filterDept;
+            if (filterBatch !== 'all') params.batch_name = filterBatch;
+            if (filterAdmissionType !== 'all') params.admission_type = filterAdmissionType;
+
+            const response = await studentService.getStudents(params);
+            setStudents(response.results);
+            setTotalCount(response.count);
+            setCurrentPage(page);
         } catch (err) {
             console.error("Failed to load students", err);
             toast.error("Failed to load students");
@@ -75,7 +91,7 @@ const StudentsScreen: React.FC = () => {
         try {
             await studentService.deleteStudent(student.id);
             toast.success("Student deleted successfully");
-            loadStudents();
+            loadStudents(currentPage);
         } catch (err) {
             console.error("Failed to delete student", err);
             toast.error("Failed to delete student");
@@ -92,25 +108,7 @@ const StudentsScreen: React.FC = () => {
         setSelectedStudent(null);
     };
 
-    const filteredStudents = students.filter(s => {
-        const matchesSearch = `${s.user_details.first_name} ${s.user_details.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.roll_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.user_details.email.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesStatus = filterStatus === 'all' ? true :
-            filterStatus === 'active' ? !s.is_detained :
-                s.is_detained;
-
-        const matchesDept = filterDept === 'all' ? true : String(s.department) === filterDept;
-        const matchesBatch = filterBatch === 'all' ? true : s.batch_name === filterBatch;
-        const matchesType = filterAdmissionType === 'all' ? true : s.admission_type === filterAdmissionType;
-
-        return matchesSearch && matchesStatus && matchesDept && matchesBatch && matchesType;
-    }).sort((a, b) => {
-        const nameA = `${a.user_details.first_name} ${a.user_details.last_name}`.toLowerCase();
-        const nameB = `${b.user_details.first_name} ${b.user_details.last_name}`.toLowerCase();
-        return nameA.localeCompare(nameB);
-    });
+    const totalPages = Math.ceil(totalCount / 25);
 
     return (
         <div className="min-h-screen bg-gray-50/50">
@@ -123,7 +121,6 @@ const StudentsScreen: React.FC = () => {
                     />
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-                        {/* Action Bar */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                             <div className="relative flex-1 max-w-md">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -242,6 +239,14 @@ const StudentsScreen: React.FC = () => {
                                     </div>
                                 )}
                                 <Button
+                                    variant="outline"
+                                    className="border-gray-200 text-gray-600 hover:bg-gray-50"
+                                    onClick={() => setIsImportModalOpen(true)}
+                                >
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Import
+                                </Button>
+                                <Button
                                     className="bg-orange-600 hover:bg-orange-700 text-white"
                                     onClick={() => {
                                         setSelectedStudent(null);
@@ -254,12 +259,11 @@ const StudentsScreen: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Students List */}
                         {loading ? (
                             <div className="flex justify-center py-20">
                                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
                             </div>
-                        ) : filteredStudents.length === 0 ? (
+                        ) : students.length === 0 ? (
                             <Card className="border-dashed border-2 border-gray-100 shadow-none bg-transparent">
                                 <CardContent className="flex flex-col items-center justify-center py-24 text-center">
                                     <div className="h-20 w-20 bg-orange-50 rounded-full flex items-center justify-center mb-4">
@@ -299,12 +303,12 @@ const StudentsScreen: React.FC = () => {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {filteredStudents.map((student, index) => (
+                                        {students.map((student, index) => (
                                             <TableRow
                                                 key={student.id}
                                                 className="group hover:bg-orange-50/30 transition-colors"
                                             >
-                                                <TableCell className="text-center font-medium text-gray-500">{index + 1}</TableCell>
+                                                <TableCell className="text-center font-medium text-gray-500">{(currentPage - 1) * 25 + index + 1}</TableCell>
                                                 <TableCell>
                                                     <span className="font-semibold text-gray-900">{student.user_details.first_name} {student.user_details.last_name}</span>
                                                 </TableCell>
@@ -363,6 +367,80 @@ const StudentsScreen: React.FC = () => {
                                         ))}
                                     </TableBody>
                                 </Table>
+
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100">
+                                        <div className="flex flex-1 justify-between sm:hidden">
+                                            <Button
+                                                onClick={() => loadStudents(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                Previous
+                                            </Button>
+                                            <Button
+                                                onClick={() => loadStudents(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                                            <div>
+                                                <p className="text-sm text-gray-700">
+                                                    Showing <span className="font-medium">{(currentPage - 1) * 25 + 1}</span> to <span className="font-medium">{Math.min(currentPage * 25, totalCount)}</span> of{' '}
+                                                    <span className="font-medium">{totalCount}</span> results
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                                    <Button
+                                                        onClick={() => loadStudents(currentPage - 1)}
+                                                        disabled={currentPage === 1}
+                                                        variant="outline"
+                                                        className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                    >
+                                                        <span className="sr-only">Previous</span>
+                                                        <ChevronLeft className="h-5 w-5" />
+                                                    </Button>
+
+                                                    {[...Array(totalPages)].map((_, i) => {
+                                                        const page = i + 1;
+                                                        if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                                                            return (
+                                                                <Button
+                                                                    key={page}
+                                                                    onClick={() => loadStudents(page)}
+                                                                    variant={currentPage === page ? "default" : "outline"}
+                                                                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}`}
+                                                                >
+                                                                    {page}
+                                                                </Button>
+                                                            );
+                                                        }
+                                                        if (page === currentPage - 2 || page === currentPage + 2) {
+                                                            return <span key={page} className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">...</span>;
+                                                        }
+                                                        return null;
+                                                    })}
+
+                                                    <Button
+                                                        onClick={() => loadStudents(currentPage + 1)}
+                                                        disabled={currentPage === totalPages}
+                                                        variant="outline"
+                                                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                    >
+                                                        <span className="sr-only">Next</span>
+                                                        <ChevronRight className="h-5 w-5" />
+                                                    </Button>
+                                                </nav>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -375,7 +453,12 @@ const StudentsScreen: React.FC = () => {
                 onSuccess={loadStudents}
                 student={selectedStudent}
             />
-        </div >
+            <StudentBulkImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={loadStudents}
+            />
+        </div>
     );
 };
 

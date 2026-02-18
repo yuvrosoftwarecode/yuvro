@@ -415,6 +415,7 @@ const subjectService = {
   submitCoding,
   fetchUserSubjectProgress,
   logSubUnitAccess,
+  getSubjectsForSemester,
 };
 
 export default subjectService;
