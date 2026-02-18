@@ -1,4 +1,6 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -38,6 +40,12 @@ class IsCollegeAdminOrPrincipal(permissions.BasePermission):
             "college_admin",
             "principal",
         ]
+
+
+class StudentPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class CollegeUserAllocationViewSet(viewsets.ViewSet):
@@ -530,7 +538,12 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
-    filterset_fields = ["college", "department", "batch", "semester", "section"]
+    filterset_fields = ["college", "department", "batch", "semester", "section", "admission_type", "is_detained"]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
+    ordering_fields = ["user__first_name", "user__last_name", "roll_number", "created_at"]
+    ordering = ["user__first_name"]
+    pagination_class = StudentPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -684,3 +697,231 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         pass
+
+    @action(detail=False, methods=["post"], url_path="bulk-import")
+    def bulk_import(self, request):
+        """
+        Bulk import students from a CSV or Excel (.xlsx) file.
+        Payload: { "file": File, "department": UUID (optional), "batch": UUID (optional) }
+        """
+        import csv
+        import io
+        from .models import College, Department, Batch, Semester, Section
+        try:
+            import openpyxl
+        except ImportError:
+            openpyxl = None
+
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
+        is_csv = file.name.endswith('.csv')
+        is_xlsx = file.name.endswith('.xlsx')
+
+        if not is_csv and not is_xlsx:
+            return Response({"error": "Only CSV and Excel (.xlsx) files are supported"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if is_xlsx and not openpyxl:
+            return Response({"error": "Excel support is not installed on the server (openpyxl missing)"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Get defaults from request data
+        default_dept_id = request.data.get("department")
+        default_batch_id = request.data.get("batch")
+
+        college = request.user.college
+        if not college:
+            return Response({"error": "Could not determine college for the admin"}, status=status.HTTP_400_BAD_REQUEST)
+
+        rows = []
+        try:
+            if is_csv:
+                # Robust CSV encoding detection
+                content = file.read()
+                try:
+                    decoded_file = content.decode('utf-8')
+                except UnicodeDecodeError:
+                    try:
+                        decoded_file = content.decode('latin-1')
+                    except UnicodeDecodeError:
+                        return Response({"error": "Failed to decode CSV file. Please ensure it is UTF-8 or Latin-1 encoded."}, status=status.HTTP_400_BAD_REQUEST)
+                
+                io_string = io.StringIO(decoded_file)
+                reader = csv.DictReader(io_string)
+                rows = list(reader)
+            else:
+                # Excel processing
+                wb = openpyxl.load_workbook(file, data_only=True)
+                ws = wb.active
+                
+                # Get headers from first row
+                headers = [str(cell.value).strip() if cell.value else None for cell in ws[1]]
+                
+                for row_data in ws.iter_rows(min_row=2, values_only=True):
+                    row_dict = {}
+                    for i, value in enumerate(row_data):
+                        if i < len(headers) and headers[i]:
+                            row_dict[headers[i]] = value
+                    if any(row_dict.values()): # Skip empty rows
+                        rows.append(row_dict)
+
+        except Exception as e:
+            return Response({"error": f"Failed to parse file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Flexible Header Mapping
+        header_mapping = {
+            "email": ["email", "email address", "email_address", "mail", "user email"],
+            "first_name": ["first name", "firstname", "first_name", "fname", "given name"],
+            "last_name": ["last name", "lastname", "last_name", "lname", "surname", "family name"],
+            "roll_number": ["roll number", "roll_number", "rollno", "roll no", "id", "student id", "registration number", "roll"],
+            "phone_number": ["phone number", "phone_number", "phone", "phone no", "mobile", "mobile number", "contact", "contact number"],
+            "department": ["department", "dept", "department name", "branch", "stream"],
+            "batch": ["batch", "year", "batch name", "class", "session"],
+            "admission_type": ["admission type", "admission_type", "type", "admission"],
+            "section": ["section", "sec", "class section", "allocation", "sec name"]
+        }
+
+        def normalize_str(s):
+            return str(s or "").strip().lower().replace("_", " ").replace("-", " ")
+
+        normalized_rows = []
+        for row in rows:
+            mapped_row = {}
+            for original_key, value in row.items():
+                norm_key = normalize_str(original_key)
+                found = False
+                for target_key, aliases in header_mapping.items():
+                    if norm_key == target_key or norm_key in aliases:
+                        mapped_row[target_key] = value
+                        found = True
+                        break
+                if not found:
+                    mapped_row[original_key] = value
+            if any(str(v).strip() for v in mapped_row.values() if v is not None):
+                normalized_rows.append(mapped_row)
+        
+        rows = normalized_rows
+
+        results = {
+            "total": 0,
+            "created": 0,
+            "errors": []
+        }
+
+        # Cache for performance
+        department_cache = {}
+        batch_cache = {}
+
+        def get_department(dept_name_or_id):
+            if not dept_name_or_id:
+                return None
+            if str(dept_name_or_id) in department_cache:
+                return department_cache[str(dept_name_or_id)]
+            
+            # Try by ID first
+            dept = Department.objects.filter(id=dept_name_or_id, college=college).first() if len(str(dept_name_or_id)) == 36 else None
+            if not dept:
+                # Try by Name
+                dept = Department.objects.filter(name__iexact=str(dept_name_or_id), college=college).first()
+            
+            department_cache[str(dept_name_or_id)] = dept
+            return dept
+
+        def get_batch(batch_name_or_id, dept):
+            if not batch_name_or_id:
+                return None
+            cache_key = f"{batch_name_or_id}_{dept.id if dept else 'none'}"
+            if cache_key in batch_cache:
+                return batch_cache[cache_key]
+            
+            # Try by ID first
+            batch = Batch.objects.filter(id=batch_name_or_id, college=college).first() if len(str(batch_name_or_id)) == 36 else None
+            if not batch:
+                # Try by Name
+                batch = Batch.objects.filter(name__iexact=str(batch_name_or_id), department=dept, college=college).first()
+            
+            batch_cache[cache_key] = batch
+            return batch
+
+        def get_section(section_name, semester):
+            if not section_name or not semester:
+                return None
+            return Section.objects.filter(name__iexact=str(section_name).strip(), semester=semester).first()
+
+        for row in rows:
+            results["total"] += 1
+            try:
+                with transaction.atomic():
+                    email = str(row.get("email") or "").strip()
+                    first_name = str(row.get("first_name") or "").strip()
+                    last_name = str(row.get("last_name") or "").strip()
+                    roll_number = str(row.get("roll_number") or "").strip()
+                    phone_number = str(row.get("phone_number") or "").strip()
+                    dept_val = str(row.get("department") or "").strip() or default_dept_id
+                    batch_val = str(row.get("batch") or "").strip() or default_batch_id
+                    section_val = str(row.get("section") or "").strip()
+                    admission_type_raw = str(row.get("admission_type") or "regular").strip().lower()
+                    admission_type = "lateral_entry" if any(x in admission_type_raw for x in ["lateral", "le"]) else "regular"
+
+                    if not all([email, first_name, last_name, roll_number]):
+                        results["errors"].append({
+                            "row": results["total"] + 1, # +1 because header is row 1
+                            "error": "Missing required fields (email, first_name, last_name, roll_number)"
+                        })
+                        continue
+
+                    # Validate uniqueness
+                    if User.objects.filter(email=email).exists():
+                         results["errors"].append({"row": results["total"] + 1, "error": f"User with email {email} already exists"})
+                         continue
+                    if StudentProfile.objects.filter(roll_number=roll_number, college=college).exists():
+                         results["errors"].append({"row": results["total"] + 1, "error": f"Student with roll number {roll_number} already exists in this college"})
+                         continue
+
+                    # Resolve Dept and Batch
+                    dept = get_department(dept_val)
+                    batch = get_batch(batch_val, dept)
+
+                    if not dept_val or not dept:
+                         results["errors"].append({"row": results["total"] + 1, "error": f"Department '{dept_val}' not found"})
+                         continue
+                    if not batch_val or not batch:
+                         results["errors"].append({"row": results["total"] + 1, "error": f"Batch '{batch_val}' not found in department '{dept.name}'"})
+                         continue
+
+                    # Create User
+                    user = User.objects.create_user(
+                        email=email,
+                        username=email, # Use email as username for simplicity
+                        first_name=first_name,
+                        last_name=last_name,
+                        role="student"
+                    )
+                    user.set_unusable_password()
+                    user.save()
+
+                    # Resolve Semester and Section
+                    semester = Semester.objects.filter(batch=batch, is_current=True).first()
+                    section = get_section(section_val, semester) if semester else None
+
+                    # Create Profile
+                    StudentProfile.objects.create(
+                        user=user,
+                        college=college,
+                        department=dept,
+                        batch=batch,
+                        semester=semester,
+                        section=section,
+                        roll_number=roll_number,
+                        phone_number=phone_number,
+                        admission_type=admission_type
+                    )
+                    results["created"] += 1
+
+            except Exception as e:
+                results["errors"].append({
+                    "row": results["total"] + 1,
+                    "error": str(e)
+                })
+
+        return Response(results, status=status.HTTP_200_OK if results["created"] > 0 else status.HTTP_200_OK if results["total"] > 0 else status.HTTP_400_BAD_REQUEST)
