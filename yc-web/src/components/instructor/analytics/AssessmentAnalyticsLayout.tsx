@@ -39,7 +39,7 @@ export default function AssessmentAnalyticsLayout({
                             ) : undefined
                         }
                     />
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="px-6 py-6">
                         {children}
                     </div>
                 </div>

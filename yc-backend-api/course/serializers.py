@@ -224,6 +224,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "mcq_options",
             "test_cases_basic",
             "test_cases_advanced",
+            "solution_code",
+            "solution_language",
             "created_at",
             "updated_at",
             "created_by",
@@ -234,9 +236,11 @@ class QuestionSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         request = self.context.get("request")
         if request and hasattr(request, "user") and request.user.is_authenticated:
-            # If the user is a student, hide advanced test cases
+            # If the user is a student, hide advanced test cases and solution code
             if getattr(request.user, "role", "") == "student":
                 ret.pop("test_cases_advanced", None)
+                ret.pop("solution_code", None)
+                ret.pop("solution_language", None)
         return ret
 
     def validate(self, data):

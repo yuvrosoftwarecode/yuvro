@@ -334,7 +334,7 @@ export default function MockInterviewForm() {
               </button>
             }
           />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="px-6 py-6">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsList className="inline-flex w-auto gap-1">

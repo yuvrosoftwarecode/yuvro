@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -237,6 +238,8 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
+      solution_code: '',
+      solution_language: 'python',
     });
     setActiveTab('create');
     setEditingQuestion(null);
@@ -264,6 +267,8 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: question.test_cases_advanced || [],
+      solution_code: question.solution_code || '',
+      solution_language: question.solution_language || 'python',
     });
     setActiveTab('create');
   };
@@ -457,7 +462,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-full overflow-y-auto">
       {/* Header with Tabs */}
       <div className="space-y-4">
         <div>
@@ -842,6 +847,37 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   className="bg-white border-slate-300"
                 />
               </div>
+
+              {/* Reference Solution Code - Only for coding/descriptive */}
+              {(formData.type === 'coding' || formData.type === 'descriptive') && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-slate-700">Reference Solution Code</Label>
+                    <Select
+                      value={formData.solution_language || 'python'}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, solution_language: value }))}
+                    >
+                      <SelectTrigger className="w-[140px] h-8 bg-white border-slate-300 text-xs">
+                        <SelectValue placeholder="Language" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectItem value="python">Python 3</SelectItem>
+                        <SelectItem value="javascript">JavaScript</SelectItem>
+                        <SelectItem value="java">Java</SelectItem>
+                        <SelectItem value="cpp">C++</SelectItem>
+                        <SelectItem value="c">C</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <MonacoCodeEditor
+                    value={formData.solution_code || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, solution_code: value }))}
+                    language={formData.solution_language || 'python'}
+                    height="250px"
+                  />
+                  <p className="text-xs text-slate-500">This will be shown to students after they submit their answers.</p>
+                </div>
+              )}
 
               {/* MCQ Options */}
               {(formData.type === 'mcq_single' || formData.type === 'mcq_multiple') && (

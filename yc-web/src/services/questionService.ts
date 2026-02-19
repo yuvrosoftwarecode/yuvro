@@ -22,6 +22,8 @@ export interface Question {
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
+  solution_code?: string;
+  solution_language?: string;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -48,6 +50,8 @@ export interface CreateQuestionData {
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
+  solution_code?: string;
+  solution_language?: string;
 }
 
 export interface UpdateQuestionData extends Partial<CreateQuestionData> { }

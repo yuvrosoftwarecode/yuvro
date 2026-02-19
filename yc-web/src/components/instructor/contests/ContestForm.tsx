@@ -332,7 +332,7 @@ export default function ContestForm() {
               subtitle="Please wait while we load the contest details"
               actions={null}
             />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="px-6 py-6">
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
@@ -360,7 +360,7 @@ export default function ContestForm() {
               </button>
             }
           />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="px-6 py-6">
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsContent value="details" className="space-y-6">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -388,6 +389,29 @@ const TestResults: React.FC<TestResultsProps> = ({
                                     {q.answer_data?.answer || "No answer provided"}
                                   </pre>
                                 </div>
+                              </div>
+                            )}
+
+                            {/* Reference Solution Display */}
+                            {q.solution_code && (
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                    <Code className="h-4 w-4" /> Reference Solution
+                                  </p>
+                                  {q.solution_language && (
+                                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                                      {q.solution_language === 'cpp' ? 'C++' : q.solution_language.charAt(0).toUpperCase() + q.solution_language.slice(1)}
+                                    </span>
+                                  )}
+                                </div>
+                                <MonacoCodeEditor
+                                  value={q.solution_code}
+                                  onChange={() => { }}
+                                  language={q.solution_language || 'python'}
+                                  readOnly={true}
+                                  height="200px"
+                                />
                               </div>
                             )}
                           </div>

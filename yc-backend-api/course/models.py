@@ -395,6 +395,28 @@ class Question(models.Model):
         default=list, blank=True, help_text="Advanced test cases for evaluation"
     )
 
+    # Solution/Reference code (for coding and descriptive questions)
+    solution_code = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Reference solution code provided by the instructor. Shown to students after submission.",
+    )
+
+    SOLUTION_LANGUAGE_CHOICES = [
+        ("python", "Python 3"),
+        ("javascript", "JavaScript"),
+        ("java", "Java"),
+        ("cpp", "C++"),
+        ("c", "C"),
+    ]
+    solution_language = models.CharField(
+        max_length=20,
+        choices=SOLUTION_LANGUAGE_CHOICES,
+        default="python",
+        blank=True,
+        help_text="Programming language of the reference solution code.",
+    )
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
