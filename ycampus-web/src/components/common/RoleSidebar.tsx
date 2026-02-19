@@ -25,7 +25,13 @@ import {
   Activity,
   Target,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  LayoutDashboard,
+  StickyNote,
+  ClipboardCheck,
+  ListChecks,
+  Bell,
+  MessageCircle
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -37,6 +43,71 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
+  // Student Items
+  {
+    id: 'student-dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/student/dashboard',
+    roles: ['student']
+  },
+  {
+    id: 'student-notes',
+    label: 'Notes',
+    icon: StickyNote,
+    path: '/student/learn',
+    roles: ['student']
+  },
+  {
+    id: 'student-practice-test',
+    label: 'Practice Test',
+    icon: ClipboardCheck,
+    path: '/student/skill-test',
+    roles: ['student']
+  },
+  {
+    id: 'student-task',
+    label: 'Task',
+    icon: ListChecks,
+    path: '/student/code-practice',
+    roles: ['student']
+  },
+  {
+    id: 'student-assessment',
+    label: 'Assessment',
+    icon: FileText,
+    path: '/student/certifications',
+    roles: ['student']
+  },
+  {
+    id: 'student-contest',
+    label: 'Contest',
+    icon: Trophy,
+    path: '/student/contests',
+    roles: ['student']
+  },
+  {
+    id: 'student-jobs',
+    label: 'Jobs',
+    icon: Briefcase,
+    path: '/student/jobs',
+    roles: ['student']
+  },
+  {
+    id: 'student-announcements',
+    label: 'Announcements',
+    icon: Bell,
+    path: '/student/announcements',
+    roles: ['student']
+  },
+  {
+    id: 'student-community',
+    label: 'Community',
+    icon: MessageCircle,
+    path: '/student/community',
+    roles: ['student']
+  },
+  // Admin/Instructor Items
   {
     id: 'admin-dashboard',
     label: 'Dashboard',
@@ -344,7 +415,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
       case 'admin':
         return 'Yuvro Admin';
       case 'instructor':
-        return 'Yuvro Instructor ';
+        return 'Yuvro Instructor';
       case 'recruiter':
         return 'Yuvro Recruiter';
       case 'college_admin':
@@ -353,13 +424,12 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return 'Principal';
       case 'hod':
         return 'HOD';
-
       case 'faculty':
         return 'Faculty';
       case 'tpo':
         return 'TPO Portal';
       default:
-        return 'Yuvro';
+        return 'Yuvro Campus';
     }
   };
 
