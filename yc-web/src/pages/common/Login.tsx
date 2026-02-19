@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ApiError } from '../../utils/RestApiUtil';
 import { redirectToDashboard } from '../../utils/redirectToDashboard';
+import { useGoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Code2, Mic, TrendingUp, ArrowRight, Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -64,20 +65,25 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setError('');
-    setIsLoading(true);
-
-    try {
-      await loginWithGoogle();
-      navigate(from, { replace: true });
-    } catch (err) {
-      if (err instanceof ApiError) setError(err.message);
-      else setError('An unexpected error occurred');
-    } finally {
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setError('');
+      setIsLoading(true);
+      try {
+        await loginWithGoogle(tokenResponse.access_token);
+        navigate(from, { replace: true });
+      } catch (err) {
+        if (err instanceof ApiError) setError(err.message);
+        else setError('Google Sign In failed');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Google Sign In was unsuccessful');
       setIsLoading(false);
     }
-  };
+  });
 
   const features = [
     {
@@ -100,19 +106,19 @@ const Login: React.FC = () => {
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Left Panel -- Premium Branding */}
-      <div className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-14 overflow-hidden"
+      <div className="hidden lg:flex lg:w-[45%] relative flex-col justify-center p-14 overflow-hidden"
         style={{
-          background: 'linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4f46e5 100%)',
+          background: 'linear-gradient(145deg, #9a3412 0%, #c2410c 40%, #ea580c 100%)',
         }}
       >
 
         {/* Soft Glow Background */}
-        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-indigo-400/20 rounded-full blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-orange-300/20 rounded-full blur-3xl" />
 
-        {/* Top Logo */}
-        <div className="relative z-10">
+        {/* Top Logo - Pinned Absolute */}
+        <div className="absolute top-14 left-14 z-20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 font-bold text-lg shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-orange-600 font-bold text-lg shadow-lg">
               Y
             </div>
             <span className="text-white text-2xl font-semibold tracking-tight">
@@ -121,66 +127,69 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* Middle Hero Content */}
-        <div className="relative z-10 max-w-md mt-16">
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Build Your Tech Career.
-          </h1>
+        {/* Centered Content Wrapper */}
+        <div className="relative z-10 flex flex-col gap-12">
 
-          <p className="text-indigo-200 mt-6 text-lg leading-relaxed">
-            Practice coding, master interviews, and track your growth —
-            all in one powerful platform built for ambitious developers.
-          </p>
+          {/* Middle Hero Content */}
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-white leading-tight">
+              Build Your Tech Career.
+            </h1>
 
-          <div className="mt-8 text-indigo-300 text-sm uppercase tracking-widest">
-            Trusted by thousands of developers
-          </div>
-        </div>
+            <p className="text-orange-100 mt-6 text-lg leading-relaxed">
+              Practice coding, master interviews, and track your growth —
+              all in one powerful platform built for ambitious developers.
+            </p>
 
-        {/* Bottom Feature Section */}
-        <div className="relative z-10 space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Code2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-white font-semibold">Hands-on Coding</h3>
-              <p className="text-indigo-200 text-sm mt-1">
-                Solve real-world problems in multiple languages.
-              </p>
+            <div className="mt-8 text-orange-200 text-sm uppercase tracking-widest">
+              Trusted by thousands of developers
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Mic className="w-5 h-5" />
+          {/* Bottom Feature Section */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Hands-on Coding</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Solve real-world problems in multiple languages.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">AI Mock Interviews</h3>
-              <p className="text-indigo-200 text-sm mt-1">
-                Simulate real interviews and improve instantly.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <TrendingUp className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Mic className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">AI Mock Interviews</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Simulate real interviews and improve instantly.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">Track Progress</h3>
-              <p className="text-indigo-200 text-sm mt-1">
-                Visualize growth and stay consistent.
-              </p>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Track Progress</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Visualize growth and stay consistent.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Right Panel -- Form */}
-      {/* Right Panel -- Premium Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-16 bg-gradient-to-br from-white to-slate-50">
-        <div className="w-full max-w-md bg-white shadow-xl shadow-indigo-500/5 rounded-2xl p-10 border border-slate-100">
+        <div className="w-full max-w-md bg-white shadow-xl shadow-orange-500/5 rounded-2xl p-10 border border-slate-100">
           {/* Header */}
           <div className="mb-10">
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
@@ -215,7 +224,7 @@ const Login: React.FC = () => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                 <input
                   type="email"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -232,7 +241,7 @@ const Login: React.FC = () => {
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                  className="text-xs text-orange-600 hover:text-orange-700 font-medium"
                 >
                   Forgot password?
                 </Link>
@@ -241,7 +250,7 @@ const Login: React.FC = () => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -265,7 +274,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {isLoading ? (
                 <>
@@ -295,7 +304,7 @@ const Login: React.FC = () => {
             {/* Google */}
             <button
               type="button"
-              onClick={handleGoogleLogin}
+              onClick={() => handleGoogleLogin()}
               disabled={isLoading}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-50"
             >
@@ -314,7 +323,7 @@ const Login: React.FC = () => {
             Don’t have an account?{' '}
             <Link
               to="/register"
-              className="text-indigo-600 font-semibold hover:text-indigo-700"
+              className="text-orange-600 font-semibold hover:text-orange-700"
             >
               Sign up
             </Link>

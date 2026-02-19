@@ -113,7 +113,7 @@ const Register: React.FC = () => {
 
       {/* ================= LEFT PANEL ================= */}
       <div
-        className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-14 overflow-hidden"
+        className="hidden lg:flex lg:w-[45%] relative flex-col justify-center p-14 overflow-hidden"
         style={{
           background:
             'linear-gradient(145deg, #064e3b 0%, #047857 40%, #10b981 100%)',
@@ -122,8 +122,8 @@ const Register: React.FC = () => {
         {/* Soft glow */}
         <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-emerald-300/20 rounded-full blur-3xl" />
 
-        {/* Logo */}
-        <div className="relative z-10">
+        {/* Logo - Pinned Absolute */}
+        <div className="absolute top-14 left-14 z-20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 font-bold text-lg shadow-lg">
               YC
@@ -134,57 +134,60 @@ const Register: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="relative z-10 max-w-md mt-16">
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Join Your Campus Community.
-          </h1>
+        {/* Centered Content Wrapper */}
+        <div className="relative z-10 flex flex-col gap-12">
+          {/* Hero */}
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-white leading-tight">
+              Join Your Campus Community.
+            </h1>
 
-          <p className="text-emerald-100 mt-6 text-lg leading-relaxed">
-            Access academics, coding platforms and collaboration —
-            all in one unified campus ecosystem.
-          </p>
+            <p className="text-emerald-100 mt-6 text-lg leading-relaxed">
+              Access academics, coding platforms and collaboration —
+              all in one unified campus ecosystem.
+            </p>
 
-          <div className="mt-8 text-emerald-200 text-sm uppercase tracking-widest">
-            Academic • Skills • Community
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="relative z-10 space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-white font-semibold">Academic Management</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Subjects, departments and curriculum.
-              </p>
+            <div className="mt-8 text-emerald-200 text-sm uppercase tracking-widest">
+              Academic • Skills • Community
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Code2 className="w-5 h-5" />
+          {/* Features */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Academic Management</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Subjects, departments and curriculum.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">Skill Development</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Coding contests and certifications.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Users className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Skill Development</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Coding contests and certifications.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">Campus Connect</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Collaborate with faculty and peers.
-              </p>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Campus Connect</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Collaborate with faculty and peers.
+                </p>
+              </div>
             </div>
           </div>
         </div>

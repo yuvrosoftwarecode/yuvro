@@ -75,19 +75,19 @@ const Login: React.FC = () => {
 
       {/* ================= LEFT PANEL ================= */}
       <div
-        className="hidden lg:flex lg:w-[45%] relative flex-col justify-between p-14 overflow-hidden"
+        className="hidden lg:flex lg:w-[45%] relative flex-col justify-center p-14 overflow-hidden"
         style={{
           background:
-            'linear-gradient(145deg, #064e3b 0%, #047857 40%, #10b981 100%)',
+            'linear-gradient(145deg, #9a3412 0%, #c2410c 40%, #ea580c 100%)',
         }}
       >
         {/* Soft glow */}
-        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-emerald-300/20 rounded-full blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-orange-300/20 rounded-full blur-3xl" />
 
-        {/* Logo */}
-        <div className="relative z-10">
+        {/* Logo - Pinned Absolute */}
+        <div className="absolute top-14 left-14 z-20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 font-bold text-lg shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-orange-600 font-bold text-lg shadow-lg">
               YC
             </div>
             <span className="text-white text-2xl font-semibold tracking-tight">
@@ -96,57 +96,60 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="relative z-10 max-w-md mt-16">
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Your Complete Campus Platform.
-          </h1>
+        {/* Centered Content Wrapper */}
+        <div className="relative z-10 flex flex-col gap-12">
+          {/* Hero */}
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-white leading-tight">
+              Your Complete Campus Platform.
+            </h1>
 
-          <p className="text-emerald-100 mt-6 text-lg leading-relaxed">
-            Manage academics, build skills, and connect your entire campus —
-            all in one place.
-          </p>
+            <p className="text-orange-100 mt-6 text-lg leading-relaxed">
+              Manage academics, build skills, and connect your entire campus —
+              all in one place.
+            </p>
 
-          <div className="mt-8 text-emerald-200 text-sm uppercase tracking-widest">
-            Academic • Skills • Community
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="relative z-10 space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-white font-semibold">Academic Management</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Departments, subjects and curriculum.
-              </p>
+            <div className="mt-8 text-orange-200 text-sm uppercase tracking-widest">
+              Academic • Skills • Community
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Code2 className="w-5 h-5" />
+          {/* Features */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Academic Management</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Departments, subjects and curriculum.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">Skill Development</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Coding practice and certifications.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
-              <Users className="w-5 h-5" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Skill Development</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Coding practice and certifications.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold">Campus Connect</h3>
-              <p className="text-emerald-100 text-sm mt-1">
-                Collaborate with faculty and peers.
-              </p>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Campus Connect</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  Collaborate with faculty and peers.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -155,11 +158,11 @@ const Login: React.FC = () => {
       {/* ================= RIGHT PANEL ================= */}
       <div className="flex-1 overflow-y-auto flex items-center justify-center px-6 py-8 bg-gradient-to-br from-white to-slate-50">
 
-        <div className="w-full max-w-md bg-white shadow-xl shadow-emerald-500/5 rounded-2xl p-10 border border-slate-100">
+        <div className="w-full max-w-md bg-white shadow-xl shadow-orange-500/5 rounded-2xl p-10 border border-slate-100">
 
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-slate-900">
-              Welcome back
+              Welcome!
             </h2>
             <p className="text-slate-500 text-sm mt-2">
               Sign in to your campus account.
@@ -189,7 +192,7 @@ const Login: React.FC = () => {
                 <input
                   type="email"
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400"
                   placeholder="you@campus.edu"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -206,7 +209,7 @@ const Login: React.FC = () => {
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="text-xs text-orange-600 hover:text-orange-700 font-medium"
                 >
                   Forgot password?
                 </Link>
@@ -217,7 +220,7 @@ const Login: React.FC = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -237,53 +240,32 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing in...
+                  Logging in...
                 </>
               ) : (
                 <>
-                  Sign In
+                  Log In
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-slate-400 uppercase tracking-wider">
-                  or continue with
-                </span>
-              </div>
-            </div>
-
-            {/* Google */}
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all disabled:opacity-50"
-            >
-              Sign in with Google
-            </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 mt-8">
+          {/* <p className="text-center text-sm text-slate-500 mt-8">
             Don’t have an account?{' '}
             <Link
               to="/register"
-              className="text-emerald-600 font-semibold hover:text-emerald-700"
+              className="text-orange-600 font-semibold hover:text-orange-700"
             >
               Sign up
             </Link>
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
