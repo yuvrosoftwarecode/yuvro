@@ -29,6 +29,9 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
+    def is_instructor(self):
+        return self.role == "instructor"
+
     def is_college_admin(self):
         return self.role == "college_admin"
 

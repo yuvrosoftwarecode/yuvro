@@ -8,7 +8,7 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
 
   switch (user.role) {
     case 'admin':
-      navigate('/admin/dashboard', { replace: true });
+      navigate('/instructor/dashboard', { replace: true });
       break;
     case 'college_admin':
       navigate('/college-admin/dashboard', { replace: true });
