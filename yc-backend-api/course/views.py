@@ -23,6 +23,7 @@ from .models import (
     Note,
     CourseInstructor,
     Question,
+    QuestionSolution,
     UserCourseProgress,
     StudentCodePractice,
 )
@@ -35,6 +36,7 @@ from .serializers import (
     VideoSerializer,
     NoteSerializer,
     QuestionSerializer,
+    QuestionSolutionSerializer,
     StudentCodePracticeSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
@@ -449,6 +451,77 @@ class NoteViewSet(viewsets.ModelViewSet):
             return Response({"error": "Not allowed"}, status=403)
 
         return super().destroy(request, *a, **kw)
+
+
+
+class QuestionSolutionViewSet(viewsets.ModelViewSet):
+    queryset = QuestionSolution.objects.select_related("question")
+    serializer_class = QuestionSolutionSerializer
+    permission_classes = [IsAuthenticatedUser]
+
+    def get_queryset(self):
+        qs = QuestionSolution.objects.select_related("question")
+        question_id = self.request.query_params.get("question")
+
+        if question_id:
+            qs = qs.filter(question_id=question_id)
+
+        # Access Control:
+        # Instructors can only see solutions for questions they have access to.
+        # Students might be restricted based on logic (handled in serializer representation or here if needed).
+        # For now, let's allow read access if they have access to the question.
+        # But for modification, strict checks.
+
+        user = self.request.user
+        if user.role == "instructor":
+            # Filter by courses assigned to instructor
+            assigned_course_ids = CourseInstructor.objects.filter(
+                instructor=user
+            ).values_list("course_id", flat=True)
+
+            qs = qs.filter(
+                Q(question__course_id__in=assigned_course_ids)
+                | Q(question__topic__course_id__in=assigned_course_ids)
+                | Q(question__subtopic__topic__course_id__in=assigned_course_ids)
+            )
+
+        return qs
+
+    def perform_create(self, serializer):
+        question = serializer.validated_data.get("question")
+        self._check_permission(question)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        question = serializer.instance.question
+        self._check_permission(question)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        question = instance.question
+        self._check_permission(question)
+        instance.delete()
+
+    def _check_permission(self, question):
+        user = self.request.user
+        if user.role == "admin":
+            return
+
+        course = None
+        if question.course:
+            course = question.course
+        elif question.topic:
+            course = question.topic.course
+        elif question.subtopic:
+            course = question.subtopic.topic.course
+
+        if not course:
+             # Should practically not happen if question is valid, but safe guard
+             if user.role != "admin":
+                 raise permissions.PermissionDenied("Invalid question association")
+
+        if not instructor_assigned(user, course):
+            raise permissions.PermissionDenied("You do not have permission for this course.")
 
 
 class QuestionViewSet(viewsets.ModelViewSet):

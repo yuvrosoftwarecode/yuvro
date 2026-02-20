@@ -515,6 +515,45 @@ class Question(models.Model):
         return f"{self.type.upper()}: {self.title[:50]}..."
 
 
+class QuestionSolution(models.Model):
+    """
+    Model to store multiple reference solutions for a single question.
+    Allows instructors to provide different approaches (e.g., Brute Force, Optimized).
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="solutions"
+    )
+    title = models.CharField(
+        max_length=100, help_text="Title of the solution (e.g., 'Brute Force Approach')"
+    )
+    language = models.CharField(
+        max_length=20,
+        choices=Question.SOLUTION_LANGUAGE_CHOICES,
+        default="python",
+        help_text="Programming language of the solution.",
+    )
+    code = models.TextField(help_text="The solution code.")
+    complexity_analysis = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Notes on time and space complexity or explanation of the approach.",
+    )
+    is_primary = models.BooleanField(
+        default=False, help_text="Is this the primary/recommended solution?"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ["question", "title"]  # Prevent duplicate titles for same question
+
+    def __str__(self):
+        return f"{self.title} - {self.question.title}"
+
+
 class StudentCodePractice(BaseTimestampedModel):
     """
     Model for tracking student code practice submissions for learn and practice contexts

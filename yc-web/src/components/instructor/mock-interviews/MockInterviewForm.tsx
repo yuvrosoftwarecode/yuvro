@@ -15,8 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import QuestionBank from '@/components/common/QuestionBank';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { fetchQuestionById } from '@/services/questionService';
 
@@ -317,351 +316,346 @@ export default function MockInterviewForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={
-              <button
-                type="button"
-                onClick={() => navigate('/instructor/mock-interview')}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                ← Back to List
-              </button>
-            }
-          />
-          <div className="px-6 py-6">
-            <div className="bg-white shadow rounded-lg mb-6 p-6">
-              <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="inline-flex w-auto gap-1">
-                  <TabsTrigger value="details" className="px-5">Basic Info</TabsTrigger>
-                  <TabsTrigger value="ai_config" className="px-5">AI Config</TabsTrigger>
-                  <TabsTrigger value="voice_config" className="px-5">Voice & Audio</TabsTrigger>
-                  <TabsTrigger value="questions" className="px-5">Questions</TabsTrigger>
-                </TabsList>
+    <DashboardLayout
+      title={getHeaderTitle()}
+      subtitle={getHeaderSubtitle()}
+      actions={
+        <button
+          type="button"
+          onClick={() => navigate('/instructor/mock-interview')}
+          className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+        >
+          ← Back to List
+        </button>
+      }
+    >
+      <div className="px-6 py-6">
+        <div className="bg-white shadow rounded-lg mb-6 p-6">
+          <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
+            <TabsList className="inline-flex w-auto gap-1">
+              <TabsTrigger value="details" className="px-5">Basic Info</TabsTrigger>
+              <TabsTrigger value="ai_config" className="px-5">AI Config</TabsTrigger>
+              <TabsTrigger value="voice_config" className="px-5">Voice & Audio</TabsTrigger>
+              <TabsTrigger value="questions" className="px-5">Questions</TabsTrigger>
+            </TabsList>
 
-                {/* Details Tab */}
-                <TabsContent value="details" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Trophy className="w-5 h-5 text-blue-500" /> Basic Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Title *</label>
-                          <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Frontend Developer Interview" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Max Duration (minutes) *</label>
-                          <Input type="number" value={formData.max_duration} onChange={e => setFormData({ ...formData, max_duration: parseInt(e.target.value) })} min={5} />
-                        </div>
-                      </div>
+            {/* Details Tab */}
+            <TabsContent value="details" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Trophy className="w-5 h-5 text-blue-500" /> Basic Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Title *</label>
+                      <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Frontend Developer Interview" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Max Duration (minutes) *</label>
+                      <Input type="number" value={formData.max_duration} onChange={e => setFormData({ ...formData, max_duration: parseInt(e.target.value) })} min={5} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Description of the interview..." />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Instructions *</label>
+                    <Textarea value={formData.instructions} onChange={e => setFormData({ ...formData, instructions: e.target.value })} placeholder="Instructions for the candidate..." />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Required Skills (Comma separated)</label>
+                      <Input value={formData.required_skills} onChange={e => setFormData({ ...formData, required_skills: e.target.value })} placeholder="React, TypeScript, CSS" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Optional Skills (Comma separated)</label>
+                      <Input value={formData.optional_skills} onChange={e => setFormData({ ...formData, optional_skills: e.target.value })} placeholder="Redux, Node.js" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Publish Status</label>
+                    <Select
+                      value={formData.publish_status}
+                      onValueChange={(value) => setFormData({ ...formData, publish_status: value as any })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* AI Config Tab */}
+            <TabsContent value="ai_config" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-500" /> AI Generation Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Generation Mode</label>
+                    <Select
+                      value={formData.ai_generation_mode}
+                      onValueChange={(value) => setFormData({ ...formData, ai_generation_mode: value as any })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select generation mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="full_ai">Full AI (AI decides everything based on skills)</SelectItem>
+                        <SelectItem value="mixed">Mixed (AI + Predefined Questions)</SelectItem>
+                        <SelectItem value="predefined">Predefined Questions Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">Controls how questions are selected for the interview.</p>
+                  </div>
+
+                  {formData.ai_generation_mode === 'mixed' && (
+                    <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50">
                       <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Description of the interview..." />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Instructions *</label>
-                        <Textarea value={formData.instructions} onChange={e => setFormData({ ...formData, instructions: e.target.value })} placeholder="Instructions for the candidate..." />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Required Skills (Comma separated)</label>
-                          <Input value={formData.required_skills} onChange={e => setFormData({ ...formData, required_skills: e.target.value })} placeholder="React, TypeScript, CSS" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Optional Skills (Comma separated)</label>
-                          <Input value={formData.optional_skills} onChange={e => setFormData({ ...formData, optional_skills: e.target.value })} placeholder="Redux, Node.js" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Publish Status</label>
-                        <Select
-                          value={formData.publish_status}
-                          onValueChange={(value) => setFormData({ ...formData, publish_status: value as any })}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="archived">Archived</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* AI Config Tab */}
-                <TabsContent value="ai_config" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-indigo-500" /> AI Generation Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Generation Mode</label>
-                        <Select
-                          value={formData.ai_generation_mode}
-                          onValueChange={(value) => setFormData({ ...formData, ai_generation_mode: value as any })}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select generation mode" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="full_ai">Full AI (AI decides everything based on skills)</SelectItem>
-                            <SelectItem value="mixed">Mixed (AI + Predefined Questions)</SelectItem>
-                            <SelectItem value="predefined">Predefined Questions Only</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-gray-500 mt-1">Controls how questions are selected for the interview.</p>
-                      </div>
-
-                      {formData.ai_generation_mode === 'mixed' && (
-                        <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50">
-                          <div>
-                            <label className="block text-sm font-medium mb-1">AI Generated (%)</label>
-                            <Input
-                              type="number"
-                              min={0}
-                              max={100}
-                              value={formData.ai_percentage}
-                              onChange={(e) => {
-                                const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
-                                setFormData({ ...formData, ai_percentage: val });
-                              }}
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Questions to be generated by AI.
-                            </p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1">Fixed Questions (%)</label>
-                            <Input
-                              disabled
-                              value={100 - (formData.ai_percentage || 0)}
-                              className="bg-gray-100 cursor-not-allowed"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                              Remaining % will be from fixed/random question bank.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Verbal Questions Count</label>
-                          <Input type="number" value={formData.ai_verbal_question_count} onChange={e => setFormData({ ...formData, ai_verbal_question_count: parseInt(e.target.value) })} min={0} />
-                          <p className="text-xs text-gray-500 mt-1">Number of verbal/theory questions AI should generate.</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Coding Questions Count</label>
-                          <Input type="number" value={formData.ai_coding_question_count} onChange={e => setFormData({ ...formData, ai_coding_question_count: parseInt(e.target.value) })} min={0} />
-                          <p className="text-xs text-gray-500 mt-1">Number of coding challenges AI should generate.</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Voice Config Tab */}
-                <TabsContent value="voice_config" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-green-500" /> Voice & Audio Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Interviewer Name</label>
-                          <Input
-                            value={formData.interviewer_name}
-                            onChange={e => setFormData({ ...formData, interviewer_name: e.target.value })}
-                            placeholder="e.g. Junnu, Sarah, Mike"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Voice Speed (0.5x - 2.0x)</label>
-                          <Input type="number" value={formData.voice_speed} onChange={e => setFormData({ ...formData, voice_speed: parseFloat(e.target.value) })} min={0.5} max={2.0} step={0.1} />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium">Select Voice Actor</label>
-                        <Select
-                          value={formData.interviewer_voice_id}
-                          onValueChange={(value) => setFormData({ ...formData, interviewer_voice_id: value })}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="-- Select a Google Voice --" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableVoices.map((voice, idx) => (
-                              <SelectItem key={`${voice.name}-${idx}`} value={voice.name}>
-                                {voice.name} ({voice.lang})
-                              </SelectItem>
-                            ))}
-                            {availableVoices.length === 0 && (
-                              <SelectItem value="placeholder" disabled>No voices available</SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-gray-500">
-                          Note: Available voices depend on your browser and operating system. Google voices are recommended for best quality.
+                        <label className="block text-sm font-medium mb-1">AI Generated (%)</label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={formData.ai_percentage}
+                          onChange={(e) => {
+                            const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                            setFormData({ ...formData, ai_percentage: val });
+                          }}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Questions to be generated by AI.
                         </p>
                       </div>
-
-                      {/* Voice Preview Section */}
-                      <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-                        <label className="block text-sm font-medium mb-2">Voice Preview</label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={previewText}
-                            onChange={e => setPreviewText(e.target.value)}
-                            placeholder="Type something to hear the voice..."
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => playVoicePreview(formData.interviewer_voice_id, previewText)}
-                            variant="outline"
-                          >
-                            Play Preview
-                          </Button>
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Fixed Questions (%)</label>
+                        <Input
+                          disabled
+                          value={100 - (formData.ai_percentage || 0)}
+                          className="bg-gray-100 cursor-not-allowed"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Remaining % will be from fixed/random question bank.
+                        </p>
                       </div>
+                    </div>
+                  )}
 
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Verbal Questions Count</label>
+                      <Input type="number" value={formData.ai_verbal_question_count} onChange={e => setFormData({ ...formData, ai_verbal_question_count: parseInt(e.target.value) })} min={0} />
+                      <p className="text-xs text-gray-500 mt-1">Number of verbal/theory questions AI should generate.</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Coding Questions Count</label>
+                      <Input type="number" value={formData.ai_coding_question_count} onChange={e => setFormData({ ...formData, ai_coding_question_count: parseInt(e.target.value) })} min={0} />
+                      <p className="text-xs text-gray-500 mt-1">Number of coding challenges AI should generate.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                {/* Questions Tab */}
-                <TabsContent value="questions" className="space-y-6">
-                  {/* Random Questions Configuration */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                        Random Questions Configuration
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.mcq_single}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              mcq_single: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.mcq_multiple}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              mcq_multiple: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.coding}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              coding: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={randomQuestionsConfig.descriptive}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
-                              ...prev,
-                              descriptive: parseInt(e.target.value) || 0
-                            }))}
-                            placeholder="0"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-3">
-                        Specify how many questions of each type should be randomly selected from the question bank.
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-purple-500" /> Specific Question Selection</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {formData.ai_generation_mode === 'full_ai' && (
-                        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded mb-4 text-sm text-yellow-800">
-                          Note: In "Full AI" mode, specific questions selected here might be ignored or used only as context. Use "Mixed" mode to enforce specific questions.
-                        </div>
-                      )}
-
-                      <QuestionBank
-                        mode="selection"
-                        selectedQuestions={selectedQuestions}
-                        onQuestionsChange={handleQuestionsChange}
-                        allowMultipleSelection={true}
-                        showSplitView={true}
+            {/* Voice Config Tab */}
+            <TabsContent value="voice_config" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-green-500" /> Voice & Audio Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Interviewer Name</label>
+                      <Input
+                        value={formData.interviewer_name}
+                        onChange={e => setFormData({ ...formData, interviewer_name: e.target.value })}
+                        placeholder="e.g. Junnu, Sarah, Mike"
                       />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                    </div>
 
-                <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/instructor/mock-interview')}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handlePrimaryAction}
-                    disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    {currentFormTab !== 'questions'
-                      ? 'Add Questions'
-                      : (isEditMode ? 'Update Mock Interview' : 'Create Mock Interview')}
-                  </Button>
-                </div>
-              </Tabs>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Voice Speed (0.5x - 2.0x)</label>
+                      <Input type="number" value={formData.voice_speed} onChange={e => setFormData({ ...formData, voice_speed: parseFloat(e.target.value) })} min={0.5} max={2.0} step={0.1} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">Select Voice Actor</label>
+                    <Select
+                      value={formData.interviewer_voice_id}
+                      onValueChange={(value) => setFormData({ ...formData, interviewer_voice_id: value })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="-- Select a Google Voice --" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableVoices.map((voice, idx) => (
+                          <SelectItem key={`${voice.name}-${idx}`} value={voice.name}>
+                            {voice.name} ({voice.lang})
+                          </SelectItem>
+                        ))}
+                        {availableVoices.length === 0 && (
+                          <SelectItem value="placeholder" disabled>No voices available</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500">
+                      Note: Available voices depend on your browser and operating system. Google voices are recommended for best quality.
+                    </p>
+                  </div>
+
+                  {/* Voice Preview Section */}
+                  <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+                    <label className="block text-sm font-medium mb-2">Voice Preview</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={previewText}
+                        onChange={e => setPreviewText(e.target.value)}
+                        placeholder="Type something to hear the voice..."
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => playVoicePreview(formData.interviewer_voice_id, previewText)}
+                        variant="outline"
+                      >
+                        Play Preview
+                      </Button>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Questions Tab */}
+            <TabsContent value="questions" className="space-y-6">
+              {/* Random Questions Configuration */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Settings className="h-5 w-5 mr-2 text-orange-500" />
+                    Random Questions Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single Choice</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={randomQuestionsConfig.mcq_single}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
+                          ...prev,
+                          mcq_single: parseInt(e.target.value) || 0
+                        }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={randomQuestionsConfig.mcq_multiple}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
+                          ...prev,
+                          mcq_multiple: parseInt(e.target.value) || 0
+                        }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={randomQuestionsConfig.coding}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
+                          ...prev,
+                          coding: parseInt(e.target.value) || 0
+                        }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={randomQuestionsConfig.descriptive}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRandomQuestionsConfig(prev => ({
+                          ...prev,
+                          descriptive: parseInt(e.target.value) || 0
+                        }))}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    Specify how many questions of each type should be randomly selected from the question bank.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-purple-500" /> Specific Question Selection</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {formData.ai_generation_mode === 'full_ai' && (
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded mb-4 text-sm text-yellow-800">
+                      Note: In "Full AI" mode, specific questions selected here might be ignored or used only as context. Use "Mixed" mode to enforce specific questions.
+                    </div>
+                  )}
+
+                  <QuestionBank
+                    mode="selection"
+                    selectedQuestions={selectedQuestions}
+                    onQuestionsChange={handleQuestionsChange}
+                    allowMultipleSelection={true}
+                    showSplitView={true}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/instructor/mock-interview')}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePrimaryAction}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {currentFormTab !== 'questions'
+                  ? 'Add Questions'
+                  : (isEditMode ? 'Update Mock Interview' : 'Create Mock Interview')}
+              </Button>
             </div>
-          </div>
+          </Tabs>
         </div>
       </div>
-    </div>
+
+    </DashboardLayout >
   );
 }

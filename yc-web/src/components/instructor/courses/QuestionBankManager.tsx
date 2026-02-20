@@ -45,6 +45,8 @@ import {
   QUESTION_CATEGORIES,
   validateQuestion,
 } from '@/services/questionService';
+import SolutionManager, { Solution } from './SolutionManager';
+import { createSolution, updateSolution, deleteSolution, fetchSolutions } from '@/services/solutionService';
 
 import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
 
@@ -92,6 +94,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     test_cases_basic: [{ input: '', expected_output: '', description: '' }],
     test_cases_advanced: [],
   });
+
+  // Solutions Management
+  const [solutions, setSolutions] = useState<Solution[]>([]);
+  const [originalSolutions, setOriginalSolutions] = useState<Solution[]>([]);
 
   // Delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -238,14 +244,16 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
-      solution_code: '',
+      solution_code: '', // Keeping for backward compatibility or simple clear
       solution_language: 'python',
     });
+    setSolutions([]); // Reset solutions
+    setOriginalSolutions([]);
     setActiveTab('create');
     setEditingQuestion(null);
   };
 
-  const openEditForm = (question: Question) => {
+  const openEditForm = async (question: Question) => {
     setEditingQuestion(question);
     setFormData({
       type: question.type,
@@ -270,6 +278,20 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       solution_code: question.solution_code || '',
       solution_language: question.solution_language || 'python',
     });
+
+    // Fetch solutions
+    try {
+      const response: any = await fetchSolutions(question.id);
+      const fetchedSolutions = Array.isArray(response) ? response : (response?.results || []);
+      setSolutions(fetchedSolutions);
+      setOriginalSolutions(fetchedSolutions);
+    } catch (error) {
+      console.error('Error fetching solutions:', error);
+      toast.error('Failed to load solutions');
+      setSolutions([]);
+      setOriginalSolutions([]);
+    }
+
     setActiveTab('create');
   };
 
@@ -282,17 +304,48 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
     setSaving(true);
     try {
+      let savedQuestion: Question;
       if (editingQuestion) {
-        const updated = await updateQuestion(editingQuestion.id, formData);
-        setQuestions(prev => prev.map(q => q.id === updated.id ? updated : q));
+        savedQuestion = await updateQuestion(editingQuestion.id, formData);
         toast.success('Question updated successfully');
+      } else {
+        savedQuestion = await createQuestion(formData);
+        toast.success('Question created successfully');
+      }
+
+      // Handle Solutions
+      const questionId = savedQuestion.id;
+      const solutionPromises = [];
+
+      // 1. Create/Update solutions
+      for (const sol of solutions) {
+        if (sol.id) {
+          // Update existing
+          solutionPromises.push(updateSolution(sol.id, { ...sol, question: questionId }));
+        } else {
+          // Create new
+          solutionPromises.push(createSolution({ ...sol, question: questionId }));
+        }
+      }
+
+      // 2. Delete removed solutions (only if editing)
+      if (editingQuestion) {
+        const currentIds = solutions.map(s => s.id).filter(id => id);
+        const toDelete = originalSolutions.filter(s => s.id && !currentIds.includes(s.id));
+        for (const sol of toDelete) {
+          if (sol.id) solutionPromises.push(deleteSolution(sol.id));
+        }
+      }
+
+      await Promise.all(solutionPromises);
+
+      if (editingQuestion) {
+        setQuestions(prev => prev.map(q => q.id === savedQuestion.id ? savedQuestion : q));
         // After editing, go back to questions tab
         setActiveTab('questions');
         setEditingQuestion(null);
       } else {
-        const created = await createQuestion(formData);
-        setQuestions(prev => [created, ...prev]);
-        toast.success('Question created successfully');
+        setQuestions(prev => [savedQuestion, ...prev]);
         // After creating, stay on create tab and reset form for new question
         openCreateForm();
       }
@@ -366,26 +419,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
 
-
-  const updateTestCase = (index: number, field: 'input' | 'expected_output' | 'description', value: string) => {
-    const newTestCases = [...(formData.test_cases_basic || [])];
-    newTestCases[index] = { ...newTestCases[index], [field]: value };
-    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
-  };
-
-  const addTestCase = () => {
-    setFormData(prev => ({
-      ...prev,
-      test_cases_basic: [...(prev.test_cases_basic || []), { input: '', expected_output: '', description: '' }]
-    }));
-  };
-
-  const removeTestCase = (index: number) => {
-    if ((formData.test_cases_basic?.length || 0) <= 1) return;
-
-    const newTestCases = formData.test_cases_basic?.filter((_, i) => i !== index) || [];
-    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
-  };
 
   const filteredQuestions = questions.filter(question => {
     const matchesSearch = question.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -657,7 +690,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
               </div>
 
               {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Question Type</Label>
                   <Select
@@ -667,12 +700,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       type: value as 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive'
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300 pl-2">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {QUESTION_TYPES.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
+                        <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {type.label}
                         </SelectItem>
                       ))}
@@ -685,12 +718,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     value={formData.level}
                     onValueChange={(value) => handleLevelChange(value as 'course' | 'topic' | 'subtopic')}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {getAvailableLevels().map(level => (
-                        <SelectItem key={level.value} value={level.value}>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {level.label}
                         </SelectItem>
                       ))}
@@ -712,12 +745,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                           }));
                         }}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select a topic" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {topics.map((topic: any) => (
-                            <SelectItem key={topic.id} value={topic.id}>
+                            <SelectItem key={topic.id} value={topic.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                               {topic.name}
                             </SelectItem>
                           ))}
@@ -735,17 +768,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                         value={formData.subtopic}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, subtopic: value }))}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select a subtopic" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {(() => {
                             // Find the active topic to get its subtopics
                             const activeTopicId = selectedTopic?.id || formData.topic;
                             const activeTopic = topics.find((t: any) => t.id === activeTopicId);
 
                             return activeTopic?.subtopics?.map((sub: any) => (
-                              <SelectItem key={sub.id} value={sub.id}>
+                              <SelectItem key={sub.id} value={sub.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                                 {sub.name}
                               </SelectItem>
                             )) || <SelectItem value="none" disabled>No subtopics found</SelectItem>;
@@ -764,25 +797,27 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       difficulty: value as 'easy' | 'medium' | 'hard'
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select difficulty" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {DIFFICULTY_LEVELS.map(level => (
-                        <SelectItem key={level.value} value={level.value}>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {level.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Marks</Label>
                   <Input
                     type="number"
                     value={formData.marks}
                     readOnly
-                    className="bg-slate-100 border-slate-300 cursor-not-allowed opacity-75"
+                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
                   />
                 </div>
                 <div>
@@ -791,7 +826,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     type="number"
                     value={formData.duration}
                     readOnly
-                    className="bg-slate-100 border-slate-300 cursor-not-allowed opacity-75"
+                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
                   />
                 </div>
               </div>
@@ -848,34 +883,15 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 />
               </div>
 
-              {/* Reference Solution Code - Only for coding/descriptive */}
+              {/* Reference Solution Manager - Only for coding/descriptive */}
               {(formData.type === 'coding' || formData.type === 'descriptive') && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium text-slate-700">Reference Solution Code</Label>
-                    <Select
-                      value={formData.solution_language || 'python'}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, solution_language: value }))}
-                    >
-                      <SelectTrigger className="w-[140px] h-8 bg-white border-slate-300 text-xs">
-                        <SelectValue placeholder="Language" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                        <SelectItem value="python">Python 3</SelectItem>
-                        <SelectItem value="javascript">JavaScript</SelectItem>
-                        <SelectItem value="java">Java</SelectItem>
-                        <SelectItem value="cpp">C++</SelectItem>
-                        <SelectItem value="c">C</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <MonacoCodeEditor
-                    value={formData.solution_code || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, solution_code: value }))}
-                    language={formData.solution_language || 'python'}
-                    height="250px"
+                <div className="space-y-3 pt-2 border-t border-slate-200">
+                  <SolutionManager
+                    solutions={solutions}
+                    onChange={setSolutions}
+                    testCases={formData.test_cases_basic}
+                    onTestCasesChange={(tc) => setFormData(prev => ({ ...prev, test_cases_basic: tc }))}
                   />
-                  <p className="text-xs text-slate-500">This will be shown to students after they submit their answers.</p>
                 </div>
               )}
 
@@ -957,64 +973,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 </div>
               )}
 
-              {/* Coding Test Cases */}
-              {formData.type === 'coding' && (
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-slate-700">Test Cases</Label>
-                  <div className="space-y-3">
-                    {formData.test_cases_basic?.map((testCase, index) => (
-                      <div key={index} className="bg-white border rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-slate-800">Test Case {index + 1}</h5>
-                          {(formData.test_cases_basic?.length || 0) > 1 && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => removeTestCase(index)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label className="text-xs text-slate-600">Input</Label>
-                            <Textarea
-                              value={testCase.input}
-                              onChange={(e) => updateTestCase(index, 'input', e.target.value)}
-                              placeholder="Enter input data"
-                              rows={2}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-slate-600">Expected Output</Label>
-                            <Textarea
-                              value={testCase.expected_output}
-                              onChange={(e) => updateTestCase(index, 'expected_output', e.target.value)}
-                              placeholder="Enter expected output"
-                              rows={2}
-                              className="text-sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={addTestCase}
-                      className="w-full border-dashed border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Test Case
-                    </Button>
-                  </div>
-                </div>
-              )}
 
               {/* Save Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">

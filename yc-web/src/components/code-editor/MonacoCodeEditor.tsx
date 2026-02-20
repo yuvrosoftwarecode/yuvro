@@ -1,4 +1,5 @@
-import MonacoEditor, { loader } from '@monaco-editor/react';
+import React from 'react';
+import MonacoEditor, { DiffEditor, loader } from '@monaco-editor/react';
 import { Sparkles, Maximize2, Minimize2, X, BookOpen, Terminal as TerminalIcon, ChevronDown } from 'lucide-react';
 import {
     Select,
@@ -21,6 +22,11 @@ interface MonacoCodeEditorProps {
     onToggleFullscreen?: () => void;
     isAiChatOpen?: boolean;
     isFullscreen?: boolean;
+    theme?: string;
+    /** Set to 'diff' to show a side-by-side diff view */
+    mode?: 'editor' | 'diff';
+    /** Original code for diff mode (left side) */
+    original?: string;
 }
 
 loader.init().then(monaco => {
@@ -48,7 +54,10 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
     onToggleAiChat,
     onToggleFullscreen,
     isAiChatOpen = false,
-    isFullscreen = false
+    isFullscreen = false,
+    theme = "custom-light",
+    mode = 'editor',
+    original = '',
 }) => {
 
     return (
@@ -74,6 +83,16 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
                                 <SelectItem value="java" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Java</SelectItem>
                                 <SelectItem value="cpp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C++</SelectItem>
                                 <SelectItem value="c" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C</SelectItem>
+                                <SelectItem value="csharp" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">C#</SelectItem>
+                                <SelectItem value="go" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Go</SelectItem>
+                                <SelectItem value="ruby" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Ruby</SelectItem>
+                                <SelectItem value="swift" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Swift</SelectItem>
+                                <SelectItem value="typescript" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">TypeScript</SelectItem>
+                                <SelectItem value="kotlin" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Kotlin</SelectItem>
+                                <SelectItem value="php" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">PHP</SelectItem>
+                                <SelectItem value="rust" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Rust</SelectItem>
+                                <SelectItem value="sql" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">SQL</SelectItem>
+                                <SelectItem value="shell" className="text-xs font-bold py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">Shell</SelectItem>
                             </SelectContent>
                         </Select>
                     )}
@@ -137,24 +156,46 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
 
             {/* Monaco Editor Container */}
             <div className="flex-1 min-h-0 bg-white">
-                <MonacoEditor
-                    height="100%"
-                    language={language}
-                    value={value}
-                    onChange={(val: string | undefined) => onChange(val ?? '')}
-                    theme="custom-light"
-                    options={{
-                        readOnly,
-                        fontSize: 14,
-                        minimap: { enabled: false },
-                        scrollBeyondLastLine: false,
-                        wordWrap: 'on',
-                        lineNumbers: 'on',
-                        padding: { top: 16, bottom: 16 },
-                        fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
-                        fontLigatures: true,
-                    }}
-                />
+                {mode === 'diff' ? (
+                    <DiffEditor
+                        height="100%"
+                        language={language}
+                        original={original}
+                        modified={value}
+                        theme={theme}
+                        options={{
+                            readOnly: true,
+                            fontSize: 14,
+                            minimap: { enabled: false },
+                            scrollBeyondLastLine: false,
+                            wordWrap: 'on',
+                            lineNumbers: 'on',
+                            padding: { top: 16, bottom: 16 },
+                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                            fontLigatures: true,
+                            renderSideBySide: true,
+                        }}
+                    />
+                ) : (
+                    <MonacoEditor
+                        height="100%"
+                        language={language}
+                        value={value}
+                        onChange={(val: string | undefined) => onChange(val ?? '')}
+                        theme={theme}
+                        options={{
+                            readOnly,
+                            fontSize: 14,
+                            minimap: { enabled: false },
+                            scrollBeyondLastLine: false,
+                            wordWrap: 'on',
+                            lineNumbers: 'on',
+                            padding: { top: 16, bottom: 16 },
+                            fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                            fontLigatures: true,
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

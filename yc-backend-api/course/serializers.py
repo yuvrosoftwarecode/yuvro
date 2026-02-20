@@ -8,6 +8,7 @@ from .models import (
     Note,
     CourseInstructor,
     Question,
+    QuestionSolution,
     UserCourseProgress,
     StudentCodePractice,
 )
@@ -199,12 +200,34 @@ class NoteSerializer(serializers.ModelSerializer):
         return value
 
 
+
+class QuestionSolutionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for QuestionSolution model
+    """
+
+    class Meta:
+        model = QuestionSolution
+        fields = [
+            "id",
+            "title",
+            "language",
+            "code",
+            "complexity_analysis",
+            "is_primary",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer for Question model - supports MCQ, Coding, and Descriptive questions
     """
 
     created_by = serializers.StringRelatedField(read_only=True)
+    solutions = QuestionSolutionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
@@ -226,6 +249,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "test_cases_advanced",
             "solution_code",
             "solution_language",
+            "solutions",
             "created_at",
             "updated_at",
             "created_by",

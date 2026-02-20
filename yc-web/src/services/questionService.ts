@@ -247,10 +247,7 @@ export const validateCodingQuestion = (data: CreateQuestionData): string[] => {
 
     if (data.test_cases_basic) {
       data.test_cases_basic.forEach((testCase, index) => {
-        if (!testCase.input && testCase.input !== '') {
-          errors.push(`Test case ${index + 1}: Input is required`);
-        }
-        if (!testCase.expected_output && testCase.expected_output !== '') {
+        if (testCase.expected_output === undefined || testCase.expected_output === null) {
           errors.push(`Test case ${index + 1}: Expected output is required`);
         }
       });

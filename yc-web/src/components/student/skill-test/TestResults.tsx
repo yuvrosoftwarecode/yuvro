@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import SolutionViewer from '@/components/student/skill-test/SolutionViewer';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import {
   RotateCcw,
   CheckCircle,
@@ -13,10 +13,12 @@ import {
   ChevronUp,
   Code,
   FileText,
-  ListFilter,
   Trophy,
   Target,
-  ArrowRight
+  Lightbulb,
+  Eye,
+  MessageCircle,
+  X,
 } from 'lucide-react';
 import { getSkillTestSubmission, getSkillTestSubmissions } from '@/services/skillTestService';
 import { toast } from 'sonner';
@@ -51,7 +53,8 @@ const TestResults: React.FC<TestResultsProps> = ({
   const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [submissionData, setSubmissionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'flagged'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'ai_buddy'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'mcq' | 'coding' | 'descriptive'>('all');
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
 
   // Fetch all submissions for the attempt switcher
@@ -98,15 +101,24 @@ const TestResults: React.FC<TestResultsProps> = ({
   }, [submissionData]);
 
   const filteredQuestions = useMemo(() => {
+    let result = questions;
+
+    if (typeFilter !== 'all') {
+      result = result.filter((q: any) => {
+        if (typeFilter === 'mcq') return q.question_type?.includes('mcq');
+        return q.question_type === typeFilter;
+      });
+    }
+
     if (activeTab === 'incorrect') {
-      return questions.filter((q: any) => !q.is_correct);
+      return result.filter((q: any) => !q.is_correct);
     }
     if (activeTab === 'correct') {
-      return questions.filter((q: any) => q.is_correct);
+      return result.filter((q: any) => q.is_correct);
     }
-    // Flagged logic would go here if we had flagged state persisted
-    return questions;
-  }, [questions, activeTab]);
+
+    return result;
+  }, [questions, activeTab, typeFilter]);
 
   const toggleQuestion = (index: number) => {
     setExpandedQuestions(prev => {
@@ -128,7 +140,7 @@ const TestResults: React.FC<TestResultsProps> = ({
     if (!submissionData?.started_at || !submissionData?.completed_at) return 0;
     const start = new Date(submissionData.started_at).getTime();
     const end = new Date(submissionData.completed_at).getTime();
-    return Math.round((end - start) / 60000); // Minutes
+    return Math.round((end - start) / 60000);
   }, [submissionData]);
 
   const getPerformanceLevel = (percentage: number) => {
@@ -139,6 +151,8 @@ const TestResults: React.FC<TestResultsProps> = ({
   };
 
   const performance = getPerformanceLevel(percentage);
+
+  const showAiChat = activeTab === 'ai_buddy';
 
   if (loading) {
     return (
@@ -214,7 +228,7 @@ const TestResults: React.FC<TestResultsProps> = ({
           </div>
         </div>
 
-        {/* Scorecard Stats Row */}
+        {/* Scorecard Stats Row — Original Design */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Score Card */}
           <Card className={`group border-0 shadow-sm bg-gradient-to-br from-white to-${performance.color.split('-')[1]}-50/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative`}>
@@ -293,36 +307,109 @@ const TestResults: React.FC<TestResultsProps> = ({
           </Card>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-          {/* Main Review List (Left) */}
-          <div className="lg:w-2/3">
-            <Card className="border border-gray-200 shadow-sm rounded-xl overflow-hidden bg-white h-full">
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-4 bg-white">
-                <button
-                  onClick={() => setActiveTab('all')}
-                  className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'all' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
-                >
-                  All Questions <span className="opacity-70 text-xs ml-1">({questions.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('incorrect')}
-                  className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'incorrect' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-red-50 hover:text-red-600'}`}
-                >
-                  Incorrect <span className="opacity-70 text-xs ml-1">({questions.length - correctAnswers})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('correct')}
-                  className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'correct' ? 'bg-green-500 text-white shadow-md' : 'text-gray-500 hover:bg-green-50 hover:text-green-600'}`}
-                >
-                  Correct <span className="opacity-70 text-xs ml-1">({correctAnswers})</span>
-                </button>
-              </div>
+        {/* Question Review — Full Width */}
+        <Card className="border border-gray-200 shadow-sm rounded-xl overflow-hidden bg-white">
+          {/* Tab bar with AI Buddy */}
+          <div className="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4 bg-white">
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'all' ? 'bg-gray-900 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
+              >
+                All Questions <span className="opacity-70 text-xs ml-1">({questions.length})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('incorrect')}
+                className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'incorrect' ? 'bg-red-500 text-white shadow-md' : 'text-gray-500 hover:bg-red-50 hover:text-red-600'}`}
+              >
+                Incorrect <span className="opacity-70 text-xs ml-1">({questions.length - correctAnswers})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('correct')}
+                className={`text-sm font-bold px-3 py-1.5 rounded-lg transition-all ${activeTab === 'correct' ? 'bg-green-500 text-white shadow-md' : 'text-gray-500 hover:bg-green-50 hover:text-green-600'}`}
+              >
+                Correct <span className="opacity-70 text-xs ml-1">({correctAnswers})</span>
+              </button>
 
+              <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
+              {/* Premium Custom Dropdown */}
+              <div className="relative group z-50">
+                <button
+                  className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                >
+                  {typeFilter === 'all' && <><CheckCircle className="w-4 h-4 text-gray-500" /> All Types</>}
+                  {typeFilter === 'mcq' && <><Target className="w-4 h-4 text-indigo-500" /> MCQ</>}
+                  {typeFilter === 'coding' && <><Code className="w-4 h-4 text-emerald-500" /> Coding</>}
+                  {typeFilter === 'descriptive' && <><FileText className="w-4 h-4 text-amber-500" /> Descriptive</>}
+                  <ChevronDown className="w-4 h-4 text-gray-400 ml-1 transition-transform group-hover:rotate-180" />
+                </button>
+
+                {/* Dropdown Menu (Hover-based for smooth experience) */}
+                <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top -translate-y-2 group-hover:translate-y-0 w-48">
+                  <div className="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden p-1">
+                    <button
+                      onClick={() => setTypeFilter('all')}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'all' ? 'bg-gray-50 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                      <CheckCircle className={`w-4 h-4 ${typeFilter === 'all' ? 'text-gray-700' : 'text-gray-400'}`} />
+                      All Types
+                    </button>
+                    <button
+                      onClick={() => setTypeFilter('mcq')}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'mcq' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                      <Target className={`w-4 h-4 ${typeFilter === 'mcq' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      MCQ
+                    </button>
+                    <button
+                      onClick={() => setTypeFilter('coding')}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'coding' ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                      <Code className={`w-4 h-4 ${typeFilter === 'coding' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                      Coding
+                    </button>
+                    <button
+                      onClick={() => setTypeFilter('descriptive')}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${typeFilter === 'descriptive' ? 'bg-amber-50 text-amber-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                    >
+                      <FileText className={`w-4 h-4 ${typeFilter === 'descriptive' ? 'text-amber-600' : 'text-gray-400'}`} />
+                      Descriptive
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Buddy Tab — Right Corner */}
+            <div className="flex items-center">
+              <button
+                onClick={() => setActiveTab(activeTab === 'ai_buddy' ? 'all' : 'ai_buddy')}
+                className={`text-sm font-bold px-4 py-1.5 rounded-lg transition-all flex items-center gap-2 ${activeTab === 'ai_buddy'
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+                  : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200'
+                  }`}
+              >
+                <MessageCircle className="w-4 h-4" />
+                AI Buddy
+              </button>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex flex-col lg:flex-row items-start relative border-t border-gray-100">
+            {/* Questions List */}
+            <div
+              className={`${showAiChat ? 'lg:w-[65%] border-r border-gray-200 overflow-y-auto custom-scrollbar' : 'w-full'} transition-all duration-300`}
+              style={showAiChat ? { height: 'calc(100vh - 120px)', maxHeight: '800px' } : {}}
+            >
               <div className="p-6 space-y-4">
                 {filteredQuestions.map((q: any, idx: number) => {
                   const isCorrect = q.is_correct;
                   const isExpanded = expandedQuestions.has(idx);
                   const qType = q.question_type?.includes('mcq') ? 'MCQ' : q.question_type === 'coding' ? 'Coding' : 'Descriptive';
+                  // Solutions come directly from the backend submission response
+                  const questionSolutions = q.solutions || [];
 
                   return (
                     <div key={idx} className={`border ${isCorrect ? 'border-gray-200' : 'border-red-200'} rounded-xl shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md bg-white`}>
@@ -355,7 +442,6 @@ const TestResults: React.FC<TestResultsProps> = ({
 
                       {isExpanded && (
                         <div className="border-t border-gray-100 p-6 bg-white space-y-6 animate-fade-in">
-                          {/* Answer Section */}
                           <div className="space-y-4">
 
                             {/* MCQ Options Display */}
@@ -380,8 +466,33 @@ const TestResults: React.FC<TestResultsProps> = ({
                               </div>
                             )}
 
-                            {/* Coding / Descriptive Answer Display */}
-                            {(q.question_type === 'coding' || q.question_type === 'descriptive') && (
+                            {/* Coding Answer — MonacoCodeEditor */}
+                            {q.question_type === 'coding' && (
+                              <div className="space-y-2">
+                                <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                  <Code className="h-4 w-4" /> Your Code
+                                </p>
+                                {q.answer_data?.answer ? (
+                                  <div className="rounded-lg overflow-hidden border border-gray-200">
+                                    <MonacoCodeEditor
+                                      value={q.answer_data.answer}
+                                      onChange={() => { }}
+                                      language={q.answer_data?.language || 'python'}
+                                      readOnly={true}
+                                      height="200px"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
+                                    <Eye className="w-4 h-4" />
+                                    No code submitted for this question
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Descriptive Answer */}
+                            {q.question_type === 'descriptive' && (
                               <div className="space-y-2">
                                 <p className="text-sm font-medium text-gray-700">Your Answer</p>
                                 <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
@@ -392,9 +503,24 @@ const TestResults: React.FC<TestResultsProps> = ({
                               </div>
                             )}
 
-                            {/* Reference Solution Display */}
-                            {q.solution_code && (
-                              <div className="space-y-2">
+                            {/* Reference Solutions — from q.solutions (backend already includes them) */}
+                            {q.question_type === 'coding' && questionSolutions.length > 0 && (
+                              <div className="space-y-2 pt-4 border-t border-gray-100">
+                                <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                  <Lightbulb className="h-4 w-4" /> Reference Solutions
+                                </p>
+                                <SolutionViewer
+                                  solutions={questionSolutions}
+                                  defaultSolutionCode={q.solution_code}
+                                  defaultSolutionLanguage={q.solution_language}
+                                  studentCode={q.answer_data?.answer}
+                                />
+                              </div>
+                            )}
+
+                            {/* Fallback for legacy solution_code */}
+                            {q.question_type === 'coding' && questionSolutions.length === 0 && q.solution_code && (
+                              <div className="space-y-2 pt-4 border-t border-gray-100">
                                 <div className="flex items-center justify-between">
                                   <p className="text-sm font-medium text-green-700 flex items-center gap-2">
                                     <Code className="h-4 w-4" /> Reference Solution
@@ -416,49 +542,55 @@ const TestResults: React.FC<TestResultsProps> = ({
                             )}
                           </div>
 
-                          {/* Explanations */}
-                          <div className="space-y-4 pt-4 border-t border-gray-100">
-                            {q.answer_data?.explanation && (
+                          {/* Explanation */}
+                          {q.answer_data?.explanation && (
+                            <div className="space-y-4 pt-4 border-t border-gray-100">
                               <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                                 <h4 className="text-sm font-bold text-blue-800 mb-1 flex items-center gap-2">
                                   <FileText className="h-4 w-4" /> Explanation
                                 </h4>
                                 <p className="text-sm text-blue-900/80">{q.answer_data.explanation}</p>
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   );
                 })}
               </div>
-            </Card>
-          </div>
+            </div>
 
-          {/* Sidebar (Right) */}
-          <div className="lg:w-1/3">
-            <AIChatContainer
-              className="w-full h-full border border-gray-200 shadow-sm rounded-xl flex flex-col bg-white"
-              welcomeMessage={`I've analyzed your performance on "${test.title}". \n\nYou scored ${totalScore}/${maxScore}. Ask me about any specific question you missed!`}
-              persistenceKey={`test-review-${currentSubId}`}
-              chatTitle="AI Performance Tutor"
-              contextGetter={() => {
-                return JSON.stringify({
-                  test_title: test.title,
-                  score: totalScore,
-                  total_questions: test.totalQuestions,
-                  correct: correctAnswers,
-                  question_data: questions.map((q: any) => ({
-                    title: q.question_title,
-                    is_correct: q.is_correct,
-                    student_answer: q.answer_data?.answer
-                  }))
-                });
-              }}
-            />
+            {/* AI Chat Panel */}
+            {showAiChat && (
+              <div className="lg:w-[35%] w-full flex flex-col bg-gray-50/50" style={{ height: 'calc(100vh - 120px)', maxHeight: '800px' }}>
+                <div className="flex-1 p-5 h-full relative">
+                  <div className="absolute inset-5">
+                    <AIChatContainer
+                      className="w-full h-full border border-gray-200 shadow-sm rounded-xl flex flex-col bg-white overflow-hidden"
+                      welcomeMessage={`I've analyzed your performance on "${test.title}". \n\nYou scored ${totalScore}/${maxScore}. Let's review the questions together!`}
+                      persistenceKey={`test-review-${currentSubId}`}
+                      chatTitle={`${test.title} Review`}
+                      contextGetter={() => {
+                        return JSON.stringify({
+                          test_title: test.title,
+                          score: totalScore,
+                          total_questions: test.totalQuestions,
+                          correct: correctAnswers,
+                          question_data: questions.map((q: any) => ({
+                            title: q.question_title,
+                            is_correct: q.is_correct,
+                            student_answer: q.answer_data?.answer
+                          }))
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
