@@ -167,6 +167,11 @@ class Section(models.Model):
 
 
 class StudentProfile(BaseTimestampedModel):
+    ADMISSION_TYPE_CHOICES = [
+        ("regular", "Regular"),
+        ("lateral_entry", "Lateral Entry"),
+    ]
+
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="student_profile"
     )
@@ -202,6 +207,13 @@ class StudentProfile(BaseTimestampedModel):
         blank=True,
     )
     roll_number = models.CharField(max_length=50, unique=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    admission_type = models.CharField(
+        max_length=20,
+        choices=ADMISSION_TYPE_CHOICES,
+        default="regular"
+    )
+    is_detained = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} - {self.roll_number}"

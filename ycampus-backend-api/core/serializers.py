@@ -42,6 +42,9 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             "section",
             "section_name",
             "roll_number",
+            "phone_number",
+            "admission_type",
+            "is_detained",
             "created_at",
             "updated_at",
         ]
