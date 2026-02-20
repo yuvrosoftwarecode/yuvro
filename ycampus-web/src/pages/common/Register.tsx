@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ApiError } from '../../utils/RestApiUtil';
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  User,
+  BookOpen,
+  Code2,
+  Users,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +25,7 @@ const Register: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
+
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,15 +39,11 @@ const Register: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (error) setError('');
   };
 
   const validateForm = (): string | null => {
-    if (
-      !formData.email ||
-      !formData.username ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
+    if (!formData.email || !formData.username || !formData.password || !formData.confirmPassword) {
       return 'All fields are required';
     }
 
@@ -88,112 +100,205 @@ const Register: React.FC = () => {
     }
   };
 
+  const passwordsMatch =
+    formData.confirmPassword &&
+    formData.password === formData.confirmPassword;
+
+  const passwordsMismatch =
+    formData.confirmPassword &&
+    formData.password !== formData.confirmPassword;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mx-auto w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-          {/* Header inside card (matches lovable layout) */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Yuvro Campus</h1>
-            <p className="mt-1 text-sm text-slate-500">Create your account</p>
+    <div className="h-screen flex overflow-hidden">
+
+      {/* ================= LEFT PANEL ================= */}
+      <div
+        className="hidden lg:flex lg:w-[45%] relative flex-col justify-center p-14 overflow-hidden"
+        style={{
+          background:
+            'linear-gradient(145deg, #064e3b 0%, #047857 40%, #10b981 100%)',
+        }}
+      >
+        {/* Soft glow */}
+        <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-emerald-300/20 rounded-full blur-3xl" />
+
+        {/* Logo - Pinned Absolute */}
+        <div className="absolute top-14 left-14 z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-emerald-600 font-bold text-lg shadow-lg">
+              YC
+            </div>
+            <span className="text-white text-2xl font-semibold tracking-tight">
+              Yuvro Campus
+            </span>
+          </div>
+        </div>
+
+        {/* Centered Content Wrapper */}
+        <div className="relative z-10 flex flex-col gap-12">
+          {/* Hero */}
+          <div className="max-w-md">
+            <h1 className="text-5xl font-bold text-white leading-tight">
+              Join Your Campus Community.
+            </h1>
+
+            <p className="text-emerald-100 mt-6 text-lg leading-relaxed">
+              Access academics, coding platforms and collaboration —
+              all in one unified campus ecosystem.
+            </p>
+
+            <div className="mt-8 text-emerald-200 text-sm uppercase tracking-widest">
+              Academic • Skills • Community
+            </div>
           </div>
 
-          {/* Error */}
+          {/* Features */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Academic Management</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Subjects, departments and curriculum.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Skill Development</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Coding contests and certifications.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Campus Connect</h3>
+                <p className="text-emerald-100 text-sm mt-1">
+                  Collaborate with faculty and peers.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= RIGHT PANEL ================= */}
+      <div className="flex-1 overflow-y-auto flex items-center justify-center px-6 py-8 bg-gradient-to-br from-white to-slate-50">
+
+        <div className="w-full max-w-md bg-white shadow-xl shadow-emerald-500/5 rounded-2xl p-10 border border-slate-100">
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-slate-900">
+              Create your account
+            </h2>
+            <p className="text-slate-500 text-sm mt-2">
+              Get started with your campus account.
+            </p>
+          </div>
+
           {error && (
-            <div className="mb-6 rounded-md border border-rose-200 bg-rose-50 px-3 py-2">
-              <span className="text-sm text-rose-700">{error}</span>
+            <div className="mb-6 flex items-start gap-3 p-4 rounded-lg bg-rose-50 border border-rose-200">
+              <AlertCircle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-1" />
+              <div>
+                <p className="text-sm font-medium text-rose-800">
+                  Registration failed
+                </p>
+                <p className="text-sm text-rose-600 mt-1">{error}</p>
+              </div>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
-                Email
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Email address
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  placeholder="you@campus.edu"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
             {/* Username */}
             <div>
-              <label htmlFor="username" className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Username
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
-                placeholder="Choose a username"
-                value={formData.username}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
+                <input
+                  name="username"
+                  type="text"
+                  required
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  placeholder="Choose a username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Password
               </label>
               <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                 <input
-                  id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
                   required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
-                  placeholder="Create a password"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  placeholder="Minimum 8 characters"
                   value={formData.password}
                   onChange={handleChange}
                   disabled={isLoading}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-700">
-                Confirm Password
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Confirm password
               </label>
               <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                 <input
-                  id="confirmPassword"
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
                   required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-slate-800 focus:border-slate-800"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
                   placeholder="Confirm your password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -201,46 +306,29 @@ const Register: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? (
-                    <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
               {formData.confirmPassword && (
-                <div className="mt-2 flex items-center">
-                  {formData.password === formData.confirmPassword ? (
-                    <div className="flex items-center text-green-600">
-                      <svg className="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-xs">Passwords match</span>
-                    </div>
+                <div className="mt-2 flex items-center gap-2">
+                  {passwordsMatch ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      <span className="text-xs text-emerald-600">
+                        Passwords match
+                      </span>
+                    </>
                   ) : (
-                    <div className="flex items-center text-rose-600">
-                      <svg className="mr-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-xs">Passwords don't match</span>
-                    </div>
+                    <>
+                      <XCircle className="w-4 h-4 text-rose-500" />
+                      <span className="text-xs text-rose-600">
+                        Passwords do not match
+                      </span>
+                    </>
                   )}
                 </div>
               )}
@@ -250,31 +338,31 @@ const Register: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Creating account...
-                </div>
+                </>
               ) : (
-                'Create account'
+                <>
+                  Create Account
+                  <ArrowRight className="w-4 h-4" />
+                </>
               )}
             </button>
           </form>
 
-          {/* Footer */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-slate-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-slate-900 hover:text-slate-700">
-                Sign in
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-sm text-slate-500 mt-8">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="text-emerald-600 font-semibold hover:text-emerald-700"
+            >
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>

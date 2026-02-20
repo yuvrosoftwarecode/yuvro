@@ -79,7 +79,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     content: '',
     level: 'course',
     difficulty: 'easy',
-    difficulty: 'easy',
     marks: 1,
     duration: 1,
     categories: [],
@@ -227,7 +226,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       topic: formTopic,
       subtopic: formSubtopic,
       difficulty: 'easy',
-      difficulty: 'easy',
       marks: 1,
       duration: 1,
       categories: [],
@@ -256,6 +254,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       subtopic: question.subtopic,
       difficulty: question.difficulty,
       marks: question.marks,
+      duration: question.duration,
       categories: question.categories,
       mcq_options: question.mcq_options || [
         { text: '', is_correct: false },

@@ -35,8 +35,8 @@ type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean };
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  loginWithGoogle: (token: string) => Promise<void>;
   register: (
     email: string,
     username: string,
@@ -104,10 +104,10 @@ const getInitialState = (): AuthState => {
 
   if (accessToken) {
     return {
-      user, 
+      user,
       token: accessToken,
-      isLoading: true, 
-      isAuthenticated: true, 
+      isLoading: true,
+      isAuthenticated: true,
     };
   }
   return {
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<User> => {
     dispatch({ type: 'LOGIN_START' });
     try {
       const response = await authService.login(email, password);
@@ -178,6 +178,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type: 'LOGIN_SUCCESS',
         payload: { user: response.user, token: response.access },
       });
+
+      return response.user;
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
       throw error;
@@ -185,10 +187,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
 
-  const loginWithGoogle = async (): Promise<void> => {
+  const loginWithGoogle = async (token: string): Promise<void> => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      throw new ApiError('Google OAuth not implemented yet', 501);
+      const response = await authService.loginWithGoogle(token);
+
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user: response.user, token: response.access },
+      });
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
       throw error;
