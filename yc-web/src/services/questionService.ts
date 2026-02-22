@@ -50,8 +50,6 @@ export interface CreateQuestionData {
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
-  solution_code?: string;
-  solution_language?: string;
 }
 
 export interface UpdateQuestionData extends Partial<CreateQuestionData> { }

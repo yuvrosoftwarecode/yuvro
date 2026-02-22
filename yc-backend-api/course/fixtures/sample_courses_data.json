@@ -648,7 +648,30 @@
             }
           ],
           "inputFormat": "The first line contains the array `nums`.\nThe second line contains the integer `target`.",
-          "outputFormat": "An array containing the two indices."
+          "outputFormat": "An array containing the two indices.",
+          "solutions": [
+            {
+              "title": "Optimized HashMap (Python)",
+              "language": "python",
+              "code": "import sys\nimport ast\n\ndef twoSum(nums, target):\n    num_map = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in num_map:\n            return [num_map[complement], i]\n        num_map[num] = i\n    return []\n\nif __name__ == '__main__':\n    input_data = sys.stdin.read().splitlines()\n    if len(input_data) >= 2:\n        nums = ast.literal_eval(input_data[0].strip())\n        target = int(input_data[1].strip())\n        result = twoSum(nums, target)\n        print(str(result).replace(' ', ''))",
+              "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n)",
+              "is_primary": true
+            },
+            {
+              "title": "Brute Force Nested Loop (Python)",
+              "language": "python",
+              "code": "import sys\nimport ast\n\ndef twoSum(nums, target):\n    n = len(nums)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return []\n\nif __name__ == '__main__':\n    input_data = sys.stdin.read().splitlines()\n    if len(input_data) >= 2:\n        nums = ast.literal_eval(input_data[0].strip())\n        target = int(input_data[1].strip())\n        result = twoSum(nums, target)\n        print(str(result).replace(' ', ''))",
+              "complexity_analysis": "Time Complexity: O(n^2), Space Complexity: O(1)",
+              "is_primary": false
+            },
+            {
+              "title": "Optimized HashMap (C++)",
+              "language": "cpp",
+              "code": "#include <iostream>\n#include <vector>\n#include <unordered_map>\n#include <string>\n#include <sstream>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        unordered_map<int, int> numMap;\n        for (int i = 0; i < nums.size(); i++) {\n            int complement = target - nums[i];\n            if (numMap.count(complement)) {\n                return {numMap[complement], i};\n            }\n            numMap[nums[i]] = i;\n        }\n        return {};\n    }\n};\n\nint main() {\n    string line;\n    if (!getline(cin, line)) return 0;\n    \n    vector<int> nums;\n    string num_str;\n    for (char c : line) {\n        if (c == '[' || c == ' ' || c == '\\r') continue;\n        if (c == ',' || c == ']') {\n            if (!num_str.empty()) {\n                nums.push_back(stoi(num_str));\n                num_str = \"\";\n            }\n        } else {\n            num_str += c;\n        }\n    }\n    \n    if (!getline(cin, line)) return 0;\n    int target = stoi(line);\n    \n    Solution sol;\n    vector<int> res = sol.twoSum(nums, target);\n    \n    cout << \"[\";\n    for(size_t i=0; i<res.size(); ++i) {\n        cout << res[i];\n        if (i < res.size() - 1) cout << \",\";\n    }\n    cout << \"]\" << endl;\n    return 0;\n}",
+              "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n)",
+              "is_primary": false
+            }
+          ]
         },
         {
           "type": "coding",

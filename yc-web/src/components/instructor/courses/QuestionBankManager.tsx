@@ -166,7 +166,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, course, selectedTopic, selectedSubtopic, filterLevel, filterType]);
+  }, [searchTerm, course, selectedTopic, selectedSubtopic, filterLevel, filterType, filterDifficulty]);
 
   // Update form data when selection context changes (only if not editing)
   useEffect(() => {
@@ -244,8 +244,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
-      solution_code: '', // Keeping for backward compatibility or simple clear
-      solution_language: 'python',
     });
     setSolutions([]); // Reset solutions
     setOriginalSolutions([]);
@@ -275,8 +273,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ],
       test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: question.test_cases_advanced || [],
-      solution_code: question.solution_code || '',
-      solution_language: question.solution_language || 'python',
     });
 
     // Fetch solutions
@@ -386,18 +382,13 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
   const toggleMCQCorrect = (index: number) => {
-    const newOptions = [...(formData.mcq_options || [])];
+    const newOptions = (formData.mcq_options || []).map((option, i) => {
+      if (formData.type === 'mcq_single') {
+        return { ...option, is_correct: i === index ? !option.is_correct : false };
+      }
+      return i === index ? { ...option, is_correct: !option.is_correct } : { ...option };
+    });
 
-    // For single answer MCQ, uncheck all others first
-    if (formData.type === 'mcq_single') {
-      newOptions.forEach((option, i) => {
-        if (i !== index) {
-          option.is_correct = false;
-        }
-      });
-    }
-
-    newOptions[index] = { ...newOptions[index], is_correct: !newOptions[index].is_correct };
     setFormData(prev => ({ ...prev, mcq_options: newOptions }));
   };
 
@@ -506,10 +497,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 bg-amber-50 p-1 rounded-lg border border-amber-200">
+        <div className="flex flex-wrap gap-2 space-x-0 sm:space-x-1 sm:flex-nowrap bg-amber-50 p-1.5 rounded-lg border border-amber-200">
           <button
             onClick={() => setActiveTab('create')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'create'
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'create'
               ? 'bg-amber-600 text-white shadow-sm'
               : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
               }`}
@@ -519,7 +510,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('questions')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'questions'
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'questions'
               ? 'bg-amber-600 text-white shadow-sm'
               : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
               }`}
@@ -532,139 +523,152 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
       {/* Questions Tab */}
       {activeTab === 'questions' && (
-        <>
-          {/* Search and Filters */}
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search questions (optional)..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-slate-300"
-                />
-              </div>
-            </div>
-            <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Types</SelectItem>
-                {QUESTION_TYPES.map(type => (
-                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Difficulty</SelectItem>
-                {DIFFICULTY_LEVELS.map(level => (
-                  <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Level" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="course">Course Level</SelectItem>
-                <SelectItem value="topic">Topic Level</SelectItem>
-                <SelectItem value="subtopic">Subtopic Level</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Questions List */}
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+        <Card className="border-2 border-amber-200 bg-amber-50/30">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="border-b border-amber-200 pb-4">
+                <div className="flex items-center gap-3">
+                  <FileQuestion className="w-5 h-5 text-amber-600" />
+                  <h4 className="text-lg font-semibold text-slate-900">Question Bank</h4>
                 </div>
-              ))}
-            </div>
-          ) : filteredQuestions.length === 0 ? (
-            <div className="text-center py-12">
-              <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
-              <p className="text-gray-500 mb-4">
-                No questions match your search criteria. Try different keywords or create a new question.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredQuestions.map(question => (
-                <Card key={question.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            {getQuestionIcon(question.type)}
-                            <span className="font-semibold text-slate-900">{question.title}</span>
-                          </div>
-                          <Badge className={getDifficultyColor(question.difficulty)}>
-                            {question.difficulty}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {getQuestionTypeLabel(question.type)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.level} level
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.marks} marks
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.duration} mins
-                          </Badge>
-                        </div>
-                        <p className="text-slate-600 text-sm mb-2 line-clamp-2">
-                          {question.content}
-                        </p>
-                        {question.categories.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {question.categories.map(category => (
-                              <Badge key={category} variant="secondary" className="text-xs">
-                                {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditForm(question)}
-                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setConfirmDelete(question.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search questions (optional)..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all w-full"
+                    />
+                  </div>
+                </div>
+                <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Types</SelectItem>
+                    {QUESTION_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Difficulty" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Difficulty</SelectItem>
+                    {DIFFICULTY_LEVELS.map(level => (
+                      <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{level.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Level" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Levels</SelectItem>
+                    <SelectItem value="course" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Course Level</SelectItem>
+                    <SelectItem value="topic" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Topic Level</SelectItem>
+                    <SelectItem value="subtopic" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subtopic Level</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Questions List */}
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-100 rounded w-1/2"></div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  ))}
+                </div>
+              ) : filteredQuestions.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
+                  <p className="text-gray-500 mb-4">
+                    No questions match your search criteria. Try different keywords or create a new question.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredQuestions.map(question => (
+                    <Card key={question.id} className="hover:border-amber-300 transition-colors border-slate-200 shadow-sm">
+                      <CardContent className="p-5">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                          <div className="flex-1 space-y-3 w-full">
+                            <div className="flex items-center gap-2">
+                              {getQuestionIcon(question.type)}
+                              <h5 className="font-semibold text-slate-900 text-base">{question.title}</h5>
+                              <Badge className={getDifficultyColor(question.difficulty)}>
+                                {question.difficulty}
+                              </Badge>
+                            </div>
+                            <p className="text-slate-600 text-sm line-clamp-2">
+                              {question.content}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 border-blue-100 font-medium">
+                                {getQuestionTypeLabel(question.type)}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800 border-slate-200">
+                                {question.level} level
+                              </Badge>
+                              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border-emerald-100">
+                                {question.marks} marks
+                              </Badge>
+                              <Badge variant="secondary" className="bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border-amber-100">
+                                {question.duration} mins
+                              </Badge>
+                              {question.categories.length > 0 && (
+                                <>
+                                  <div className="w-1 h-1 rounded-full bg-slate-300 mx-1"></div>
+                                  {question.categories.map(category => (
+                                    <Badge key={category} variant="outline" className="text-slate-500 border-slate-200">
+                                      {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
+                                    </Badge>
+                                  ))}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex sm:flex-col items-center gap-2 self-end sm:self-start mt-2 sm:mt-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEditForm(question)}
+                              className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setConfirmDelete(question.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </>
+          </CardContent>
+        </Card>
       )}
 
       {/* Create New Question Tab */}

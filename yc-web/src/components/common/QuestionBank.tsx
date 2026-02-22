@@ -55,6 +55,7 @@ export default function QuestionBank({
   const [selectedType, setSelectedType] = useState<string>('mcq_single');
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const [isDragging, setIsDragging] = useState(false);
+  const [restrictToScope, setRestrictToScope] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchQuestionsData = async () => {
@@ -64,6 +65,8 @@ export default function QuestionBank({
         ...filters,
         search: searchQuery || undefined,
         type: selectedType !== 'all' ? selectedType as any : undefined,
+        course: restrictToScope ? filters.course : undefined,
+        topic: restrictToScope ? filters.topic : undefined,
       };
 
       const data = await fetchQuestions(queryFilters);
@@ -80,7 +83,7 @@ export default function QuestionBank({
 
   useEffect(() => {
     fetchQuestionsData();
-  }, [searchQuery, selectedType, filters]);
+  }, [searchQuery, selectedType, filters, restrictToScope]);
 
   // Update filters when props change
   useEffect(() => {
@@ -224,13 +227,13 @@ export default function QuestionBank({
             onQuestionsChange([...selectedQuestions, questionId]);
           }
           if (onQuestionsChangeWithData) {
-             // We need to construct the new list carefully
-             const isAlreadySelected = selectedQuestions.includes(questionId);
-             if (!isAlreadySelected) {
-                 onQuestionsChangeWithData([...allSelectedQuestions, question]);
-             } else {
-                 onQuestionsChangeWithData(allSelectedQuestions);
-             }
+            // We need to construct the new list carefully
+            const isAlreadySelected = selectedQuestions.includes(questionId);
+            if (!isAlreadySelected) {
+              onQuestionsChangeWithData([...allSelectedQuestions, question]);
+            } else {
+              onQuestionsChangeWithData(allSelectedQuestions);
+            }
           }
         }
       }
@@ -385,7 +388,6 @@ export default function QuestionBank({
                   </TabsList>
                 </Tabs>
 
-                {/* Search Bar */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -396,6 +398,21 @@ export default function QuestionBank({
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+
+                {mode === 'selection' && (courseFilter || topicFilter) && (
+                  <div className="flex items-center gap-2 mt-[-5px]">
+                    <input
+                      type="checkbox"
+                      id="restrictToScopeSplit"
+                      checked={restrictToScope}
+                      onChange={(e) => setRestrictToScope(e.target.checked)}
+                      className="h-3.5 w-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <label htmlFor="restrictToScopeSplit" className="text-xs text-gray-600 cursor-pointer select-none">
+                      Only show questions for the selected course/topic
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -493,6 +510,21 @@ export default function QuestionBank({
             </select>
           </div>
         </div>
+
+        {mode === 'selection' && (courseFilter || topicFilter) && (
+          <div className="flex items-center gap-2 mt-3">
+            <input
+              type="checkbox"
+              id="restrictToScopeFull"
+              checked={restrictToScope}
+              onChange={(e) => setRestrictToScope(e.target.checked)}
+              className="h-3.5 w-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label htmlFor="restrictToScopeFull" className="text-xs text-gray-600 cursor-pointer select-none">
+              Only show questions for the selected course/topic
+            </label>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="pt-0">

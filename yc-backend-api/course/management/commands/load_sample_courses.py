@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from course.models import Course, Topic, Subtopic, Video, Question
+from course.models import Course, Topic, Subtopic, Video, Question, QuestionSolution
 from assessment.models import SkillTest, Contest
 
 User = get_user_model()
@@ -306,7 +306,20 @@ class Command(BaseCommand):
         ).first()
 
         if not existing_question:
-            Question.objects.create(**question_kwargs)
+            q_obj = Question.objects.create(**question_kwargs)
+            
+            # Create solutions if they exist
+            if "solutions" in question_data:
+                for sol_data in question_data["solutions"]:
+                    QuestionSolution.objects.create(
+                        question=q_obj,
+                        title=sol_data.get("title", ""),
+                        language=sol_data.get("language", "python"),
+                        code=sol_data.get("code", ""),
+                        complexity_analysis=sol_data.get("complexity_analysis", ""),
+                        is_primary=sol_data.get("is_primary", False)
+                    )
+            
             self.stdout.write(
                 f'    ✓ Created question: {question_data["title"][:50]}...'
             )

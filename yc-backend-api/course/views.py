@@ -615,16 +615,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         user = request.user
 
+        # Get the new level and associations from the request, falling back to existing
+        level = request.data.get("level", question.level)
         course = None
-        if question.course:
-            course = question.course
-        elif question.topic:
-            course = question.topic.course
-        elif question.subtopic:
-            course = question.subtopic.topic.course
+
+        if level == "course":
+            course_id = request.data.get("course", question.course_id if question.level == "course" else None)
+            course = get_object_or_404(Course, id=course_id) if course_id else None
+        elif level == "topic":
+            topic_id = request.data.get("topic", question.topic_id if question.level == "topic" else None)
+            topic = get_object_or_404(Topic, id=topic_id) if topic_id else None
+            course = topic.course if topic else None
+        elif level == "subtopic":
+            subtopic_id = request.data.get("subtopic", question.subtopic_id if question.level == "subtopic" else None)
+            subtopic = get_object_or_404(Subtopic, id=subtopic_id) if subtopic_id else None
+            course = subtopic.topic.course if subtopic else None
 
         if not course:
-            return Response({"error": "Invalid question association"}, status=400)
+            return Response({"error": "Invalid course/topic/subtopic"}, status=400)
 
         if user.role == "admin" or (
             user.role == "instructor" and instructor_assigned(user, course)

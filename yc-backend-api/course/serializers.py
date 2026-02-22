@@ -210,6 +210,7 @@ class QuestionSolutionSerializer(serializers.ModelSerializer):
         model = QuestionSolution
         fields = [
             "id",
+            "question",
             "title",
             "language",
             "code",
@@ -247,8 +248,6 @@ class QuestionSerializer(serializers.ModelSerializer):
             "mcq_options",
             "test_cases_basic",
             "test_cases_advanced",
-            "solution_code",
-            "solution_language",
             "solutions",
             "created_at",
             "updated_at",
@@ -263,8 +262,6 @@ class QuestionSerializer(serializers.ModelSerializer):
             # If the user is a student, hide advanced test cases and solution code
             if getattr(request.user, "role", "") == "student":
                 ret.pop("test_cases_advanced", None)
-                ret.pop("solution_code", None)
-                ret.pop("solution_language", None)
         return ret
 
     def validate(self, data):
@@ -295,6 +292,9 @@ class QuestionSerializer(serializers.ModelSerializer):
             for category in categories:
                 if category not in valid_categories:
                     raise serializers.ValidationError(f"Invalid category: {category}")
+
+        if level == "subtopic" and "learn" not in categories:
+            raise serializers.ValidationError("Subtopic questions must have the 'learn' category")
 
         # Validate MCQ specific fields
         if question_type in ["mcq_single", "mcq_multiple"]:
@@ -399,6 +399,29 @@ class QuestionSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        # Auto-update related fields if level or subtopic/topic changes
+        level = validated_data.get("level", instance.level)
+        
+        # If updating to subtopic level or changing subtopic
+        if level == "subtopic" and "subtopic" in validated_data:
+            subtopic = validated_data["subtopic"]
+            if subtopic:
+                validated_data["topic"] = subtopic.topic
+                validated_data["course"] = subtopic.topic.course
+                
+        # If updating to topic level or changing topic
+        elif level == "topic" and "topic" in validated_data:
+            topic = validated_data["topic"]
+            if topic:
+                validated_data["course"] = topic.course
+                validated_data["subtopic"] = None
+
+        elif level == "course":
+            validated_data["topic"] = None
+            validated_data["subtopic"] = None
+
+        return super().update(instance, validated_data)
 
 class UserCourseProgressSerializer(serializers.ModelSerializer):
     class Meta:

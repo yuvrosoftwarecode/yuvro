@@ -93,12 +93,6 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
     test_cases_basic = serializers.JSONField(
         source="question.test_cases_basic", read_only=True
     )
-    solution_code = serializers.CharField(
-        source="question.solution_code", read_only=True
-    )
-    solution_language = serializers.CharField(
-        source="question.solution_language", read_only=True
-    )
 
     class Meta:
         model = CertificationQuestionActivity
@@ -111,8 +105,6 @@ class CertificationQuestionActivitySerializer(serializers.ModelSerializer):
             "mcq_options",
             "marks",
             "test_cases_basic",
-            "solution_code",
-            "solution_language",
             "question_activities",
             "navigation_activities",
             "proctoring_activities",
@@ -473,12 +465,6 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
     test_cases_basic = serializers.JSONField(
         source="question.test_cases_basic", read_only=True
     )
-    solution_code = serializers.CharField(
-        source="question.solution_code", read_only=True
-    )
-    solution_language = serializers.CharField(
-        source="question.solution_language", read_only=True
-    )
     solutions = QuestionSolutionSerializer(
         source="question.solutions", many=True, read_only=True
     )
@@ -494,8 +480,6 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
             "mcq_options",
             "marks",
             "test_cases_basic",
-            "solution_code",
-            "solution_language",
             "solutions",
             "question_activities",
             "navigation_activities",

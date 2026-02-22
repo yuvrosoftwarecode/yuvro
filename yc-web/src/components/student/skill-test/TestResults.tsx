@@ -511,35 +511,12 @@ const TestResults: React.FC<TestResultsProps> = ({
                                 </p>
                                 <SolutionViewer
                                   solutions={questionSolutions}
-                                  defaultSolutionCode={q.solution_code}
-                                  defaultSolutionLanguage={q.solution_language}
                                   studentCode={q.answer_data?.answer}
                                 />
                               </div>
                             )}
 
-                            {/* Fallback for legacy solution_code */}
-                            {q.question_type === 'coding' && questionSolutions.length === 0 && q.solution_code && (
-                              <div className="space-y-2 pt-4 border-t border-gray-100">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium text-green-700 flex items-center gap-2">
-                                    <Code className="h-4 w-4" /> Reference Solution
-                                  </p>
-                                  {q.solution_language && (
-                                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">
-                                      {q.solution_language === 'cpp' ? 'C++' : q.solution_language.charAt(0).toUpperCase() + q.solution_language.slice(1)}
-                                    </span>
-                                  )}
-                                </div>
-                                <MonacoCodeEditor
-                                  value={q.solution_code}
-                                  onChange={() => { }}
-                                  language={q.solution_language || 'python'}
-                                  readOnly={true}
-                                  height="200px"
-                                />
-                              </div>
-                            )}
+
                           </div>
 
                           {/* Explanation */}
