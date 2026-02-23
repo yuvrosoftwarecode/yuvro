@@ -114,6 +114,7 @@ export interface SemesterSubject {
   is_lab: boolean;
   section_faculties?: SectionSubjectFaculty[];
   created_at: string;
+  assignment_id?: string | number;
 }
 
 export async function addSubjectToSemester(semesterId: string | number, subjectId: string | number) {
@@ -496,7 +497,6 @@ const subjectService = {
   getSubjectsForSemester,
   assignFacultyToSectionSubject,
   removeFacultyFromSectionSubject,
-  getSubjectsForSemester,
 };
 
 export default subjectService;
