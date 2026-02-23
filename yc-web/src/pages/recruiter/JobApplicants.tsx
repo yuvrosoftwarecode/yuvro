@@ -163,7 +163,7 @@ const JobApplicantsContent: React.FC = () => {
               subtitle="Loading..."
               actions={headerActions}
             />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="px-6 py-6">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Loading applications...</p>
@@ -186,7 +186,7 @@ const JobApplicantsContent: React.FC = () => {
             actions={headerActions}
           />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="px-6 py-6">
             {/* Job Summary Card */}
             {job && (
               <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

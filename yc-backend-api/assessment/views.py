@@ -166,20 +166,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             if q_id not in q_map: continue
             question = q_map[q_id]
             
-            is_correct = False
-            marks_obtained = 0
-            
-            if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    marks_obtained = question.marks
-                    is_correct = True
-            elif question.type == 'mcq_multiple':
-                 correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                 user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
-                 if correct_opts == user_opts and correct_opts:
-                     marks_obtained = question.marks
-                     is_correct = True
+            is_correct, marks_obtained = question.grade_answer(user_ans)
             
             CertificationQuestionActivity.objects.update_or_create(
                 certification_submission=submission,
@@ -189,8 +176,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'answer_data': {'answer': user_ans},
                     'is_final_answer': True,
                     'is_correct': is_correct,
-                    'marks_obtained': marks_obtained,
-                    'auto_graded': True
+                    'auto_graded': question.is_auto_gradable
                 }
             )
             total_score += marks_obtained
@@ -442,17 +428,9 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             if q_id not in q_map:
                 continue
             question = q_map[q_id]
-            
-            if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    total_score += question.marks
-            
-            elif question.type == 'mcq_multiple':
-                correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans])
-                if correct_opts == user_opts:
-                    total_score += question.marks
+            is_correct, marks_obtained = question.grade_answer(user_ans)
+            if is_correct:
+                total_score += marks_obtained
                     
         submission.marks = total_score
         submission.save()
@@ -681,30 +659,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             except Question.DoesNotExist:
                 continue
 
-            marks_obtained = 0
-            is_correct = False
-            
-            # Grading Logic
-            if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    marks_obtained = question.marks
-                    is_correct = True
-            elif question.type == 'mcq_multiple':
-                 correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                 user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
-                 if correct_opts == user_opts and correct_opts:
-                     marks_obtained = question.marks
-                     is_correct = True
-            elif question.type == 'coding':
-                # For coding, we'll mark as incorrect by default unless manually or auto-graded elsewhere
-                # But for now, if there's code, we give 0 or partial? 
-                # Let's keep it 0 as it's not auto-graded yet
-                marks_obtained = 0
-                is_correct = False
-            elif question.type == 'descriptive':
-                marks_obtained = 0
-                is_correct = False
+            is_correct, marks_obtained = question.grade_answer(user_ans)
 
             # Create or update activity
             SkillTestQuestionActivity.objects.update_or_create(
@@ -719,7 +674,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'is_final_answer': True,
                     'is_correct': is_correct,
                     'marks_obtained': marks_obtained,
-                    'auto_graded': True if question.type in ['mcq_single', 'mcq_multiple'] else False
+                    'auto_graded': question.is_auto_gradable
                 }
             )
             total_score += marks_obtained

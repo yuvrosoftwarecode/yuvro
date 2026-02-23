@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import QuestionBank from '@/components/common/QuestionBank';
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 import courseService, { Course, TopicBasic } from '@/services/courseService';
@@ -45,10 +44,10 @@ export default function SkillTestForm() {
     descriptive: [] as string[]
   });
   const [randomQuestionsConfig, setRandomQuestionsConfig] = useState({
-    mcq_single: 0,
-    mcq_multiple: 0,
-    coding: 0,
-    descriptive: 0
+    mcq_single: { easy: 0, medium: 0, hard: 0 },
+    mcq_multiple: { easy: 0, medium: 0, hard: 0 },
+    coding: { easy: 0, medium: 0, hard: 0 },
+    descriptive: { easy: 0, medium: 0, hard: 0 }
   });
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -182,10 +181,10 @@ export default function SkillTestForm() {
         descriptive: []
       });
       setRandomQuestionsConfig(data.questions_random_config || {
-        mcq_single: 0,
-        mcq_multiple: 0,
-        coding: 0,
-        descriptive: 0
+        mcq_single: { easy: 0, medium: 0, hard: 0 },
+        mcq_multiple: { easy: 0, medium: 0, hard: 0 },
+        coding: { easy: 0, medium: 0, hard: 0 },
+        descriptive: { easy: 0, medium: 0, hard: 0 }
       });
     } catch (error) {
       console.error('Failed to fetch skill test:', error);
@@ -219,7 +218,7 @@ export default function SkillTestForm() {
     }
 
     const totalQuestionCount = Object.values(selectedQuestionsByType).flat().length
-      + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0);
+      + Object.values(randomQuestionsConfig).reduce((sum, cfg) => sum + cfg.easy + cfg.medium + cfg.hard, 0);
 
     if (totalQuestionCount === 0) {
       setCurrentFormTab('questions');
@@ -317,410 +316,399 @@ export default function SkillTestForm() {
     return 'Create a new skill test';
   };
 
+  const backButton = (
+    <button
+      onClick={() => {
+        const skillTestTopicId = formData.topic || topicIdFromUrl;
+        const skillTestCourseId = formData.course || courseIdFromUrl;
+        console.log('Back button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+        try {
+          if (skillTestCourseId) {
+            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+            if (skillTestTopicId) {
+              targetUrl += `?topicId=${skillTestTopicId}`;
+            }
+            console.log('Navigating to course manage page with skill test topic:', targetUrl);
+            navigate(targetUrl);
+          } else {
+            console.log('No courseId, navigating to main skill tests page');
+            navigate('/instructor/skill-tests');
+          }
+        } catch (error) {
+          console.error('Navigation failed, using window.location:', error);
+          if (skillTestCourseId) {
+            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+            if (skillTestTopicId) {
+              targetUrl += `?topicId=${skillTestTopicId}`;
+            }
+            window.location.href = targetUrl;
+          } else {
+            window.location.href = '/instructor/skill-tests';
+          }
+        }
+      }}
+      className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+    >
+      ← Back to Courses
+    </button>
+  );
+
   if (loading && isEditMode) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          <RoleSidebar />
-          <div className="flex-1">
-            <RoleHeader
-              title="Loading..."
-              subtitle="Please wait while we load the skill test details"
-              actions={null}
-            />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            </div>
+      <DashboardLayout
+        title="Loading..."
+        subtitle="Please wait while we load the skill test details"
+      >
+        <div className="px-6 py-6">
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={
-              <button
-                onClick={() => {
-                  const skillTestTopicId = formData.topic || topicIdFromUrl;
-                  const skillTestCourseId = formData.course || courseIdFromUrl;
-                  console.log('Back button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-                  try {
-                    if (skillTestCourseId) {
-                      let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                      if (skillTestTopicId) {
-                        targetUrl += `?topicId=${skillTestTopicId}`;
-                      }
-                      console.log('Navigating to course manage page with skill test topic:', targetUrl);
-                      navigate(targetUrl);
-                    } else {
-                      console.log('No courseId, navigating to main skill tests page');
-                      navigate('/instructor/skill-tests');
-                    }
-                  } catch (error) {
-                    console.error('Navigation failed, using window.location:', error);
-                    if (skillTestCourseId) {
-                      let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                      if (skillTestTopicId) {
-                        targetUrl += `?topicId=${skillTestTopicId}`;
-                      }
-                      window.location.href = targetUrl;
-                    } else {
-                      window.location.href = '/instructor/skill-tests';
-                    }
-                  }
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                ← Back to Courses
-              </button>
-            }
-          />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-white shadow rounded-lg mb-6 p-6">
-              <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsContent value="details" className="space-y-6">
-                  {/* Basic Information Card */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Trophy className="h-5 w-5 mr-2 text-blue-500" />
-                        Basic Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Test Title *</label>
-                          <Input
-                            value={formData.title}
-                            onChange={(e) =>
-                              setFormData({ ...formData, title: e.target.value })
-                            }
-                            placeholder="e.g., JavaScript Fundamentals Test"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level *</label>
-                          <Select
-                            value={formData.difficulty}
-                            onValueChange={(value) =>
-                              setFormData({ ...formData, difficulty: value as any })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                              <SelectItem value="easy">Easy</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="hard">Hard</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <Textarea
-                          value={formData.description}
-                          onChange={(e) =>
-                            setFormData({ ...formData, description: e.target.value })
-                          }
-                          placeholder="Describe the skill test focus and topics..."
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-                        <Textarea
-                          value={formData.instructions}
-                          onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-                          placeholder="Instructions for students taking the test..."
-                        />
-                      </div>
-
-                      {/* Course and Topic are auto-selected from navigation context */}
-                    </CardContent>
-                  </Card>
-
-                  {/* Test Configuration Card */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-green-500" />
-                        Test Configuration
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes) *</label>
-                          <Input
-                            type="number"
-                            value={formData.duration}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                duration: Number(e.target.value) || 60,
-                              })
-                            }
-                            placeholder="e.g., 60"
-                            min={1}
-                          />
-
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks</label>
-                          <Input
-                            type="number"
-                            value={formData.total_marks}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                total_marks: Number(e.target.value) || 100,
-                              })
-                            }
-                            placeholder="e.g., 100"
-                            min={1}
-                          />
-
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks</label>
-                          <Input
-                            type="number"
-                            value={formData.passing_marks}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                passing_marks: Number(e.target.value) || 60,
-                              })
-                            }
-                            placeholder="e.g., 60"
-                            min={1}
-                            max={formData.total_marks}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
-                          <Select
-                            value={formData.publish_status}
-                            onValueChange={(value) =>
-                              setFormData({ ...formData, publish_status: value as any })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                              <SelectItem value="draft">Draft</SelectItem>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="inactive">Inactive</SelectItem>
-                              <SelectItem value="archived">Archived</SelectItem>
-                            </SelectContent>
-                          </Select>
-
-                        </div>
-                        <div className="flex h-23 items-center gap-2">
-                          <Checkbox
-                            id="enable_proctoring"
-                            checked={formData.enable_proctoring}
-                            onCheckedChange={(checked) =>
-                              setFormData({ ...formData, enable_proctoring: Boolean(checked) })
-                            }
-                          />
-                          <label
-                            htmlFor="enable_proctoring"
-                            className="text-sm font-medium text-gray-900 select-none"
-                          >
-                            Enable Proctoring
-                          </label>
-                        </div>
-
-
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="questions" className="space-y-6">
-                  {/* Random Questions Configuration */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                        Random Questions Configuration
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            MCQ Single Choice
-                          </label>
-
-                          <Input
-                            type="number"
-                            min={0}
-                            value={randomQuestionsConfig.mcq_single}
-                            onChange={(e) =>
-                              setRandomQuestionsConfig({
-                                ...randomQuestionsConfig,
-                                mcq_single: Number(e.target.value) || 0,
-                              })
-                            }
-                            placeholder="0"
-                          />
-
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={randomQuestionsConfig.mcq_multiple}
-                            onChange={(e) => setRandomQuestionsConfig({
-                              ...randomQuestionsConfig,
-                              mcq_multiple: Number(e.target.value) || 0,
-                            })}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={randomQuestionsConfig.coding}
-                            onChange={(e) => setRandomQuestionsConfig({
-                              ...randomQuestionsConfig,
-                              coding: Number(e.target.value) || 0,
-                            })}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={randomQuestionsConfig.descriptive}
-                            onChange={(e) => setRandomQuestionsConfig({
-                              ...randomQuestionsConfig,
-                              descriptive: Number(e.target.value) || 0,
-                            })}
-                            placeholder="0"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-3">
-                        Specify how many questions of each type should be randomly selected from the question bank for this skill test.
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  {/* Specific Question Selection */}
-                  <Card className="border border-gray-200 shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                        Specific Question Selection
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <QuestionBank
-                        mode="selection"
-                        selectedQuestions={selectedQuestions}
-                        onQuestionsChange={handleQuestionsChange}
-                        allowMultipleSelection={true}
-                        showSplitView={true}
-                        courseFilter={selectedCourse}
-                        topicFilter={formData.topic}
-                        categoryFilter="skill_test"
-                      />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
-                  {currentFormTab === 'questions' ? (
-                    <Button
-                      variant="secondary"
-                      onClick={() => setCurrentFormTab('details')}
-                      className="bg-orange-500 hover:bg-orange-300 text-white"
-                    >
-                      ← Back to Details
-                    </Button>
-                  ) : (
-                    <div></div>
-                  )}
-
-                  <div className="flex gap-3">
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        const skillTestTopicId = formData.topic || topicIdFromUrl;
-                        const skillTestCourseId = formData.course || courseIdFromUrl;
-                        console.log('Cancel button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
-                        try {
-                          if (skillTestCourseId) {
-                            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                            if (skillTestTopicId) {
-                              targetUrl += `?topicId=${skillTestTopicId}`;
-                            }
-                            console.log('Navigating to course manage page with skill test topic:', targetUrl);
-                            navigate(targetUrl);
-                          } else {
-                            console.log('No courseId, navigating to main skill tests page');
-                            navigate('/instructor/skill-tests');
-                          }
-                        } catch (error) {
-                          console.error('Navigation failed, using window.location:', error);
-                          if (skillTestCourseId) {
-                            let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
-                            if (skillTestTopicId) {
-                              targetUrl += `?topicId=${skillTestTopicId}`;
-                            }
-                            window.location.href = targetUrl;
-                          } else {
-                            window.location.href = '/instructor/skill-tests';
-                          }
+    <DashboardLayout
+      title={getHeaderTitle()}
+      subtitle={getHeaderSubtitle()}
+      actions={backButton}
+    >
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white shadow rounded-lg mb-6 p-6">
+          <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
+            <TabsContent value="details" className="space-y-6">
+              {/* Basic Information Card */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Trophy className="h-5 w-5 mr-2 text-blue-500" />
+                    Basic Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Test Title *</label>
+                      <Input
+                        value={formData.title}
+                        onChange={(e) =>
+                          setFormData({ ...formData, title: e.target.value })
                         }
-                      }}
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-800"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handlePrimaryAction}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      {currentFormTab === 'details'
-                        ? 'Next: Add Questions'
-                        : (isEditMode ? 'Update Skill Test' : 'Create Skill Test')}
-                    </Button>
+                        placeholder="e.g., JavaScript Fundamentals Test"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level *</label>
+                      <Select
+                        value={formData.difficulty}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, difficulty: value as any })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectItem value="easy">Easy</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="hard">Hard</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
-              </Tabs>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      placeholder="Describe the skill test focus and topics..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
+                    <Textarea
+                      value={formData.instructions}
+                      onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+                      placeholder="Instructions for students taking the test..."
+                    />
+                  </div>
+
+                  {/* Course and Topic are auto-selected from navigation context */}
+                </CardContent>
+              </Card>
+
+              {/* Test Configuration Card */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2 text-green-500" />
+                    Test Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes) *</label>
+                      <Input
+                        type="number"
+                        value={formData.duration}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            duration: Number(e.target.value) || 60,
+                          })
+                        }
+                        placeholder="e.g., 60"
+                        min={1}
+                      />
+
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks</label>
+                      <Input
+                        type="number"
+                        value={formData.total_marks}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            total_marks: Number(e.target.value) || 100,
+                          })
+                        }
+                        placeholder="e.g., 100"
+                        min={1}
+                      />
+
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks</label>
+                      <Input
+                        type="number"
+                        value={formData.passing_marks}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            passing_marks: Number(e.target.value) || 60,
+                          })
+                        }
+                        placeholder="e.g., 60"
+                        min={1}
+                        max={formData.total_marks}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
+                      <Select
+                        value={formData.publish_status}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, publish_status: value as any })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                    </div>
+                    <div className="flex h-23 items-center gap-2">
+                      <Checkbox
+                        id="enable_proctoring"
+                        checked={formData.enable_proctoring}
+                        onCheckedChange={(checked) =>
+                          setFormData({ ...formData, enable_proctoring: Boolean(checked) })
+                        }
+                      />
+                      <label
+                        htmlFor="enable_proctoring"
+                        className="text-sm font-medium text-gray-900 select-none"
+                      >
+                        Enable Proctoring
+                      </label>
+                    </div>
+
+
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="questions" className="space-y-6">
+              {/* Random Questions Configuration */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Settings className="h-5 w-5 mr-2 text-orange-500" />
+                    Random Questions Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        MCQ Single Choice
+                      </label>
+
+                      <Input
+                        type="number"
+                        min={0}
+                        value={randomQuestionsConfig.mcq_single.easy + randomQuestionsConfig.mcq_single.medium + randomQuestionsConfig.mcq_single.hard}
+                        onChange={(e) =>
+                          setRandomQuestionsConfig({
+                            ...randomQuestionsConfig,
+                            mcq_single: { easy: 0, medium: Number(e.target.value) || 0, hard: 0 },
+                          })
+                        }
+                        placeholder="0"
+                      />
+
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple Choice</label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={randomQuestionsConfig.mcq_multiple.easy + randomQuestionsConfig.mcq_multiple.medium + randomQuestionsConfig.mcq_multiple.hard}
+                        onChange={(e) => setRandomQuestionsConfig({
+                          ...randomQuestionsConfig,
+                          mcq_multiple: { easy: 0, medium: Number(e.target.value) || 0, hard: 0 },
+                        })}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Coding Questions</label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={randomQuestionsConfig.coding.easy + randomQuestionsConfig.coding.medium + randomQuestionsConfig.coding.hard}
+                        onChange={(e) => setRandomQuestionsConfig({
+                          ...randomQuestionsConfig,
+                          coding: { easy: 0, medium: Number(e.target.value) || 0, hard: 0 },
+                        })}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive Questions</label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={randomQuestionsConfig.descriptive.easy + randomQuestionsConfig.descriptive.medium + randomQuestionsConfig.descriptive.hard}
+                        onChange={(e) => setRandomQuestionsConfig({
+                          ...randomQuestionsConfig,
+                          descriptive: { easy: 0, medium: Number(e.target.value) || 0, hard: 0 },
+                        })}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    Specify how many questions of each type should be randomly selected from the question bank for this skill test.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Specific Question Selection */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                    <FileText className="h-5 w-5 mr-2 text-purple-500" />
+                    Specific Question Selection
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <QuestionBank
+                    mode="selection"
+                    selectedQuestions={selectedQuestions}
+                    onQuestionsChange={handleQuestionsChange}
+                    allowMultipleSelection={true}
+                    showSplitView={true}
+                    courseFilter={selectedCourse}
+                    topicFilter={formData.topic}
+                    categoryFilter="skill_test"
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
+              {currentFormTab === 'questions' ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => setCurrentFormTab('details')}
+                  className="bg-orange-500 hover:bg-orange-300 text-white"
+                >
+                  ← Back to Details
+                </Button>
+              ) : (
+                <div></div>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    const skillTestTopicId = formData.topic || topicIdFromUrl;
+                    const skillTestCourseId = formData.course || courseIdFromUrl;
+                    console.log('Cancel button clicked. SkillTest CourseId:', skillTestCourseId, 'SkillTest TopicId:', skillTestTopicId);
+                    try {
+                      if (skillTestCourseId) {
+                        let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+                        if (skillTestTopicId) {
+                          targetUrl += `?topicId=${skillTestTopicId}`;
+                        }
+                        console.log('Navigating to course manage page with skill test topic:', targetUrl);
+                        navigate(targetUrl);
+                      } else {
+                        console.log('No courseId, navigating to main skill tests page');
+                        navigate('/instructor/skill-tests');
+                      }
+                    } catch (error) {
+                      console.error('Navigation failed, using window.location:', error);
+                      if (skillTestCourseId) {
+                        let targetUrl = `/instructor/skill-tests/courses/${skillTestCourseId}/manage`;
+                        if (skillTestTopicId) {
+                          targetUrl += `?topicId=${skillTestTopicId}`;
+                        }
+                        window.location.href = targetUrl;
+                      } else {
+                        window.location.href = '/instructor/skill-tests';
+                      }
+                    }
+                  }}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePrimaryAction}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {currentFormTab === 'details'
+                    ? 'Next: Add Questions'
+                    : (isEditMode ? 'Update Skill Test' : 'Create Skill Test')}
+                </Button>
+              </div>
             </div>
-          </div>
+          </Tabs>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

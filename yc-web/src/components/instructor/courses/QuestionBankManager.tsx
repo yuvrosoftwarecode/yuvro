@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -44,6 +45,8 @@ import {
   QUESTION_CATEGORIES,
   validateQuestion,
 } from '@/services/questionService';
+import SolutionManager, { Solution } from './SolutionManager';
+import { createSolution, updateSolution, deleteSolution, fetchSolutions } from '@/services/solutionService';
 
 import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
 
@@ -91,6 +94,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     test_cases_basic: [{ input: '', expected_output: '', description: '' }],
     test_cases_advanced: [],
   });
+
+  // Solutions Management
+  const [solutions, setSolutions] = useState<Solution[]>([]);
+  const [originalSolutions, setOriginalSolutions] = useState<Solution[]>([]);
 
   // Delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -159,7 +166,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, course, selectedTopic, selectedSubtopic, filterLevel, filterType]);
+  }, [searchTerm, course, selectedTopic, selectedSubtopic, filterLevel, filterType, filterDifficulty]);
 
   // Update form data when selection context changes (only if not editing)
   useEffect(() => {
@@ -238,11 +245,13 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       test_cases_basic: [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: [],
     });
+    setSolutions([]); // Reset solutions
+    setOriginalSolutions([]);
     setActiveTab('create');
     setEditingQuestion(null);
   };
 
-  const openEditForm = (question: Question) => {
+  const openEditForm = async (question: Question) => {
     setEditingQuestion(question);
     setFormData({
       type: question.type,
@@ -265,6 +274,20 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       test_cases_basic: question.test_cases_basic || [{ input: '', expected_output: '', description: '' }],
       test_cases_advanced: question.test_cases_advanced || [],
     });
+
+    // Fetch solutions
+    try {
+      const response: any = await fetchSolutions(question.id);
+      const fetchedSolutions = Array.isArray(response) ? response : (response?.results || []);
+      setSolutions(fetchedSolutions);
+      setOriginalSolutions(fetchedSolutions);
+    } catch (error) {
+      console.error('Error fetching solutions:', error);
+      toast.error('Failed to load solutions');
+      setSolutions([]);
+      setOriginalSolutions([]);
+    }
+
     setActiveTab('create');
   };
 
@@ -277,17 +300,48 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
     setSaving(true);
     try {
+      let savedQuestion: Question;
       if (editingQuestion) {
-        const updated = await updateQuestion(editingQuestion.id, formData);
-        setQuestions(prev => prev.map(q => q.id === updated.id ? updated : q));
+        savedQuestion = await updateQuestion(editingQuestion.id, formData);
         toast.success('Question updated successfully');
+      } else {
+        savedQuestion = await createQuestion(formData);
+        toast.success('Question created successfully');
+      }
+
+      // Handle Solutions
+      const questionId = savedQuestion.id;
+      const solutionPromises = [];
+
+      // 1. Create/Update solutions
+      for (const sol of solutions) {
+        if (sol.id) {
+          // Update existing
+          solutionPromises.push(updateSolution(sol.id, { ...sol, question: questionId }));
+        } else {
+          // Create new
+          solutionPromises.push(createSolution({ ...sol, question: questionId }));
+        }
+      }
+
+      // 2. Delete removed solutions (only if editing)
+      if (editingQuestion) {
+        const currentIds = solutions.map(s => s.id).filter(id => id);
+        const toDelete = originalSolutions.filter(s => s.id && !currentIds.includes(s.id));
+        for (const sol of toDelete) {
+          if (sol.id) solutionPromises.push(deleteSolution(sol.id));
+        }
+      }
+
+      await Promise.all(solutionPromises);
+
+      if (editingQuestion) {
+        setQuestions(prev => prev.map(q => q.id === savedQuestion.id ? savedQuestion : q));
         // After editing, go back to questions tab
         setActiveTab('questions');
         setEditingQuestion(null);
       } else {
-        const created = await createQuestion(formData);
-        setQuestions(prev => [created, ...prev]);
-        toast.success('Question created successfully');
+        setQuestions(prev => [savedQuestion, ...prev]);
         // After creating, stay on create tab and reset form for new question
         openCreateForm();
       }
@@ -328,18 +382,13 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
   const toggleMCQCorrect = (index: number) => {
-    const newOptions = [...(formData.mcq_options || [])];
+    const newOptions = (formData.mcq_options || []).map((option, i) => {
+      if (formData.type === 'mcq_single') {
+        return { ...option, is_correct: i === index ? !option.is_correct : false };
+      }
+      return i === index ? { ...option, is_correct: !option.is_correct } : { ...option };
+    });
 
-    // For single answer MCQ, uncheck all others first
-    if (formData.type === 'mcq_single') {
-      newOptions.forEach((option, i) => {
-        if (i !== index) {
-          option.is_correct = false;
-        }
-      });
-    }
-
-    newOptions[index] = { ...newOptions[index], is_correct: !newOptions[index].is_correct };
     setFormData(prev => ({ ...prev, mcq_options: newOptions }));
   };
 
@@ -361,26 +410,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
 
-
-  const updateTestCase = (index: number, field: 'input' | 'expected_output' | 'description', value: string) => {
-    const newTestCases = [...(formData.test_cases_basic || [])];
-    newTestCases[index] = { ...newTestCases[index], [field]: value };
-    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
-  };
-
-  const addTestCase = () => {
-    setFormData(prev => ({
-      ...prev,
-      test_cases_basic: [...(prev.test_cases_basic || []), { input: '', expected_output: '', description: '' }]
-    }));
-  };
-
-  const removeTestCase = (index: number) => {
-    if ((formData.test_cases_basic?.length || 0) <= 1) return;
-
-    const newTestCases = formData.test_cases_basic?.filter((_, i) => i !== index) || [];
-    setFormData(prev => ({ ...prev, test_cases_basic: newTestCases }));
-  };
 
   const filteredQuestions = questions.filter(question => {
     const matchesSearch = question.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -457,7 +486,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-full overflow-y-auto">
       {/* Header with Tabs */}
       <div className="space-y-4">
         <div>
@@ -468,10 +497,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 bg-amber-50 p-1 rounded-lg border border-amber-200">
+        <div className="flex flex-wrap gap-2 space-x-0 sm:space-x-1 sm:flex-nowrap bg-amber-50 p-1.5 rounded-lg border border-amber-200">
           <button
             onClick={() => setActiveTab('create')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'create'
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'create'
               ? 'bg-amber-600 text-white shadow-sm'
               : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
               }`}
@@ -481,7 +510,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('questions')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'questions'
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'questions'
               ? 'bg-amber-600 text-white shadow-sm'
               : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
               }`}
@@ -494,139 +523,152 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
       {/* Questions Tab */}
       {activeTab === 'questions' && (
-        <>
-          {/* Search and Filters */}
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search questions (optional)..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-slate-300"
-                />
-              </div>
-            </div>
-            <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Types</SelectItem>
-                {QUESTION_TYPES.map(type => (
-                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Difficulty</SelectItem>
-                {DIFFICULTY_LEVELS.map(level => (
-                  <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Level" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="course">Course Level</SelectItem>
-                <SelectItem value="topic">Topic Level</SelectItem>
-                <SelectItem value="subtopic">Subtopic Level</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Questions List */}
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+        <Card className="border-2 border-amber-200 bg-amber-50/30">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="border-b border-amber-200 pb-4">
+                <div className="flex items-center gap-3">
+                  <FileQuestion className="w-5 h-5 text-amber-600" />
+                  <h4 className="text-lg font-semibold text-slate-900">Question Bank</h4>
                 </div>
-              ))}
-            </div>
-          ) : filteredQuestions.length === 0 ? (
-            <div className="text-center py-12">
-              <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
-              <p className="text-gray-500 mb-4">
-                No questions match your search criteria. Try different keywords or create a new question.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredQuestions.map(question => (
-                <Card key={question.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            {getQuestionIcon(question.type)}
-                            <span className="font-semibold text-slate-900">{question.title}</span>
-                          </div>
-                          <Badge className={getDifficultyColor(question.difficulty)}>
-                            {question.difficulty}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {getQuestionTypeLabel(question.type)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.level} level
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.marks} marks
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.duration} mins
-                          </Badge>
-                        </div>
-                        <p className="text-slate-600 text-sm mb-2 line-clamp-2">
-                          {question.content}
-                        </p>
-                        {question.categories.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {question.categories.map(category => (
-                              <Badge key={category} variant="secondary" className="text-xs">
-                                {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditForm(question)}
-                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setConfirmDelete(question.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search questions (optional)..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all w-full"
+                    />
+                  </div>
+                </div>
+                <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Types</SelectItem>
+                    {QUESTION_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Difficulty" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Difficulty</SelectItem>
+                    {DIFFICULTY_LEVELS.map(level => (
+                      <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{level.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Level" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Levels</SelectItem>
+                    <SelectItem value="course" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Course Level</SelectItem>
+                    <SelectItem value="topic" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Topic Level</SelectItem>
+                    <SelectItem value="subtopic" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subtopic Level</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Questions List */}
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-100 rounded w-1/2"></div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  ))}
+                </div>
+              ) : filteredQuestions.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
+                  <p className="text-gray-500 mb-4">
+                    No questions match your search criteria. Try different keywords or create a new question.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredQuestions.map(question => (
+                    <Card key={question.id} className="hover:border-amber-300 transition-colors border-slate-200 shadow-sm">
+                      <CardContent className="p-5">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                          <div className="flex-1 space-y-3 w-full">
+                            <div className="flex items-center gap-2">
+                              {getQuestionIcon(question.type)}
+                              <h5 className="font-semibold text-slate-900 text-base">{question.title}</h5>
+                              <Badge className={getDifficultyColor(question.difficulty)}>
+                                {question.difficulty}
+                              </Badge>
+                            </div>
+                            <p className="text-slate-600 text-sm line-clamp-2">
+                              {question.content}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 border-blue-100 font-medium">
+                                {getQuestionTypeLabel(question.type)}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800 border-slate-200">
+                                {question.level} level
+                              </Badge>
+                              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border-emerald-100">
+                                {question.marks} marks
+                              </Badge>
+                              <Badge variant="secondary" className="bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 border-amber-100">
+                                {question.duration} mins
+                              </Badge>
+                              {question.categories.length > 0 && (
+                                <>
+                                  <div className="w-1 h-1 rounded-full bg-slate-300 mx-1"></div>
+                                  {question.categories.map(category => (
+                                    <Badge key={category} variant="outline" className="text-slate-500 border-slate-200">
+                                      {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
+                                    </Badge>
+                                  ))}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex sm:flex-col items-center gap-2 self-end sm:self-start mt-2 sm:mt-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEditForm(question)}
+                              className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setConfirmDelete(question.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </>
+          </CardContent>
+        </Card>
       )}
 
       {/* Create New Question Tab */}
@@ -652,7 +694,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
               </div>
 
               {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Question Type</Label>
                   <Select
@@ -662,12 +704,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       type: value as 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive'
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300 pl-2">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {QUESTION_TYPES.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
+                        <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {type.label}
                         </SelectItem>
                       ))}
@@ -680,12 +722,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     value={formData.level}
                     onValueChange={(value) => handleLevelChange(value as 'course' | 'topic' | 'subtopic')}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {getAvailableLevels().map(level => (
-                        <SelectItem key={level.value} value={level.value}>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {level.label}
                         </SelectItem>
                       ))}
@@ -707,12 +749,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                           }));
                         }}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select a topic" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {topics.map((topic: any) => (
-                            <SelectItem key={topic.id} value={topic.id}>
+                            <SelectItem key={topic.id} value={topic.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                               {topic.name}
                             </SelectItem>
                           ))}
@@ -730,17 +772,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                         value={formData.subtopic}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, subtopic: value }))}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select a subtopic" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {(() => {
                             // Find the active topic to get its subtopics
                             const activeTopicId = selectedTopic?.id || formData.topic;
                             const activeTopic = topics.find((t: any) => t.id === activeTopicId);
 
                             return activeTopic?.subtopics?.map((sub: any) => (
-                              <SelectItem key={sub.id} value={sub.id}>
+                              <SelectItem key={sub.id} value={sub.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                                 {sub.name}
                               </SelectItem>
                             )) || <SelectItem value="none" disabled>No subtopics found</SelectItem>;
@@ -759,25 +801,27 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       difficulty: value as 'easy' | 'medium' | 'hard'
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select difficulty" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {DIFFICULTY_LEVELS.map(level => (
-                        <SelectItem key={level.value} value={level.value}>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {level.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Marks</Label>
                   <Input
                     type="number"
                     value={formData.marks}
                     readOnly
-                    className="bg-slate-100 border-slate-300 cursor-not-allowed opacity-75"
+                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
                   />
                 </div>
                 <div>
@@ -786,7 +830,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     type="number"
                     value={formData.duration}
                     readOnly
-                    className="bg-slate-100 border-slate-300 cursor-not-allowed opacity-75"
+                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
                   />
                 </div>
               </div>
@@ -842,6 +886,18 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   className="bg-white border-slate-300"
                 />
               </div>
+
+              {/* Reference Solution Manager - Only for coding/descriptive */}
+              {(formData.type === 'coding' || formData.type === 'descriptive') && (
+                <div className="space-y-3 pt-2 border-t border-slate-200">
+                  <SolutionManager
+                    solutions={solutions}
+                    onChange={setSolutions}
+                    testCases={formData.test_cases_basic}
+                    onTestCasesChange={(tc) => setFormData(prev => ({ ...prev, test_cases_basic: tc }))}
+                  />
+                </div>
+              )}
 
               {/* MCQ Options */}
               {(formData.type === 'mcq_single' || formData.type === 'mcq_multiple') && (
@@ -921,64 +977,6 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 </div>
               )}
 
-              {/* Coding Test Cases */}
-              {formData.type === 'coding' && (
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-slate-700">Test Cases</Label>
-                  <div className="space-y-3">
-                    {formData.test_cases_basic?.map((testCase, index) => (
-                      <div key={index} className="bg-white border rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-slate-800">Test Case {index + 1}</h5>
-                          {(formData.test_cases_basic?.length || 0) > 1 && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => removeTestCase(index)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label className="text-xs text-slate-600">Input</Label>
-                            <Textarea
-                              value={testCase.input}
-                              onChange={(e) => updateTestCase(index, 'input', e.target.value)}
-                              placeholder="Enter input data"
-                              rows={2}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-slate-600">Expected Output</Label>
-                            <Textarea
-                              value={testCase.expected_output}
-                              onChange={(e) => updateTestCase(index, 'expected_output', e.target.value)}
-                              placeholder="Enter expected output"
-                              rows={2}
-                              className="text-sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={addTestCase}
-                      className="w-full border-dashed border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Test Case
-                    </Button>
-                  </div>
-                </div>
-              )}
 
               {/* Save Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">

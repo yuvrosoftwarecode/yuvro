@@ -7,6 +7,7 @@ from .views import (
     VideoViewSet,
     NoteViewSet,
     QuestionViewSet,
+    QuestionSolutionViewSet,
     StudentCourseProgressViewSet,
     StudentCodePracticeViewSet,
 )
@@ -18,6 +19,7 @@ router.register(r"subtopics", SubtopicViewSet)
 router.register(r"videos", VideoViewSet)
 router.register(r"notes", NoteViewSet)
 router.register(r"questions", QuestionViewSet)
+router.register(r"question-solutions", QuestionSolutionViewSet)
 router.register(r"student-course-progress", StudentCourseProgressViewSet)
 router.register(r"student-code-practices", StudentCodePracticeViewSet)
 

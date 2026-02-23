@@ -7,8 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import SearchBar from '@/components/common/SearchBar';
 import { useAuth } from "@/contexts/AuthContext";
 import { contestService } from '@/services/contestService';
@@ -341,351 +340,344 @@ export default function OwnerContest() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={headerActions}
-          />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      title={getHeaderTitle()}
+      subtitle={getHeaderSubtitle()}
+      actions={headerActions}
+    >
+      <div className="px-6 py-6">
 
-            {currentView === 'list' && (
-              <>
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <StatsCard
-                    label="Total Contests"
-                    value={contests.length}
-                    icon={Trophy}
-                    colorScheme="blue"
-                  />
-                  <StatsCard
-                    label="Upcoming"
-                    value={contests.filter(c => c.status === 'upcoming').length}
-                    icon={Calendar}
-                    colorScheme="purple"
-                  />
-                  <StatsCard
-                    label="Ongoing"
-                    value={contests.filter(c => c.status === 'ongoing').length}
-                    icon={Clock}
-                    colorScheme="green"
-                  />
-                  <StatsCard
-                    label="Completed"
-                    value={contests.filter(c => c.status === 'past').length}
-                    icon={Users}
-                    colorScheme="amber"
-                  />
+        {currentView === 'list' && (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <StatsCard
+                label="Total Contests"
+                value={contests.length}
+                icon={Trophy}
+                colorScheme="blue"
+              />
+              <StatsCard
+                label="Upcoming"
+                value={contests.filter(c => c.status === 'upcoming').length}
+                icon={Calendar}
+                colorScheme="purple"
+              />
+              <StatsCard
+                label="Ongoing"
+                value={contests.filter(c => c.status === 'ongoing').length}
+                icon={Clock}
+                colorScheme="green"
+              />
+              <StatsCard
+                label="Completed"
+                value={contests.filter(c => c.status === 'past').length}
+                icon={Users}
+                colorScheme="amber"
+              />
+            </div>
+
+
+
+            {/* Tabs and Search */}
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="flex w-full items-center gap-4 h-12">
+                <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
+                  <TabsList className="inline-flex w-auto gap-1">
+                    <TabsTrigger value="all" className="px-6">All Contests</TabsTrigger>
+                    <TabsTrigger value="upcoming" className="px-6">Upcoming</TabsTrigger>
+                    <TabsTrigger value="ongoing" className="px-6">Ongoing</TabsTrigger>
+                    <TabsTrigger value="past" className="px-6">Completed</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <div className="group relative h-full flex items-center">
+                  <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 </div>
+              </div>
+            </div>
+          </>
+        )}
 
 
 
-                {/* Tabs and Search */}
-                <div className="mb-6 flex items-center justify-between gap-4">
-                  <div className="flex w-full items-center gap-4 h-12">
-                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="h-full flex items-center">
-                      <TabsList className="inline-flex w-auto gap-1">
-                        <TabsTrigger value="all" className="px-6">All Contests</TabsTrigger>
-                        <TabsTrigger value="upcoming" className="px-6">Upcoming</TabsTrigger>
-                        <TabsTrigger value="ongoing" className="px-6">Ongoing</TabsTrigger>
-                        <TabsTrigger value="past" className="px-6">Completed</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
+        {/* View Contest Details - PREMIUM REVAMP */}
+        {currentView === 'view' && selectedContest && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Hero Banner - Reusable Component */}
+            <DetailHeader
+              title={selectedContest.title}
+              type={selectedContest.type}
+              status={selectedContest.status}
+              organizer={selectedContest.organizer}
+              createdAt={new Date().toLocaleDateString()}
+              onEdit={() => openEditForm(selectedContest)}
+              stats={[
+                {
+                  label: 'Duration',
+                  value: selectedContest.duration,
+                  icon: Clock,
+                  colorClass: 'text-slate-700',
+                  iconColorClass: 'text-blue-500'
+                },
+                {
+                  label: 'Participants',
+                  value: selectedContest.participants,
+                  icon: Users,
+                  colorClass: 'text-slate-700',
+                  iconColorClass: 'text-green-500'
+                },
+                {
+                  label: 'Prize',
+                  value: selectedContest.prize || 'None',
+                  icon: Trophy,
+                  colorClass: 'text-slate-700',
+                  iconColorClass: 'text-amber-500'
+                },
+                {
+                  label: 'Difficulty',
+                  value: selectedContest.difficulty,
+                  icon: BarChart2,
+                  colorClass: selectedContest.difficulty === 'Hard' ? 'text-red-600' :
+                    selectedContest.difficulty === 'Medium' ? 'text-amber-600' : 'text-green-600',
+                  iconColorClass: 'text-slate-500'
+                }
+              ]}
+            />
 
-                    <div className="group relative h-full flex items-center">
-                      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* LEFT COLUMN - MAIN CONTENT */}
+              <div className="lg:col-span-2 space-y-8">
+
+                {/* Description */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-slate-500" />
+                    About this Contest
+                  </h3>
+                  <div className="prose prose-slate max-w-none text-slate-600">
+                    {selectedContest.description || 'No description provided.'}
                   </div>
                 </div>
-              </>
-            )}
 
+                {/* Questions Visualizer */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      <Code className="w-5 h-5 text-slate-500" />
+                      Questions Analytics
+                    </h3>
+                    <Badge variant="outline" className="text-slate-500">
+                      Total: {
+                        (selectedContest.questions_config ? Object.values(selectedContest.questions_config).flat().length : 0) +
+                        (selectedContest.questions_random_config ? Object.values(selectedContest.questions_random_config).reduce((a, b) => a + b, 0) : 0)
+                      } Qs
+                    </Badge>
+                  </div>
 
-
-            {/* View Contest Details - PREMIUM REVAMP */}
-            {currentView === 'view' && selectedContest && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Hero Banner - Reusable Component */}
-                <DetailHeader
-                  title={selectedContest.title}
-                  type={selectedContest.type}
-                  status={selectedContest.status}
-                  organizer={selectedContest.organizer}
-                  createdAt={new Date().toLocaleDateString()}
-                  onEdit={() => openEditForm(selectedContest)}
-                  stats={[
-                    {
-                      label: 'Duration',
-                      value: selectedContest.duration,
-                      icon: Clock,
-                      colorClass: 'text-slate-700',
-                      iconColorClass: 'text-blue-500'
-                    },
-                    {
-                      label: 'Participants',
-                      value: selectedContest.participants,
-                      icon: Users,
-                      colorClass: 'text-slate-700',
-                      iconColorClass: 'text-green-500'
-                    },
-                    {
-                      label: 'Prize',
-                      value: selectedContest.prize || 'None',
-                      icon: Trophy,
-                      colorClass: 'text-slate-700',
-                      iconColorClass: 'text-amber-500'
-                    },
-                    {
-                      label: 'Difficulty',
-                      value: selectedContest.difficulty,
-                      icon: BarChart2,
-                      colorClass: selectedContest.difficulty === 'Hard' ? 'text-red-600' :
-                        selectedContest.difficulty === 'Medium' ? 'text-amber-600' : 'text-green-600',
-                      iconColorClass: 'text-slate-500'
-                    }
-                  ]}
-                />
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* LEFT COLUMN - MAIN CONTENT */}
-                  <div className="lg:col-span-2 space-y-8">
-
-                    {/* Description */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                      <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-slate-500" />
-                        About this Contest
-                      </h3>
-                      <div className="prose prose-slate max-w-none text-slate-600">
-                        {selectedContest.description || 'No description provided.'}
-                      </div>
-                    </div>
-
-                    {/* Questions Visualizer */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                      <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                          <Code className="w-5 h-5 text-slate-500" />
-                          Questions Analytics
-                        </h3>
-                        <Badge variant="outline" className="text-slate-500">
-                          Total: {
-                            (selectedContest.questions_config ? Object.values(selectedContest.questions_config).flat().length : 0) +
-                            (selectedContest.questions_random_config ? Object.values(selectedContest.questions_random_config).reduce((a, b) => a + b, 0) : 0)
-                          } Qs
-                        </Badge>
-                      </div>
-
-                      <div className="p-6">
-                        {/* Random Config Bars */}
-                        {selectedContest.questions_random_config && (
-                          <div className="mb-8">
-                            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Random Pool Distribution</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {/* MCQ Single */}
-                              <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-                                <div className="flex justify-between items-start mb-2">
-                                  <span className="text-purple-600 font-semibold text-sm">MCQ Single</span>
-                                  <Badge className="bg-purple-200 text-purple-700 hover:bg-purple-300 border-none">{selectedContest.questions_random_config.mcq_single}</Badge>
-                                </div>
-                                <div className="w-full bg-purple-200 rounded-full h-1.5">
-                                  <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.mcq_single * 10, 100)}%` }}></div>
-                                </div>
-                              </div>
-                              {/* MCQ Multiple */}
-                              <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
-                                <div className="flex justify-between items-start mb-2">
-                                  <span className="text-indigo-600 font-semibold text-sm">MCQ Multi</span>
-                                  <Badge className="bg-indigo-200 text-indigo-700 hover:bg-indigo-300 border-none">{selectedContest.questions_random_config.mcq_multiple}</Badge>
-                                </div>
-                                <div className="w-full bg-indigo-200 rounded-full h-1.5">
-                                  <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.mcq_multiple * 10, 100)}%` }}></div>
-                                </div>
-                              </div>
-                              {/* Coding */}
-                              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                                <div className="flex justify-between items-start mb-2">
-                                  <span className="text-blue-600 font-semibold text-sm">Coding</span>
-                                  <Badge className="bg-blue-200 text-blue-700 hover:bg-blue-300 border-none">{selectedContest.questions_random_config.coding}</Badge>
-                                </div>
-                                <div className="w-full bg-blue-200 rounded-full h-1.5">
-                                  <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.coding * 20, 100)}%` }}></div>
-                                </div>
-                              </div>
-                              {/* Descriptive */}
-                              <div className="bg-teal-50 rounded-lg p-4 border border-teal-100">
-                                <div className="flex justify-between items-start mb-2">
-                                  <span className="text-teal-600 font-semibold text-sm">Descriptive</span>
-                                  <Badge className="bg-teal-200 text-teal-700 hover:bg-teal-300 border-none">{selectedContest.questions_random_config.descriptive}</Badge>
-                                </div>
-                                <div className="w-full bg-teal-200 rounded-full h-1.5">
-                                  <div className="bg-teal-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.descriptive * 20, 100)}%` }}></div>
-                                </div>
-                              </div>
+                  <div className="p-6">
+                    {/* Random Config Bars */}
+                    {selectedContest.questions_random_config && (
+                      <div className="mb-8">
+                        <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Random Pool Distribution</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {/* MCQ Single */}
+                          <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="text-purple-600 font-semibold text-sm">MCQ Single</span>
+                              <Badge className="bg-purple-200 text-purple-700 hover:bg-purple-300 border-none">{selectedContest.questions_random_config.mcq_single}</Badge>
+                            </div>
+                            <div className="w-full bg-purple-200 rounded-full h-1.5">
+                              <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.mcq_single * 10, 100)}%` }}></div>
                             </div>
                           </div>
-                        )}
-
-                        <div className="space-y-4">
-                          <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Specific Questions Preview</h4>
-                          {loadingQuestions ? (
-                            <div className="flex items-center justify-center p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-400"></div>
+                          {/* MCQ Multiple */}
+                          <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="text-indigo-600 font-semibold text-sm">MCQ Multi</span>
+                              <Badge className="bg-indigo-200 text-indigo-700 hover:bg-indigo-300 border-none">{selectedContest.questions_random_config.mcq_multiple}</Badge>
                             </div>
-                          ) : (
-                            <div className="bg-slate-50 rounded-lg border border-slate-200 divide-y divide-slate-100">
-                              {/* Render a few distinct questions here as list items */}
-                              {Object.entries(contestQuestions).map(([type, questions]) => (
-                                questions.length > 0 && (
-                                  <div key={type} className="p-4">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <Badge variant="outline" className="capitalize">{type.replace('_', ' ')}</Badge>
-                                      <span className="text-xs text-slate-500">{questions.length} questions</span>
-                                    </div>
-                                    <div className="space-y-2">
-                                      {questions.slice(0, 3).map((q, idx) => (
-                                        <div key={q.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border border-slate-100">
-                                          <span className="truncate max-w-[70%] font-medium text-slate-700">{q.title}</span>
-                                          <div className="flex items-center gap-2">
-                                            <Badge className={getDifficultyColor(q.difficulty)} variant="secondary">{q.difficulty}</Badge>
-                                            <span className="text-xs font-mono text-slate-500">{q.marks}pts</span>
-                                          </div>
-                                        </div>
-                                      ))}
-                                      {questions.length > 3 && (
-                                        <div className="text-center text-xs text-slate-400 italic pt-1">
-                                          + {questions.length - 3} more questions
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )
-                              ))}
+                            <div className="w-full bg-indigo-200 rounded-full h-1.5">
+                              <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.mcq_multiple * 10, 100)}%` }}></div>
+                            </div>
+                          </div>
+                          {/* Coding */}
+                          <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="text-blue-600 font-semibold text-sm">Coding</span>
+                              <Badge className="bg-blue-200 text-blue-700 hover:bg-blue-300 border-none">{selectedContest.questions_random_config.coding}</Badge>
+                            </div>
+                            <div className="w-full bg-blue-200 rounded-full h-1.5">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.coding * 20, 100)}%` }}></div>
+                            </div>
+                          </div>
+                          {/* Descriptive */}
+                          <div className="bg-teal-50 rounded-lg p-4 border border-teal-100">
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="text-teal-600 font-semibold text-sm">Descriptive</span>
+                              <Badge className="bg-teal-200 text-teal-700 hover:bg-teal-300 border-none">{selectedContest.questions_random_config.descriptive}</Badge>
+                            </div>
+                            <div className="w-full bg-teal-200 rounded-full h-1.5">
+                              <div className="bg-teal-500 h-1.5 rounded-full" style={{ width: `${Math.min(selectedContest.questions_random_config.descriptive * 20, 100)}%` }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-                              {Object.values(contestQuestions).every(arr => arr.length === 0) && (
-                                <div className="p-8 text-center text-slate-500">
-                                  No specific questions selected.
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Specific Questions Preview</h4>
+                      {loadingQuestions ? (
+                        <div className="flex items-center justify-center p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-400"></div>
+                        </div>
+                      ) : (
+                        <div className="bg-slate-50 rounded-lg border border-slate-200 divide-y divide-slate-100">
+                          {/* Render a few distinct questions here as list items */}
+                          {Object.entries(contestQuestions).map(([type, questions]) => (
+                            questions.length > 0 && (
+                              <div key={type} className="p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="outline" className="capitalize">{type.replace('_', ' ')}</Badge>
+                                  <span className="text-xs text-slate-500">{questions.length} questions</span>
                                 </div>
-                              )}
+                                <div className="space-y-2">
+                                  {questions.slice(0, 3).map((q, idx) => (
+                                    <div key={q.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border border-slate-100">
+                                      <span className="truncate max-w-[70%] font-medium text-slate-700">{q.title}</span>
+                                      <div className="flex items-center gap-2">
+                                        <Badge className={getDifficultyColor(q.difficulty)} variant="secondary">{q.difficulty}</Badge>
+                                        <span className="text-xs font-mono text-slate-500">{q.marks}pts</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {questions.length > 3 && (
+                                    <div className="text-center text-xs text-slate-400 italic pt-1">
+                                      + {questions.length - 3} more questions
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          ))}
+
+                          {Object.values(contestQuestions).every(arr => arr.length === 0) && (
+                            <div className="p-8 text-center text-slate-500">
+                              No specific questions selected.
                             </div>
                           )}
                         </div>
-                      </div>
+                      )}
                     </div>
-
-                  </div>
-
-                  {/* RIGHT COLUMN - SIDEBAR */}
-                  <div className="space-y-6">
-                    {/* Schedule Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
-                        Timeline
-                      </h3>
-                      <div className="space-y-6 relative">
-                        {/* Vertical Line */}
-                        <div className="absolute left-[7px] top-6 bottom-4 w-[2px] bg-slate-100"></div>
-
-                        <div className="relative pl-6">
-                          <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-500 z-10"></div>
-                          <div className="text-sm font-semibold text-slate-900">Registration Opens</div>
-                          <div className="text-sm text-slate-500 mt-0.5">
-                            {selectedContest.registrationStartDate ? new Date(selectedContest.registrationStartDate).toLocaleString() : 'Not Set'}
-                          </div>
-                        </div>
-
-                        <div className="relative pl-6">
-                          <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-indigo-100 border-2 border-indigo-500 z-10"></div>
-                          <div className="text-sm font-semibold text-slate-900">Registration Closes</div>
-                          <div className="text-sm text-slate-500 mt-0.5">
-                            {selectedContest.registrationEndDate ? new Date(selectedContest.registrationEndDate).toLocaleString() : 'Not Set'}
-                          </div>
-                        </div>
-
-                        <div className="relative pl-6">
-                          <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-green-100 border-2 border-green-500 z-10"></div>
-                          <div className="text-sm font-semibold text-slate-900">Contest Start</div>
-                          <div className="text-sm text-slate-500 mt-0.5">
-                            {new Date(selectedContest.startDate).toLocaleString()}
-                          </div>
-                        </div>
-
-                        <div className="relative pl-6">
-                          <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-red-100 border-2 border-red-500 z-10"></div>
-                          <div className="text-sm font-semibold text-slate-900">Contest End</div>
-                          <div className="text-sm text-slate-500 mt-0.5">
-                            {new Date(selectedContest.endDate).toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Config Details */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
-                        Configuration
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                          <span className="text-sm text-slate-600">Late Entry</span>
-                          <Badge variant={selectedContest.allowLateEntry ? 'default' : 'secondary'} className={selectedContest.allowLateEntry ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border-none' : ''}>
-                            {selectedContest.allowLateEntry ? 'Allowed' : 'Disabled'}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                          <span className="text-sm text-slate-600">Proctoring</span>
-                          <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Enabled</Badge>
-                        </div>
-                        <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                          <span className="text-sm text-slate-600">Passing Marks</span>
-                          <span className="text-sm font-medium text-slate-900">60%</span>
-                        </div>
-                        <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                          <span className="text-sm text-slate-600">Max Attempts</span>
-                          <span className="text-sm font-medium text-slate-900">1</span>
-                        </div>
-                      </div>
-                    </div>
-
                   </div>
                 </div>
 
               </div>
-            )}
 
-            {currentView === 'list' && (
-              <>
-                <DataTable
-                  title="Contests"
-                  description={`${filteredContests.length} contest(s) found`}
-                  data={filteredContests}
-                  columns={columns}
-                  keyExtractor={(item) => item.id}
-                  emptyState={{
-                    message: "No contests found",
-                    subMessage: searchQuery ? `No contests found matching "${searchQuery}"` : `No ${selectedTab} contests found.`,
-                    action: searchQuery ? (
-                      <button
-                        onClick={() => setSearchQuery('')}
-                        className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                      >
-                        Clear search
-                      </button>
-                    ) : undefined
-                  }}
-                />
+              {/* RIGHT COLUMN - SIDEBAR */}
+              <div className="space-y-6">
+                {/* Schedule Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                    Timeline
+                  </h3>
+                  <div className="space-y-6 relative">
+                    {/* Vertical Line */}
+                    <div className="absolute left-[7px] top-6 bottom-4 w-[2px] bg-slate-100"></div>
 
+                    <div className="relative pl-6">
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-500 z-10"></div>
+                      <div className="text-sm font-semibold text-slate-900">Registration Opens</div>
+                      <div className="text-sm text-slate-500 mt-0.5">
+                        {selectedContest.registrationStartDate ? new Date(selectedContest.registrationStartDate).toLocaleString() : 'Not Set'}
+                      </div>
+                    </div>
 
-              </>
-            )}
+                    <div className="relative pl-6">
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-indigo-100 border-2 border-indigo-500 z-10"></div>
+                      <div className="text-sm font-semibold text-slate-900">Registration Closes</div>
+                      <div className="text-sm text-slate-500 mt-0.5">
+                        {selectedContest.registrationEndDate ? new Date(selectedContest.registrationEndDate).toLocaleString() : 'Not Set'}
+                      </div>
+                    </div>
+
+                    <div className="relative pl-6">
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-green-100 border-2 border-green-500 z-10"></div>
+                      <div className="text-sm font-semibold text-slate-900">Contest Start</div>
+                      <div className="text-sm text-slate-500 mt-0.5">
+                        {new Date(selectedContest.startDate).toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className="relative pl-6">
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-red-100 border-2 border-red-500 z-10"></div>
+                      <div className="text-sm font-semibold text-slate-900">Contest End</div>
+                      <div className="text-sm text-slate-500 mt-0.5">
+                        {new Date(selectedContest.endDate).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Config Details */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                    Configuration
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                      <span className="text-sm text-slate-600">Late Entry</span>
+                      <Badge variant={selectedContest.allowLateEntry ? 'default' : 'secondary'} className={selectedContest.allowLateEntry ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border-none' : ''}>
+                        {selectedContest.allowLateEntry ? 'Allowed' : 'Disabled'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                      <span className="text-sm text-slate-600">Proctoring</span>
+                      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Enabled</Badge>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                      <span className="text-sm text-slate-600">Passing Marks</span>
+                      <span className="text-sm font-medium text-slate-900">60%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                      <span className="text-sm text-slate-600">Max Attempts</span>
+                      <span className="text-sm font-medium text-slate-900">1</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
 
           </div>
-        </div>
+        )}
+
+        {currentView === 'list' && (
+          <>
+            <DataTable
+              title="Contests"
+              description={`${filteredContests.length} contest(s) found`}
+              data={filteredContests}
+              columns={columns}
+              keyExtractor={(item) => item.id}
+              emptyState={{
+                message: "No contests found",
+                subMessage: searchQuery ? `No contests found matching "${searchQuery}"` : `No ${selectedTab} contests found.`,
+                action: searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Clear search
+                  </button>
+                ) : undefined
+              }}
+            />
+
+
+          </>
+        )}
       </div>
-    </div >
+    </DashboardLayout>
   );
 }

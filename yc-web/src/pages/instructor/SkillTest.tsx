@@ -6,8 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/common/DataTable';
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, BookOpen, Plus, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import SearchBar from '@/components/common/SearchBar';
 import { useAuth } from "@/contexts/AuthContext";
 import skillTestService, { SkillTest } from '@/services/skillTestService';
@@ -234,221 +233,215 @@ export default function InstructorSkillTest() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={getHeaderActions()}
-          />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      title={getHeaderTitle()}
+      subtitle={getHeaderSubtitle()}
+      actions={getHeaderActions()}
+    >
+      <div className="px-6 py-6">
 
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600">Loading...</span>
-              </div>
-            )}
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Loading...</span>
+          </div>
+        )}
 
-            {/* Courses View */}
-            {currentView === 'courses' && !loading && (
-              <>
-                <InstructorCategoryTabs
-                  selectedTab={selectedTab}
-                  onTabChange={(v) => setSelectedTab(v)}
-                  counts={courseCounts}
-                />
+        {/* Courses View */}
+        {currentView === 'courses' && !loading && (
+          <>
+            <InstructorCategoryTabs
+              selectedTab={selectedTab}
+              onTabChange={(v) => setSelectedTab(v)}
+              counts={courseCounts}
+            />
 
-                {/* Courses Grid */}
-                {filteredCourses.length === 0 ? (
-                  <div className="bg-white shadow rounded-lg">
-                    <div className="text-center py-12">
-                      <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        No {TOPIC_CATEGORY_LABELS[selectedTab]} courses found.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredCourses.map((course) => (
-                      <InstructorCourseCard
-                        key={course.id}
-                        course={course as any}
-                        onClick={() => handleCourseSelect(course)}
-                        actionLabel="Select"
-                        statsLabel="Skill Tests"
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Topics View */}
-            {currentView === 'topics' && !loading && (
-              <div className="flex gap-6">
-                {/* Topics Sidebar */}
-                <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                    Topics
-                  </h3>
-                  <div className="space-y-2">
-                    {topics.map((topic) => (
-                      <div
-                        key={topic.id}
-                        onClick={() => handleTopicSelect(topic)}
-                        className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200 group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-medium text-gray-900 group-hover:text-blue-700">
-                              {topic.name}
-                            </h4>
-                          </div>
-                          <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                            →
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="flex-1">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                    <div className="text-center">
-                      <Trophy className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">Select a Topic</h3>
-                      <p className="mt-2 text-sm text-gray-500">
-                        Choose a topic from the left sidebar to view and manage its skill tests.
-                      </p>
-                    </div>
-                  </div>
+            {/* Courses Grid */}
+            {filteredCourses.length === 0 ? (
+              <div className="bg-white shadow rounded-lg">
+                <div className="text-center py-12">
+                  <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    No {TOPIC_CATEGORY_LABELS[selectedTab]} courses found.
+                  </p>
                 </div>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredCourses.map((course) => (
+                  <InstructorCourseCard
+                    key={course.id}
+                    course={course as any}
+                    onClick={() => handleCourseSelect(course)}
+                    actionLabel="Select"
+                    statsLabel="Skill Tests"
+                  />
+                ))}
+              </div>
             )}
+          </>
+        )}
 
-            {/* Skill Tests View */}
-            {currentView === 'skillTests' && !loading && (
-              <div className="flex gap-6">
-                {/* Topics Sidebar */}
-                <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <FileText className="h-5 w-5 mr-2 text-blue-500" />
-                    Topics
-                  </h3>
-                  <div className="space-y-2">
-                    {topics.map((topic) => (
-                      <div
-                        key={topic.id}
-                        onClick={() => handleTopicSelect(topic)}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedTopic?.id === topic.id
-                          ? 'border-blue-300 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                          }`}
-                      >
-                        <h4 className="font-medium">
+        {/* Topics View */}
+        {currentView === 'topics' && !loading && (
+          <div className="flex gap-6">
+            {/* Topics Sidebar */}
+            <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-blue-500" />
+                Topics
+              </h3>
+              <div className="space-y-2">
+                {topics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    onClick={() => handleTopicSelect(topic)}
+                    className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200 group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-gray-900 group-hover:text-blue-700">
                           {topic.name}
                         </h4>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Click to view skill tests
-                        </p>
                       </div>
-                    ))}
+                      <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        →
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
-                {/* Skill Tests Content */}
-                <div className="flex-1">
-                  <div className="mb-4 flex justify-between items-center">
-                    <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-                    <button
-                      onClick={handleAddSkillTest}
-                      className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
-                    >
-                      + Add Skill Test
-                    </button>
-                  </div>
-
-                  <DataTable
-                    title={`${selectedTopic?.name} - Skill Tests`}
-                    description={`${filteredSkillTests.length} skill test(s) found`}
-                    data={filteredSkillTests}
-                    columns={[
-                      {
-                        header: 'Title',
-                        accessorKey: 'title',
-                        className: 'font-medium'
-                      },
-                      {
-                        header: 'Difficulty',
-                        cell: (skillTest) => (
-                          <Badge className={getDifficultyColor(skillTest.difficulty)} variant="outline">
-                            {skillTest.difficulty}
-                          </Badge>
-                        )
-                      },
-                      {
-                        header: 'Duration',
-                        cell: (skillTest) => `${skillTest.duration} min`
-                      },
-                      {
-                        header: 'Status',
-                        cell: (skillTest) => <StatusBadge status={skillTest.publish_status} />
-                      },
-                      {
-                        header: 'Participants',
-                        accessorKey: 'participants_count'
-                      },
-                      {
-                        header: 'Actions',
-                        cell: (skillTest) => (
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => navigate(`/instructor/skill-tests/${skillTest.id}/analytics`)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                              title="Analytics"
-                            >
-                              <BarChart2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => openEditForm(skillTest)}
-                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
-                              title="Edit"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSkillTest(skillTest.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ),
-                        className: 'text-right'
-                      }
-                    ]}
-                    keyExtractor={(item) => item.id}
-                    emptyState={{
-                      message: "No Skill Tests Found",
-                      subMessage: "No skill tests found for this topic. Create your first skill test to get started."
-                    }}
-                  />
+            {/* Main Content Area */}
+            <div className="flex-1">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                <div className="text-center">
+                  <Trophy className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">Select a Topic</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Choose a topic from the left sidebar to view and manage its skill tests.
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Skill Tests View */}
+        {currentView === 'skillTests' && !loading && (
+          <div className="flex gap-6">
+            {/* Topics Sidebar */}
+            <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-blue-500" />
+                Topics
+              </h3>
+              <div className="space-y-2">
+                {topics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    onClick={() => handleTopicSelect(topic)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedTopic?.id === topic.id
+                      ? 'border-blue-300 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                      }`}
+                  >
+                    <h4 className="font-medium">
+                      {topic.name}
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Click to view skill tests
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Skill Tests Content */}
+            <div className="flex-1">
+              <div className="mb-4 flex justify-between items-center">
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+                <button
+                  onClick={handleAddSkillTest}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+                >
+                  + Add Skill Test
+                </button>
+              </div>
+
+              <DataTable
+                title={`${selectedTopic?.name} - Skill Tests`}
+                description={`${filteredSkillTests.length} skill test(s) found`}
+                data={filteredSkillTests}
+                columns={[
+                  {
+                    header: 'Title',
+                    accessorKey: 'title',
+                    className: 'font-medium'
+                  },
+                  {
+                    header: 'Difficulty',
+                    cell: (skillTest) => (
+                      <Badge className={getDifficultyColor(skillTest.difficulty)} variant="outline">
+                        {skillTest.difficulty}
+                      </Badge>
+                    )
+                  },
+                  {
+                    header: 'Duration',
+                    cell: (skillTest) => `${skillTest.duration} min`
+                  },
+                  {
+                    header: 'Status',
+                    cell: (skillTest) => <StatusBadge status={skillTest.publish_status} />
+                  },
+                  {
+                    header: 'Participants',
+                    accessorKey: 'participants_count'
+                  },
+                  {
+                    header: 'Actions',
+                    cell: (skillTest) => (
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => navigate(`/instructor/skill-tests/${skillTest.id}/analytics`)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title="Analytics"
+                        >
+                          <BarChart2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => openEditForm(skillTest)}
+                          className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSkillTest(skillTest.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ),
+                    className: 'text-right'
+                  }
+                ]}
+                keyExtractor={(item) => item.id}
+                emptyState={{
+                  message: "No Skill Tests Found",
+                  subMessage: "No skill tests found for this topic. Create your first skill test to get started."
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </DashboardLayout >
   );
 }

@@ -264,7 +264,7 @@ const Candidates = () => {
             actions={headerActions}
           />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="px-6 py-6">
           {isLoading && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-center">
