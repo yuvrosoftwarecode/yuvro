@@ -69,6 +69,7 @@ import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
+import TakeAttendance from './pages/faculty/TakeAttendance';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -337,6 +338,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
                     <Attendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/attendance/:assignmentId/take"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <TakeAttendance />
                   </ProtectedRoute>
                 }
               />

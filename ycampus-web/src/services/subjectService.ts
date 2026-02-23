@@ -98,10 +98,20 @@ export async function fetchSubjects(params?: { category?: string; semester?: str
 export interface SectionSubjectFaculty {
   id: string;
   semester_subject: string | number;
+  semester_subject_details?: {
+    id: string | number;
+    subject_details: Subject;
+    is_elective: boolean;
+    is_lab: boolean;
+    semester_number: number;
+    batch_name: string;
+    department_name: string;
+  };
   section: string | number;
   section_name?: string;
   faculty: string | number;
   faculty_details?: any;
+  student_count?: number;
   created_at: string;
 }
 
@@ -118,7 +128,7 @@ export interface SemesterSubject {
 }
 
 export async function addSubjectToSemester(semesterId: string | number, subjectId: string | number) {
- return restApiAuthUtil.post(`/course/semester-subjects/`, { semester: semesterId, subject: subjectId });
+  return restApiAuthUtil.post(`/course/semester-subjects/`, { semester: semesterId, subject: subjectId });
 }
 
 export async function removeSubjectFromSemester(assignmentId: string | number) {
@@ -497,6 +507,9 @@ const subjectService = {
   getSubjectsForSemester,
   assignFacultyToSectionSubject,
   removeFacultyFromSectionSubject,
+  saveAttendance,
+  getAttendanceSessions,
+  getAssignmentDetails,
 };
 
 export default subjectService;
@@ -653,4 +666,38 @@ export async function removeSubjectFromCollege(assignmentId: string): Promise<vo
 export async function fetchSubjectsByCollege(collegeId: string): Promise<Subject[]> {
   const assignments = await fetchCollegeSubjects(collegeId);
   return assignments.map(a => a.subject_details).filter(Boolean) as Subject[];
+}
+
+// ==================== Attendance Management ====================
+
+export interface AttendanceRecord {
+  id?: string;
+  student: string;
+  student_name?: string;
+  roll_number?: string;
+  is_present: boolean;
+}
+
+export interface AttendanceSession {
+  id?: string;
+  section_subject_faculty: string | number;
+  section_name?: string;
+  subject_name?: string;
+  date: string;
+  remarks?: string;
+  records: AttendanceRecord[];
+}
+
+export async function saveAttendance(payload: AttendanceSession) {
+  return restApiAuthUtil.post('/course/attendance-sessions/', payload);
+}
+
+export async function getAttendanceSessions(params: { section_subject_faculty: string | number }) {
+  return restApiAuthUtil.get<AttendanceSession[]>('/course/attendance-sessions/', {
+    params: { section_subject_faculty: String(params.section_subject_faculty) }
+  });
+}
+
+export async function getAssignmentDetails(assignmentId: string | number): Promise<SectionSubjectFaculty> {
+  return restApiAuthUtil.get<SectionSubjectFaculty>(`/course/section-subject-faculty/${assignmentId}/`);
 }
