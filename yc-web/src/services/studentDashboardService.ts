@@ -55,7 +55,7 @@ export interface DashboardData {
 }
 
 class StudentDashboardService {
-  private baseUrl = '/api/student/dashboard';
+  private baseUrl = '/student/dashboard';
 
   async getDashboardData(): Promise<DashboardData> {
     try {

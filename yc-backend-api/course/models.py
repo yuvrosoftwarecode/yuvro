@@ -559,7 +559,6 @@ class Question(models.Model):
         return is_correct, marks_obtained
 
 
-
 class QuestionSolution(models.Model):
     """
     Model to store multiple reference solutions for a single question.
