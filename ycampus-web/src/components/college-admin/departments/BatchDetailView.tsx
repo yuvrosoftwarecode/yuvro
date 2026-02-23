@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Trash2, Edit2, X, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
 import { studentService, Student } from "@/services/studentService";
-import subjectService, { Subject } from "@/services/subjectService";
+import subjectService, { Subject, SemesterSubject } from "@/services/subjectService";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StudentDetailModal from './StudentDetailModal';
 import SubjectAddModal from './SubjectAddModal';
@@ -31,7 +30,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
     const [students, setStudents] = useState<Student[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [subjects, setSubjects] = useState<SemesterSubject[]>([]);
     const [loading, setLoading] = useState(true);
     const [studentsLoading, setStudentsLoading] = useState(false);
     const [subjectsLoading, setSubjectsLoading] = useState(false);
@@ -145,8 +144,8 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
     const totalPages = Math.ceil(totalCount / 25);
 
     const filteredSubjects = subjects.filter(sub =>
-        (sub.name || sub.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (sub.short_code || "").toLowerCase().includes(searchQuery.toLowerCase())
+        (sub.subject_details?.subject_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (sub.subject_details?.short_code || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -532,8 +531,10 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                                     toast.success("Subject removed successfully");
                                                                     
                                                                     // Refresh subjects
-                                                                    const subjectsData = await subjectService.getSubjectsForSemester(currentSemester.id);
-                                                                    setSubjects(subjectsData);
+                                                                    if (currentSemester) {
+                                                                        const subjectsData = await subjectService.getSubjectsForSemester(currentSemester.id);
+                                                                        setSubjects(subjectsData);
+                                                                    }
                                                                 } else {
                                                                     toast.error("Cannot remove this subject (missing assignment ID)");
                                                                 }
@@ -569,12 +570,12 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
 
                                                 {/* Subject Info */}
                                                 <div className="mb-4 flex-1">
-                                                    <h4 className="font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2 text-base" title={(subject as any).subject_details?.subject_name || subject.name || subject.title}>
-                                                        {(subject as any).subject_details?.subject_name || subject.name || subject.title}
+                                                    <h4 className="font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2 text-base" title={subject.subject_details?.subject_name}>
+                                                        {subject.subject_details?.subject_name}
                                                     </h4>
-                                                    {((subject as any).college_subject_code || subject.short_code) && (
+                                                    {(subject.assignment_id || subject.subject_details?.short_code) && (
                                                         <p className="text-xs text-gray-500 mt-1.5 font-mono bg-gray-50 inline-block px-1.5 py-0.5 rounded border border-gray-100">
-                                                            {(subject as any).college_subject_code || subject.short_code}
+                                                            {subject.assignment_id || subject.subject_details?.short_code}
                                                         </p>
                                                     )}
                                                 </div>
