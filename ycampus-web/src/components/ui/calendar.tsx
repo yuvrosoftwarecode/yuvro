@@ -29,7 +29,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "bg-[#121417] text-white group/calendar p-4 [--cell-size:2.8rem] rounded-2xl shadow-xl",
+        "bg-white text-gray-900 group/calendar p-4 [--cell-size:2.8rem] rounded-2xl shadow-xl border border-gray-100",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -55,12 +55,12 @@ function Calendar({
         ),
         button_previous: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 text-white hover:bg-white/10 rounded-full transition-all",
+          "h-8 w-8 p-0 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-all",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 text-white hover:bg-white/10 rounded-full transition-all",
+          "h-8 w-8 p-0 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-all",
           defaultClassNames.button_next
         ),
         month_caption: cn(
@@ -72,7 +72,7 @@ function Calendar({
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
-          "relative rounded-lg border border-white/10 bg-white/5 px-1.5 py-1",
+          "relative rounded-lg border border-gray-100 bg-gray-50/50 px-1.5 py-1",
           defaultClassNames.dropdown_root
         ),
         dropdown: cn(
@@ -80,21 +80,21 @@ function Calendar({
           defaultClassNames.dropdown
         ),
         caption_label: cn(
-          "select-none font-semibold text-white text-lg tracking-tight",
+          "select-none font-black text-gray-900 text-lg tracking-tight",
           captionLayout === "label"
             ? ""
-            : "[&>svg]:text-white flex h-10 items-center gap-2 rounded-xl pl-3 pr-2 text-sm [&>svg]:size-4",
+            : "[&>svg]:text-orange-500 flex h-10 items-center gap-2 rounded-xl pl-3 pr-2 text-sm [&>svg]:size-4",
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
         weekdays: cn("grid grid-cols-7 mb-2", defaultClassNames.weekdays),
         weekday: cn(
-          "text-gray-400 flex items-center justify-center select-none text-xs font-medium h-10",
+          "text-orange-500/50 flex items-center justify-center select-none text-[10px] font-black h-10 uppercase",
           defaultClassNames.weekday
         ),
         week: cn("grid grid-cols-7 w-full", defaultClassNames.week),
         week_number_header: cn(
-          "w-[--cell-size] flex items-center justify-center select-none text-[10px] font-bold text-gray-500",
+          "w-[--cell-size] flex items-center justify-center select-none text-[10px] font-bold text-gray-300",
           defaultClassNames.week_number_header
         ),
         week_number: cn(
@@ -106,21 +106,21 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "bg-white/10 text-white rounded-full",
+          "bg-orange-500 text-white rounded-full shadow-lg shadow-orange-500/20",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none bg-white/5", defaultClassNames.range_middle),
-        range_end: cn("bg-white/10 text-white rounded-full", defaultClassNames.range_end),
+        range_middle: cn("rounded-none bg-orange-50 text-orange-900", defaultClassNames.range_middle),
+        range_end: cn("bg-orange-500 text-white rounded-full shadow-lg shadow-orange-500/20", defaultClassNames.range_end),
         today: cn(
-          "text-white font-bold",
+          "text-orange-600 font-bold",
           defaultClassNames.today
         ),
         outside: cn(
-          "text-gray-600 pointer-events-none",
+          "text-gray-200 pointer-events-none",
           defaultClassNames.outside
         ),
         disabled: cn(
-          "text-gray-700 opacity-30 cursor-not-allowed",
+          "text-gray-100 opacity-30 cursor-not-allowed",
           defaultClassNames.disabled
         ),
         hidden: cn("invisible", defaultClassNames.hidden),
@@ -194,9 +194,9 @@ function CalendarDayButton({
       size="icon"
       data-day={day.date.toLocaleDateString()}
       className={cn(
-        "h-9 w-9 flex items-center justify-center font-medium text-sm transition-all hover:bg-white/10 rounded-full border border-transparent",
-        modifiers.selected && "border border-white bg-transparent text-white",
-        modifiers.today && !modifiers.selected && "text-white font-bold",
+        "h-9 w-9 flex items-center justify-center font-bold text-sm transition-all hover:bg-orange-50 hover:text-orange-600 rounded-full border border-transparent",
+        modifiers.selected && "bg-orange-500 text-white shadow-md shadow-orange-500/20 hover:bg-orange-600 hover:text-white",
+        modifiers.today && !modifiers.selected && "text-orange-600 bg-orange-50 ring-2 ring-orange-100",
         defaultClassNames.day,
         className
       )}

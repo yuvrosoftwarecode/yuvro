@@ -269,7 +269,7 @@ const TakeAttendance: React.FC = () => {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent
-                            className="w-auto p-0 bg-[#121417] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 z-[100]"
+                            className="w-auto p-0 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 z-[100]"
                             align="end"
                             sideOffset={8}
                         >
