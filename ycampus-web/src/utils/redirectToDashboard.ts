@@ -8,8 +8,7 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
 
   switch (user.role) {
     case 'admin':
-    case 'instructor':
-      navigate('/instructor/dashboard', { replace: true });
+      navigate('/admin/dashboard', { replace: true });
       break;
     case 'college_admin':
       navigate('/college-admin/dashboard', { replace: true });
@@ -20,9 +19,11 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
     case 'hod':
       navigate('/hod/dashboard', { replace: true });
       break;
-
     case 'faculty':
       navigate('/faculty/dashboard', { replace: true });
+      break;
+    case 'instructor':
+      navigate('/instructor/dashboard', { replace: true });
       break;
     case 'recruiter':
       navigate('/recruiter/dashboard', { replace: true });

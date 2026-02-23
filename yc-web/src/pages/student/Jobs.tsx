@@ -143,8 +143,14 @@ const Jobs = () => {
     }
 
     setFilteredJobs(filtered);
+    setFilteredJobs(filtered);
     setCurrentPage(1); // Reset to first page when filters change
   };
+
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
   const toggleFilter = (filterType: keyof JobFilters, value: string) => {
     setFilters(prev => {
@@ -325,106 +331,90 @@ const Jobs = () => {
 
                 {/* All Jobs Tab */}
                 <TabsContent value="all" className="space-y-4">
-                  {filteredJobs.map((job) => {
-                    const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
-                    const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
-                    const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {currentJobs.map((job) => {
+                      const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
+                      const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
+                      const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
 
-                    return (
-                      <>
-                        {currentJobs.map((job) => {
-                          const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
-                          const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
-                          const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
-
-                          return (
-                            <div key={job.id} className="relative">
-                              {/* Bookmarked indicator for recently bookmarked jobs */}
-                              {isBookmarked && (
-                                <div className="absolute top-4 right-4 z-10">
-                                  <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
-                                    <BookmarkIcon className="h-3 w-3 fill-current" />
-                                    Saved
-                                  </div>
-                                </div>
-                              )}
-                              <JobCard
-                                job={job}
-                                isBookmarked={isBookmarked}
-                                isApplied={isApplied}
-                                onBookmark={handleBookmarkJob}
-                                onApply={handleApplyClick}
-                                bookmarkLoading={bookmarkLoading.has(job.id)}
-                              />
+                      return (
+                        <div key={job.id} className="relative">
+                          {/* Bookmarked indicator for recently bookmarked jobs */}
+                          {isBookmarked && (
+                            <div className="absolute top-4 right-4 z-10">
+                              <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
+                                <BookmarkIcon className="h-3 w-3 fill-current" />
+                                Saved
+                              </div>
                             </div>
-                          );
+                          )}
+                          <JobCard
+                            job={job}
+                            isBookmarked={isBookmarked}
+                            isApplied={isApplied}
+                            onBookmark={handleBookmarkJob}
+                            onApply={handleApplyClick}
+                            bookmarkLoading={bookmarkLoading.has(job.id)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Premium Pagination Controls */}
+                  {filteredJobs.length > jobsPerPage && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 py-6 border-t border-gray-100">
+                      <div className="text-sm text-gray-500 font-medium order-2 sm:order-1">
+                        Showing <span className="text-gray-900">{indexOfFirstJob + 1}</span> to <span className="text-gray-900">{Math.min(indexOfLastJob, filteredJobs.length)}</span> of <span className="text-gray-900">{filteredJobs.length}</span> jobs
+                      </div>
+
+                      <div className="flex items-center gap-1 order-1 sm:order-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+
+                        {/* Page Numbers */}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                          // Shorthand for simple pagination
+                          const isNear = pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
+                          const isEnds = pageNum === 1 || pageNum === totalPages;
+
+                          if (totalPages <= 7 || isNear || isEnds) {
+                            return (
+                              <Button
+                                key={pageNum}
+                                variant={currentPage === pageNum ? "default" : "ghost"}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`h-9 w-9 p-0 rounded-xl transition-all duration-200 font-semibold ${currentPage === pageNum
+                                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
+                                  : "text-gray-600 hover:bg-white hover:shadow-sm"
+                                  }`}
+                              >
+                                {pageNum}
+                              </Button>
+                            );
+                          } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                            return <span key={pageNum} className="text-gray-400 px-1 select-none">...</span>;
+                          }
+                          return null;
                         })}
 
-                        {/* Premium Pagination Controls */}
-                        {filteredJobs.length > jobsPerPage && (
-                          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 py-6 border-t border-gray-100">
-                            <div className="text-sm text-gray-500 font-medium order-2 sm:order-1">
-                              Showing <span className="text-gray-900">{indexOfFirstJob + 1}</span> to <span className="text-gray-900">{Math.min(indexOfLastJob, filteredJobs.length)}</span> of <span className="text-gray-900">{filteredJobs.length}</span> jobs
-                            </div>
-
-                            <div className="flex items-center gap-1 order-1 sm:order-2">
-                              <Button
-                                variant="ghost"
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
-                              >
-                                <ChevronLeft className="h-4 w-4" />
-                              </Button>
-
-                              {/* Page Numbers */}
-                              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                                // Shorthand for simple pagination
-                                const isNear = pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
-                                const isEnds = pageNum === 1 || pageNum === totalPages;
-
-                                if (totalPages <= 7 || isNear || isEnds) {
-                                  return (
-                                    <Button
-                                      key={pageNum}
-                                      variant={currentPage === pageNum ? "default" : "ghost"}
-                                      onClick={() => setCurrentPage(pageNum)}
-                                      className={`h-9 w-9 p-0 rounded-xl transition-all duration-200 font-semibold ${currentPage === pageNum
-                                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
-                                        : "text-gray-600 hover:bg-white hover:shadow-sm"
-                                        }`}
-                                    >
-                                      {pageNum}
-                                    </Button>
-                                  );
-                                } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                                  return <span key={pageNum} className="text-gray-400 px-1 select-none">...</span>;
-                                }
-                                return null;
-                              })}
-
-                              <Button
-                                variant="ghost"
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
-                              >
-                                <ChevronRight className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                        <JobCard
-                          job={job}
-                          isBookmarked={isBookmarked}
-                          isApplied={isApplied}
-                          onBookmark={handleBookmarkJob}
-                          onApply={handleApplyClick}
-                          bookmarkLoading={bookmarkLoading.has(job.id)}
-                        />
+                        <Button
+                          variant="ghost"
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
                       </div>
-                    );
-                  })()}
+                    </div>
+                  )}
                   {filteredJobs.length === 0 && !loading && (
                     <EmptyState
                       title="No jobs found"

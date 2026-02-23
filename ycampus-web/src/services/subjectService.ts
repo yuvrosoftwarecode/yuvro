@@ -496,6 +496,7 @@ const subjectService = {
   getSubjectsForSemester,
   assignFacultyToSectionSubject,
   removeFacultyFromSectionSubject,
+  getSubjectsForSemester,
 };
 
 export default subjectService;
