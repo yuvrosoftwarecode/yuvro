@@ -22,7 +22,8 @@ import {
   Building2,
   Layers,
   GraduationCap,
-  Activity
+  Activity,
+  Target
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -184,6 +185,48 @@ const sidebarItems: SidebarItem[] = [
     label: 'Dashboard',
     icon: BarChart3,
     path: '/faculty/dashboard',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-syllabus',
+    label: 'Syllabus',
+    icon: BookOpen,
+    path: '/faculty/syllabus',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-revise',
+    label: 'Revise',
+    icon: Layers,
+    path: '/faculty/revise',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-assessment',
+    label: 'Assessment',
+    icon: Target,
+    path: '/faculty/assessment',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-attendance',
+    label: 'Attendance',
+    icon: UserCheck,
+    path: '/faculty/attendance',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-task',
+    label: 'Task',
+    icon: CheckCircle,
+    path: '/faculty/task',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-reports',
+    label: 'Reports',
+    icon: FileText,
+    path: '/faculty/reports',
     roles: ['faculty']
   },
   {

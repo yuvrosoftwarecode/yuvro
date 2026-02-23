@@ -611,3 +611,36 @@ class StudentCodePractice(BaseTimestampedModel):
             if total_tests > 0:
                 success_rate = (total_passed / total_tests) * 100
         return f"{self.user.username} - {self.question.title[:30]} - {language} ({success_rate:.1f}%)"
+
+
+class SectionSubjectFaculty(BaseTimestampedModel):
+    """
+    Mapping table to assign a faculty member to a specific subject for a specific section.
+    """
+    semester_subject = models.ForeignKey(
+        SemesterSubject, on_delete=models.CASCADE, related_name="section_faculties"
+    )
+    section = models.ForeignKey(
+        "core.Section", on_delete=models.CASCADE, related_name="subject_faculties"
+    )
+    faculty = models.ForeignKey(
+        "core.FacultyProfile", on_delete=models.CASCADE, related_name="section_subjects"
+    )
+
+    class Meta:
+        unique_together = ("semester_subject", "section", "faculty")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.section.name} - {self.semester_subject.subject.subject_name} - {self.faculty.user.username}"
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super().save(*args, **kwargs)
+        
+        # Link the faculty to the department of the batch, if it's different
+        if is_new and self.semester_subject.semester.batch and self.semester_subject.semester.batch.department:
+            dept = self.semester_subject.semester.batch.department
+            if self.faculty.department != dept and not self.faculty.linked_departments.filter(id=dept.id).exists():
+                self.faculty.linked_departments.add(dept)
+

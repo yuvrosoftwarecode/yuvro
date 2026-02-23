@@ -28,6 +28,7 @@ from .models import (
     StudentCodePractice,
     CollegeSubject,
     SemesterSubject,
+    SectionSubjectFaculty,
 )
 from .serializers import (
     CollegeSerializer,
@@ -47,6 +48,7 @@ from .serializers import (
     StudentCodePracticeSerializer,
     CollegeSubjectSerializer,
     SemesterSubjectSerializer,
+    SectionSubjectFacultySerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
@@ -352,6 +354,41 @@ class SemesterSubjectViewSet(viewsets.ModelViewSet):
                 f"Subject '{subject.subject_name}' is not assigned to this college."
             )
         
+        serializer.save()
+
+
+class SectionSubjectFacultyViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage faculty assigned to subjects per section.
+    """
+    queryset = SectionSubjectFaculty.objects.all()
+    serializer_class = SectionSubjectFacultySerializer
+    permission_classes = [IsAuthenticatedUser]
+    filterset_fields = ["semester_subject", "section", "faculty"]
+
+    def get_queryset(self):
+        qs = SectionSubjectFaculty.objects.select_related("semester_subject__subject", "section", "faculty__user")
+        user = self.request.user
+
+        if user.role == "faculty":
+            # For faculty, only show their own assignments
+            qs = qs.filter(faculty__user=user)
+        elif user.role not in ["admin", "college_admin", "principal"]:
+            # Other roles (like students) should not see assignments at all through this viewset
+            # Unless they need it for something else? For now, restrict.
+            return SectionSubjectFaculty.objects.none()
+
+        sem_sub_id = self.request.query_params.get("semester_subject")
+        section_id = self.request.query_params.get("section")
+        
+        if sem_sub_id:
+            qs = qs.filter(semester_subject_id=sem_sub_id)
+        if section_id:
+            qs = qs.filter(section_id=section_id)
+            
+        return qs
+
+    def perform_create(self, serializer):
         serializer.save()
 
 

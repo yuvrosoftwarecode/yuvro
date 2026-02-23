@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StudentDetailModal from './StudentDetailModal';
 import SubjectAddModal from './SubjectAddModal';
+import FacultySectionAssignModal from './FacultySectionAssignModal';
 
 interface BatchDetailViewProps {
     batchId: string | number;
@@ -32,6 +33,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+    const [selectedSubjectForFaculty, setSelectedSubjectForFaculty] = useState<SemesterSubject | null>(null);
     const [activeTab, setActiveTab] = useState<string>("students");
 
     useEffect(() => {
@@ -323,13 +325,14 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                     {filteredSubjects.map((subject) => (
                                         <Card 
                                             key={subject.id} 
-                                            className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden relative"
+                                            className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden relative flex flex-col h-full bg-white"
                                         >
+                                            {/* Action Bar (Hover visible) */}
                                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full bg-white shadow-sm border border-gray-100"
+                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full bg-white/80 backdrop-blur-sm shadow-sm border border-red-100"
                                                     onClick={async (e) => {
                                                         e.stopPropagation();
                                                         if (window.confirm("Are you sure you want to remove this subject from the semester?")) {
@@ -350,40 +353,84 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                             }
                                                         }
                                                     }}
+                                                    title="Remove from Semester"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
-                                            <CardContent className="p-4 flex flex-col gap-3">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
-                                                        <BookOpen className="h-5 w-5" />
+
+                                            <CardContent className="p-5 flex flex-col flex-1">
+                                                {/* Header: Icon & Badge */}
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center text-orange-600 shadow-inner border border-orange-100/50">
+                                                        <BookOpen className="h-6 w-6" />
                                                     </div>
-                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-[9px] uppercase tracking-tighter">
+                                                    <Badge 
+                                                        variant="secondary" 
+                                                        className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-sm
+                                                            ${(subject as any).is_lab ? "bg-blue-50 text-blue-700 border-blue-200" : 
+                                                              (subject as any).is_elective ? "bg-purple-50 text-purple-700 border-purple-200" : 
+                                                              "bg-slate-100 text-slate-700 border-slate-200"}`
+                                                        }
+                                                    >
                                                         {(subject as any).is_lab ? "Lab" : (subject as any).is_elective ? "Elective" : "Core"}
                                                     </Badge>
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-bold text-gray-800 line-clamp-2 leading-tight group-hover:text-orange-600 transition-colors">
-                                                        {subject.name || subject.title}
+
+                                                {/* Subject Info */}
+                                                <div className="mb-4 flex-1">
+                                                    <h4 className="font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2 text-base" title={(subject as any).subject_details?.subject_name || subject.name || subject.title}>
+                                                        {(subject as any).subject_details?.subject_name || subject.name || subject.title}
                                                     </h4>
-                                                    <p className="text-[11px] text-gray-500 mt-1 font-mono">{subject.short_code || "NO_CODE"}</p>
+                                                    {((subject as any).college_subject_code || subject.short_code) && (
+                                                        <p className="text-xs text-gray-500 mt-1.5 font-mono bg-gray-50 inline-block px-1.5 py-0.5 rounded border border-gray-100">
+                                                            {(subject as any).college_subject_code || subject.short_code}
+                                                        </p>
+                                                    )}
                                                 </div>
-                                                <div className="pt-2 border-t flex items-center justify-between">
-                                                    <div className="flex -space-x-2">
-                                                        {/* Placeholder for instructors if available */}
-                                                        {[1, 2].map(i => (
-                                                            <div key={i} className="h-6 w-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
-                                                                <User className="h-3 w-3 text-gray-400" />
-                                                            </div>
-                                                        ))}
+
+                                                {/* Footer: Faculties & Action */}
+                                                <div className="pt-3 border-t border-gray-100/80 flex items-center justify-between mt-auto">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex -space-x-2">
+                                                            {(subject as any).section_faculties?.slice(0, 3).map((assignment: any, i: number) => (
+                                                                <div 
+                                                                    key={i} 
+                                                                    className="h-7 w-7 rounded-full bg-white border-2 border-white flex items-center justify-center shadow-sm overflow-hidden z-10" 
+                                                                    title={`${assignment.faculty_details?.user_details?.first_name} (Sec ${assignment.section_name})`}
+                                                                >
+                                                                    {assignment.faculty_details?.user_details?.profile_image ? (
+                                                                        <img src={assignment.faculty_details.user_details.profile_image} alt="" className="h-full w-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="h-full w-full bg-orange-100 flex items-center justify-center text-orange-700 text-[10px] font-bold">
+                                                                            {assignment.faculty_details?.user_details?.first_name?.charAt(0) || <User className="h-3 w-3" />}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        {(!((subject as any).section_faculties) || (subject as any).section_faculties.length === 0) ? (
+                                                            <span className="text-[11px] text-gray-400 font-medium">Unassigned</span>
+                                                        ) : (
+                                                            (subject as any).section_faculties.length > 3 && (
+                                                                <span className="text-[10px] text-gray-500 font-medium">
+                                                                    +{(subject as any).section_faculties.length - 3}
+                                                                </span>
+                                                            )
+                                                        )}
                                                     </div>
-                                                    <Button variant="link" size="sm" className="h-auto p-0 text-orange-600 text-[11px] font-bold">
-                                                        Details
+                                                    
+                                                    <Button 
+                                                        className="h-8 px-3 text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 shadow-sm transition-all rounded-lg"
+                                                        onClick={() => setSelectedSubjectForFaculty(subject as any)}
+                                                    >
+                                                        Manage
                                                     </Button>
                                                 </div>
                                             </CardContent>
-                                            <div className="h-1 w-full bg-orange-50 group-hover:bg-orange-500 transition-colors" />
+                                            
+                                            {/* Bottom Decorator border */}
+                                            <div className="h-[3px] w-full bg-gradient-to-r from-orange-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-0" />
                                         </Card>
                                     ))}
                                 </div>
@@ -411,6 +458,26 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                     onSubjectAdded={async () => {
                         const subjectsData = await subjectService.getSubjectsForSemester(currentSemester.id);
                         setSubjects(subjectsData);
+                    }}
+                />
+            )}
+
+            {currentSemester && (
+                <FacultySectionAssignModal
+                    isOpen={!!selectedSubjectForFaculty}
+                    onClose={() => setSelectedSubjectForFaculty(null)}
+                    semesterSubject={selectedSubjectForFaculty}
+                    sections={currentSemester.sections || []}
+                    collegeId={collegeId || ""}
+                    onAssignmentChanged={async () => {
+                        // Refresh subjects to get updated faculties
+                        const subjectsData = await subjectService.getSubjectsForSemester(currentSemester.id);
+                        setSubjects(subjectsData);
+                        // Also update the currently selected subject so the modal updates
+                        if (selectedSubjectForFaculty) {
+                            const updated = subjectsData.find(s => (s as any).assignment_id === selectedSubjectForFaculty.assignment_id);
+                            if (updated) setSelectedSubjectForFaculty(updated as any);
+                        }
                     }}
                 />
             )}

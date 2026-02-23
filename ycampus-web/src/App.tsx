@@ -68,6 +68,7 @@ import PrincipalDashboard from './pages/principal/Dashboard';
 import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
+import Attendance from './pages/faculty/Attendance';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -303,6 +304,54 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
                     <FacultyDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/syllabus"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/revise"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/attendance"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <Attendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/task"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />

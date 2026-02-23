@@ -12,6 +12,7 @@ from .models import (
     StudentCodePractice,
     CollegeSubject,
     SemesterSubject,
+    SectionSubjectFaculty,
 )
 from .gamification_models import UserGamificationProfile
 from authentication.serializers import UserSerializer
@@ -265,8 +266,49 @@ class CollegeSubjectSerializer(serializers.ModelSerializer):
         return SubjectBasicSerializer(obj.subject).data
 
 
+class SectionSubjectFacultySerializer(serializers.ModelSerializer):
+    faculty_details = serializers.SerializerMethodField()
+    section_name = serializers.CharField(source="section.name", read_only=True)
+    semester_subject_details = serializers.SerializerMethodField()
+    student_count = serializers.IntegerField(source="section.student_count", read_only=True)
+
+    class Meta:
+        model = SectionSubjectFaculty
+        fields = [
+            "id",
+            "semester_subject",
+            "semester_subject_details",
+            "section",
+            "section_name",
+            "faculty",
+            "faculty_details",
+            "student_count",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def get_faculty_details(self, obj):
+        from core.serializers import FacultyProfileSerializer
+        return FacultyProfileSerializer(obj.faculty, context=self.context).data
+
+    def get_semester_subject_details(self, obj):
+        from .serializers import SubjectBasicSerializer
+        return {
+            "id": obj.semester_subject.id,
+            "subject_details": SubjectBasicSerializer(obj.semester_subject.subject).data,
+            "is_elective": obj.semester_subject.is_elective,
+            "is_lab": obj.semester_subject.is_lab,
+            "semester_number": obj.semester_subject.semester.number,
+            "batch_name": obj.semester_subject.semester.batch.name,
+            "department_name": obj.semester_subject.semester.batch.department.name,
+        }
+
+
 class SemesterSubjectSerializer(serializers.ModelSerializer):
     subject_details = serializers.SerializerMethodField()
+    section_faculties = serializers.SerializerMethodField()
+    college_subject_code = serializers.SerializerMethodField()
 
     class Meta:
         model = SemesterSubject
@@ -275,15 +317,30 @@ class SemesterSubjectSerializer(serializers.ModelSerializer):
             "semester",
             "subject",
             "subject_details",
+            "college_subject_code",
             "is_elective",
             "is_lab",
+            "section_faculties",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+    def get_college_subject_code(self, obj):
+        from .models import CollegeSubject
+        try:
+            college = obj.semester.batch.department.college
+            cs = CollegeSubject.objects.filter(college=college, subject=obj.subject).first()
+            return cs.subject_code if cs else None
+        except Exception:
+            return None
+
     def get_subject_details(self, obj):
         return SubjectBasicSerializer(obj.subject).data
+
+    def get_section_faculties(self, obj):
+        faculties = obj.section_faculties.all()
+        return SectionSubjectFacultySerializer(faculties, many=True, context=self.context).data
 
 
 class SubjectSerializer(serializers.ModelSerializer):

@@ -95,6 +95,16 @@ export async function fetchSubjects(params?: { category?: string; semester?: str
 }
 
 
+export interface SectionSubjectFaculty {
+  id: string;
+  semester_subject: string | number;
+  section: string | number;
+  section_name?: string;
+  faculty: string | number;
+  faculty_details?: any;
+  created_at: string;
+}
+
 export interface SemesterSubject {
   id: string;
   semester: string | number;
@@ -102,6 +112,7 @@ export interface SemesterSubject {
   subject_details: Subject;
   is_elective: boolean;
   is_lab: boolean;
+  section_faculties?: SectionSubjectFaculty[];
   created_at: string;
 }
 
@@ -113,14 +124,32 @@ export async function removeSubjectFromSemester(assignmentId: string | number) {
   return restApiAuthUtil.delete(`/course/semester-subjects/${assignmentId}/`);
 }
 
-export async function getSubjectsForSemester(semesterId: string | number): Promise<Subject[]> {
-  const response = await restApiAuthUtil.get<SemesterSubject[]>('/course/semester-subjects/', { params: { semester: semesterId } });
+export async function getSubjectsForSemester(semesterId: string | number): Promise<SemesterSubject[]> {
+  const response = await restApiAuthUtil.get<SemesterSubject[]>('/course/semester-subjects/', { params: { semester: String(semesterId) } });
   return response.map(ss => ({
-    ...ss.subject_details,
+    ...ss,
     assignment_id: ss.id,
-    is_lab: ss.is_lab,
-    is_elective: ss.is_elective
   } as any));
+}
+
+export async function assignFacultyToSectionSubject(payload: {
+  semester_subject: string | number;
+  section: string | number;
+  faculty: string | number;
+}) {
+  return restApiAuthUtil.post(`/course/section-subject-faculty/`, payload);
+}
+
+export async function removeFacultyFromSectionSubject(id: string | number) {
+  return restApiAuthUtil.delete(`/course/section-subject-faculty/${id}/`);
+}
+
+export async function getFacultyAssignments(facultyId?: string | number): Promise<SectionSubjectFaculty[]> {
+  const params: Record<string, string> = {};
+  if (facultyId) {
+    params.faculty = String(facultyId);
+  }
+  return restApiAuthUtil.get<SectionSubjectFaculty[]>('/course/section-subject-faculty/', { params });
 }
 
 export async function fetchSubjectById(subjectId: string): Promise<Subject> {
@@ -465,6 +494,8 @@ const subjectService = {
   addSubjectToSemester,
   removeSubjectFromSemester,
   getSubjectsForSemester,
+  assignFacultyToSectionSubject,
+  removeFacultyFromSectionSubject,
 };
 
 export default subjectService;
