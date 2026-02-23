@@ -48,6 +48,7 @@ const Login: React.FC = () => {
     try {
       const loggedInUser = await login(email, password);
 
+
       if (loggedInUser && loggedInUser.role) {
         redirectToDashboard(loggedInUser, navigate);
       }
@@ -227,8 +228,12 @@ const Login: React.FC = () => {
                   className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError('');
+                  }}
                   disabled={isLoading}
+                  required
                 />
               </div>
             </div>
@@ -253,7 +258,10 @@ const Login: React.FC = () => {
                   className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError('');
+                  }}
                   disabled={isLoading}
                 />
                 <button

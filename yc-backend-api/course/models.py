@@ -8,6 +8,13 @@ from core.models import BaseTimestampedModel
 
 User = get_user_model()
 
+PROGRAMMING_LANGUAGE_CHOICES = [
+    ("python", "Python 3"),
+    ("javascript", "JavaScript"),
+    ("java", "Java"),
+    ("cpp", "C++"),
+    ("c", "C"),
+]
 
 class Course(models.Model):
     """
@@ -491,6 +498,104 @@ class Question(models.Model):
 
     def __str__(self):
         return f"{self.type.upper()}: {self.title[:50]}..."
+
+    @property
+    def is_auto_gradable(self) -> bool:
+        """
+        Returns True if the question type can be automatically graded by the system immediately.
+        """
+        return self.type in ["mcq_single", "mcq_multiple"]
+
+    def grade_answer(self, user_answer) -> tuple[bool, int]:
+        """
+        Evaluates a user's answer and returns a tuple: (is_correct, marks_obtained).
+        
+        Args:
+            user_answer: The answer provided by the student (string or list of strings).
+            
+        Returns:
+            Tuple[bool, int]: A tuple indicating if the answer was fully correct, and the marks awarded.
+        """
+        if not self.is_auto_gradable:
+            return False, 0
+
+        is_correct = False
+        marks_obtained = 0
+
+        if self.type == "mcq_single":
+            if not self.mcq_options:
+                return False, 0
+                
+            correct_opt = next(
+                (opt for opt in self.mcq_options if opt.get("is_correct")), None
+            )
+            # user_answer must exactly match the text of the correct option
+            if correct_opt and user_answer == correct_opt.get("text"):
+                marks_obtained = self.marks
+                is_correct = True
+
+        elif self.type == "mcq_multiple":
+            if not self.mcq_options:
+                return False, 0
+                
+            # Collect all correct option texts
+            correct_opts = {
+                opt.get("text") for opt in self.mcq_options if opt.get("is_correct")
+            }
+            
+            # Normalize user answer into a set of strings
+            if isinstance(user_answer, list):
+                user_opts = set(str(ans) for ans in user_answer)
+            elif user_answer:
+                user_opts = {str(user_answer)}
+            else:
+                user_opts = set()
+
+            # For multiple choice, it's all or nothing (exact set match)
+            if correct_opts == user_opts and len(correct_opts) > 0:
+                marks_obtained = self.marks
+                is_correct = True
+
+        return is_correct, marks_obtained
+
+
+class QuestionSolution(models.Model):
+    """
+    Model to store multiple reference solutions for a single question.
+    Allows instructors to provide different approaches (e.g., Brute Force, Optimized).
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="solutions"
+    )
+    title = models.CharField(
+        max_length=100, help_text="Title of the solution (e.g., 'Brute Force Approach')"
+    )
+    language = models.CharField(
+        max_length=20,
+        choices=PROGRAMMING_LANGUAGE_CHOICES,
+        default="python",
+        help_text="Programming language of the solution.",
+    )
+    code = models.TextField(help_text="The solution code.")
+    complexity_analysis = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Notes on time and space complexity or explanation of the approach.",
+    )
+    is_primary = models.BooleanField(
+        default=False, help_text="Is this the primary/recommended solution?"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ["question", "title"]  # Prevent duplicate titles for same question
+
+    def __str__(self):
+        return f"{self.title} - {self.question.title}"
 
 
 class StudentCodePractice(BaseTimestampedModel):

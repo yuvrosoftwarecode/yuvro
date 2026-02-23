@@ -84,7 +84,7 @@ const sidebarItems: SidebarItem[] = [
     label: 'Jobs Approval',
     icon: CheckCircle,
     path: '/recruiter/jobs-approval',
-    roles: ['admin', 'recruiter_admin']  
+    roles: ['admin', 'recruiter_admin']
   },
   {
     id: 'contests',
@@ -175,8 +175,8 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const toolsSection = getToolsSection();
 
   return (
-    <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 min-h-screen transition-all duration-300 ease-in-out ${className}`}>
-      <div className="p-4">
+    <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out ${className}`}>
+      <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
         <div className="flex items-center justify-between mb-6">
           {!sidebarCollapsed && (
             <h2 className="text-lg font-semibold text-gray-800">{getPortalTitle()}</h2>
@@ -198,7 +198,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
                   ? 'bg-orange-50 text-orange-600'
                   : 'text-gray-600 hover:bg-gray-50'
                   }`}

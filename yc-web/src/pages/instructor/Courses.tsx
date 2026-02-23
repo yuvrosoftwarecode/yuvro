@@ -34,8 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import DashboardLayout from "../../components/common/DashboardLayout";
 import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
 
@@ -333,606 +332,599 @@ const Courses: React.FC = () => {
     </button>
   );
 
+
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Sidebar */}
-        <RoleSidebar />
+    <DashboardLayout
+      title="Course Management"
+      subtitle={user?.role === "admin"
+        ? "Create, edit, and manage all courses in the system"
+        : "Manage your assigned courses and content"
+      }
+      actions={headerActions}
+    >
 
-        {/* Main Content */}
-        <div className="flex-1">
-          {/* Header */}
-          <RoleHeader
-            title="Course Management"
-            subtitle={user?.role === "admin"
-              ? "Create, edit, and manage all courses in the system"
-              : "Manage your assigned courses and content"
-            }
-            actions={headerActions}
-          />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
-              <TabsList className="inline-flex w-auto gap-1">
-                {[
-                  { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
-                  { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
-                  { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
-                  { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
-                ].map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key} className="px-5">
-                    <span className="mr-2">{tab.label}</span>
-                    <span className="opacity-70 text-xs py-0.5 px-2 rounded-full">
-                      {tab.count}
-                    </span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+      <div className="px-6 py-6">
+        <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
+          <TabsList className="inline-flex w-auto gap-1">
+            {[
+              { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
+              { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
+              { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
+              { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
+            ].map((tab) => (
+              <TabsTrigger key={tab.key} value={tab.key} className="px-5">
+                <span className="mr-2">{tab.label}</span>
+                <span className="opacity-70 text-xs py-0.5 px-2 rounded-full">
+                  {tab.count}
+                </span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600">Loading courses...</span>
-              </div>
-            )}
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Loading courses...</span>
+          </div>
+        )}
 
-            {/* Empty State */}
-            {!loading && filteredCourses.length === 0 && (
-              <div className="bg-white shadow rounded-lg">
-                <div className="text-center py-12">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {`No ${CATEGORY_LABELS[activeTab]} courses found.`}
-                  </p>
-                </div>
-              </div>
-            )}
+        {/* Empty State */}
+        {!loading && filteredCourses.length === 0 && (
+          <div className="bg-white shadow rounded-lg">
+            <div className="text-center py-12">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                {`No ${CATEGORY_LABELS[activeTab]} courses found.`}
+              </p>
+            </div>
+          </div>
+        )}
 
-            {/* Courses Grid */}
-            {!loading && filteredCourses.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredCourses.map((course: Course) => (
-                  <Card
-                    key={course.id}
-                    className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl"
-                  >
-                    <CardContent className="p-0">
-                      {/* Course Header with gradient */}
-                      <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
-                        {/* Subtle pattern overlay */}
-                        <div className="absolute inset-0 opacity-10">
-                          <div className="absolute inset-0" style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                          }} />
+        {/* Courses Grid */}
+        {!loading && filteredCourses.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredCourses.map((course: Course) => (
+              <Card
+                key={course.id}
+                className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-200 hover:border-gray-300 bg-white rounded-xl"
+              >
+                <CardContent className="p-0">
+                  {/* Course Header with gradient */}
+                  <div className={`bg-gradient-to-r ${CATEGORY_GRADIENTS[course.category]} p-4 text-white relative overflow-hidden`}>
+                    {/* Subtle pattern overlay */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute inset-0" style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                      }} />
+                    </div>
+
+                    <div className="flex items-start justify-between relative z-10">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <BookOpen className="h-4 w-4 text-white/70" />
+                          <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
+                            {CATEGORY_LABELS[course.category]}
+                          </span>
                         </div>
-
-                        <div className="flex items-start justify-between relative z-10">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <BookOpen className="h-4 w-4 text-white/70" />
-                              <span className="text-xs font-medium text-white/70 uppercase tracking-wide">
-                                {CATEGORY_LABELS[course.category]}
-                              </span>
-                            </div>
-                            <h3 className="font-bold text-lg leading-tight mb-2 text-white">
-                              {course.name}
-                            </h3>
-                          </div>
-
-                          {course.short_code && (
-                            <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
-                              <span className="text-xs font-bold text-white">
-                                {course.short_code}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                        <h3 className="font-bold text-lg leading-tight mb-2 text-white">
+                          {course.name}
+                        </h3>
                       </div>
 
-                      {/* Course Content */}
-                      <div className="p-5">
-                        {/* Stats section */}
-                        <div className="flex items-center gap-6 text-sm text-gray-500 mb-5">
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
-                            <span className="font-medium">Active</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Users className="h-3.5 w-3.5" />
-                            <span>Multi-instructor</span>
-                          </div>
+                      {course.short_code && (
+                        <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
+                          <span className="text-xs font-bold text-white">
+                            {course.short_code}
+                          </span>
                         </div>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-between">
-                          {/* Manage Button - Left Side */}
+                  {/* Course Content */}
+                  <div className="p-5">
+                    {/* Stats section */}
+                    <div className="flex items-center gap-6 text-sm text-gray-500 mb-5">
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
+                        <span className="font-medium">Active</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
+                        <span>Multi-instructor</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between">
+                      {/* Manage Button - Left Side */}
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => navigate(`/instructor/courses/${course.id}/manage`)}
+                        className="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                      >
+                        Manage
+                      </Button>
+
+                      {/* Edit/Delete Icons - Right Side */}
+                      {user?.role === "admin" && (
+                        <div className="flex items-center gap-2">
                           <Button
-                            variant="default"
+                            variant="ghost"
                             size="sm"
-                            onClick={() => navigate(`/instructor/courses/${course.id}/manage`)}
-                            className="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+                            onClick={() => openEditCourseModal(course)}
+                            className="h-9 w-9 p-0 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
+                            title="Edit course"
                           >
-                            Manage
+                            <Edit className="h-4 w-4" />
                           </Button>
 
-                          {/* Edit/Delete Icons - Right Side */}
-                          {user?.role === "admin" && (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openEditCourseModal(course)}
-                                className="h-9 w-9 p-0 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
-                                title="Edit course"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setConfirmDelete(course.id.toString())}
-                                className="h-9 w-9 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
-                                title="Delete course"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setConfirmDelete(course.id.toString())}
+                            className="h-9 w-9 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
+                            title="Delete course"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </div>
+                      )}
+                    </div>
+                  </div>
 
-                      {/* Hover Effect Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                    </CardContent>
-                  </Card>
-                ))}
+                  {/* Hover Effect Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ---------------- Add Course Modal ---------------- */}
+      <Dialog
+        open={isAddOpen}
+        onOpenChange={(open) => {
+          setIsAddOpen(open);
+          if (!open) {
+            setNewCourse({ name: "", short_code: "", category: "" });
+            setSelectedInstructors([]);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px] p-0 max-h-[90vh] overflow-y-auto">
+          {/* Header with gradient background */}
+          <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
+            <DialogHeader className="space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <Plus className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-semibold text-white">
+                    Create New Course
+                  </DialogTitle>
+                  <p className="text-amber-100 text-sm mt-1">
+                    Add a new course to your curriculum
+                  </p>
+                </div>
               </div>
-            )}
+            </DialogHeader>
           </div>
 
-          {/* ---------------- Add Course Modal ---------------- */}
-          <Dialog
-            open={isAddOpen}
-            onOpenChange={(open) => {
-              setIsAddOpen(open);
-              if (!open) {
-                setNewCourse({ name: "", short_code: "", category: "" });
-                setSelectedInstructors([]);
-              }
-            }}
-          >
-            <DialogContent className="sm:max-w-[500px] p-0 max-h-[90vh] overflow-y-auto">
-              {/* Header with gradient background */}
-              <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
-                <DialogHeader className="space-y-0">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/20 p-2 rounded-lg">
-                      <Plus className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-xl font-semibold text-white">
-                        Create New Course
-                      </DialogTitle>
-                      <p className="text-amber-100 text-sm mt-1">
-                        Add a new course to your curriculum
-                      </p>
-                    </div>
+          {/* Form Content */}
+          <div className="px-6 py-6 space-y-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Course Name
+                <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                placeholder="e.g., Introduction to Python Programming"
+                value={newCourse.name}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, name: e.target.value })
+                }
+                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">#</span>
+                Short Code
+                <span className="text-xs text-gray-500">(optional)</span>
+              </Label>
+              <Input
+                placeholder="e.g., PY101, JS-BASICS"
+                value={newCourse.short_code}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, short_code: e.target.value })
+                }
+                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+              />
+              <p className="text-xs text-gray-500">
+                A short identifier for easy reference
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <div className="h-4 w-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded"></div>
+                Category
+                <span className="text-red-500">*</span>
+              </Label>
+              <select
+                value={newCourse.category}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, category: e.target.value })
+                }
+                className="h-11 w-full border border-gray-300 rounded-md px-3 py-2 focus:border-amber-500 focus:ring-amber-500 focus:outline-none"
+              >
+                <option value="">Choose a category</option>
+                <option value="fundamentals">Fundamentals</option>
+                <option value="programming_languages">Programming Languages</option>
+                <option value="databases">Databases</option>
+                <option value="ai_tools">AI Tools</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Instructors
+                <span className="text-xs text-gray-500">(optional)</span>
+              </Label>
+              <div className="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto bg-white">
+                {Array.isArray(availableInstructors) && availableInstructors.length > 0 ? (
+                  <div className="space-y-2">
+                    {availableInstructors.map((inst) => (
+                      <label key={inst.id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedInstructors.includes(inst.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedInstructors([...selectedInstructors, inst.id]);
+                            } else {
+                              setSelectedInstructors(selectedInstructors.filter(id => id !== inst.id));
+                            }
+                          }}
+                          className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-gray-900">{inst.username}</div>
+                          <div className="text-xs text-gray-500">{inst.email}</div>
+                        </div>
+                      </label>
+                    ))}
                   </div>
-                </DialogHeader>
-              </div>
-
-              {/* Form Content */}
-              <div className="px-6 py-6 space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Course Name
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    placeholder="e.g., Introduction to Python Programming"
-                    value={newCourse.name}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, name: e.target.value })
-                    }
-                    className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">#</span>
-                    Short Code
-                    <span className="text-xs text-gray-500">(optional)</span>
-                  </Label>
-                  <Input
-                    placeholder="e.g., PY101, JS-BASICS"
-                    value={newCourse.short_code}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, short_code: e.target.value })
-                    }
-                    className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
-                  />
-                  <p className="text-xs text-gray-500">
-                    A short identifier for easy reference
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <div className="h-4 w-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded"></div>
-                    Category
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    value={newCourse.category}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, category: e.target.value })
-                    }
-                    className="h-11 w-full border border-gray-300 rounded-md px-3 py-2 focus:border-amber-500 focus:ring-amber-500 focus:outline-none"
-                  >
-                    <option value="">Choose a category</option>
-                    <option value="fundamentals">Fundamentals</option>
-                    <option value="programming_languages">Programming Languages</option>
-                    <option value="databases">Databases</option>
-                    <option value="ai_tools">AI Tools</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Instructors
-                    <span className="text-xs text-gray-500">(optional)</span>
-                  </Label>
-                  <div className="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto bg-white">
-                    {Array.isArray(availableInstructors) && availableInstructors.length > 0 ? (
-                      <div className="space-y-2">
-                        {availableInstructors.map((inst) => (
-                          <label key={inst.id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                            <input
-                              type="checkbox"
-                              checked={selectedInstructors.includes(inst.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedInstructors([...selectedInstructors, inst.id]);
-                                } else {
-                                  setSelectedInstructors(selectedInstructors.filter(id => id !== inst.id));
-                                }
-                              }}
-                              className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-                            />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900">{inst.username}</div>
-                              <div className="text-xs text-gray-500">{inst.email}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-500 text-center py-4">
-                        No instructors available
-                      </div>
-                    )}
+                ) : (
+                  <div className="text-sm text-gray-500 text-center py-4">
+                    No instructors available
                   </div>
-                  {selectedInstructors.length > 0 && (
-                    <div className="text-xs text-gray-600">
-                      {selectedInstructors.length} instructor{selectedInstructors.length !== 1 ? 's' : ''} selected
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    Select multiple instructors to assign to this course
-                  </p>
+                )}
+              </div>
+              {selectedInstructors.length > 0 && (
+                <div className="text-xs text-gray-600">
+                  {selectedInstructors.length} instructor{selectedInstructors.length !== 1 ? 's' : ''} selected
                 </div>
-              </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Select multiple instructors to assign to this course
+              </p>
+            </div>
+          </div>
 
-              {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 border-t">
-                <DialogFooter className="gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsAddOpen(false);
-                      setNewCourse({ name: "", short_code: "", category: "" });
-                      setSelectedInstructors([]);
-                    }}
-                    className="px-6"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    disabled={saving || !newCourse.name.trim() || !newCourse.category}
-                    onClick={handleCreateCourse}
-                    className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
-                  >
-                    {saving ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Creating...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Course
-                      </div>
-                    )}
-                  </Button>
-                </DialogFooter>
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* Footer */}
+          <div className="bg-gray-50 px-6 py-4 border-t">
+            <DialogFooter className="gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsAddOpen(false);
+                  setNewCourse({ name: "", short_code: "", category: "" });
+                  setSelectedInstructors([]);
+                }}
+                className="px-6"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={saving || !newCourse.name.trim() || !newCourse.category}
+                onClick={handleCreateCourse}
+                className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Creating...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Course
+                  </div>
+                )}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* ---------------- Delete Confirmation Modal ---------------- */}
-          <Dialog
-            open={!!confirmDelete}
-            onOpenChange={() => setConfirmDelete(null)}
-          >
-            <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
-                <DialogHeader className="space-y-0">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/20 p-2 rounded-lg">
-                      <Trash2 className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-xl font-semibold text-white">
-                        Delete Course
-                      </DialogTitle>
-                      <p className="text-red-100 text-sm mt-1">
-                        This action cannot be undone
-                      </p>
-                    </div>
-                  </div>
-                </DialogHeader>
-              </div>
-
-              {/* Content */}
-              <div className="px-6 py-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-red-50 p-3 rounded-full">
-                    <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Are you absolutely sure?
-                    </h3>
-                    <p className="text-gray-600 mb-3">
-                      This will permanently delete the course and all associated content including:
-                    </p>
-                    <ul className="text-sm text-gray-500 space-y-1 mb-4">
-                      <li className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
-                        All course materials and resources
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
-                        Student progress and submissions
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
-                        Instructor assignments
-                      </li>
-                    </ul>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-sm text-amber-800">
-                        <strong>Warning:</strong> This action cannot be reversed. Please be certain before proceeding.
-                      </p>
-                    </div>
-                  </div>
+      {/* ---------------- Delete Confirmation Modal ---------------- */}
+      <Dialog
+        open={!!confirmDelete}
+        onOpenChange={() => setConfirmDelete(null)}
+      >
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+            <DialogHeader className="space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <Trash2 className="h-5 w-5 text-white" />
                 </div>
-              </div>
-
-              {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 border-t">
-                <DialogFooter className="gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setConfirmDelete(null)}
-                    className="px-6"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    disabled={deleting}
-                    onClick={handleDelete}
-                    className="px-6 bg-red-600 hover:bg-red-700"
-                  >
-                    {deleting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Deleting...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Trash2 className="h-4 w-4" />
-                        Delete Course
-                      </div>
-                    )}
-                  </Button>
-                </DialogFooter>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* ---------------- Edit Course Modal ---------------- */}
-          <Dialog
-            open={isEditOpen}
-            onOpenChange={(open) => {
-              setIsEditOpen(open);
-              if (!open) {
-                setEditCourseId(null);
-                setEditSelectedInstructors([]);
-                setEditInitialInstructors([]);
-              }
-            }}
-          >
-            <DialogContent className="sm:max-w-[500px] p-0 max-h-[90vh] overflow-y-auto">
-              {/* Header with gradient background */}
-              <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
-                <DialogHeader className="space-y-0">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/20 p-2 rounded-lg">
-                      <Edit className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <DialogTitle className="text-xl font-semibold text-white">
-                        Edit Course
-                      </DialogTitle>
-                      <p className="text-amber-100 text-sm mt-1">
-                        Update course information and settings
-                      </p>
-                    </div>
-                  </div>
-                </DialogHeader>
-              </div>
-
-              {/* Form Content */}
-              <div className="px-6 py-6 space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Course Name
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    value={newCourse.name}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, name: e.target.value })
-                    }
-                    className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">#</span>
-                    Short Code
-                  </Label>
-                  <Input
-                    value={newCourse.short_code}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, short_code: e.target.value })
-                    }
-                    className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <div className="h-4 w-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded"></div>
-                    Category
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    value={newCourse.category}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, category: e.target.value })
-                    }
-                    className="h-11 w-full border border-gray-300 rounded-md px-3 py-2 focus:border-amber-500 focus:ring-amber-500 focus:outline-none"
-                  >
-                    <option value="">Select category</option>
-                    <option value="fundamentals">Fundamentals</option>
-                    <option value="programming_languages">Programming Languages</option>
-                    <option value="databases">Databases</option>
-                    <option value="ai_tools">AI Tools</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Instructors
-                  </Label>
-                  <div className="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto bg-white">
-                    {Array.isArray(availableInstructors) && availableInstructors.length > 0 ? (
-                      <div className="space-y-2">
-                        {availableInstructors.map((inst) => (
-                          <label key={inst.id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                            <input
-                              type="checkbox"
-                              checked={editSelectedInstructors.includes(inst.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setEditSelectedInstructors([...editSelectedInstructors, inst.id]);
-                                } else {
-                                  setEditSelectedInstructors(editSelectedInstructors.filter(id => id !== inst.id));
-                                }
-                              }}
-                              className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-                            />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900">{inst.username}</div>
-                              <div className="text-xs text-gray-500">{inst.email}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-500 text-center py-4">
-                        No instructors available
-                      </div>
-                    )}
-                  </div>
-                  {editSelectedInstructors.length > 0 && (
-                    <div className="text-xs text-gray-600">
-                      {editSelectedInstructors.length} instructor{editSelectedInstructors.length !== 1 ? 's' : ''} selected
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    Manage instructor assignments for this course
+                <div>
+                  <DialogTitle className="text-xl font-semibold text-white">
+                    Delete Course
+                  </DialogTitle>
+                  <p className="text-red-100 text-sm mt-1">
+                    This action cannot be undone
                   </p>
                 </div>
               </div>
+            </DialogHeader>
+          </div>
 
-              {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 border-t">
-                <DialogFooter className="gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsEditOpen(false);
-                      setEditCourseId(null);
-                      setEditSelectedInstructors([]);
-                      setEditInitialInstructors([]);
-                    }}
-                    className="px-6"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    disabled={saving || !newCourse.name.trim() || !newCourse.category}
-                    onClick={handleUpdateCourse}
-                    className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
-                  >
-                    {saving ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Saving...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Save Changes
-                      </div>
-                    )}
-                  </Button>
-                </DialogFooter>
+          {/* Content */}
+          <div className="px-6 py-6">
+            <div className="flex items-start gap-4">
+              <div className="bg-red-50 p-3 rounded-full">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-    </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Are you absolutely sure?
+                </h3>
+                <p className="text-gray-600 mb-3">
+                  This will permanently delete the course and all associated content including:
+                </p>
+                <ul className="text-sm text-gray-500 space-y-1 mb-4">
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
+                    All course materials and resources
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
+                    Student progress and submissions
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 bg-gray-400 rounded-full"></div>
+                    Instructor assignments
+                  </li>
+                </ul>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-sm text-amber-800">
+                    <strong>Warning:</strong> This action cannot be reversed. Please be certain before proceeding.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-gray-50 px-6 py-4 border-t">
+            <DialogFooter className="gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmDelete(null)}
+                className="px-6"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={deleting}
+                onClick={handleDelete}
+                className="px-6 bg-red-600 hover:bg-red-700"
+              >
+                {deleting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Deleting...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    Delete Course
+                  </div>
+                )}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ---------------- Edit Course Modal ---------------- */}
+      <Dialog
+        open={isEditOpen}
+        onOpenChange={(open) => {
+          setIsEditOpen(open);
+          if (!open) {
+            setEditCourseId(null);
+            setEditSelectedInstructors([]);
+            setEditInitialInstructors([]);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px] p-0 max-h-[90vh] overflow-y-auto">
+          {/* Header with gradient background */}
+          <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
+            <DialogHeader className="space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <Edit className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-semibold text-white">
+                    Edit Course
+                  </DialogTitle>
+                  <p className="text-amber-100 text-sm mt-1">
+                    Update course information and settings
+                  </p>
+                </div>
+              </div>
+            </DialogHeader>
+          </div>
+
+          {/* Form Content */}
+          <div className="px-6 py-6 space-y-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Course Name
+                <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={newCourse.name}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, name: e.target.value })
+                }
+                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">#</span>
+                Short Code
+              </Label>
+              <Input
+                value={newCourse.short_code}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, short_code: e.target.value })
+                }
+                className="h-11 border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <div className="h-4 w-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded"></div>
+                Category
+                <span className="text-red-500">*</span>
+              </Label>
+              <select
+                value={newCourse.category}
+                onChange={(e) =>
+                  setNewCourse({ ...newCourse, category: e.target.value })
+                }
+                className="h-11 w-full border border-gray-300 rounded-md px-3 py-2 focus:border-amber-500 focus:ring-amber-500 focus:outline-none"
+              >
+                <option value="">Select category</option>
+                <option value="fundamentals">Fundamentals</option>
+                <option value="programming_languages">Programming Languages</option>
+                <option value="databases">Databases</option>
+                <option value="ai_tools">AI Tools</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Instructors
+              </Label>
+              <div className="border border-gray-300 rounded-md p-3 max-h-40 overflow-y-auto bg-white">
+                {Array.isArray(availableInstructors) && availableInstructors.length > 0 ? (
+                  <div className="space-y-2">
+                    {availableInstructors.map((inst) => (
+                      <label key={inst.id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                        <input
+                          type="checkbox"
+                          checked={editSelectedInstructors.includes(inst.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditSelectedInstructors([...editSelectedInstructors, inst.id]);
+                            } else {
+                              setEditSelectedInstructors(editSelectedInstructors.filter(id => id !== inst.id));
+                            }
+                          }}
+                          className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-gray-900">{inst.username}</div>
+                          <div className="text-xs text-gray-500">{inst.email}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500 text-center py-4">
+                    No instructors available
+                  </div>
+                )}
+              </div>
+              {editSelectedInstructors.length > 0 && (
+                <div className="text-xs text-gray-600">
+                  {editSelectedInstructors.length} instructor{editSelectedInstructors.length !== 1 ? 's' : ''} selected
+                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Manage instructor assignments for this course
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-gray-50 px-6 py-4 border-t">
+            <DialogFooter className="gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditOpen(false);
+                  setEditCourseId(null);
+                  setEditSelectedInstructors([]);
+                  setEditInitialInstructors([]);
+                }}
+                className="px-6"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={saving || !newCourse.name.trim() || !newCourse.category}
+                onClick={handleUpdateCourse}
+                className="px-6 bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Saving...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Edit className="h-4 w-4" />
+                    Save Changes
+                  </div>
+                )}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </DashboardLayout>
   );
 };
 

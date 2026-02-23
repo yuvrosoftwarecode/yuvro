@@ -452,6 +452,10 @@ class ContestSubmissionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+from course.serializers import QuestionSolutionSerializer
+
+# ...
+
 class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
     question_title = serializers.CharField(source="question.title", read_only=True)
     question_type = serializers.CharField(source="question.type", read_only=True)
@@ -460,6 +464,9 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
     marks = serializers.FloatField(source="question.marks", read_only=True)
     test_cases_basic = serializers.JSONField(
         source="question.test_cases_basic", read_only=True
+    )
+    solutions = QuestionSolutionSerializer(
+        source="question.solutions", many=True, read_only=True
     )
 
     class Meta:
@@ -473,6 +480,7 @@ class SkillTestQuestionActivitySerializer(serializers.ModelSerializer):
             "mcq_options",
             "marks",
             "test_cases_basic",
+            "solutions",
             "question_activities",
             "navigation_activities",
             "proctoring_activities",

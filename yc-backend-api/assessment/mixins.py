@@ -73,16 +73,12 @@ class AssessmentMixin:
                     elif course_filter:
                         q_filter &= Q(course=course_filter)
                     
-                    candidates = list(Question.objects.filter(
+                    # Efficiently sample random elements at the DB level, capping the response size
+                    selected = list(Question.objects.filter(
                         q_filter
-                    ).exclude(id__in=existing_ids).values(
+                    ).exclude(id__in=existing_ids).order_by('?')[:count].values(
                         'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
                     ))
-                    
-                    if len(candidates) >= count:
-                        selected = random.sample(candidates, count)
-                    else:
-                        selected = candidates
                     
                     questions_to_send.extend(selected)
                     existing_ids.extend([q['id'] for q in selected])

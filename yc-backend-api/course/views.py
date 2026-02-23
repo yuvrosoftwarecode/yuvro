@@ -23,6 +23,7 @@ from .models import (
     Note,
     CourseInstructor,
     Question,
+    QuestionSolution,
     UserCourseProgress,
     StudentCodePractice,
 )
@@ -35,6 +36,7 @@ from .serializers import (
     VideoSerializer,
     NoteSerializer,
     QuestionSerializer,
+    QuestionSolutionSerializer,
     StudentCodePracticeSerializer,
 )
 from ai_assistant.services import AIServiceFactory, AIServiceError
@@ -451,6 +453,77 @@ class NoteViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *a, **kw)
 
 
+
+class QuestionSolutionViewSet(viewsets.ModelViewSet):
+    queryset = QuestionSolution.objects.select_related("question")
+    serializer_class = QuestionSolutionSerializer
+    permission_classes = [IsAuthenticatedUser]
+
+    def get_queryset(self):
+        qs = QuestionSolution.objects.select_related("question")
+        question_id = self.request.query_params.get("question")
+
+        if question_id:
+            qs = qs.filter(question_id=question_id)
+
+        # Access Control:
+        # Instructors can only see solutions for questions they have access to.
+        # Students might be restricted based on logic (handled in serializer representation or here if needed).
+        # For now, let's allow read access if they have access to the question.
+        # But for modification, strict checks.
+
+        user = self.request.user
+        if user.role == "instructor":
+            # Filter by courses assigned to instructor
+            assigned_course_ids = CourseInstructor.objects.filter(
+                instructor=user
+            ).values_list("course_id", flat=True)
+
+            qs = qs.filter(
+                Q(question__course_id__in=assigned_course_ids)
+                | Q(question__topic__course_id__in=assigned_course_ids)
+                | Q(question__subtopic__topic__course_id__in=assigned_course_ids)
+            )
+
+        return qs
+
+    def perform_create(self, serializer):
+        question = serializer.validated_data.get("question")
+        self._check_permission(question)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        question = serializer.instance.question
+        self._check_permission(question)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        question = instance.question
+        self._check_permission(question)
+        instance.delete()
+
+    def _check_permission(self, question):
+        user = self.request.user
+        if user.role == "admin":
+            return
+
+        course = None
+        if question.course:
+            course = question.course
+        elif question.topic:
+            course = question.topic.course
+        elif question.subtopic:
+            course = question.subtopic.topic.course
+
+        if not course:
+             # Should practically not happen if question is valid, but safe guard
+             if user.role != "admin":
+                 raise permissions.PermissionDenied("Invalid question association")
+
+        if not instructor_assigned(user, course):
+            raise permissions.PermissionDenied("You do not have permission for this course.")
+
+
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related(
         "course", "topic", "subtopic", "created_by"
@@ -542,16 +615,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         user = request.user
 
+        # Get the new level and associations from the request, falling back to existing
+        level = request.data.get("level", question.level)
         course = None
-        if question.course:
-            course = question.course
-        elif question.topic:
-            course = question.topic.course
-        elif question.subtopic:
-            course = question.subtopic.topic.course
+
+        if level == "course":
+            course_id = request.data.get("course", question.course_id if question.level == "course" else None)
+            course = get_object_or_404(Course, id=course_id) if course_id else None
+        elif level == "topic":
+            topic_id = request.data.get("topic", question.topic_id if question.level == "topic" else None)
+            topic = get_object_or_404(Topic, id=topic_id) if topic_id else None
+            course = topic.course if topic else None
+        elif level == "subtopic":
+            subtopic_id = request.data.get("subtopic", question.subtopic_id if question.level == "subtopic" else None)
+            subtopic = get_object_or_404(Subtopic, id=subtopic_id) if subtopic_id else None
+            course = subtopic.topic.course if subtopic else None
 
         if not course:
-            return Response({"error": "Invalid question association"}, status=400)
+            return Response({"error": "Invalid course/topic/subtopic"}, status=400)
 
         if user.role == "admin" or (
             user.role == "instructor" and instructor_assigned(user, course)

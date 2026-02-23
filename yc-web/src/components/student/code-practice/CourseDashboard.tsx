@@ -10,6 +10,7 @@ import type { Course } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
 import ModernCard from '@/components/common/ModernCard';
 import { getCourseIconConfig } from '@/utils/CourseIcons';
+import { StatsCard } from '@/components/common/StatsCard';
 
 interface CourseDashboardProps {
   onCourseSelect: (course: Course) => void;
@@ -87,71 +88,37 @@ const CourseDashboard = ({ onCourseSelect, onViewAnalytics }: CourseDashboardPro
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-          {/* Problems Solved */}
-          <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-default h-full relative z-40">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Problems Solved</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {courses.reduce((sum, c) => sum + c.solvedProblems, 0)}
-                  </p>
-                </div>
-                <div className="bg-green-500 p-3 rounded-lg">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            label="Problems Solved"
+            value={courses.reduce((sum, c) => sum + c.solvedProblems, 0)}
+            icon={CheckCircle2}
+            colorScheme="green"
+            className="z-40 h-full"
+          />
 
-          {/* Total Score */}
-          <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-default h-full relative z-40">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Score</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {courses.reduce((sum, c) => sum + (c.totalScore || 0), 0)}
-                  </p>
-                </div>
-                <div className="bg-purple-500 p-3 rounded-lg">
-                  <Trophy className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            label="Total Score"
+            value={courses.reduce((sum, c) => sum + (c.totalScore || 0), 0)}
+            icon={Trophy}
+            colorScheme="purple"
+            className="z-40 h-full"
+          />
 
-          {/* AI Help Used */}
-          <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-default h-full relative z-40">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">AI Help Used</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {courses.reduce((sum, c) => sum + (c.aiHelpUsed || 0), 0)}
-                  </p>
-                </div>
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            label="AI Help Used"
+            value={courses.reduce((sum, c) => sum + (c.aiHelpUsed || 0), 0)}
+            icon={Brain}
+            colorScheme="blue"
+            className="z-40 h-full"
+          />
 
-          {/* Courses Available */}
-          <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-default h-full relative z-40">
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Courses Available</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{courses.length}</p>
-                </div>
-                <div className="bg-amber-500 p-3 rounded-lg">
-                  <Target className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            label="Courses Available"
+            value={courses.length}
+            icon={Target}
+            colorScheme="amber"
+            className="z-40 h-full"
+          />
 
         </div>
 

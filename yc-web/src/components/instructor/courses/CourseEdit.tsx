@@ -442,18 +442,18 @@ const CourseEdit: React.FC = () => {
   if (!courseId) return <div className="min-h-screen flex items-center justify-center">No course selected</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="h-screen overflow-hidden bg-gray-50">
+      <div className="flex h-full">
         <RoleSidebar />
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <RoleHeader
             title={course?.name ? course.name : 'Loading Course...'}
             subtitle={course ? `Category: ${CATEGORY_LABELS[course.category as Category] || course.category}${course.short_code ? ` • Code: ${course.short_code}` : ''}` : 'Loading course details...'}
           />
 
           {/* Main content */}
-          <div className="p-6">
-            <div className="h-full w-full px-4 py-6 flex gap-6">
+          <div className="flex-1 overflow-hidden p-3">
+            <div className="h-full w-full px-2 py-3 flex gap-4">
               {/* Left Sidebar - Course Structure */}
               <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
                 {/* Sidebar Header */}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import DashboardLayout from '../../components/common/DashboardLayout';
 import { userService, User, PaginatedUsersResponse, UsersFilters } from '../../services/userService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchBar from '@/components/common/SearchBar';
@@ -315,8 +314,8 @@ const Users: React.FC = () => {
             header: 'Status',
             cell: (user: User) => (
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${user.is_active
-                        ? 'bg-green-50 text-green-700 border-green-200'
-                        : 'bg-red-50 text-red-700 border-red-200'
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
                     }`}>
                     <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
                     {user.is_active ? 'Active' : 'Inactive'}
@@ -354,8 +353,8 @@ const Users: React.FC = () => {
                     <button
                         onClick={() => handleToggleUserStatus(user.id)}
                         className={`p-2 rounded-lg transition-colors ${user.is_active
-                                ? 'text-gray-400 hover:text-red-600 hover:bg-red-50'
-                                : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                            ? 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+                            : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
                             }`}
                         title={user.is_active ? 'Deactivate User' : 'Activate User'}
                     >
@@ -367,118 +366,113 @@ const Users: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="flex">
-                <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader
-                        title="User Management"
-                        subtitle="Manage system users and their roles"
-                        actions={headerActions}
+        <DashboardLayout
+            title="User Management"
+            subtitle="Manage system users and their roles"
+            actions={headerActions}
+        >
+            <div className="px-6 py-6">
+                {/* Summary Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <StatsCard
+                        label={`Total ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}s`}
+                        value={pagination.count}
+                        icon={getRoleIcon(activeTab)}
+                        colorScheme={
+                            activeTab === 'admin' ? 'red' :
+                                activeTab === 'instructor' ? 'blue' :
+                                    activeTab === 'recruiter' ? 'purple' : 'green'
+                        }
                     />
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {/* Summary Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                            <StatsCard
-                                label={`Total ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}s`}
-                                value={pagination.count}
-                                icon={getRoleIcon(activeTab)}
-                                colorScheme={
-                                    activeTab === 'admin' ? 'red' :
-                                        activeTab === 'instructor' ? 'blue' :
-                                            activeTab === 'recruiter' ? 'purple' : 'green'
-                                }
-                            />
-                        </div>
+                </div>
 
-                        {/* Search and Filters */}
-                        <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                            <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)}>
-                                <TabsList className="inline-flex w-auto gap-1">
-                                    <TabsTrigger value="admin" className="px-5">Admins</TabsTrigger>
-                                    <TabsTrigger value="instructor" className="px-5">Instructors</TabsTrigger>
-                                    <TabsTrigger value="recruiter" className="px-5">Recruiters</TabsTrigger>
-                                    <TabsTrigger value="student" className="px-5">Students</TabsTrigger>
-                                </TabsList>
-                            </Tabs>
-                            <div className="w-full sm:w-72">
-                                <SearchBar
-                                    searchQuery={searchTerm}
-                                    setSearchQuery={handleSearch}
-                                    placeholder="Search users..."
-                                />
-                            </div>
-                        </div>
-
-                        {/* Users Table */}
-                        <DataTable
-                            data={users}
-                            columns={columns}
-                            keyExtractor={(user) => user.id}
-                            isLoading={loading}
-                            emptyState={{
-                                message: "No users found",
-                                subMessage: searchTerm ? `No users found matching "${searchTerm}"` : `No ${activeTab} users found`,
-                                action: (
-                                    <Button onClick={() => setShowAddUser(true)}>
-                                        Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                                    </Button>
-                                )
-                            }}
+                {/* Search and Filters */}
+                <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <Tabs value={activeTab} onValueChange={(v: any) => handleTabChange(v)}>
+                        <TabsList className="inline-flex w-auto gap-1">
+                            <TabsTrigger value="admin" className="px-5">Admins</TabsTrigger>
+                            <TabsTrigger value="instructor" className="px-5">Instructors</TabsTrigger>
+                            <TabsTrigger value="recruiter" className="px-5">Recruiters</TabsTrigger>
+                            <TabsTrigger value="student" className="px-5">Students</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                    <div className="w-full sm:w-72">
+                        <SearchBar
+                            searchQuery={searchTerm}
+                            setSearchQuery={handleSearch}
+                            placeholder="Search users..."
                         />
-
-                        {/* Pagination */}
-                        {!loading && pagination.totalPages > 1 && (
-                            <div className="mt-4">
-                                <Pagination>
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                                className={pagination.previous ? "cursor-pointer" : "pointer-events-none opacity-50"}
-                                            />
-                                        </PaginationItem>
-
-                                        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
-                                            if (
-                                                page === 1 ||
-                                                page === pagination.totalPages ||
-                                                (page >= pagination.currentPage - 1 && page <= pagination.currentPage + 1)
-                                            ) {
-                                                return (
-                                                    <PaginationItem key={page}>
-                                                        <PaginationLink
-                                                            isActive={page === pagination.currentPage}
-                                                            onClick={() => handlePageChange(page)}
-                                                            className="cursor-pointer"
-                                                        >
-                                                            {page}
-                                                        </PaginationLink>
-                                                    </PaginationItem>
-                                                );
-                                            }
-                                            if (
-                                                page === pagination.currentPage - 2 ||
-                                                page === pagination.currentPage + 2
-                                            ) {
-                                                return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>;
-                                            }
-                                            return null;
-                                        })}
-
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                                className={pagination.next ? "cursor-pointer" : "pointer-events-none opacity-50"}
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            </div>
-                        )}
                     </div>
                 </div>
+
+                {/* Users Table */}
+                <DataTable
+                    data={users}
+                    columns={columns}
+                    keyExtractor={(user) => user.id}
+                    isLoading={loading}
+                    emptyState={{
+                        message: "No users found",
+                        subMessage: searchTerm ? `No users found matching "${searchTerm}"` : `No ${activeTab} users found`,
+                        action: (
+                            <Button onClick={() => setShowAddUser(true)}>
+                                Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                            </Button>
+                        )
+                    }}
+                />
+
+                {/* Pagination */}
+                {!loading && pagination.totalPages > 1 && (
+                    <div className="mt-4">
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        className={pagination.previous ? "cursor-pointer" : "pointer-events-none opacity-50"}
+                                    />
+                                </PaginationItem>
+
+                                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
+                                    if (
+                                        page === 1 ||
+                                        page === pagination.totalPages ||
+                                        (page >= pagination.currentPage - 1 && page <= pagination.currentPage + 1)
+                                    ) {
+                                        return (
+                                            <PaginationItem key={page}>
+                                                <PaginationLink
+                                                    isActive={page === pagination.currentPage}
+                                                    onClick={() => handlePageChange(page)}
+                                                    className="cursor-pointer"
+                                                >
+                                                    {page}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        );
+                                    }
+                                    if (
+                                        page === pagination.currentPage - 2 ||
+                                        page === pagination.currentPage + 2
+                                    ) {
+                                        return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>;
+                                    }
+                                    return null;
+                                })}
+
+                                <PaginationItem>
+                                    <PaginationNext
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        className={pagination.next ? "cursor-pointer" : "pointer-events-none opacity-50"}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
+                )}
             </div>
+
 
             {/* Add User Dialog */}
             <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
@@ -569,7 +563,7 @@ const Users: React.FC = () => {
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
 
             {/* Edit User Dialog */}
             <Dialog open={showEditUser} onOpenChange={setShowEditUser}>
@@ -657,7 +651,7 @@ const Users: React.FC = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </DashboardLayout>
     );
 };
 
