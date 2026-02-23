@@ -3,8 +3,7 @@ import { CheckCircle, XCircle, Eye, Briefcase, MapPin, Clock } from "lucide-reac
 import { jobService, Job } from "../../services/jobService";
 import StatusBadge from "../../components/common/StatusBadge";
 import JobDetailsViewer from "../../components/common/recruiter/JobDetailsViewer";
-import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import DashboardLayout from "../../components/common/DashboardLayout";
 import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
 import { useAuth } from "../../contexts/AuthContext";
@@ -34,34 +33,28 @@ const JobsApproval: React.FC = () => {
 
   if (!hasJobsApprovalAccess) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          <RoleSidebar />
-          <div className="flex-1">
-            <RoleHeader
-              title="Jobs Approval"
-              subtitle="Review and approve job postings"
-            />
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-red-600 mb-4">
-                  <XCircle className="h-12 w-12 mx-auto mb-2" />
-                  <p className="text-lg font-medium">Access Denied</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    You don't have permission to access Jobs Approval.
-                  </p>
-                </div>
-                <button
-                  onClick={() => window.history.back()}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Go Back
-                </button>
-              </div>
+      <DashboardLayout
+        title="Jobs Approval"
+        subtitle="Review and approve job postings before they go live"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-600 mb-4">
+              <XCircle className="h-12 w-12 mx-auto mb-2" />
+              <p className="text-lg font-medium">Access Denied</p>
+              <p className="text-sm text-gray-600 mt-1">
+                You don't have permission to access Jobs Approval.
+              </p>
             </div>
+            <button
+              onClick={() => window.history.back()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Go Back
+            </button>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -300,60 +293,49 @@ const JobsApproval: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          <RoleSidebar />
-          <div className="flex-1">
-            <RoleHeader
-              title="Jobs Approval"
-              subtitle="Review and approve job postings"
-            />
-            <div className="flex items-center justify-center h-64">
-              {error ? (
-                <div className="text-center">
-                  <div className="text-red-600 mb-4">
-                    <XCircle className="h-12 w-12 mx-auto mb-2" />
-                    <p className="text-lg font-medium">Failed to load Jobs Approval</p>
-                    <p className="text-sm text-gray-600 mt-1">{error}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setLoading(true);
-                      if (selectedTab === 'pending') {
-                        loadPendingJobs().finally(() => setLoading(false));
-                      } else {
-                        loadApprovedJobs().finally(() => setLoading(false));
-                      }
-                    }}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mb-4"></div>
-                  <p className="text-gray-600">Loading jobs approval...</p>
-                </div>
-              )}
+      <DashboardLayout
+        title="Jobs Approval"
+        subtitle="Review and approve job postings before they go live"
+      >
+        <div className="flex items-center justify-center h-64">
+          {error ? (
+            <div className="text-center">
+              <div className="text-red-600 mb-4">
+                <XCircle className="h-12 w-12 mx-auto mb-2" />
+                <p className="text-lg font-medium">Failed to load Jobs Approval</p>
+                <p className="text-sm text-gray-600 mt-1">{error}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setLoading(true);
+                  if (selectedTab === 'pending') {
+                    loadPendingJobs().finally(() => setLoading(false));
+                  } else {
+                    loadApprovedJobs().finally(() => setLoading(false));
+                  }
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Try Again
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mb-4"></div>
+              <p className="text-gray-600">Loading jobs approval...</p>
+            </div>
+          )}
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title="Jobs Approval"
-            subtitle="Review and approve job postings before they go live"
-          />
-
-          <div className="px-6 py-6">
+    <DashboardLayout
+      title="Jobs Approval"
+      subtitle="Review and approve job postings before they go live"
+    >
+      <div className="px-6 py-6">
             <Tabs value={selectedTab} onValueChange={(v: any) => handleTabChange(v)} className="mb-6">
               <TabsList className="inline-flex w-auto gap-1">
                 <TabsTrigger value="pending" className="px-5">
@@ -544,8 +526,6 @@ const JobsApproval: React.FC = () => {
                     : 'No jobs have been approved yet.'
               }}
             />
-          </div>
-        </div>
       </div>
 
       {showJobDetails && selectedJob && (
@@ -620,7 +600,7 @@ const JobsApproval: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 

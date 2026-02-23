@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import QuestionBank from '@/components/common/QuestionBank';
 import { getCertificationExam, createCertificationExam, updateCertificationExam, CertificationExam } from '@/services/certificationService';
 import courseService, { Course, TopicBasic } from '@/services/courseService';
@@ -260,340 +259,331 @@ export default function CertificationExamForm() {
 
     if (loading && isEditMode) {
         return (
-            <div className="min-h-screen bg-gray-50 flex">
-                <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader title="Loading..." actions={null} />
-                    <div className="flex justify-center items-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
+            <DashboardLayout title="Loading..." actions={null}>
+                <div className="flex justify-center items-center h-full min-h-[50vh]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
-            </div>
+            </DashboardLayout>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
-            <RoleSidebar />
-            <div className="flex-1 flex flex-col">
-                <RoleHeader
-                    title={getHeaderTitle()}
-                    subtitle="Configure certification exam details, schedule and questions"
-                    actions={
-                        <button
-                            onClick={() => navigate('/instructor/certifications')}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-                        >
-                            ← Back to List
-                        </button>
-                    }
-                />
+        <DashboardLayout
+            title={getHeaderTitle()}
+            subtitle="Configure certification exam details, schedule and questions"
+            actions={
+                <button
+                    onClick={() => navigate('/instructor/certifications')}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                >
+                    ← Back to List
+                </button>
+            }
+        >
+            <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
+                <div className="bg-white shadow rounded-lg mb-6 p-6">
+                    <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
+                        <TabsList className="inline-flex w-auto gap-1 mb-6">
+                            <TabsTrigger value="details" className="flex items-center justify-center gap-2 px-5">
+                                <Settings className="h-4 w-4" /> Exam Details & Schedule
+                            </TabsTrigger>
+                            <TabsTrigger value="questions" className="flex items-center justify-center gap-2 px-5">
+                                <FileText className="h-4 w-4" />
+                                Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
+                            </TabsTrigger>
+                        </TabsList>
 
-                <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
-                    <div className="bg-white shadow rounded-lg mb-6 p-6">
-                        <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                            <TabsList className="inline-flex w-auto gap-1 mb-6">
-                                <TabsTrigger value="details" className="flex items-center justify-center gap-2 px-5">
-                                    <Settings className="h-4 w-4" /> Exam Details & Schedule
-                                </TabsTrigger>
-                                <TabsTrigger value="questions" className="flex items-center justify-center gap-2 px-5">
-                                    <FileText className="h-4 w-4" />
-                                    Questions ({Object.values(selectedQuestionsByType).flat().length + Object.values(randomQuestionsConfig).reduce((sum, count) => sum + count, 0)})
-                                </TabsTrigger>
-                            </TabsList>
-
-                            <TabsContent value="details" className="space-y-6">
-                                {/* Basic Information Card */}
-                                <Card className="border border-gray-200 shadow-sm">
-                                    <CardHeader className="pb-4">
-                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                                            <Trophy className="h-5 w-5 mr-2 text-blue-500" />
-                                            Basic Information
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Exam Title *</label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.title}
-                                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                                    placeholder="e.g., Final Certification Exam"
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Course *</label>
-                                                <select
-                                                    value={formData.course}
-                                                    onChange={(e) => {
-                                                        setFormData({ ...formData, course: e.target.value });
-                                                        setSelectedCourse(e.target.value);
-                                                    }}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                    disabled={isEditMode || !!courseIdFromUrl}
-                                                >
-                                                    <option value="">Select a Course</option>
-                                                    {courses.map(course => (
-                                                        <option key={course.id} value={course.id}>{course.name || course.title}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
+                        <TabsContent value="details" className="space-y-6">
+                            {/* Basic Information Card */}
+                            <Card className="border border-gray-200 shadow-sm">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <Trophy className="h-5 w-5 mr-2 text-blue-500" />
+                                        Basic Information
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                                            <textarea
-                                                value={formData.description}
-                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                rows={3}
-                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-                                            <textarea
-                                                value={formData.instructions}
-                                                onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-                                                rows={3}
-                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Schedule & Config Card */}
-                                <Card className="border border-gray-200 shadow-sm">
-                                    <CardHeader className="pb-4">
-                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                                            <Calendar className="h-5 w-5 mr-2 text-green-500" />
-                                            Schedule & Configuration
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date/Time *</label>
-                                                <input
-                                                    type="datetime-local"
-                                                    value={formData.start_datetime}
-                                                    onChange={(e) => setFormData({ ...formData, start_datetime: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">End Date/Time *</label>
-                                                <input
-                                                    type="datetime-local"
-                                                    value={formData.end_datetime}
-                                                    onChange={(e) => setFormData({ ...formData, end_datetime: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Duration (mins) *</label>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={formData.duration}
-                                                    onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks *</label>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={formData.total_marks}
-                                                    onChange={(e) => setFormData({ ...formData, total_marks: parseInt(e.target.value) || 100 })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks *</label>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={formData.passing_marks}
-                                                    onChange={(e) => setFormData({ ...formData, passing_marks: parseInt(e.target.value) || 60 })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Max Attempts</label>
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={formData.max_attempts}
-                                                    onChange={(e) => setFormData({ ...formData, max_attempts: parseInt(e.target.value) || 1 })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
-                                                <select
-                                                    value={formData.difficulty}
-                                                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                >
-                                                    <option value="easy">Easy</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="hard">Hard</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
-                                                <select
-                                                    value={formData.publish_status}
-                                                    onChange={(e) => setFormData({ ...formData, publish_status: e.target.value as any })}
-                                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                >
-                                                    <option value="draft">Draft</option>
-                                                    <option value="active">Active</option>
-                                                    <option value="inactive">Inactive</option>
-                                                    <option value="archived">Archived</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center mt-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Exam Title *</label>
                                             <input
-                                                type="checkbox"
-                                                id="enable_proctoring"
-                                                checked={formData.enable_proctoring}
-                                                onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                type="text"
+                                                value={formData.title}
+                                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                                placeholder="e.g., Final Certification Exam"
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                             />
-                                            <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
-                                                Enable Proctoring (Camera, Tab monitoring)
-                                            </label>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-
-                            <TabsContent value="questions" className="space-y-6">
-                                {/* Random Questions Configuration */}
-                                <Card className="border border-gray-200 shadow-sm">
-                                    <CardHeader className="pb-4">
-                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                                            <Settings className="h-5 w-5 mr-2 text-orange-500" />
-                                            Random Questions Configuration
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Auto-select questions from the Question Bank based on type. These will be randomized for each student.
-                                        </p>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single</label>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={randomQuestionsConfig.mcq_single}
-                                                    onChange={(e) => setRandomQuestionsConfig({
-                                                        ...randomQuestionsConfig,
-                                                        mcq_single: parseInt(e.target.value) || 0
-                                                    })}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple</label>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={randomQuestionsConfig.mcq_multiple}
-                                                    onChange={(e) => setRandomQuestionsConfig({
-                                                        ...randomQuestionsConfig,
-                                                        mcq_multiple: parseInt(e.target.value) || 0
-                                                    })}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Coding</label>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={randomQuestionsConfig.coding}
-                                                    onChange={(e) => setRandomQuestionsConfig({
-                                                        ...randomQuestionsConfig,
-                                                        coding: parseInt(e.target.value) || 0
-                                                    })}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive</label>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={randomQuestionsConfig.descriptive}
-                                                    onChange={(e) => setRandomQuestionsConfig({
-                                                        ...randomQuestionsConfig,
-                                                        descriptive: parseInt(e.target.value) || 0
-                                                    })}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                                />
-                                            </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Course *</label>
+                                            <select
+                                                value={formData.course}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, course: e.target.value });
+                                                    setSelectedCourse(e.target.value);
+                                                }}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                                disabled={isEditMode || !!courseIdFromUrl}
+                                            >
+                                                <option value="">Select a Course</option>
+                                                {courses.map(course => (
+                                                    <option key={course.id} value={course.id}>{course.name || course.title}</option>
+                                                ))}
+                                            </select>
                                         </div>
-                                    </CardContent>
-                                </Card>
+                                    </div>
 
-                                {/* Specific Question Selection */}
-                                <Card className="border border-gray-200 shadow-sm">
-                                    <CardHeader className="pb-4">
-                                        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                                            <FileText className="h-5 w-5 mr-2 text-purple-500" />
-                                            Specific Question Selection
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Manually select specific questions that MUST appear in the exam.
-                                        </p>
-                                        <QuestionBank
-                                            mode="selection"
-                                            selectedQuestions={selectedQuestions}
-                                            onQuestionsChange={handleQuestionsChange}
-                                            allowMultipleSelection={true}
-                                            showSplitView={true}
-                                        // Removing courseFilter and categoryFilter to allow selecting ALL questions
-                                        // courseFilter={selectedCourse} 
-                                        // categoryFilter="certification"
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                        <textarea
+                                            value={formData.description}
+                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                            rows={3}
+                                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                         />
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
+                                    </div>
 
-                            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => navigate('/instructor/certifications')}
-                                >
-                                    Cancel
-                                </Button>
-                                <button
-                                    onClick={handlePrimaryAction}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                                >
-                                    {currentFormTab !== 'questions'
-                                        ? 'Add Questions'
-                                        : (isEditMode ? 'Update Exam' : 'Create Exam')}
-                                </button>
-                            </div>
-                        </Tabs>
-                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
+                                        <textarea
+                                            value={formData.instructions}
+                                            onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+                                            rows={3}
+                                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Schedule & Config Card */}
+                            <Card className="border border-gray-200 shadow-sm">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <Calendar className="h-5 w-5 mr-2 text-green-500" />
+                                        Schedule & Configuration
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date/Time *</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={formData.start_datetime}
+                                                onChange={(e) => setFormData({ ...formData, start_datetime: e.target.value })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">End Date/Time *</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={formData.end_datetime}
+                                                onChange={(e) => setFormData({ ...formData, end_datetime: e.target.value })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Duration (mins) *</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.duration}
+                                                onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 60 })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Total Marks *</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.total_marks}
+                                                onChange={(e) => setFormData({ ...formData, total_marks: parseInt(e.target.value) || 100 })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Passing Marks *</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.passing_marks}
+                                                onChange={(e) => setFormData({ ...formData, passing_marks: parseInt(e.target.value) || 60 })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Max Attempts</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.max_attempts}
+                                                onChange={(e) => setFormData({ ...formData, max_attempts: parseInt(e.target.value) || 1 })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                                            <select
+                                                value={formData.difficulty}
+                                                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="easy">Easy</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="hard">Hard</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status</label>
+                                            <select
+                                                value={formData.publish_status}
+                                                onChange={(e) => setFormData({ ...formData, publish_status: e.target.value as any })}
+                                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="draft">Draft</option>
+                                                <option value="active">Active</option>
+                                                <option value="inactive">Inactive</option>
+                                                <option value="archived">Archived</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center mt-2">
+                                        <input
+                                            type="checkbox"
+                                            id="enable_proctoring"
+                                            checked={formData.enable_proctoring}
+                                            onChange={(e) => setFormData({ ...formData, enable_proctoring: e.target.checked })}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <label htmlFor="enable_proctoring" className="ml-2 block text-sm text-gray-900">
+                                            Enable Proctoring (Camera, Tab monitoring)
+                                        </label>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="questions" className="space-y-6">
+                            {/* Random Questions Configuration */}
+                            <Card className="border border-gray-200 shadow-sm">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <Settings className="h-5 w-5 mr-2 text-orange-500" />
+                                        Random Questions Configuration
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        Auto-select questions from the Question Bank based on type. These will be randomized for each student.
+                                    </p>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Single</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={randomQuestionsConfig.mcq_single}
+                                                onChange={(e) => setRandomQuestionsConfig({
+                                                    ...randomQuestionsConfig,
+                                                    mcq_single: parseInt(e.target.value) || 0
+                                                })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">MCQ Multiple</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={randomQuestionsConfig.mcq_multiple}
+                                                onChange={(e) => setRandomQuestionsConfig({
+                                                    ...randomQuestionsConfig,
+                                                    mcq_multiple: parseInt(e.target.value) || 0
+                                                })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Coding</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={randomQuestionsConfig.coding}
+                                                onChange={(e) => setRandomQuestionsConfig({
+                                                    ...randomQuestionsConfig,
+                                                    coding: parseInt(e.target.value) || 0
+                                                })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Descriptive</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={randomQuestionsConfig.descriptive}
+                                                onChange={(e) => setRandomQuestionsConfig({
+                                                    ...randomQuestionsConfig,
+                                                    descriptive: parseInt(e.target.value) || 0
+                                                })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Specific Question Selection */}
+                            <Card className="border border-gray-200 shadow-sm">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <FileText className="h-5 w-5 mr-2 text-purple-500" />
+                                        Specific Question Selection
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        Manually select specific questions that MUST appear in the exam.
+                                    </p>
+                                    <QuestionBank
+                                        mode="selection"
+                                        selectedQuestions={selectedQuestions}
+                                        onQuestionsChange={handleQuestionsChange}
+                                        allowMultipleSelection={true}
+                                        showSplitView={true}
+                                    // Removing courseFilter and categoryFilter to allow selecting ALL questions
+                                    // courseFilter={selectedCourse} 
+                                    // categoryFilter="certification"
+                                    />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
+                            <Button
+                                variant="ghost"
+                                onClick={() => navigate('/instructor/certifications')}
+                            >
+                                Cancel
+                            </Button>
+                            <button
+                                onClick={handlePrimaryAction}
+                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                            >
+                                {currentFormTab !== 'questions'
+                                    ? 'Add Questions'
+                                    : (isEditMode ? 'Update Exam' : 'Create Exam')}
+                            </button>
+                        </div>
+                    </Tabs>
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 }
