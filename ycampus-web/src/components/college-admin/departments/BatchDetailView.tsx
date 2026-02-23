@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Users, GraduationCap, Calendar, LayoutGrid, Search, User, Info, BookOpen, Plus, Trash2, Edit2, X, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Batch, batchService } from "@/services/batchService";
 import { semesterService, Semester } from "@/services/semesterService";
 import { Section } from "@/services/sectionService";
 import { studentService, Student } from "@/services/studentService";
-import subjectService, { Subject } from "@/services/subjectService";
+import subjectService, { Subject, SemesterSubject } from "@/services/subjectService";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StudentDetailModal from './StudentDetailModal';
 import SubjectAddModal from './SubjectAddModal';
