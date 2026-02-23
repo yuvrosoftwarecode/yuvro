@@ -644,3 +644,47 @@ class SectionSubjectFaculty(BaseTimestampedModel):
             if self.faculty.department != dept and not self.faculty.linked_departments.filter(id=dept.id).exists():
                 self.faculty.linked_departments.add(dept)
 
+
+class AttendanceSession(BaseTimestampedModel):
+    """
+    Model representing a single attendance collection session/class.
+    """
+    section_subject_faculty = models.ForeignKey(
+        SectionSubjectFaculty, 
+        on_delete=models.CASCADE, 
+        related_name="attendance_sessions"
+    )
+    date = models.DateField(default=timezone.now)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        unique_together = ("section_subject_faculty", "date")
+
+    def __str__(self):
+        return f"{self.section_subject_faculty} - {self.date}"
+
+
+class AttendanceRecord(BaseTimestampedModel):
+    """
+    Model representing an individual student's attendance for a session.
+    """
+    session = models.ForeignKey(
+        AttendanceSession, 
+        on_delete=models.CASCADE, 
+        related_name="records"
+    )
+    student = models.ForeignKey(
+        "core.StudentProfile", 
+        on_delete=models.CASCADE, 
+        related_name="attendance_records"
+    )
+    is_present = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("session", "student")
+
+    def __str__(self):
+        status = "Present" if self.is_present else "Absent"
+        return f"{self.student} - {status} ({self.session.date})"
+

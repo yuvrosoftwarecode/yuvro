@@ -42,6 +42,16 @@ class IsCollegeAdminOrPrincipal(permissions.BasePermission):
         ]
 
 
+class IsCollegeManagementOrFaculty(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.role in [
+            "admin",
+            "college_admin",
+            "principal",
+            "faculty",
+        ]
+
+
 class StudentPagination(PageNumberPagination):
     page_size = 25
     page_size_query_param = "page_size"
@@ -537,7 +547,7 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
 class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrFaculty]
     filterset_fields = ["college", "department", "batch", "semester", "section", "admission_type", "is_detained"]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
@@ -549,8 +559,8 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
-        # If user is a College Admin or Principal, filter by their college
-        if user.role in ["college_admin", "principal"]:
+        # If user is a College Admin, Principal or Faculty, filter by their college
+        if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
             if college:
                 return queryset.filter(college=college)
