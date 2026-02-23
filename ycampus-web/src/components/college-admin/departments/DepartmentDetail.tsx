@@ -108,6 +108,7 @@ const DepartmentDetail: React.FC<DepartmentDetailProps> = ({ department, onBack 
     return (
         <BatchDetailView 
             batchId={selectedBatchId} 
+            collegeId={currentDept.college}
             onBack={() => setSelectedBatchId(null)} 
         />
     );

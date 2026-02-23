@@ -14,46 +14,38 @@ class Subject(models.Model):
     Subject model representing a complete learning subject.
     """
 
-    CATEGORY_CHOICES = [
-        ("fundamentals", "Fundamentals"),
-        ("programming_languages", "Programming Languages"),
-        ("databases", "Databases"),
-        ("ai_tools", "AI Tools"),
-        ("web_development", "Web Development"),
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    yuvro_id = models.CharField(max_length=20, unique=True, editable=False, null=True, blank=True)
     short_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
-    name = models.TextField()
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    semester = models.ForeignKey(
-        Semester,
-        on_delete=models.SET_NULL,
-        related_name="subjects",
-        null=True,
-        blank=True,
-    )
-    section = models.ForeignKey(
-        Section,
-        on_delete=models.SET_NULL,
-        related_name="subjects",
-        null=True,
-        blank=True,
-    )
-    instructors = models.ManyToManyField(
-        User, through="SubjectInstructor", related_name="subjects_taught"
-    )
+    subject_name = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["category", "-created_at"]
+        ordering = ["-created_at"]
 
     def __str__(self):
         if self.short_code:
-            return f"{self.short_code}: {self.name}"
-        return self.name
+            return f"{self.short_code}: {self.subject_name}"
+        return self.subject_name
+
+    def save(self, *args, **kwargs):
+        if not self.yuvro_id:
+            last_subject = Subject.objects.all().order_by("-created_at").first()
+            if not last_subject:
+                self.yuvro_id = "YUVROSUB001"
+            else:
+                try:
+                    # Extract the numeric part of the last yuvro_id
+                    last_id_num = int(last_subject.yuvro_id.replace("YUVROSUB", ""))
+                    new_id_num = last_id_num + 1
+                    self.yuvro_id = f"YUVROSUB{new_id_num:03d}"
+                except (ValueError, TypeError):
+                    # Fallback if parsing fails
+                    self.yuvro_id = f"YUVROSUB{Subject.objects.count() + 1:03d}"
+
+        super().save(*args, **kwargs)
 
 
 class Unit(models.Model):
@@ -180,45 +172,50 @@ class Note(models.Model):
         return f"{self.user.username} - {self.sub_unit.name} - {self.content[:30]}..."
 
 
-class SubjectInstructor(models.Model):
+class CollegeSubject(models.Model):
     """
-    Mapping table for assigning multiple instructors to a subject.
+    Mapping table to store which subjects are assigned to which colleges.
     """
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
+    college = models.ForeignKey(
+        "core.College", on_delete=models.CASCADE, related_name="college_subjects"
+    )
     subject = models.ForeignKey(
-        Subject, on_delete=models.CASCADE, related_name="subject_instructors"
+        Subject, on_delete=models.CASCADE, related_name="subject_colleges"
     )
+    subject_code = models.CharField(max_length=50, blank=True, null=True, help_text="College-specific subject code")
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    instructor = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="instructor_subjects",
+    class Meta:
+        unique_together = ("college", "subject")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.college.name} - {self.subject.subject_name}"
+
+
+class SemesterSubject(models.Model):
+    """
+    Mapping table to assign subjects to a specific semester in a batch.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    semester = models.ForeignKey(
+        "core.Semester", on_delete=models.CASCADE, related_name="semester_subjects"
     )
-
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name="semester_subjects"
+    )
+    is_elective = models.BooleanField(default=False)
+    is_lab = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("subject", "instructor")  # Prevent duplicates
-        ordering = ["-created_at"]
+        unique_together = ("semester", "subject")
+        ordering = ["is_elective", "subject__subject_name"]
 
     def __str__(self):
-        return f"{self.instructor.email} → {self.subject.name}"
-
-    def clean(self):
-        from django.core.exceptions import ValidationError
-
-        # Only users with instructor/admin/faculty roles can be linked
-        if self.instructor.role not in ["instructor", "admin", "faculty"]:
-            raise ValidationError(
-                "Only instructors, admins or faculty can be assigned to a subject."
-            )
-
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Validate before saving
-        super().save(*args, **kwargs)
+        return f"{self.semester} - {self.subject.subject_name}"
 
 
 class UserSubjectProgress(BaseTimestampedModel):
@@ -614,3 +611,36 @@ class StudentCodePractice(BaseTimestampedModel):
             if total_tests > 0:
                 success_rate = (total_passed / total_tests) * 100
         return f"{self.user.username} - {self.question.title[:30]} - {language} ({success_rate:.1f}%)"
+
+
+class SectionSubjectFaculty(BaseTimestampedModel):
+    """
+    Mapping table to assign a faculty member to a specific subject for a specific section.
+    """
+    semester_subject = models.ForeignKey(
+        SemesterSubject, on_delete=models.CASCADE, related_name="section_faculties"
+    )
+    section = models.ForeignKey(
+        "core.Section", on_delete=models.CASCADE, related_name="subject_faculties"
+    )
+    faculty = models.ForeignKey(
+        "core.FacultyProfile", on_delete=models.CASCADE, related_name="section_subjects"
+    )
+
+    class Meta:
+        unique_together = ("semester_subject", "section", "faculty")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.section.name} - {self.semester_subject.subject.subject_name} - {self.faculty.user.username}"
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super().save(*args, **kwargs)
+        
+        # Link the faculty to the department of the batch, if it's different
+        if is_new and self.semester_subject.semester.batch and self.semester_subject.semester.batch.department:
+            dept = self.semester_subject.semester.batch.department
+            if self.faculty.department != dept and not self.faculty.linked_departments.filter(id=dept.id).exists():
+                self.faculty.linked_departments.add(dept)
+

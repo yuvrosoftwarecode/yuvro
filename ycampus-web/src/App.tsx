@@ -61,12 +61,14 @@ import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
 import Departments from './pages/instructor/Departments';
+import CollegeSubjects from './pages/instructor/CollegeSubjects';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/Dashboard';
 import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
+import Attendance from './pages/faculty/Attendance';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -306,6 +308,54 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/faculty/syllabus"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/revise"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/attendance"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <Attendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/task"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* College Admin Routes */}
               <Route
@@ -377,6 +427,16 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* College Subject Management Route */}
+              <Route
+                path="/instructor/subjects/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
+                    <CollegeSubjects />
                   </ProtectedRoute>
                 }
               />
@@ -508,6 +568,10 @@ function App() {
 
               <Route
                 path="/instructor/subjects"
+                element={<Navigate to="/instructor/subjects/global" replace />}
+              />
+              <Route
+                path="/instructor/subjects/:tab"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Subjects />

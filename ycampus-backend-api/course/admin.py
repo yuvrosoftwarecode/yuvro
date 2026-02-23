@@ -6,10 +6,11 @@ from .models import (
     SubUnit,
     Video,
     Note,
-    SubjectInstructor,
     Question,
     StudentCodePractice,
     UserSubjectProgress,
+    CollegeSubject,
+    SemesterSubject,
 )
 
 
@@ -27,32 +28,27 @@ class SubUnitInline(admin.TabularInline):
     ordering = ["order_index"]
 
 
-class SubjectInstructorInline(admin.TabularInline):
-    model = SubjectInstructor
+class CollegeSubjectInline(admin.TabularInline):
+    model = CollegeSubject
     extra = 1
-    fields = ["instructor", "created_at", "updated_at"]
-    readonly_fields = ["created_at", "updated_at"]
-
 
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_code", "category", "semester", "section", "created_at", "updated_at"]
-    list_filter = ["semester", "section", "category", "created_at", "updated_at"]
-    search_fields = ["name", "short_code", "semester__number", "section__name"]
-    readonly_fields = ["id", "created_at", "updated_at"]
+    list_display = ["yuvro_id", "subject_name", "short_code", "created_at", "updated_at"]
+    list_filter = ["created_at", "updated_at"]
+    search_fields = ["yuvro_id", "subject_name", "short_code"]
+    readonly_fields = ["id", "yuvro_id", "created_at", "updated_at"]
     fields = [
-        "name",
+        "subject_name",
         "short_code",
-        "category",
-        "semester",
-        "section",
+        "yuvro_id",
         "id",
         "created_at",
         "updated_at",
     ]
-    ordering = ["category", "-created_at"]
-    inlines = [UnitInline, SubjectInstructorInline]
+    ordering = ["-created_at"]
+    inlines = [UnitInline, CollegeSubjectInline]
 
 
 @admin.register(Unit)
@@ -172,13 +168,13 @@ class NoteAdmin(admin.ModelAdmin):
     content_preview.short_description = "Content"
 
 
-@admin.register(SubjectInstructor)
-class SubjectInstructorAdmin(admin.ModelAdmin):
-    list_display = ["subject", "instructor", "created_at", "updated_at"]
-    list_filter = ["subject", "instructor", "created_at"]
-    search_fields = ["subject__name", "instructor__email", "instructor__username"]
-    readonly_fields = ["id", "created_at", "updated_at"]
-    fields = ["subject", "instructor", "id", "created_at", "updated_at"]
+@admin.register(CollegeSubject)
+class CollegeSubjectAdmin(admin.ModelAdmin):
+    list_display = ("college", "subject", "created_at")
+    list_filter = ("college", "subject", "created_at")
+    search_fields = ["subject__subject_name", "college__name"]
+    readonly_fields = ["id", "created_at"]
+    fields = ["college", "subject", "id", "created_at"]
     ordering = ["-created_at"]
 
 
@@ -309,7 +305,7 @@ class UserSubjectProgressAdmin(admin.ModelAdmin):
     )
 
     def subject_name(self, obj):
-        return obj.subject.name if obj.subject else "N/A"
+        return obj.subject.subject_name if obj.subject else "N/A"
 
     subject_name.short_description = "Subject"
     subject_name.admin_order_field = "subject__name"

@@ -49,6 +49,15 @@ const Navigation: React.FC = () => {
             { label: 'Candidates', path: '/recruiter/candidates' },
             { label: 'Contests', path: '/instructor/contests' },
         ],
+        faculty: [
+            { label: 'Dashboard', path: '/faculty/dashboard' },
+            { label: 'Syllabus', path: '/faculty/syllabus' },
+            { label: 'Revise', path: '/faculty/revise' },
+            { label: 'Assessment', path: '/faculty/assessment' },
+            { label: 'Attendance', path: '/faculty/attendance' },
+            { label: 'Task', path: '/faculty/task' },
+            { label: 'Reports', path: '/faculty/reports' },
+        ],
     };
 
     const roleProfileMenu: Record<string, { label: string; path: string; icon: string }[]> = {
@@ -69,6 +78,10 @@ const Navigation: React.FC = () => {
             { label: 'Profile', path: '/recruiter/profile', icon: 'profile' },
             { label: 'Company Management', path: '/recruiter/companies', icon: 'company' },
             { label: 'Settings', path: '/recruiter/settings', icon: 'settings' },
+        ],
+        faculty: [
+            { label: 'Profile', path: '/faculty/profile', icon: 'profile' },
+            { label: 'Settings', path: '/faculty/settings', icon: 'settings' },
         ],
     };
 
