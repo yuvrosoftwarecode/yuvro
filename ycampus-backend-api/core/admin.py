@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     College, Batch, Department, Semester, Section,
-    StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile
+    StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile,
+    AttendanceSession, AttendanceRecord
 )
 
 

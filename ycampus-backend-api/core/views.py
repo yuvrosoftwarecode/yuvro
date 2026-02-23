@@ -15,6 +15,8 @@ from .models import (
     PrincipalProfile,
     CollegeAdminProfile,
     Department,
+    AttendanceSession,
+    AttendanceRecord,
 )
 from .serializers import (
     StudentProfileSerializer,
@@ -22,6 +24,8 @@ from .serializers import (
     HODProfileSerializer,
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
+    AttendanceSessionSerializer,
+    AttendanceRecordSerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin
 
@@ -935,3 +939,38 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
                 })
 
         return Response(results, status=status.HTTP_200_OK if results["created"] > 0 else status.HTTP_200_OK if results["total"] > 0 else status.HTTP_400_BAD_REQUEST)
+
+
+class AttendanceSessionViewSet(viewsets.ModelViewSet):
+    queryset = AttendanceSession.objects.all()
+    serializer_class = AttendanceSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["section_subject_faculty", "date"]
+    search_fields = ["remarks", "section_subject_faculty__section__name"]
+    ordering_fields = ["date", "created_at"]
+
+    def get_queryset(self):
+        qs = AttendanceSession.objects.all().prefetch_related("records")
+        user = self.request.user
+        
+        if not user or user.is_anonymous:
+            return AttendanceSession.objects.none()
+            
+        role = getattr(user, 'role', None)
+        if role == "faculty":
+            # For faculty, only show sessions for their assigned subjects
+            qs = qs.filter(section_subject_faculty__faculty__user=user)
+        elif role in ["college_admin", "principal"]:
+            # For college management, only show sessions in their college
+            qs = qs.filter(section_subject_faculty__section__semester__batch__college=user.college)
+            
+        return qs
+
+
+class AttendanceRecordViewSet(viewsets.ModelViewSet):
+    queryset = AttendanceRecord.objects.all()
+    serializer_class = AttendanceRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["session", "student", "is_present"]

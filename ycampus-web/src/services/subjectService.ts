@@ -689,12 +689,12 @@ export interface AttendanceSession {
 }
 
 export async function saveAttendance(payload: AttendanceSession) {
-  return restApiAuthUtil.post('/course/attendance-sessions/', payload);
+  return restApiAuthUtil.post('/core/attendance-sessions/', payload);
 }
 
-export async function getAttendanceSessions(params: { section_subject_faculty: string | number }) {
-  return restApiAuthUtil.get<AttendanceSession[]>('/course/attendance-sessions/', {
-    params: { section_subject_faculty: String(params.section_subject_faculty) }
+export async function getAttendanceSessions(params: Record<string, any>) {
+  return restApiAuthUtil.get<AttendanceSession[]>('/core/attendance-sessions/', {
+    params
   });
 }
 
