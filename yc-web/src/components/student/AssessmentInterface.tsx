@@ -140,8 +140,28 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       setTimeout(() => {
         handleSubmitAssessment();
       }, 2000);
+    } else if (type === 'screen_share_stopped') {
+      toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
     }
   }, []);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled && screenStream) {
+      const videoTrack = screenStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const handleEnded = () => {
+          handleProctoringViolation('screen_share_stopped');
+        };
+        videoTrack.addEventListener('ended', handleEnded);
+        return () => {
+          videoTrack.removeEventListener('ended', handleEnded);
+        };
+      }
+    }
+  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
 
   useEffect(() => {
     if (assessment.proctoring_enabled) {
