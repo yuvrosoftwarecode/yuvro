@@ -20,6 +20,7 @@ import {
     MoreHorizontal,
     Star,
     AlertTriangle,
+    AlertCircle,
     Zap,
     Target,
     Activity,
@@ -147,25 +148,39 @@ const Reports: React.FC = () => {
 
             // 4. Map to analyticsData for cards and summary
             const sortedProgress = [...progress].sort((a, b) => b.percent - a.percent);
+            const sortedAttendance = [...progress].sort((a, b) => (a.attendance_pct || 0) - (b.attendance_pct || 0));
+            const sortedPending = [...mappedPerformance].sort((a, b) => b.tasks_pending - a.tasks_pending);
 
             setAnalyticsData({
                 performanceIndex: `${Math.round(stats.avg_progress || 0)}%`,
                 status: stats.avg_progress > 80 ? "Advanced" : stats.avg_progress > 50 ? "Intermediate" : "Beginner",
                 strongest: sortedProgress[0]?.subject_name || "N/A",
                 weakest: sortedProgress[sortedProgress.length - 1]?.subject_name || "N/A",
+                highestPending: sortedPending[0]?.name || "N/A",
+                lowestAttendance: sortedAttendance[0]?.subject_name || "N/A",
                 streak: stats.streak || 0,
                 longest_streak: stats.longest_streak || 0,
                 performanceGap: sortedProgress.length > 1
                     ? `${Math.round(sortedProgress[0].percent - sortedProgress[sortedProgress.length - 1].percent)}%`
                     : "0%",
-                riskItems: mappedPerformance
-                    .filter((p: any) => p.risk !== 'Low')
-                    .map((p: any) => ({
-                        label: 'Low Performance',
-                        subj: p.name,
-                        count: p.tasks_pending,
-                        risk: p.risk
-                    }))
+                riskItems: [
+                    ...mappedPerformance
+                        .filter((p: any) => p.tasks_pending > 0)
+                        .flatMap((p: any) => [
+                            { label: 'Pending Notes', subj: p.name, count: Math.ceil(p.tasks_pending / 2), risk: p.risk },
+                            { label: 'Pending Tasks', subj: p.name, count: Math.floor(p.tasks_pending / 2), risk: p.risk }
+                        ]),
+                    ...progress
+                        .filter((p: any) => (p.attendance_pct || 0) < 75)
+                        .map((p: any) => ({
+                            label: 'Low Attendance',
+                            subj: p.subject_name || p.subject_id,
+                            count: `${Math.round(p.attendance_pct || 0)}%`,
+                            risk: p.attendance_pct < 40 ? 'High' : 'Medium'
+                        }))
+                ]
+                    .filter(item => item.count !== 0 && item.count !== '0%')
+                    .slice(0, 15)
             });
 
             setAttendanceStats({
@@ -359,9 +374,12 @@ const Reports: React.FC = () => {
 
         setStudents([]);
         setReportGenerated(false); // Reset report when student changes
+
+        // Auto-generate report
         setTimeout(() => {
+            handleGenerateReport();
             isAutoSelecting.current = false;
-        }, 300); // Give enough time for re-renders and effects
+        }, 100);
     };
 
     return (
@@ -369,63 +387,94 @@ const Reports: React.FC = () => {
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <RoleHeader
-                    title="Faculty Reports"
-                    subtitle="Comprehensive academic insights and behavioral analytics"
-                />
+                <RoleHeader title="" subtitle="" />
 
-                <main className="flex-1 overflow-y-auto p-4 lg:p-8 space-y-8 pb-32">
-                    {/* Filter Card */}
+                <main className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-10 pb-32">
+                    {/* Page Header (Below Navbar) */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div className="space-y-1">
+                            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Student Reports</h1>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                Consolidated academic report — view performance, progress, and insights
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleExportPDF}
+                                variant="outline"
+                                className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white border-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest shadow-sm hover:bg-gray-50 transition-all"
+                            >
+                                <FileText className="h-3.5 w-3.5 text-gray-400" />
+                                <span>PDF</span>
+                            </Button>
+                            <Button
+                                onClick={() => toast.info("Excel export is coming soon")}
+                                variant="outline"
+                                className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white border-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest shadow-sm hover:bg-gray-50 transition-all"
+                            >
+                                <TableIcon className="h-3.5 w-3.5 text-gray-400" />
+                                <span>Excel</span>
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* redesigned Filter Section */}
                     <Card className="border-none shadow-sm bg-white overflow-visible rounded-3xl">
-                        <CardContent className="p-8">
-                            <div className="flex flex-col xl:flex-row gap-8 items-start xl:items-end">
-                                <div className="w-full xl:w-[350px] space-y-2 flex-none">
-                                    <div className="flex items-center gap-2 text-indigo-600 font-black text-[10px] uppercase tracking-widest ml-1">
-                                        <SearchIcon className="h-3 w-3" /> Search Student
-                                    </div>
-                                    <div className="relative group">
-                                        <Input
-                                            value={searchTerm}
-                                            onChange={(e) => handleStudentSearch(e.target.value)}
-                                            placeholder="Enter student name, roll number, or identifier..."
-                                            className="h-12 bg-gray-50/50 border-gray-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 px-5 transition-all text-sm font-medium"
-                                        />
-                                        {students.length > 0 && (
-                                            <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2">
-                                                {students.map(s => (
-                                                    <button
-                                                        key={s.id}
-                                                        onClick={() => selectStudent(s)}
-                                                        className="w-full px-6 py-4 text-left hover:bg-indigo-50/50 flex flex-col transition-colors border-b last:border-0 border-gray-50"
-                                                    >
-                                                        <span className="font-bold text-gray-900">{s.user_details?.first_name || s.user?.first_name} {s.user_details?.last_name || s.user?.last_name}</span>
-                                                        <span className="text-xs text-gray-500 font-medium">{s.roll_number} • {s.department_name} • Sec {s.section_name}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                        <CardContent className="p-8 space-y-6">
+                            <div className="flex items-center gap-2 text-gray-500 font-bold text-sm mb-2">
+                                <Filter className="h-4 w-4" />
+                                <span>Filters</span>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1">
+                                    <div className="space-y-2">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Search Student</span>
+                                        <div className="relative group max-w-md">
+                                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Input
+                                                value={searchTerm}
+                                                onChange={(e) => handleStudentSearch(e.target.value)}
+                                                placeholder="student"
+                                                className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl pl-11 pr-5 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 transition-all text-sm font-medium"
+                                            />
+                                            {students.length > 0 && (
+                                                <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2">
+                                                    {students.map(s => (
+                                                        <button
+                                                            key={s.id}
+                                                            onClick={() => selectStudent(s)}
+                                                            className="w-full px-6 py-4 text-left hover:bg-indigo-50/50 flex flex-col transition-colors border-b last:border-0 border-gray-50"
+                                                        >
+                                                            <span className="font-bold text-gray-900">{s.user_details?.first_name || s.user?.first_name} {s.user_details?.last_name || s.user?.last_name}</span>
+                                                            <span className="text-xs text-gray-500 font-medium">{s.roll_number} • {s.department_name} • Sec {s.section_name}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex-1 w-full flex flex-wrap gap-4 items-end">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                                     {[
-                                        { label: 'Dept', val: selectedDept, set: setSelectedDept, options: departments },
+                                        { label: 'Department', val: selectedDept, set: setSelectedDept, options: departments },
+                                        { label: 'Semester', val: selectedSem, set: setSelectedSem, options: semesters },
                                         { label: 'Batch', val: selectedBatch, set: setSelectedBatch, options: batches },
-                                        { label: 'Sem', val: selectedSem, set: setSelectedSem, options: semesters },
-                                        { label: 'Sec', val: selectedSection, set: setSelectedSection, options: sections },
-                                        { label: 'Subj', val: selectedSubject, set: setSelectedSubject, options: subjectsList }
+                                        { label: 'Section', val: selectedSection, set: setSelectedSection, options: sections },
+                                        { label: 'Subject', val: selectedSubject, set: setSelectedSubject, options: subjectsList, placeholder: 'All Subjects' }
                                     ].map((filter, i) => (
-                                        <div key={i} className="min-w-[140px] flex-1 space-y-2">
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{filter.label}</span>
+                                        <div key={i} className="space-y-2">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{filter.label}</span>
                                             <Select value={filter.val} onValueChange={filter.set}>
-                                                <SelectTrigger className="h-12 bg-gray-50/50 border-gray-100 rounded-2xl flex items-center justify-between px-4 ring-offset-0 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-gray-700">
-                                                    <SelectValue placeholder={filter.label} />
+                                                <SelectTrigger className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl flex items-center justify-between px-4 ring-offset-0 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-gray-700">
+                                                    <SelectValue placeholder={filter.placeholder || `Select ${filter.label.toLowerCase()}`} />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-2xl border-gray-100 shadow-xl p-2 min-w-[180px]">
                                                     <SelectItem value="all" className="rounded-xl font-bold py-3">All {filter.label}</SelectItem>
                                                     {filter.options.map((opt: any) => (
                                                         <SelectItem key={String(opt)} value={String(opt)} className="rounded-xl font-medium py-3">
-                                                            {filter.label === 'Sem' ? `Semester ${opt}` : opt}
+                                                            {filter.label === 'Semester' ? `Semester ${opt}` : opt}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -433,32 +482,19 @@ const Reports: React.FC = () => {
                                         </div>
                                     ))}
 
-                                    {/* Date Range Selector */}
-                                    <div className="min-w-[150px] flex-1 space-y-2">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Range</span>
+                                    <div className="space-y-2">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 text-nowrap">Date Range</span>
                                         <Select value={dateRange} onValueChange={setDateRange}>
-                                            <SelectTrigger className="h-12 bg-gray-50/50 border-gray-100 rounded-2xl flex items-center justify-between px-4 text-sm font-bold text-gray-700">
-                                                <SelectValue placeholder="Range" />
+                                            <SelectTrigger className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl flex items-center justify-between px-4 text-sm font-bold text-gray-700">
+                                                <SelectValue placeholder="Full Semester" />
                                             </SelectTrigger>
                                             <SelectContent className="rounded-2xl border-gray-100 shadow-xl p-2">
                                                 <SelectItem value="30" className="rounded-xl font-medium py-3">Last 30 Days</SelectItem>
                                                 <SelectItem value="60" className="rounded-xl font-medium py-3">Last 60 Days</SelectItem>
                                                 <SelectItem value="90" className="rounded-xl font-medium py-3">Last 90 Days</SelectItem>
-                                                <SelectItem value="all" className="rounded-xl font-medium py-3">All Time</SelectItem>
+                                                <SelectItem value="all" className="rounded-xl font-medium py-3">Full Semester</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-
-                                    {/* Generate Report Button */}
-                                    <div className="min-w-[180px] w-full md:w-auto xl:ml-auto">
-                                        <Button
-                                            onClick={handleGenerateReport}
-                                            disabled={generating || !selectedStudent}
-                                            className="h-12 w-full xl:w-[180px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            {generating ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <FileText className="h-4 w-4" />}
-                                            Generate Report
-                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -470,39 +506,65 @@ const Reports: React.FC = () => {
 
                             {/* Student Overview Card */}
                             <Card className="border-none shadow-sm bg-white overflow-hidden rounded-3xl">
-                                <CardContent className="p-0">
-                                    <div className="grid grid-cols-1 lg:grid-cols-10 divide-y lg:divide-y-0 lg:divide-x divide-gray-50">
-                                        <div className="lg:col-span-4 p-10 flex items-center gap-8">
-                                            <div className="h-24 w-24 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-4xl font-black shadow-inner border border-indigo-100/50">
-                                                {(selectedStudent.user_details?.first_name || selectedStudent.user?.first_name || 'U').charAt(0).toUpperCase()}
+                                <CardContent className="p-8">
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                                        <div className="flex items-center gap-6">
+                                            <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100/50">
+                                                <User className="h-8 w-8" />
                                             </div>
                                             <div className="space-y-1">
-                                                <h2 className="text-3xl font-black text-gray-900 leading-none tracking-tight">
+                                                <h2 className="text-3xl font-bold text-gray-900 leading-none tracking-tight">
                                                     {selectedStudent.user_details?.first_name || selectedStudent.user?.first_name} {selectedStudent.user_details?.last_name || selectedStudent.user?.last_name}
                                                 </h2>
-                                                <p className="text-gray-500 font-bold text-sm flex items-center gap-2">
+                                                <p className="text-gray-400 font-medium text-xs">
                                                     {selectedStudent.roll_number} • {selectedStudent.department_name} • Sem {selectedStudent.semester_number} • Sec {selectedStudent.section_name}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="lg:col-span-6 p-10 flex items-center justify-around bg-gray-50/30">
-                                            {[
-                                                { label: 'Performance Index', value: analyticsData?.performanceIndex || '88%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                                                { label: 'Overall Status', value: analyticsData?.status || 'Advanced', icon: Star, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                                                { label: 'Attendance', value: `${attendanceStats.percentage}%`, icon: Calendar, color: 'text-orange-600', bg: 'bg-orange-50' },
-                                                { label: 'Learning Progress', value: analyticsData?.performanceIndex || '72%', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' }
-                                            ].map((stat, i) => (
-                                                <div key={i} className="flex flex-col items-center text-center space-y-4">
-                                                    <div className={cn("h-16 w-16 rounded-2xl flex items-center justify-center shadow-sm border border-white", stat.bg, stat.color)}>
-                                                        <stat.icon className="h-7 w-7" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-xl font-black text-gray-900">{stat.value}</div>
-                                                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</div>
-                                                    </div>
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-1 max-w-4xl">
+                                            {/* Performance Index */}
+                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 border border-white shadow-sm">
+                                                <TrendingUp className="h-4 w-4 text-gray-400 mb-1" />
+                                                <div className="text-3xl font-bold text-gray-900 leading-none">
+                                                    {analyticsData?.performanceIndex || '0%'}
                                                 </div>
-                                            ))}
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Performance Index</div>
+                                            </div>
+
+                                            {/* Overall Status */}
+                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-4 border border-white shadow-sm">
+                                                <div className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-tight rounded-lg">
+                                                    On Track
+                                                </div>
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Overall Status</div>
+                                            </div>
+
+                                            {/* Attendance */}
+                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 border border-white shadow-sm">
+                                                <Calendar className="h-4 w-4 text-gray-400 mb-1" />
+                                                <div className="text-3xl font-bold text-gray-900 leading-none">
+                                                    {attendanceStats.percentage}%
+                                                </div>
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Attendance</div>
+                                            </div>
+
+                                            {/* Learning Progress */}
+                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center border border-white shadow-sm">
+                                                <BookOpen className="h-4 w-4 text-gray-400 mb-3" />
+                                                <div className="w-full space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[11px] font-bold text-gray-900 leading-none">{analyticsData?.performanceIndex || '0%'}</span>
+                                                        <div className="h-1 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-gray-900 rounded-full transition-all duration-1000"
+                                                                style={{ width: analyticsData?.performanceIndex || '0%' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Learning Progress</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -510,32 +572,22 @@ const Reports: React.FC = () => {
 
                             {/* Detailed Performance Matrix table */}
                             <Card className="border-none shadow-sm bg-white overflow-hidden rounded-3xl">
-                                <CardHeader className="p-8 pb-4 border-b border-gray-50 flex flex-row items-center justify-between">
-                                    <CardTitle className="text-lg font-black text-gray-900">Subject-wise Performance Matrix</CardTitle>
-                                    <div className="flex gap-3">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={handleExportPDF}
-                                            className="h-10 px-5 rounded-xl font-bold bg-white border-gray-100 text-gray-600 hover:text-indigo-600 transition-all hover:bg-indigo-50/50"
-                                        >
-                                            <Download className="h-4 w-4 mr-2" /> Export PDF
-                                        </Button>
-                                    </div>
+                                <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
+                                    <CardTitle className="text-xl font-bold text-gray-900">Subject-wise Performance Matrix</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-0">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="bg-gray-50/20 hover:bg-gray-50/20 border-gray-50">
+                                            <TableRow className="bg-white hover:bg-white border-gray-50">
                                                 <TableHead className="w-[40px]"></TableHead>
-                                                <TableHead className="py-6 px-4 text-[10px] font-black uppercase text-gray-400 tracking-widest min-w-[280px]">Subject</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Notes</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Test Avg</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Assessment Avg</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Tasks</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Attendance</TableHead>
-                                                <TableHead className="text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">Strength</TableHead>
-                                                <TableHead className="text-right px-8 text-[10px] font-black uppercase text-gray-400 tracking-widest">Risk</TableHead>
+                                                <TableHead className="py-6 px-4 text-[10px] font-bold uppercase text-gray-400 tracking-widest min-w-[280px]">Subject</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Notes</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Test Avg</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Assessment Avg</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Tasks</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Attendance</TableHead>
+                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Strength</TableHead>
+                                                <TableHead className="text-right px-8 text-[10px] font-bold uppercase text-gray-400 tracking-widest">Risk</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -548,48 +600,44 @@ const Reports: React.FC = () => {
                                                         <TableCell className="py-6 px-4">
                                                             <div className="space-y-0.5">
                                                                 <div className="font-bold text-gray-900 text-sm group-hover:text-indigo-600 transition-colors">{row.name}</div>
-                                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{row.code}</div>
+                                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{row.code}</div>
                                                             </div>
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             <div className="inline-flex flex-col items-center">
-                                                                <span className="font-black text-sm text-gray-900">{row.notes}</span>
-                                                                <div className="w-10 h-1 bg-gray-100 rounded-full mt-1 overflow-hidden">
-                                                                    <div
-                                                                        className="h-full bg-gray-900 rounded-full"
-                                                                        style={{ width: row.notes }}
-                                                                    ></div>
-                                                                </div>
+                                                                <span className="font-bold text-sm text-gray-900">{row.notes}</span>
+                                                                <div className="w-10 h-1 bg-gray-900 mt-1 rounded-full"></div>
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-center font-black text-sm text-gray-900">{row.testAvg}</TableCell>
-                                                        <TableCell className="text-center font-black text-sm text-gray-900">{row.assessmentAvg}</TableCell>
+                                                        <TableCell className="text-center">
+                                                            <span className="font-bold text-sm text-gray-900">{row.testAvg}</span>
+                                                        </TableCell>
+                                                        <TableCell className="text-center text-sm font-bold text-gray-900">{row.assessmentAvg}</TableCell>
                                                         <TableCell className="text-center">
                                                             <div className="text-sm font-bold text-gray-900">
-                                                                {row.tasks_completed}/{row.tasks_total}
-                                                                {row.tasks_pending > 0 && (
-                                                                    <span className="text-[10px] text-orange-500 font-bold ml-1">
-                                                                        ({row.tasks_pending} pending)
-                                                                    </span>
-                                                                )}
+                                                                {row.tasks_completed}/{row.tasks_total} <span className="text-orange-400 font-medium ml-1">({row.tasks_pending} pending)</span>
                                                             </div>
                                                         </TableCell>
-                                                        <TableCell className="text-center font-black text-sm text-gray-900">{row.attendance}</TableCell>
                                                         <TableCell className="text-center">
-                                                            <Badge variant="outline" className={cn(
-                                                                "rounded-full px-4 py-1.5 font-black text-[9px] uppercase tracking-wider border-none shadow-none",
-                                                                row.strength === 'Strong' ? "bg-emerald-50 text-emerald-600" :
-                                                                    row.strength === 'Average' ? "bg-amber-50 text-amber-600" :
-                                                                        "bg-rose-50 text-rose-600"
-                                                            )}>{row.strength}</Badge>
+                                                            <span className="text-sm font-bold text-gray-900">{row.attendance}</span>
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                            <Badge className={cn(
+                                                                "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none",
+                                                                row.strength === 'Strong' ? "bg-emerald-100 text-emerald-700" :
+                                                                    row.strength === 'Average' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                            )}>
+                                                                {row.strength}
+                                                            </Badge>
                                                         </TableCell>
                                                         <TableCell className="text-right px-8">
-                                                            <Badge variant="outline" className={cn(
-                                                                "rounded-full px-4 py-1.5 font-black text-[9px] uppercase tracking-wider border-none shadow-none",
-                                                                row.risk === 'Low' ? "bg-emerald-50 text-emerald-600" :
-                                                                    row.risk === 'Medium' ? "bg-amber-50 text-amber-600" :
-                                                                        "bg-rose-50 text-rose-600"
-                                                            )}>{row.risk}</Badge>
+                                                            <Badge className={cn(
+                                                                "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none",
+                                                                row.risk === 'Low' ? "bg-emerald-100 text-emerald-700" :
+                                                                    row.risk === 'Medium' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                            )}>
+                                                                {row.risk}
+                                                            </Badge>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))
@@ -607,58 +655,61 @@ const Reports: React.FC = () => {
 
                             {/* Analytics Row: Strength & Risk */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+                                <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden h-full">
                                     <CardHeader className="p-8 pb-4">
-                                        <CardTitle className="text-lg font-black text-gray-900">Strength & Weakness Analysis</CardTitle>
+                                        <CardTitle className="text-xl font-bold text-gray-900">Strength & Weakness Analysis</CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-8 pt-4">
-                                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                                            <div className="min-w-[130px] flex-1 p-6 rounded-3xl bg-[#F0FDF4] border border-[#DCFCE7] text-center space-y-3">
-                                                <div className="flex justify-center"><Zap className="h-5 w-5 text-emerald-500" /></div>
-                                                <div className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Strongest Subject</div>
-                                                <div className="text-xs font-black text-emerald-900 leading-tight">{analyticsData?.strongest}</div>
+                                        <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-3">
+                                            <div className="p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-center space-y-2 flex flex-col items-center justify-center">
+                                                <Zap className="h-4 w-4 text-emerald-500" />
+                                                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">Strong</div>
+                                                <div className="text-[10px] font-bold text-emerald-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.strongest}</div>
                                             </div>
-                                            <div className="min-w-[130px] flex-1 p-6 rounded-3xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-3">
-                                                <div className="flex justify-center"><Activity className="h-5 w-5 text-rose-500" /></div>
-                                                <div className="text-[9px] font-black text-rose-600 uppercase tracking-widest">Weakest Subject</div>
-                                                <div className="text-xs font-black text-rose-900 leading-tight">{analyticsData?.weakest}</div>
+                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center">
+                                                <Activity className="h-4 w-4 text-rose-500" />
+                                                <div className="text-[10px] font-bold text-rose-600 uppercase tracking-widest leading-none">Weak</div>
+                                                <div className="text-[10px] font-bold text-rose-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.weakest}</div>
                                             </div>
-                                            <div className="min-w-[130px] flex-1 p-6 rounded-3xl bg-[#FFF7ED] border border-[#FFEDD5] text-center space-y-3">
-                                                <div className="flex justify-center"><Clock className="h-5 w-5 text-amber-500" /></div>
-                                                <div className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Current Streak</div>
-                                                <div className="text-xs font-black text-amber-900 leading-tight">{analyticsData?.streak || 0} Days</div>
+                                            <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#FFEDD5] text-center space-y-2 flex flex-col items-center justify-center">
+                                                <Clock className="h-4 w-4 text-amber-500" />
+                                                <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest leading-none">Pending</div>
+                                                <div className="text-[10px] font-bold text-amber-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.highestPending}</div>
                                             </div>
-                                            <div className="min-w-[130px] flex-1 p-6 rounded-3xl bg-[#F8FAFC] border border-gray-100 text-center space-y-3">
-                                                <div className="flex justify-center"><Target className="h-5 w-5 text-indigo-500" /></div>
-                                                <div className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">Performance Gap</div>
-                                                <div className="text-xl font-black text-indigo-900">{analyticsData?.performanceGap || '0%'}</div>
+                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center">
+                                                <AlertCircle className="h-4 w-4 text-rose-400" />
+                                                <div className="text-[10px] font-bold text-rose-600 uppercase tracking-widest leading-none">Attendance</div>
+                                                <div className="text-[10px] font-bold text-rose-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.lowestAttendance}</div>
+                                            </div>
+                                            <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center col-span-2 xl:col-span-1">
+                                                <Target className="h-4 w-4 text-gray-400" />
+                                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">Gap</div>
+                                                <div className="text-lg font-bold text-gray-900 leading-tight min-h-[2.5rem] flex items-center">{analyticsData?.performanceGap || '0%'}</div>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
+                                <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden h-full">
                                     <CardHeader className="p-8 pb-4">
-                                        <CardTitle className="text-lg font-black text-gray-900 flex items-center gap-2">
-                                            <AlertTriangle className="h-5 w-5 text-amber-500" /> Pending & Risk Summary
-                                        </CardTitle>
+                                        <CardTitle className="text-xl font-bold text-gray-900">Pending & Risk Summary</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="p-8 pt-0 overflow-y-auto max-h-[300px] scrollbar-hide">
-                                        <div className="space-y-4">
+                                    <CardContent className="p-8 pt-0 overflow-y-auto max-h-[350px] scrollbar-hide">
+                                        <div className="space-y-3">
                                             {(analyticsData?.riskItems || []).length > 0 ? (
                                                 analyticsData.riskItems.map((item: any, idx: number) => (
-                                                    <div key={idx} className="flex items-center justify-between group py-1 border-b border-gray-50 last:border-0 pb-3">
-                                                        <div className="space-y-1">
-                                                            <div className="text-xs font-black text-gray-900">{item.label}</div>
-                                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{item.subj}</div>
+                                                    <div key={idx} className="flex items-center justify-between group py-3 border-b border-gray-50 last:border-0">
+                                                        <div className="space-y-0.5">
+                                                            <div className="text-sm font-semibold text-gray-900 capitalize">{item.label}</div>
+                                                            <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-tight">{item.subj}</div>
                                                         </div>
                                                         <div className="flex items-center gap-4">
-                                                            <span className="text-[10px] font-black text-gray-700 bg-gray-100 px-2 py-1 rounded-md">{item.count}</span>
+                                                            <span className="text-xs font-bold text-gray-900 w-8 text-right">{item.count}</span>
                                                             <Badge className={cn(
-                                                                "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border-none",
-                                                                item.risk === 'High' ? "bg-rose-50 text-rose-600 shadow-none" :
-                                                                    item.risk === 'Medium' ? "bg-amber-50 text-amber-600 shadow-none" :
-                                                                        "bg-emerald-50 text-emerald-600 shadow-none"
+                                                                "px-3 py-1 rounded-full text-[10px] font-semibold border-none shadow-none",
+                                                                item.risk === 'High' ? "bg-rose-100 text-rose-700" :
+                                                                    item.risk === 'Medium' ? "bg-amber-100 text-amber-700" :
+                                                                        "bg-emerald-100 text-emerald-700"
                                                             )}>
                                                                 {item.risk} Risk
                                                             </Badge>
@@ -666,7 +717,7 @@ const Reports: React.FC = () => {
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="py-10 text-center text-gray-400 font-bold text-sm">No critical risks identified for this student.</div>
+                                                <div className="py-10 text-center text-gray-400 font-semibold text-sm">No pending items found.</div>
                                             )}
                                         </div>
                                     </CardContent>
@@ -675,41 +726,41 @@ const Reports: React.FC = () => {
 
                             {/* Consolidated Attendance & Consistency Card */}
                             <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
-                                <CardHeader className="p-6 pb-2">
-                                    <CardTitle className="text-lg font-black text-gray-900">Attendance & Consistency</CardTitle>
+                                <CardHeader className="p-8 pb-2">
+                                    <CardTitle className="text-xl font-bold text-gray-900">Attendance & Consistency</CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-6 pt-0">
-                                    <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+                                <CardContent className="p-8 pt-0">
+                                    <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                                         {/* Left Side: Stats Summary */}
-                                        <div className="flex-none w-full lg:w-[280px] space-y-4">
-                                            <div className="p-6 rounded-[2rem] bg-gray-50/50 border border-gray-100/50 flex flex-col items-center justify-center text-center space-y-2">
-                                                <div className="h-10 w-10 rounded-xl bg-white shadow-sm border border-gray-50 flex items-center justify-center text-indigo-600">
-                                                    <Calendar className="h-5 w-5" />
+                                        <div className="flex-none w-full lg:w-[320px] space-y-6">
+                                            <div className="p-10 rounded-[2.5rem] bg-[#F8FAFC] border border-white shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+                                                <div className="h-12 w-12 rounded-2xl bg-white shadow-xs border border-gray-50 flex items-center justify-center text-indigo-600">
+                                                    <Calendar className="h-6 w-6" />
                                                 </div>
                                                 <div>
-                                                    <div className="text-3xl font-black text-gray-900 tracking-tight">{attendanceStats.percentage}%</div>
-                                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Overall Attendance</div>
+                                                    <div className="text-4xl font-bold text-gray-900 tracking-tight leading-none">{attendanceStats.percentage}%</div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Overall Attendance</div>
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-3 gap-3">
-                                                <div className="flex flex-col items-center justify-center p-4 rounded-3xl bg-gray-50/30 border border-gray-100/30">
-                                                    <div className="text-lg font-black text-gray-900">{attendanceStats.present}</div>
-                                                    <div className="text-[8px] font-black text-gray-400 uppercase tracking-tighter mt-0.5 text-center leading-tight">Active Days</div>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
+                                                    <div className="text-xl font-bold text-gray-900">{attendanceStats.present}</div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Active Days</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-4 rounded-3xl bg-gray-50/30 border border-gray-100/30">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
                                                     <div className="flex items-center gap-1">
-                                                        <Zap className="h-2.5 w-2.5 text-amber-500 fill-amber-500" />
-                                                        <span className="text-lg font-black text-gray-900">{analyticsData?.streak || 0}</span>
+                                                        <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
+                                                        <span className="text-xl font-bold text-gray-900">{analyticsData?.streak || 0}</span>
                                                     </div>
-                                                    <div className="text-[8px] font-black text-gray-400 uppercase tracking-tighter mt-0.5 text-center leading-tight">Current</div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Streak</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-4 rounded-3xl bg-gray-50/30 border border-gray-100/30">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
                                                     <div className="flex items-center gap-1">
-                                                        <Star className="h-2.5 w-2.5 text-indigo-500 fill-indigo-500" />
-                                                        <span className="text-lg font-black text-gray-900">{analyticsData?.longest_streak || 0}</span>
+                                                        <Star className="h-3 w-3 text-indigo-500 fill-indigo-500" />
+                                                        <span className="text-xl font-bold text-gray-900">{analyticsData?.longest_streak || 0}</span>
                                                     </div>
-                                                    <div className="text-[8px] font-black text-gray-400 uppercase tracking-tighter mt-0.5 text-center leading-tight">Longest</div>
+                                                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Best</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -753,7 +804,7 @@ const Reports: React.FC = () => {
                             {/* Achievements Section */}
                             <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
                                 <CardHeader className="p-8 pb-4">
-                                    <CardTitle className="text-lg font-black text-gray-900">Streaks & Achievements</CardTitle>
+                                    <CardTitle className="text-lg font-bold text-gray-900">Streaks & Achievements</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-8 pt-4">
                                     <div className="flex flex-wrap gap-4">
@@ -766,7 +817,7 @@ const Reports: React.FC = () => {
                                             { name: 'Top Performer', color: attendanceStats.percentage >= 95 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Target, locked: attendanceStats.percentage < 95 },
                                         ].map((badge, i) => (
                                             <Badge key={i} className={cn(
-                                                "px-5 py-3 rounded-2xl flex items-center gap-3 text-xs font-black shadow-none border transition-transform hover:scale-105 cursor-default",
+                                                "px-5 py-3 rounded-2xl flex items-center gap-3 text-xs font-bold shadow-none border transition-transform hover:scale-105 cursor-default",
                                                 badge.color
                                             )}>
                                                 <badge.icon className={cn("h-4 w-4", !badge.locked && "fill-current opacity-80")} />
@@ -788,7 +839,7 @@ const Reports: React.FC = () => {
                                 </div>
                             </div>
                             <div className="space-y-3 max-w-sm">
-                                <h3 className="text-3xl font-black text-gray-900">Select a Student</h3>
+                                <h3 className="text-3xl font-bold text-gray-900">Select a Student</h3>
                                 <p className="text-gray-400 text-sm font-medium leading-relaxed">Choose a student above to generate a unified academic and behavioral analytics overview.</p>
                             </div>
                             <div className="flex gap-4">
@@ -812,7 +863,7 @@ const Reports: React.FC = () => {
                         <div className="max-w-[800px] mx-auto space-y-8">
                             {/* Report Header */}
                             <div className="border-b-2 border-gray-100 pb-6">
-                                <h1 className="text-3xl font-black mb-1">Student Academic Report</h1>
+                                <h1 className="text-3xl font-bold mb-1">Student Academic Report</h1>
                                 <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">
                                     Generated: {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
                                 </p>
@@ -821,7 +872,7 @@ const Reports: React.FC = () => {
                             {/* Student Overview */}
                             <div className="space-y-4">
                                 <div>
-                                    <h2 className="text-2xl font-black text-gray-900">
+                                    <h2 className="text-2xl font-bold text-gray-900">
                                         {selectedStudent?.user_details?.first_name ? `${selectedStudent.user_details.first_name} ${selectedStudent.user_details.last_name || ''}` : `${selectedStudent?.user?.first_name || ''} ${selectedStudent?.user?.last_name || ''}`}
                                         <span className="text-gray-400 font-bold ml-2">({selectedStudent?.roll_number || 'STU001'})</span>
                                     </h2>
@@ -829,7 +880,7 @@ const Reports: React.FC = () => {
                                         {selectedStudent?.department_name} • Semester {selectedStudent?.semester_number} • Section {selectedStudent?.section_name}
                                     </p>
                                 </div>
-                                <div className="flex gap-6 text-sm font-black uppercase tracking-wider text-gray-700">
+                                <div className="flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-400">
                                     <span>Performance Index: <span className="text-indigo-600">{analyticsData?.performanceIndex || '74%'}</span></span>
                                     <span className="text-gray-300">|</span>
                                     <span>Status: <span className={cn(
@@ -845,32 +896,32 @@ const Reports: React.FC = () => {
                             <table className="w-full text-left border-collapse mt-4">
                                 <thead>
                                     <tr className="bg-gray-900 text-white">
-                                        <th className="py-2 px-4 text-[10px] font-black uppercase tracking-widest rounded-tl-xl">Subject</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Notes %</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Test Avg</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Assess Avg</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Tasks</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Attend %</th>
-                                        <th className="py-2 px-2 text-center text-[10px] font-black uppercase tracking-widest">Strength</th>
-                                        <th className="py-2 px-4 text-right text-[10px] font-black uppercase tracking-widest rounded-tr-xl">Risk</th>
+                                        <th className="py-2 px-4 text-[10px] font-bold uppercase tracking-widest rounded-tl-xl">Subject</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Notes %</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Test Avg</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Assess Avg</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Tasks</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Attend %</th>
+                                        <th className="py-2 px-2 text-center text-[10px] font-bold uppercase tracking-widest">Strength</th>
+                                        <th className="py-2 px-4 text-right text-[10px] font-bold uppercase tracking-widest rounded-tr-xl">Risk</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {(performanceData.length > 0 ? performanceData : []).map((row: any, idx: number) => (
                                         <tr key={idx} className={cn("border-b border-gray-50 text-xs", idx % 2 === 0 ? "bg-white" : "bg-gray-50/30")}>
                                             <td className="py-3 px-4 font-bold text-gray-900">{row.name}</td>
-                                            <td className="py-3 px-2 text-center font-black">{row.notes}</td>
-                                            <td className="py-3 px-2 text-center font-black">{row.testAvg}</td>
-                                            <td className="py-3 px-2 text-center font-black">{row.assessmentAvg}</td>
-                                            <td className="py-3 px-2 text-center font-black">{row.tasks_completed}/{row.tasks_total}</td>
-                                            <td className="py-3 px-2 text-center font-black">{row.attendance}</td>
+                                            <td className="py-3 px-2 text-center font-bold">{row.notes}</td>
+                                            <td className="py-3 px-2 text-center font-bold">{row.testAvg}</td>
+                                            <td className="py-3 px-2 text-center font-bold">{row.assessmentAvg}</td>
+                                            <td className="py-3 px-2 text-center font-bold">{row.tasks_completed}/{row.tasks_total}</td>
+                                            <td className="py-3 px-2 text-center font-bold">{row.attendance}</td>
                                             <td className="py-3 px-2 text-center">
                                                 <span className={cn(
-                                                    "font-black text-[10px] uppercase",
+                                                    "font-bold text-[10px] uppercase",
                                                     row.strength === 'Strong' ? "text-emerald-600" : row.strength === 'Average' ? "text-amber-600" : "text-rose-600"
                                                 )}>{row.strength}</span>
                                             </td>
-                                            <td className="py-3 px-4 text-right font-black">
+                                            <td className="py-3 px-4 text-right font-bold">
                                                 <span className={cn(
                                                     "text-[10px] uppercase",
                                                     row.risk === 'Low' ? "text-emerald-600" : row.risk === 'Medium' ? "text-amber-600" : "text-rose-600"
@@ -883,26 +934,26 @@ const Reports: React.FC = () => {
 
                             {/* Analysis Section */}
                             <div className="space-y-4 pt-6">
-                                <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-2">Strength & Weakness Analysis</h3>
+                                <h3 className="text-xl font-bold text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-2">Strength & Weakness Analysis</h3>
                                 <div className="grid grid-cols-2 gap-x-12 gap-y-4">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Strongest Subject</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Strongest Subject</p>
                                         <p className="font-bold text-gray-900">{analyticsData?.strongest || 'Discrete Mathematics'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Weakest Subject</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Weakest Subject</p>
                                         <p className="font-bold text-gray-900">{analyticsData?.weakest || 'Computer Networks'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Highest Pending Tasks</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Highest Pending Tasks</p>
                                         <p className="font-bold text-gray-900">{analyticsData?.highestPending || 'N/A'}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Lowest Attendance</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lowest Attendance</p>
                                         <p className="font-bold text-gray-900">{analyticsData?.lowestAttendance || 'N/A'}</p>
                                     </div>
                                     <div className="space-y-1 col-span-2">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Performance Gap</p>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Performance Gap</p>
                                         <p className="font-bold text-indigo-600">{analyticsData?.performanceGap || '31%'} Improvement Potential</p>
                                     </div>
                                 </div>
@@ -910,7 +961,7 @@ const Reports: React.FC = () => {
 
                             {/* Summary Footer */}
                             <div className="pt-12 border-t border-gray-100 text-center">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Yuvro Campus • Academic Insights Report</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.4em]">Yuvro Campus • Academic Insights Report</p>
                             </div>
                         </div>
                     </div>
