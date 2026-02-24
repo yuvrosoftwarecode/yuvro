@@ -277,3 +277,15 @@ class CollegeAdminProfile(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.username} - Admin {self.college.name}"
+
+
+class TPOProfile(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="tpo_profile"
+    )
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="tpos"
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - TPO {self.college.name}"

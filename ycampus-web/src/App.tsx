@@ -73,6 +73,7 @@ import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
+import TPODashboard from './pages/tpo/Dashboard';
 
 
 function App() {
@@ -305,6 +306,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
                     <FacultyDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/tpo/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPODashboard />
                   </ProtectedRoute>
                 }
               />
