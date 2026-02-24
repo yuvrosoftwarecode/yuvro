@@ -443,6 +443,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
         ("suspicious_activity", "Suspicious Activity"),
         ("device_change", "Device Change Detected"),
         ("external_monitor", "External Monitor Detected"),
+        ("forbidden_platform_detected", "Forbidden Platform Detected"),
     ]
 
     ALERT_PRIORITY_LEVELS = [

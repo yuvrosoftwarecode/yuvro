@@ -15,6 +15,7 @@ interface ProctoringEvent {
         pasted_text?: string;
         cut_text?: string;
         key?: string;
+        platform?: string;
     };
 }
 
@@ -165,8 +166,23 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-xs text-gray-400">{format(new Date(log.timestamp), 'h:mm:ss a')}</span>
                                                             {log.meta_data?.key && (
-                                                                <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100">
-                                                                    {log.meta_data.key}
+                                                                <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100 mt-1">
+                                                                    Key: {log.meta_data.key}
+                                                                </span>
+                                                            )}
+                                                            {log.meta_data?.platform && (
+                                                                <span className="text-xs text-red-500 border px-1 rounded bg-red-50 mt-1">
+                                                                    Platform: {log.meta_data.platform}
+                                                                </span>
+                                                            )}
+                                                            {log.meta_data?.copied_text && (
+                                                                <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100 mt-1 max-w-[200px] truncate">
+                                                                    Copied: {log.meta_data.copied_text}
+                                                                </span>
+                                                            )}
+                                                            {log.meta_data?.pasted_text && (
+                                                                <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100 mt-1 max-w-[200px] truncate">
+                                                                    Pasted: {log.meta_data.pasted_text}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -201,6 +217,21 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                     <span className="font-medium">{event.activity_type.replace(/_/g, ' ')}</span>
                                     <div className="flex flex-col items-end">
                                         <span className="text-sm text-gray-400">{format(new Date(event.timestamp), 'h:mm:ss a')}</span>
+                                        {event.meta_data?.platform && (
+                                            <span className="text-xs text-red-500 border px-1 rounded bg-red-50 mt-1">
+                                                Platform: {event.meta_data.platform}
+                                            </span>
+                                        )}
+                                        {event.meta_data?.copied_text && (
+                                            <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100 mt-1 max-w-[200px] truncate">
+                                                Copied: {event.meta_data.copied_text}
+                                            </span>
+                                        )}
+                                        {event.meta_data?.pasted_text && (
+                                            <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100 mt-1 max-w-[200px] truncate">
+                                                Pasted: {event.meta_data.pasted_text}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             ))

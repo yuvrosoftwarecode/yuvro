@@ -53,6 +53,7 @@ interface CodeEditorProps {
   isFullscreen?: boolean;
   templates?: Record<string, string>;
   height?: string;
+  proctoringEnabled?: boolean;
 }
 
 export interface CodeEditorHandle {
@@ -87,6 +88,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   className = '',
   showFullscreenButton = true,
   showExamplesButton = true,
+  proctoringEnabled = false,
   onShowExamples,
   onToggleAiChat,
   isAiChatOpen = false,
@@ -493,11 +495,12 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                   language={language}
                   onLanguageChange={setLanguage}
                   height={height}
-                  onShowExamples={showExamplesButton ? (onShowExamples || (() => setShowExamples(true))) : undefined}
+                  onShowExamples={showExamplesButton && !proctoringEnabled ? (onShowExamples || (() => setShowExamples(true))) : undefined}
                   onToggleAiChat={onToggleAiChat}
                   onToggleFullscreen={showFullscreenButton ? handleToggleFullscreen : undefined}
                   isAiChatOpen={isAiChatOpen}
                   isFullscreen={isFullscreen}
+                  disableCopyPaste={proctoringEnabled}
                 />
               </div>
             </div>

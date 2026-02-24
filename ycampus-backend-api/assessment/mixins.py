@@ -140,6 +140,7 @@ class ProctoringMixin:
             "suspicious_activity",
             "device_change",
             "external_monitor",
+            "forbidden_platform_detected",
         ]
 
         if activity_type in violation_types:

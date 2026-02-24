@@ -6,9 +6,10 @@ interface ProctoringConfig {
     assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests' | 'certification-exams';
     enabled: boolean;
     questionId?: string; // Optional context
+    onViolation?: (type: string, data?: any) => void;
 }
 
-export const useProctoring = ({ assessmentId, assessmentType, enabled, questionId, mediaStream }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
+export const useProctoring = ({ assessmentId, assessmentType, enabled, questionId, mediaStream, onViolation }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
     const lastActiveRef = useRef<number>(Date.now());
 
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
@@ -34,17 +35,33 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
 
     // 1. Visibility Change (Tab Switch)
     useEffect(() => {
-        const handleVisibilityChange = () => {
+        const handleVisibilityChange = async () => {
             if (document.hidden) {
                 logActivity('tab_switched', { type: 'hidden' });
+                // We don't have to trigger onViolation on hidden, or we could.
+                // Let's trigger it when they come back to know they switched.
             } else {
                 logActivity('tab_switched', { type: 'visible' });
+                if (onViolation) onViolation('tab_switch');
+                
+                // Check clipboard for forbidden platforms
+                try {
+                    const text = await navigator.clipboard.readText();
+                    const forbiddenDomains = ['meet.google.com', 'zoom.us', 'teams.microsoft.com', 'webex.com'];
+                    const foundUrl = forbiddenDomains.find(domain => text.includes(domain));
+                    if (foundUrl) {
+                        logActivity('forbidden_platform_detected', { platform: foundUrl, matched_text: text });
+                        if (onViolation) onViolation('forbidden_platform', { platform: foundUrl });
+                    }
+                } catch (e) {
+                    // Ignore error if clipboard read is denied
+                }
             }
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, [logActivity]);
+    }, [logActivity, onViolation]);
 
     // 2. Window Blur/Focus
     useEffect(() => {
@@ -119,6 +136,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
         const handleFullscreenChange = () => {
             if (!document.fullscreenElement) {
                 logActivity('fullscreen_exit');
+                if (onViolation) onViolation('fullscreen_exit');
             } else {
                 logActivity('fullscreen_enter');
             }
@@ -126,7 +144,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    }, [logActivity]);
+    }, [logActivity, onViolation]);
 
     // 5. Keyboard Shortcut Detection
     useEffect(() => {

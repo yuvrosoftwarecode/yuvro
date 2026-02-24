@@ -27,6 +27,7 @@ interface MonacoCodeEditorProps {
     mode?: 'editor' | 'diff';
     /** Original code for diff mode (left side) */
     original?: string;
+    disableCopyPaste?: boolean;
 }
 
 loader.init().then(monaco => {
@@ -58,7 +59,22 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
     theme = "custom-light",
     mode = 'editor',
     original = '',
+    disableCopyPaste = false,
 }) => {
+
+    const handleEditorDidMount = (editor: any, monaco: any) => {
+        if (disableCopyPaste) {
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC, () => {
+                // Copy disabled
+            });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV, () => {
+                // Paste disabled
+            });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX, () => {
+                // Cut disabled
+            });
+        }
+    };
 
     return (
         <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100/50 flex flex-col font-sans" style={{ height }}>
@@ -183,6 +199,7 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
                         value={value}
                         onChange={(val: string | undefined) => onChange(val ?? '')}
                         theme={theme}
+                        onMount={handleEditorDidMount}
                         options={{
                             readOnly,
                             fontSize: 14,
@@ -193,6 +210,7 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
                             padding: { top: 16, bottom: 16 },
                             fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
                             fontLigatures: true,
+                            contextmenu: !disableCopyPaste,
                         }}
                     />
                 )}

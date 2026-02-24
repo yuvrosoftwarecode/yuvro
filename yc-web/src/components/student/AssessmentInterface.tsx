@@ -49,6 +49,7 @@ interface Assessment {
   duration: number;
   totalQuestions: number;
   topicId: string;
+  proctoring_enabled?: boolean;
 }
 
 interface Question {
@@ -123,11 +124,60 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const isCodingQuestion = currentQuestionData?.type === 'coding';
   const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
 
+  const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
+    if (type === 'tab_switch') {
+      setTabSwitchCount(prev => prev + 1);
+      setTabSwitchAlert(true);
+    } else if (type === 'forbidden_platform') {
+      toast.error(`Forbidden platform detected: ${data?.platform}. Assessment will be aborted.`);
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
+    } else if (type === 'fullscreen_exit') {
+      toast.error("Fullscreen exited. Assessment will be aborted for violation.");
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled) {
+      const blockEvent = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      
+      const blockKeys = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x'].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+
+      // Use capture phase to intercept events before they reach Monaco or other elements
+      document.addEventListener('copy', blockEvent, { capture: true });
+      document.addEventListener('paste', blockEvent, { capture: true });
+      document.addEventListener('cut', blockEvent, { capture: true });
+      document.addEventListener('contextmenu', blockEvent, { capture: true });
+      document.addEventListener('keydown', blockKeys, { capture: true });
+
+      return () => {
+        document.removeEventListener('copy', blockEvent, { capture: true });
+        document.removeEventListener('paste', blockEvent, { capture: true });
+        document.removeEventListener('cut', blockEvent, { capture: true });
+        document.removeEventListener('contextmenu', blockEvent, { capture: true });
+        document.removeEventListener('keydown', blockKeys, { capture: true });
+      };
+    }
+  }, [assessment.proctoring_enabled]);
+
   useProctoring({
     assessmentId: assessment.id,
     assessmentType: assessmentType,
-    enabled: true,
-    questionId: undefined
+    enabled: assessment.proctoring_enabled ?? true,
+    questionId: undefined,
+    onViolation: handleProctoringViolation
   });
 
   useProctoring({
@@ -192,6 +242,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isSubmittingRef = useRef(false);
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
@@ -324,6 +375,13 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   };
 
   const handleSubmitAssessment = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.error("Error exiting fullscreen:", err));
+    }
+
     const answeredCount = questions.filter(q => {
       const ans = answers[q.id];
       const exp = explanations[q.id]?.trim();
@@ -618,6 +676,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                   });
                 }}
                 className="h-full border-0 shadow-lg"
+                proctoringEnabled={assessment.proctoring_enabled}
               />
             </div>
           </div>
