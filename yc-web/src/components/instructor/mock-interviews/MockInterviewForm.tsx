@@ -147,6 +147,7 @@ export default function MockInterviewForm() {
     // AI Config
     ai_generation_mode: 'full_ai' as 'full_ai' | 'mixed' | 'predefined',
     ai_percentage: 100,
+    ai_context: '',
     ai_verbal_question_count: 5,
     ai_coding_question_count: 1,
 
@@ -192,6 +193,7 @@ export default function MockInterviewForm() {
 
           ai_generation_mode: data.ai_generation_mode || 'full_ai',
           ai_percentage: data.ai_percentage || 100,
+          ai_context: Array.isArray(data.ai_context) ? data.ai_context.join(', ') : '',
           ai_verbal_question_count: data.ai_verbal_question_count || 5,
           ai_coding_question_count: data.ai_coding_question_count || 1,
 
@@ -264,6 +266,7 @@ export default function MockInterviewForm() {
 
         ai_generation_mode: formData.ai_generation_mode,
         ai_percentage: formData.ai_percentage,
+        ai_context: formData.ai_context.split(',').map(s => s.trim()).filter(Boolean),
         ai_verbal_question_count: Number(formData.ai_verbal_question_count),
         ai_coding_question_count: Number(formData.ai_coding_question_count),
 
@@ -299,9 +302,12 @@ export default function MockInterviewForm() {
     }
   };
 
+  const tabOrder = ['details', 'questions', 'ai_config', 'voice_config'];
+
   const handlePrimaryAction = () => {
-    if (currentFormTab !== 'questions') {
-      setCurrentFormTab('questions');
+    const currentIndex = tabOrder.indexOf(currentFormTab);
+    if (currentIndex < tabOrder.length - 1) {
+      setCurrentFormTab(tabOrder[currentIndex + 1]);
       return;
     }
     handleSubmit();
@@ -334,9 +340,9 @@ export default function MockInterviewForm() {
           <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
             <TabsList className="inline-flex w-auto gap-1">
               <TabsTrigger value="details" className="px-5">Basic Info</TabsTrigger>
-              <TabsTrigger value="ai_config" className="px-5">AI Config</TabsTrigger>
-              <TabsTrigger value="voice_config" className="px-5">Voice & Audio</TabsTrigger>
               <TabsTrigger value="questions" className="px-5">Questions</TabsTrigger>
+              <TabsTrigger value="ai_config" className="px-5">AI Config</TabsTrigger>
+              <TabsTrigger value="voice_config" className="px-5">Audio Settings</TabsTrigger>
             </TabsList>
 
             {/* Details Tab */}
@@ -465,6 +471,16 @@ export default function MockInterviewForm() {
                       <Input type="number" value={formData.ai_coding_question_count} onChange={e => setFormData({ ...formData, ai_coding_question_count: parseInt(e.target.value) })} min={0} />
                       <p className="text-xs text-gray-500 mt-1">Number of coding challenges AI should generate.</p>
                     </div>
+                  </div>
+
+                  <div className="mt-4 border-t pt-4 border-gray-100">
+                    <label className="block text-sm font-medium mb-1">AI Context / Roles</label>
+                    <Textarea 
+                      value={formData.ai_context} 
+                      onChange={e => setFormData({ ...formData, ai_context: e.target.value })} 
+                      placeholder="e.g. Senior Frontend Developer, Strict Interviewer" 
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Comma-separated background context or specific roles for the AI Interviewer.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -645,11 +661,11 @@ export default function MockInterviewForm() {
               <Button
                 onClick={handlePrimaryAction}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
               >
-                {currentFormTab !== 'questions'
-                  ? 'Add Questions'
-                  : (isEditMode ? 'Update Mock Interview' : 'Create Mock Interview')}
+                {tabOrder.indexOf(currentFormTab) < tabOrder.length - 1
+                  ? 'Next'
+                  : 'Finish'}
               </Button>
             </div>
           </Tabs>

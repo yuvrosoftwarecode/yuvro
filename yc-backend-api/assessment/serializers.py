@@ -369,6 +369,7 @@ class MockInterviewSerializer(serializers.ModelSerializer):
             "max_duration",
             "ai_generation_mode",
             "ai_percentage",
+            "ai_context",
             "ai_verbal_question_count",
             "ai_coding_question_count",
             "voice_type",
