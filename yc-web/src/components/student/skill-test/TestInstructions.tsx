@@ -32,7 +32,7 @@ interface Test {
 
 interface TestInstructionsProps {
   test: Test;
-  onStart: () => void;
+  onStart: (screenStream?: MediaStream) => void;
   onBack: () => void;
 }
 
@@ -56,9 +56,9 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
     setShowPermissionDialog(true);
   };
 
-  const handlePermissionGranted = () => {
+  const handlePermissionGranted = (screenStream?: MediaStream) => {
     setShowPermissionDialog(false);
-    onStart();
+    onStart(screenStream);
   };
 
   const handlePermissionCanceled = () => {
@@ -306,6 +306,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
         open={showPermissionDialog}
         onConfirm={handlePermissionGranted}
         onCancel={handlePermissionCanceled}
+        requireScreenShare={(test as any).enable_proctoring ?? true} // Assuming test has enable_proctoring passed or defaults to true for skill tests
       />
     </div>
   );

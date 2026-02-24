@@ -72,6 +72,7 @@ interface AssessmentInterfaceProps {
   onBack: () => void;
   onSubmit?: (assessmentId: string, submissionId: string, answers: any, explanations: any, q_ids: string[]) => Promise<any>;
   assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews';
+  screenStream?: MediaStream | null;
 }
 
 const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
@@ -81,7 +82,8 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   onComplete,
   onBack,
   onSubmit,
-  assessmentType = 'skill-tests'
+  assessmentType = 'skill-tests',
+  screenStream
 }) => {
   const [questions, setQuestions] = useState<Question[]>(() => {
     const order: Record<string, number> = {
@@ -138,8 +140,28 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       setTimeout(() => {
         handleSubmitAssessment();
       }, 2000);
+    } else if (type === 'screen_share_stopped') {
+      toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
     }
   }, []);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled && screenStream) {
+      const videoTrack = screenStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const handleEnded = () => {
+          handleProctoringViolation('screen_share_stopped');
+        };
+        videoTrack.addEventListener('ended', handleEnded);
+        return () => {
+          videoTrack.removeEventListener('ended', handleEnded);
+        };
+      }
+    }
+  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
 
   useEffect(() => {
     if (assessment.proctoring_enabled) {
@@ -251,7 +273,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
   // Centralized camera cleanup function
-  const cleanupCamera = () => {
+  const cleanupCamera = React.useCallback(() => {
     console.log('cleanupCamera called');
     if (streamRef.current) {
       console.log('Stopping media tracks...');
@@ -266,7 +288,15 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     } else {
       console.log('No stream to cleanup');
     }
-  };
+
+    if (screenStream) {
+      console.log('Stopping screen share tracks...');
+      screenStream.getTracks().forEach(track => {
+        track.stop();
+        console.log('Screen share track stopped:', track.kind);
+      });
+    }
+  }, [screenStream]);
 
   useEffect(() => {
     const initializeMedia = async () => {
@@ -302,7 +332,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('AssessmentInterface component unmounting - cleaning up camera');
       cleanupCamera();
     };
-  }, []);
+  }, [cleanupCamera]);
 
   useEffect(() => {
     const timer = setInterval(() => {

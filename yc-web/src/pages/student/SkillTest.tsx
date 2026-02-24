@@ -392,8 +392,14 @@ const SkillTest: React.FC = () => {
     }
   };
 
-  const handleBeginTest = async () => {
+  const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
+
+  const handleBeginTest = async (screenStream?: MediaStream) => {
     if (!selectedTest) return;
+
+    if (screenStream) {
+      setActiveScreenStream(screenStream);
+    }
 
     // Request fullscreen synchronously before any async operations
     if (selectedTest.enable_proctoring && document.documentElement.requestFullscreen) {
@@ -553,6 +559,7 @@ const SkillTest: React.FC = () => {
         submissionId={currentSubmissionId || ""}
         onComplete={handleTestComplete}
         onBack={handleBackToInstructions}
+        screenStream={activeScreenStream}
       />
     );
   }

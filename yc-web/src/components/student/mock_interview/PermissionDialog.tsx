@@ -5,20 +5,25 @@ import { CheckCircle, Camera, Mic, AlertCircle, Loader2 } from 'lucide-react';
 
 interface PermissionDialogProps {
   open: boolean;
-  onConfirm: () => void;
+  onConfirm: (screenStream?: MediaStream) => void;
   onCancel: () => void;
   startButtonText?: string;
+  requireScreenShare?: boolean;
 }
 
 const PermissionDialog: React.FC<PermissionDialogProps> = ({
   open,
   onConfirm,
   onCancel,
-  startButtonText = "Start Test"
+  startButtonText = "Start Test",
+  requireScreenShare = false
 }) => {
   const [permissionState, setPermissionState] = useState<'requesting' | 'granted' | 'denied' | 'error'>('requesting');
   const [cameraGranted, setCameraGranted] = useState(false);
   const [microphoneGranted, setMicrophoneGranted] = useState(false);
+  const [screenGranted, setScreenGranted] = useState(false);
+  const [tabsClosed, setTabsClosed] = useState(false);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -30,6 +35,8 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
     setPermissionState('requesting');
     setCameraGranted(false);
     setMicrophoneGranted(false);
+    setScreenGranted(false);
+    setScreenStream(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -37,22 +44,48 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
         audio: true
       });
 
-      // If we get here, both permissions were granted
       setCameraGranted(true);
       setMicrophoneGranted(true);
-      setPermissionState('granted');
-
-      // Stop the stream since we only needed it for permission check
       stream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      console.error('Permission denied:', error);
+
+      let displayStream: MediaStream | null = null;
+      if (requireScreenShare) {
+        displayStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: "monitor" // Prefer entire screen
+          },
+          audio: false
+        });
+        
+        // Verify they shared the entire screen (some browsers might ignore "monitor" preference)
+        const videoTrack = displayStream.getVideoTracks()[0];
+        const settings = videoTrack.getSettings();
+        if (settings.displaySurface && settings.displaySurface !== 'monitor') {
+          displayStream.getTracks().forEach(track => track.stop());
+          throw new Error("Please share your Entire Screen, not just a window or tab.");
+        }
+
+        setScreenGranted(true);
+        setScreenStream(displayStream);
+      }
+
+      setPermissionState('granted');
+    } catch (error: any) {
+      console.error('Permission denied or error:', error);
+      if (error && error.message) {
+         // Could set a specific error message here if needed in UI
+      }
       setPermissionState('denied');
     }
   };
 
   const handleProceed = () => {
-    if (cameraGranted && microphoneGranted) {
-      onConfirm();
+    if (cameraGranted && microphoneGranted && (!requireScreenShare || screenGranted) && (!requireScreenShare || tabsClosed)) {
+      if (screenStream) {
+        onConfirm(screenStream);
+      } else {
+        onConfirm();
+      }
     }
   };
 
@@ -68,7 +101,7 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
             {permissionState === 'requesting' && (
               <>
                 <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                Requesting Permissions
+                Requesting Permissions {requireScreenShare && "& Screen"}
               </>
             )}
             {permissionState === 'granted' && (
@@ -89,7 +122,7 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
         <div className="p-6 space-y-6">
           {permissionState === 'requesting' && (
             <p className="text-slate-600 leading-relaxed">
-              Please allow access to your camera and microphone to continue with the test.
+              Please allow access to your camera{requireScreenShare ? ', microphone, and share your entire screen' : ' and microphone'} to continue with the test.
             </p>
           )}
 
@@ -112,7 +145,34 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
                   </div>
                   <span className="text-sm font-medium text-green-800">Microphone access granted</span>
                 </div>
+                {requireScreenShare && screenGranted && (
+                  <div className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-200/50 rounded-xl transition-all hover:bg-green-50">
+                    <div className="p-2 bg-white rounded-lg shadow-sm text-green-600">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-medium text-green-800">Screen sharing active</span>
+                  </div>
+                )}
               </div>
+
+              {requireScreenShare && (
+                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <h4 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" /> Final Verification
+                  </h4>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                      checked={tabsClosed}
+                      onChange={(e) => setTabsClosed(e.target.checked)}
+                    />
+                    <span className="text-sm text-amber-800 leading-tight">
+                      I confirm that I have closed all other tabs, windows, and applications. I understand that the test will be immediately aborted if forbidden platforms are detected.
+                    </span>
+                  </label>
+                </div>
+              )}
 
               <p className="text-sm text-slate-500">
                 You're all set to begin your test. Click "{startButtonText}" to continue.
@@ -139,6 +199,14 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
                   </div>
                   <span className="text-sm font-medium text-red-800">Microphone access required</span>
                 </div>
+                {requireScreenShare && (
+                  <div className="flex items-center gap-3 p-4 bg-red-50/50 border border-red-200/50 rounded-xl transition-all hover:bg-red-50">
+                    <div className="p-2 bg-white rounded-lg shadow-sm text-red-600">
+                      <AlertCircle className="h-5 w-5" />
+                    </div>
+                    <span className="text-sm font-medium text-red-800">Entire Screen sharing required</span>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -155,7 +223,8 @@ const PermissionDialog: React.FC<PermissionDialogProps> = ({
           {permissionState === 'granted' ? (
             <Button
               onClick={handleProceed}
-              className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/10 font-semibold tracking-wide"
+              disabled={requireScreenShare && !tabsClosed}
+              className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/10 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {startButtonText}
             </Button>
