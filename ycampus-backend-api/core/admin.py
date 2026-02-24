@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     College, Batch, Department, Semester, Section,
-    StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile
+    StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile,
+    TPOProfile
 )
 
 
@@ -114,6 +115,13 @@ class PrincipalProfileAdmin(admin.ModelAdmin):
 
 @admin.register(CollegeAdminProfile)
 class CollegeAdminProfileAdmin(admin.ModelAdmin):
+    list_display = ["user", "college"]
+    list_filter = ["college"]
+    search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+
+@admin.register(TPOProfile)
+class TPOProfileAdmin(admin.ModelAdmin):
     list_display = ["user", "college"]
     list_filter = ["college"]
     search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
