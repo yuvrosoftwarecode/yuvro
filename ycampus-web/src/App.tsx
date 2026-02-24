@@ -74,6 +74,7 @@ import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
+import FacultyReports from './pages/faculty/Reports';
 
 
 function App() {
@@ -361,7 +362,7 @@ function App() {
                 path="/faculty/reports"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <FacultyReports />
                   </ProtectedRoute>
                 }
               />
