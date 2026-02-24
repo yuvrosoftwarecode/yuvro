@@ -8,7 +8,7 @@ export default function ContestAttempt() {
     const { contestId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [questions, setQuestions] = useState([]);
+    const [questions, setQuestions] = useState<any[]>([]);
     const [submissionId, setSubmissionId] = useState<string | null>(null);
     const [duration, setDuration] = useState(60);
 
@@ -19,7 +19,7 @@ export default function ContestAttempt() {
                 const contestDetails = await contestService.getContest(contestId);
                 const data = await contestService.startContest(contestId);
                 setQuestions(data.questions);
-                setSubmissionId(data.submission_id);
+                setSubmissionId(String(data.submission_id));
 
                 const baseDuration = data.duration || contestDetails.duration || 60;
                 const contestEnd = contestDetails.end_datetime
@@ -93,3 +93,4 @@ export default function ContestAttempt() {
         />
     );
 }
+

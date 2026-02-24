@@ -1,10 +1,8 @@
 import { useAuth } from '../contexts/AuthContext';
 import Navigation from '../components/common/Navigation';
-import RoleSidebar from '../components/common/RoleSidebar';
-import RoleHeader from '../components/common/RoleHeader';
+import DashboardLayout from '../components/common/DashboardLayout';
 
 const Dashboard: React.FC = () => {
-
   const stats = [
     {
       name: 'Total Projects',
@@ -86,20 +84,14 @@ const Dashboard: React.FC = () => {
 
   // Non-student roles use sidebar layout
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader 
-            title="Dashboard"
-            subtitle="Overview of your activities and progress"
-          />
-          <div className="p-6">
-            {renderDashboardContent()}
-          </div>
-        </div>
+    <DashboardLayout
+      title="Dashboard"
+      subtitle="Overview of your activities and progress"
+    >
+      <div className="p-6">
+        {renderDashboardContent()}
       </div>
-    </div>
+    </DashboardLayout>
   );
 
   function renderDashboardContent() {

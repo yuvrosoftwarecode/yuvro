@@ -17,7 +17,7 @@ import ResumeBuilder from "./pages/student/ResumeBuilder";
 
 
 import Users from './pages/instructor/Users';
-import StudentDashboard from './pages/student/StudentDashboard';
+// import StudentDashboard from './pages/student/StudentDashboard';
 import CourseDetail from './components/student/CourseDetail';
 import SkillTest from './pages/student/SkillTest';
 import MockInterview from './pages/student/MockInterview';
@@ -98,10 +98,10 @@ function App() {
               />
 
               <Route path="/student/resume-builder" element={
-              <ProtectedRoute allowedRoles={['student']}>
-                <ResumeBuilder />
-              </ProtectedRoute>
-            } />
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ResumeBuilder />
+                </ProtectedRoute>
+              } />
 
               <Route
                 path="/student/learn/:courseId"
@@ -445,14 +445,14 @@ function App() {
                 }
               />
 
-              <Route
+              {/* <Route
                 path="/student/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentDashboard />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
 
               <Route
                 path="/instructor/contests"
@@ -631,7 +631,7 @@ function App() {
                 }
               />
 
-                <Route
+              <Route
                 path="/instructor/mock-interview/:mockInterviewId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>

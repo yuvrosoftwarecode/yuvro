@@ -61,7 +61,7 @@ class RestApiUtil {
             trackApiCall(fetchOptions.method || 'GET', url, response.status, duration);
 
             if (!response.ok) {
-                let errorData = {};
+                let errorData: any = {};
                 try {
                     const text = await response.text();
                     if (text && text.trim()) {

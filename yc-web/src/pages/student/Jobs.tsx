@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, BookmarkIcon, FileText, Eye, TrendingUp, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, BookmarkIcon, FileText, Eye, TrendingUp, MapPin, ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
 import Navigation from '@/components/common/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import ApplicationCard from '@/components/student/jobs/ApplicationCard';
 import ApplyJobDialog from '@/components/student/jobs/ApplyJobDialog';
 import EmptyState from '@/components/student/jobs/EmptyState';
 import useJobApplications from '@/hooks/useJobApplications';
+import { StatsCard } from '@/components/common/StatsCard';
 
 interface JobFilters {
   location: string[];
@@ -35,7 +36,7 @@ const Jobs = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const jobsPerPage = 9;
+  const jobsPerPage = 5;
 
   // Use the custom hook for job applications
   const {
@@ -207,226 +208,284 @@ const Jobs = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
 
-      <div className="min-h-screen bg-gray-50/50">
-        <div className="px-6 py-6">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar - Hidden by default on large screens */}
-            <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden'}`}>
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-sm text-blue-600 hover:text-blue-700"
-                  >
-                    Clear All Filters
-                  </button>
-                </div>
+      <div className="max-w-[1600px] mx-auto px-6 py-8 space-y-8">
+        {/* Header content matching CodePractice context */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Jobs Dashboard</h1>
+            <p className="text-gray-600 text-sm mt-1">
+              Explore recommended opportunities and track your applications
+            </p>
+          </div>
 
-                {/* Location Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Location</h4>
-                  <div className="space-y-2">
-                    {['Remote', 'Hybrid', 'Onsite'].map(location => (
-                      <label key={location} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.location.includes(location)}
-                          onChange={() => toggleFilter('location', location)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{location}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+          <Button
+            onClick={() => setActiveTab('applications')}
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 hover:opacity-90 shadow-md transition-transform hover:scale-105"
+          >
+            My Applications
+          </Button>
+        </div>
 
-                {/* Experience Level Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Experience Level</h4>
-                  <div className="space-y-2">
-                    {['Fresher', '0-2 yrs', '2-5 yrs', '5+ yrs'].map(level => (
-                      <label key={level} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.experienceLevel.includes(level)}
-                          onChange={() => toggleFilter('experienceLevel', level)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{level}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+        {/* Premium Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCard
+            label="Total Available Jobs"
+            value={jobs.length}
+            icon={Briefcase}
+            colorScheme="amber"
+            className="z-40 h-full"
+          />
 
-                {/* Job Type Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Job Type</h4>
-                  <div className="space-y-2">
-                    {['Full-time', 'Part-time', 'Contract', 'Internship'].map(type => (
-                      <label key={type} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.jobType.includes(type)}
-                          onChange={() => toggleFilter('jobType', type)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+          <StatsCard
+            label="Saved Jobs"
+            value={bookmarks.length}
+            icon={BookmarkIcon}
+            colorScheme="purple"
+            className="z-40 h-full"
+          />
 
-                {/* Salary Range Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Salary Range (LPA)</h4>
-                  <div className="space-y-2">
-                    {[
-                      { value: '0-5', label: '0-5 LPA' },
-                      { value: '5-10', label: '5-10 LPA' },
-                      { value: '10-15', label: '10-15 LPA' },
-                      { value: '15-25', label: '15-25 LPA' },
-                      { value: '25+', label: '25+ LPA' }
-                    ].map(range => (
-                      <label key={range.value} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.salaryRange.includes(range.value)}
-                          onChange={() => toggleFilter('salaryRange', range.value)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{range.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+          <StatsCard
+            label="My Applications"
+            value={myApplications.length}
+            icon={FileText}
+            colorScheme="blue"
+            className="z-40 h-full"
+          />
 
-                {/* Save Filters Button */}
-                <button className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
-                  <BookmarkIcon className="h-4 w-4" />
-                  Save Filters
+          <StatsCard
+            label="New This Week"
+            value={jobs.filter(job => {
+              if (!job.posted_at) return false;
+              const postedDate = new Date(job.posted_at);
+              const oneWeekAgo = new Date();
+              oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+              return postedDate >= oneWeekAgo;
+            }).length}
+            icon={TrendingUp}
+            colorScheme="green"
+            className="z-40 h-full"
+          />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar - Hidden by default on large screens */}
+          <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden'}`}>
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  Clear All Filters
                 </button>
               </div>
+
+              {/* Location Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Location</h4>
+                <div className="space-y-2">
+                  {['Remote', 'Hybrid', 'Onsite'].map(location => (
+                    <label key={location} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.location.includes(location)}
+                        onChange={() => toggleFilter('location', location)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{location}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience Level Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Experience Level</h4>
+                <div className="space-y-2">
+                  {['Fresher', '0-2 yrs', '2-5 yrs', '5+ yrs'].map(level => (
+                    <label key={level} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.experienceLevel.includes(level)}
+                        onChange={() => toggleFilter('experienceLevel', level)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{level}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Job Type Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Job Type</h4>
+                <div className="space-y-2">
+                  {['Full-time', 'Part-time', 'Contract', 'Internship'].map(type => (
+                    <label key={type} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.jobType.includes(type)}
+                        onChange={() => toggleFilter('jobType', type)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{type}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Salary Range Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Salary Range (LPA)</h4>
+                <div className="space-y-2">
+                  {[
+                    { value: '0-5', label: '0-5 LPA' },
+                    { value: '5-10', label: '5-10 LPA' },
+                    { value: '10-15', label: '10-15 LPA' },
+                    { value: '15-25', label: '15-25 LPA' },
+                    { value: '25+', label: '25+ LPA' }
+                  ].map(range => (
+                    <label key={range.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.salaryRange.includes(range.value)}
+                        onChange={() => toggleFilter('salaryRange', range.value)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{range.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Save Filters Button */}
+              <button className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <BookmarkIcon className="h-4 w-4" />
+                Save Filters
+              </button>
             </div>
+          </div>
 
-            {/* Main Content */}
-            <div className="flex-1">
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="flex items-center justify-between mb-6">
-                  <TabsList className="inline-flex w-auto gap-1">
-                    <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
-                    <TabsTrigger value="bookmarks" className="px-5">Bookmarks ({bookmarks.length})</TabsTrigger>
-                    <TabsTrigger value="applications" className="px-5">Applications ({myApplications.length})</TabsTrigger>
-                  </TabsList>
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex items-center justify-between mb-6">
+                <TabsList className="inline-flex w-auto gap-1">
+                  <TabsTrigger value="all" className="px-5">All Jobs</TabsTrigger>
+                  <TabsTrigger value="bookmarks" className="px-5">Bookmarks ({bookmarks.length})</TabsTrigger>
+                  <TabsTrigger value="applications" className="px-5">Applications ({myApplications.length})</TabsTrigger>
+                </TabsList>
 
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
-                  >
-                    <Filter className="h-4 w-4" />
-                    {showFilters ? 'Hide Filters' : 'Show Filters'}
-                  </button>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
+                >
+                  <Filter className="h-4 w-4" />
+                  {showFilters ? 'Hide Filters' : 'Show Filters'}
+                </button>
+              </div>
+
+              {/* All Jobs Tab */}
+              <TabsContent value="all" className="space-y-4">
+                <div className="flex flex-col gap-4">
+                  {currentJobs.map((job) => {
+                    const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
+                    const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
+                    const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
+
+                    return (
+                      <div key={job.id} className="relative">
+                        {/* Bookmarked indicator for recently bookmarked jobs */}
+                        {isBookmarked && (
+                          <div className="absolute top-4 right-4 z-10">
+                            <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
+                              <BookmarkIcon className="h-3 w-3 fill-current" />
+                              Saved
+                            </div>
+                          </div>
+                        )}
+                        <JobCard
+                          job={job}
+                          isBookmarked={isBookmarked}
+                          isApplied={isApplied}
+                          onBookmark={handleBookmarkJob}
+                          onApply={handleApplyClick}
+                          bookmarkLoading={bookmarkLoading.has(job.id)}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
 
-                {/* All Jobs Tab */}
-                <TabsContent value="all" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {currentJobs.map((job) => {
-                      const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
-                      const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
-                      const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
-
-                      return (
-                        <div key={job.id} className="relative">
-                          {/* Bookmarked indicator for recently bookmarked jobs */}
-                          {isBookmarked && (
-                            <div className="absolute top-4 right-4 z-10">
-                              <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
-                                <BookmarkIcon className="h-3 w-3 fill-current" />
-                                Saved
-                              </div>
-                            </div>
-                          )}
-                          <JobCard
-                            job={job}
-                            isBookmarked={isBookmarked}
-                            isApplied={isApplied}
-                            onBookmark={handleBookmarkJob}
-                            onApply={handleApplyClick}
-                            bookmarkLoading={bookmarkLoading.has(job.id)}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Premium Pagination Controls */}
-                  {filteredJobs.length > jobsPerPage && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 py-6 border-t border-gray-100">
-                      <div className="text-sm text-gray-500 font-medium order-2 sm:order-1">
-                        Showing <span className="text-gray-900">{indexOfFirstJob + 1}</span> to <span className="text-gray-900">{Math.min(indexOfLastJob, filteredJobs.length)}</span> of <span className="text-gray-900">{filteredJobs.length}</span> jobs
-                      </div>
-
-                      <div className="flex items-center gap-1 order-1 sm:order-2">
-                        <Button
-                          variant="ghost"
-                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                          disabled={currentPage === 1}
-                          className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-
-                        {/* Page Numbers */}
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                          // Shorthand for simple pagination
-                          const isNear = pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
-                          const isEnds = pageNum === 1 || pageNum === totalPages;
-
-                          if (totalPages <= 7 || isNear || isEnds) {
-                            return (
-                              <Button
-                                key={pageNum}
-                                variant={currentPage === pageNum ? "default" : "ghost"}
-                                onClick={() => setCurrentPage(pageNum)}
-                                className={`h-9 w-9 p-0 rounded-xl transition-all duration-200 font-semibold ${currentPage === pageNum
-                                  ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
-                                  : "text-gray-600 hover:bg-white hover:shadow-sm"
-                                  }`}
-                              >
-                                {pageNum}
-                              </Button>
-                            );
-                          } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                            return <span key={pageNum} className="text-gray-400 px-1 select-none">...</span>;
-                          }
-                          return null;
-                        })}
-
-                        <Button
-                          variant="ghost"
-                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                          disabled={currentPage === totalPages}
-                          className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {/* Premium Pagination Controls */}
+                {filteredJobs.length > jobsPerPage && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 py-6 border-t border-gray-100">
+                    <div className="text-sm text-gray-500 font-medium order-2 sm:order-1">
+                      Showing <span className="text-gray-900">{indexOfFirstJob + 1}</span> to <span className="text-gray-900">{Math.min(indexOfLastJob, filteredJobs.length)}</span> of <span className="text-gray-900">{filteredJobs.length}</span> jobs
                     </div>
-                  )}
-                  {filteredJobs.length === 0 && !loading && (
-                    <EmptyState
-                      title="No jobs found"
-                      description="Try adjusting your search criteria or filters to find more opportunities."
-                      actionText="Clear Filters"
-                      onAction={clearAllFilters}
-                    />
-                  )}
-                </TabsContent>
 
-                {/* Bookmarks Tab */}
-                <TabsContent value="bookmarks" className="space-y-4">
+                    <div className="flex items-center gap-1 order-1 sm:order-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+
+                      {/* Page Numbers */}
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                        // Shorthand for simple pagination
+                        const isNear = pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
+                        const isEnds = pageNum === 1 || pageNum === totalPages;
+
+                        if (totalPages <= 7 || isNear || isEnds) {
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={currentPage === pageNum ? "default" : "ghost"}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`h-9 w-9 p-0 rounded-xl transition-all duration-200 font-semibold ${currentPage === pageNum
+                                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
+                                : "text-gray-600 hover:bg-white hover:shadow-sm"
+                                }`}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                          return <span key={pageNum} className="text-gray-400 px-1 select-none">...</span>;
+                        }
+                        return null;
+                      })}
+
+                      <Button
+                        variant="ghost"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {filteredJobs.length === 0 && !loading && (
+                  <EmptyState
+                    title="No jobs found"
+                    description="Try adjusting your search criteria or filters to find more opportunities."
+                    actionText="Clear Filters"
+                    onAction={clearAllFilters}
+                  />
+                )}
+              </TabsContent>
+
+              {/* Bookmarks Tab */}
+              <TabsContent value="bookmarks" className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {bookmarks.map((application) => (
                     <div key={application.id} className="relative">
                       {/* Bookmarked indicator */}
@@ -448,35 +507,37 @@ const Jobs = () => {
                       />
                     </div>
                   ))}
-                  {bookmarks.length === 0 && (
-                    <EmptyState
-                      title="No bookmarked jobs"
-                      description="Start bookmarking jobs you're interested in to see them here."
-                      actionText="Browse Jobs"
-                      onAction={() => setActiveTab('all')}
-                    />
-                  )}
-                </TabsContent>
+                </div>
+                {bookmarks.length === 0 && (
+                  <EmptyState
+                    title="No bookmarked jobs"
+                    description="Start bookmarking jobs you're interested in to see them here."
+                    actionText="Browse Jobs"
+                    onAction={() => setActiveTab('all')}
+                  />
+                )}
+              </TabsContent>
 
-                {/* Applications Tab */}
-                <TabsContent value="applications" className="space-y-4">
+              {/* Applications Tab */}
+              <TabsContent value="applications" className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {myApplications.map((application) => (
                     <ApplicationCard
                       key={application.id}
                       application={application}
                     />
                   ))}
-                  {myApplications.length === 0 && (
-                    <EmptyState
-                      title="No applications yet"
-                      description="Start applying to jobs to track your applications here."
-                      actionText="Browse Jobs"
-                      onAction={() => setActiveTab('all')}
-                    />
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
+                </div>
+                {myApplications.length === 0 && (
+                  <EmptyState
+                    title="No applications yet"
+                    description="Start applying to jobs to track your applications here."
+                    actionText="Browse Jobs"
+                    onAction={() => setActiveTab('all')}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
@@ -489,7 +550,7 @@ const Jobs = () => {
         onSubmit={handleApplySubmit}
       />
       {/* <Footer /> */}
-    </div>
+    </div >
   );
 };
 

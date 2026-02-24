@@ -4,8 +4,7 @@ import { Plus, Pencil, Trash, Filter, Settings, FileText, Building2, Users, X, B
 import { jobService, Job, Company } from "../../services/jobService";
 import { jobApplicationService } from "../../services/jobApplicationService";
 
-import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import DashboardLayout from "../../components/common/DashboardLayout";
 import QuestionBank from "../../components/common/QuestionBank";
 import SearchBar from "../../components/common/SearchBar";
 import { fetchQuestionById } from "../../services/questionService";
@@ -473,18 +472,12 @@ const Jobs: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-
-        <div className="flex-1">
-          <RoleHeader
-            title="Job Management Dashboard"
-            subtitle="Manage your job recruitment pipeline"
-            actions={headerActions}
-          />
-
-          <div className="px-6 py-6">
+    <DashboardLayout
+      title="Job Management Dashboard"
+      subtitle="Manage your job recruitment pipeline"
+      actions={headerActions}
+    >
+      <div className="px-6 py-6">
             {!showJobForm && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -1198,8 +1191,7 @@ const Jobs: React.FC = () => {
             )}
 
 
-          </div>
-        </div>
+      </div>
         {showJobDetails && selectedJob && (
           <JobDetailsViewer
             job={selectedJob}
@@ -1214,9 +1206,7 @@ const Jobs: React.FC = () => {
             }
           />
         )}
-
-      </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
