@@ -397,10 +397,13 @@ const SkillTest: React.FC = () => {
   const handleBeginTest = async (screenStream?: MediaStream) => {
     if (!selectedTest) return;
 
+<<<<<<< HEAD
     if (screenStream) {
       setActiveScreenStream(screenStream);
     }
 
+=======
+>>>>>>> 95977cf (Fixed basic proctoring issues)
     // Request fullscreen synchronously before any async operations
     if (selectedTest.enable_proctoring && document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(e => {

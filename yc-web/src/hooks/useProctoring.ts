@@ -164,13 +164,8 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
         }, 3000);
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
-        
-        return () => {
-            clearTimeout(initialCheckTimeout);
-            clearInterval(enforcementInterval);
-            document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        };
-    }, [logActivity, onViolation, enabled]);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, [logActivity, onViolation]);
 
     // 5. Keyboard Shortcut Detection
     useEffect(() => {

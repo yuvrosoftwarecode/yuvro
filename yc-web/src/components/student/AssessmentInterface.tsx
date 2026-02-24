@@ -136,29 +136,12 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         handleSubmitAssessment();
       }, 2000);
     } else if (type === 'fullscreen_exit') {
-      setShowFullscreenDialog(true);
-    } else if (type === 'screen_share_stopped') {
-      toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
+      toast.error("Fullscreen exited. Assessment will be aborted for violation.");
       setTimeout(() => {
         handleSubmitAssessment();
       }, 2000);
     }
   }, []);
-
-  useEffect(() => {
-    if (assessment.proctoring_enabled && screenStream) {
-      const videoTrack = screenStream.getVideoTracks()[0];
-      if (videoTrack) {
-        const handleEnded = () => {
-          handleProctoringViolation('screen_share_stopped');
-        };
-        videoTrack.addEventListener('ended', handleEnded);
-        return () => {
-          videoTrack.removeEventListener('ended', handleEnded);
-        };
-      }
-    }
-  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
 
   useEffect(() => {
     if (assessment.proctoring_enabled) {
@@ -191,7 +174,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     }
   }, [assessment.proctoring_enabled]);
 
-  const { logActivity } = useProctoring({
+  useProctoring({
     assessmentId: assessment.id,
     assessmentType: assessmentType,
     enabled: assessment.proctoring_enabled ?? true,
