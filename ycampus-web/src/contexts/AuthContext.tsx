@@ -94,6 +94,9 @@ const getInitialState = (): AuthState => {
   const accessToken = localStorage.getItem('access');
   const storedUser = localStorage.getItem('user');
 
+  // Robust check for token validity
+  const isValidToken = accessToken && accessToken !== 'undefined' && accessToken !== 'null';
+
   let user = null;
   if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
     try {
@@ -104,7 +107,7 @@ const getInitialState = (): AuthState => {
     }
   }
 
-  if (accessToken) {
+  if (isValidToken) {
     return {
       user,
       token: accessToken,
@@ -131,13 +134,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (state.isAuthenticated && state.token) {
-      localStorage.setItem('access', state.token);
+      const currentStorageToken = localStorage.getItem('access');
+      // ONLY set if it's different to avoid triggering unnecessary cycles 
+      // AND ensure we don't overwrite a potentially fresher token from another tab/process
+      if (currentStorageToken !== state.token) {
+        localStorage.setItem('access', state.token);
+      }
       authService.setAuthToken(state.token);
-    } else {
+    } else if (!state.isAuthenticated && !state.isLoading) {
+      // Only clear if we are explicitly not authenticated and NOT just loading
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
     }
-  }, [state.isAuthenticated, state.token]);
+  }, [state.isAuthenticated, state.token, state.isLoading]);
 
   useEffect(() => {
     const accessToken = localStorage.getItem('access');
@@ -148,11 +157,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       authService.getCurrentUser()
         .then((user) => {
+          // If we got a user, the session is active. 
+          // Use the latest token from authService (which might have refreshed)
           const currentToken = authService.getAuthToken() || accessToken;
           dispatch({
             type: 'LOGIN_SUCCESS',
             payload: { user, token: currentToken }
           });
+          localStorage.setItem('user', JSON.stringify(user));
         })
         .catch((error) => {
           console.error('Failed to get current user:', error);
