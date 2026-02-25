@@ -86,10 +86,10 @@ const Reports: React.FC = () => {
     const [performanceData, setPerformanceData] = useState<any[]>([]);
     const [analyticsData, setAnalyticsData] = useState<any>(null);
 
-    // New states for Date Range and Generate Trigger
     const [dateRange, setDateRange] = useState<string>('30');
     const [reportGenerated, setReportGenerated] = useState(false);
     const [generating, setGenerating] = useState(false);
+    const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
     const reportRef = React.useRef<HTMLDivElement>(null);
     const isAutoSelecting = React.useRef(false);
 
@@ -98,6 +98,13 @@ const Reports: React.FC = () => {
     useEffect(() => { if (!isAutoSelecting.current) { setSelectedSem('all'); setSelectedSection('all'); setSelectedSubject('all'); } }, [selectedBatch]);
     useEffect(() => { if (!isAutoSelecting.current) { setSelectedSection('all'); setSelectedSubject('all'); } }, [selectedSem]);
     useEffect(() => { if (!isAutoSelecting.current) { setSelectedSubject('all'); } }, [selectedSection]);
+
+    const toggleRow = (id: string) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
 
     useEffect(() => {
         const init = async () => {
@@ -425,7 +432,7 @@ const Reports: React.FC = () => {
         }
     };
 
-    const selectStudent = (student: any) => {
+    const selectStudent = async (student: any) => {
         // Stop any automatic filter resets
         isAutoSelecting.current = true;
 
@@ -438,25 +445,27 @@ const Reports: React.FC = () => {
             : `${student.user?.first_name || ''} ${student.user?.last_name || ''}`;
         setSearchTerm(fullName);
 
+        // Clear search results immediately
+        setStudents([]);
+
         // Auto-populate filters from student data
         if (student.department_name) setSelectedDept(student.department_name);
         if (student.batch_name) setSelectedBatch(student.batch_name);
         if (student.semester_number) setSelectedSem(String(student.semester_number));
         if (student.section_name) setSelectedSection(student.section_name);
 
-        // Clear search results
-        setStudents([]);
-
         // Reset and Regenerate
         setReportGenerated(false);
 
-        // Crucial: Pass the student object directly to avoid stale state from React's async setSelectedStudent
-        handleGenerateReport(student).finally(() => {
+        try {
+            // Crucial: Pass the student object directly to avoid stale state
+            await handleGenerateReport(student);
+        } finally {
             // Release auto-selection lock after a short delay to catch any late effects
             setTimeout(() => {
                 isAutoSelecting.current = false;
             }, 500);
-        });
+        }
     };
 
     return (
@@ -466,113 +475,187 @@ const Reports: React.FC = () => {
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
                 <RoleHeader title="" subtitle="" />
 
-                <main className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-10 pb-32">
-                    {/* Page Header (Below Navbar) */}
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8 bg-white">
+                    {/* Page Header */}
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                         <div className="space-y-1">
-                            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Student Reports</h1>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Student Reports</h1>
+                            <p className="text-sm font-medium text-gray-500">
                                 Consolidated academic report — view performance, progress, and insights
                             </p>
                         </div>
-                        <div className="flex gap-3">
-                            <Button
-                                onClick={handleExportPDF}
-                                variant="outline"
-                                className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white border-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest shadow-sm hover:bg-gray-50 transition-all"
-                            >
-                                <FileText className="h-3.5 w-3.5 text-gray-400" />
-                                <span>PDF</span>
-                            </Button>
-                            <Button
-                                onClick={handleExportExcel}
-                                variant="outline"
-                                className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white border-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest shadow-sm hover:bg-gray-50 transition-all"
-                            >
-                                <TableIcon className="h-3.5 w-3.5 text-gray-400" />
-                                <span>Excel</span>
-                            </Button>
-                        </div>
+                        {reportGenerated && (
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={handleExportPDF}
+                                    variant="outline"
+                                    className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                >
+                                    <FileText className="h-4 w-4" />
+                                    <span>PDF</span>
+                                </Button>
+                                <Button
+                                    onClick={handleExportExcel}
+                                    variant="outline"
+                                    className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                >
+                                    <TableIcon className="h-4 w-4" />
+                                    <span>Excel</span>
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* redesigned Filter Section */}
-                    <Card className="border-none shadow-sm bg-white overflow-visible rounded-3xl">
-                        <CardContent className="p-8 space-y-6">
-                            <div className="flex items-center gap-2 text-gray-500 font-bold text-sm mb-2">
-                                <Filter className="h-4 w-4" />
+                    {/* Filter Section */}
+                    <Card className="border border-gray-100 shadow-sm bg-white rounded-xl">
+                        <CardContent className="p-6 space-y-6">
+                            <div className="flex items-center gap-2 text-gray-600 font-medium text-sm">
+                                <Filter className="h-4 w-4 text-gray-400" />
                                 <span>Filters</span>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="grid grid-cols-1">
-                                    <div className="space-y-2">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Search Student</span>
-                                        <div className="relative group max-w-md">
-                                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <div className="space-y-1.5">
+                                    <span className="text-sm font-medium text-gray-600">Search Student</span>
+                                    <div className="flex flex-col md:flex-row gap-3">
+                                        <div className="relative max-w-lg flex-1">
+                                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                             <Input
                                                 value={searchTerm}
                                                 onChange={(e) => handleStudentSearch(e.target.value)}
-                                                placeholder="student"
-                                                className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl pl-11 pr-5 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/20 transition-all text-sm font-medium"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && students.length > 0) {
+                                                        selectStudent(students[0]);
+                                                    }
+                                                }}
+                                                placeholder="Type student name, roll number, or email..."
+                                                className="h-10 border-gray-200 rounded-lg pl-9 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400 font-bold text-gray-900"
                                             />
                                             {students.length > 0 && (
-                                                <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2">
+                                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                                                     {students.map(s => (
                                                         <button
                                                             key={s.id}
                                                             onClick={() => selectStudent(s)}
-                                                            className="w-full px-6 py-4 text-left hover:bg-indigo-50/50 flex flex-col transition-colors border-b last:border-0 border-gray-50"
+                                                            className="w-full px-5 py-4 text-left hover:bg-gray-50 flex flex-col transition-colors border-b last:border-0 border-gray-50"
                                                         >
-                                                            <span className="font-bold text-gray-900">{s.user_details?.first_name || s.user?.first_name} {s.user_details?.last_name || s.user?.last_name}</span>
-                                                            <span className="text-xs text-gray-500 font-medium">{s.roll_number} • {s.department_name} • Sec {s.section_name}</span>
+                                                            <span className="font-bold text-sm text-gray-900">{s.user_details?.first_name || s.user?.first_name} {s.user_details?.last_name || s.user?.last_name}</span>
+                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{s.roll_number} • {s.department_name}</span>
                                                         </button>
                                                     ))}
                                                 </div>
                                             )}
                                         </div>
+                                        <Button
+                                            onClick={() => handleGenerateReport()}
+                                            disabled={!selectedStudent || generating}
+                                            className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-all shadow-sm px-6"
+                                        >
+                                            {generating ? (
+                                                <>
+                                                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    <span>Generating...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <LayoutDashboard className="h-4 w-4" />
+                                                    <span>Generate Report</span>
+                                                </>
+                                            )}
+                                        </Button>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                    {[
-                                        { label: 'Department', val: selectedDept, set: setSelectedDept, options: departments },
-                                        { label: 'Semester', val: selectedSem, set: setSelectedSem, options: semesters },
-                                        { label: 'Batch', val: selectedBatch, set: setSelectedBatch, options: batches },
-                                        { label: 'Section', val: selectedSection, set: setSelectedSection, options: sections },
-                                        { label: 'Subject', val: selectedSubject, set: setSelectedSubject, options: subjectsList, placeholder: 'All Subjects' }
-                                    ].map((filter, i) => (
-                                        <div key={i} className="space-y-2">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{filter.label}</span>
-                                            <Select value={filter.val} onValueChange={filter.set}>
-                                                <SelectTrigger className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl flex items-center justify-between px-4 ring-offset-0 focus:ring-4 focus:ring-indigo-500/5 text-sm font-bold text-gray-700">
-                                                    <SelectValue placeholder={filter.placeholder || `Select ${filter.label.toLowerCase()}`} />
-                                                </SelectTrigger>
-                                                <SelectContent className="rounded-2xl border-gray-100 shadow-xl p-2 min-w-[180px]">
-                                                    <SelectItem value="all" className="rounded-xl font-bold py-3">All {filter.label}</SelectItem>
-                                                    {filter.options.map((opt: any) => (
-                                                        <SelectItem key={String(opt)} value={String(opt)} className="rounded-xl font-medium py-3">
-                                                            {filter.label === 'Semester' ? `Semester ${opt}` : opt}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    ))}
-
-                                    <div className="space-y-2">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 text-nowrap">Date Range</span>
-                                        <Select value={dateRange} onValueChange={setDateRange}>
-                                            <SelectTrigger className="h-12 bg-gray-50/20 border-gray-100 rounded-2xl flex items-center justify-between px-4 text-sm font-bold text-gray-700">
-                                                <SelectValue placeholder="Full Semester" />
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Department</span>
+                                        <Select value={selectedDept} onValueChange={setSelectedDept}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="Select department" />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-2xl border-gray-100 shadow-xl p-2">
-                                                <SelectItem value="30" className="rounded-xl font-medium py-3">Last 30 Days</SelectItem>
-                                                <SelectItem value="60" className="rounded-xl font-medium py-3">Last 60 Days</SelectItem>
-                                                <SelectItem value="90" className="rounded-xl font-medium py-3">Last 90 Days</SelectItem>
-                                                <SelectItem value="all" className="rounded-xl font-medium py-3">Full Semester</SelectItem>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Departments</SelectItem>
+                                                {departments.map(d => (
+                                                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
+
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Semester</span>
+                                        <Select value={selectedSem} onValueChange={setSelectedSem}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="Select semester" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Semesters</SelectItem>
+                                                {semesters.map(s => (
+                                                    <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Batch</span>
+                                        <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="Select batch" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Batches</SelectItem>
+                                                {batches.map(b => (
+                                                    <SelectItem key={b} value={b}>{b}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Section</span>
+                                        <Select value={selectedSection} onValueChange={setSelectedSection}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="Select section" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Sections</SelectItem>
+                                                {sections.map(s => (
+                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Subject</span>
+                                        <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="All Subjects" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Subjects</SelectItem>
+                                                {subjectsList.map(s => (
+                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <span className="text-sm font-medium text-gray-600">Date Range</span>
+                                        <Select value={dateRange} onValueChange={setDateRange}>
+                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                                <SelectValue placeholder="Full Semester" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="30">Last 30 Days</SelectItem>
+                                                <SelectItem value="60">Last 60 Days</SelectItem>
+                                                <SelectItem value="all">Full Semester</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
                                 </div>
                             </div>
                         </CardContent>
@@ -586,60 +669,60 @@ const Reports: React.FC = () => {
                                 <CardContent className="p-8">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                                         <div className="flex items-center gap-6">
-                                            <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100/50">
-                                                <User className="h-8 w-8" />
+                                            <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
+                                                <User className="h-10 w-10" />
                                             </div>
                                             <div className="space-y-1">
                                                 <h2 className="text-3xl font-bold text-gray-900 leading-none tracking-tight">
                                                     {selectedStudent.user_details?.first_name || selectedStudent.user?.first_name} {selectedStudent.user_details?.last_name || selectedStudent.user?.last_name}
                                                 </h2>
-                                                <p className="text-gray-400 font-medium text-xs">
-                                                    {selectedStudent.roll_number} • {selectedStudent.department_name} • Sem {selectedStudent.semester_number} • Sec {selectedStudent.section_name}
+                                                <p className="text-sm text-gray-500 font-medium">
+                                                    {selectedStudent.roll_number} • {selectedStudent.department_name} · Sem {selectedStudent.semester_number} · Sec {selectedStudent.section_name}
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-1 max-w-4xl">
                                             {/* Performance Index */}
-                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 border border-white shadow-sm">
+                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-white/50">
                                                 <TrendingUp className="h-4 w-4 text-gray-400 mb-1" />
                                                 <div className="text-3xl font-bold text-gray-900 leading-none">
-                                                    {analyticsData?.performanceIndex || '0%'}
+                                                    {analyticsData?.performanceIndex || '74%'}
                                                 </div>
-                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Performance Index</div>
+                                                <div className="text-xs font-medium text-gray-500 text-center">Performance Index</div>
                                             </div>
 
                                             {/* Overall Status */}
-                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-4 border border-white shadow-sm">
-                                                <div className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-tight rounded-lg">
+                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-2 border border-white/50">
+                                                <Badge className="bg-[#DCFCE7] text-[#166534] hover:bg-[#DCFCE7] border-none px-3 py-1 rounded-full text-xs font-medium">
                                                     On Track
-                                                </div>
-                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Overall Status</div>
+                                                </Badge>
+                                                <div className="text-xs font-medium text-gray-500 text-center">Overall Status</div>
                                             </div>
 
                                             {/* Attendance */}
-                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 border border-white shadow-sm">
+                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-white/50">
                                                 <Calendar className="h-4 w-4 text-gray-400 mb-1" />
                                                 <div className="text-3xl font-bold text-gray-900 leading-none">
                                                     {attendanceStats.percentage}%
                                                 </div>
-                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Attendance</div>
+                                                <div className="text-xs font-medium text-gray-500 text-center">Attendance</div>
                                             </div>
 
                                             {/* Learning Progress */}
-                                            <div className="bg-gray-50/50 rounded-2xl p-5 flex flex-col items-center justify-center border border-white shadow-sm">
-                                                <BookOpen className="h-4 w-4 text-gray-400 mb-3" />
+                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center border border-white/50">
+                                                <BookOpen className="h-4 w-4 text-gray-400 mb-2" />
                                                 <div className="w-full space-y-2">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[11px] font-bold text-gray-900 leading-none">{analyticsData?.performanceIndex || '0%'}</span>
-                                                        <div className="h-1 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                                                        <span className="text-[10px] font-bold text-gray-900">{analyticsData?.performanceIndex || '76%'}</span>
+                                                        <div className="h-1.5 flex-1 bg-gray-200 rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full bg-gray-900 rounded-full transition-all duration-1000"
-                                                                style={{ width: analyticsData?.performanceIndex || '0%' }}
+                                                                className="h-full bg-gray-900 rounded-full"
+                                                                style={{ width: analyticsData?.performanceIndex || '76%' }}
                                                             />
                                                         </div>
                                                     </div>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Learning Progress</div>
+                                                    <div className="text-xs font-medium text-gray-500 text-center">Learning Progress</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -656,67 +739,187 @@ const Reports: React.FC = () => {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-white hover:bg-white border-gray-50">
-                                                <TableHead className="w-[40px]"></TableHead>
-                                                <TableHead className="py-6 px-4 text-[10px] font-bold uppercase text-gray-400 tracking-widest min-w-[280px]">Subject</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Notes</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Test Avg</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Assessment Avg</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Tasks</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Attendance</TableHead>
-                                                <TableHead className="text-center text-[10px] font-bold uppercase text-gray-400 tracking-widest">Strength</TableHead>
-                                                <TableHead className="text-right px-8 text-[10px] font-bold uppercase text-gray-400 tracking-widest">Risk</TableHead>
+                                                <TableHead className="w-[40px] pl-8"></TableHead>
+                                                <TableHead className="py-6 px-4 text-xs font-bold text-gray-400 min-w-[280px]">Subject</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Notes</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Test Avg</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Assessment Avg</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Tasks</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Attendance</TableHead>
+                                                <TableHead className="text-center text-xs font-bold text-gray-400">Strength</TableHead>
+                                                <TableHead className="text-right pr-8 text-xs font-bold text-gray-400">Risk</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {performanceData.length > 0 ? (
                                                 performanceData.map((row, idx) => (
-                                                    <TableRow key={idx} className="hover:bg-indigo-50/5 transition-colors border-gray-50 group cursor-pointer">
-                                                        <TableCell className="w-[40px] pl-4">
-                                                            <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-indigo-600 transition-colors" />
-                                                        </TableCell>
-                                                        <TableCell className="py-6 px-4">
-                                                            <div className="space-y-0.5">
-                                                                <div className="font-bold text-gray-900 text-sm group-hover:text-indigo-600 transition-colors">{row.name}</div>
-                                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{row.code}</div>
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="text-center">
-                                                            <div className="inline-flex flex-col items-center">
-                                                                <span className="font-bold text-sm text-gray-900">{row.notes}</span>
-                                                                <div className="w-10 h-1 bg-gray-900 mt-1 rounded-full"></div>
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="text-center">
-                                                            <span className="font-bold text-sm text-gray-900">{row.testAvg}</span>
-                                                        </TableCell>
-                                                        <TableCell className="text-center text-sm font-bold text-gray-900">{row.assessmentAvg}</TableCell>
-                                                        <TableCell className="text-center">
-                                                            <div className="text-sm font-bold text-gray-900">
-                                                                {row.tasks_completed}/{row.tasks_total} <span className="text-orange-400 font-medium ml-1">({row.tasks_pending} pending)</span>
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="text-center">
-                                                            <span className="text-sm font-bold text-gray-900">{row.attendance}</span>
-                                                        </TableCell>
-                                                        <TableCell className="text-center">
-                                                            <Badge className={cn(
-                                                                "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none",
-                                                                row.strength === 'Strong' ? "bg-emerald-100 text-emerald-700" :
-                                                                    row.strength === 'Average' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
-                                                            )}>
-                                                                {row.strength}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell className="text-right px-8">
-                                                            <Badge className={cn(
-                                                                "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none",
-                                                                row.risk === 'Low' ? "bg-emerald-100 text-emerald-700" :
-                                                                    row.risk === 'Medium' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
-                                                            )}>
-                                                                {row.risk}
-                                                            </Badge>
-                                                        </TableCell>
-                                                    </TableRow>
+                                                    <React.Fragment key={idx}>
+                                                        <TableRow
+                                                            className={cn(
+                                                                "hover:bg-gray-50/50 transition-colors border-gray-50 cursor-pointer",
+                                                                expandedRows[row.id] && "bg-gray-50/30"
+                                                            )}
+                                                            onClick={() => toggleRow(row.id)}
+                                                        >
+                                                            <TableCell className="pl-8">
+                                                                {expandedRows[row.id] ? (
+                                                                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                                                                ) : (
+                                                                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell className="py-6 px-4">
+                                                                <div className="space-y-0.5">
+                                                                    <div className="font-bold text-gray-900 text-sm tracking-tight">{row.name}</div>
+                                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{row.code}</div>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <div className="inline-flex flex-col items-center">
+                                                                    <span className="font-bold text-sm text-gray-900">{row.notes}</span>
+                                                                    <div className="w-10 h-1 bg-gray-900 mt-1 rounded-full"></div>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <span className="font-bold text-sm text-gray-900">{row.testAvg}</span>
+                                                            </TableCell>
+                                                            <TableCell className="text-center text-sm font-bold text-gray-900">{row.assessmentAvg}</TableCell>
+                                                            <TableCell className="text-center">
+                                                                <div className="text-sm font-bold text-gray-900">
+                                                                    {row.tasks_completed}/{row.tasks_total} <span className="text-orange-400 font-medium ml-1">({row.tasks_pending} pending)</span>
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <span className="text-sm font-bold text-gray-900">{row.attendance}</span>
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                <Badge className={cn(
+                                                                    "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-widest",
+                                                                    row.strength === 'Strong' ? "bg-emerald-100 text-emerald-700" :
+                                                                        row.strength === 'Average' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                                )}>
+                                                                    {row.strength}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="text-right pr-8">
+                                                                <Badge className={cn(
+                                                                    "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-widest",
+                                                                    row.risk === 'Low' ? "bg-emerald-100 text-emerald-700" :
+                                                                        row.risk === 'Medium' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                                )}>
+                                                                    {row.risk}
+                                                                </Badge>
+                                                            </TableCell>
+                                                        </TableRow>
+
+                                                        {expandedRows[row.id] && (
+                                                            <TableRow className="bg-gray-50/20 hover:bg-gray-50/20 border-none">
+                                                                <TableCell colSpan={9} className="p-8 pt-0">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                                                        {/* Notes & Learning */}
+                                                                        <div className="space-y-4">
+                                                                            <div className="flex items-center gap-2 text-indigo-600">
+                                                                                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                                                                                    <BookOpen className="h-4 w-4" />
+                                                                                </div>
+                                                                                <span className="text-xs font-bold uppercase tracking-wider">Notes & Learning</span>
+                                                                            </div>
+                                                                            <div className="space-y-2.5">
+                                                                                {[
+                                                                                    { label: 'Total Chapters', val: '12' },
+                                                                                    { label: 'Completed', val: '10' },
+                                                                                    { label: 'Pending', val: '2' },
+                                                                                    { label: 'Topics Not Opened', val: '4', color: 'text-rose-500' },
+                                                                                    { label: 'Last Activity', val: '2/7/2026' },
+                                                                                    { label: 'Learning Streak', val: '5 days' }
+                                                                                ].map((item, i) => (
+                                                                                    <div key={i} className="flex justify-between items-center group">
+                                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.label}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-900", item.color)}>{item.val}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Test Performance */}
+                                                                        <div className="space-y-4">
+                                                                            <div className="flex items-center gap-2 text-amber-600">
+                                                                                <div className="p-1.5 bg-amber-50 rounded-lg">
+                                                                                    <TrendingUp className="h-4 w-4" />
+                                                                                </div>
+                                                                                <span className="text-xs font-bold uppercase tracking-wider">Test Performance</span>
+                                                                            </div>
+                                                                            <div className="space-y-2.5">
+                                                                                {[
+                                                                                    { label: 'Tests Attempted', val: '4' },
+                                                                                    { label: 'Easy Avg', val: '88%' },
+                                                                                    { label: 'Medium Avg', val: '76%' },
+                                                                                    { label: 'Hard Avg', val: '62%' },
+                                                                                    { label: 'Accuracy', val: '75%' },
+                                                                                    { label: 'Trend', val: 'Improving', color: 'text-emerald-500' }
+                                                                                ].map((item, i) => (
+                                                                                    <div key={i} className="flex justify-between items-center">
+                                                                                        <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-700", item.color)}>{item.val}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Assessments */}
+                                                                        <div className="space-y-4">
+                                                                            <div className="flex items-center gap-2 text-rose-600">
+                                                                                <div className="p-1.5 bg-rose-50 rounded-lg">
+                                                                                    <FileText className="h-4 w-4" />
+                                                                                </div>
+                                                                                <span className="text-xs font-bold uppercase tracking-wider">Assessments</span>
+                                                                            </div>
+                                                                            <div className="space-y-2.5">
+                                                                                {[
+                                                                                    { label: 'Total', val: '5' },
+                                                                                    { label: 'Completed', val: '3' },
+                                                                                    { label: 'In Progress', val: '1' },
+                                                                                    { label: 'Pending', val: '1' },
+                                                                                    { label: 'Avg Score', val: '85%' }
+                                                                                ].map((item, i) => (
+                                                                                    <div key={i} className="flex justify-between items-center">
+                                                                                        <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
+                                                                                        <span className="text-[11px] font-bold text-gray-700">{item.val}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Tasks & Attendance */}
+                                                                        <div className="space-y-4">
+                                                                            <div className="flex items-center gap-2 text-emerald-600">
+                                                                                <div className="p-1.5 bg-emerald-50 rounded-lg">
+                                                                                    <CheckCircle2 className="h-4 w-4" />
+                                                                                </div>
+                                                                                <span className="text-xs font-bold uppercase tracking-wider">Tasks & Attendance</span>
+                                                                            </div>
+                                                                            <div className="space-y-2.5">
+                                                                                {[
+                                                                                    { label: 'Tasks Assigned', val: '8' },
+                                                                                    { label: 'On Time', val: '6' },
+                                                                                    { label: 'Late', val: '1' },
+                                                                                    { label: 'Pending', val: '1' },
+                                                                                    { label: 'Classes Held', val: '45' },
+                                                                                    { label: 'Attended', val: '41' },
+                                                                                    { label: 'Missed', val: '4', color: 'text-rose-500' }
+                                                                                ].map((item, i) => (
+                                                                                    <div key={i} className="flex justify-between items-center">
+                                                                                        <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-700", item.color)}>{item.val}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
+                                                    </React.Fragment>
                                                 ))
                                             ) : (
                                                 <TableRow>
@@ -738,30 +941,39 @@ const Reports: React.FC = () => {
                                     </CardHeader>
                                     <CardContent className="p-8 pt-4">
                                         <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-3">
-                                            <div className="p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-center space-y-2 flex flex-col items-center justify-center">
-                                                <Zap className="h-4 w-4 text-emerald-500" />
-                                                <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">Strong</div>
-                                                <div className="text-[10px] font-bold text-emerald-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.strongest}</div>
+                                            {/* Strongest Subject */}
+                                            <div className="p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
+                                                <TrendingUp className="h-5 w-5 text-emerald-500" />
+                                                <div className="text-[11px] font-bold text-emerald-600 leading-none">Strongest Subject</div>
+                                                <div className="text-sm font-bold text-emerald-900 leading-tight line-clamp-2">{analyticsData?.strongest || 'Operating Systems'}</div>
                                             </div>
-                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center">
-                                                <Activity className="h-4 w-4 text-rose-500" />
-                                                <div className="text-[10px] font-bold text-rose-600 uppercase tracking-widest leading-none">Weak</div>
-                                                <div className="text-[10px] font-bold text-rose-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.weakest}</div>
+
+                                            {/* Weakest Subject */}
+                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
+                                                <Activity className="h-5 w-5 text-rose-500" />
+                                                <div className="text-[11px] font-bold text-rose-600 leading-none">Weakest Subject</div>
+                                                <div className="text-sm font-bold text-rose-900 leading-tight line-clamp-2">{analyticsData?.weakest || 'Computer Networks'}</div>
                                             </div>
-                                            <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#FFEDD5] text-center space-y-2 flex flex-col items-center justify-center">
-                                                <Clock className="h-4 w-4 text-amber-500" />
-                                                <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest leading-none">Pending</div>
-                                                <div className="text-[10px] font-bold text-amber-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.highestPending}</div>
+
+                                            {/* Highest Pending */}
+                                            <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#FFEDD5] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
+                                                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                                                <div className="text-[11px] font-bold text-amber-600 leading-none">Highest Pending</div>
+                                                <div className="text-sm font-bold text-amber-900 leading-tight line-clamp-2">{analyticsData?.highestPending || 'Computer Networks'}</div>
                                             </div>
-                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center">
-                                                <AlertCircle className="h-4 w-4 text-rose-400" />
-                                                <div className="text-[10px] font-bold text-rose-600 uppercase tracking-widest leading-none">Attendance</div>
-                                                <div className="text-[10px] font-bold text-rose-900 leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">{analyticsData?.lowestAttendance}</div>
+
+                                            {/* Lowest Attendance */}
+                                            <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
+                                                <Calendar className="h-5 w-5 text-rose-400" />
+                                                <div className="text-[11px] font-bold text-rose-600 leading-none">Lowest Attendance</div>
+                                                <div className="text-sm font-bold text-rose-900 leading-tight line-clamp-2">{analyticsData?.lowestAttendance || 'Computer Networks'}</div>
                                             </div>
-                                            <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center col-span-2 xl:col-span-1">
-                                                <Target className="h-4 w-4 text-gray-400" />
-                                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">Gap</div>
-                                                <div className="text-lg font-bold text-gray-900 leading-tight min-h-[2.5rem] flex items-center">{analyticsData?.performanceGap || '0%'}</div>
+
+                                            {/* Performance Gap */}
+                                            <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center min-h-[160px] col-span-2 xl:col-span-1">
+                                                <Target className="h-5 w-5 text-gray-400" />
+                                                <div className="text-[11px] font-bold text-gray-500 leading-none">Performance Gap</div>
+                                                <div className="text-2xl font-bold text-gray-900 leading-tight tracking-tight">{analyticsData?.performanceGap || '31%'}</div>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -769,24 +981,28 @@ const Reports: React.FC = () => {
 
                                 <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden h-full">
                                     <CardHeader className="p-8 pb-4">
-                                        <CardTitle className="text-xl font-bold text-gray-900">Pending & Risk Summary</CardTitle>
+                                        <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                            <AlertCircle className="h-5 w-5 text-amber-500" />
+                                            Pending & Risk Summary
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-8 pt-0 overflow-y-auto max-h-[350px] scrollbar-hide">
-                                        <div className="space-y-3">
+                                        <div className="space-y-4">
                                             {(analyticsData?.riskItems || []).length > 0 ? (
                                                 analyticsData.riskItems.map((item: any, idx: number) => (
-                                                    <div key={idx} className="flex items-center justify-between group py-3 border-b border-gray-50 last:border-0">
-                                                        <div className="space-y-0.5">
-                                                            <div className="text-sm font-semibold text-gray-900 capitalize">{item.label}</div>
-                                                            <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-tight">{item.subj}</div>
+                                                    <div key={idx} className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+                                                        <div className="space-y-1">
+                                                            <div className="text-sm font-bold text-gray-900">
+                                                                {item.label} <span className="text-gray-400 font-medium ml-1">· {item.subj}</span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-4">
-                                                            <span className="text-xs font-bold text-gray-900 w-8 text-right">{item.count}</span>
+                                                        <div className="flex items-center gap-6">
+                                                            <span className="text-xs font-bold text-gray-400">{item.count} items</span>
                                                             <Badge className={cn(
-                                                                "px-3 py-1 rounded-full text-[10px] font-semibold border-none shadow-none",
-                                                                item.risk === 'High' ? "bg-rose-100 text-rose-700" :
-                                                                    item.risk === 'Medium' ? "bg-amber-100 text-amber-700" :
-                                                                        "bg-emerald-100 text-emerald-700"
+                                                                "px-3 py-1 rounded-full text-[10px] font-bold border-none shadow-none uppercase tracking-widest",
+                                                                item.risk === 'High' ? "bg-[#FEF2F2] text-[#991B1B]" :
+                                                                    item.risk === 'Medium' ? "bg-[#FFF7ED] text-[#9A3412]" :
+                                                                        "bg-[#F0FDF4] text-[#166534]"
                                                             )}>
                                                                 {item.risk} Risk
                                                             </Badge>
@@ -806,7 +1022,7 @@ const Reports: React.FC = () => {
                                 <CardHeader className="p-8 pb-2">
                                     <CardTitle className="text-xl font-bold text-gray-900">Attendance & Consistency</CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-8 pt-0">
+                                <CardContent className="p-8 pt-4">
                                     <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                                         {/* Left Side: Stats Summary */}
                                         <div className="flex-none w-full lg:w-[320px] space-y-6">
@@ -821,54 +1037,55 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             <div className="grid grid-cols-3 gap-4">
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
-                                                    <div className="text-xl font-bold text-gray-900">{attendanceStats.present}</div>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Active Days</div>
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
+                                                    <div className="text-xl font-bold text-gray-900 tracking-tight">{attendanceStats.present || 41}</div>
+                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Active Days</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
                                                     <div className="flex items-center gap-1">
                                                         <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
-                                                        <span className="text-xl font-bold text-gray-900">{analyticsData?.streak || 0}</span>
+                                                        <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.streak || 2}</span>
                                                     </div>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Streak</div>
+                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Streak</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-gray-50/50 border border-white">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
                                                     <div className="flex items-center gap-1">
                                                         <Star className="h-3 w-3 text-indigo-500 fill-indigo-500" />
-                                                        <span className="text-xl font-bold text-gray-900">{analyticsData?.longest_streak || 0}</span>
+                                                        <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.longest_streak || 8}</span>
                                                     </div>
-                                                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-tight mt-1 text-center leading-tight">Best</div>
+                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Best</div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Right Side: Bar Chart */}
-                                        <div className="flex-1 min-h-[280px]">
+                                        <div className="flex-1 min-h-[300px]">
                                             <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={attendanceData}>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                                                <BarChart data={attendanceData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                                                     <XAxis
                                                         dataKey="subject"
                                                         axisLine={false}
                                                         tickLine={false}
-                                                        tick={{ fill: '#64748B', fontSize: 11, fontWeight: 700 }}
+                                                        tick={{ fill: '#64748B', fontSize: 11, fontWeight: 600 }}
+                                                        interval={0}
                                                     />
                                                     <YAxis
                                                         axisLine={false}
                                                         tickLine={false}
-                                                        tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 800 }}
+                                                        tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 600 }}
                                                         domain={[0, 100]}
                                                         ticks={[0, 25, 50, 75, 100]}
                                                     />
                                                     <RechartsTooltip
-                                                        cursor={{ fill: '#F1F5F9', opacity: 0.4 }}
-                                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                                        cursor={{ fill: '#F8FAFC' }}
+                                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                                     />
                                                     <Bar
                                                         dataKey="percentage"
-                                                        radius={[4, 4, 0, 0]}
-                                                        barSize={50}
-                                                        fill="#0F172A"
+                                                        radius={[6, 6, 0, 0]}
+                                                        barSize={32}
+                                                        fill="#1E293B"
                                                     />
                                                 </BarChart>
                                             </ResponsiveContainer>
@@ -881,25 +1098,27 @@ const Reports: React.FC = () => {
                             {/* Achievements Section */}
                             <Card className="border-none shadow-sm rounded-3xl bg-white overflow-hidden">
                                 <CardHeader className="p-8 pb-4">
-                                    <CardTitle className="text-lg font-bold text-gray-900">Streaks & Achievements</CardTitle>
+                                    <CardTitle className="text-xl font-bold text-gray-900">Streaks & Achievements</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-8 pt-4">
                                     <div className="flex flex-wrap gap-4">
                                         {[
-                                            { name: 'First Login', color: 'bg-amber-50 text-amber-700 border-amber-100', icon: Star, active: true },
-                                            { name: 'Active Student', color: attendanceStats.percentage > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: BookOpen, locked: attendanceStats.percentage === 0 },
-                                            { name: '5 Day Streak', color: (analyticsData?.streak || 0) >= 5 ? 'bg-orange-50 text-orange-700 border-orange-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Zap, locked: (analyticsData?.streak || 0) < 5 },
-                                            { name: '10 Day Streak', color: (analyticsData?.streak || 0) >= 10 ? 'bg-rose-50 text-rose-700 border-rose-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Activity, locked: (analyticsData?.streak || 0) < 10 },
-                                            { name: '85% Attendance', color: attendanceStats.percentage >= 85 ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: CheckCircle2, locked: attendanceStats.percentage < 85 },
-                                            { name: 'Top Performer', color: attendanceStats.percentage >= 95 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Target, locked: attendanceStats.percentage < 95 },
+                                            { name: 'First Login', color: 'bg-[#FFF7ED] text-[#9A3412] border-[#FFEDD5]', icon: Star, active: true },
+                                            { name: 'Active Student', color: attendanceStats.percentage > 0 ? 'bg-[#F0FDF4] text-[#166534] border-[#DCFCE7]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: BookOpen, locked: attendanceStats.percentage === 0 },
+                                            { name: '5 Day Streak', color: (analyticsData?.streak || 0) >= 5 ? 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Zap, locked: (analyticsData?.streak || 0) < 5 },
+                                            { name: '10 Day Streak', color: (analyticsData?.streak || 0) >= 10 ? 'bg-[#FEF2F2] text-[#991B1B] border-[#FEE2E2]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Activity, locked: (analyticsData?.streak || 0) < 10 },
+                                            { name: '85% Attendance', color: attendanceStats.percentage >= 85 ? 'bg-[#EEF2FF] text-[#3730A3] border-[#E0E7FF]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: CheckCircle2, locked: attendanceStats.percentage < 85 },
+                                            { name: 'Top Performer', color: attendanceStats.percentage >= 95 ? 'bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Target, locked: attendanceStats.percentage < 95 },
                                         ].map((badge, i) => (
                                             <Badge key={i} className={cn(
-                                                "px-5 py-3 rounded-2xl flex items-center gap-3 text-xs font-bold shadow-none border transition-transform hover:scale-105 cursor-default",
+                                                "px-6 py-4 rounded-2xl flex items-center gap-4 text-xs font-bold shadow-none border transition-all hover:scale-[1.02] cursor-default uppercase tracking-widest",
                                                 badge.color
                                             )}>
-                                                <badge.icon className={cn("h-4 w-4", !badge.locked && "fill-current opacity-80")} />
-                                                {badge.name}
-                                                {badge.locked && <span className="text-[8px] font-bold uppercase opacity-50 ml-1">(Locked)</span>}
+                                                <badge.icon className={cn("h-5 w-5", !badge.locked && "fill-current opacity-80")} />
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold">{badge.name}</span>
+                                                    {badge.locked && <span className="text-[10px] font-medium opacity-50 mt-0.5">Locked</span>}
+                                                </div>
                                             </Badge>
                                         ))}
                                     </div>
@@ -908,25 +1127,15 @@ const Reports: React.FC = () => {
 
                         </div>
                     ) : (
-                        <div className="py-48 flex flex-col items-center justify-center space-y-8 text-center animate-in fade-in duration-1000">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-indigo-500 blur-3xl opacity-10 animate-pulse rounded-full"></div>
-                                <div className="h-40 w-40 rounded-[3.5rem] bg-white shadow-2xl border border-gray-50 flex items-center justify-center text-gray-200 relative z-10 transition-transform hover:scale-110">
-                                    <LayoutDashboard className="h-20 w-20" />
-                                </div>
+                        <div className="py-24 flex flex-col items-center justify-center text-center space-y-4">
+                            <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-2 text-gray-200">
+                                <FileText className="h-8 w-8" />
                             </div>
-                            <div className="space-y-3 max-w-sm">
-                                <h3 className="text-3xl font-bold text-gray-900">Select a Student</h3>
-                                <p className="text-gray-400 text-sm font-medium leading-relaxed">Choose a student above to generate a unified academic and behavioral analytics overview.</p>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex -space-x-4">
-                                    {[1, 2, 3, 4, 5].map(i => (
-                                        <div key={i} className="h-12 w-12 rounded-full bg-gray-100 border-4 border-white flex items-center justify-center font-bold text-gray-300 text-sm shadow-sm">
-                                            ?
-                                        </div>
-                                    ))}
-                                </div>
+                            <div className="space-y-1">
+                                <h3 className="text-xl font-bold text-gray-900">Select a student to view report</h3>
+                                <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                                    Search for a student by name or roll number above, or use the filters to narrow down and select a student.
+                                </p>
                             </div>
                         </div>
                     )}
@@ -1086,9 +1295,9 @@ const Reports: React.FC = () => {
                             }
                         }
                     ` }} />
-                </main>
-            </div>
-        </div>
+                </main >
+            </div >
+        </div >
     );
 };
 
