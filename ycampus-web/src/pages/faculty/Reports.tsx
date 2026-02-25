@@ -1,3 +1,4 @@
+// Cache-busting refresh: 2026-02-25
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
@@ -5,6 +6,7 @@ import RoleHeader from '../../components/common/RoleHeader';
 import subjectService, { SectionSubjectFaculty, getFacultyAssignments } from '../../services/subjectService';
 import studentService from '../../services/studentService';
 import { cn } from '@/lib/utils';
+
 import {
     Search,
     Filter,
@@ -200,143 +202,205 @@ const Reports: React.FC = () => {
     };
 
     // Report generation handler
-    const handleGenerateReport = async () => {
-        if (!selectedStudent) {
+    const handleGenerateReport = async (studentToUse?: any) => {
+        const student = studentToUse || selectedStudent;
+        if (!student) {
             toast.error("Please select a student first");
             return;
         }
+
         setGenerating(true);
         try {
-            await loadStudentData(selectedStudent.user);
+            // Robustly identify the user ID from various possible structures
+            const userId = student.user_details?.id || student.user?.id || student.user || student.id;
+
+            if (!userId) {
+                console.error("Could not find User ID for student:", student);
+                toast.error("Could not identify student User ID");
+                return;
+            }
+
+            console.log("Generating report for User ID:", userId);
+            await loadStudentData(userId);
             setReportGenerated(true);
             toast.success("Report generated successfully");
         } catch (error) {
             console.error("Report generation failed:", error);
+            toast.error("Failed to generate report data");
         } finally {
             setGenerating(false);
         }
     };
 
     const handleExportPDF = async () => {
-        console.log("Exporting PDF. State:", { reportRef: !!reportRef.current, reportGenerated, selectedStudent: !!selectedStudent });
-        if (!reportRef.current || !reportGenerated || !selectedStudent) {
+        if (!reportGenerated || !selectedStudent || performanceData.length === 0) {
             toast.error("Please generate the report first");
             return;
         }
 
-        if (!performanceData || performanceData.length === 0) {
-            toast.error("Please generate the report first.");
-            return;
-        }
-
-        const toastId = toast.loading("Generating PDF...");
-
+        const toastId = toast.loading("Preparing PDF...");
         try {
-            const { performanceIndex, status, strongest, weakest, streak } = analyticsData || {};
-            const overallAttendance = attendanceStats.percentage;
-            const highestPendingSubject = performanceData.reduce((prev: any, curr: any) => (prev.tasks_pending > curr.tasks_pending ? prev : curr), performanceData[0])?.name || "N/A";
-            const lowestAttendanceSubject = performanceData.reduce((prev: any, curr: any) => (parseFloat(prev.attendance) < parseFloat(curr.attendance) ? prev : curr), performanceData[0])?.name || "N/A";
-            const performanceGap = "31"; // Mock gap
+            // Dynamic imports to bypass Vite transformation issues
+            const { jsPDF } = await import('jspdf');
+            const { default: autoTable } = await import('jspdf-autotable');
 
-            const reportHtml = `
-      <div style="font-family: Arial, sans-serif; padding: 40px; background:#ffffff; color:#000;">
-        
-        <h1 style="margin-bottom:8px;">Student Academic Report</h1>
+            const doc = new jsPDF();
+            const now = new Date().toLocaleString();
 
-        <p style="margin:0 0 20px 0;">
-          Generated: ${new Date().toLocaleString()}
-        </p>
+            const fullName =
+                selectedStudent.user_details?.first_name
+                    ? `${selectedStudent.user_details.first_name} ${selectedStudent.user_details.last_name || ''}`
+                    : `${selectedStudent.user?.first_name || ''} ${selectedStudent.user?.last_name || ''}`;
 
-        <p style="margin:0;">
-          ${selectedStudent.user_details?.first_name || selectedStudent.user?.first_name} ${selectedStudent.user_details?.last_name || selectedStudent.user?.last_name}
-          (${selectedStudent.roll_number})
-        </p>
+            /* ======================
+               HEADER
+            ====================== */
 
-        <p style="margin:5px 0;">
-          ${selectedStudent.department_name} · Semester ${selectedStudent.semester_number} · Section ${selectedStudent.section_name}
-        </p>
+            doc.setFontSize(18);
+            doc.text("Student Academic Report", 14, 20);
 
-        <p style="margin:5px 0 25px 0;">
-          Performance Index: ${performanceIndex} |
-          Status: ${status} |
-          Attendance: ${overallAttendance}%
-        </p>
+            doc.setFontSize(10);
+            doc.text(`Generated: ${now}`, 14, 27);
 
-        <table style="width:100%; border-collapse:collapse; font-size:14px;">
-          <thead>
-            <tr style="background:#222; color:#fff;">
-              <th style="padding:8px; text-align:left;">Subject</th>
-              <th style="padding:8px;">Notes %</th>
-              <th style="padding:8px;">Test Avg</th>
-              <th style="padding:8px;">Assess Avg</th>
-              <th style="padding:8px;">Tasks</th>
-              <th style="padding:8px;">Attend %</th>
-              <th style="padding:8px;">Strength</th>
-              <th style="padding:8px;">Risk</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${performanceData.map((row, index) => `
-              <tr style="background:${index % 2 === 0 ? '#f2f2f2' : '#e6e6e6'};">
-                <td style="padding:8px;">${row.name}</td>
-                <td style="padding:8px; text-align:center;">${row.notes}</td>
-                <td style="padding:8px; text-align:center;">${row.testAvg}</td>
-                <td style="padding:8px; text-align:center;">${row.assessmentAvg}</td>
-                <td style="padding:8px; text-align:center;">
-                  ${row.tasks_completed}/${row.tasks_total}
-                </td>
-                <td style="padding:8px; text-align:center;">${row.attendance}</td>
-                <td style="padding:8px; text-align:center;">${row.strength}</td>
-                <td style="padding:8px; text-align:center;">${row.risk}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
+            /* ======================
+               STUDENT INFO
+            ====================== */
 
-        <div style="margin-top:35px;">
-          <h2>Strength & Weakness Analysis</h2>
-          <p>Strongest: ${strongest}</p>
-          <p>Weakest: ${weakest}</p>
-          <p>Highest Pending: ${highestPendingSubject}</p>
-          <p>Lowest Attendance: ${lowestAttendanceSubject}</p>
-          <p>Performance Gap: ${performanceGap}%</p>
-        </div>
+            doc.setFontSize(12);
+            doc.text(`${fullName} (${selectedStudent.roll_number})`, 14, 38);
 
-      </div>
-    `;
+            doc.setFontSize(10);
+            doc.text(
+                `${selectedStudent.department_name} | Semester ${selectedStudent.semester_number} | Section ${selectedStudent.section_name}`,
+                14,
+                45
+            );
 
-            const options = {
-                margin: 10,
-                filename: `Student_Report_${selectedStudent.roll_number}.pdf`,
-                image: { type: "jpeg" as const, quality: 1 },
-                html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
-                jsPDF: { unit: "mm" as const, format: "a4" as const, orientation: "portrait" as const }
-            };
+            doc.text(
+                `Performance Index: ${analyticsData?.performanceIndex || "0%"} | Status: ${analyticsData?.status || "N/A"} | Attendance: ${attendanceStats.percentage}%`,
+                14,
+                52
+            );
 
-            try {
-                // Use a variable for import to bypass Vite static analysis if needed
-                const libName = "html2pdf.js";
-                const html2pdf = (await import(/* @vite-ignore */ libName)).default;
-                await html2pdf().set(options).from(reportHtml).save();
-                toast.success("PDF Downloaded Successfully!");
-            } catch (err) {
-                console.warn("External PDF library failed, falling back to browser print", err);
-                const printWindow = window.open('', '_blank');
-                if (printWindow) {
-                    printWindow.document.write(`<html><head><title>Report - ${selectedStudent.roll_number}</title><style>body{font-family:sans-serif;padding:20px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background-color:#f2f2f2;}</style></head><body>${reportHtml}</body></html>`);
-                    printWindow.document.close();
-                    printWindow.print();
-                    toast.success("Report opened in print dialog");
-                }
-            }
+            /* ======================
+               PERFORMANCE TABLE
+            ====================== */
 
+            autoTable(doc, {
+                startY: 60,
+                head: [[
+                    "Subject",
+                    "Notes %",
+                    "Test Avg",
+                    "Assess Avg",
+                    "Tasks",
+                    "Attend %",
+                    "Strength",
+                    "Risk"
+                ]],
+                body: performanceData.map((row: any) => [
+                    row.name,
+                    row.notes,
+                    row.testAvg,
+                    row.assessmentAvg,
+                    `${row.tasks_completed}/${row.tasks_total}`,
+                    row.attendance,
+                    row.strength,
+                    row.risk
+                ]),
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [15, 23, 42] },
+            });
+
+            /* ======================
+               ANALYSIS SECTION
+            ====================== */
+
+            const finalY = (doc as any).lastAutoTable.finalY + 10;
+
+            doc.setFontSize(12);
+            doc.text("Strength & Weakness Analysis", 14, finalY);
+
+            doc.setFontSize(10);
+            doc.text(`Strongest: ${analyticsData?.strongest || "N/A"}`, 14, finalY + 8);
+            doc.text(`Weakest: ${analyticsData?.weakest || "N/A"}`, 14, finalY + 14);
+            doc.text(`Highest Pending: ${analyticsData?.highestPending || "N/A"}`, 14, finalY + 20);
+            doc.text(`Lowest Attendance: ${analyticsData?.lowestAttendance || "N/A"}`, 14, finalY + 26);
+            doc.text(`Performance Gap: ${analyticsData?.performanceGap || "0%"}`, 14, finalY + 32);
+
+            /* ======================
+               SAVE FILE
+            ====================== */
+
+            doc.save(`Student_Report_${selectedStudent.roll_number}.pdf`);
             toast.dismiss(toastId);
+            toast.success("PDF Downloaded Successfully!");
         } catch (error) {
             toast.dismiss(toastId);
-            console.error("PDF Error:", error);
+            console.error("PDF Export Error:", error);
             toast.error("Failed to generate PDF");
         }
     };
+
+    const handleExportExcel = async () => {
+        if (!selectedStudent || !reportGenerated || performanceData.length === 0) {
+            toast.error("Please generate the report first");
+            return;
+        }
+
+        const toastId = toast.loading("Preparing Excel...");
+        try {
+            // Dynamic import to bypass Vite transformation issues
+            const XLSX = await import('xlsx');
+
+            const wb = XLSX.utils.book_new();
+            const now = new Date().toLocaleString();
+
+            const fullName =
+                selectedStudent.user_details?.first_name
+                    ? `${selectedStudent.user_details.first_name} ${selectedStudent.user_details.last_name || ''}`
+                    : `${selectedStudent.user?.first_name || ''} ${selectedStudent.user?.last_name || ''}`;
+
+            // Sheet 1: Student Performance
+            const headers = ["Subject", "Notes %", "Test Avg", "Assess Avg", "Tasks", "Attend %", "Strength", "Risk"];
+            const dataRows = performanceData.map((row: any) => [
+                row.name,
+                row.notes,
+                row.testAvg,
+                row.assessmentAvg,
+                `${row.tasks_completed}/${row.tasks_total}`,
+                row.attendance,
+                row.strength,
+                row.risk
+            ]);
+
+            const wsData = [
+                [`Academic Report - ${fullName} (${selectedStudent.roll_number})`],
+                [`Department: ${selectedStudent.department_name} | Semester: ${selectedStudent.semester_number} | Section: ${selectedStudent.section_name}`],
+                [`Generated: ${now}`],
+                [],
+                ["Analysis"],
+                ["Strongest Subject", analyticsData?.strongest || "N/A"],
+                ["Weakest Subject", analyticsData?.weakest || "N/A"],
+                ["Performance Index", analyticsData?.performanceIndex || "0%"],
+                [],
+                headers,
+                ...dataRows,
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, "Performance Report");
+
+            XLSX.writeFile(wb, `Student_Report_${selectedStudent.roll_number}_${Date.now()}.xlsx`);
+            toast.dismiss(toastId);
+            toast.success("Excel Exported Successfully!");
+        } catch (error) {
+            toast.dismiss(toastId);
+            console.error("Excel Export Error:", error);
+            toast.error("Failed to export Excel");
+        }
+    };
+
 
     // Derived hierarchical options
     const filteredByDept = assignments.filter(a => selectedDept === 'all' || a.semester_subject_details?.department_name === selectedDept);
@@ -362,9 +426,17 @@ const Reports: React.FC = () => {
     };
 
     const selectStudent = (student: any) => {
+        // Stop any automatic filter resets
         isAutoSelecting.current = true;
+
+        // Update selection state
         setSelectedStudent(student);
-        setSearchTerm(student.user_details?.first_name ? `${student.user_details.first_name} ${student.user_details.last_name || ''}` : `${student.user?.first_name || ''} ${student.user?.last_name || ''}`);
+
+        // Set search term for display
+        const fullName = student.user_details?.first_name
+            ? `${student.user_details.first_name} ${student.user_details.last_name || ''}`
+            : `${student.user?.first_name || ''} ${student.user?.last_name || ''}`;
+        setSearchTerm(fullName);
 
         // Auto-populate filters from student data
         if (student.department_name) setSelectedDept(student.department_name);
@@ -372,14 +444,19 @@ const Reports: React.FC = () => {
         if (student.semester_number) setSelectedSem(String(student.semester_number));
         if (student.section_name) setSelectedSection(student.section_name);
 
+        // Clear search results
         setStudents([]);
-        setReportGenerated(false); // Reset report when student changes
 
-        // Auto-generate report
-        setTimeout(() => {
-            handleGenerateReport();
-            isAutoSelecting.current = false;
-        }, 100);
+        // Reset and Regenerate
+        setReportGenerated(false);
+
+        // Crucial: Pass the student object directly to avoid stale state from React's async setSelectedStudent
+        handleGenerateReport(student).finally(() => {
+            // Release auto-selection lock after a short delay to catch any late effects
+            setTimeout(() => {
+                isAutoSelecting.current = false;
+            }, 500);
+        });
     };
 
     return (
@@ -408,7 +485,7 @@ const Reports: React.FC = () => {
                                 <span>PDF</span>
                             </Button>
                             <Button
-                                onClick={() => toast.info("Excel export is coming soon")}
+                                onClick={handleExportExcel}
                                 variant="outline"
                                 className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white border-gray-100 text-gray-700 text-[10px] font-bold uppercase tracking-widest shadow-sm hover:bg-gray-50 transition-all"
                             >

@@ -13,13 +13,13 @@ export interface User {
   is_active?: boolean;
   date_joined?: string;
   last_login?: string;
-    profile?: {
-      about?: string;
-      avatar?: string;
-    };
-    college_name?: string;
-    college_id?: string;
-  }
+  profile?: {
+    about?: string;
+    avatar?: string;
+  };
+  college_name?: string;
+  college_id?: string;
+}
 
 interface AuthState {
   user: User | null;
@@ -156,12 +156,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         })
         .catch((error) => {
           console.error('Failed to get current user:', error);
-          if (error.status === 401 && error.message?.includes('Session expired')) {
+          if (error.status === 401) {
+            console.warn('Session invalid, logging out...');
             localStorage.removeItem('access');
             localStorage.removeItem('refresh');
+            localStorage.removeItem('user');
             dispatch({ type: 'LOGIN_FAILURE' });
           } else {
-            console.warn('Could not fetch user data, but keeping authentication');
+            console.warn('Could not fetch user data, but keeping authentication for now');
             dispatch({ type: 'SET_LOADING', payload: false });
           }
         });
