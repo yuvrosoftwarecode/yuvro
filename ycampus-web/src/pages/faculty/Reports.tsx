@@ -801,7 +801,7 @@ const Reports: React.FC = () => {
                                                                         <div className="space-y-4">
                                                                             <div className="flex items-center gap-2 text-gray-900">
                                                                                 <BookOpen className="h-4 w-4 text-gray-400" />
-                                                                                <span className="text-[13px] font-bold">Notes & Learning</span>
+                                                                                <span className="text-[13px] font-bold">Learning Progress</span>
                                                                             </div>
                                                                             <div className="space-y-2.5">
                                                                                 {[
@@ -813,8 +813,8 @@ const Reports: React.FC = () => {
                                                                                     { label: 'Learning Streak', val: '5 days' }
                                                                                 ].map((item, i) => (
                                                                                     <div key={i} className="flex justify-between items-center group">
-                                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.label}</span>
-                                                                                        <span className={cn("text-[11px] font-bold text-gray-900", item.color)}>{item.val}</span>
+                                                                                        <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-700", item.color)}>{item.val}</span>
                                                                                     </div>
                                                                                 ))}
                                                                             </div>

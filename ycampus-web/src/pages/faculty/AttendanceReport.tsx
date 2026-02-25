@@ -4,6 +4,8 @@ import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
 import subjectService, { SectionSubjectFaculty, getFacultyAssignments, AttendanceSession } from '../../services/subjectService';
 import studentService from '../../services/studentService';
+import { facultyService, FacultyProfile } from '../../services/facultyService';
+import restApiAuthUtil from '../../utils/RestApiAuthUtil';
 import { cn } from '@/lib/utils';
 import {
     Search,
@@ -51,6 +53,7 @@ const AttendanceReport: React.FC = () => {
 
     // Filters state
     const [selectedDept, setSelectedDept] = useState<string>('all');
+    const [assignedDepartments, setAssignedDepartments] = useState<{ id: string | number, name: string }[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<string>('all');
     const [selectedSem, setSelectedSem] = useState<string>('all');
     const [selectedSection, setSelectedSection] = useState<string>('all');
@@ -70,8 +73,34 @@ const AttendanceReport: React.FC = () => {
         const init = async () => {
             try {
                 setLoading(true);
+                // 1. Fetch assignments (works for faculty)
                 const facultyAssignments = await getFacultyAssignments();
                 setAssignments(facultyAssignments);
+
+                // 2. Extract departments from faculty_details in assignments
+                // The backend typically includes the full faculty profile in faculty_details
+                if (facultyAssignments.length > 0) {
+                    const firstAssignment = facultyAssignments[0];
+                    const facultyProf = firstAssignment.faculty_details;
+
+                    if (facultyProf && (facultyProf.department || facultyProf.linked_departments_data)) {
+                        const depts = [
+                            { id: String(facultyProf.department), name: String(facultyProf.department_name) },
+                            ...(facultyProf.linked_departments_data || []).map((d: any) => ({ id: String(d.id), name: String(d.name) }))
+                        ];
+                        const uniqueDeptsMap = new Map();
+                        depts.forEach(d => {
+                            if (d.name && d.name !== 'undefined' && d.name !== 'null' && !uniqueDeptsMap.has(d.name)) {
+                                uniqueDeptsMap.set(d.name, d);
+                            }
+                        });
+                        setAssignedDepartments(Array.from(uniqueDeptsMap.values()) as { id: string | number, name: string }[]);
+                    } else {
+                        // Fallback: Use unique departments from assignments themselves
+                        const deptsFromAssignments = Array.from(new Set(facultyAssignments.map(a => a.semester_subject_details?.department_name).filter(Boolean)));
+                        setAssignedDepartments(deptsFromAssignments.map(name => ({ id: String(name), name: String(name) })));
+                    }
+                }
             } catch (err) {
                 console.error("Failed to load attendance assignments", err);
                 toast.error("Failed to load filter data");
@@ -79,8 +108,8 @@ const AttendanceReport: React.FC = () => {
                 setLoading(false);
             }
         };
-        init();
-    }, []);
+        if (user) init();
+    }, [user]);
 
     // Find the current assignment matching all filters
     const currentAssignment = useMemo(() => {
@@ -263,7 +292,9 @@ const AttendanceReport: React.FC = () => {
     };
 
     // Derived hierarchical options
-    const departments = Array.from(new Set(assignments.map(a => a.semester_subject_details?.department_name).filter(Boolean))) as string[];
+    const departments = assignedDepartments.length > 0
+        ? assignedDepartments.map(d => d.name)
+        : Array.from(new Set(assignments.map(a => a.semester_subject_details?.department_name).filter(Boolean))) as string[];
 
     const filteredByDept = assignments.filter(a => selectedDept === 'all' || a.semester_subject_details?.department_name === selectedDept);
     const semesters = Array.from(new Set(filteredByDept.map(a => a.semester_subject_details?.semester_number).filter(Boolean))).sort() as number[];
