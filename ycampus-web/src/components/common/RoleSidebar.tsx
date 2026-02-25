@@ -186,6 +186,62 @@ const sidebarItems: SidebarItem[] = [
     path: '/tpo/dashboard',
     roles: ['tpo']
   },
+  {
+    id: 'tpo-job-approvals',
+    label: 'Job Approvals',
+    icon: CheckCircle,
+    path: '/tpo/job-approvals',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-live-jobs',
+    label: 'Live Jobs',
+    icon: Briefcase,
+    path: '/tpo/live-jobs',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-students-tracking',
+    label: 'Students Tracking',
+    icon: Users,
+    path: '/tpo/students',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-analytics',
+    label: 'Analytics',
+    icon: BarChart3,
+    path: '/tpo/analytics',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-recruiter-insights',
+    label: 'Recruiter Insights',
+    icon: TrendingUp,
+    path: '/tpo/recruiter-insights',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-drive-calendar',
+    label: 'Drive Calendar',
+    icon: Calendar,
+    path: '/tpo/calendar',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-notifications',
+    label: 'Notifications',
+    icon: Activity,
+    path: '/tpo/notifications',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-settings',
+    label: 'Settings',
+    icon: Settings,
+    path: '/tpo/settings',
+    roles: ['tpo']
+  },
 
   {
     id: 'faculty-dashboard',
@@ -399,27 +455,34 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
           </button>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="space-y-1">
+          {!sidebarCollapsed && (
+            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Navigation</p>
+          )}
           {filteredItems.map((item) => {
             const Icon = item.icon;
             const isActive = isActiveItem(item);
+            const isTPO = userRole === 'tpo';
 
             return (
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
-                  ? 'bg-orange-50 text-orange-600'
-                  : 'text-gray-600 hover:bg-gray-50'
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-all duration-200 ${isActive
+                  ? (isTPO ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600')
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium'
                   }`}
                 title={sidebarCollapsed ? item.label : ''}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                {!sidebarCollapsed && <span>{item.label}</span>}
+                <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                {!sidebarCollapsed && <span className="text-xs font-semibold">{item.label}</span>}
                 {sidebarCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
                     {item.label}
                   </div>
+                )}
+                {isActive && !sidebarCollapsed && (
+                  <div className={`absolute right-3 w-1.5 h-1.5 rounded-full ${isTPO ? 'bg-purple-600' : 'bg-orange-600'}`} />
                 )}
               </Link>
             );

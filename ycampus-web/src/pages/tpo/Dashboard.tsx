@@ -2,7 +2,63 @@ import React from 'react';
 import RoleHeader from '../../components/common/RoleHeader';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Building2, Briefcase, GraduationCap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Users,
+  Briefcase,
+  GraduationCap,
+  FileCheck,
+  Banknote,
+  TrendingUp,
+  Search
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  Cell,
+  PieChart,
+  Pie
+} from 'recharts';
+
+const funnelData = [
+  { name: 'Applicants', value: 320 },
+  { name: 'Shortlisted', value: 85 },
+  { name: 'Selected', value: 25 },
+];
+
+const deptData = [
+  { name: 'CSE', pct: 85 },
+  { name: 'ECE', pct: 72 },
+  { name: 'ME', pct: 58 },
+  { name: 'CE', pct: 45 },
+  { name: 'EEE', pct: 62 },
+  { name: 'IT', pct: 78 },
+];
+
+const trendData = [
+  { name: 'Aug', students: 10 },
+  { name: 'Sep', students: 25 },
+  { name: 'Oct', students: 45 },
+  { name: 'Nov', students: 30 },
+  { name: 'Dec', students: 60 },
+  { name: 'Jan', students: 85 },
+  { name: 'Feb', students: 120 },
+];
+
+const salaryData = [
+  { name: '2-4L', value: 45, color: '#8b5cf6' },
+  { name: '4-6L', value: 85, color: '#10b981' },
+  { name: '6-8L', value: 65, color: '#f59e0b' },
+  { name: '8-10L', value: 35, color: '#ef4444' },
+  { name: '10L+', value: 15, color: '#3b82f6' },
+];
 
 const Dashboard: React.FC = () => {
   return (
@@ -10,78 +66,243 @@ const Dashboard: React.FC = () => {
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <RoleHeader
-          title="TPO Dashboard"
-          subtitle="Overview of placement and training activities"
+          title="Dashboard"
+          subtitle=""
         />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">Total Students</CardTitle>
-                  <Users className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">1,234</div>
-                  <p className="text-xs text-green-600 mt-1">+12% from last year</p>
+          <div className="max-w-7xl mx-auto space-y-8">
+            <div className="flex justify-between items-center bg-transparent">
+              <h1 className="text-[20px] font-bold text-gray-900">Dashboard</h1>
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="pl-10 pr-4 py-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 w-64 shadow-sm"
+                />
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-orange-50 rounded-lg mb-2">
+                    <FileCheck className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">0</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Pending Approvals</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">Partner Companies</CardTitle>
-                  <Building2 className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">45</div>
-                  <p className="text-xs text-green-600 mt-1">+5 new this month</p>
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-purple-50 rounded-lg mb-2">
+                    <Briefcase className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">5</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Live Jobs</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">Active Drives</CardTitle>
-                  <Briefcase className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">8</div>
-                  <p className="text-xs text-gray-500 mt-1">Ongoing recruitment</p>
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-green-50 rounded-lg mb-2">
+                    <Users className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">0</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Students Selected</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-500">Placements</CardTitle>
-                  <GraduationCap className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">850</div>
-                  <p className="text-xs text-green-600 mt-1">68% placement rate</p>
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-blue-50 rounded-lg mb-2">
+                    <Banknote className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">₹0.0L</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Avg CTC</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-indigo-50 rounded-lg mb-2">
+                    <TrendingUp className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">₹0.0L</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Highest CTC</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow h-28 flex flex-col justify-center rounded-2xl">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="p-2 bg-teal-50 rounded-lg mb-2">
+                    <GraduationCap className="h-5 w-5 text-teal-600" />
+                  </div>
+                  <div className="text-xl font-bold text-gray-900 leading-none">0%</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Placement %</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <p className="text-sm text-gray-600">New job posting from TechCorp approved.</p>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-8 text-xs font-semibold h-10">
+                Review Pending Jobs
+              </Button>
+              <Button variant="outline" className="text-purple-600 border-purple-200 hover:bg-purple-50 rounded-full px-8 text-xs font-semibold h-10 shadow-sm">
+                View Selected Students
+              </Button>
+            </div>
+
+            {/* Charts Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Selection Funnel */}
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-gray-700">Selection Funnel</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[220px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        layout="vertical"
+                        data={funnelData}
+                        margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
+                        <XAxis type="number" hide />
+                        <YAxis
+                          dataKey="name"
+                          type="category"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                        />
+                        <Tooltip />
+                        <Bar
+                          dataKey="value"
+                          fill="#8b5cf6"
+                          radius={[0, 4, 4, 0]}
+                          barSize={32}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <p className="text-sm text-gray-600">150 students registered for upcoming hackathon.</p>
+                </CardContent>
+              </Card>
+
+              {/* Department-wise Placement */}
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-gray-700">Department-wise Placement %</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[220px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={deptData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          domain={[0, 100]}
+                        />
+                        <Tooltip />
+                        <Bar
+                          dataKey="pct"
+                          fill="#10b981"
+                          radius={[4, 4, 0, 0]}
+                          barSize={32}
+                        >
+                          {deptData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill="#10b981" fillOpacity={0.8} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <p className="text-sm text-gray-600">Reminder: Placement drive scheduled for tomorrow.</p>
+                </CardContent>
+              </Card>
+
+              {/* Monthly Hiring Trend */}
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-gray-700">Monthly Hiring Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[220px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={trendData}>
+                        <defs>
+                          <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                        />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey="students"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorStudents)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              {/* Salary Distribution */}
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold text-gray-700">Salary Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[220px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={salaryData}
+                          innerRadius={0}
+                          outerRadius={80}
+                          paddingAngle={0}
+                          dataKey="value"
+                          label={({ name, index }) => index}
+                          labelLine={true}
+                        >
+                          {salaryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} stroke="#fff" strokeWidth={2} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </main>
       </div>

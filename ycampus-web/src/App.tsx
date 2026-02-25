@@ -74,6 +74,14 @@ import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
+import TPOJobApprovals from './pages/tpo/JobApprovals';
+import TPOLiveJobs from './pages/tpo/LiveJobs';
+import TPOStudentsTracking from './pages/tpo/StudentsTracking';
+import TPOAIAnalytics from './pages/tpo/AIAnalytics';
+import TPORecruiterInsights from './pages/tpo/RecruiterInsights';
+import TPODriveCalendar from './pages/tpo/DriveCalendar';
+import TPONotifications from './pages/tpo/Notifications';
+import TPOSettings from './pages/tpo/Settings';
 
 
 function App() {
@@ -315,6 +323,70 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["tpo"]}>
                     <TPODashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/job-approvals"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOJobApprovals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/live-jobs"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOLiveJobs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/students"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOStudentsTracking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOAIAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/recruiter-insights"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPORecruiterInsights />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/calendar"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPODriveCalendar />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/notifications"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPONotifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOSettings />
                   </ProtectedRoute>
                 }
               />
