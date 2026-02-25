@@ -85,6 +85,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
         student: [
             { label: 'Profile', path: '/student/profile', icon: 'profile' },
             { label: 'Certifications', path: '/student/certifications', icon: 'certifications' },
+            { label: 'Dashboard', path: '/student/dashboard', icon: 'dashboard' },
         ],
         admin: [
             { label: 'Profile', path: '/instructor/profile', icon: 'profile' },
@@ -241,7 +242,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg transition-all duration-300 ${role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
                                         role === 'instructor' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
                                             role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :
-                                                'bg-gradient-to-r from-indigo-600 to-blue-600'
+                                                'bg-gradient-to-br from-orange-500 to-amber-500'
                                         }`}>
                                         {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
                                     </div>
@@ -254,14 +255,14 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                         <div className={`text-xs font-medium capitalize ${role === 'admin' ? 'text-red-600' :
                                             role === 'instructor' ? 'text-green-600' :
                                                 role === 'recruiter' ? 'text-purple-600' :
-                                                    'text-indigo-600'
+                                                    'text-orange-500'
                                             }`}>{user?.role || 'Student'}</div>
                                     </div>
                                     <svg className={`w-4 h-4 hidden md:block transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''
                                         } ${role === 'admin' ? 'text-red-400' :
                                             role === 'instructor' ? 'text-green-400' :
                                                 role === 'recruiter' ? 'text-purple-400' :
-                                                    'text-indigo-400'
+                                                    'text-orange-400'
                                         }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -281,13 +282,13 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                         <div className={`px-6 py-4 border-b border-gray-100 ${role === 'admin' ? 'bg-gradient-to-br from-red-50 via-pink-50 to-red-100' :
                                             role === 'instructor' ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-100' :
                                                 role === 'recruiter' ? 'bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100' :
-                                                    'bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100'
+                                                    'bg-gradient-to-br from-orange-50 to-amber-50'
                                             }`}>
                                             <div className="flex items-center space-x-4">
                                                 <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-white ${role === 'admin' ? 'bg-gradient-to-br from-red-600 to-pink-600' :
                                                     role === 'instructor' ? 'bg-gradient-to-br from-green-600 to-emerald-600' :
                                                         role === 'recruiter' ? 'bg-gradient-to-br from-purple-600 to-violet-600' :
-                                                            'bg-gradient-to-br from-indigo-600 to-blue-600'
+                                                            'bg-gradient-to-br from-orange-500 to-amber-500'
                                                     }`}>
                                                     {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
                                                 </div>
@@ -301,12 +302,12 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                                     <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold capitalize mt-1 ${role === 'admin' ? 'bg-red-100 text-red-700 border border-red-200' :
                                                         role === 'instructor' ? 'bg-green-100 text-green-700 border border-green-200' :
                                                             role === 'recruiter' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                                                                'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                                                                'bg-orange-100 text-orange-600 border border-orange-200'
                                                         }`}>
                                                         <div className={`w-2 h-2 rounded-full mr-1 ${role === 'admin' ? 'bg-red-500' :
                                                             role === 'instructor' ? 'bg-green-500' :
                                                                 role === 'recruiter' ? 'bg-purple-500' :
-                                                                    'bg-indigo-500'
+                                                                    'bg-orange-500'
                                                             }`}></div>
                                                         {user?.role || 'Student'}
                                                     </div>
@@ -320,7 +321,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                                     const iconClass = `w-5 h-5 mr-3 transition-colors duration-200 ${role === 'admin' ? 'text-red-400 group-hover:text-red-600' :
                                                         role === 'instructor' ? 'text-green-400 group-hover:text-green-600' :
                                                             role === 'recruiter' ? 'text-purple-400 group-hover:text-purple-600' :
-                                                                'text-indigo-400 group-hover:text-indigo-600'
+                                                                'text-orange-400 group-hover:text-orange-500'
                                                         }`;
 
                                                     switch (iconType) {
@@ -377,7 +378,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                                         className={`group flex items-center px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r transition-all duration-200 transform hover:translate-x-1 ${role === 'admin' ? 'hover:from-red-50 hover:to-pink-50 hover:text-red-700' :
                                                             role === 'instructor' ? 'hover:from-green-50 hover:to-emerald-50 hover:text-green-700' :
                                                                 role === 'recruiter' ? 'hover:from-purple-50 hover:to-violet-50 hover:text-purple-700' :
-                                                                    'hover:from-indigo-50 hover:to-blue-50 hover:text-indigo-700'
+                                                                    'hover:from-orange-50 hover:to-amber-50 hover:text-orange-600'
                                                             }`}
                                                         style={{ animationDelay: `${index * 50}ms` }}
                                                     >
@@ -395,9 +396,9 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
                                         <div className="border-t border-gray-200 mt-2 pt-3">
                                             <button
                                                 onClick={handleLogout}
-                                                className="group flex items-center w-full px-6 py-3 text-sm font-medium text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:text-red-700 transition-all duration-200 transform hover:translate-x-1"
+                                                className="group flex items-center w-full px-6 py-3 text-sm font-medium text-orange-400 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-600 transition-all duration-200 transform hover:translate-x-1"
                                             >
-                                                <svg className="w-5 h-5 mr-3 text-red-400 group-hover:text-red-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-5 h-5 mr-3 text-orange-400 group-hover:text-orange-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                                 </svg>
                                                 <span className="flex-1">Logout</span>

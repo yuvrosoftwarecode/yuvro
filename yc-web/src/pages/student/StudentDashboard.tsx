@@ -229,14 +229,14 @@ const Dashboard: React.FC = () => {
               <div className="p-6">
                 <div className="space-y-6">
                   {dashboardData.courseProgress.map((course) => (
-                    <div key={course.id} className="border-l-4 border-indigo-500 pl-4">
+                    <div key={course.id} className="border-l-4 border-orange-500 pl-4">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-gray-900">{course.name}</h4>
                         <span className="text-sm text-gray-500">{course.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                         <div
-                          className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                          className="bg-orange-400 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${course.progress}%` }}
                         ></div>
                       </div>
