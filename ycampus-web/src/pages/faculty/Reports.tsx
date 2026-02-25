@@ -515,11 +515,11 @@ const Reports: React.FC = () => {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <span className="text-sm font-medium text-gray-600">Search Student</span>
+                                <div className="space-y-1">
+                                    <span className="text-[11px] font-medium text-gray-400">Search Student</span>
                                     <div className="flex flex-col md:flex-row gap-3">
                                         <div className="relative max-w-lg flex-1">
-                                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
                                             <Input
                                                 value={searchTerm}
                                                 onChange={(e) => handleStudentSearch(e.target.value)}
@@ -529,10 +529,10 @@ const Reports: React.FC = () => {
                                                     }
                                                 }}
                                                 placeholder="Type student name, roll number, or email..."
-                                                className="h-10 border-gray-200 rounded-lg pl-9 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400 font-bold text-gray-900"
+                                                className="h-10 border-gray-100 rounded-lg pl-9 text-xs font-medium text-gray-600 focus:ring-1 focus:ring-indigo-500/20 focus:border-indigo-500/30 transition-all placeholder:text-gray-300 bg-white"
                                             />
                                             {students.length > 0 && (
-                                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
                                                     {students.map(s => (
                                                         <button
                                                             key={s.id}
@@ -549,28 +549,23 @@ const Reports: React.FC = () => {
                                         <Button
                                             onClick={() => handleGenerateReport()}
                                             disabled={!selectedStudent || generating}
-                                            className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-all shadow-sm px-6"
+                                            className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-all shadow-sm px-6 text-xs"
                                         >
                                             {generating ? (
-                                                <>
-                                                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    <span>Generating...</span>
-                                                </>
+                                                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                             ) : (
-                                                <>
-                                                    <LayoutDashboard className="h-4 w-4" />
-                                                    <span>Generate Report</span>
-                                                </>
+                                                <LayoutDashboard className="h-4 w-4" />
                                             )}
+                                            <span>{generating ? 'Generating...' : 'Generate Report'}</span>
                                         </Button>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Department</span>
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] font-medium text-gray-400">Department</span>
                                         <Select value={selectedDept} onValueChange={setSelectedDept}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                            <SelectTrigger className="h-10 border-gray-100 rounded-lg text-xs bg-white text-gray-600 font-medium">
                                                 <SelectValue placeholder="Select department" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -582,10 +577,10 @@ const Reports: React.FC = () => {
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Semester</span>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] font-medium text-gray-400">Semester</span>
                                         <Select value={selectedSem} onValueChange={setSelectedSem}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                            <SelectTrigger className="h-10 border-gray-100 rounded-lg text-xs bg-white text-gray-600 font-medium">
                                                 <SelectValue placeholder="Select semester" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -597,10 +592,10 @@ const Reports: React.FC = () => {
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Batch</span>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] font-medium text-gray-400">Batch</span>
                                         <Select value={selectedBatch} onValueChange={setSelectedBatch}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                            <SelectTrigger className="h-10 border-gray-100 rounded-lg text-xs bg-white text-gray-600 font-medium">
                                                 <SelectValue placeholder="Select batch" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -612,25 +607,10 @@ const Reports: React.FC = () => {
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Section</span>
-                                        <Select value={selectedSection} onValueChange={setSelectedSection}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
-                                                <SelectValue placeholder="Select section" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">All Sections</SelectItem>
-                                                {sections.map(s => (
-                                                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Subject</span>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] font-medium text-gray-400">Subject</span>
                                         <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                            <SelectTrigger className="h-10 border-gray-100 rounded-lg text-xs bg-white text-gray-600 font-medium">
                                                 <SelectValue placeholder="All Subjects" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -642,10 +622,10 @@ const Reports: React.FC = () => {
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <span className="text-sm font-medium text-gray-600">Date Range</span>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] font-medium text-gray-400">Date Range</span>
                                         <Select value={dateRange} onValueChange={setDateRange}>
-                                            <SelectTrigger className="h-10 border-gray-200 rounded-lg text-sm bg-white text-gray-900 font-bold">
+                                            <SelectTrigger className="h-10 border-gray-100 rounded-lg text-xs bg-white text-gray-600 font-medium">
                                                 <SelectValue placeholder="Full Semester" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -655,7 +635,6 @@ const Reports: React.FC = () => {
                                             </SelectContent>
                                         </Select>
                                     </div>
-
                                 </div>
                             </div>
                         </CardContent>
@@ -673,56 +652,58 @@ const Reports: React.FC = () => {
                                                 <User className="h-10 w-10" />
                                             </div>
                                             <div className="space-y-1">
-                                                <h2 className="text-3xl font-bold text-gray-900 leading-none tracking-tight">
+                                                <h2 className="text-2xl font-bold text-gray-900 leading-none">
                                                     {selectedStudent.user_details?.first_name || selectedStudent.user?.first_name} {selectedStudent.user_details?.last_name || selectedStudent.user?.last_name}
                                                 </h2>
-                                                <p className="text-sm text-gray-500 font-medium">
-                                                    {selectedStudent.roll_number} • {selectedStudent.department_name} · Sem {selectedStudent.semester_number} · Sec {selectedStudent.section_name}
+                                                <p className="text-[12px] text-gray-400 font-medium">
+                                                    {selectedStudent.roll_number} · {selectedStudent.department_name} · Sem {selectedStudent.semester_number} · Sec {selectedStudent.section_name}
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-1 max-w-4xl">
                                             {/* Performance Index */}
-                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-white/50">
-                                                <TrendingUp className="h-4 w-4 text-gray-400 mb-1" />
-                                                <div className="text-3xl font-bold text-gray-900 leading-none">
+                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
+                                                <TrendingUp className="h-3.5 w-3.5 text-indigo-400 mb-1" />
+                                                <div className="text-2xl font-bold text-gray-900 leading-none">
                                                     {analyticsData?.performanceIndex || '74%'}
                                                 </div>
-                                                <div className="text-xs font-medium text-gray-500 text-center">Performance Index</div>
+                                                <div className="text-[11px] font-medium text-gray-400 text-center">Performance Index</div>
                                             </div>
 
                                             {/* Overall Status */}
-                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-2 border border-white/50">
-                                                <Badge className="bg-[#DCFCE7] text-[#166534] hover:bg-[#DCFCE7] border-none px-3 py-1 rounded-full text-xs font-medium">
+                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 border border-gray-50/50">
+                                                <Badge className="bg-[#DCFCE7] text-[#166534] hover:bg-[#DCFCE7] border-none px-3 py-1 rounded-full text-[11px] font-medium shadow-none">
                                                     On Track
                                                 </Badge>
-                                                <div className="text-xs font-medium text-gray-500 text-center">Overall Status</div>
+                                                <div className="text-[11px] font-medium text-gray-400 text-center">Overall Status</div>
                                             </div>
 
                                             {/* Attendance */}
-                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-white/50">
-                                                <Calendar className="h-4 w-4 text-gray-400 mb-1" />
-                                                <div className="text-3xl font-bold text-gray-900 leading-none">
+                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
+                                                <Calendar className="h-3.5 w-3.5 text-gray-400 mb-1" />
+                                                <div className="text-2xl font-bold text-gray-900 leading-none">
                                                     {attendanceStats.percentage}%
                                                 </div>
-                                                <div className="text-xs font-medium text-gray-500 text-center">Attendance</div>
+                                                <div className="text-[11px] font-medium text-gray-400 text-center">Attendance</div>
                                             </div>
 
                                             {/* Learning Progress */}
-                                            <div className="bg-[#F8FAFC] rounded-2xl p-6 flex flex-col items-center justify-center border border-white/50">
-                                                <BookOpen className="h-4 w-4 text-gray-400 mb-2" />
-                                                <div className="w-full space-y-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-bold text-gray-900">{analyticsData?.performanceIndex || '76%'}</span>
-                                                        <div className="h-1.5 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center border border-gray-50/50">
+                                                <BookOpen className="h-3.5 w-3.5 text-gray-400 mb-2" />
+                                                <div className="w-full space-y-3">
+                                                    <div className="space-y-1.5">
+                                                        <div className="flex justify-between items-center px-0.5">
+                                                            <span className="text-[10px] font-bold text-gray-900">76%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                                                             <div
                                                                 className="h-full bg-gray-900 rounded-full"
-                                                                style={{ width: analyticsData?.performanceIndex || '76%' }}
+                                                                style={{ width: '76%' }}
                                                             />
                                                         </div>
                                                     </div>
-                                                    <div className="text-xs font-medium text-gray-500 text-center">Learning Progress</div>
+                                                    <div className="text-[11px] font-medium text-gray-400 text-center">Learning Progress</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -738,16 +719,16 @@ const Reports: React.FC = () => {
                                 <CardContent className="p-0">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="bg-white hover:bg-white border-gray-50">
+                                            <TableRow className="bg-white hover:bg-white border-gray-50/50">
                                                 <TableHead className="w-[40px] pl-8"></TableHead>
-                                                <TableHead className="py-6 px-4 text-xs font-bold text-gray-400 min-w-[280px]">Subject</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Notes</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Test Avg</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Assessment Avg</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Tasks</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Attendance</TableHead>
-                                                <TableHead className="text-center text-xs font-bold text-gray-400">Strength</TableHead>
-                                                <TableHead className="text-right pr-8 text-xs font-bold text-gray-400">Risk</TableHead>
+                                                <TableHead className="py-6 px-4 text-[11px] font-semibold text-gray-400 uppercase tracking-wider min-w-[280px]">Subject</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Notes</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Test Avg</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Assessment Avg</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Tasks</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Attendance</TableHead>
+                                                <TableHead className="text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Strength</TableHead>
+                                                <TableHead className="text-right pr-8 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Risk</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -770,42 +751,42 @@ const Reports: React.FC = () => {
                                                             </TableCell>
                                                             <TableCell className="py-6 px-4">
                                                                 <div className="space-y-0.5">
-                                                                    <div className="font-bold text-gray-900 text-sm tracking-tight">{row.name}</div>
-                                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{row.code}</div>
+                                                                    <div className="font-bold text-gray-900 text-[13px] tracking-tight">{row.name}</div>
+                                                                    <div className="text-[10px] font-medium text-gray-400">{row.code}</div>
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="text-center">
                                                                 <div className="inline-flex flex-col items-center">
-                                                                    <span className="font-bold text-sm text-gray-900">{row.notes}</span>
-                                                                    <div className="w-10 h-1 bg-gray-900 mt-1 rounded-full"></div>
+                                                                    <span className="font-bold text-[13px] text-gray-900">{row.notes}</span>
+                                                                    <div className="w-12 h-[3px] bg-gray-900 mt-0.5 rounded-full"></div>
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="text-center">
-                                                                <span className="font-bold text-sm text-gray-900">{row.testAvg}</span>
+                                                                <span className="font-bold text-[13px] text-gray-900">{row.testAvg}</span>
                                                             </TableCell>
-                                                            <TableCell className="text-center text-sm font-bold text-gray-900">{row.assessmentAvg}</TableCell>
+                                                            <TableCell className="text-center text-[13px] font-bold text-gray-900">{row.assessmentAvg}</TableCell>
                                                             <TableCell className="text-center">
-                                                                <div className="text-sm font-bold text-gray-900">
-                                                                    {row.tasks_completed}/{row.tasks_total} <span className="text-orange-400 font-medium ml-1">({row.tasks_pending} pending)</span>
+                                                                <div className="text-[13px] font-bold text-gray-900">
+                                                                    {row.tasks_completed}/{row.tasks_total} <span className="text-[#B45309] font-medium ml-1 text-[11px]">({row.tasks_pending} pending)</span>
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="text-center">
-                                                                <span className="text-sm font-bold text-gray-900">{row.attendance}</span>
+                                                                <span className="text-[13px] font-bold text-gray-900">{row.attendance}</span>
                                                             </TableCell>
                                                             <TableCell className="text-center">
                                                                 <Badge className={cn(
-                                                                    "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-widest",
-                                                                    row.strength === 'Strong' ? "bg-emerald-100 text-emerald-700" :
-                                                                        row.strength === 'Average' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                                    "rounded-full px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-wide",
+                                                                    row.strength === 'Strong' ? "bg-emerald-50 text-[#15803D]" :
+                                                                        row.strength === 'Average' ? "bg-amber-50 text-[#B45309]" : "bg-rose-50 text-[#991B1B]"
                                                                 )}>
                                                                     {row.strength}
                                                                 </Badge>
                                                             </TableCell>
                                                             <TableCell className="text-right pr-8">
                                                                 <Badge className={cn(
-                                                                    "rounded-2xl px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-widest",
-                                                                    row.risk === 'Low' ? "bg-emerald-100 text-emerald-700" :
-                                                                        row.risk === 'Medium' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                                                    "rounded-full px-3 py-1 font-bold text-[10px] border-none shadow-none uppercase tracking-wide",
+                                                                    row.risk === 'Low' ? "bg-emerald-50 text-[#15803D]" :
+                                                                        row.risk === 'Medium' ? "bg-amber-50 text-[#B45309]" : "bg-rose-50 text-[#991B1B]"
                                                                 )}>
                                                                     {row.risk}
                                                                 </Badge>
@@ -818,11 +799,9 @@ const Reports: React.FC = () => {
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                                                         {/* Notes & Learning */}
                                                                         <div className="space-y-4">
-                                                                            <div className="flex items-center gap-2 text-indigo-600">
-                                                                                <div className="p-1.5 bg-indigo-50 rounded-lg">
-                                                                                    <BookOpen className="h-4 w-4" />
-                                                                                </div>
-                                                                                <span className="text-xs font-bold uppercase tracking-wider">Notes & Learning</span>
+                                                                            <div className="flex items-center gap-2 text-gray-900">
+                                                                                <BookOpen className="h-4 w-4 text-gray-400" />
+                                                                                <span className="text-[13px] font-bold">Notes & Learning</span>
                                                                             </div>
                                                                             <div className="space-y-2.5">
                                                                                 {[
@@ -843,11 +822,9 @@ const Reports: React.FC = () => {
 
                                                                         {/* Test Performance */}
                                                                         <div className="space-y-4">
-                                                                            <div className="flex items-center gap-2 text-amber-600">
-                                                                                <div className="p-1.5 bg-amber-50 rounded-lg">
-                                                                                    <TrendingUp className="h-4 w-4" />
-                                                                                </div>
-                                                                                <span className="text-xs font-bold uppercase tracking-wider">Test Performance</span>
+                                                                            <div className="flex items-center gap-2 text-gray-900">
+                                                                                <TrendingUp className="h-4 w-4 text-gray-400" />
+                                                                                <span className="text-[13px] font-bold">Test Performance</span>
                                                                             </div>
                                                                             <div className="space-y-2.5">
                                                                                 {[
@@ -867,24 +844,23 @@ const Reports: React.FC = () => {
                                                                         </div>
 
                                                                         {/* Assessments */}
+                                                                        {/* Assessments */}
                                                                         <div className="space-y-4">
-                                                                            <div className="flex items-center gap-2 text-rose-600">
-                                                                                <div className="p-1.5 bg-rose-50 rounded-lg">
-                                                                                    <FileText className="h-4 w-4" />
-                                                                                </div>
-                                                                                <span className="text-xs font-bold uppercase tracking-wider">Assessments</span>
+                                                                            <div className="flex items-center gap-2 text-gray-900">
+                                                                                <FileText className="h-4 w-4 text-gray-400" />
+                                                                                <span className="text-[13px] font-bold">Assessments</span>
                                                                             </div>
                                                                             <div className="space-y-2.5">
                                                                                 {[
                                                                                     { label: 'Total', val: '5' },
-                                                                                    { label: 'Completed', val: '3' },
-                                                                                    { label: 'In Progress', val: '1' },
-                                                                                    { label: 'Pending', val: '1' },
+                                                                                    { label: 'Completed', val: '3', color: 'text-emerald-500' },
+                                                                                    { label: 'In Progress', val: '1', color: 'text-amber-500' },
+                                                                                    { label: 'Pending', val: '1', color: 'text-rose-500' },
                                                                                     { label: 'Avg Score', val: '85%' }
                                                                                 ].map((item, i) => (
-                                                                                    <div key={i} className="flex justify-between items-center">
+                                                                                    <div key={i} className="flex justify-between items-center px-0.5">
                                                                                         <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
-                                                                                        <span className="text-[11px] font-bold text-gray-700">{item.val}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-900", item.color)}>{item.val}</span>
                                                                                     </div>
                                                                                 ))}
                                                                             </div>
@@ -892,25 +868,23 @@ const Reports: React.FC = () => {
 
                                                                         {/* Tasks & Attendance */}
                                                                         <div className="space-y-4">
-                                                                            <div className="flex items-center gap-2 text-emerald-600">
-                                                                                <div className="p-1.5 bg-emerald-50 rounded-lg">
-                                                                                    <CheckCircle2 className="h-4 w-4" />
-                                                                                </div>
-                                                                                <span className="text-xs font-bold uppercase tracking-wider">Tasks & Attendance</span>
+                                                                            <div className="flex items-center gap-2 text-gray-900">
+                                                                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                                                                <span className="text-[13px] font-bold">Tasks & Attendance</span>
                                                                             </div>
                                                                             <div className="space-y-2.5">
                                                                                 {[
                                                                                     { label: 'Tasks Assigned', val: '8' },
-                                                                                    { label: 'On Time', val: '6' },
-                                                                                    { label: 'Late', val: '1' },
-                                                                                    { label: 'Pending', val: '1' },
+                                                                                    { label: 'On Time', val: '6', color: 'text-emerald-500' },
+                                                                                    { label: 'Late', val: '1', color: 'text-amber-500' },
+                                                                                    { label: 'Pending', val: '1', color: 'text-rose-500' },
                                                                                     { label: 'Classes Held', val: '45' },
-                                                                                    { label: 'Attended', val: '41' },
+                                                                                    { label: 'Attended', val: '41', color: 'text-gray-900' },
                                                                                     { label: 'Missed', val: '4', color: 'text-rose-500' }
                                                                                 ].map((item, i) => (
-                                                                                    <div key={i} className="flex justify-between items-center">
+                                                                                    <div key={i} className="flex justify-between items-center px-0.5">
                                                                                         <span className="text-[11px] font-medium text-gray-400">{item.label}</span>
-                                                                                        <span className={cn("text-[11px] font-bold text-gray-700", item.color)}>{item.val}</span>
+                                                                                        <span className={cn("text-[11px] font-bold text-gray-900", item.color)}>{item.val}</span>
                                                                                     </div>
                                                                                 ))}
                                                                             </div>
@@ -943,36 +917,36 @@ const Reports: React.FC = () => {
                                         <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-3">
                                             {/* Strongest Subject */}
                                             <div className="p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
-                                                <TrendingUp className="h-5 w-5 text-emerald-500" />
-                                                <div className="text-[11px] font-bold text-emerald-600 leading-none">Strongest Subject</div>
-                                                <div className="text-sm font-bold text-emerald-900 leading-tight line-clamp-2">{analyticsData?.strongest || 'Operating Systems'}</div>
+                                                <TrendingUp className="h-5 w-5 text-[#15803D]" />
+                                                <div className="text-[11px] font-bold text-[#15803D] leading-none">Strongest Subject</div>
+                                                <div className="text-sm font-bold text-[#15803D] leading-tight line-clamp-2">{analyticsData?.strongest || 'Operating Systems'}</div>
                                             </div>
 
                                             {/* Weakest Subject */}
                                             <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
-                                                <Activity className="h-5 w-5 text-rose-500" />
-                                                <div className="text-[11px] font-bold text-rose-600 leading-none">Weakest Subject</div>
-                                                <div className="text-sm font-bold text-rose-900 leading-tight line-clamp-2">{analyticsData?.weakest || 'Computer Networks'}</div>
+                                                <Activity className="h-5 w-5 text-[#991B1B]" />
+                                                <div className="text-[11px] font-bold text-[#991B1B] leading-none">Weakest Subject</div>
+                                                <div className="text-sm font-bold text-[#991B1B] leading-tight line-clamp-2">{analyticsData?.weakest || 'Computer Networks'}</div>
                                             </div>
 
                                             {/* Highest Pending */}
                                             <div className="p-4 rounded-2xl bg-[#FFF7ED] border border-[#FFEDD5] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
-                                                <AlertTriangle className="h-5 w-5 text-amber-500" />
-                                                <div className="text-[11px] font-bold text-amber-600 leading-none">Highest Pending</div>
-                                                <div className="text-sm font-bold text-amber-900 leading-tight line-clamp-2">{analyticsData?.highestPending || 'Computer Networks'}</div>
+                                                <AlertTriangle className="h-5 w-5 text-[#B45309]" />
+                                                <div className="text-[11px] font-bold text-[#B45309] leading-none">Highest Pending</div>
+                                                <div className="text-sm font-bold text-[#B45309] leading-tight line-clamp-2">{analyticsData?.highestPending || 'Computer Networks'}</div>
                                             </div>
 
                                             {/* Lowest Attendance */}
                                             <div className="p-4 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] text-center space-y-2 flex flex-col items-center justify-center min-h-[160px]">
-                                                <Calendar className="h-5 w-5 text-rose-400" />
-                                                <div className="text-[11px] font-bold text-rose-600 leading-none">Lowest Attendance</div>
-                                                <div className="text-sm font-bold text-rose-900 leading-tight line-clamp-2">{analyticsData?.lowestAttendance || 'Computer Networks'}</div>
+                                                <Calendar className="h-5 w-5 text-[#991B1B]" />
+                                                <div className="text-[11px] font-bold text-[#991B1B] leading-none">Lowest Attendance</div>
+                                                <div className="text-sm font-bold text-[#991B1B] leading-tight line-clamp-2">{analyticsData?.lowestAttendance || 'Computer Networks'}</div>
                                             </div>
 
                                             {/* Performance Gap */}
                                             <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center min-h-[160px] col-span-2 xl:col-span-1">
                                                 <Target className="h-5 w-5 text-gray-400" />
-                                                <div className="text-[11px] font-bold text-gray-500 leading-none">Performance Gap</div>
+                                                <div className="text-[11px] font-bold text-gray-400 leading-none">Performance Gap</div>
                                                 <div className="text-2xl font-bold text-gray-900 leading-tight tracking-tight">{analyticsData?.performanceGap || '31%'}</div>
                                             </div>
                                         </div>
@@ -990,7 +964,7 @@ const Reports: React.FC = () => {
                                         <div className="space-y-4">
                                             {(analyticsData?.riskItems || []).length > 0 ? (
                                                 analyticsData.riskItems.map((item: any, idx: number) => (
-                                                    <div key={idx} className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+                                                    <div key={idx} className="flex items-center justify-between py-5 border-b border-gray-50 last:border-0">
                                                         <div className="space-y-1">
                                                             <div className="text-sm font-bold text-gray-900">
                                                                 {item.label} <span className="text-gray-400 font-medium ml-1">· {item.subj}</span>
@@ -1001,8 +975,8 @@ const Reports: React.FC = () => {
                                                             <Badge className={cn(
                                                                 "px-3 py-1 rounded-full text-[10px] font-bold border-none shadow-none uppercase tracking-widest",
                                                                 item.risk === 'High' ? "bg-[#FEF2F2] text-[#991B1B]" :
-                                                                    item.risk === 'Medium' ? "bg-[#FFF7ED] text-[#9A3412]" :
-                                                                        "bg-[#F0FDF4] text-[#166534]"
+                                                                    item.risk === 'Medium' ? "bg-[#FFF7ED] text-[#B45309]" :
+                                                                        "bg-[#F0FDF4] text-[#15803D]"
                                                             )}>
                                                                 {item.risk} Risk
                                                             </Badge>
@@ -1026,34 +1000,34 @@ const Reports: React.FC = () => {
                                     <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                                         {/* Left Side: Stats Summary */}
                                         <div className="flex-none w-full lg:w-[320px] space-y-6">
-                                            <div className="p-10 rounded-[2.5rem] bg-[#F8FAFC] border border-white shadow-sm flex flex-col items-center justify-center text-center space-y-4">
-                                                <div className="h-12 w-12 rounded-2xl bg-white shadow-xs border border-gray-50 flex items-center justify-center text-indigo-600">
+                                            <div className="p-10 rounded-[2.5rem] bg-[#F8FAFC] border-none flex flex-col items-center justify-center text-center space-y-4">
+                                                <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-indigo-600">
                                                     <Calendar className="h-6 w-6" />
                                                 </div>
                                                 <div>
                                                     <div className="text-4xl font-bold text-gray-900 tracking-tight leading-none">{attendanceStats.percentage}%</div>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Overall Attendance</div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2 font-inter">Overall Attendance</div>
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-3 gap-4">
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
                                                     <div className="text-xl font-bold text-gray-900 tracking-tight">{attendanceStats.present || 41}</div>
-                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Active Days</div>
+                                                    <div className="text-[11px] font-medium text-gray-400 mt-1 text-center leading-tight">Active Days</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
                                                     <div className="flex items-center gap-1">
                                                         <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
                                                         <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.streak || 2}</span>
                                                     </div>
-                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Streak</div>
+                                                    <div className="text-[11px] font-medium text-gray-400 mt-1 text-center leading-tight">Current</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-[2rem] bg-[#F8FAFC] border border-white">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
                                                     <div className="flex items-center gap-1">
                                                         <Star className="h-3 w-3 text-indigo-500 fill-indigo-500" />
                                                         <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.longest_streak || 8}</span>
                                                     </div>
-                                                    <div className="text-xs font-medium text-gray-500 mt-1 text-center leading-tight">Best</div>
+                                                    <div className="text-[11px] font-medium text-gray-400 mt-1 text-center leading-tight">Longest</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1103,21 +1077,23 @@ const Reports: React.FC = () => {
                                 <CardContent className="p-8 pt-4">
                                     <div className="flex flex-wrap gap-4">
                                         {[
-                                            { name: 'First Login', color: 'bg-[#FFF7ED] text-[#9A3412] border-[#FFEDD5]', icon: Star, active: true },
-                                            { name: 'Active Student', color: attendanceStats.percentage > 0 ? 'bg-[#F0FDF4] text-[#166534] border-[#DCFCE7]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: BookOpen, locked: attendanceStats.percentage === 0 },
-                                            { name: '5 Day Streak', color: (analyticsData?.streak || 0) >= 5 ? 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Zap, locked: (analyticsData?.streak || 0) < 5 },
-                                            { name: '10 Day Streak', color: (analyticsData?.streak || 0) >= 10 ? 'bg-[#FEF2F2] text-[#991B1B] border-[#FEE2E2]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Activity, locked: (analyticsData?.streak || 0) < 10 },
-                                            { name: '85% Attendance', color: attendanceStats.percentage >= 85 ? 'bg-[#EEF2FF] text-[#3730A3] border-[#E0E7FF]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: CheckCircle2, locked: attendanceStats.percentage < 85 },
-                                            { name: 'Top Performer', color: attendanceStats.percentage >= 95 ? 'bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7]' : 'bg-gray-50 text-gray-400 border-gray-100', icon: Target, locked: attendanceStats.percentage < 95 },
+                                            { name: 'First Login', color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]', icon: '🏅' },
+                                            { name: 'Notes Starter', color: 'bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7]', icon: '📚' },
+                                            { name: '5 Day Streak', color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]', icon: '🔥' },
+                                            { name: '10 Day Streak', color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]', icon: '🔥' },
+                                            { name: 'All Tasks Done', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '✅', locked: true },
+                                            { name: 'Perfect Attendance', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '🎯', locked: true },
+                                            { name: 'Assessment Ace', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '⭐', locked: true },
                                         ].map((badge, i) => (
                                             <Badge key={i} className={cn(
-                                                "px-6 py-4 rounded-2xl flex items-center gap-4 text-xs font-bold shadow-none border transition-all hover:scale-[1.02] cursor-default uppercase tracking-widest",
-                                                badge.color
+                                                "px-6 py-5 rounded-2xl flex flex-row items-center gap-3 text-xs font-bold shadow-none border transition-all cursor-default",
+                                                badge.color,
+                                                badge.locked && "opacity-60 grayscale-[0.5]"
                                             )}>
-                                                <badge.icon className={cn("h-5 w-5", !badge.locked && "fill-current opacity-80")} />
+                                                <span className="text-xl">{badge.icon}</span>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold">{badge.name}</span>
-                                                    {badge.locked && <span className="text-[10px] font-medium opacity-50 mt-0.5">Locked</span>}
+                                                    <span className="font-bold whitespace-nowrap">{badge.name}</span>
+                                                    {badge.locked && <span className="text-[10px] font-medium opacity-60 mt-0.5">(locked)</span>}
                                                 </div>
                                             </Badge>
                                         ))}
