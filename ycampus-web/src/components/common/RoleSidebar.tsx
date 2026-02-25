@@ -435,14 +435,14 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
 
           {userRole === 'faculty' && !sidebarCollapsed && (
             <div className="pt-4 space-y-1">
-              <div className="px-3 mb-2 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reports</span>
-                <button
-                  onClick={() => setReportsOpen(!reportsOpen)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
-                >
-                  {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400" /> : <ChevronDown className="h-3 w-3 text-gray-400" />}
-                </button>
+              <div
+                className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
+                onClick={() => setReportsOpen(!reportsOpen)}
+              >
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
+                <div className="p-1">
+                  {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />}
+                </div>
               </div>
 
               {reportsOpen && filteredItems

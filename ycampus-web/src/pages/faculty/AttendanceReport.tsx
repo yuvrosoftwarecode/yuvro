@@ -19,7 +19,8 @@ import {
     Loader2,
     ArrowUpDown,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    Download
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ const AttendanceReport: React.FC = () => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [fetchingData, setFetchingData] = useState(false);
+    const [exporting, setExporting] = useState(false);
     const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
 
     // Filters state
@@ -185,6 +187,81 @@ const AttendanceReport: React.FC = () => {
         fetchData();
     }, [currentAssignment]);
 
+    const handleExportExcel = async () => {
+        if (!reportData) return;
+
+        try {
+            setExporting(true);
+            const XLSX = await import('xlsx');
+
+            // 1. Prepare Header Information
+            const reportTitle = `Attendance Report - ${selectedDept} | ${selectedSem} | ${selectedSection}`;
+            const filterInfo = `Filters: Batch: ${selectedBatch} | Subject: ${selectedSubject} | Date: ${dateRange === 'all' ? 'Full Semester' : `Last ${dateRange} Days`}`;
+            const generatedTimestamp = `Generated: ${new Date().toLocaleString()}`;
+
+            // 2. Build the Worksheet data as Array of Arrays (AOA)
+            const aoaData = [
+                [reportTitle],
+                [filterInfo],
+                [generatedTimestamp],
+                [], // Spacer
+                ['Section Summary'],
+                ['Total Classes', '', '', reportData.stats.classesConducted],
+                ['Total Students', '', '', reportData.stats.totalStudents],
+                ['Average Attendance', reportData.stats.avgAttendance],
+                ['Below 75%', '', '', reportData.stats.below75],
+                ['Below 60%', '', '', reportData.stats.below60],
+                [], // Spacer
+                ['Student Name', 'Roll Number', 'Total Classes', 'Present', 'Absent', 'Attendance %', 'Risk Level']
+            ];
+
+            // 3. Add Student Data
+            reportData.students.forEach(s => {
+                aoaData.push([
+                    s.name,
+                    s.rollNo,
+                    s.classes,
+                    s.present,
+                    s.absent,
+                    s.percentage,
+                    s.status
+                ]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Section Summary');
+
+            // 4. Formatting adjustments (Column widths)
+            const wscols = [
+                { wch: 30 }, // Name
+                { wch: 20 }, // Roll
+                { wch: 12 }, // Total Classes
+                { wch: 10 }, // Present
+                { wch: 10 }, // Absent
+                { wch: 15 }, // %
+                { wch: 15 }, // Risk Level
+            ];
+            worksheet['!cols'] = wscols;
+
+            // Merge cells for titles (optional but nice)
+            worksheet['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // Title merge
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }, // Filters merge
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }  // Timestamp merge
+            ];
+
+            const fileName = `Attendance_Report_${selectedDept.replace(/\s+/g, '_')}_${selectedSection}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            toast.success('Excel report downloaded in requested format');
+        } catch (error) {
+            console.error('Export failed:', error);
+            toast.error('Failed to export Excel report');
+        } finally {
+            setExporting(false);
+        }
+    };
+
     // Derived hierarchical options
     const departments = Array.from(new Set(assignments.map(a => a.semester_subject_details?.department_name).filter(Boolean))) as string[];
 
@@ -235,11 +312,21 @@ const AttendanceReport: React.FC = () => {
 
                 <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8 bg-white">
                     {/* Page Header */}
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Attendance Report</h1>
-                        <p className="text-sm font-medium text-gray-500">
-                            Analyze attendance department-wise, section-wise, and student-wise
-                        </p>
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Attendance Report</h1>
+                            <p className="text-sm font-medium text-gray-500">
+                                Analyze attendance department-wise, section-wise, and student-wise
+                            </p>
+                        </div>
+                        <Button
+                            onClick={handleExportExcel}
+                            disabled={!reportData || exporting}
+                            className="bg-green-600 hover:bg-green-700 text-white shadow-sm flex items-center gap-2 rounded-xl h-11 px-6 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                            Excel
+                        </Button>
                     </div>
 
                     {/* Filter Section */}
