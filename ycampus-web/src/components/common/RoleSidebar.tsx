@@ -285,6 +285,62 @@ const sidebarItems: SidebarItem[] = [
     path: '/college-admin/settings',
     roles: ['college_admin']
   },
+  {
+    id: 'tpo-job-approvals',
+    label: 'Job Approvals',
+    icon: CheckCircle,
+    path: '/tpo/job-approvals',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-live-jobs',
+    label: 'Live Jobs',
+    icon: Briefcase,
+    path: '/tpo/live-jobs',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-students-tracking',
+    label: 'Students Tracking',
+    icon: Users,
+    path: '/tpo/students',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-analytics',
+    label: 'Analytics',
+    icon: BarChart3,
+    path: '/tpo/analytics',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-recruiter-insights',
+    label: 'Recruiter Insights',
+    icon: TrendingUp,
+    path: '/tpo/recruiter-insights',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-drive-calendar',
+    label: 'Drive Calendar',
+    icon: Calendar,
+    path: '/tpo/calendar',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-notifications',
+    label: 'Notifications',
+    icon: Activity,
+    path: '/tpo/notifications',
+    roles: ['tpo']
+  },
+  {
+    id: 'tpo-settings',
+    label: 'Settings',
+    icon: Settings,
+    path: '/tpo/settings',
+    roles: ['tpo']
+  },
 
   // Faculty Items
   {
@@ -629,109 +685,38 @@ export const SidebarContent = ({
           )}
         </div>
 
-        <nav className="space-y-1 px-3 mt-2">
-          {userRole === 'faculty' && !sidebarCollapsed && (
-            <div className="px-3 mb-3 mt-4">
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Navigation</span>
-            </div>
+        <nav className="space-y-1">
+          {!sidebarCollapsed && (
+            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Navigation</p>
           )}
-          {filteredItems
-            .filter(item => userRole !== 'faculty' || (!item.id.includes('report')))
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = isActiveItem(item);
+          {filteredItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isActiveItem(item);
+            const isTPO = userRole === 'tpo';
 
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={onItemClick}
-                  className={`flex items-center ${
-                    sidebarCollapsed 
-                      ? 'justify-center p-2 rounded-lg mx-auto w-9 h-9' 
-                      : `py-2 w-full rounded-lg ${isActive ? 'pl-4 pr-3 space-x-[14px]' : 'px-3 space-x-3'}`
-                  } cursor-pointer group relative overflow-hidden transition-all duration-200 ${isActive
-                    ? 'text-[#0f172a] bg-[#f4f4f5] font-medium'
-                    : 'text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a] font-medium'
-                    }`}
-                  title={sidebarCollapsed ? item.label : ''}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#0f172a]" />
-                  )}
-
-                  <Icon className={`h-[18px] w-[18px] flex-shrink-0 transition-all duration-200 stroke-[2] ${isActive ? 'text-[#0f172a]' : 'text-[#64748b] group-hover:text-[#0f172a]'}`} />
-                  {!sidebarCollapsed && <span className="text-[13px] leading-tight">{item.label}</span>}
-                  
-                  {sidebarCollapsed && (
-                    <div className="absolute left-full ml-3 px-2 py-1 bg-[#3B3D47] text-white text-xs font-medium rounded opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-sm">
-                      {item.label}
-                    </div>
-                  )}
-                </Link>
-              );
-            })}
-
-          {userRole === 'faculty' && !sidebarCollapsed && (
-            <div className="pt-4 space-y-1">
-              <div
-                className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
-                onClick={() => setReportsOpen(!reportsOpen)}
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-all duration-200 ${isActive
+                  ? (isTPO ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600')
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium'
+                  }`}
+                title={sidebarCollapsed ? item.label : ''}
               >
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
-                <div className="p-1">
-                  {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />}
-                </div>
-              </div>
-
-              {reportsOpen && filteredItems
-                .filter(item => item.id.includes('report'))
-                .map((item) => {
-                  const Icon = item.icon;
-                  const isActive = isActiveItem(item);
-
-                  return (
-                    <Link
-                      key={item.id}
-                      to={item.path}
-                      onClick={onItemClick}
-                      className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
-                        ? 'bg-orange-50 text-orange-600'
-                        : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                      <Icon className="h-[18px] w-[18px] flex-shrink-0" />
-                      <span className="text-[13px]">{item.label}</span>
-                    </Link>
-                  );
-                })}
-            </div>
-          )}
-
-          {userRole === 'faculty' && sidebarCollapsed && filteredItems
-            .filter(item => item.id.includes('report'))
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = isActiveItem(item);
-
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={onItemClick}
-                  className={`flex items-center justify-center p-2 rounded-lg cursor-pointer group relative transition-colors ${isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  title={item.label}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                {!sidebarCollapsed && <span className="text-xs font-semibold">{item.label}</span>}
+                {sidebarCollapsed && (
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
                     {item.label}
                   </div>
-                </Link>
-              );
-            })}
+                )}
+                {isActive && !sidebarCollapsed && (
+                  <div className={`absolute right-3 w-1.5 h-1.5 rounded-full ${isTPO ? 'bg-purple-600' : 'bg-orange-600'}`} />
+                )}
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
