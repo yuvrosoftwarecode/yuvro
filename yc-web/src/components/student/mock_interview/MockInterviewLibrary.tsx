@@ -126,7 +126,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     // Navigate to the interview room
     navigate('/student/mock-interview/session', {
       state: {
-        role: selectedRole,
+        role: { ...selectedRole, icon: undefined }, // Strip non-serializable icon
         settings: settings
       }
     });
