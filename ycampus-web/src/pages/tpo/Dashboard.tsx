@@ -22,6 +22,8 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  LineChart,
+  Line,
   Cell,
   PieChart,
   Pie
@@ -91,7 +93,7 @@ const Dashboard: React.FC = () => {
                     <FileCheck className="h-5 w-5 text-orange-500" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">0</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Pending Approvals</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Pending Approvals</p>
                 </CardContent>
               </Card>
 
@@ -101,7 +103,7 @@ const Dashboard: React.FC = () => {
                     <Briefcase className="h-5 w-5 text-purple-600" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">5</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Live Jobs</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Live Jobs</p>
                 </CardContent>
               </Card>
 
@@ -111,7 +113,7 @@ const Dashboard: React.FC = () => {
                     <Users className="h-5 w-5 text-green-600" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">0</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Students Selected</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Students Selected</p>
                 </CardContent>
               </Card>
 
@@ -121,7 +123,7 @@ const Dashboard: React.FC = () => {
                     <Banknote className="h-5 w-5 text-blue-600" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">₹0.0L</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Avg CTC</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Avg CTC</p>
                 </CardContent>
               </Card>
 
@@ -131,7 +133,7 @@ const Dashboard: React.FC = () => {
                     <TrendingUp className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">₹0.0L</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Highest CTC</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Highest CTC</p>
                 </CardContent>
               </Card>
 
@@ -141,7 +143,7 @@ const Dashboard: React.FC = () => {
                     <GraduationCap className="h-5 w-5 text-teal-600" />
                   </div>
                   <div className="text-xl font-bold text-gray-900 leading-none">0%</div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-2 tracking-wider">Placement %</p>
+                  <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-wider">Placement %</p>
                 </CardContent>
               </Card>
             </div>
@@ -159,7 +161,7 @@ const Dashboard: React.FC = () => {
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Selection Funnel */}
-              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold text-gray-700">Selection Funnel</CardTitle>
                 </CardHeader>
@@ -169,22 +171,29 @@ const Dashboard: React.FC = () => {
                       <BarChart
                         layout="vertical"
                         data={funnelData}
-                        margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                        margin={{ top: 5, right: 30, left: 40, bottom: 20 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
-                        <XAxis type="number" hide />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                        <XAxis
+                          type="number"
+                          domain={[0, 320]}
+                          ticks={[0, 80, 160, 240, 320]}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 12, fontWeight: 500, fill: '#9ca3af' }}
+                        />
                         <YAxis
                           dataKey="name"
                           type="category"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 12, fontWeight: 500, fill: '#9ca3af' }}
                         />
                         <Tooltip />
                         <Bar
                           dataKey="value"
-                          fill="#8b5cf6"
-                          radius={[0, 4, 4, 0]}
+                          fill="hsl(249, 60%, 69%)"
+                          radius={[0, 8, 8, 0]}
                           barSize={32}
                         />
                       </BarChart>
@@ -194,38 +203,35 @@ const Dashboard: React.FC = () => {
               </Card>
 
               {/* Department-wise Placement */}
-              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold text-gray-700">Department-wise Placement %</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[220px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={deptData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <BarChart data={deptData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
                           dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
                         />
                         <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
                           domain={[0, 100]}
+                          ticks={[0, 25, 50, 75, 100]}
                         />
                         <Tooltip />
                         <Bar
                           dataKey="pct"
-                          fill="#10b981"
-                          radius={[4, 4, 0, 0]}
+                          fill="hsl(165, 64%, 50%)"
+                          radius={[8, 8, 0, 0]}
                           barSize={32}
-                        >
-                          {deptData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill="#10b981" fillOpacity={0.8} />
-                          ))}
-                        </Bar>
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -233,49 +239,45 @@ const Dashboard: React.FC = () => {
               </Card>
 
               {/* Monthly Hiring Trend */}
-              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold text-gray-700">Monthly Hiring Trend</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[220px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={trendData}>
-                        <defs>
-                          <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <LineChart data={trendData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
                           dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
                         />
                         <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fontWeight: 700, fill: '#9ca3af' }}
+                          axisLine={{ stroke: '#9ca3af' }}
+                          tickLine={{ stroke: '#9ca3af' }}
+                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
+                          domain={[0, 100]}
+                          ticks={[0, 25, 50, 75, 100]}
                         />
                         <Tooltip />
-                        <Area
+                        <Line
                           type="monotone"
-                          dataKey="students"
-                          stroke="#8b5cf6"
-                          strokeWidth={2}
-                          fillOpacity={1}
-                          fill="url(#colorStudents)"
+                          dataKey="hires"
+                          stroke="hsl(249, 60%, 69%)"
+                          strokeWidth={2.5}
+                          dot={{ fill: "hsl(249, 60%, 69%)", r: 4 }}
+                          activeDot={{ r: 6, strokeWidth: 0 }}
                         />
-                      </AreaChart>
+                      </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Salary Distribution */}
-              <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+              <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold text-gray-700">Salary Distribution</CardTitle>
                 </CardHeader>
@@ -292,9 +294,11 @@ const Dashboard: React.FC = () => {
                           label={({ name, index }) => index}
                           labelLine={true}
                         >
-                          {salaryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} stroke="#fff" strokeWidth={2} />
-                          ))}
+                          <Cell fill="hsl(249, 60%, 69%)" stroke="#fff" strokeWidth={2} />
+                          <Cell fill="hsl(165, 64%, 50%)" stroke="#fff" strokeWidth={2} />
+                          <Cell fill="hsl(38, 100%, 56%)" stroke="#fff" strokeWidth={2} />
+                          <Cell fill="hsl(0, 72%, 62%)" stroke="#fff" strokeWidth={2} />
+                          <Cell fill="hsl(201, 89%, 60%)" stroke="#fff" strokeWidth={2} />
                         </Pie>
                         <Tooltip />
                       </PieChart>
