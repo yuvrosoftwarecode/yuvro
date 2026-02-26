@@ -73,6 +73,7 @@ import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
+import TPOScreen from './pages/college-admin/TPOScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
@@ -477,6 +478,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <StudentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/tpo"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <TPOScreen />
                   </ProtectedRoute>
                 }
               />
