@@ -136,10 +136,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         handleSubmitAssessment();
       }, 2000);
     } else if (type === 'fullscreen_exit') {
-      toast.error("Fullscreen exited. Assessment will be aborted for violation.");
-      setTimeout(() => {
-        handleSubmitAssessment();
-      }, 2000);
+      setShowFullscreenDialog(true);
     } else if (type === 'screen_share_stopped') {
       toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
       setTimeout(() => {
@@ -194,7 +191,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     }
   }, [assessment.proctoring_enabled]);
 
-  useProctoring({
+  const { logActivity } = useProctoring({
     assessmentId: assessment.id,
     assessmentType: assessmentType,
     enabled: assessment.proctoring_enabled ?? true,
