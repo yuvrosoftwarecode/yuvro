@@ -90,9 +90,6 @@ import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPOScreen from './pages/college-admin/TPOScreen';
-import FacultyReports from './pages/faculty/Reports';
-import AttendanceReport from './pages/faculty/AttendanceReport';
-import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
@@ -660,18 +657,10 @@ function App() {
                 }
               />
               <Route
-                path="/college-admin/announcements"
+                path="/college-admin/tpo"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <AnnouncementsScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/college-admin/subjects"
-                element={
-                  <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <TPOScreen />
                   </ProtectedRoute>
                 }
               />
@@ -687,7 +676,7 @@ function App() {
                 path="/college-admin/activity-logs"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
@@ -699,13 +688,59 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* College Subject Management Route */}
               <Route
-                path="/admin/subjects/colleges/:collegeId"
+                path="/instructor/subjects/colleges/:collegeId"
                 element={
-                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <CollegeSubjects />
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/hods"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/faculty"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/students"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/courses"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />

@@ -265,6 +265,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['college_admin']
   },
   {
+    id: 'college-tpo',
+    label: 'TPO Management',
+    icon: Users,
+    path: '/college-admin/tpo',
+    roles: ['college_admin']
+  },
+  {
     id: 'college-reports',
     label: 'Reports',
     icon: FileText,
