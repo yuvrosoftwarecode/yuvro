@@ -131,8 +131,10 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
         };
     }, [enabled, logActivity]);
 
-    // 4. Fullscreen Change
+    // 4. Fullscreen Change & Enforcement
     useEffect(() => {
+        if (!enabled) return;
+
         const handleFullscreenChange = () => {
             if (!document.fullscreenElement) {
                 logActivity('fullscreen_exit');
@@ -142,9 +144,33 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
             }
         };
 
+        // 1. Initial Check: If enabled but not in fullscreen, trigger violation
+        // (Note: We use a small timeout to allow the initial requestFullscreen to settle)
+        const initialCheckTimeout = setTimeout(() => {
+            if (!document.fullscreenElement) {
+                console.warn("Fullscreen enforcement: Not in fullscreen on initialization");
+                logActivity('fullscreen_exit', { trigger: 'initial_check' });
+                if (onViolation) onViolation('fullscreen_exit');
+            }
+        }, 2000);
+
+        // 2. Continuous Monitoring: Interval check every 3 seconds
+        const enforcementInterval = setInterval(() => {
+            if (!document.fullscreenElement) {
+                console.warn("Fullscreen enforcement: Lost fullscreen during assessment");
+                logActivity('fullscreen_exit', { trigger: 'interval_check' });
+                if (onViolation) onViolation('fullscreen_exit');
+            }
+        }, 3000);
+
         document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    }, [logActivity, onViolation]);
+        
+        return () => {
+            clearTimeout(initialCheckTimeout);
+            clearInterval(enforcementInterval);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, [logActivity, onViolation, enabled]);
 
     // 5. Keyboard Shortcut Detection
     useEffect(() => {
