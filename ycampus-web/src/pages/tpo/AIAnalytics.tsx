@@ -45,7 +45,7 @@ const AIAnalytics: React.FC = () => {
         <div className="flex h-screen bg-gray-50">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="AI Analytics" subtitle="" />
+                <RoleHeader title="" subtitle="" />
                 <main className="flex-1 overflow-y-auto p-6">
                     <div className="max-w-7xl mx-auto space-y-8">
                         <div className="flex justify-between items-center">

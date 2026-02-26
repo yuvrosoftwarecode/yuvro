@@ -66,12 +66,24 @@ const JobApprovals: React.FC = () => {
         }
     };
 
+    const handleJobAction = async (status: string) => {
+        if (!selectedJob) return;
+        try {
+            await mockJobService.updateJobStatus(selectedJob.id, status);
+            toast.success(`Job ${status} successfully`);
+            setSelectedJob(null);
+            loadJobs();
+        } catch (error) {
+            toast.error(`Failed to update job status to ${status}`);
+        }
+    };
+
     return (
         <div className="flex h-screen bg-[hsl(240,20%,98.5%)]">
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="Job Approvals" subtitle="" />
+                <RoleHeader title="" subtitle="" />
 
                 <main className="flex-1 overflow-y-auto p-6 md:p-8">
                     <div className="max-w-7xl mx-auto space-y-6">
@@ -118,7 +130,7 @@ const JobApprovals: React.FC = () => {
                                 >
                                     <CardContent className="p-4 relative">
                                         <div className="absolute top-4 right-4 text-[10px] font-bold">
-                                            <span className="bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tight">
+                                            <span className="bg-emerald-500 text-white px-2 py-0.5 rounded-full capitalize tracking-tight">
                                                 {job.status}
                                             </span>
                                         </div>
@@ -237,15 +249,15 @@ const JobApprovals: React.FC = () => {
                             </section>
 
                             {/* Actions */}
-                            {selectedJob.status === 'pending' && (
+                            {(selectedJob.status === 'pending' || selectedJob.status === 'hold') && (
                                 <div className="flex gap-3 pt-2">
-                                    <Button className="flex-1 rounded-xl" style={{ background: TEAL }} onClick={() => setActionType('approve')}>
+                                    <Button className="flex-1 rounded-xl" style={{ background: TEAL }} onClick={() => handleJobAction('approved')}>
                                         <CheckCircle2 className="h-4 w-4 mr-1" /> Approve
                                     </Button>
-                                    <Button className="flex-1 rounded-xl" variant="destructive" onClick={() => setActionType('reject')}>
+                                    <Button className="flex-1 rounded-xl" variant="destructive" onClick={() => handleJobAction('rejected')}>
                                         <XCircle className="h-4 w-4 mr-1" /> Reject
                                     </Button>
-                                    <Button className="flex-1 rounded-xl" variant="outline" onClick={() => setActionType('hold')}>
+                                    <Button className="flex-1 rounded-xl" variant="outline" onClick={() => handleJobAction('hold')}>
                                         <Pause className="h-4 w-4 mr-1" /> Hold
                                     </Button>
                                 </div>
@@ -291,11 +303,11 @@ const JobApprovals: React.FC = () => {
                                                             </Button>
                                                         </div>
                                                     ) : (
-                                                        <Badge className={`px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider ${app.status === 'shortlisted' || app.status === 'selected'
+                                                        <Badge className={`px-2 py-0.5 rounded-full font-bold text-[9px] tracking-wider ${app.status === 'shortlisted' || app.status === 'selected'
                                                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                                             : 'bg-red-50 text-red-600 border-red-100'
                                                             }`}>
-                                                            {app.status}
+                                                            {app.status === 'shortlisted' ? 'Approved' : app.status}
                                                         </Badge>
                                                     )}
                                                 </div>

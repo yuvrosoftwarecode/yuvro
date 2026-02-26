@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <RoleHeader
-          title="Dashboard"
+          title=""
           subtitle=""
         />
         <main className="flex-1 overflow-y-auto p-6">

@@ -69,10 +69,12 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
     <div className={`bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-            {subtitle && <p className="text-gray-600">{subtitle}</p>}
-          </div>
+          {(title || subtitle) && (
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+              {subtitle && <p className="text-gray-600">{subtitle}</p>}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
