@@ -71,7 +71,7 @@ const AIAnalytics: React.FC = () => {
                                     <div className="h-[260px] w-full">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={rejectionData} margin={{ bottom: 10 }}>
-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#9ca3af" />
                                                 <XAxis
                                                     dataKey="name"
                                                     axisLine={false}
@@ -131,11 +131,11 @@ const AIAnalytics: React.FC = () => {
                                         <CardContent className="p-4 text-center space-y-1">
                                             <p className="text-lg font-bold text-gray-900">{dept.placed}%</p>
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">{dept.name} Placed</span>
-                                                <span className="text-[9px] text-teal-500 font-bold">Avg ₹{dept.ctc}</span>
+                                                <span className="text-[12px] text-gray-400 tracking-tight">{dept.name} Placed</span>
+                                                <span className="text-[12px] text-teal-500 font-bold">Avg ₹{dept.ctc}</span>
                                             </div>
                                             {dept.underperforming && (
-                                                <div className="flex items-center justify-center gap-1 text-[8px] text-red-500 font-bold uppercase tracking-wider mt-1">
+                                                <div className="flex items-center justify-center gap-1 text-[10px] text-red-500 tracking-wider mt-1">
                                                     <AlertTriangle className="h-2.5 w-2.5" />
                                                     <span>Underperforming</span>
                                                 </div>
