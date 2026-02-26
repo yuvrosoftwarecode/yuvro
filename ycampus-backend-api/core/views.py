@@ -14,6 +14,7 @@ from .models import (
     HODProfile,
     PrincipalProfile,
     CollegeAdminProfile,
+    TPOProfile,
     Department,
 )
 from .serializers import (
@@ -22,6 +23,7 @@ from .serializers import (
     HODProfileSerializer,
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
+    TPOProfileSerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin
 
@@ -925,3 +927,112 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
                 })
 
         return Response(results, status=status.HTTP_200_OK if results["created"] > 0 else status.HTTP_200_OK if results["total"] > 0 else status.HTTP_400_BAD_REQUEST)
+
+
+class TPOProfileViewSet(viewsets.ModelViewSet):
+    queryset = TPOProfile.objects.all()
+    serializer_class = TPOProfileSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    filterset_fields = ["college"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # If user is a College Admin or Principal, filter by their college
+        if user.role in ["college_admin", "principal"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+            
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+        
+        if not user_data:
+            return Response({"error": "User data is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        required_user_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in user_data for field in required_user_fields):
+            return Response(
+                {"error": f"Missing user fields: {', '.join(required_user_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # 1. Create User
+                user = User.objects.create_user(
+                    email=user_data["email"],
+                    username=user_data["username"],
+                    first_name=user_data["first_name"],
+                    last_name=user_data["last_name"],
+                    password=user_data["password"],
+                    role="tpo"
+                )
+
+                # 2. Create TPO Profile
+                college_id = data.get("college")
+                college = get_object_or_404(College, pk=college_id) if college_id else request.user.college
+
+                profile = TPOProfile.objects.create(
+                    user=user,
+                    college=college
+                )
+                
+                serializer = self.get_serializer(profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+
+        try:
+            with transaction.atomic():
+                # 1. Update User if data provided
+                if user_data:
+                    user = instance.user
+                    if "first_name" in user_data:
+                        user.first_name = user_data["first_name"]
+                    if "last_name" in user_data:
+                        user.last_name = user_data["last_name"]
+                    if "email" in user_data:
+                        user.email = user_data["email"]
+                    if "username" in user_data:
+                        user.username = user_data["username"]
+                    user.save()
+
+                # 2. Update Profile with remaining data
+                if "college" in data and isinstance(data["college"], str):
+                    try:
+                        data["college"] = College.objects.get(pk=data["college"]).id
+                    except College.DoesNotExist:
+                        pass
+                
+                serializer = self.get_serializer(instance, data=data, partial=partial)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+
+                return Response(self.get_serializer(instance).data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            with transaction.atomic():
+                user = instance.user
+                instance.delete()
+                # Also delete the user account
+                user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
