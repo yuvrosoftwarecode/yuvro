@@ -17,7 +17,7 @@ from .models import (
     Certification,
 )
 from authentication.models import Profile
-from authentication.serializers import UserSerializer
+from authentication.serializers import UserSerializer, CollegeSerializer, DepartmentSerializer
 import logging
 
 User = get_user_model()
@@ -554,6 +554,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(write_only=True, required=False)
     last_name = serializers.CharField(write_only=True, required=False)
 
+    college_details = CollegeSerializer(source="college", read_only=True)
+    department_details = DepartmentSerializer(source="department", read_only=True)
+
     links = SocialLinksSerializer(read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
     experiences = ExperienceSerializer(many=True, read_only=True)
@@ -573,6 +576,14 @@ class ProfileSerializer(serializers.ModelSerializer):
             "location",
             "about",
             "gender",
+            "college",
+            "college_details",
+            "college_other",
+            "department",
+            "department_details",
+            "department_other",
+            "student_id",
+            "id_card_image",
             "profile_image",
             "cover_image",
             "google_id",
@@ -597,6 +608,26 @@ class ProfileSerializer(serializers.ModelSerializer):
         if last_name is not None:
             user.last_name = last_name
         user.save()
+
+        # Handle 'Other' college creation
+        college_other = validated_data.get("college_other")
+        if college_other:
+            from authentication.models import College
+            college, _ = College.objects.get_or_create(
+                name__iexact=college_other,
+                defaults={"name": college_other, "verification_status": "pending"}
+            )
+            validated_data["college"] = college
+            
+        # Handle 'Other' department creation
+        department_other = validated_data.get("department_other")
+        if department_other:
+            from authentication.models import Department
+            department, _ = Department.objects.get_or_create(
+                name__iexact=department_other,
+                defaults={"name": department_other, "verification_status": "pending"}
+            )
+            validated_data["department"] = department
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

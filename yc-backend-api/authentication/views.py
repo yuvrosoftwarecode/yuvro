@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 from .models import (
     User,
     Profile,
+    College,
+    Department,
 )
 from job.models import (
     SocialLinks,
@@ -29,6 +31,8 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
     UserLoginSerializer,
+    CollegeSerializer,
+    DepartmentSerializer,
 )
 from job.serializers import (
     ProfileSerializer,
@@ -567,3 +571,82 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
         updated_profile = serializer.save()
 
         return Response(ProfileSerializer(updated_profile).data)
+
+
+from rest_framework import viewsets
+
+class CollegeViewSet(viewsets.ModelViewSet):
+    queryset = College.objects.all()
+    serializer_class = CollegeSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUser()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        verification_status = self.request.query_params.get('verification_status')
+        if verification_status:
+            queryset = queryset.filter(verification_status=verification_status)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Admin-created colleges are auto-approved; student-created ones stay pending
+        user = self.request.user
+        if user.is_staff or getattr(user, 'role', '') == 'admin':
+            serializer.save(verification_status='approved')
+        else:
+            serializer.save(verification_status='pending')
+        
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        college = self.get_object()
+        college.verification_status = 'approved'
+        college.save()
+        return Response({'status': 'approved'})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        college = self.get_object()
+        college.verification_status = 'rejected'
+        college.save()
+        return Response({'status': 'rejected'})
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminUser()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        verification_status = self.request.query_params.get('verification_status')
+        if verification_status:
+            queryset = queryset.filter(verification_status=verification_status)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Admin-created departments are auto-approved; student-created ones stay pending
+        user = self.request.user
+        if user.is_staff or getattr(user, 'role', '') == 'admin':
+            serializer.save(verification_status='approved')
+        else:
+            serializer.save(verification_status='pending')
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        dept = self.get_object()
+        dept.verification_status = 'approved'
+        dept.save()
+        return Response({'status': 'approved'})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        dept = self.get_object()
+        dept.verification_status = 'rejected'
+        dept.save()
+        return Response({'status': 'rejected'})

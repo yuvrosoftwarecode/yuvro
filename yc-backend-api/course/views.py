@@ -87,21 +87,24 @@ class CourseViewSet(viewsets.ModelViewSet):
                 course=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__contains=['practice'],
+                context='practice',
             ).values('course').annotate(cnt=Count('id')).values('cnt')
             
             score_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 course=OuterRef('pk'),
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__contains=['practice'],
+                context='practice',
             ).values('course').annotate(total_valid_score=Sum('marks_obtained')).values('total_valid_score')
 
             ai_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 course=OuterRef('pk'),
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__contains=['practice'],
+                context='practice',
             ).values('course').annotate(total_ai=Sum('ai_help_count')).values('total_ai')
 
             queryset = queryset.annotate(
@@ -215,7 +218,8 @@ class TopicViewSet(viewsets.ModelViewSet):
                 topic=OuterRef('pk'),
                 status__in=['completed', 'evaluated'],
                 question__type='coding',
-                question__categories__contains=['practice']
+                question__categories__contains=['practice'],
+                context='practice',
             ).values('topic').annotate(cnt=Count('id')).values('cnt')
             
             qs = qs.annotate(
@@ -1365,8 +1369,10 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
                 is_successful = total_tests > 0 and total_passed == total_tests
 
+                context = request.data.get("context", "practice")
+
                 existing_submission = StudentCodePractice.objects.filter(
-                    user=request.user, question=question
+                    user=request.user, question=question, context=context
                 ).first()
 
                 if existing_submission:
@@ -1440,6 +1446,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         question=question,
                         course=course,
                         topic=topic,
+                        context=context,
                         status=StudentCodePractice.STATUS_COMPLETED,
                         answer_latest={
                             "code": code,

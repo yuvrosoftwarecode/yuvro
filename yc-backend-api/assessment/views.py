@@ -293,47 +293,91 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         user = request.user
         now = timezone.now()
 
-        # 1. Check if already registered
-        existing_submission = ContestSubmission.objects.filter(contest=contest, user=user).first()
-        if existing_submission:
-            return Response({
-                'message': 'Already Registered',
-                'is_late_entry': existing_submission.is_late_entry,
-                'remaining_time_minutes': None
-            }, status=status.HTTP_200_OK)
+        from .models import ContestRegistration
 
-        # 2. Validate registration window
+        # 0. Check contest is published and not ended
+        if contest.publish_status != 'active':
+            return Response({'error': 'This contest is not yet published.'}, status=status.HTTP_400_BAD_REQUEST)
+        if contest.end_datetime and now > contest.end_datetime:
+            return Response({'error': 'This contest has already ended.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Profile Validation
+        try:
+            profile = user.profile
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found. Please complete your profile', 'requires_profile_update': True}, status=status.HTTP_403_FORBIDDEN)
+
+        if not contest.open_for_all_colleges:
+            allowed = contest.allowed_colleges.all()
+            allowed_names = [c.name for c in allowed]
+            student_college_name = profile.college.name if profile.college else None
+
+            if not profile.college:
+                return Response({
+                    'error': 'Please select your college to register for this contest.',
+                    'error_type': 'no_college',
+                    'requires_profile_update': True,
+                    'allowed_college_names': allowed_names,
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            if profile.college not in allowed:
+                return Response({
+                    'error': f'This contest is restricted to specific colleges. Your college ({student_college_name}) is not in the allowed list.',
+                    'error_type': 'college_mismatch',
+                    'requires_profile_update': False,
+                    'student_college_name': student_college_name,
+                    'allowed_college_names': allowed_names,
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        if not contest.open_for_all_departments:
+            allowed_depts = contest.allowed_departments.all()
+            allowed_dept_names = [d.name for d in allowed_depts]
+            student_dept_name = profile.department.name if profile.department else None
+
+            if not profile.department:
+                return Response({
+                    'error': 'Please select your department to register for this contest.',
+                    'error_type': 'no_department',
+                    'requires_profile_update': True,
+                    'allowed_department_names': allowed_dept_names,
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            if profile.department not in allowed_depts:
+                return Response({
+                    'error': f'This contest is restricted to specific departments. Your department ({student_dept_name}) is not in the allowed list.',
+                    'error_type': 'department_mismatch',
+                    'requires_profile_update': False,
+                    'student_department_name': student_dept_name,
+                    'allowed_department_names': allowed_dept_names,
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        if contest.require_student_id and not profile.student_id:
+            return Response({'error': 'Student ID is required', 'requires_profile_update': True}, status=status.HTTP_403_FORBIDDEN)
+
+        # 2. Check if already registered
+        if ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response({'message': 'Already Registered'}, status=status.HTTP_200_OK)
+
+        # 3. Validate registration window
         is_late_entry = False
         
         if contest.registration_start_datetime and now < contest.registration_start_datetime:
             return Response({'error': 'Registration has not started yet'}, status=status.HTTP_400_BAD_REQUEST)
         
         if contest.registration_end_datetime and now > contest.registration_end_datetime:
-            # Registration window closed - check for late entry
             if not contest.allow_late_entry:
                 return Response({'error': 'Registration is closed'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Check if contest is still ongoing
             if now > contest.end_datetime:
                 return Response({'error': 'Contest has ended'}, status=status.HTTP_400_BAD_REQUEST)
-            
             is_late_entry = True
 
-        # 3. Create submission record with late entry flag
-        ContestSubmission.objects.create(
-            contest=contest, 
-            user=user, 
-            status=ContestSubmission.STATUS_STARTED,
-            is_late_entry=is_late_entry
-        )
-
-        # 4. Calculate remaining time for late entrants
-        remaining_time = None
-        if is_late_entry:
-            remaining_time = int((contest.end_datetime - now).total_seconds() / 60)
+        # 4. Create registration record
+        ContestRegistration.objects.create(contest=contest, user=user, created_by=user)
 
         # 5. Send confirmation email
         try:
+            from django.core.mail import send_mail
+            from django.conf import settings
             late_entry_note = "\n        Note: This is a late entry. You will have reduced time to complete the contest." if is_late_entry else ""
             subject = f"Registration Confirmed: {contest.title}"
             message = f"""
@@ -360,12 +404,19 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         except Exception as e:
             logger.warning(f"Failed to send email: {str(e)}")
 
-        # 6. Return enhanced response
         return Response({
             'status': 'Registered',
             'is_late_entry': is_late_entry,
-            'remaining_time_minutes': remaining_time
         }, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsOwnerOrInstructorOrAdmin])
+    def participants(self, request, pk=None):
+        contest = self.get_object()
+        from .models import ContestRegistration
+        from .serializers import ContestRegistrationSerializer
+        registrations = ContestRegistration.objects.filter(contest=contest).select_related('user', 'user__profile', 'user__profile__college', 'user__profile__department')
+        serializer = ContestRegistrationSerializer(registrations, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start(self, request, pk=None):
@@ -373,15 +424,27 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         user = request.user
         now = timezone.now()
 
+        # Enforce registration before starting
+        if not ContestRegistration.objects.filter(contest=contest, user=user).exists():
+            return Response(
+                {'error': 'You must register for this contest before starting it.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Check contest is live BEFORE creating submission (avoid orphans)
+        contest.update_status()
+        if contest.status != Contest.STATUS_ONGOING:
+            return Response({'error': 'Contest is not live'}, status=status.HTTP_400_BAD_REQUEST)
+
         submission, created = ContestSubmission.objects.get_or_create(
             contest=contest, 
             user=user,
             defaults={'status': ContestSubmission.STATUS_STARTED}
         )
 
-        contest.update_status()
-        if contest.status != Contest.STATUS_ONGOING:
-            return Response({'error': 'Contest is not live'}, status=status.HTTP_400_BAD_REQUEST)
+        # Block re-entry after submission
+        if submission.status in [ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_EVALUATED]:
+            return Response({'error': 'You have already submitted this contest.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Calculate actual duration based on late entry status
         if submission.is_late_entry:
@@ -406,10 +469,12 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         contest = self.get_object()
         submission_id = request.data.get('submission_id')
         answers = request.data.get('answers', {})
+        time_spent = request.data.get('time_spent', {})  # {question_id: seconds}
 
-        submission = get_object_or_404(ContestSubmission, id=submission_id, user=request.user)
+        # Validate submission belongs to THIS contest and this user
+        submission = get_object_or_404(ContestSubmission, id=submission_id, user=request.user, contest=contest)
 
-        if submission.status == ContestSubmission.STATUS_COMPLETED:
+        if submission.status in [ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_EVALUATED]:
             return Response({'error': 'Submission already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
         submission.answer_data = answers
@@ -428,7 +493,22 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             is_correct, marks_obtained = question.grade_answer(user_ans)
             if is_correct:
                 total_score += marks_obtained
-                    
+
+            # Create ContestQuestionActivity record for skill gap analysis
+            ContestQuestionActivity.objects.update_or_create(
+                contest_submission=submission,
+                question=question,
+                defaults={
+                    'user': request.user,
+                    'answer_data': user_ans if isinstance(user_ans, dict) else {'answer': user_ans},
+                    'is_final_answer': True,
+                    'is_correct': is_correct,
+                    'marks_obtained': marks_obtained,
+                    'auto_graded': True,
+                    'total_question_time': time_spent.get(q_id, 0),
+                }
+            )
+                
         submission.marks = total_score
         submission.save()
         
@@ -490,6 +570,189 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             return paginator.get_paginated_response(leaderboard_data)
             
         return Response(leaderboard_data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsOwnerOrInstructorOrAdmin])
+    def report(self, request, pk=None):
+        """Generate a comprehensive post-contest report for college POCs."""
+        contest = self.get_object()
+        from .models import ContestRegistration
+        from django.db.models import Avg, Max, Min, Count, Sum
+
+        # --- 1. Contest Summary ---
+        registrations = ContestRegistration.objects.filter(contest=contest)
+        # Include ALL non-cancelled submissions (started, in_progress, submitted, completed, evaluated)
+        submissions = ContestSubmission.objects.filter(
+            contest=contest,
+        ).exclude(
+            status=ContestSubmission.STATUS_CANCELLED
+        ).select_related('user', 'user__profile', 'user__profile__college', 'user__profile__department')
+
+        registered_count = registrations.count()
+        attempted_count = submissions.count()
+        completed_count = submissions.filter(
+            status__in=[ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_EVALUATED]
+        ).count()
+        
+        marks_agg = submissions.aggregate(
+            avg_marks=Avg('marks'),
+            max_marks=Max('marks'),
+            min_marks=Min('marks'),
+        )
+
+        summary = {
+            'contest_title': contest.title,
+            'organizer': contest.organizer,
+            'type': contest.type,
+            'difficulty': contest.difficulty,
+            'start_datetime': contest.start_datetime,
+            'end_datetime': contest.end_datetime,
+            'duration_minutes': contest.duration,
+            'total_marks': contest.total_marks,
+            'registered_count': registered_count,
+            'attempted_count': attempted_count,
+            'completed_count': completed_count,
+            'completion_rate': round((completed_count / registered_count * 100), 1) if registered_count > 0 else 0,
+            'avg_marks': round(marks_agg['avg_marks'] or 0, 1),
+            'max_marks': marks_agg['max_marks'] or 0,
+            'min_marks': marks_agg['min_marks'] or 0,
+        }
+
+        # --- 2. Top Performers ---
+        top_performers = []
+        top_subs = submissions.order_by('-marks', 'submitted_at')[:10]
+        for rank, sub in enumerate(top_subs, 1):
+            profile = getattr(sub.user, 'profile', None)
+            top_performers.append({
+                'rank': rank,
+                'name': f"{sub.user.first_name} {sub.user.last_name}".strip() or sub.user.username,
+                'college': profile.college.name if profile and profile.college else 'N/A',
+                'department': profile.department.name if profile and profile.department else 'N/A',
+                'marks': sub.marks or 0,
+                'submitted_at': sub.submitted_at,
+            })
+
+        # --- 3. College Breakdown ---
+        college_stats = {}
+        for sub in submissions:
+            profile = getattr(sub.user, 'profile', None)
+            college_name = profile.college.name if profile and profile.college else 'Unknown'
+            
+            if college_name not in college_stats:
+                college_stats[college_name] = {'participants': 0, 'marks_list': [], 'completed': 0}
+            
+            college_stats[college_name]['participants'] += 1
+            college_stats[college_name]['marks_list'].append(sub.marks or 0)
+            if sub.status in [ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_EVALUATED]:
+                college_stats[college_name]['completed'] += 1
+
+        college_breakdown = []
+        for name, stats in sorted(college_stats.items(), key=lambda x: -(sum(x[1]['marks_list']) / len(x[1]['marks_list']) if x[1]['marks_list'] else 0)):
+            marks = stats['marks_list']
+            college_breakdown.append({
+                'college': name,
+                'participants': stats['participants'],
+                'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
+                'max_marks': max(marks) if marks else 0,
+                'min_marks': min(marks) if marks else 0,
+                'completion_rate': round(stats['completed'] / stats['participants'] * 100, 1) if stats['participants'] > 0 else 0,
+            })
+
+        # --- 4. Department Comparison ---
+        dept_stats = {}
+        for sub in submissions:
+            profile = getattr(sub.user, 'profile', None)
+            dept_name = profile.department.name if profile and profile.department else 'Unknown'
+            
+            if dept_name not in dept_stats:
+                dept_stats[dept_name] = {'participants': 0, 'marks_list': []}
+            
+            dept_stats[dept_name]['participants'] += 1
+            dept_stats[dept_name]['marks_list'].append(sub.marks or 0)
+
+        department_comparison = []
+        for name, stats in sorted(dept_stats.items(), key=lambda x: -(sum(x[1]['marks_list']) / len(x[1]['marks_list']) if x[1]['marks_list'] else 0)):
+            marks = stats['marks_list']
+            department_comparison.append({
+                'department': name,
+                'participants': stats['participants'],
+                'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
+                'max_marks': max(marks) if marks else 0,
+            })
+
+        # --- 5. Question Performance (Skill Gap Analysis) ---
+        question_activities = ContestQuestionActivity.objects.filter(
+            contest_submission__contest=contest,
+            is_final_answer=True
+        ).select_related('question', 'question__topic')
+
+        question_stats = {}
+        for qa in question_activities:
+            q_id = str(qa.question_id)
+            if q_id not in question_stats:
+                question_stats[q_id] = {
+                    'title': qa.question.title[:80],
+                    'type': qa.question.type,
+                    'difficulty': qa.question.difficulty,
+                    'max_marks': qa.question.marks,
+                    'topic': qa.question.topic.name if qa.question.topic else 'General',
+                    'total_attempts': 0,
+                    'correct_count': 0,
+                    'marks_list': [],
+                    'time_list': [],
+                }
+
+            question_stats[q_id]['total_attempts'] += 1
+            if qa.is_correct:
+                question_stats[q_id]['correct_count'] += 1
+            question_stats[q_id]['marks_list'].append(qa.marks_obtained or 0)
+            if qa.total_question_time > 0:
+                question_stats[q_id]['time_list'].append(qa.total_question_time)
+
+        question_performance = []
+        for q_id, stats in question_stats.items():
+            marks = stats['marks_list']
+            times = stats['time_list']
+            question_performance.append({
+                'question_title': stats['title'],
+                'type': stats['type'],
+                'difficulty': stats['difficulty'],
+                'topic': stats['topic'],
+                'max_marks': stats['max_marks'],
+                'total_attempts': stats['total_attempts'],
+                'correct_percentage': round(stats['correct_count'] / stats['total_attempts'] * 100, 1) if stats['total_attempts'] > 0 else 0,
+                'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
+                'avg_time_seconds': round(sum(times) / len(times)) if times else 0,
+            })
+
+        # Sort by correct_percentage ascending (weakest first = skill gaps)
+        question_performance.sort(key=lambda x: x['correct_percentage'])
+
+        # --- 6. Integrity Summary ---
+        total_violations = 0
+        clean_submissions = 0
+        for sub in submissions:
+            violations = len(sub.proctoring_events) if sub.proctoring_events else 0
+            total_violations += violations
+            if violations == 0:
+                clean_submissions += 1
+
+        integrity = {
+            'total_violations': total_violations,
+            'clean_submissions': clean_submissions,
+            'total_submissions': attempted_count,
+            'clean_percentage': round(clean_submissions / attempted_count * 100, 1) if attempted_count > 0 else 100,
+            'proctoring_enabled': contest.enable_proctoring,
+            'proctoring_techniques': contest.proctoring_techniques or [],
+        }
+
+        return Response({
+            'summary': summary,
+            'top_performers': top_performers,
+            'college_breakdown': college_breakdown,
+            'department_comparison': department_comparison,
+            'question_performance': question_performance,
+            'integrity': integrity,
+        })
 
 
 class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):

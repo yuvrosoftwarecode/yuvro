@@ -158,6 +158,7 @@ class CodeEditorService {
         question_id: request.question_id,
         language: request.language,
         code: request.code,
+        context: submissionType,
         test_cases_basic: request.test_cases_basic || [],
         test_cases_advanced: request.test_cases_advanced || [],
         test_cases_custom: request.test_cases_custom || [],

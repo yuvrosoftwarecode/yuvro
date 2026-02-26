@@ -7,13 +7,10 @@ from .models import (
     SkillTest,
     ContestSubmission,
     MockInterviewSubmission,
-    JobTestSubmission,
-    SkillTestSubmission,
-    SkillTestQuestionActivity,
-    CertificationExam,
-    CertificationSubmission,
-    CertificationQuestionActivity,
-    Certificate,
+    JobTestSubmission, SkillTestSubmission,
+    SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity,
+    CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate,
+    ContestRegistration
 )
 
 User = get_user_model()
@@ -202,6 +199,12 @@ class ContestSerializer(serializers.ModelSerializer):
             "prize",
             "difficulty",
             "description",
+            "open_for_all_colleges",
+            "allowed_colleges",
+            "open_for_all_departments",
+            "allowed_departments",
+            "require_student_id",
+            "proctoring_techniques",
             "registration_start_datetime",
             "registration_end_datetime",
             "allow_late_entry",
@@ -246,7 +249,7 @@ class ContestSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = getattr(request, "user", None)
         if user and user.is_authenticated:
-            return obj.contest_submissions.filter(user=user).exists()
+            return ContestRegistration.objects.filter(contest=obj, user=user).exists()
         return False
 
     def to_representation(self, instance):
@@ -259,8 +262,37 @@ class ContestSerializer(serializers.ModelSerializer):
         data['unique_candidates_count'] = self.get_unique_candidates_count(instance)
         data['completed_count'] = self.get_completed_count(instance)
         data['attempted_count'] = self.get_attempted_count(instance)
+
+        # Inject allowed college/department names for the student-facing detail page
+        if not instance.open_for_all_colleges:
+            data['allowed_colleges_details'] = [
+                {'id': str(c.id), 'name': c.name}
+                for c in instance.allowed_colleges.all()
+            ]
+        if not instance.open_for_all_departments:
+            data['allowed_departments_details'] = [
+                {'id': str(d.id), 'name': d.name}
+                for d in instance.allowed_departments.all()
+            ]
         
         return data
+
+
+class ContestRegistrationSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    college_name = serializers.CharField(source='user.profile.college.name', read_only=True, default=None)
+    department_name = serializers.CharField(source='user.profile.department.name', read_only=True, default=None)
+    
+    class Meta:
+        model = ContestRegistration
+        fields = [
+            "id", "contest", "user", 
+            "user_name", "user_email", 
+            "college_name", "department_name", 
+            "registered_at"
+        ]
+        read_only_fields = ["id", "contest", "user", "registered_at"]
 
 
 class SkillTestSerializer(serializers.ModelSerializer):
