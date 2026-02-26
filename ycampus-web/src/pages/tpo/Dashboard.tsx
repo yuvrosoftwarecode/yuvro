@@ -45,13 +45,13 @@ const deptData = [
 ];
 
 const trendData = [
-  { name: 'Aug', students: 10 },
-  { name: 'Sep', students: 25 },
-  { name: 'Oct', students: 45 },
-  { name: 'Nov', students: 30 },
-  { name: 'Dec', students: 60 },
-  { name: 'Jan', students: 85 },
-  { name: 'Feb', students: 120 },
+  { name: 'Aug', hires: 10 },
+  { name: 'Sep', hires: 25 },
+  { name: 'Oct', hires: 45 },
+  { name: 'Nov', hires: 30 },
+  { name: 'Dec', hires: 60 },
+  { name: 'Jan', hires: 85 },
+  { name: 'Feb', hires: 100 },
 ];
 
 const salaryData = [
@@ -180,14 +180,14 @@ const Dashboard: React.FC = () => {
                           ticks={[0, 80, 160, 240, 320]}
                           axisLine={{ stroke: '#9ca3af' }}
                           tickLine={{ stroke: '#9ca3af' }}
-                          tick={{ fontSize: 12, fontWeight: 500, fill: '#9ca3af' }}
+                          tick={{ fontSize: 13, fontWeight: 400, fill: 'gray' }}
                         />
                         <YAxis
                           dataKey="name"
                           type="category"
                           axisLine={{ stroke: '#9ca3af' }}
                           tickLine={{ stroke: '#9ca3af' }}
-                          tick={{ fontSize: 12, fontWeight: 500, fill: '#9ca3af' }}
+                          tick={{ fontSize: 13, fontWeight: 400, fill: 'gray' }}
                         />
                         <Tooltip />
                         <Bar
@@ -216,12 +216,12 @@ const Dashboard: React.FC = () => {
                           dataKey="name"
                           axisLine={{ stroke: '#9ca3af' }}
                           tickLine={{ stroke: '#9ca3af' }}
-                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
+                          tick={{ fontSize: 13, fontWeight: 400, fill: 'gray' }}
                         />
                         <YAxis
                           axisLine={{ stroke: '#9ca3af' }}
                           tickLine={{ stroke: '#9ca3af' }}
-                          tick={{ fontSize: 10, fontWeight: 500, fill: '#9ca3af' }}
+                          tick={{ fontSize: 13, fontWeight: 400, fill: 'gray' }}
                           domain={[0, 100]}
                           ticks={[0, 25, 50, 75, 100]}
                         />

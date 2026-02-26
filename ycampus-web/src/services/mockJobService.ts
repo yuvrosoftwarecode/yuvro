@@ -38,7 +38,7 @@ export interface MockJob {
     };
 }
 
-const STORAGE_KEY = 'ycampus_mock_jobs_v4';
+const STORAGE_KEY = 'ycampus_mock_jobs_v3';
 
 const DEFAULT_JOBS: MockJob[] = [
     {
@@ -71,7 +71,7 @@ const DEFAULT_JOBS: MockJob[] = [
             rating: 3.8,
             company_website: "https://www.infosys.com",
         },
-        apps: { count: 0, shortlisted: 0, interview: 0, selected: 0 },
+        apps: { count: 25, shortlisted: 25, interview: 0, selected: 8 },
     },
     {
         id: "2",
@@ -139,7 +139,7 @@ const DEFAULT_JOBS: MockJob[] = [
     },
     {
         id: "4",
-        status: "hold",
+        status: "approved",
         role_title: "SDE Intern",
         role_description: "Work on cutting-edge features in search and advertising algorithms. Mentorship from senior engineering staff.",
         location: "Bangalore",
@@ -167,7 +167,7 @@ const DEFAULT_JOBS: MockJob[] = [
             rating: 4.9,
             company_website: "https://careers.google.com",
         },
-        apps: { count: 0, shortlisted: 0, interview: 0, selected: 0 },
+        apps: { count: 30, shortlisted: 30, interview: 0, selected: 0 },
     },
     {
         id: "5",
@@ -203,7 +203,7 @@ const DEFAULT_JOBS: MockJob[] = [
     },
     {
         id: "6",
-        status: "pending",
+        status: "approved",
         role_title: "Full Stack Developer",
         role_description: "Build web applications using Next.js, Tailwind, and Supabase. Fast-paced startup environment with high ownership.",
         location: "Delhi",
@@ -236,7 +236,10 @@ const DEFAULT_JOBS: MockJob[] = [
 ];
 
 const DEFAULT_APPLICATIONS: Record<string, any[]> = {
-    "1": [],
+    "1": [
+        { id: "app1_1", applicant_name: "Rahul Mehra", applicant_email: "rahul.m@student.edu", status: "under_review", applied_at: new Date().toISOString() },
+        { id: "app1_2", applicant_name: "Ananya Dixit", applicant_email: "ananya.d@student.edu", status: "under_review", applied_at: new Date().toISOString() },
+    ],
     "2": [
         { id: "app2_1", applicant_name: "Aditya Verma", applicant_email: "aditya.v@student.edu", status: "under_review", applied_at: new Date().toISOString() },
         { id: "app2_2", applicant_name: "Sneha Reddy", applicant_email: "sneha.r@student.edu", status: "under_review", applied_at: new Date().toISOString() },
@@ -244,11 +247,15 @@ const DEFAULT_APPLICATIONS: Record<string, any[]> = {
     "3": [
         { id: "app3_1", applicant_name: "Vikram Shah", applicant_email: "vikram@student.edu", status: "under_review", applied_at: new Date().toISOString() },
     ],
-    "4": [],
+    "4": [
+        { id: "app4_1", applicant_name: "Ishani Kapoor", applicant_email: "ishani@student.edu", status: "under_review", applied_at: new Date().toISOString() },
+    ],
     "5": [
         { id: "app5_1", applicant_name: "Arjun Rao", applicant_email: "arjun@student.edu", status: "under_review", applied_at: new Date().toISOString() },
     ],
-    "6": []
+    "6": [
+        { id: "app6_1", applicant_name: "Meera Nair", applicant_email: "meera@student.edu", status: "under_review", applied_at: new Date().toISOString() },
+    ]
 };
 
 class MockJobService {
@@ -291,34 +298,6 @@ class MockJobService {
 
     public getLiveJobs(): MockJob[] {
         return this.jobs.filter(j => j.status === 'approved');
-    }
-
-    public getJobById(id: string): MockJob | null {
-        return this.jobs.find(j => j.id === id) || null;
-    }
-
-    public mapToJob(mockJob: MockJob): any {
-        return {
-            id: mockJob.id,
-            title: mockJob.role_title,
-            description: mockJob.role_description,
-            company: {
-                id: mockJob.id + "_comp",
-                name: mockJob.recruiter.company_name,
-                website: mockJob.recruiter.company_website,
-                description: mockJob.recruiter.company_industry,
-            },
-            locations: [mockJob.location],
-            is_remote: mockJob.location.toLowerCase().includes('remote'),
-            min_salary: mockJob.ctc_total / 100000,
-            max_salary: (mockJob.ctc_total + mockJob.ctc_variable) / 100000,
-            currency: 'INR',
-            skills: mockJob.skills_required,
-            employment_type: 'full-time',
-            experience_min_years: 0,
-            status: mockJob.status === 'approved' ? 'active' : 'inactive',
-            posted_at: new Date().toISOString(),
-        };
     }
 
     public getApplications(jobId: string): any[] {
