@@ -578,8 +578,6 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             
         interview_session.save()
 
-        interview_session.save()
-
         # SYNC: Update MockInterviewSubmission if it exists
         try:
             submission = MockInterviewSubmission.objects.filter(
