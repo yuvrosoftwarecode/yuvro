@@ -40,6 +40,39 @@ const deptInsights = [
     { name: 'EEE', placed: 62, ctc: '5.9L', color: 'bg-white' },
 ];
 
+const recommendations = [
+    {
+        text: "Conduct extra DSA mock tests for 3rd year CSE students as rejection rate is high (42 cases) in technical rounds.",
+        bgColor: "bg-purple-50/50",
+        textColor: "text-purple-900/70"
+    },
+    {
+        text: "Focus on improving communication skills for ME and CE departments to increase placement rates, currently at 58% and 45% respectively.",
+        bgColor: "bg-blue-50/50",
+        textColor: "text-blue-900/70"
+    },
+    {
+        text: "Bridge the 'No Projects' gap for ECE and EEE students by initiating industry-aligned capstone projects with faculty mentorship.",
+        bgColor: "bg-indigo-50/50",
+        textColor: "text-indigo-900/70"
+    },
+    {
+        text: "Organize a Resume & LinkedIn workshop for IT students to address 'Resume Issues' as it's a key rejection factor.",
+        bgColor: "bg-emerald-50/50",
+        textColor: "text-emerald-900/70"
+    },
+    {
+        text: "Implement weekly quantitative aptitude sessions for final year students to improve clearance rates in initial screening rounds.",
+        bgColor: "bg-amber-50/50",
+        textColor: "text-amber-900/70"
+    },
+    {
+        text: "Encourage ME and CE students to take up NPTEL/Coursera certifications in high-demand niche domains like EV and Sustainable Construction.",
+        bgColor: "bg-rose-50/50",
+        textColor: "text-rose-900/70"
+    }
+];
+
 const AIAnalytics: React.FC = () => {
     return (
         <div className="flex h-screen bg-gray-50">
@@ -152,19 +185,19 @@ const AIAnalytics: React.FC = () => {
                                 <Lightbulb className="h-4 w-4 text-purple-600" />
                                 <h2 className="text-sm font-bold text-gray-700">AI Recommendations</h2>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                <Card className="bg-purple-50/50 border-none shadow-none rounded-2xl">
-                                    <CardContent className="p-4">
-                                        <p className="text-[11px] font-semibold text-purple-900/70 leading-relaxed">Conduct extra DSA mock tests for 3rd year CSE students as rejection rate is high in technical rounds.</p>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-blue-50/50 border-none shadow-none rounded-2xl">
-                                    <CardContent className="p-4">
-                                        <p className="text-[11px] font-semibold text-blue-900/70 leading-relaxed">Focus on improving communication skills for ME and CE departments to increase placement rates.</p>
-                                    </CardContent>
-                                </Card>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
+                                {recommendations.map((rec, index) => (
+                                    <Card key={index} className={`${rec.bgColor} border-none shadow-none rounded-2xl`}>
+                                        <CardContent className="p-4">
+                                            <p className={`text-[11px] font-semibold ${rec.textColor} leading-relaxed`}>
+                                                {rec.text}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                             </div>
                         </div>
+
                     </div>
                 </main>
             </div>
