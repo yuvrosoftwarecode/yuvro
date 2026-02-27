@@ -11,7 +11,7 @@ const DashboardRedirect: React.FC = () => {
       switch (user.role) {
         case 'admin':
         case 'instructor':
-          navigate('/instructor/dashboard', { replace: true });
+          navigate('/admin/dashboard', { replace: true });
           break;
         case 'recruiter':
           navigate('/recruiter/dashboard', { replace: true });

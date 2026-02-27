@@ -39,7 +39,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'admin-dashboard',
     label: 'Dashboard',
     icon: BarChart3,
-    path: '/instructor/dashboard',
+    path: '/admin/dashboard',
     roles: ['admin', 'instructor']
   },
   {
@@ -233,28 +233,28 @@ const sidebarItems: SidebarItem[] = [
     id: 'users',
     label: 'User Management',
     icon: UserCheck,
-    path: '/instructor/users',
+    path: '/admin/users',
     roles: ['admin']
   },
   {
     id: 'subjects',
     label: 'Subjects',
     icon: BookOpen,
-    path: '/instructor/subjects',
+    path: '/admin/subjects',
     roles: ['admin', 'instructor']
   },
   {
     id: 'skill-tests',
     label: 'Skill Tests',
     icon: CheckCircle,
-    path: '/instructor/skill-tests',
+    path: '/admin/skill-tests',
     roles: ['admin', 'instructor']
   },
   {
     id: 'mock-interview',
     label: 'Mock Interview',
     icon: TrendingUp,
-    path: '/instructor/mock-interview',
+    path: '/admin/mock-interview',
     roles: ['admin', 'instructor']
   },
   {
@@ -275,7 +275,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'contests',
     label: 'Contests',
     icon: Trophy,
-    path: '/instructor/contests',
+    path: '/admin/contests',
     roles: ['admin', 'instructor', 'recruiter']
   },
   {
@@ -289,14 +289,14 @@ const sidebarItems: SidebarItem[] = [
     id: 'certifications',
     label: 'Certifications',
     icon: Trophy,
-    path: '/instructor/certifications',
+    path: '/admin/certifications',
     roles: ['admin', 'instructor', 'recruiter']
   },
   {
     id: 'colleges',
     label: 'Colleges',
     icon: School,
-    path: '/instructor/colleges',
+    path: '/admin/colleges',
     roles: ['admin']
   },
 ];
