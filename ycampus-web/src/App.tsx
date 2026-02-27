@@ -70,6 +70,7 @@ import HODDashboard from './pages/hod/Dashboard';
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
 import TakeAttendance from './pages/faculty/TakeAttendance';
+import FacultyTask from './pages/faculty/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -365,7 +366,7 @@ function App() {
                 path="/faculty/task"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <FacultyTask />
                   </ProtectedRoute>
                 }
               />

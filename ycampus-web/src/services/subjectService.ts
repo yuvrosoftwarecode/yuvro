@@ -105,7 +105,9 @@ export interface SectionSubjectFaculty {
     is_lab: boolean;
     semester_number: number;
     batch_name: string;
+    department_id: string | number;
     department_name: string;
+    department_short_form: string;
   };
   section: string | number;
   section_name?: string;
