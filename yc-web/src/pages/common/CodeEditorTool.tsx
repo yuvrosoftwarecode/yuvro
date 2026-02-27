@@ -2,8 +2,7 @@ import React, { useRef } from 'react';
 import { CodeEditorWithAI, CodeEditorWithAIHandle } from '@/components/code-editor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { useNavigate } from 'react-router-dom';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { BookOpen } from 'lucide-react';
 
 const CodeEditorPage: React.FC = () => {
@@ -49,33 +48,31 @@ const CodeEditorPage: React.FC = () => {
     );
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-gray-50">
-            <RoleSidebar />
-            <div className="flex-1 flex flex-col relative overflow-hidden">
-                <RoleHeader
-                    title="Code Editor"
-                    subtitle="A versatile playground for testing algorithms and code snippets."
+        <DashboardLayout
+            title="Code Editor"
+            subtitle="A versatile playground for testing algorithms and code snippets."
+            actions={headerActions}
+            contentClassName="overflow-hidden"
+        >
+            <div className="h-full relative overflow-hidden flex flex-col p-6">
+                <CodeEditorWithAI
+                    ref={problemSolvingRef}
+                    problem={dummyProblem}
+                    course={dummyCourse}
+                    topic={dummyTopic}
+                    onBack={() => navigate('/dashboard')}
+                    initialFullscreen={false}
+                    initialEditorOpen={true}
+                    initialAiChatOpen={false}
+                    initialSidebarCollapsed={true}
+                    showBreadcrumb={false}
+                    isEmbedded={true}
+                    showAiBuddy={true}
+                    showProblemDescription={false}
+                    codeSubmissionType="practice"
                 />
-                <div className="flex-1 relative overflow-hidden flex flex-col">
-                    <CodeEditorWithAI
-                        ref={problemSolvingRef}
-                        problem={dummyProblem}
-                        course={dummyCourse}
-                        topic={dummyTopic}
-                        onBack={() => navigate('/dashboard')}
-                        initialFullscreen={false}
-                        initialEditorOpen={true}
-                        initialAiChatOpen={false}
-                        initialSidebarCollapsed={true}
-                        showBreadcrumb={false}
-                        isEmbedded={true}
-                        showAiBuddy={true}
-                        showProblemDescription={false}
-                        codeSubmissionType="practice"
-                    />
-                </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 };
 

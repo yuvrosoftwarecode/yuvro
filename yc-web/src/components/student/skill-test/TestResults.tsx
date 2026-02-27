@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import SolutionViewer from '@/components/student/skill-test/SolutionViewer';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -503,7 +503,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                               </div>
                             )}
 
-                            {/* Reference Solutions — from q.solutions (backend already includes them) */}
+                            {/* Reference Solutions (Multi) */}
                             {q.question_type === 'coding' && questionSolutions.length > 0 && (
                               <div className="space-y-2 pt-4 border-t border-gray-100">
                                 <p className="text-sm font-medium text-green-700 flex items-center gap-2">
@@ -515,7 +515,6 @@ const TestResults: React.FC<TestResultsProps> = ({
                                 />
                               </div>
                             )}
-
 
                           </div>
 

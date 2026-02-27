@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import profileService, { Profile } from '../services/profileService';
+import profileService, { Profile, SocialLinks } from '../services/profileService';
 
 interface ProfileData {
   profile: Profile;
@@ -7,31 +7,43 @@ interface ProfileData {
   experiences: any[];
   projects: any[];
   education: any[];
-  socialLinks: any;
+  socialLinks: SocialLinks;
   loading: boolean;
   error: string | null;
 }
 
+const emptySocialLinks: SocialLinks = {
+  id: '',
+  github: null,
+  linkedin: null,
+  portfolio: null,
+  email: null,
+  website: null,
+};
+
 export const useProfileData = (): ProfileData => {
   const [profileData, setProfileData] = useState<ProfileData>({
     profile: {
-      name: '',
       full_name: '',
       title: '',
       about: '',
       location: '',
-      links: null,
+      gender: null,
+      links: emptySocialLinks,
       skills: [],
       experiences: [],
       projects: [],
       education: [],
-      certifications: []
+      certifications: [],
+      id: '',
+      created_at: '',
+      updated_at: '',
     },
     skills: [],
     experiences: [],
     projects: [],
     education: [],
-    socialLinks: null,
+    socialLinks: emptySocialLinks,
     loading: true,
     error: null
   });
@@ -45,23 +57,30 @@ export const useProfileData = (): ProfileData => {
         
         setProfileData({
           profile: {
-            name: profile.full_name || profile.name || '',
             full_name: profile.full_name || '',
             title: profile.title || '',
             about: profile.about || '',
             location: profile.location || '',
-            links: profile.links || null,
+            gender: profile.gender || null,
+            links: profile.links || emptySocialLinks,
             skills: profile.skills || [],
             experiences: profile.experiences || [],
             projects: profile.projects || [],
             education: profile.education || [],
-            certifications: profile.certifications || []
+            certifications: profile.certifications || [],
+            id: profile.id,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
+            profile_image: profile.profile_image,
+            cover_image: profile.cover_image,
+            google_id: profile.google_id,
+            user: profile.user,
           },
           skills: profile.skills || [],
           experiences: profile.experiences || [],
           projects: profile.projects || [],
           education: profile.education || [],
-          socialLinks: profile.links || null,
+          socialLinks: profile.links || emptySocialLinks,
           loading: false,
           error: null
         });

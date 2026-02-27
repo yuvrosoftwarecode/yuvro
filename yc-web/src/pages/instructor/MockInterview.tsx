@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle, Mic, Brain, Settings } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart2, Brain, CheckCircle, Clock, Eye, FileText, Mic, Pencil, Settings, Trash2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/common/StatusBadge';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import SearchBar from '@/components/common/SearchBar';
-import { useAuth } from "@/contexts/AuthContext";
 import { mockInterviewService } from '@/services/mockInterviewService';
-import { Question } from '@/services/questionService';
-// Assuming Question type is needed for the preview, if not import it or define it. 
-// Note: original code imported Question implicitly or it was missing in the view.
-// Let's assume we can treat questions as any for the UI preview or minimal type.
+import { StatsCard } from '@/components/common/StatsCard';
+import { DataTable, Column } from '@/components/common/DataTable';
+import DetailHeader from '@/components/common/DetailHeader';
 
 // Redefine local interface to match the VIEW requirements, but aligned with new backend data
 interface MockInterviewUI {
@@ -80,7 +77,6 @@ export default function MockInterviewPage() {
   const [selectedTab, setSelectedTab] = useState('all');
   const [currentView, setCurrentView] = useState<'list' | 'view'>('list');
   const [selectedInterview, setSelectedInterview] = useState<MockInterviewUI | null>(null);
-  const { token } = useAuth();
   const navigate = useNavigate();
 
   const fetchMockInterviews = async () => {
@@ -152,10 +148,19 @@ export default function MockInterviewPage() {
     }
   };
 
+  const formatMode = (mode: string) => mode.replace('_', ' ');
+
   const getHeaderTitle = () => {
     switch (currentView) {
-      case 'view': return `Interview Details: ${selectedInterview?.title}`;
+      case 'view': return 'Mock Interview Details';
       default: return 'Mock Interview Management';
+    }
+  };
+
+  const getHeaderSubtitle = () => {
+    switch (currentView) {
+      case 'view': return 'Review interview configuration, skills, and AI setup';
+      default: return 'Create and manage AI-powered mock interviews';
     }
   };
 
@@ -174,14 +179,96 @@ export default function MockInterviewPage() {
       }}
       className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
     >
-      ← Back to List
+      Back to Interviews
     </button>
   );
+
+  const columns: Column<MockInterviewUI>[] = [
+    {
+      header: 'Interview',
+      cell: (interview) => (
+        <button
+          onClick={() => openViewForm(interview)}
+          className="text-left hover:text-blue-700 transition-colors"
+        >
+          <div className="font-medium text-gray-900">{interview.title}</div>
+          <div className="text-xs text-gray-500 truncate max-w-[280px]">
+            {interview.description || 'No description'}
+          </div>
+        </button>
+      )
+    },
+    {
+      header: 'Mode',
+      cell: (interview) => (
+        <Badge variant="secondary" className={`capitalize border-0 ${getModeColor(interview.ai_generation_mode)}`}>
+          {interview.ai_generation_mode.replace('_', ' ')}
+        </Badge>
+      )
+    },
+    {
+      header: 'Duration',
+      cell: (interview) => `${interview.max_duration} mins`
+    },
+    {
+      header: 'Status',
+      cell: (interview) => <StatusBadge status={interview.publish_status} />
+    },
+    {
+      header: 'Questions (V/C)',
+      cell: (interview) => `${interview.ai_verbal_question_count} / ${interview.ai_coding_question_count}`
+    },
+    {
+      header: 'Participants',
+      cell: (interview) => (
+        <div className="text-sm text-gray-600 flex items-center">
+          <Users className="h-4 w-4 mr-1.5 text-gray-400" />
+          {interview.participants || 0}
+        </div>
+      )
+    },
+    {
+      header: 'Actions',
+      className: 'text-right',
+      cell: (interview) => (
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => openViewForm(interview)}
+            className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+            title="View Details"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => navigate(`/instructor/mock-interview/${interview.id}/analytics`)}
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+            title="View Analytics"
+          >
+            <BarChart2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => openEditForm(interview)}
+            className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleDelete(interview.id)}
+            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <DashboardLayout
       title={getHeaderTitle()}
-      subtitle="Manage AI-powered mock interviews"
+      subtitle={getHeaderSubtitle()}
       actions={headerActions}
     >
       <div className="px-6 py-6">
@@ -189,53 +276,30 @@ export default function MockInterviewPage() {
         {currentView === 'list' && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <Card className="border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-md font-medium text-gray-600">Total Interviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xl font-bold">{mockInterviews.length}</div>
-                    <Brain className="h-8 w-8 text-blue-500" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-md font-medium text-gray-600">Published</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xl font-bold">{mockInterviews.filter(c => c.publish_status === 'active').length}</div>
-                    <CheckCircle className="h-8 w-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-md font-medium text-gray-600">Drafts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl font-bold text-gray-600">{mockInterviews.filter(c => c.publish_status === 'draft').length}</div>
-                    <Pencil className="h-8 w-8 text-gray-400" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-md font-medium text-gray-600">Archived</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xl font-bold">{mockInterviews.filter(c => c.publish_status === 'archived').length}</div>
-                    <Trash2 className="h-8 w-8 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
+              <StatsCard
+                label="Total Interviews"
+                value={mockInterviews.length}
+                icon={Brain}
+                colorScheme="blue"
+              />
+              <StatsCard
+                label="Published"
+                value={mockInterviews.filter((c) => c.publish_status === 'active').length}
+                icon={CheckCircle}
+                colorScheme="green"
+              />
+              <StatsCard
+                label="Drafts"
+                value={mockInterviews.filter((c) => c.publish_status === 'draft').length}
+                icon={Pencil}
+                colorScheme="purple"
+              />
+              <StatsCard
+                label="Archived"
+                value={mockInterviews.filter((c) => c.publish_status === 'archived').length}
+                icon={Trash2}
+                colorScheme="amber"
+              />
             </div>
 
             <div className="mb-6 flex items-center justify-between gap-4">
@@ -257,234 +321,153 @@ export default function MockInterviewPage() {
         )}
 
         {currentView === 'view' && selectedInterview && (
-          <div className="bg-white shadow rounded-lg mb-6 p-6">
-            <div className="space-y-6">
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Brain className="h-5 w-5 mr-2 text-blue-500" />
-                    Basic Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <DetailHeader
+              title={selectedInterview.title}
+              type={formatMode(selectedInterview.ai_generation_mode)}
+              status={selectedInterview.publish_status}
+              organizer="AI Interview Suite"
+              createdAt={selectedInterview.created_at}
+              onEdit={() => openEditForm(selectedInterview)}
+              stats={[
+                { label: 'Duration', value: `${selectedInterview.max_duration} mins`, icon: Clock, iconColorClass: 'text-blue-500' },
+                { label: 'Participants', value: selectedInterview.participants || 0, icon: Users, iconColorClass: 'text-green-500' },
+                { label: 'Verbal', value: selectedInterview.ai_verbal_question_count, icon: Brain, iconColorClass: 'text-purple-500' },
+                { label: 'Coding', value: selectedInterview.ai_coding_question_count, icon: BarChart2, iconColorClass: 'text-orange-500' }
+              ]}
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-slate-500" />
+                    Description
+                  </h3>
+                  <p className="text-slate-700 whitespace-pre-wrap">
+                    {selectedInterview.description || 'No description provided.'}
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-slate-500" />
+                    Interview Setup
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                      <div className="text-gray-900 font-medium">{selectedInterview.title}</div>
+                      <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Required Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedInterview.required_skills.length > 0
+                          ? selectedInterview.required_skills.map((s) => <Badge key={s} variant="secondary">{s}</Badge>)
+                          : <span className="text-sm text-slate-500">None</span>}
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <StatusBadge status={selectedInterview.publish_status} />
+                      <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Optional Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedInterview.optional_skills.length > 0
+                          ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="secondary" className="bg-gray-100 text-gray-700 border-0">{s}</Badge>)
+                          : <span className="text-sm text-slate-500">None</span>}
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <div className="text-gray-900">{selectedInterview.description || 'No description provided'}</div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">AI Mode</label>
+                      <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">AI Mode</p>
                       <Badge className={`capitalize border-0 ${getModeColor(selectedInterview.ai_generation_mode)}`}>
-                        {selectedInterview.ai_generation_mode.replace('_', ' ')}
+                        {formatMode(selectedInterview.ai_generation_mode)}
                       </Badge>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Voice</label>
-                      <div className="flex items-center space-x-2">
-                        <Mic className="w-4 h-4 text-gray-500" />
-                        <span className="text-gray-900">{selectedInterview.voice_type} ({selectedInterview.voice_speed}x)</span>
+                      <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Voice</p>
+                      <div className="flex items-center gap-2 text-slate-800">
+                        <Mic className="w-4 h-4 text-slate-500" />
+                        <span>{selectedInterview.voice_type} ({selectedInterview.voice_speed}x)</span>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                      <div className="text-gray-900">{selectedInterview.max_duration} mins</div>
-                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Settings className="h-5 w-5 mr-2 text-purple-500" />
-                    Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Required Skills</label>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedInterview.required_skills.length > 0 ? (
-                          selectedInterview.required_skills.map(s => (
-                            <Badge key={s} variant="secondary">{s}</Badge>
-                          ))
-                        ) : <span className="text-gray-500 text-sm">None</span>}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Optional Skills</label>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedInterview.optional_skills.length > 0 ? (
-                          selectedInterview.optional_skills.map(s => (
-                            <Badge key={s} variant="secondary" className="bg-gray-100 text-gray-700 border-0">{s}</Badge>
-                          ))
-                        ) : <span className="text-gray-500 text-sm">None</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Verbal Questions</label>
-                      <div className="text-2xl font-bold">{selectedInterview.ai_verbal_question_count}</div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Coding Questions</label>
-                      <div className="text-2xl font-bold">{selectedInterview.ai_coding_question_count}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Instructions</h3>
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap">
+                    {selectedInterview.instructions || 'No instructions provided.'}
+                  </p>
+                </div>
 
-              <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                <button
-                  onClick={() => openEditForm(selectedInterview)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                >
-                  Edit Interview
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedInterview.id)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                >
-                  Delete
-                </button>
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Question Config</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-600">Specific Questions</span>
+                      <span className="font-semibold text-slate-900">
+                        {Object.values(selectedInterview.questions_config || {}).flat().length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-600">Random Questions</span>
+                      <span className="font-semibold text-slate-900">
+                        {Object.values(selectedInterview.questions_random_config || {}).reduce((sum, count) => sum + count, 0)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <span className="text-slate-700 font-medium">Total Configured</span>
+                      <span className="font-bold text-slate-900">
+                        {Object.values(selectedInterview.questions_config || {}).flat().length +
+                          Object.values(selectedInterview.questions_random_config || {}).reduce((sum, count) => sum + count, 0)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => openEditForm(selectedInterview)}
+                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    >
+                      Edit Interview
+                    </button>
+                    <button
+                      onClick={() => handleDelete(selectedInterview.id)}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {currentView === 'list' && (
-          <>
-            <Card className="border border-gray-200 rounded-lg">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-2xl font-semibold">Mock Interviews</CardTitle>
-                <CardDescription className="text-gray-600">
-                  {filteredMockInterviews.length} interview(s) found
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="pt-0 px-0 pb-0 p-5">
-                <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <Table className="border border-gray-200 rounded-lg">
-                    <TableHeader>
-                      <TableRow className="border border-gray-200">
-                        <TableHead>Title</TableHead>
-                        <TableHead>Mode</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Questions (V/C)</TableHead>
-                        <TableHead>Participants</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredMockInterviews.map((interview) => (
-                        <TableRow key={interview.id} className="cursor-pointer hover:bg-gray-50" onClick={() => openViewForm(interview)}>
-                          <TableCell className="font-medium">{interview.title}</TableCell>
-                          <TableCell>
-                            <Badge variant="secondary" className={`capitalize border-0 ${getModeColor(interview.ai_generation_mode)}`}>
-                              {interview.ai_generation_mode.replace('_', ' ')}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{interview.max_duration} mins</TableCell>
-                          <TableCell>
-                            <StatusBadge status={interview.publish_status} />
-                          </TableCell>
-                          <TableCell>
-                            {interview.ai_verbal_question_count} / {interview.ai_coding_question_count}
-                          </TableCell>
-                          <TableCell>
-                            <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-                              <div className="text-sm text-gray-500 flex items-center">
-                                <Users className="h-4 w-4 mr-1" />
-                                {interview.participants || 0} participants
-                              </div>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/instructor/mock-interview/${interview.id}/analytics`);
-                                  }}
-                                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                                  title="View Analytics"
-                                >
-                                  <Trophy className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openEditForm(interview);
-                                  }}
-                                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                                  title="Edit"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(interview.id);
-                                  }}
-                                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </div>          </TableCell>
-                        </TableRow>
-                      ))}
-                      {filteredMockInterviews.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                            No mock interviews found.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-
-            {filteredMockInterviews.length === 0 && (
-              <div className="bg-white shadow rounded-lg">
-                <div className="text-center py-12">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No MockInterviews found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {searchQuery ? `No MockInterviews found matching "${searchQuery}"` : `No ${selectedTab} MockInterviews found.`}
-                  </p>
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="mt-4 text-blue-600 hover:text-blue-500 text-sm font-medium"
-                    >
-                      Clear search
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
+          <DataTable
+            title="Mock Interviews"
+            description={`${filteredMockInterviews.length} interview(s) found`}
+            data={filteredMockInterviews}
+            columns={columns}
+            keyExtractor={(interview) => interview.id}
+            emptyState={{
+              message: 'No mock interviews found',
+              subMessage: searchQuery
+                ? `No mock interviews found matching "${searchQuery}"`
+                : `No ${selectedTab} mock interviews found.`,
+              action: searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Clear search
+                </button>
+              ) : undefined
+            }}
+          />
         )}
 
       </div>
     </DashboardLayout>
   );
 }
+

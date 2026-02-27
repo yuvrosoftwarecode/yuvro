@@ -11,6 +11,7 @@ class User(AbstractUser):
         ("hod", "HOD"),
         ("faculty", "Faculty"),
         ("recruiter", "Recruiter"),
+        ("tpo", "TPO"),
         ("admin", "Administrator"),
     ]
 
@@ -47,11 +48,14 @@ class User(AbstractUser):
     def is_student(self):
         return self.role == "student"
 
+    def is_tpo(self):
+        return self.role == "tpo"
+
     def can_manage_content(self):
-        return self.role in ["admin", "college_admin", "principal", "hod", "faculty"]
+        return self.role in ["admin", "college_admin", "principal", "hod", "faculty", "tpo"]
 
     def can_manage_users(self):
-        return self.role in ["admin", "college_admin", "principal", "hod"]
+        return self.role in ["admin", "college_admin", "principal", "hod", "tpo"]
 
     @property
     def college(self):
@@ -66,6 +70,8 @@ class User(AbstractUser):
             return self.hod_profile.college
         elif self.role == "faculty" and hasattr(self, "faculty_profile"):
             return self.faculty_profile.college
+        elif self.role == "tpo" and hasattr(self, "tpo_profile"):
+            return self.tpo_profile.college
         return None
 
     def save(self, *args, **kwargs):

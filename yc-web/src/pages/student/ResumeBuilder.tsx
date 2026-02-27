@@ -503,7 +503,7 @@ const ResumeBuilder = () => {
   }, [selectedFont]);
 
   const safeProfile = {
-    name: profile?.name || profile?.full_name || 'Your Name',
+    name: profile?.full_name || `${profile?.user?.first_name || ''} ${profile?.user?.last_name || ''}`.trim() || 'Your Name',
     title: profile?.title || 'Your Title',
     location: profile?.location || 'Your Location',
     about: profile?.about || 'Your professional summary',
@@ -1215,7 +1215,7 @@ const ResumeBuilder = () => {
             <div className="w-1/3 text-white p-6 -m-8 mr-6 min-h-[842px]" style={{ background: `linear-gradient(to bottom, ${primaryColor}, ${accentColor})` }}>
               <div className="mb-8">
                 <div className="w-20 h-20 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold">
-                  {(safeProfile.name || '').split(' ').map(n => n[0]).join('')}
+                  {(safeProfile.name || '').split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <h2 className="text-center font-semibold">{safeProfile.name}</h2>
               </div>

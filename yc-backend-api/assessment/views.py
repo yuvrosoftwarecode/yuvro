@@ -113,17 +113,14 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
         if exam.questions_random_config:
             existing_ids = [q['id'] for q in questions_to_send]
             for q_type, count in exam.questions_random_config.items():
-                if count > 0:
-                   candidates = list(Question.objects.filter(
-                       type=q_type,
-                       course=exam.course
-                   ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
-                   
-                   if len(candidates) >= count:
-                       selected = random.sample(candidates, count)
-                   else:
-                       selected = candidates
-                   questions_to_send.extend(selected)
+                   if count > 0:
+                       selected = list(Question.objects.filter(
+                           type=q_type,
+                           course=exam.course
+                       ).exclude(id__in=existing_ids).order_by('?')[:count].values(
+                           'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                       ))
+                       questions_to_send.extend(selected)
 
         random.shuffle(questions_to_send)
         
@@ -600,15 +597,12 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     elif skill_test.course:
                         q_filter &= Q(course=skill_test.course)
                         
-                    # Fetch candidate questions excluding already selected ones
-                    candidates = list(Question.objects.filter(
+                    # Fetch candidate questions directly with randomization limit in DBMS
+                    selected = list(Question.objects.filter(
                         q_filter
-                    ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
-                    
-                    if len(candidates) >= count:
-                        selected = random.sample(candidates, count)
-                    else:
-                        selected = candidates # Take all if not enough
+                    ).exclude(id__in=existing_ids).order_by('?')[:count].values(
+                        'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                    ))
                     
                     questions_to_send.extend(selected)
                     

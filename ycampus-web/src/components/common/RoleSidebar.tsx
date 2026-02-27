@@ -181,6 +181,13 @@ const sidebarItems: SidebarItem[] = [
     path: '/hod/dashboard',
     roles: ['hod']
   },
+  {
+    id: 'tpo-dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    path: '/tpo/dashboard',
+    roles: ['tpo']
+  },
 
   {
     id: 'faculty-dashboard',
@@ -349,6 +356,8 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
 
       case 'faculty':
         return 'Faculty';
+      case 'tpo':
+        return 'TPO Portal';
       default:
         return 'Yuvro';
     }

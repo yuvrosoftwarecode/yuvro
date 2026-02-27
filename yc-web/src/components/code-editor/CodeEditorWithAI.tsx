@@ -194,8 +194,14 @@ ${codeEditorRef.current?.getCode() || ''}
     `.trim();
   };
 
+  const containerClassName = isEditorFullscreen
+    ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white')
+    : (isEmbedded
+      ? 'h-full w-full flex flex-col box-border bg-slate-50/50 font-sans overflow-hidden'
+      : 'flex-1 flex flex-col p-6 box-border bg-slate-50/50 font-sans overflow-hidden');
+
   return (
-    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white') : 'flex-1 flex flex-col p-6 box-border bg-slate-50/50 font-sans overflow-hidden'}`}>
+    <div className={containerClassName}>
 
       {/* Premium Header / Breadcrumb */}
       {!isEditorFullscreen && (

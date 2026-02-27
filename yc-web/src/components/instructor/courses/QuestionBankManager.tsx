@@ -887,15 +887,16 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 />
               </div>
 
-              {/* Reference Solution Manager - Only for coding/descriptive */}
+              {/* Reference Solution Manager (Multi-solution) & Code - Only for coding/descriptive */}
               {(formData.type === 'coding' || formData.type === 'descriptive') && (
-                <div className="space-y-3 pt-2 border-t border-slate-200">
+                <div className="space-y-6 pt-2 border-t border-slate-200">
                   <SolutionManager
                     solutions={solutions}
                     onChange={setSolutions}
                     testCases={formData.test_cases_basic}
                     onTestCasesChange={(tc) => setFormData(prev => ({ ...prev, test_cases_basic: tc }))}
                   />
+
                 </div>
               )}
 
