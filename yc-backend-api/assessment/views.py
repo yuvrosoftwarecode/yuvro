@@ -804,44 +804,25 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             user=user,
                             ai_agent=ai_agent,
                             title=f"Mock Interview: {mock_interview.title}",
-                            page="mock_interview"
+                            page="mock_interview",
+                            context={
+                                "role": mock_interview.title,
+                                "description": mock_interview.description,
+                                "instructions": mock_interview.instructions,
+                                "difficulty": experience_level,
+                                "level": experience_level,
+                                "max_duration": mock_interview.max_duration,
+                                "selected_duration": selected_duration,
+                                "required_skills": mock_interview.required_skills,
+                                "optional_skills": mock_interview.optional_skills,
+                                "interviewer_name": mock_interview.interviewer_name,
+                                "interviewer_voice_id": mock_interview.interviewer_voice_id,
+                                "voice_speed": mock_interview.voice_speed,
+                                "ai_context": mock_interview.ai_context,
+                                "candidate_info": context_text
+                            }
                         )
                         
-                        # Create System Prompt
-                        system_prompt = f"""You are {mock_interview.interviewer_name}, an expert technical interviewer conducting a mock interview.
-ROLE & PERSONA:
-- You are professional yet conversational. Avoid robotic or standard "textbook" phrasing.
-- Speak naturally, like a human interviewer. Use phrases like "That's interesting, tell me more about...", "Let's pivot to...", or "I see, but considering...".
-- Do NOT say "Next question" or "Moving on". Transition naturally between topics.
-
-INTERVIEW CONTEXT:
-- Title: {mock_interview.title}
-- Description: {mock_interview.description}
-- Instructions: {mock_interview.instructions}
-
-CANDIDATE INFO:
-{context_text}
-
-CRITICAL RULES:
-1. NO DEFINITIONAL QUESTIONS: Never ask "What is X?" or "Define Y". These are strictly forbidden.
-2. SCENARIO-BASED ONLY: All questions must be practical scenarios or problem-solving challenges.
-   - Bad: "What is a deadlock?"
-   - Good: "You have two threads waiting on each other's resources, causing the application to freeze. How would you detect this in production and fix it?"
-3. ADAPTIVE DIFFICULTY:
-   - If the candidate answers well: Increase complexity. Add constraints (e.g., "Now assume we have limited memory", "What if the network is unreliable?").
-   - If the candidate struggles: De-escalate. Ask a guiding follow-up or a simpler foundational question to help them regain confidence.
-   - If the answer is vague: Ask for specific examples or deeper technical reasoning.
-4. FOCUS: Test depth of understanding, not memorization. Ask "Why" and "How", not "What".
-
-START:
-Greet {user_first_name} warmly, introduce yourself, and immediately present the first scenario or problem statement based on the interview context and candidate's background.
-"""
-                        ChatMessage.objects.create(
-                            chat_session=chat_session,
-                            message_type="system",
-                            content=system_prompt
-                        )
-
                         # Create InterviewSession linking to ChatSession
                         # This is crucial for the AI Assistant module to track it as an interview
                         interview_session = InterviewSession.objects.create(

@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils import timezone
@@ -30,6 +31,8 @@ from .serializers import (
     InterviewReportSerializer,
 )
 from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
+
+logger = logging.getLogger(__name__)
 
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -121,12 +124,19 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
         try:
             with transaction.atomic():
-                # Create user message
-                user_message = ChatMessage.objects.create(
-                    chat_session=chat_session,
-                    message_type="user",
-                    content=message_content,
-                )
+                # Check if this is the initial trigger message for mock interview
+                is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
+                
+                user_message = None
+                if not is_trigger:
+                    # Create user message
+                    user_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="user",
+                        content=message_content,
+                    )
+                else:
+                    logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
 
                 # Get AI agent configuration
                 ai_agent = chat_session.ai_agent
@@ -222,61 +232,85 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
         # Check if this is a mock interview session and inject specialized persona
         if chat_session.page == "mock_interview":
-            context = chat_session.context
+            # Determine if this is the very first AI message
+            is_start = not chat_session.messages.filter(message_type="assistant").exists()
+            
+            context = chat_session.context or {}
             role = context.get("role", "Software Engineer")
             level = context.get("level", "Intermediate")
-            difficulty = context.get("difficulty", "Medium")
             interviewer_name = context.get("interviewer_name", "AI Interviewer")
             candidate_info = context.get("candidate_info", "No specific background provided.")
+            ai_context_list = context.get("ai_context", [])
+            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
             
-            # Richer Prompt Construction
-            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer.
+            instructions = context.get("instructions", "")
+            required_skills = ", ".join(context.get("required_skills", []))
 
-CRITICAL RULES:
-1. **Initial Greeting**: STRICTLY start with: "Hi, I'm {interviewer_name}. I'll be conducting your interview for the {role} position today. To get us started, could you please give me a quick introduction?"
-   - Do NOT add any other pleasantries.
-2. **NO Definitions**: NEVER ask "What is...", "Define...", or "Explain the concept of...".
-   - ❌ "What is a deadlock?"
-   - ❌ "Explain useEffect."
-3. **Scenario First**: EVERY question must be a practical situation, debugging challenge, or system design trade-off.
-   - ✅ "Two threads are stuck waiting for each other. How do you debug this?"
-   - ✅ "Your component renders too often. how do you optimize it?"
-4. **Brevity**: Max 1-2 sentences. Be direct and conversational.
-5. **Adaptive Chaining (Step-by-Step Strategy)**:
-   - **Step 1**: Analyze the candidate's last answer. Identify ONE specific concept, technology, or trade-off they mentioned.
-   - **Step 2**: Formulate a follow-up question that challenges THAT specific concept.
-   - **Rule**: Do NOT change the topic unless the candidate completely failed or the topic is fully exhausted.
-   - Example If they say "I use Redis for caching", ask: "What happens if your Redis instance fills up? How do you handle eviction?"
-6. **Coding Questions**: When you want the candidate to write code, you MUST start the sentence with **"Please write code to..."** or **"Write a function that..."**.
-   - This triggers the code editor for the candidate.
+            # Time Tracking Logic
+            time_left_msg = ""
+            try:
+                interview_session = chat_session.interview_session
+                total_duration_mins = interview_session.duration_minutes
+                elapsed_time = timezone.now() - interview_session.created_at
+                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
+                
+                if remaining_mins <= 2 and remaining_mins > 0:
+                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
+                elif remaining_mins <= 0:
+                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
+            except:
+                pass
+            
+            # Strict Prompt Construction
+            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer conducting a mock interview for the "{role}" position.
 
+PERSONA & STYLE:
+- Professional, observant, and conversational human interviewer. 
+- **Brevity is Mandatory**: Every response/question from you MUST be exactly 1 line long. Short and sweet.
+
+CORE RULES:
+1. **Active Listening**: You MUST directly acknowledge the specific content of the candidate's last answer. If they say they lacks experience in X, do NOT immediately ask a complex scenario about X.
+2. **Scenario-Based & Contextual**: Questions must be practical scenarios or related to the candidate's background. Avoid "Define X" or "What is Y".
+3. **Resume-Driven Flow**: Prioritize questions about technologies, projects, and experiences listed in the candidate's resume/background, but only if they align with the candidate's current statements.
+4. **Adaptive Chaining**: Base your next 1-line question on the depth or gaps in the candidate's LAST answer. If they are beginner, stick to foundations. If advanced, push limits.
+5. **No Definitional Bloat**: Never explain technical concepts. Acknowledge briefly and move to the next 1-line challenge.
+6. **Coding**: To trigger the code editor, you MUST start with **"Please write code to..."** or **"Write a function that..."**.
 
 INTERVIEW CONTEXT:
-- Role: {role}
-- Difficulty: {difficulty}
-- Candidate: {candidate_info}
+- **Role**: {role}
+- **Level**: {level}
+- **Required Skills**: {required_skills}
+- **AI Focus Context**: 
+{ai_context_str}
+- **Instructions**: {instructions}
+- **Candidate Background/Resume**: {candidate_info}
 
-Start with the Initial Greeting.
+{time_left_msg}
 """
+            if is_start:
+                # Override everything for the very first message
+                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
+                
+                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
+                STRICT RULE: Your response MUST be exactly 1 line long.
+                
+                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
+                """
+            
             messages.append({"role": "system", "content": interview_prompt})
 
-        # Add user-configured system prompt (if not in interview mode, or as secondary instruction)
+        # Add user-configured system prompt
         elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
         # Add conversation history
         chat_messages = chat_session.messages.order_by("created_at")
         for msg in chat_messages:
-            if msg.message_type == "system":
-                role = "system"
-            elif msg.message_type == "user":
-                role = "user"
-            else:
-                role = "assistant"
+            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
             messages.append({"role": role, "content": msg.content})
 
-        if chat_session.page == "mock_interview":
-            # Find the last user message to enforce adaptive analysis
+        if chat_session.page == "mock_interview" and not is_start:
+            # Find the last user message
             last_user_msg = None
             for msg in reversed(messages):
                 if msg["role"] == "user":
@@ -286,9 +320,11 @@ Start with the Initial Greeting.
             if last_user_msg:
                 adaptive_instruction = (
                     f"The candidate's last answer was: \"{last_user_msg}\".\n"
-                    "TASK: Analyze this answer for technical accuracy and depth. "
-                    "Did they miss any edge cases? Did they mention a specific technology? "
-                    "Formulate your next question specifically to follow up on this answer."
+                    "INSTRUCTION: \n"
+                    "1. First, briefly acknowledge or validate their specific answer (e.g., 'Got it', 'I see you have a backend background', etc.).\n"
+                    "2. Then, ask your next 1-LINE question. \n"
+                    "3. If they mentioned a specific technology or lack of experience, pivot your question to align with their statement while staying relevant to the Data Scientist role.\n"
+                    "STRICT: The entire response must be exactly 1 line."
                 )
                 messages.append({"role": "system", "content": adaptive_instruction})
 
@@ -598,22 +634,19 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             
             # Read resume content if file exists
             resume_text = None
-            if interview_session.resume_file:
-                try:
-                    # Basic text extraction from PDF could go here.
-                    # For now, we will skip complex PDF parsing and just pass "Resume provided"
-                    # or implement a simple PDF reader if libraries available.
-                    # We'll stick to a placeholder to avoid dependency issues for this slice.
-                    resume_text = "The candidate has provided a resume file." 
-                except Exception:
-                    pass
 
             # Prepare conversation text synchronously
+            trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
             messages = interview_session.chat_session.messages.order_by("created_at")
             conversation_text = ""
             for msg in messages:
+                if msg.content.strip() == trigger_text:
+                    continue
                 role = "Interviewer" if msg.message_type != "user" else "Candidate"
                 conversation_text += f"{role}: {msg.content}\n\n"
+
+            # Use extracted resume text from context if available
+            resume_text = interview_session.chat_session.context.get("candidate_info", "No resume provided.")
 
             # Run async generation in sync context
             loop = asyncio.new_event_loop()

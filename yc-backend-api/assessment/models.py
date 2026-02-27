@@ -384,7 +384,6 @@ class MockInterviewSubmission(BaseUserSubmission):
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = ["user", "mock_interview"]
 
     def __str__(self):
         return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
