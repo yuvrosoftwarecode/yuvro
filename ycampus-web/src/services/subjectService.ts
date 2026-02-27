@@ -98,10 +98,22 @@ export async function fetchSubjects(params?: { category?: string; semester?: str
 export interface SectionSubjectFaculty {
   id: string;
   semester_subject: string | number;
+  semester_subject_details?: {
+    id: string | number;
+    subject_details: Subject;
+    is_elective: boolean;
+    is_lab: boolean;
+    semester_number: number;
+    batch_name: string;
+    department_id: string | number;
+    department_name: string;
+    department_short_form: string;
+  };
   section: string | number;
   section_name?: string;
   faculty: string | number;
   faculty_details?: any;
+  student_count?: number;
   created_at: string;
 }
 
@@ -118,7 +130,7 @@ export interface SemesterSubject {
 }
 
 export async function addSubjectToSemester(semesterId: string | number, subjectId: string | number) {
- return restApiAuthUtil.post(`/course/semester-subjects/`, { semester: semesterId, subject: subjectId });
+  return restApiAuthUtil.post(`/course/semester-subjects/`, { semester: semesterId, subject: subjectId });
 }
 
 export async function removeSubjectFromSemester(assignmentId: string | number) {
