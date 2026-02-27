@@ -332,3 +332,38 @@ class TPOProfile(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.username} - TPO {self.college.name}"
+
+class Task(models.Model):
+    """
+    Model representing a task assigned by a faculty to one or more sections.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    faculty = models.ForeignKey(
+        FacultyProfile, on_delete=models.CASCADE, related_name="assigned_tasks"
+    )
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True
+    )
+    subject = models.ForeignKey(
+        "course.Subject", on_delete=models.CASCADE, related_name="tasks"
+    )
+    unit = models.ForeignKey(
+        "course.Unit", on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks"
+    )
+    sub_unit = models.ForeignKey(
+        "course.SubUnit", on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks"
+    )
+    sections = models.ManyToManyField(
+        Section, related_name="tasks"
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    due_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.faculty.user.username}"

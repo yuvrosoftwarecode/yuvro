@@ -645,5 +645,3 @@ class SectionSubjectFaculty(BaseTimestampedModel):
                 self.faculty.linked_departments.add(dept)
 
 
-
-
