@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
-from core.models import College, Batch, Department, Semester, Section
+from core.models import College, Batch, Department, Semester, Section, Task
 from .models import (
     Subject,
     Unit,
@@ -38,6 +38,8 @@ from .serializers import (
     SectionSerializer,
     SubjectSerializer,
     SubjectBasicSerializer,
+    TaskSerializer,
+
     UnitSerializer,
     UnitBasicSerializer,
     SubUnitSerializer,
@@ -1901,3 +1903,43 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         except Exception as e:
              return Response({"error": f"Unexpected Error: {str(e)}"}, status=500)
 
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage tasks assigned by faculty.
+    """
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticatedUser]
+    filterset_fields = ["faculty", "subject", "unit", "sub_unit"]
+
+    def get_queryset(self):
+        qs = Task.objects.select_related(
+            "faculty__user", "subject", "unit", "sub_unit"
+        ).prefetch_related("sections")
+        
+        user = self.request.user
+        if user.role == "faculty":
+            # Faculty see tasks they assigned
+            qs = qs.filter(faculty__user=user)
+        elif user.role == "student":
+            # Students see tasks assigned to their section
+            if hasattr(user, 'student_profile') and user.student_profile.section:
+                qs = qs.filter(sections=user.student_profile.section)
+            else:
+                return Task.objects.none()
+        elif user.role not in ["admin", "college_admin", "principal"]:
+            # Other roles restricted
+            return Task.objects.none()
+            
+        return qs
+
+    def perform_create(self, serializer):
+        # Auto-set faculty if role is faculty
+        if self.request.user.role == "faculty":
+            from core.models import FacultyProfile
+            faculty = get_object_or_404(FacultyProfile, user=self.request.user)
+            serializer.save(faculty=faculty)
+        else:
+            serializer.save()
