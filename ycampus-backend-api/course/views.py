@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
-from core.models import College, Batch, Department, Semester, Section, Task
+from core.models import College, Batch, Department, Semester, Section, Task, TaskSubmission, TaskComment
 from .models import (
     Subject,
     Unit,
@@ -52,6 +52,7 @@ from .serializers import (
     SemesterSubjectSerializer,
     SectionSubjectFacultySerializer,
 )
+from core.serializers import TaskSubmissionSerializer, TaskCommentSerializer
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
 from django.contrib.auth import get_user_model
@@ -1943,3 +1944,58 @@ class TaskViewSet(viewsets.ModelViewSet):
             serializer.save(faculty=faculty)
         else:
             serializer.save()
+
+class TaskSubmissionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage student task submissions.
+    """
+    queryset = TaskSubmission.objects.all()
+    serializer_class = TaskSubmissionSerializer
+    permission_classes = [IsAuthenticatedUser]
+    filterset_fields = ["task", "student", "is_submitted"]
+
+    def get_queryset(self):
+        qs = TaskSubmission.objects.select_related(
+            "task", "student__user"
+        ).prefetch_related("comments__faculty__user")
+        
+        user = self.request.user
+        if user.role == "faculty":
+            # Faculty see submissions for tasks they assigned
+            qs = qs.filter(task__faculty__user=user)
+        elif user.role == "student":
+            # Students see their own submissions
+            qs = qs.filter(student__user=user)
+        elif user.role not in ["admin", "college_admin", "principal"]:
+            return TaskSubmission.objects.none()
+            
+        return qs
+
+    @action(detail=True, methods=["post"])
+    def add_comment(self, request, pk=None):
+        """
+        Action for faculty to add a comment to a submission.
+        """
+        submission = self.get_object()
+        if request.user.role != "faculty":
+            return Response({"error": "Only faculty can add comments"}, status=status.HTTP_403_FORBIDDEN)
+            
+        from core.models import FacultyProfile
+        faculty = get_object_or_404(FacultyProfile, user=request.user)
+        
+        # Check if this faculty assigned the task
+        if submission.task.faculty != faculty:
+            return Response({"error": "You can only comment on submissions for your own tasks"}, status=status.HTTP_403_FORBIDDEN)
+            
+        comment_text = request.data.get("comment")
+        if not comment_text:
+            return Response({"error": "Comment text is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        comment = TaskComment.objects.create(
+            submission=submission,
+            faculty=faculty,
+            comment=comment_text
+        )
+        
+        serializer = TaskCommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
