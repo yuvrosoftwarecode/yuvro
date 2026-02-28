@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
 import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, UnitBasic, fetchSubUnitsByUnit, SubUnit } from '../../services/subjectService';
-import { taskService, Task } from '../../services/taskService';
-import { BookOpen, Users, Calendar, ArrowRight, Loader2, Plus, List, Send, Trash2, CheckCircle, Clock } from 'lucide-react';
+import { taskService, Task, TaskSubmission, TaskComment } from '../../services/taskService';
+import {
+    BookOpen, Users, Calendar, ArrowRight, Loader2, Plus, List, Send, Trash2,
+    CheckCircle, Clock, Search, MessageSquare, ChevronLeft, Edit2, MoreVertical,
+    User, Filter, Download, ExternalLink, SendHorizonal
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,438 +17,715 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Dialog, DialogContent, DialogDescription, DialogFooter,
+    DialogHeader, DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 const FacultyTask: React.FC = () => {
     const { user } = useAuth();
+
+    // Core Data State
     const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [submissions, setSubmissions] = useState<TaskSubmission[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
-    // Form State
+    // Screening/View State
+    const [view, setView] = useState<'taskList' | 'responses' | 'studentDetail'>('taskList');
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [selectedSubmission, setSelectedSubmission] = useState<TaskSubmission | null>(null);
+
+    // Filter State
     const [selectedDepartment, setSelectedDepartment] = useState<string>("");
     const [selectedSubject, setSelectedSubject] = useState<string>("");
     const [selectedSections, setSelectedSections] = useState<string[]>([]);
-    const [selectedUnit, setSelectedUnit] = useState<string>("");
-    const [selectedSubUnit, setSelectedSubUnit] = useState<string>("");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Form / Popup State
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [units, setUnits] = useState<UnitBasic[]>([]);
     const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [dueDate, setDueDate] = useState("");
+    const [formState, setFormState] = useState({
+        title: "",
+        description: "",
+        dueDate: "",
+        unit: "",
+        subUnit: "",
+        sections: [] as string[]
+    });
 
-    const [view, setView] = useState<'list' | 'create'>('list');
+    // Detail Screen State
+    const [newComment, setNewComment] = useState("");
 
     useEffect(() => {
-        fetchData();
+        fetchInitialData();
     }, [user]);
 
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
         try {
             setLoading(true);
-            const [assignmentsData, tasksData] = await Promise.all([
-                getFacultyAssignments(),
-                taskService.getTasks()
-            ]);
+            const assignmentsData = await getFacultyAssignments();
             setAssignments(assignmentsData);
-            setTasks(tasksData);
         } catch (err) {
-            console.error("Failed to fetch data", err);
-            toast.error("Failed to load data");
+            console.error("Failed to fetch assignments", err);
+            toast.error("Failed to load assignments");
         } finally {
             setLoading(false);
         }
     };
 
-    // Filter unique departments from assignments
-    const uniqueDepartments = assignments.reduce((acc: any[], curr) => {
-        const deptId = curr.semester_subject_details?.department_id;
-        const deptName = curr.semester_subject_details?.department_name;
-        if (deptId && !acc.find(d => d.id === deptId)) {
-            acc.push({ id: deptId, name: deptName });
-        }
-        return acc;
-    }, []);
-
-    // Filter assignments based on selected department
-    const filteredAssignmentsByDept = selectedDepartment
-        ? assignments.filter(a => String(a.semester_subject_details?.department_id) === selectedDepartment)
-        : assignments;
-
-    // Filter unique subjects from dept-filtered assignments
-    const uniqueSubjects = filteredAssignmentsByDept.reduce((acc: any[], curr) => {
-        const subjectId = String(curr.semester_subject_details?.subject_details?.id);
-        if (!acc.find(s => s.id === subjectId)) {
-            acc.push({
-                id: subjectId,
-                name: curr.semester_subject_details?.subject_details?.subject_name
-            });
-        }
-        return acc;
-    }, []);
-
-    // Filter sections for the selected subject and department
-    const availableSections = filteredAssignmentsByDept.filter(a =>
-        String(a.semester_subject_details?.subject_details?.id) === selectedSubject
-    );
-
+    // Effect to fetch tasks only after all main filters are selected
     useEffect(() => {
-        setSelectedSubject(""); // Reset subject when department changes
-        setSelectedSections([]);
-        setSelectedUnit("");
-        setSelectedSubUnit("");
-    }, [selectedDepartment]);
+        if (selectedDepartment && selectedSubject && selectedSections.length > 0) {
+            fetchTasks();
+        } else {
+            setTasks([]);
+        }
+    }, [selectedDepartment, selectedSubject, selectedSections]);
+
+    const fetchTasks = async () => {
+        try {
+            setLoading(true);
+            const data = await taskService.getTasks({
+                department: selectedDepartment,
+                subject: selectedSubject,
+            });
+            const filteredTasks = data.filter(t =>
+                t.sections.some(s => selectedSections.includes(String(s)))
+            );
+            setTasks(filteredTasks);
+        } catch (err) {
+            toast.error("Failed to load tasks");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSendTask = async (taskId: string) => {
+        try {
+            setSubmitting(true);
+            await taskService.sendTask(taskId);
+            toast.success("Task sent successfully!");
+            fetchTasks();
+        } catch (err) {
+            toast.error("Failed to send task");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const fetchSubmissions = async (task: Task) => {
+        try {
+            setLoading(true);
+            const data = await taskService.getTaskSubmissions(task.id);
+            setSubmissions(data);
+            setSelectedTask(task);
+            setView('responses');
+        } catch (err) {
+            toast.error("Failed to load submissions");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchSubmissionDetail = async (submissionId: string) => {
+        try {
+            setLoading(true);
+            const data = await taskService.getSubmissionDetail(submissionId);
+            setSelectedSubmission(data);
+            setView('studentDetail');
+        } catch (err) {
+            toast.error("Failed to load submission details");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddComment = async () => {
+        if (!selectedSubmission?.id || !newComment.trim()) return;
+        try {
+            setSubmitting(true);
+            const comment = await taskService.addCommentToSubmission(selectedSubmission.id, newComment);
+            setSelectedSubmission(prev => prev ? {
+                ...prev,
+                comments: [...prev.comments, comment]
+            } : null);
+            setNewComment("");
+            toast.success("Comment added");
+        } catch (err) {
+            toast.error("Failed to add comment");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Filter Helpers
+    const uniqueDepartments = useMemo(() => {
+        const acc: { id: string, name: string }[] = [];
+        assignments.forEach(curr => {
+            const deptId = curr.semester_subject_details?.department_id;
+            const deptName = curr.semester_subject_details?.department_name;
+            if (deptId && deptName && !acc.find(d => d.id === String(deptId))) {
+                acc.push({ id: String(deptId), name: deptName });
+            }
+        });
+        return acc;
+    }, [assignments]);
+
+    const uniqueSubjects = useMemo(() => {
+        if (!selectedDepartment) return [];
+        const acc: { id: string, name: string }[] = [];
+        assignments
+            .filter(a => String(a.semester_subject_details?.department_id) === selectedDepartment)
+            .forEach(curr => {
+                const subjectId = String(curr.semester_subject_details?.subject_details?.id);
+                if (!acc.find(s => s.id === subjectId)) {
+                    acc.push({
+                        id: subjectId,
+                        name: curr.semester_subject_details?.subject_details?.subject_name || "Unknown Subject"
+                    });
+                }
+            });
+        return acc;
+    }, [assignments, selectedDepartment]);
+
+    const availableSections = useMemo(() => {
+        if (!selectedDepartment || !selectedSubject) return [];
+        return assignments.filter(a =>
+            String(a.semester_subject_details?.department_id) === selectedDepartment &&
+            String(a.semester_subject_details?.subject_details?.id) === selectedSubject
+        );
+    }, [assignments, selectedDepartment, selectedSubject]);
+
+    const filteredTasks = useMemo(() => {
+        return tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }, [tasks, searchQuery]);
+
+    // Form Helpers
+    useEffect(() => {
+        if (formState.unit) {
+            fetchSubUnitsByUnit(formState.unit).then(setSubUnits);
+        } else {
+            setSubUnits([]);
+        }
+    }, [formState.unit]);
 
     useEffect(() => {
         if (selectedSubject) {
             fetchUnitsBySubject(selectedSubject).then(setUnits);
-            setSelectedSections([]);
-            setSelectedUnit("");
-            setSelectedSubUnit("");
         }
     }, [selectedSubject]);
 
-    useEffect(() => {
-        if (selectedUnit) {
-            fetchSubUnitsByUnit(selectedUnit).then(setSubUnits);
-            setSelectedSubUnit("");
+    const openCreateDialog = (task: Task | null = null) => {
+        if (task) {
+            setEditingTask(task);
+            setFormState({
+                title: task.title,
+                description: task.description,
+                dueDate: task.due_date ? task.due_date.slice(0, 16) : "",
+                unit: task.unit || "",
+                subUnit: task.sub_unit || "",
+                sections: task.sections.map(s => String(s))
+            });
+        } else {
+            setEditingTask(null);
+            setFormState({
+                title: "",
+                description: "",
+                dueDate: "",
+                unit: "",
+                subUnit: "",
+                sections: []
+            });
         }
-    }, [selectedUnit]);
+        setIsCreateDialogOpen(true);
+    };
 
-    const handleCreateTask = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedSubject || selectedSections.length === 0 || !title || !description) {
-            toast.error("Please fill in all required fields");
+    const handleSaveTask = async () => {
+        if (!formState.title || !formState.description || formState.sections.length === 0) {
+            toast.error("Please fill in required fields");
             return;
         }
 
         try {
             setSubmitting(true);
             const payload = {
-                title,
-                description,
+                ...formState,
                 department: selectedDepartment,
                 subject: selectedSubject,
-                sections: selectedSections, // This is an array of section IDs
-                unit: selectedUnit || null,
-                sub_unit: selectedSubUnit || null,
-                due_date: dueDate || null
             };
 
-            await taskService.createTask(payload);
-            toast.success("Task assigned successfully!");
-            setView('list');
-            fetchData();
-            resetForm();
+            if (editingTask) {
+                await taskService.updateTask(editingTask.id, payload);
+                toast.success("Task updated");
+            } else {
+                await taskService.createTask(payload);
+                toast.success("Task created");
+            }
+            setIsCreateDialogOpen(false);
+            fetchTasks();
         } catch (err) {
-            console.error("Failed to create task", err);
-            toast.error("Failed to assign task");
+            toast.error("Failed to save task");
         } finally {
             setSubmitting(false);
         }
     };
 
-    const resetForm = () => {
-        setSelectedDepartment("");
-        setSelectedSubject("");
-        setSelectedSections([]);
-        setSelectedUnit("");
-        setSelectedSubUnit("");
-        setTitle("");
-        setDescription("");
-        setDueDate("");
-    };
-
     const handleDeleteTask = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this task?")) return;
+        if (!confirm("Are you sure?")) return;
         try {
             await taskService.deleteTask(id);
             toast.success("Task deleted");
-            fetchData();
+            fetchTasks();
         } catch (err) {
             toast.error("Failed to delete task");
         }
     };
 
-    const toggleSection = (sectionId: string) => {
-        setSelectedSections(prev =>
-            prev.includes(sectionId)
-                ? prev.filter(id => id !== sectionId)
-                : [...prev, sectionId]
-        );
-    };
+    // Render Components
+    const renderTaskList = () => (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="relative w-full md:w-96">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                        placeholder="Search tasks by title..."
+                        className="pl-10 h-11 bg-gray-50 border-none focus:ring-2 focus:ring-gray-100 rounded-xl"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+                <Button
+                    onClick={() => openCreateDialog()}
+                    className="bg-orange-500 text-white px-6 h-11 rounded-xl shadow-lg transition-all flex items-center gap-2"
+                >
+                    <Plus className="h-4 w-4" />
+                    Create New Task
+                </Button>
+            </div>
+
+            {loading ? (
+                <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-gray-300" /></div>
+            ) : filteredTasks.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredTasks.map(task => (
+                        <Card key={task.id} className="flex flex-col h-full border-gray-100 shadow-sm rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow">
+                            <CardContent className="p-6 flex flex-col h-full">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-lg font-bold text-gray-900 leading-snug pr-8 line-clamp-2">{task.title}</h3>
+                                    <Badge
+                                        variant="secondary"
+                                        className={task.is_sent ? "bg-orange-500 text-white border-none shadow-none font-bold" : "bg-blue-50 text-blue-600 border-none shadow-none font-bold"}
+                                    >
+                                        {task.is_sent ? 'Sent' : 'Draft'}
+                                    </Badge>
+                                </div>
+
+                                <p className="text-gray-900 text-sm mb-4 line-clamp-2 font-medium">
+                                    {task.description}
+                                </p>
+
+                                <div className="space-y-1 mb-6">
+                                    <div className="text-[12px] font-ui-sans-serif,system-ui, sans-serif text-[#64748b] tracking-wider">
+                                        Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                                    </div>
+                                    <div className="text-[11px] font-bold text-gray-900 tracking-wider">
+                                        Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
+                                    </div>
+                                </div>
+
+                                <div className="mt-auto space-y-3">
+                                    {!task.is_sent && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-lg h-10 border-gray-100 font-bold text-gray-600 gap-2 bg-white"
+                                                onClick={() => openCreateDialog(task)}
+                                            >
+                                                <Edit2 className="h-4 w-4" /> Edit
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-lg h-10 border-gray-100 font-bold text-gray-600 gap-2 bg-white"
+                                                onClick={() => handleDeleteTask(task.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" /> Delete
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        className="w-full bg-orange-500 text-white font-bold h-11 rounded-lg gap-2 shadow-sm"
+                                        onClick={() => task.is_sent ? fetchSubmissions(task) : handleSendTask(task.id)}
+                                        disabled={submitting}
+                                    >
+                                        {task.is_sent ? (
+                                            <><Search className="h-4 w-4" /> View Responses</>
+                                        ) : (
+                                            <><Send className="h-4 w-4" /> Send Task</>
+                                        )}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-20 text-center flex flex-col items-center shadow-sm">
+                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                        <BookOpen className="h-10 w-10 text-gray-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No tasks found</h3>
+                    <p className="text-gray-500 max-w-sm">Try adjusting your search or create a new task to get started.</p>
+                </div>
+            )}
+        </div>
+    );
+
+    const renderResponses = () => (
+        <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="flex items-center gap-4 mb-2">
+                <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white shadow-sm border border-gray-100">
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 capitalize">Responses</h2>
+                    <p className="text-gray-500 text-sm font-medium">{selectedTask?.title}</p>
+                </div>
+            </div>
+
+            <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
+                <CardHeader className="border-b border-gray-50 bg-white p-6">
+                    <div className="flex justify-between items-center">
+                        <CardTitle className="text-lg font-bold">Student Submissions</CardTitle>
+                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-gray-600 font-bold text-xs">
+                            <Download className="h-3.5 w-3.5 mr-2" /> Export
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="divide-y divide-gray-50">
+                        {submissions.length > 0 ? submissions.map(sub => (
+                            <div key={sub.id} className="p-4 hover:bg-gray-50 transition-all flex items-center justify-between group">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-12 w-12 rounded-2xl bg-gray-100 border border-white shadow-sm flex items-center justify-center text-gray-400">
+                                        <User className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-900">{sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}</p>
+                                        <div className="flex items-center gap-3 mt-0.5">
+                                            <span className="text-xs font-bold text-gray-400">{sub.student_details?.roll_number || 'No Roll No'}</span>
+                                            <span className="h-1 w-1 rounded-full bg-gray-300"></span>
+                                            <span className="text-xs font-bold text-gray-400">Section {sub.student_details?.section_name}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-right hidden sm:block">
+                                        <p className="text-xs font-bold text-gray-900">{sub.is_submitted ? 'Submitted' : 'Pending'}</p>
+                                        <p className="text-[10px] font-bold text-gray-400">{sub.submitted_at ? format(new Date(sub.submitted_at), 'MMM dd, yyyy') : '--'}</p>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => fetchSubmissionDetail(sub.id)}
+                                        className="rounded-xl h-10 w-10 p-0 text-gray-400 group-hover:text-gray-900 group-hover:bg-white border border-transparent group-hover:border-gray-100 shadow-none group-hover:shadow-sm"
+                                    >
+                                        <ArrowRight className="h-5 w-5" />
+                                    </Button>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="py-20 text-center flex flex-col items-center">
+                                <Users className="h-12 w-12 text-gray-200 mb-4" />
+                                <p className="text-gray-500 font-bold">No submissions yet.</p>
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+
+    const renderStudentDetail = () => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="lg:col-span-2 space-y-6">
+                <div className="flex items-center gap-4 mb-2">
+                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white shadow-sm border border-gray-100">
+                        <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900">{selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}</h2>
+                        <p className="text-gray-500 text-sm font-medium">{selectedTask?.title}</p>
+                    </div>
+                </div>
+
+                <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
+                    <CardHeader className="bg-white border-b border-gray-50 p-6">
+                        <div className="flex justify-between items-center">
+                            <CardTitle className="text-lg font-bold">Answer Content</CardTitle>
+                            <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 font-bold">FINAL SUBMISSION</Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-8">
+                        <div className="prose prose-gray max-w-none">
+                            <p className="text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
+                                {selectedSubmission?.answer || "No content provided."}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="space-y-6">
+                <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white flex flex-col h-[600px]">
+                    <CardHeader className="border-b border-gray-50 bg-white p-6">
+                        <CardTitle className="text-lg font-bold flex items-center gap-2">
+                            <MessageSquare className="h-5 w-5 text-gray-400" />
+                            Feedbacks & Comments
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
+                            selectedSubmission.comments.map(c => (
+                                <div key={c.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100/50">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">You (Faculty)</p>
+                                        <p className="text-[10px] font-bold text-gray-400">{format(new Date(c.created_at), 'MMM dd, hh:mm a')}</p>
+                                    </div>
+                                    <p className="text-xs font-semibold text-gray-800 leading-normal">{c.comment}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center px-6">
+                                <Clock className="h-8 w-8 text-gray-200 mb-3" />
+                                <p className="text-xs font-bold text-gray-400">No feedback provided yet. Start by adding a comment below.</p>
+                            </div>
+                        )}
+                    </CardContent>
+                    <div className="p-4 bg-gray-50 border-t border-gray-100">
+                        <div className="relative">
+                            <Textarea
+                                placeholder="Write a comment..."
+                                className="min-h-[100px] bg-white border-gray-200 focus:ring-gray-900 rounded-xl resize-none pr-12 text-sm font-medium"
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                            />
+                            <Button
+                                size="icon"
+                                disabled={submitting || !newComment.trim()}
+                                onClick={handleAddComment}
+                                className="absolute right-3 bottom-3 bg-orange-500 h-8 w-8 rounded-lg shadow-md transition-all text-white"
+                            >
+                                <SendHorizonal className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-[#FDFDFD] flex font-sans">
             <RoleSidebar />
             <div className="flex-1">
                 <RoleHeader
                     title="Task Management"
-                    subtitle="Assign and track tasks for your sections"
+                    subtitle="Assign, manage, and review student tasks"
                 />
 
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-                            <button
-                                onClick={() => setView('list')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${view === 'list' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                            >
-                                <List className="h-4 w-4" />
-                                Assigned Tasks
-                            </button>
-                            <button
-                                onClick={() => setView('create')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${view === 'create' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                            >
-                                <Plus className="h-4 w-4" />
-                                New Task
-                            </button>
+                <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+                    {/* Header Selection Flow - Following the reference style */}
+                    <Card className="border-gray-100 shadow-md rounded-[2rem] overflow-hidden bg-white">
+                        <CardHeader className="border-b border-gray-50 px-8 py-6">
+                            <CardTitle className="text-xl font-bold text-gray-900">Select Subject & Sections</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Department</Label>
+                                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Choose Department" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            {uniqueDepartments.map(d => (
+                                                <SelectItem key={d.id} value={d.id} className="rounded-xl font-medium">{d.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Subject</Label>
+                                    <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Select Subject" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            {uniqueSubjects.map(s => (
+                                                <SelectItem key={s.id} value={s.id} className="rounded-xl font-medium">{s.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Sections</Label>
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        {availableSections.length > 0 ? availableSections.map(a => (
+                                            <Badge
+                                                key={a.section}
+                                                onClick={() => {
+                                                    const id = String(a.section);
+                                                    setSelectedSections(prev =>
+                                                        prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                                                    );
+                                                }}
+                                                variant={selectedSections.includes(String(a.section)) ? "default" : "outline"}
+                                                className={`cursor-pointer h-10 px-6 rounded-2xl font-bold transition-all border-none ${selectedSections.includes(String(a.section)) ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                                            >
+                                                {a.section_name}
+                                            </Badge>
+                                        )) : <p className="text-xs font-bold text-gray-300 mt-2">Select a subject first</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Main Content Area */}
+                    <div className="min-h-[400px]">
+                        {(!selectedDepartment || !selectedSubject || selectedSections.length === 0) ? (
+                            <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center flex flex-col items-center justify-center shadow-sm">
+                                <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                    <Filter className="h-8 w-8 text-gray-200" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900">Please complete selection</h3>
+                                <p className="text-gray-400 text-sm font-medium">Select department, subject, and at least one section to view tasks.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {view === 'taskList' && renderTaskList()}
+                                {view === 'responses' && renderResponses()}
+                                {view === 'studentDetail' && renderStudentDetail()}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Create / Edit Task Dialog */}
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogContent className="max-w-2xl rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+                    <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100">
+                        <DialogTitle className="text-2xl font-black text-gray-900">{editingTask ? 'Edit Task' : 'New Assignment'}</DialogTitle>
+                        <DialogDescription className="font-bold text-gray-400">Fill in the details to {editingTask ? 'update' : 'broadcast'} the task.</DialogDescription>
+                    </DialogHeader>
+
+                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-bold text-gray-900">Task Title *</Label>
+                                <Input
+                                    value={formState.title}
+                                    onChange={e => setFormState(prev => ({ ...prev, title: e.target.value }))}
+                                    placeholder="e.g. Project Phase 1"
+                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-sm font-bold text-gray-900">Due Date</Label>
+                                <Input
+                                    type="datetime-local"
+                                    value={formState.dueDate}
+                                    onChange={e => setFormState(prev => ({ ...prev, dueDate: e.target.value }))}
+                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Unit</Label>
+                                    <Select value={formState.unit} onValueChange={v => setFormState(prev => ({ ...prev, unit: v, subUnit: "" }))}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Select" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            {units.map(u => <SelectItem key={u.id} value={u.id} className="rounded-xl">{u.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Sub Unit</Label>
+                                    <Select value={formState.subUnit} onValueChange={v => setFormState(prev => ({ ...prev, subUnit: v }))} disabled={!formState.unit}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Select" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            {subUnits.map(su => <SelectItem key={su.id} value={su.id} className="rounded-xl">{su.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-bold text-gray-900">Description *</Label>
+                                <Textarea
+                                    value={formState.description}
+                                    onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
+                                    placeholder="What should students do?"
+                                    className="h-[210px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-4"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-3">
+                            <Label className="text-sm font-bold text-gray-900">Confirm Sections *</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {availableSections.map(a => (
+                                    <div
+                                        key={a.id}
+                                        onClick={() => {
+                                            const id = String(a.section);
+                                            setFormState(prev => ({
+                                                ...prev,
+                                                sections: prev.sections.includes(id) ? prev.sections.filter(x => x !== id) : [...prev.sections, id]
+                                            }));
+                                        }}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all border-none font-bold ${formState.sections.includes(String(a.section)) ? 'bg-gray-100 text-gray-900 border border-gray-200' : 'bg-gray-50 text-gray-300'}`}
+                                    >
+                                        <CheckCircle className={`h-4 w-4 ${formState.sections.includes(String(a.section)) ? 'text-gray-900' : 'text-gray-200'}`} />
+                                        <span className="text-xs">{a.section_name}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                            <Loader2 className="h-10 w-10 text-orange-500 animate-spin mb-4" />
-                            <p className="text-gray-500 font-medium">Loading...</p>
-                        </div>
-                    ) : view === 'create' ? (
-                        <Card className="bg-white border-none shadow-sm overflow-hidden">
-                            <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                                <CardTitle className="text-xl font-bold text-gray-900">Assign New Task</CardTitle>
-                                <CardDescription>Select topic and sections to assign a task</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-8">
-                                <form onSubmit={handleCreateTask} className="space-y-8">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label className="text-sm font-semibold text-gray-700">Select Department *</Label>
-                                                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                                    <SelectTrigger className="bg-white border-gray-200 focus:ring-orange-500 rounded-lg">
-                                                        <SelectValue placeholder="Select Department" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {uniqueDepartments.map(d => (
-                                                            <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label className="text-sm font-semibold text-gray-700">Select Subject *</Label>
-                                                <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                                                    <SelectTrigger className="bg-white border-gray-200 focus:ring-orange-500 rounded-lg">
-                                                        <SelectValue placeholder={selectedDepartment ? "Select Subject" : "First select department"} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {uniqueSubjects.map(s => (
-                                                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            {selectedSubject && (
-                                                <>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm font-semibold text-gray-700">Sections *</Label>
-                                                        <div className="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                                            {availableSections.map(a => (
-                                                                <div key={a.section} className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-100 shadow-sm">
-                                                                    <Checkbox
-                                                                        id={`section-${a.section}`}
-                                                                        checked={selectedSections.includes(String(a.section))}
-                                                                        onCheckedChange={() => toggleSection(String(a.section))}
-                                                                        className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                                                                    />
-                                                                    <label htmlFor={`section-${a.section}`} className="text-sm font-medium text-gray-600 cursor-pointer">{a.section_name}</label>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <Label className="text-sm font-semibold text-gray-700">Topic (Unit)</Label>
-                                                            <Select value={selectedUnit} onValueChange={setSelectedUnit}>
-                                                                <SelectTrigger className="bg-white border-gray-200 focus:ring-orange-500 rounded-lg">
-                                                                    <SelectValue placeholder="Select Unit" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {units.map(u => (
-                                                                        <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label className="text-sm font-semibold text-gray-700">Sub-topic</Label>
-                                                            <Select value={selectedSubUnit} onValueChange={setSelectedSubUnit} disabled={!selectedUnit}>
-                                                                <SelectTrigger className="bg-white border-gray-200 focus:ring-orange-500 rounded-lg">
-                                                                    <SelectValue placeholder="Select Sub-topic" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {subUnits.map(su => (
-                                                                        <SelectItem key={su.id} value={su.id}>{su.name}</SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label className="text-sm font-semibold text-gray-700">Task Title *</Label>
-                                                <Input
-                                                    value={title}
-                                                    onChange={(e) => setTitle(e.target.value)}
-                                                    placeholder="Assignment 1: Database Design"
-                                                    className="border-gray-200 focus:ring-orange-500 rounded-lg"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-sm font-semibold text-gray-700">Due Date</Label>
-                                                <Input
-                                                    type="datetime-local"
-                                                    value={dueDate}
-                                                    onChange={(e) => setDueDate(e.target.value)}
-                                                    className="border-gray-200 focus:ring-orange-500 rounded-lg"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-sm font-semibold text-gray-700">Description *</Label>
-                                                <Textarea
-                                                    value={description}
-                                                    onChange={(e) => setDescription(e.target.value)}
-                                                    placeholder="Explain the task objectives and requirements..."
-                                                    className="h-36 border-gray-200 focus:ring-orange-500 rounded-lg resize-none"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setView('list')}
-                                            className="px-6 rounded-lg text-gray-600 border-gray-200 hover:bg-gray-50 font-medium"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={submitting}
-                                            className="bg-orange-500 hover:bg-orange-600 text-white px-8 rounded-lg shadow-md font-semibold flex items-center gap-2"
-                                        >
-                                            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                                            Assign Task
-                                        </Button>
-                                    </div>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="space-y-6">
-                            {tasks.length > 0 ? (
-                                <div className="grid grid-cols-1 gap-4">
-                                    {tasks.map(task => (
-                                        <Card key={task.id} className="bg-white border-gray-100 hover:border-orange-200 transition-all shadow-sm group">
-                                            <CardContent className="p-6">
-                                                <div className="flex flex-col md:flex-row gap-6 items-start">
-                                                    <div className="h-14 w-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-sm border border-orange-100 group-hover:scale-105 transition-transform">
-                                                        <Clock className="h-7 w-7" />
-                                                    </div>
-
-                                                    <div className="flex-1 space-y-4">
-                                                        <div className="flex flex-wrap items-start justify-between gap-4">
-                                                            <div>
-                                                                <h3 className="text-xl font-bold text-gray-900 mb-1">{task.title}</h3>
-                                                                <p className="text-sm text-gray-500 line-clamp-2 max-w-2xl">{task.description}</p>
-                                                            </div>
-                                                            <div className="flex flex-col items-end gap-2">
-                                                                {task.due_date ? (
-                                                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100 px-3 py-1 font-medium flex items-center gap-1.5">
-                                                                        <Calendar className="h-3.5 w-3.5" />
-                                                                        Due: {format(new Date(task.due_date), 'MMM dd, yyyy HH:mm')}
-                                                                    </Badge>
-                                                                ) : (
-                                                                    <Badge variant="outline" className="text-gray-400 border-gray-100">No deadline</Badge>
-                                                                )}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-50">
-                                                            <div>
-                                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Department</p>
-                                                                <p className="text-sm font-semibold text-gray-700">{task.department_name || "N/A"}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Subject</p>
-                                                                <p className="text-sm font-semibold text-gray-700">{task.subject_details?.subject_name}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Sections</p>
-                                                                <div className="flex flex-wrap gap-1.5">
-                                                                    {task.section_details?.map(sec => (
-                                                                        <Badge key={sec.id} variant="secondary" className="bg-gray-50 text-gray-600 border-gray-100 text-[10px] py-0 px-2">
-                                                                            {sec.name}
-                                                                        </Badge>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-1">Topic</p>
-                                                                <p className="text-sm font-medium text-gray-600 truncate">
-                                                                    {task.unit_name || "General"} {task.sub_unit_name ? `> ${task.sub_unit_name}` : ''}
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex items-center justify-end">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={() => handleDeleteTask(task.id)}
-                                                                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full h-10 w-10 transition-colors"
-                                                                >
-                                                                    <Trash2 className="h-5 w-5" />
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-20 text-center max-w-2xl mx-auto shadow-sm">
-                                    <div className="h-24 w-24 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce transition-all duration-1000">
-                                        <BookOpen className="h-12 w-12 text-orange-300" />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-3">No tasks assigned yet</h3>
-                                    <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-                                        You haven't assigned any tasks to your sections.
-                                        Click on "New Task" to start assigning work to your students.
-                                    </p>
-                                    <Button
-                                        onClick={() => setView('create')}
-                                        className="bg-orange-500 hover:bg-orange-600 text-white px-8 h-12 rounded-xl shadow-lg border-b-4 border-orange-700 font-bold tracking-wide transform active:translate-y-1 active:border-b-0 transition-all"
-                                    >
-                                        Create Your First Task
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
+                    <DialogFooter className="p-8 border-t border-gray-100 bg-gray-50/50 flex flex-row items-center justify-end gap-3">
+                        <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} className="rounded-2xl h-12 px-6 font-bold text-gray-400 hover:text-gray-900 hover:bg-transparent">Cancel</Button>
+                        <Button
+                            onClick={handleSaveTask}
+                            disabled={submitting}
+                            className="bg-orange-500 text-white px-10 h-12 rounded-[1.25rem] font-bold shadow-xl shadow-orange-100 active:scale-95 transition-all"
+                        >
+                            {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                            {editingTask ? 'Save Changes' : 'Publish Task'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
