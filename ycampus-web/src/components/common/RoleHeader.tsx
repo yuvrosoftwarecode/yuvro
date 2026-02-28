@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { Bell, ChevronDown } from 'lucide-react';
 
 interface RoleHeaderProps {
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }
