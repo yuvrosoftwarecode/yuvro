@@ -63,6 +63,11 @@ const FacultyTask: React.FC = () => {
         sections: [] as string[]
     });
 
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+    const [isSendConfirmDialogOpen, setIsSendConfirmDialogOpen] = useState(false);
+    const [taskToSend, setTaskToSend] = useState<Task | null>(null);
+
     // Detail Screen State
     const [newComment, setNewComment] = useState("");
 
@@ -110,11 +115,18 @@ const FacultyTask: React.FC = () => {
         }
     };
 
-    const handleSendTask = async (taskId: string) => {
+    const handleSendTaskRequest = (task: Task) => {
+        setTaskToSend(task);
+        setIsSendConfirmDialogOpen(true);
+    };
+
+    const confirmSend = async () => {
+        if (!taskToSend) return;
         try {
             setSubmitting(true);
-            await taskService.sendTask(taskId);
+            await taskService.sendTask(taskToSend.id);
             toast.success("Task sent successfully!");
+            setIsSendConfirmDialogOpen(false);
             fetchTasks();
         } catch (err) {
             toast.error("Failed to send task");
@@ -280,11 +292,17 @@ const FacultyTask: React.FC = () => {
         }
     };
 
-    const handleDeleteTask = async (id: string) => {
-        if (!confirm("Are you sure?")) return;
+    const handleDeleteRequest = (task: Task) => {
+        setTaskToDelete(task);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!taskToDelete) return;
         try {
-            await taskService.deleteTask(id);
+            await taskService.deleteTask(taskToDelete.id);
             toast.success("Task deleted");
+            setIsDeleteDialogOpen(false);
             fetchTasks();
         } catch (err) {
             toast.error("Failed to delete task");
@@ -293,7 +311,7 @@ const FacultyTask: React.FC = () => {
 
     // Render Components
     const renderTaskList = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                 <h2 className="text-2xl font-semibold text-foreground">Tasks</h2>
                 <div className="relative w-full md:w-80">
@@ -315,7 +333,7 @@ const FacultyTask: React.FC = () => {
                         <Card key={task.id} className="flex flex-col h-full border-gray-100 shadow-sm rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow">
                             <CardContent className="p-4 flex flex-col h-full">
                                 <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-lg font-bold text-gray-900 leading-tight pr-8 line-clamp-2">{task.title}</h3>
+                                    <h3 className="text-lg font-bold text-gray-900 leading-tight pr-8 line-clamp-2 capitalize">{task.title}</h3>
                                     <Badge
                                         variant="secondary"
                                         className={task.is_sent ? "bg-orange-500 text-white border-none shadow-none font-bold" : "bg-blue-50 text-blue-600 border-none shadow-none font-bold"}
@@ -324,26 +342,26 @@ const FacultyTask: React.FC = () => {
                                     </Badge>
                                 </div>
 
-                                <p className="text-xs text-gray-700 mb-2 line-clamp-2 font-medium">
+                                <p className="text-[13px] text-gray-700 mb-2 line-clamp-2 font-medium">
                                     {task.description}
                                 </p>
 
-                                <div className="space-y-1 mb-4">
-                                    <div className="text-[11px] font-medium text-gray-600 tracking-wider">
-                                        Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                                <div className="mt-auto space-y-4">
+                                    <div className="space-y-1">
+                                        <div className="text-[11px] font-medium text-gray-600 tracking-wider">
+                                            Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                                        </div>
+                                        <div className="text-[11px] font-medium text-gray-600 tracking-wider">
+                                            Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
+                                        </div>
                                     </div>
-                                    <div className="text-[11px] font-medium text-gray-600 tracking-wider">
-                                        Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
-                                    </div>
-                                </div>
 
-                                <div className="mt-auto space-y-2">
                                     {!task.is_sent && (
                                         <div className="grid grid-cols-2 gap-3">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white"
+                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white hover:bg-white"
                                                 onClick={() => openCreateDialog(task)}
                                             >
                                                 <Edit2 className="h-4 w-4" /> Edit
@@ -351,8 +369,8 @@ const FacultyTask: React.FC = () => {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white"
-                                                onClick={() => handleDeleteTask(task.id)}
+                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white hover:bg-white"
+                                                onClick={() => handleDeleteRequest(task)}
                                             >
                                                 <Trash2 className="h-4 w-4" /> Delete
                                             </Button>
@@ -360,8 +378,8 @@ const FacultyTask: React.FC = () => {
                                     )}
 
                                     <Button
-                                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 rounded-xl gap-2 shadow-sm transition-colors"
-                                        onClick={() => task.is_sent ? fetchSubmissions(task) : handleSendTask(task.id)}
+                                        className="w-full bg-orange-500 hover:bg-orange-500 text-white font-bold h-12 rounded-xl gap-2 shadow-sm transition-colors"
+                                        onClick={() => task.is_sent ? fetchSubmissions(task) : handleSendTaskRequest(task)}
                                         disabled={submitting}
                                     >
                                         {task.is_sent ? (
@@ -388,9 +406,9 @@ const FacultyTask: React.FC = () => {
     );
 
     const renderResponses = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
+        <div className="space-y-6">
             <div className="flex items-center gap-4 mb-2">
-                <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white shadow-sm border border-gray-100">
+                <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white hover:bg-white shadow-sm border border-gray-100">
                     <ChevronLeft className="h-5 w-5" />
                 </Button>
                 <div>
@@ -403,7 +421,7 @@ const FacultyTask: React.FC = () => {
                 <CardHeader className="border-b border-gray-50 bg-white p-6">
                     <div className="flex justify-between items-center">
                         <CardTitle className="text-2xl font-semibold text-foreground">Student Submissions</CardTitle>
-                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-muted-foreground font-bold text-xs">
+                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-muted-foreground font-bold text-xs hover:bg-white">
                             <Download className="h-3.5 w-3.5 mr-2" /> Export
                         </Button>
                     </div>
@@ -433,7 +451,7 @@ const FacultyTask: React.FC = () => {
                                     <Button
                                         variant="ghost"
                                         onClick={() => fetchSubmissionDetail(sub.id)}
-                                        className="rounded-xl h-10 w-10 p-0 text-gray-400 group-hover:text-gray-900 group-hover:bg-white border border-transparent group-hover:border-gray-100 shadow-none group-hover:shadow-sm"
+                                        className="rounded-xl h-10 w-10 p-0 text-gray-400 border border-transparent"
                                     >
                                         <ArrowRight className="h-5 w-5" />
                                     </Button>
@@ -452,10 +470,10 @@ const FacultyTask: React.FC = () => {
     );
 
     const renderStudentDetail = () => (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center gap-4 mb-2">
-                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white shadow-sm border border-gray-100">
+                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white hover:bg-white shadow-sm border border-gray-100">
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
                     <div>
@@ -519,7 +537,7 @@ const FacultyTask: React.FC = () => {
                                 size="icon"
                                 disabled={submitting || !newComment.trim()}
                                 onClick={handleAddComment}
-                                className="absolute right-3 bottom-3 bg-orange-500 h-8 w-8 rounded-lg shadow-md transition-all text-white"
+                                className="absolute right-3 bottom-3 bg-orange-500 hover:bg-orange-500 h-8 w-8 rounded-lg shadow-md transition-all text-white"
                             >
                                 <SendHorizonal className="h-4 w-4" />
                             </Button>
@@ -544,7 +562,7 @@ const FacultyTask: React.FC = () => {
                         <div className="flex justify-end">
                             <Button
                                 onClick={() => openCreateDialog()}
-                                className="bg-orange-500 hover:bg-orange-600 text-white px-6 h-10 rounded-xl shadow-lg shadow-orange-100 transition-all flex items-center gap-2 font-bold"
+                                className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-10 rounded-xl shadow-lg shadow-orange-100 transition-all flex items-center gap-2 font-bold"
                             >
                                 <Plus className="h-4 w-4" />
                                 Create New Task
@@ -724,12 +742,68 @@ const FacultyTask: React.FC = () => {
                         <Button
                             onClick={handleSaveTask}
                             disabled={submitting}
-                            className="bg-orange-500 text-white px-10 h-12 rounded-[1.25rem] font-bold shadow-xl shadow-orange-100 active:scale-95 transition-all"
+                            className="bg-orange-500 hover:bg-orange-500 text-white px-10 h-12 rounded-[1.25rem] font-bold shadow-xl shadow-orange-100 active:scale-95 transition-all"
                         >
                             {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                             {editingTask ? 'Save Changes' : 'Publish Task'}
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-6 bg-white">
+                    <DialogHeader className="space-y-3">
+                        <DialogTitle className="text-xl font-bold text-gray-900">Delete Task</DialogTitle>
+                        <DialogDescription className="text-sm font-medium text-gray-500 leading-relaxed">
+                            Are you sure you want to delete <span className="text-gray-900 font-bold">"{taskToDelete?.title}"</span>? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-3 mt-8">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="rounded-xl h-11 px-6 font-bold text-gray-400 border-gray-100 hover:bg-white"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={confirmDelete}
+                            className="bg-orange-500 hover:bg-orange-500 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
+                        >
+                            Delete
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Send Confirmation Dialog */}
+            <Dialog open={isSendConfirmDialogOpen} onOpenChange={setIsSendConfirmDialogOpen}>
+                <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-6 bg-white">
+                    <DialogHeader className="space-y-3">
+                        <DialogTitle className="text-xl font-bold text-gray-900">Send Task</DialogTitle>
+                        <DialogDescription className="text-sm font-medium text-gray-500 leading-relaxed">
+                            Are you sure you want to send <span className="text-gray-900 font-bold">"{taskToSend?.title}"</span>? Once sent, it will be visible to all students in the selected sections.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-3 mt-8">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsSendConfirmDialogOpen(false)}
+                            className="rounded-xl h-11 px-6 font-bold text-gray-400 border-gray-100 hover:bg-white"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={confirmSend}
+                            disabled={submitting}
+                            className="bg-orange-500 hover:bg-orange-500 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
+                        >
+                            {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                            Send Task
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
