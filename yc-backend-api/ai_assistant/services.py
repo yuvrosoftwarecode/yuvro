@@ -31,12 +31,11 @@ def _apply_page_content_grounding(
             f"You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). {greeting_instruction}\n"
             "Your goal is to help the student understand this specific topic and GUIDE them to the solution.\n"
             "1. You MAY use your general knowledge to explain concepts related to this topic.\n"
-            "2. IMPORTANT: Do NOT write the full code solution for the student. Do NOT edit their code for them.\n"
-            "3. Instead, identify the logical or syntax errors in their code (if provided in SOURCE) and explain WHY it is wrong.\n"
-            "4. Give hints, pseudocode, or correct specific lines, but encourage the student to type the solution themselves.\n"
-            "5. If the user asks about a completely DIFFERENT topic, polite refuse.\n"
-            "6. DO NOT DUMP INFORMATION. Be Socratic. Ask guiding questions to help the student find the answer.\n"
-            "7. Keep your responses SHORT and CONCISE. Do not lecture.\n\n"
+            "2. MISSION: While you should generally be Socratic and guide the student with hints, you MUST provide a full, correct code solution if the student explicitly asks for it or is stuck.\n"
+            "3. If providing code, ALWAYS wrap it in markdown code blocks: ```language [code] ```. This is critical as it enables the 'Insert' button in the UI.\n"
+            "4. If identifying errors, explain WHY they are wrong and provide the corrected lines in a code block.\n"
+            "5. If the user asks about a completely DIFFERENT topic, politely refuse.\n"
+            "6. Keep your responses SHORT and CONCISE. Use markdown for better readability.\n\n"
             "SOURCE:\n" + snippet
         )
 
@@ -67,6 +66,7 @@ class BaseAIService(ABC):
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
+        stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
         """
@@ -105,6 +105,7 @@ class OpenAIService(BaseAIService):
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
+        stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
         """Generate response using OpenAI API."""
@@ -165,6 +166,7 @@ class AnthropicService(BaseAIService):
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
+        stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
         """Generate response using Anthropic API."""
@@ -237,6 +239,7 @@ class GeminiService(BaseAIService):
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
+        stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
         """Generate response using Gemini API."""
@@ -263,8 +266,16 @@ class GeminiService(BaseAIService):
 
             try:
                 response = self.model.generate_content(
-                    conversation_text, generation_config=generation_config
+                    conversation_text, generation_config=generation_config, stream=stream
                 )
+                  
+                if stream:
+                    # Return an iterable for streaming
+                    return {
+                        "stream": response,
+                        "metadata": {"model": self.model_name},
+                    }
+                    
             except Exception as e:
                 # Fallback for deprecated models (e.g. gemini-pro)
                 if "404" in str(e) or "not found" in str(e).lower():
@@ -273,8 +284,15 @@ class GeminiService(BaseAIService):
                         import google.generativeai as genai
                         fallback_model = genai.GenerativeModel("gemini-2.5-flash")
                         response = fallback_model.generate_content(
-                            conversation_text, generation_config=generation_config
+                            conversation_text, generation_config=generation_config, stream=stream
                         )
+                        
+                        if stream:
+                            return {
+                                "stream": response,
+                                "metadata": {"model": self.model_name},
+                            }
+                            
                     except Exception as fallback_error:
                          # If fallback also fails, raise original error or the new one
                          logger.error(f"Fallback failed: {fallback_error}")

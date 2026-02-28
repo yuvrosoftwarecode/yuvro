@@ -510,6 +510,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   persistenceKey={chatSessionId}
                   chatTitle={`${problem.title} - AI Buddy`}
                   onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                  onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
                 />
               </div>
             </div>
@@ -630,6 +631,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     persistenceKey={chatSessionId}
                     chatTitle={`${problem.title} - AI Buddy`}
                     onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                    onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
                   />
                 </div>
               </div>

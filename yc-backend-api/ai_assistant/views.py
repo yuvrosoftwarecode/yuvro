@@ -6,6 +6,7 @@ from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import StreamingHttpResponse
 from authentication.permissions import IsAuthenticatedUser
 from authentication.permissions import IsOwnerOrReadOnly
 from .models import (
@@ -115,6 +116,26 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             return self._process_chat_message(chat_session, serializer.validated_data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=["post"], url_path=r"messages/(?P<message_id>[^/.]+)/feedback")
+    def feedback(self, request, pk=None, message_id=None):
+        """Submit feedback for a specific message in this chat session."""
+        chat_session = self.get_object()
+        try:
+            message = chat_session.messages.get(id=message_id)
+        except ChatMessage.DoesNotExist:
+            return Response({"error": "Message not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        feedback_value = request.data.get("feedback")
+        feedback_text = request.data.get("feedback_text")
+        
+        if feedback_value is not None:
+            message.feedback = feedback_value
+        if feedback_text is not None:
+            message.feedback_text = feedback_text
+            
+        message.save()
+        return Response({"status": "feedback recorded"}, status=status.HTTP_200_OK)
+
     def _process_chat_message(self, chat_session, validated_data):
         """Process a chat message and generate AI response."""
         message_content = validated_data["message"]
@@ -169,51 +190,65 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 # Run async function in sync context
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                try:
-                    response_data = loop.run_until_complete(
-                        ai_service.generate_response(
-                            messages=messages,
-                            temperature=temperature,
-                            max_tokens=max_tokens,
-                            page_content=page_content,
-                            user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
-                        )
+                # Ensure we handle checking if stream is requested by user, for now we will set to True
+                is_streaming = True
+                
+                if is_streaming:
+                    return self._handle_streaming_response(
+                        chat_session=chat_session,
+                        ai_agent=ai_agent,
+                        user_config=user_config,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
                     )
-                finally:
-                    loop.close()
+                else:    
+                    try:
+                        response_data = loop.run_until_complete(
+                            ai_service.generate_response(
+                                messages=messages,
+                                temperature=temperature,
+                                max_tokens=max_tokens,
+                                page_content=page_content,
+                                user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
+                            )
+                        )
+                    finally:
+                        loop.close()
 
-                # Create assistant message
-                assistant_message = ChatMessage.objects.create(
-                    chat_session=chat_session,
-                    message_type="assistant",
-                    content=response_data["response"],
-                    tokens_used=response_data.get("tokens_used"),
-                    response_time_ms=response_data.get("response_time_ms"),
-                    metadata=response_data.get("metadata", {}),
-                )
+                    # Create assistant message
+                    assistant_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=response_data["response"],
+                        tokens_used=response_data.get("tokens_used"),
+                        response_time_ms=response_data.get("response_time_ms"),
+                        metadata=response_data.get("metadata", {}),
+                    )
 
-                # Update usage statistics
-                self._update_usage_stats(
-                    chat_session.user, ai_agent, response_data.get("tokens_used", 0)
-                )
+                    # Update usage statistics
+                    self._update_usage_stats(
+                        chat_session.user, ai_agent, response_data.get("tokens_used", 0)
+                    )
 
-                # Update chat session timestamp
-                chat_session.updated_at = timezone.now()
-                chat_session.save()
+                    # Update chat session timestamp
+                    chat_session.updated_at = timezone.now()
+                    chat_session.save()
 
-                # Return response
-                response_serializer = ChatResponseSerializer(
-                    {
-                        "chat_session_id": chat_session.id,
-                        "message_id": assistant_message.id,
-                        "response": response_data["response"],
-                        "tokens_used": response_data.get("tokens_used"),
-                        "response_time_ms": response_data.get("response_time_ms"),
-                        "metadata": response_data.get("metadata", {}),
-                    }
-                )
+                    # Return response
+                    response_serializer = ChatResponseSerializer(
+                        {
+                            "chat_session_id": chat_session.id,
+                            "message_id": assistant_message.id,
+                            "response": response_data["response"],
+                            "tokens_used": response_data.get("tokens_used"),
+                            "response_time_ms": response_data.get("response_time_ms"),
+                            "metadata": response_data.get("metadata", {}),
+                        }
+                    )
 
-                return Response(response_serializer.data, status=status.HTTP_200_OK)
+                    return Response(response_serializer.data, status=status.HTTP_200_OK)
 
         except AIServiceError as e:
             return Response(
@@ -225,6 +260,119 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 {"error": f"Unexpected error: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+            
+    def _handle_streaming_response(
+        self,
+        chat_session,
+        ai_agent,
+        user_config,
+        messages,
+        temperature,
+        max_tokens,
+        page_content,
+    ):
+        """Handle streaming response from AI service via SSE."""
+        import json
+        import time
+        from asgiref.sync import async_to_sync
+        
+        start_time = time.time()
+        
+        def stream_generator():
+            full_response_text = ""
+            tokens_used = 0
+            
+            # Use ai_service to get the stream
+            ai_service = AIServiceFactory.create_service(
+                ai_agent.provider, ai_agent.model_name
+            )
+            
+            # Since generate_response is an async function, we need to run it in a sync context
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            try:
+                response_data = loop.run_until_complete(
+                    ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
+                        stream=True,
+                    )
+                )
+                
+                # Check if the service actually returned a stream
+                if "stream" in response_data:
+                    stream = response_data["stream"]
+                    for chunk in stream:
+                        print(f"DEBUG CHUNK: {chunk}", flush=True)
+                        try:
+                            if chunk.text:
+                                full_response_text += chunk.text
+                                # SSE format: data: {json_string}\n\n
+                                data = json.dumps({"chunk": chunk.text})
+                                logger.debug(f"Streaming chunk size: {len(chunk.text)}")
+                                yield f"data: {data}\n\n"
+                        except ValueError as ve:
+                            # Gemini raises ValueError if the chunk was blocked or has no text
+                            print(f"DEBUG VALUE ERROR: {ve}", flush=True)
+                            pass
+                    
+                    # Update usage if available from stream
+                    if hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                        tokens_used = stream.usage_metadata.total_token_count
+                else:
+                    # Fallback if streaming is not supported by the provider
+                    full_response_text = response_data["response"]
+                    data = json.dumps({"chunk": full_response_text})
+                    yield f"data: {data}\n\n"
+                    tokens_used = response_data.get("tokens_used", 0)
+                    
+            except Exception as e:
+                # Send error chunk
+                error_data = json.dumps({"error": str(e)})
+                yield f"data: {error_data}\n\n"
+            finally:
+                loop.close()
+                
+                # We need to save the final message to the DB after the stream completes
+                # But we're in a generator, so we just run DB ops synchronously here
+                if full_response_text:
+                    end_time = time.time()
+                    response_time_ms = int((end_time - start_time) * 1000)
+                    
+                    assistant_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=full_response_text,
+                        tokens_used=tokens_used,
+                        response_time_ms=response_time_ms,
+                        metadata=response_data.get("metadata", {}),
+                    )
+                    
+                    self._update_usage_stats(
+                        chat_session.user, ai_agent, tokens_used
+                    )
+                    
+                    chat_session.updated_at = timezone.now()
+                    chat_session.save()
+                    
+                    # Send a final 'done' event with the full message metadata
+                    done_data = json.dumps({
+                        "done": True, 
+                        "message_id": str(assistant_message.id),
+                        "chat_session_id": str(chat_session.id)
+                    })
+                    yield f"data: {done_data}\n\n"
+
+        response = StreamingHttpResponse(
+            stream_generator(), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+        return response
 
     def _prepare_messages(self, chat_session, user_config=None):
         """Prepare messages for AI service."""

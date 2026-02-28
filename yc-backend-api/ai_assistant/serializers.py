@@ -96,6 +96,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "user",
             "created_at",
             "updated_at",
             "ai_agent_name",
@@ -132,6 +133,7 @@ class ChatSessionBasicSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "user",
             "created_at",
             "updated_at",
             "ai_agent_name",

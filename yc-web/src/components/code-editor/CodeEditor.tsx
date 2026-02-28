@@ -194,12 +194,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   // Track if code change was from user input vs internal updates
   const isUserInputRef = useRef(false);
 
+  // References
+  const monacoRef = useRef<any>(null);
+
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     openExampleGallery: () => setShowExamples(true),
     getLanguage: () => language,
     getCode: () => code,
-    setCode: (newCode: string) => setCode(newCode)
+    setCode: (newCode: string) => setCode(newCode),
+    insertText: (text: string) => monacoRef.current?.insertText(text)
   }));
 
   const handleToggleFullscreen = () => {
@@ -490,6 +494,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
             >
               <div className="absolute inset-0">
                 <MonacoCodeEditor
+                  ref={monacoRef}
                   value={code}
                   onChange={handleChange}
                   language={language}
@@ -745,12 +750,54 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           {result.actual_output}
                                         </pre>
                                       </div>
+                                      {!result.passed && (
+                                        <div className="mt-4 flex justify-end col-span-1 md:col-span-2">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                            onClick={() => {
+                                              if (onToggleAiChat && !isAiChatOpen) {
+                                                onToggleAiChat();
+                                              }
+                                              // Dispatch a custom event that AIChatContainer will listen to
+                                              window.dispatchEvent(new CustomEvent('ai-buddy-ask', { 
+                                                detail: { 
+                                                  prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}` 
+                                                } 
+                                              }));
+                                            }}
+                                          >
+                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                          </Button>
+                                        </div>
+                                      )}
                                       {result.error_message && result.error_message !== 'N/A' && (
                                         <div className="col-span-1 md:col-span-2">
                                           <div className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">Error Message</div>
                                           <pre className="bg-red-50 p-4 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-red-200 font-mono text-red-700 shadow-sm">
                                             {result.error_message}
                                           </pre>
+                                          <div className="mt-4 flex justify-end">
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                              onClick={() => {
+                                                if (onToggleAiChat && !isAiChatOpen) {
+                                                  onToggleAiChat();
+                                                }
+                                                // Dispatch a custom event that AIChatContainer will listen to
+                                                window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
+                                                  detail: {
+                                                    prompt: `Explain this error message:\n${result.error_message}`
+                                                  }
+                                                }));
+                                              }}
+                                            >
+                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            </Button>
+                                          </div>
                                         </div>
                                       )}
                                     </div>

@@ -28,6 +28,7 @@ interface MonacoCodeEditorProps {
     /** Original code for diff mode (left side) */
     original?: string;
     disableCopyPaste?: boolean;
+    onMount?: (editor: any, monaco: any) => void;
 }
 
 loader.init().then(monaco => {
@@ -43,7 +44,7 @@ loader.init().then(monaco => {
     });
 });
 
-const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
+const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
     value,
     onChange,
     language,
@@ -60,9 +61,24 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
     mode = 'editor',
     original = '',
     disableCopyPaste = false,
-}) => {
+    onMount,
+}, ref) => {
+    const editorRef = React.useRef<any>(null);
+
+    React.useImperativeHandle(ref, () => ({
+        insertText: (text: string) => {
+            if (editorRef.current) {
+                const selection = editorRef.current.getSelection();
+                editorRef.current.executeEdits('ai-assistant', [
+                    { range: selection, text, forceMoveMarkers: true }
+                ]);
+                editorRef.current.focus();
+            }
+        }
+    }));
 
     const handleEditorDidMount = (editor: any, monaco: any) => {
+        editorRef.current = editor;
         if (disableCopyPaste) {
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC, () => {
                 // Copy disabled
@@ -73,6 +89,9 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX, () => {
                 // Cut disabled
             });
+        }
+        if (onMount) {
+            onMount(editor, monaco);
         }
     };
 
@@ -217,6 +236,6 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
             </div>
         </div>
     );
-};
+});
 
 export default MonacoCodeEditor;
