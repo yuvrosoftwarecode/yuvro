@@ -715,6 +715,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "section_details",
             "title",
             "description",
+            "is_sent",
             "due_date",
             "created_at",
             "updated_at",

@@ -358,6 +358,7 @@ class Task(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField()
+    is_sent = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -367,3 +368,42 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.faculty.user.username}"
+
+class TaskSubmission(BaseTimestampedModel):
+    """
+    Model representing a student's submission for a task.
+    """
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="submissions"
+    )
+    student = models.ForeignKey(
+        StudentProfile, on_delete=models.CASCADE, related_name="task_submissions"
+    )
+    answer = models.TextField()
+    is_submitted = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("task", "student")
+        ordering = ["-submitted_at"]
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.task.title}"
+
+class TaskComment(BaseTimestampedModel):
+    """
+    Model representing comments/feedback on a task submission.
+    """
+    submission = models.ForeignKey(
+        TaskSubmission, on_delete=models.CASCADE, related_name="comments"
+    )
+    faculty = models.ForeignKey(
+        FacultyProfile, on_delete=models.CASCADE, related_name="task_comments"
+    )
+    comment = models.TextField()
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Comment by {self.faculty.user.username} on {self.submission}"

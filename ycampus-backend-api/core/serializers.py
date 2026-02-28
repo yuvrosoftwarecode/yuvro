@@ -13,6 +13,8 @@ from .models import (
     Section,
     AttendanceSession,
     AttendanceRecord,
+    TaskSubmission,
+    TaskComment,
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
@@ -190,3 +192,20 @@ class AttendanceSessionSerializer(serializers.ModelSerializer):
             AttendanceRecord.objects.create(session=session, **record_data)
         
         return session
+
+class TaskCommentSerializer(serializers.ModelSerializer):
+    faculty_details = FacultyProfileSerializer(source="faculty", read_only=True)
+
+    class Meta:
+        model = TaskComment
+        fields = ["id", "submission", "faculty", "faculty_details", "comment", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+class TaskSubmissionSerializer(serializers.ModelSerializer):
+    student_details = StudentProfileSerializer(source="student", read_only=True)
+    comments = TaskCommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TaskSubmission
+        fields = ["id", "task", "student", "student_details", "answer", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "submitted_at"]
