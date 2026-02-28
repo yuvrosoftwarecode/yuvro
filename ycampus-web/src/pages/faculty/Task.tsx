@@ -57,7 +57,7 @@ const FacultyTask: React.FC = () => {
     const [formState, setFormState] = useState({
         title: "",
         description: "",
-        dueDate: "",
+        due_date: "",
         unit: "",
         subUnit: "",
         sections: [] as string[]
@@ -231,7 +231,7 @@ const FacultyTask: React.FC = () => {
             setFormState({
                 title: task.title,
                 description: task.description,
-                dueDate: task.due_date ? task.due_date.slice(0, 16) : "",
+                due_date: task.due_date ? task.due_date.slice(0, 16) : "",
                 unit: task.unit || "",
                 subUnit: task.sub_unit || "",
                 sections: task.sections.map(s => String(s))
@@ -241,7 +241,7 @@ const FacultyTask: React.FC = () => {
             setFormState({
                 title: "",
                 description: "",
-                dueDate: "",
+                due_date: "",
                 unit: "",
                 subUnit: "",
                 sections: []
@@ -294,23 +294,17 @@ const FacultyTask: React.FC = () => {
     // Render Components
     const renderTaskList = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="relative w-full md:w-96">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                <h2 className="text-2xl font-semibold text-foreground">Tasks</h2>
+                <div className="relative w-full md:w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                         placeholder="Search tasks by title..."
-                        className="pl-10 h-11 bg-gray-50 border-none focus:ring-2 focus:ring-gray-100 rounded-xl"
+                        className="pl-10 h-11 bg-white border-gray-200 focus:ring-2 focus:ring-gray-100 rounded-xl"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <Button
-                    onClick={() => openCreateDialog()}
-                    className="bg-orange-500 text-white px-6 h-11 rounded-xl shadow-lg transition-all flex items-center gap-2"
-                >
-                    <Plus className="h-4 w-4" />
-                    Create New Task
-                </Button>
             </div>
 
             {loading ? (
@@ -319,9 +313,9 @@ const FacultyTask: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredTasks.map(task => (
                         <Card key={task.id} className="flex flex-col h-full border-gray-100 shadow-sm rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow">
-                            <CardContent className="p-6 flex flex-col h-full">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-lg font-bold text-gray-900 leading-snug pr-8 line-clamp-2">{task.title}</h3>
+                            <CardContent className="p-4 flex flex-col h-full">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-lg font-bold text-gray-900 leading-tight pr-8 line-clamp-2">{task.title}</h3>
                                     <Badge
                                         variant="secondary"
                                         className={task.is_sent ? "bg-orange-500 text-white border-none shadow-none font-bold" : "bg-blue-50 text-blue-600 border-none shadow-none font-bold"}
@@ -330,26 +324,26 @@ const FacultyTask: React.FC = () => {
                                     </Badge>
                                 </div>
 
-                                <p className="text-gray-900 text-sm mb-4 line-clamp-2 font-medium">
+                                <p className="text-xs text-gray-700 mb-2 line-clamp-2 font-medium">
                                     {task.description}
                                 </p>
 
-                                <div className="space-y-1 mb-6">
-                                    <div className="text-[12px] font-ui-sans-serif,system-ui, sans-serif text-[#64748b] tracking-wider">
+                                <div className="space-y-1 mb-4">
+                                    <div className="text-[11px] font-medium text-gray-600 tracking-wider">
                                         Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
                                     </div>
-                                    <div className="text-[11px] font-bold text-gray-900 tracking-wider">
+                                    <div className="text-[11px] font-medium text-gray-600 tracking-wider">
                                         Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
                                     </div>
                                 </div>
 
-                                <div className="mt-auto space-y-3">
+                                <div className="mt-auto space-y-2">
                                     {!task.is_sent && (
                                         <div className="grid grid-cols-2 gap-3">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-lg h-10 border-gray-100 font-bold text-gray-600 gap-2 bg-white"
+                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white"
                                                 onClick={() => openCreateDialog(task)}
                                             >
                                                 <Edit2 className="h-4 w-4" /> Edit
@@ -357,7 +351,7 @@ const FacultyTask: React.FC = () => {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-lg h-10 border-gray-100 font-bold text-gray-600 gap-2 bg-white"
+                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white"
                                                 onClick={() => handleDeleteTask(task.id)}
                                             >
                                                 <Trash2 className="h-4 w-4" /> Delete
@@ -366,7 +360,7 @@ const FacultyTask: React.FC = () => {
                                     )}
 
                                     <Button
-                                        className="w-full bg-orange-500 text-white font-bold h-11 rounded-lg gap-2 shadow-sm"
+                                        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 rounded-xl gap-2 shadow-sm transition-colors"
                                         onClick={() => task.is_sent ? fetchSubmissions(task) : handleSendTask(task.id)}
                                         disabled={submitting}
                                     >
@@ -408,8 +402,8 @@ const FacultyTask: React.FC = () => {
             <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
                 <CardHeader className="border-b border-gray-50 bg-white p-6">
                     <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg font-bold">Student Submissions</CardTitle>
-                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-gray-600 font-bold text-xs">
+                        <CardTitle className="text-2xl font-semibold text-foreground">Student Submissions</CardTitle>
+                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-muted-foreground font-bold text-xs">
                             <Download className="h-3.5 w-3.5 mr-2" /> Export
                         </Button>
                     </div>
@@ -473,7 +467,7 @@ const FacultyTask: React.FC = () => {
                 <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
                     <CardHeader className="bg-white border-b border-gray-50 p-6">
                         <div className="flex justify-between items-center">
-                            <CardTitle className="text-lg font-bold">Answer Content</CardTitle>
+                            <CardTitle className="text-2xl font-semibold text-foreground">Answer Content</CardTitle>
                             <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 font-bold">FINAL SUBMISSION</Badge>
                         </div>
                     </CardHeader>
@@ -490,7 +484,7 @@ const FacultyTask: React.FC = () => {
             <div className="space-y-6">
                 <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white flex flex-col h-[600px]">
                     <CardHeader className="border-b border-gray-50 bg-white p-6">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <CardTitle className="text-2xl font-semibold text-foreground flex items-center gap-2">
                             <MessageSquare className="h-5 w-5 text-gray-400" />
                             Feedbacks & Comments
                         </CardTitle>
@@ -545,18 +539,30 @@ const FacultyTask: React.FC = () => {
                     subtitle="Assign, manage, and review student tasks"
                 />
 
-                <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+                <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 space-y-6">
+                    {selectedDepartment && selectedSubject && selectedSections.length > 0 && (
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={() => openCreateDialog()}
+                                className="bg-orange-500 hover:bg-orange-600 text-white px-6 h-10 rounded-xl shadow-lg shadow-orange-100 transition-all flex items-center gap-2 font-bold"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Create New Task
+                            </Button>
+                        </div>
+                    )}
+
                     {/* Header Selection Flow - Following the reference style */}
                     <Card className="border-gray-100 shadow-md rounded-[2rem] overflow-hidden bg-white">
-                        <CardHeader className="border-b border-gray-50 px-8 py-6">
-                            <CardTitle className="text-xl font-bold text-gray-900">Select Subject & Sections</CardTitle>
+                        <CardHeader className="border-b border-gray-50 px-8 py-4">
+                            <CardTitle className="text-2xl font-semibold text-foreground">Select Subject & Sections</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Department</Label>
+                                    <Label className="text-sm font-medium text-foreground">Department</Label>
                                     <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
                                             <SelectValue placeholder="Choose Department" />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
@@ -567,9 +573,9 @@ const FacultyTask: React.FC = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Subject</Label>
+                                    <Label className="text-sm font-medium text-foreground">Subject</Label>
                                     <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
                                             <SelectValue placeholder="Select Subject" />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
@@ -580,7 +586,7 @@ const FacultyTask: React.FC = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Sections</Label>
+                                    <Label className="text-sm font-medium text-foreground">Sections</Label>
                                     <div className="flex flex-wrap gap-2 pt-1">
                                         {availableSections.length > 0 ? availableSections.map(a => (
                                             <Badge
@@ -611,7 +617,7 @@ const FacultyTask: React.FC = () => {
                                     <Filter className="h-8 w-8 text-gray-200" />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900">Please complete selection</h3>
-                                <p className="text-gray-400 text-sm font-medium">Select department, subject, and at least one section to view tasks.</p>
+                                <p className="text-gray-500 text-sm font-medium">Select department, subject, and at least one section to view tasks.</p>
                             </div>
                         ) : (
                             <>
@@ -640,15 +646,15 @@ const FacultyTask: React.FC = () => {
                                     value={formState.title}
                                     onChange={e => setFormState(prev => ({ ...prev, title: e.target.value }))}
                                     placeholder="e.g. Project Phase 1"
-                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold"
+                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-sm font-bold text-gray-900">Due Date</Label>
                                 <Input
                                     type="datetime-local"
-                                    value={formState.dueDate}
-                                    onChange={e => setFormState(prev => ({ ...prev, dueDate: e.target.value }))}
+                                    value={formState.due_date}
+                                    onChange={e => setFormState(prev => ({ ...prev, due_date: e.target.value }))}
                                     className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold"
                                 />
                             </div>
