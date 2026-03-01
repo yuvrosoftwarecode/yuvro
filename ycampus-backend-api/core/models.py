@@ -313,6 +313,19 @@ class Task(models.Model):
     sections = models.ManyToManyField(
         Section, related_name="tasks"
     )
+    task_type = models.CharField(
+        max_length=20, 
+        choices=[("descriptive", "Descriptive"), ("coding", "Coding")], 
+        default="descriptive"
+    )
+    question_source = models.CharField(
+        max_length=20, 
+        choices=[("manual", "Manual Entry"), ("bank", "Question Bank")], 
+        default="manual"
+    )
+    questions = models.ManyToManyField(
+        "course.Question", related_name="tasks", blank=True
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
     is_sent = models.BooleanField(default=False)
@@ -336,7 +349,10 @@ class TaskSubmission(BaseTimestampedModel):
     student = models.ForeignKey(
         StudentProfile, on_delete=models.CASCADE, related_name="task_submissions"
     )
-    answer = models.TextField()
+    answer = models.TextField(blank=True, null=True)
+    answers_data = models.JSONField(
+        default=dict, blank=True, help_text="Stores answers for multiple questions"
+    )
     is_submitted = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(null=True, blank=True)
 

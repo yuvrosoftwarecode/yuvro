@@ -17,8 +17,6 @@ from .views import (
     CollegeSubjectViewSet,
     SemesterSubjectViewSet,
     SectionSubjectFacultyViewSet,
-    TaskViewSet,
-    TaskSubmissionViewSet,
 )
 
 router = DefaultRouter()
@@ -38,8 +36,6 @@ router.register(r"notes", NoteViewSet)
 router.register(r"questions", QuestionViewSet)
 router.register(r"student-subject-progress", StudentSubjectProgressViewSet)
 router.register(r"student-code-practices", StudentCodePracticeViewSet)
-router.register(r"tasks", TaskViewSet)
-router.register(r"task-submissions", TaskSubmissionViewSet)
 
 
 urlpatterns = [
