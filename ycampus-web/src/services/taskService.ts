@@ -16,6 +16,10 @@ export interface Task {
     description: string;
     department: string | number;
     department_name?: string;
+    task_type?: 'descriptive' | 'coding';
+    question_source?: 'manual' | 'bank';
+    questions?: number[];
+    question_details?: any[];
     is_sent?: boolean;
     due_date?: string;
     created_at: string;
@@ -38,6 +42,7 @@ export interface TaskSubmission {
     student: string;
     student_details?: any;
     answer: string;
+    answers_data?: Record<string, any>;
     is_submitted: boolean;
     submitted_at?: string;
     comments: TaskComment[];
@@ -47,39 +52,39 @@ export interface TaskSubmission {
 
 export const taskService = {
     getTasks: async (params?: any): Promise<Task[]> => {
-        return await restApiAuthUtil.get<Task[]>('/course/tasks/', { params });
+        return await restApiAuthUtil.get<Task[]>('/core/tasks/', { params });
     },
 
     getTask: async (id: string): Promise<Task> => {
-        return await restApiAuthUtil.get<Task>(`/course/tasks/${id}/`);
+        return await restApiAuthUtil.get<Task>(`/core/tasks/${id}/`);
     },
 
     createTask: async (data: any): Promise<Task> => {
-        return await restApiAuthUtil.post<Task>('/course/tasks/', data);
+        return await restApiAuthUtil.post<Task>('/core/tasks/', data);
     },
 
     updateTask: async (id: string, data: any): Promise<Task> => {
-        return await restApiAuthUtil.patch<Task>(`/course/tasks/${id}/`, data);
+        return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, data);
     },
 
     sendTask: async (id: string): Promise<Task> => {
-        return await restApiAuthUtil.patch<Task>(`/course/tasks/${id}/`, { is_sent: true });
+        return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, { is_sent: true });
     },
 
     deleteTask: async (id: string): Promise<void> => {
-        return await restApiAuthUtil.delete(`/course/tasks/${id}/`);
+        return await restApiAuthUtil.delete(`/core/tasks/${id}/`);
     },
 
     getTaskSubmissions: async (taskId: string): Promise<TaskSubmission[]> => {
-        return await restApiAuthUtil.get<TaskSubmission[]>(`/course/task-submissions/`, { params: { task: taskId } });
+        return await restApiAuthUtil.get<TaskSubmission[]>(`/core/task-submissions/`, { params: { task: taskId } });
     },
 
     getSubmissionDetail: async (id: string): Promise<TaskSubmission> => {
-        return await restApiAuthUtil.get<TaskSubmission>(`/course/task-submissions/${id}/`);
+        return await restApiAuthUtil.get<TaskSubmission>(`/core/task-submissions/${id}/`);
     },
 
     addCommentToSubmission: async (id: string, comment: string): Promise<TaskComment> => {
-        return await restApiAuthUtil.post<TaskComment>(`/course/task-submissions/${id}/add_comment/`, { comment });
+        return await restApiAuthUtil.post<TaskComment>(`/core/task-submissions/${id}/add_comment/`, { comment });
     }
 };
 
