@@ -40,8 +40,6 @@ from .serializers import (
     SectionSerializer,
     SubjectSerializer,
     SubjectBasicSerializer,
-    TaskSerializer,
-
     UnitSerializer,
     UnitBasicSerializer,
     SubUnitSerializer,
@@ -2014,96 +2012,3 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
 
 
 
-class TaskViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet to manage tasks assigned by faculty.
-    """
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticatedUser]
-    filterset_fields = ["faculty", "subject", "unit", "sub_unit"]
-
-    def get_queryset(self):
-        qs = Task.objects.select_related(
-            "faculty__user", "subject", "unit", "sub_unit"
-        ).prefetch_related("sections")
-        
-        user = self.request.user
-        if user.role == "faculty":
-            # Faculty see tasks they assigned
-            qs = qs.filter(faculty__user=user)
-        elif user.role == "student":
-            # Students see tasks assigned to their section
-            if hasattr(user, 'student_profile') and user.student_profile.section:
-                qs = qs.filter(sections=user.student_profile.section)
-            else:
-                return Task.objects.none()
-        elif user.role not in ["admin", "college_admin", "principal"]:
-            # Other roles restricted
-            return Task.objects.none()
-            
-        return qs
-
-    def perform_create(self, serializer):
-        # Auto-set faculty if role is faculty
-        if self.request.user.role == "faculty":
-            from core.models import FacultyProfile
-            faculty = get_object_or_404(FacultyProfile, user=self.request.user)
-            serializer.save(faculty=faculty)
-        else:
-            serializer.save()
-
-class TaskSubmissionViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet to manage student task submissions.
-    """
-    queryset = TaskSubmission.objects.all()
-    serializer_class = TaskSubmissionSerializer
-    permission_classes = [IsAuthenticatedUser]
-    filterset_fields = ["task", "student", "is_submitted"]
-
-    def get_queryset(self):
-        qs = TaskSubmission.objects.select_related(
-            "task", "student__user"
-        ).prefetch_related("comments__faculty__user")
-        
-        user = self.request.user
-        if user.role == "faculty":
-            # Faculty see submissions for tasks they assigned
-            qs = qs.filter(task__faculty__user=user)
-        elif user.role == "student":
-            # Students see their own submissions
-            qs = qs.filter(student__user=user)
-        elif user.role not in ["admin", "college_admin", "principal"]:
-            return TaskSubmission.objects.none()
-            
-        return qs
-
-    @action(detail=True, methods=["post"])
-    def add_comment(self, request, pk=None):
-        """
-        Action for faculty to add a comment to a submission.
-        """
-        submission = self.get_object()
-        if request.user.role != "faculty":
-            return Response({"error": "Only faculty can add comments"}, status=status.HTTP_403_FORBIDDEN)
-            
-        from core.models import FacultyProfile
-        faculty = get_object_or_404(FacultyProfile, user=request.user)
-        
-        # Check if this faculty assigned the task
-        if submission.task.faculty != faculty:
-            return Response({"error": "You can only comment on submissions for your own tasks"}, status=status.HTTP_403_FORBIDDEN)
-            
-        comment_text = request.data.get("comment")
-        if not comment_text:
-            return Response({"error": "Comment text is required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        comment = TaskComment.objects.create(
-            submission=submission,
-            faculty=faculty,
-            comment=comment_text
-        )
-        
-        serializer = TaskCommentSerializer(comment)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
