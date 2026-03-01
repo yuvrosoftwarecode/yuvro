@@ -4,6 +4,7 @@ import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
 import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, UnitBasic, fetchSubUnitsByUnit, SubUnit } from '../../services/subjectService';
 import { taskService, Task, TaskSubmission, TaskComment } from '../../services/taskService';
+import { fetchQuestions, Question } from '../../services/questionService';
 import {
     BookOpen, Users, Calendar, ArrowRight, Loader2, Plus, List, Send, Trash2,
     CheckCircle, Clock, Search, MessageSquare, ChevronLeft, Edit2, MoreVertical,
@@ -60,8 +61,14 @@ const FacultyTask: React.FC = () => {
         due_date: "",
         unit: "",
         subUnit: "",
-        sections: [] as string[]
+        sections: [] as string[],
+        task_type: "descriptive" as 'descriptive' | 'coding',
+        question_source: "manual" as 'manual' | 'bank',
+        questions: [] as string[]
     });
+
+    const [bankQuestions, setBankQuestions] = useState<Question[]>([]);
+    const [loadingQuestions, setLoadingQuestions] = useState(false);
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
@@ -237,6 +244,27 @@ const FacultyTask: React.FC = () => {
         }
     }, [selectedSubject]);
 
+    // Fetch questions when source is bank
+    useEffect(() => {
+        if (formState.question_source === 'bank' && selectedSubject && isCreateDialogOpen) {
+            const loadQuestions = async () => {
+                try {
+                    setLoadingQuestions(true);
+                    const qType = formState.task_type === 'coding' ? 'coding' : undefined;
+                    const res = await fetchQuestions({ subject: selectedSubject, type: qType });
+                    setBankQuestions(res);
+                } catch (err) {
+                    toast.error('Failed to load question bank');
+                } finally {
+                    setLoadingQuestions(false);
+                }
+            };
+            loadQuestions();
+        } else {
+            setBankQuestions([]);
+        }
+    }, [formState.question_source, formState.task_type, selectedSubject, isCreateDialogOpen]);
+
     const openCreateDialog = (task: Task | null = null) => {
         if (task) {
             setEditingTask(task);
@@ -246,7 +274,10 @@ const FacultyTask: React.FC = () => {
                 due_date: task.due_date ? task.due_date.slice(0, 16) : "",
                 unit: task.unit || "",
                 subUnit: task.sub_unit || "",
-                sections: task.sections.map(s => String(s))
+                sections: task.sections.map(s => String(s)),
+                task_type: task.task_type || 'descriptive',
+                question_source: task.question_source || 'manual',
+                questions: task.questions ? task.questions.map(String) : []
             });
         } else {
             setEditingTask(null);
@@ -256,15 +287,22 @@ const FacultyTask: React.FC = () => {
                 due_date: "",
                 unit: "",
                 subUnit: "",
-                sections: []
+                sections: [],
+                task_type: "descriptive",
+                question_source: "manual",
+                questions: []
             });
         }
         setIsCreateDialogOpen(true);
     };
 
     const handleSaveTask = async () => {
-        if (!formState.title || !formState.description || formState.sections.length === 0) {
+        if (!formState.title || (formState.question_source === 'manual' && !formState.description) || formState.sections.length === 0) {
             toast.error("Please fill in required fields");
+            return;
+        }
+        if (formState.question_source === 'bank' && formState.questions.length === 0) {
+            toast.error("Please select at least one question from the bank");
             return;
         }
 
@@ -342,8 +380,19 @@ const FacultyTask: React.FC = () => {
                                     </Badge>
                                 </div>
 
+                                <div className="flex gap-2 mb-2">
+                                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                        {task.task_type === 'coding' ? 'Coding' : 'Descriptive'}
+                                    </Badge>
+                                    {task.question_source === 'bank' && (
+                                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 border-emerald-200 bg-emerald-50">
+                                            Question Bank
+                                        </Badge>
+                                    )}
+                                </div>
+
                                 <p className="text-[13px] text-gray-700 mb-2 line-clamp-2 font-medium">
-                                    {task.description}
+                                    {task.question_source === 'bank' ? `${task.questions?.length || 0} Questions attached` : task.description}
                                 </p>
 
                                 <div className="mt-auto space-y-4">
@@ -703,15 +752,93 @@ const FacultyTask: React.FC = () => {
                         </div>
 
                         <div className="space-y-6">
-                            <div className="space-y-2">
-                                <Label className="text-sm font-bold text-gray-900">Description *</Label>
-                                <Textarea
-                                    value={formState.description}
-                                    onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
-                                    placeholder="What should students do?"
-                                    className="h-[210px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-4"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Task Type</Label>
+                                    <Select value={formState.task_type} onValueChange={(v: 'descriptive' | 'coding') => setFormState(prev => ({ ...prev, task_type: v, questions: [] }))}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Select Type" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            <SelectItem value="descriptive" className="rounded-xl">Descriptive</SelectItem>
+                                            <SelectItem value="coding" className="rounded-xl">Coding</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Source</Label>
+                                    <Select value={formState.question_source} onValueChange={(v: 'manual' | 'bank') => setFormState(prev => ({ ...prev, question_source: v, questions: [] }))}>
+                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
+                                            <SelectValue placeholder="Select Source" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            <SelectItem value="manual" className="rounded-xl">Manual Entry</SelectItem>
+                                            <SelectItem value="bank" className="rounded-xl">Question Bank</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
+
+                            {formState.question_source === 'manual' ? (
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Description *</Label>
+                                    <Textarea
+                                        value={formState.description}
+                                        onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
+                                        placeholder="What should students do?"
+                                        className="h-[150px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-4"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Select Questions *</Label>
+                                    {loadingQuestions ? (
+                                        <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-gray-300" /></div>
+                                    ) : !selectedSubject ? (
+                                        <div className="bg-orange-50/50 rounded-xl p-4 text-center text-sm font-bold text-orange-600">
+                                            Please select a Subject first to browse questions.
+                                        </div>
+                                    ) : bankQuestions.length > 0 ? (
+                                        <div className="flex flex-col gap-2 max-h-[170px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {bankQuestions.map(q => (
+                                                <div
+                                                    key={q.id}
+                                                    onClick={() => {
+                                                        const id = String(q.id);
+                                                        setFormState(prev => ({
+                                                            ...prev,
+                                                            questions: prev.questions.includes(id) ? prev.questions.filter(x => x !== id) : [...prev.questions, id]
+                                                        }));
+                                                    }}
+                                                    className={`cursor-pointer p-3 rounded-xl border-none transition-all flex items-start gap-3 ${formState.questions.includes(String(q.id)) ? 'bg-orange-50 text-orange-900 border border-orange-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'}`}
+                                                >
+                                                    <CheckCircle className={`mt-0.5 h-4 w-4 flex-shrink-0 transition-colors ${formState.questions.includes(String(q.id)) ? 'text-orange-500' : 'text-gray-300'}`} />
+                                                    <div>
+                                                        <p className="text-sm font-bold leading-tight line-clamp-1">{q.title}</p>
+                                                        <p className="text-xs font-semibold text-gray-400 line-clamp-1 mt-0.5">{q.content.replace(/<[^>]*>?/gm, '')}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="bg-gray-50 rounded-xl p-4 text-center text-sm font-bold text-gray-400">
+                                            No questions found for the selected unit/type.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {formState.question_source === 'bank' && (
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold text-gray-900">Additional Instructions (Optional)</Label>
+                                    <Textarea
+                                        value={formState.description}
+                                        onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
+                                        placeholder="Any extra instructions..."
+                                        className="h-[60px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-3 text-sm"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="md:col-span-2 space-y-3">
