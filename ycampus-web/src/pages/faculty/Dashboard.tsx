@@ -156,7 +156,7 @@ const Dashboard: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Department</label>
               <Select value={selectedDepartment} onValueChange={v => { setSelectedDepartment(v); setSelectedSubject(''); }}>
-                <SelectTrigger>
+                <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Department" />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,7 +167,7 @@ const Dashboard: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Subject</label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                <SelectTrigger>
+                <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Subject" />
                 </SelectTrigger>
                 <SelectContent>
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Section</label>
               <Select disabled={!selectedSubject}>
-                <SelectTrigger>
+                <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Section" />
                 </SelectTrigger>
                 <SelectContent>
@@ -191,7 +191,7 @@ const Dashboard: React.FC = () => {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <Card key={index} className="border-0 shadow-sm">
+              <Card key={index} className="border-0 shadow-md">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground text-gray-500">{stat.title}</CardTitle>
                   <stat.icon className="h-4 w-4 text-muted-foreground text-gray-500" />
@@ -208,10 +208,10 @@ const Dashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* Quick Actions */}
-            <Card className="border-0 shadow-sm">
+            <Card className="border-0 shadow-md">
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Common tasks and actions</CardDescription>
+                <CardDescription className="text-gray-500">Common tasks and actions</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -221,10 +221,10 @@ const Dashboard: React.FC = () => {
                       className="w-full justify-start h-auto p-3"
                       onClick={() => navigate(action.path)}
                     >
-                      <action.icon className="h-4 w-4 mr-3 flex-shrink-0" />
+                      <action.icon className="h-4 w-4 mr-3 flex-shrink-0 text-gray-500" />
                       <div className="text-left">
-                        <p className="font-medium">{action.title}</p>
-                        <p className="text-xs text-muted-foreground text-gray-500">{action.description}</p>
+                        <p className="font-medium text-gray-800">{action.title}</p>
+                        <p className="text-xs text-gray-500">{action.description}</p>
                       </div>
                     </Button>
                   ))}
@@ -238,7 +238,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Topics Progress Stepper</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-gray-500">
                       {courseData
                         ? `Step ${courseData.currentStep} of ${courseData.totalSteps} · ${selectedSubjectName}`
                         : 'Select course and batch to view progress'}
@@ -247,7 +247,7 @@ const Dashboard: React.FC = () => {
                   {courseData && (
                     <div className="text-right">
                       <div className="text-2xl font-bold text-foreground">{courseData.overallProgress}%</div>
-                      <div className="text-sm text-muted-foreground">Overall Progress</div>
+                      <div className="text-sm text-gray-500">Overall Progress</div>
                     </div>
                   )}
                 </div>
@@ -374,7 +374,7 @@ const Dashboard: React.FC = () => {
                     </TabsContent>
                   </Tabs>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground text-gray-500">
                     <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>Select a course to view topic progress stepper</p>
                   </div>
@@ -384,10 +384,10 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Recent Activity */}
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-md">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest updates from your courses</CardDescription>
+              <CardDescription className="text-gray-500">Latest updates from your courses</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
