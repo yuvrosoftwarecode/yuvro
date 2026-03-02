@@ -5,14 +5,26 @@ import useAIChat from './useAIChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { History as HistoryIcon, Clock, X, Plus } from 'lucide-react';
 
-const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => string, welcomeMessage?: string, persistenceKey?: string, chatTitle?: string, onNewChat?: () => void, showHistory?: boolean }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onNewChat, showHistory = true }) => {
+const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => string, welcomeMessage?: string, persistenceKey?: string, chatTitle?: string, onNewChat?: () => void, showHistory?: boolean, onInsertCode?: (code: string) => void }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onNewChat, showHistory = true, onInsertCode }) => {
   const { user } = useAuth();
   const personalizedWelcome = welcomeMessage
     ? welcomeMessage.replace(/^Hi!/, `Hi ${user?.first_name || 'Student'}!`)
     : `Hi ${user?.first_name || 'Student'}! I'm here to help you. Ask me anything!`;
 
-  const { messages, sendMessage, isLoading, clearMessages, history, loadSession } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
+  const { messages, sendMessage, isLoading, clearMessages, history, loadSession, suggestedPrompts, provideFeedback } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleAskBuddy = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt: string }>;
+      if (customEvent.detail?.prompt) {
+        sendMessage(customEvent.detail.prompt);
+      }
+    };
+
+    window.addEventListener('ai-buddy-ask', handleAskBuddy);
+    return () => window.removeEventListener('ai-buddy-ask', handleAskBuddy);
+  }, [sendMessage]);
 
   return (
     <div
@@ -86,10 +98,14 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
         )}
       </div>
 
-      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={personalizedWelcome} />
+      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={personalizedWelcome} onInsertCode={onInsertCode} onFeedback={provideFeedback} />
 
       <div className="p-4 border-t border-slate-50 bg-white shrink-0">
-        <AIChatInput onSend={sendMessage} disabled={isLoading} />
+        <AIChatInput 
+          onSend={sendMessage} 
+          disabled={isLoading} 
+          suggestedPrompts={suggestedPrompts} 
+        />
         <div className="flex justify-between items-center mt-3 px-2">
           <span className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Powered by Yuvro AI</span>
 

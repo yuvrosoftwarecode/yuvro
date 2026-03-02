@@ -54,7 +54,7 @@ export interface InstructorDashboardData {
 }
 
 class InstructorDashboardService {
-    private baseUrl = '/api/instructor/dashboard';
+    private baseUrl = '/api/admin/dashboard';
 
     async getDashboardData(): Promise<InstructorDashboardData> {
         try {

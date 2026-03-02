@@ -1,10 +1,12 @@
 import asyncio
+import logging
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import StreamingHttpResponse
 from authentication.permissions import IsAuthenticatedUser
 from authentication.permissions import IsOwnerOrReadOnly
 from .models import (
@@ -30,6 +32,8 @@ from .serializers import (
     InterviewReportSerializer,
 )
 from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
+
+logger = logging.getLogger(__name__)
 
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -112,6 +116,26 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             return self._process_chat_message(chat_session, serializer.validated_data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=["post"], url_path=r"messages/(?P<message_id>[^/.]+)/feedback")
+    def feedback(self, request, pk=None, message_id=None):
+        """Submit feedback for a specific message in this chat session."""
+        chat_session = self.get_object()
+        try:
+            message = chat_session.messages.get(id=message_id)
+        except ChatMessage.DoesNotExist:
+            return Response({"error": "Message not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        feedback_value = request.data.get("feedback")
+        feedback_text = request.data.get("feedback_text")
+        
+        if feedback_value is not None:
+            message.feedback = feedback_value
+        if feedback_text is not None:
+            message.feedback_text = feedback_text
+            
+        message.save()
+        return Response({"status": "feedback recorded"}, status=status.HTTP_200_OK)
+
     def _process_chat_message(self, chat_session, validated_data):
         """Process a chat message and generate AI response."""
         message_content = validated_data["message"]
@@ -121,12 +145,19 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
         try:
             with transaction.atomic():
-                # Create user message
-                user_message = ChatMessage.objects.create(
-                    chat_session=chat_session,
-                    message_type="user",
-                    content=message_content,
-                )
+                # Check if this is the initial trigger message for mock interview
+                is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
+                
+                user_message = None
+                if not is_trigger:
+                    # Create user message
+                    user_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="user",
+                        content=message_content,
+                    )
+                else:
+                    logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
 
                 # Get AI agent configuration
                 ai_agent = chat_session.ai_agent
@@ -159,51 +190,65 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 # Run async function in sync context
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                try:
-                    response_data = loop.run_until_complete(
-                        ai_service.generate_response(
-                            messages=messages,
-                            temperature=temperature,
-                            max_tokens=max_tokens,
-                            page_content=page_content,
-                            user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
-                        )
+                # Ensure we handle checking if stream is requested by user, for now we will set to True
+                is_streaming = True
+                
+                if is_streaming:
+                    return self._handle_streaming_response(
+                        chat_session=chat_session,
+                        ai_agent=ai_agent,
+                        user_config=user_config,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
                     )
-                finally:
-                    loop.close()
+                else:    
+                    try:
+                        response_data = loop.run_until_complete(
+                            ai_service.generate_response(
+                                messages=messages,
+                                temperature=temperature,
+                                max_tokens=max_tokens,
+                                page_content=page_content,
+                                user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
+                            )
+                        )
+                    finally:
+                        loop.close()
 
-                # Create assistant message
-                assistant_message = ChatMessage.objects.create(
-                    chat_session=chat_session,
-                    message_type="assistant",
-                    content=response_data["response"],
-                    tokens_used=response_data.get("tokens_used"),
-                    response_time_ms=response_data.get("response_time_ms"),
-                    metadata=response_data.get("metadata", {}),
-                )
+                    # Create assistant message
+                    assistant_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=response_data["response"],
+                        tokens_used=response_data.get("tokens_used"),
+                        response_time_ms=response_data.get("response_time_ms"),
+                        metadata=response_data.get("metadata", {}),
+                    )
 
-                # Update usage statistics
-                self._update_usage_stats(
-                    chat_session.user, ai_agent, response_data.get("tokens_used", 0)
-                )
+                    # Update usage statistics
+                    self._update_usage_stats(
+                        chat_session.user, ai_agent, response_data.get("tokens_used", 0)
+                    )
 
-                # Update chat session timestamp
-                chat_session.updated_at = timezone.now()
-                chat_session.save()
+                    # Update chat session timestamp
+                    chat_session.updated_at = timezone.now()
+                    chat_session.save()
 
-                # Return response
-                response_serializer = ChatResponseSerializer(
-                    {
-                        "chat_session_id": chat_session.id,
-                        "message_id": assistant_message.id,
-                        "response": response_data["response"],
-                        "tokens_used": response_data.get("tokens_used"),
-                        "response_time_ms": response_data.get("response_time_ms"),
-                        "metadata": response_data.get("metadata", {}),
-                    }
-                )
+                    # Return response
+                    response_serializer = ChatResponseSerializer(
+                        {
+                            "chat_session_id": chat_session.id,
+                            "message_id": assistant_message.id,
+                            "response": response_data["response"],
+                            "tokens_used": response_data.get("tokens_used"),
+                            "response_time_ms": response_data.get("response_time_ms"),
+                            "metadata": response_data.get("metadata", {}),
+                        }
+                    )
 
-                return Response(response_serializer.data, status=status.HTTP_200_OK)
+                    return Response(response_serializer.data, status=status.HTTP_200_OK)
 
         except AIServiceError as e:
             return Response(
@@ -215,6 +260,119 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 {"error": f"Unexpected error: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+            
+    def _handle_streaming_response(
+        self,
+        chat_session,
+        ai_agent,
+        user_config,
+        messages,
+        temperature,
+        max_tokens,
+        page_content,
+    ):
+        """Handle streaming response from AI service via SSE."""
+        import json
+        import time
+        from asgiref.sync import async_to_sync
+        
+        start_time = time.time()
+        
+        def stream_generator():
+            full_response_text = ""
+            tokens_used = 0
+            
+            # Use ai_service to get the stream
+            ai_service = AIServiceFactory.create_service(
+                ai_agent.provider, ai_agent.model_name
+            )
+            
+            # Since generate_response is an async function, we need to run it in a sync context
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            try:
+                response_data = loop.run_until_complete(
+                    ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
+                        stream=True,
+                    )
+                )
+                
+                # Check if the service actually returned a stream
+                if "stream" in response_data:
+                    stream = response_data["stream"]
+                    for chunk in stream:
+                        print(f"DEBUG CHUNK: {chunk}", flush=True)
+                        try:
+                            if chunk.text:
+                                full_response_text += chunk.text
+                                # SSE format: data: {json_string}\n\n
+                                data = json.dumps({"chunk": chunk.text})
+                                logger.debug(f"Streaming chunk size: {len(chunk.text)}")
+                                yield f"data: {data}\n\n"
+                        except ValueError as ve:
+                            # Gemini raises ValueError if the chunk was blocked or has no text
+                            print(f"DEBUG VALUE ERROR: {ve}", flush=True)
+                            pass
+                    
+                    # Update usage if available from stream
+                    if hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                        tokens_used = stream.usage_metadata.total_token_count
+                else:
+                    # Fallback if streaming is not supported by the provider
+                    full_response_text = response_data["response"]
+                    data = json.dumps({"chunk": full_response_text})
+                    yield f"data: {data}\n\n"
+                    tokens_used = response_data.get("tokens_used", 0)
+                    
+            except Exception as e:
+                # Send error chunk
+                error_data = json.dumps({"error": str(e)})
+                yield f"data: {error_data}\n\n"
+            finally:
+                loop.close()
+                
+                # We need to save the final message to the DB after the stream completes
+                # But we're in a generator, so we just run DB ops synchronously here
+                if full_response_text:
+                    end_time = time.time()
+                    response_time_ms = int((end_time - start_time) * 1000)
+                    
+                    assistant_message = ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=full_response_text,
+                        tokens_used=tokens_used,
+                        response_time_ms=response_time_ms,
+                        metadata=response_data.get("metadata", {}),
+                    )
+                    
+                    self._update_usage_stats(
+                        chat_session.user, ai_agent, tokens_used
+                    )
+                    
+                    chat_session.updated_at = timezone.now()
+                    chat_session.save()
+                    
+                    # Send a final 'done' event with the full message metadata
+                    done_data = json.dumps({
+                        "done": True, 
+                        "message_id": str(assistant_message.id),
+                        "chat_session_id": str(chat_session.id)
+                    })
+                    yield f"data: {done_data}\n\n"
+
+        response = StreamingHttpResponse(
+            stream_generator(), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+        return response
 
     def _prepare_messages(self, chat_session, user_config=None):
         """Prepare messages for AI service."""
@@ -222,61 +380,85 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
         # Check if this is a mock interview session and inject specialized persona
         if chat_session.page == "mock_interview":
-            context = chat_session.context
+            # Determine if this is the very first AI message
+            is_start = not chat_session.messages.filter(message_type="assistant").exists()
+            
+            context = chat_session.context or {}
             role = context.get("role", "Software Engineer")
             level = context.get("level", "Intermediate")
-            difficulty = context.get("difficulty", "Medium")
             interviewer_name = context.get("interviewer_name", "AI Interviewer")
             candidate_info = context.get("candidate_info", "No specific background provided.")
+            ai_context_list = context.get("ai_context", [])
+            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
             
-            # Richer Prompt Construction
-            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer.
+            instructions = context.get("instructions", "")
+            required_skills = ", ".join(context.get("required_skills", []))
 
-CRITICAL RULES:
-1. **Initial Greeting**: STRICTLY start with: "Hi, I'm {interviewer_name}. I'll be conducting your interview for the {role} position today. To get us started, could you please give me a quick introduction?"
-   - Do NOT add any other pleasantries.
-2. **NO Definitions**: NEVER ask "What is...", "Define...", or "Explain the concept of...".
-   - ❌ "What is a deadlock?"
-   - ❌ "Explain useEffect."
-3. **Scenario First**: EVERY question must be a practical situation, debugging challenge, or system design trade-off.
-   - ✅ "Two threads are stuck waiting for each other. How do you debug this?"
-   - ✅ "Your component renders too often. how do you optimize it?"
-4. **Brevity**: Max 1-2 sentences. Be direct and conversational.
-5. **Adaptive Chaining (Step-by-Step Strategy)**:
-   - **Step 1**: Analyze the candidate's last answer. Identify ONE specific concept, technology, or trade-off they mentioned.
-   - **Step 2**: Formulate a follow-up question that challenges THAT specific concept.
-   - **Rule**: Do NOT change the topic unless the candidate completely failed or the topic is fully exhausted.
-   - Example If they say "I use Redis for caching", ask: "What happens if your Redis instance fills up? How do you handle eviction?"
-6. **Coding Questions**: When you want the candidate to write code, you MUST start the sentence with **"Please write code to..."** or **"Write a function that..."**.
-   - This triggers the code editor for the candidate.
+            # Time Tracking Logic
+            time_left_msg = ""
+            try:
+                interview_session = chat_session.interview_session
+                total_duration_mins = interview_session.duration_minutes
+                elapsed_time = timezone.now() - interview_session.created_at
+                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
+                
+                if remaining_mins <= 2 and remaining_mins > 0:
+                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
+                elif remaining_mins <= 0:
+                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
+            except:
+                pass
+            
+            # Strict Prompt Construction
+            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer conducting a mock interview for the "{role}" position.
 
+PERSONA & STYLE:
+- Professional, observant, and conversational human interviewer. 
+- **Brevity is Mandatory**: Every response/question from you MUST be exactly 1 line long. Short and sweet.
+
+CORE RULES:
+1. **Active Listening**: You MUST directly acknowledge the specific content of the candidate's last answer. If they say they lacks experience in X, do NOT immediately ask a complex scenario about X.
+2. **Scenario-Based & Contextual**: Questions must be practical scenarios or related to the candidate's background. Avoid "Define X" or "What is Y".
+3. **Resume-Driven Flow**: Prioritize questions about technologies, projects, and experiences listed in the candidate's resume/background, but only if they align with the candidate's current statements.
+4. **Adaptive Chaining**: Base your next 1-line question on the depth or gaps in the candidate's LAST answer. If they are beginner, stick to foundations. If advanced, push limits.
+5. **No Definitional Bloat**: Never explain technical concepts. Acknowledge briefly and move to the next 1-line challenge.
+6. **Coding**: To trigger the code editor, you MUST start with **"Please write code to..."** or **"Write a function that..."**.
 
 INTERVIEW CONTEXT:
-- Role: {role}
-- Difficulty: {difficulty}
-- Candidate: {candidate_info}
+- **Role**: {role}
+- **Level**: {level}
+- **Required Skills**: {required_skills}
+- **AI Focus Context**: 
+{ai_context_str}
+- **Instructions**: {instructions}
+- **Candidate Background/Resume**: {candidate_info}
 
-Start with the Initial Greeting.
+{time_left_msg}
 """
+            if is_start:
+                # Override everything for the very first message
+                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
+                
+                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
+                STRICT RULE: Your response MUST be exactly 1 line long.
+                
+                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
+                """
+            
             messages.append({"role": "system", "content": interview_prompt})
 
-        # Add user-configured system prompt (if not in interview mode, or as secondary instruction)
+        # Add user-configured system prompt
         elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
         # Add conversation history
         chat_messages = chat_session.messages.order_by("created_at")
         for msg in chat_messages:
-            if msg.message_type == "system":
-                role = "system"
-            elif msg.message_type == "user":
-                role = "user"
-            else:
-                role = "assistant"
+            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
             messages.append({"role": role, "content": msg.content})
 
-        if chat_session.page == "mock_interview":
-            # Find the last user message to enforce adaptive analysis
+        if chat_session.page == "mock_interview" and not is_start:
+            # Find the last user message
             last_user_msg = None
             for msg in reversed(messages):
                 if msg["role"] == "user":
@@ -286,9 +468,11 @@ Start with the Initial Greeting.
             if last_user_msg:
                 adaptive_instruction = (
                     f"The candidate's last answer was: \"{last_user_msg}\".\n"
-                    "TASK: Analyze this answer for technical accuracy and depth. "
-                    "Did they miss any edge cases? Did they mention a specific technology? "
-                    "Formulate your next question specifically to follow up on this answer."
+                    "INSTRUCTION: \n"
+                    "1. First, briefly acknowledge or validate their specific answer (e.g., 'Got it', 'I see you have a backend background', etc.).\n"
+                    "2. Then, ask your next 1-LINE question. \n"
+                    "3. If they mentioned a specific technology or lack of experience, pivot your question to align with their statement while staying relevant to the Data Scientist role.\n"
+                    "STRICT: The entire response must be exactly 1 line."
                 )
                 messages.append({"role": "system", "content": adaptive_instruction})
 
@@ -578,8 +762,6 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             
         interview_session.save()
 
-        interview_session.save()
-
         # SYNC: Update MockInterviewSubmission if it exists
         try:
             submission = MockInterviewSubmission.objects.filter(
@@ -600,22 +782,19 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
             
             # Read resume content if file exists
             resume_text = None
-            if interview_session.resume_file:
-                try:
-                    # Basic text extraction from PDF could go here.
-                    # For now, we will skip complex PDF parsing and just pass "Resume provided"
-                    # or implement a simple PDF reader if libraries available.
-                    # We'll stick to a placeholder to avoid dependency issues for this slice.
-                    resume_text = "The candidate has provided a resume file." 
-                except Exception:
-                    pass
 
             # Prepare conversation text synchronously
+            trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
             messages = interview_session.chat_session.messages.order_by("created_at")
             conversation_text = ""
             for msg in messages:
+                if msg.content.strip() == trigger_text:
+                    continue
                 role = "Interviewer" if msg.message_type != "user" else "Candidate"
                 conversation_text += f"{role}: {msg.content}\n\n"
+
+            # Use extracted resume text from context if available
+            resume_text = interview_session.chat_session.context.get("candidate_info", "No resume provided.")
 
             # Run async generation in sync context
             loop = asyncio.new_event_loop()

@@ -27,6 +27,8 @@ interface MonacoCodeEditorProps {
     mode?: 'editor' | 'diff';
     /** Original code for diff mode (left side) */
     original?: string;
+    disableCopyPaste?: boolean;
+    onMount?: (editor: any, monaco: any) => void;
 }
 
 loader.init().then(monaco => {
@@ -42,7 +44,7 @@ loader.init().then(monaco => {
     });
 });
 
-const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
+const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
     value,
     onChange,
     language,
@@ -58,7 +60,40 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
     theme = "custom-light",
     mode = 'editor',
     original = '',
-}) => {
+    disableCopyPaste = false,
+    onMount,
+}, ref) => {
+    const editorRef = React.useRef<any>(null);
+
+    React.useImperativeHandle(ref, () => ({
+        insertText: (text: string) => {
+            if (editorRef.current) {
+                const selection = editorRef.current.getSelection();
+                editorRef.current.executeEdits('ai-assistant', [
+                    { range: selection, text, forceMoveMarkers: true }
+                ]);
+                editorRef.current.focus();
+            }
+        }
+    }));
+
+    const handleEditorDidMount = (editor: any, monaco: any) => {
+        editorRef.current = editor;
+        if (disableCopyPaste) {
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC, () => {
+                // Copy disabled
+            });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV, () => {
+                // Paste disabled
+            });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX, () => {
+                // Cut disabled
+            });
+        }
+        if (onMount) {
+            onMount(editor, monaco);
+        }
+    };
 
     return (
         <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100/50 flex flex-col font-sans" style={{ height }}>
@@ -183,6 +218,7 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
                         value={value}
                         onChange={(val: string | undefined) => onChange(val ?? '')}
                         theme={theme}
+                        onMount={handleEditorDidMount}
                         options={{
                             readOnly,
                             fontSize: 14,
@@ -193,12 +229,13 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
                             padding: { top: 16, bottom: 16 },
                             fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
                             fontLigatures: true,
+                            contextmenu: !disableCopyPaste,
                         }}
                     />
                 )}
             </div>
         </div>
     );
-};
+});
 
 export default MonacoCodeEditor;

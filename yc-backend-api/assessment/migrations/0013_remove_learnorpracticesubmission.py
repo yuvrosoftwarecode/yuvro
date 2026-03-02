@@ -9,7 +9,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name="LearnOrPracticeSubmission",
+        migrations.RunSQL(
+            "DROP TABLE IF EXISTS assessment_learnorpracticesubmission CASCADE;",
+            reverse_sql=""
         ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.DeleteModel(
+                    name="LearnOrPracticeSubmission",
+                ),
+            ],
+            database_operations=[]
+        )
     ]

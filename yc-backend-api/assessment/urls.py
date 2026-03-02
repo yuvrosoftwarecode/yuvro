@@ -6,6 +6,7 @@ from .views import (
     MockInterviewViewSet,
     SkillTestSubmissionViewSet,
     ContestSubmissionViewSet,
+    MockInterviewSubmissionViewSet,
     CertificationExamViewSet,
     CertificationSubmissionViewSet,
 )
@@ -23,6 +24,11 @@ router.register(
     r"contest/submissions",
     ContestSubmissionViewSet,
     basename="contest-submissions",
+)
+router.register(
+    r"mock-interview/submissions",
+    MockInterviewSubmissionViewSet,
+    basename="mock-interview-submissions",
 )
 router.register(r"certification-exams", CertificationExamViewSet)
 router.register(r"certification-submissions", CertificationSubmissionViewSet)

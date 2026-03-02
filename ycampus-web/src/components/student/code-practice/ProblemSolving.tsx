@@ -852,7 +852,7 @@ ${code}
 
                               {/* 3. Console Output - Third */}
                               {output && (
-                                <div>
+                                <div data-ai-context="true" data-ai-context-label="Console Output">
                                   <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
                                     <Activity className="h-4 w-4 text-gray-600" />
                                     Console Output
@@ -865,7 +865,7 @@ ${code}
 
                               {/* 4. Test Results - Last */}
                               {testResults && Array.isArray(testResults.results) && (
-                                <div>
+                                <div data-ai-context="true" data-ai-context-label="Test Results Summary">
                                   {/* Summary Header */}
                                   <div className="flex items-center justify-between mb-4">
                                     <h4 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -1229,7 +1229,7 @@ ${code}
                                 )}
 
                                 {testResults && Array.isArray(testResults.results) && (
-                                  <div>
+                                  <div data-ai-context="true" data-ai-context-label="Test Results Summary (Fullscreen)">
                                     <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                       <CheckCircle2 className="h-4 w-4 text-gray-600" />
                                       Test Results ({testResults.passed}/{testResults.total})

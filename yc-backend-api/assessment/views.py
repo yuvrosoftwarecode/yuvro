@@ -14,7 +14,7 @@ from io import BytesIO
 import traceback
 import logging
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage
+from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
 from authentication.models import Profile
 from authentication.permissions import IsOwnerOrInstructorOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -29,6 +29,7 @@ from .mixins import ProctoringMixin, AssessmentMixin, LeaderboardPagination
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
     SkillTestSubmissionSerializer, ContestSubmissionSerializer,
+    MockInterviewSubmissionSerializer,
     CertificationExamSerializer, CertificationSubmissionSerializer
 )
 
@@ -1060,42 +1061,35 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             user=user,
                             ai_agent=ai_agent,
                             title=f"Mock Interview: {mock_interview.title}",
-                            page="mock_interview"
+                            page="mock_interview",
+                            context={
+                                "role": mock_interview.title,
+                                "description": mock_interview.description,
+                                "instructions": mock_interview.instructions,
+                                "difficulty": experience_level,
+                                "level": experience_level,
+                                "max_duration": mock_interview.max_duration,
+                                "selected_duration": selected_duration,
+                                "required_skills": mock_interview.required_skills,
+                                "optional_skills": mock_interview.optional_skills,
+                                "interviewer_name": mock_interview.interviewer_name,
+                                "interviewer_voice_id": mock_interview.interviewer_voice_id,
+                                "voice_speed": mock_interview.voice_speed,
+                                "ai_context": mock_interview.ai_context,
+                                "candidate_info": context_text
+                            }
                         )
                         
-                        # Create System Prompt
-                        system_prompt = f"""You are {mock_interview.interviewer_name}, an expert technical interviewer conducting a mock interview.
-ROLE & PERSONA:
-- You are professional yet conversational. Avoid robotic or standard "textbook" phrasing.
-- Speak naturally, like a human interviewer. Use phrases like "That's interesting, tell me more about...", "Let's pivot to...", or "I see, but considering...".
-- Do NOT say "Next question" or "Moving on". Transition naturally between topics.
-
-INTERVIEW CONTEXT:
-- Title: {mock_interview.title}
-- Description: {mock_interview.description}
-- Instructions: {mock_interview.instructions}
-
-CANDIDATE INFO:
-{context_text}
-
-CRITICAL RULES:
-1. NO DEFINITIONAL QUESTIONS: Never ask "What is X?" or "Define Y". These are strictly forbidden.
-2. SCENARIO-BASED ONLY: All questions must be practical scenarios or problem-solving challenges.
-   - Bad: "What is a deadlock?"
-   - Good: "You have two threads waiting on each other's resources, causing the application to freeze. How would you detect this in production and fix it?"
-3. ADAPTIVE DIFFICULTY:
-   - If the candidate answers well: Increase complexity. Add constraints (e.g., "Now assume we have limited memory", "What if the network is unreliable?").
-   - If the candidate struggles: De-escalate. Ask a guiding follow-up or a simpler foundational question to help them regain confidence.
-   - If the answer is vague: Ask for specific examples or deeper technical reasoning.
-4. FOCUS: Test depth of understanding, not memorization. Ask "Why" and "How", not "What".
-
-START:
-Greet {user_first_name} warmly, introduce yourself, and immediately present the first scenario or problem statement based on the interview context and candidate's background.
-"""
-                        ChatMessage.objects.create(
+                        # Create InterviewSession linking to ChatSession
+                        # This is crucial for the AI Assistant module to track it as an interview
+                        interview_session = InterviewSession.objects.create(
+                            user=user,
                             chat_session=chat_session,
-                            message_type="system",
-                            content=system_prompt
+                            role_title=mock_interview.title,
+                            role_level=experience_level,
+                            difficulty="Adaptive", # Mock interviews are generally adaptive
+                            duration_minutes=selected_duration or mock_interview.max_duration,
+                            status='started'
                         )
 
                 # 4. Create NEW submission
@@ -1117,9 +1111,26 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                  submission.save()
                  chat_session = submission.chat_session
 
+                 # Try to get linked interview session
+                 try:
+                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
+                 except InterviewSession.DoesNotExist:
+                     # Create it if it was missing (e.g. from old data)
+                     interview_session = InterviewSession.objects.create(
+                         user=user,
+                         chat_session=chat_session,
+                         role_title=mock_interview.title,
+                         role_level=experience_level,
+                         difficulty="Adaptive",
+                         duration_minutes=selected_duration or mock_interview.max_duration,
+                         status='started'
+                     )
+
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
+                'interview_session_id': interview_session.id if interview_session else None,
+                'id': interview_session.id if interview_session else None, # Backwards compatibility for frontend
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,
@@ -1139,8 +1150,52 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
             traceback.print_exc()
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def submissions(self, request, pk=None):
+        mock_interview = self.get_object()
+        user = request.user
+        
+        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview)
+        if not (user.is_staff or (hasattr(user, 'role') and user.role in ['admin', 'instructor'])):
+            qs = qs.filter(user=user)
+            
+        # We need the serializer, but it might be imported as MockInterviewSubmissionSerializer
+        from .serializers import MockInterviewSubmissionSerializer
+        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_interviews(self, request):
+        user = request.user
+        qs = MockInterviewSubmission.objects.filter(user=user).order_by('-created_at')
+        
+        from .serializers import MockInterviewSubmissionSerializer
+        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
     
 
+
+
+class MockInterviewSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = MockInterviewSubmission.objects.all()
+    serializer_class = MockInterviewSubmissionSerializer
+    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created_at', 'marks']
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        mock_interview_id = self.request.query_params.get('mock_interview')
+        if mock_interview_id:
+            qs = qs.filter(mock_interview_id=mock_interview_id)
+        
+        # Filter by user if not instructor/admin
+        if not (self.request.user.is_staff or (hasattr(self.request.user, 'role') and self.request.user.role in ['admin', 'instructor'])):
+            qs = qs.filter(user=self.request.user)
+            
+        return qs
 
 class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SkillTestSubmission.objects.all()

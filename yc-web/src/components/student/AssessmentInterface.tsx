@@ -49,6 +49,7 @@ interface Assessment {
   duration: number;
   totalQuestions: number;
   topicId: string;
+  proctoring_enabled?: boolean;
 }
 
 interface Question {
@@ -71,6 +72,7 @@ interface AssessmentInterfaceProps {
   onBack: () => void;
   onSubmit?: (assessmentId: string, submissionId: string, answers: any, explanations: any, q_ids: string[]) => Promise<any>;
   assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews';
+  screenStream?: MediaStream | null;
 }
 
 const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
@@ -80,7 +82,8 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   onComplete,
   onBack,
   onSubmit,
-  assessmentType = 'skill-tests'
+  assessmentType = 'skill-tests',
+  screenStream
 }) => {
   const [questions, setQuestions] = useState<Question[]>(() => {
     const order: Record<string, number> = {
@@ -123,11 +126,77 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const isCodingQuestion = currentQuestionData?.type === 'coding';
   const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
 
-  useProctoring({
+  const handleProctoringViolation = React.useCallback((type: string, data?: any) => {
+    if (type === 'tab_switch') {
+      setTabSwitchCount(prev => prev + 1);
+      setTabSwitchAlert(true);
+    } else if (type === 'forbidden_platform') {
+      toast.error(`Forbidden platform detected: ${data?.platform}. Assessment will be aborted.`);
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
+    } else if (type === 'fullscreen_exit') {
+      setShowFullscreenDialog(true);
+    } else if (type === 'screen_share_stopped') {
+      toast.error("Screen sharing was stopped. Assessment will be aborted for violation.");
+      setTimeout(() => {
+        handleSubmitAssessment();
+      }, 2000);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled && screenStream) {
+      const videoTrack = screenStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const handleEnded = () => {
+          handleProctoringViolation('screen_share_stopped');
+        };
+        videoTrack.addEventListener('ended', handleEnded);
+        return () => {
+          videoTrack.removeEventListener('ended', handleEnded);
+        };
+      }
+    }
+  }, [assessment.proctoring_enabled, screenStream, handleProctoringViolation]);
+
+  useEffect(() => {
+    if (assessment.proctoring_enabled) {
+      const blockEvent = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      
+      const blockKeys = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'x'].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+
+      // Use capture phase to intercept events before they reach Monaco or other elements
+      document.addEventListener('copy', blockEvent, { capture: true });
+      document.addEventListener('paste', blockEvent, { capture: true });
+      document.addEventListener('cut', blockEvent, { capture: true });
+      document.addEventListener('contextmenu', blockEvent, { capture: true });
+      document.addEventListener('keydown', blockKeys, { capture: true });
+
+      return () => {
+        document.removeEventListener('copy', blockEvent, { capture: true });
+        document.removeEventListener('paste', blockEvent, { capture: true });
+        document.removeEventListener('cut', blockEvent, { capture: true });
+        document.removeEventListener('contextmenu', blockEvent, { capture: true });
+        document.removeEventListener('keydown', blockKeys, { capture: true });
+      };
+    }
+  }, [assessment.proctoring_enabled]);
+
+  const { logActivity } = useProctoring({
     assessmentId: assessment.id,
     assessmentType: assessmentType,
-    enabled: true,
-    questionId: undefined
+    enabled: assessment.proctoring_enabled ?? true,
+    questionId: undefined,
+    onViolation: handleProctoringViolation
   });
 
   useProctoring({
@@ -187,11 +256,13 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
   const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [showNavigationDialog, setShowNavigationDialog] = useState(false);
+  const [showFullscreenDialog, setShowFullscreenDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
   const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isSubmittingRef = useRef(false);
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
@@ -200,7 +271,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
 
   // Centralized camera cleanup function
-  const cleanupCamera = () => {
+  const cleanupCamera = React.useCallback(() => {
     console.log('cleanupCamera called');
     if (streamRef.current) {
       console.log('Stopping media tracks...');
@@ -215,7 +286,15 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     } else {
       console.log('No stream to cleanup');
     }
-  };
+
+    if (screenStream) {
+      console.log('Stopping screen share tracks...');
+      screenStream.getTracks().forEach(track => {
+        track.stop();
+        console.log('Screen share track stopped:', track.kind);
+      });
+    }
+  }, [screenStream]);
 
   useEffect(() => {
     const initializeMedia = async () => {
@@ -251,7 +330,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       console.log('AssessmentInterface component unmounting - cleaning up camera');
       cleanupCamera();
     };
-  }, []);
+  }, [cleanupCamera]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -324,6 +403,13 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   };
 
   const handleSubmitAssessment = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.error("Error exiting fullscreen:", err));
+    }
+
     const answeredCount = questions.filter(q => {
       const ans = answers[q.id];
       const exp = explanations[q.id]?.trim();
@@ -618,6 +704,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                   });
                 }}
                 className="h-full border-0 shadow-lg"
+                proctoringEnabled={assessment.proctoring_enabled}
               />
             </div>
           </div>
@@ -1150,6 +1237,56 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             <AlertDialogCancel>Continue</AlertDialogCancel>
             <AlertDialogAction onClick={handleSubmitAssessment}>Finish</AlertDialogAction>
           </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showFullscreenDialog} onOpenChange={() => { }}>
+        <AlertDialogContent className="border-0 rounded-2xl max-w-md bg-white shadow-2xl p-0 overflow-hidden shadow-red-500/10">
+          <div className="h-1.5 bg-gradient-to-r from-red-600 to-rose-400 w-full" />
+          <div className="p-8">
+            <AlertDialogHeader className="pb-4">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="p-4 bg-red-50 rounded-full ring-8 ring-red-50/50">
+                  <AlertTriangle className="h-8 w-8 text-red-600 animate-pulse" />
+                </div>
+                <AlertDialogTitle className="text-2xl font-bold text-slate-900">
+                  Fullscreen Exited
+                </AlertDialogTitle>
+              </div>
+            </AlertDialogHeader>
+            
+            <div className="py-2 text-center">
+              <AlertDialogDescription className="text-slate-600 text-base leading-relaxed">
+                A potential violation was detected. You <span className="text-red-600 font-bold uppercase tracking-tight underline decoration-red-200 underline-offset-4">must remain</span> in fullscreen mode during the assessment. 
+                <br /><br />
+                Please return to fullscreen immediately, or your test session will be terminated.
+              </AlertDialogDescription>
+            </div>
+            
+            <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 mt-8 sm:mt-8 w-full border-t border-slate-100 pt-6">
+              <AlertDialogCancel 
+                onClick={() => {
+                  logActivity('fullscreen_exit_dialog_ended_test');
+                  handleSubmitAssessment();
+                }}
+                className="flex-1 h-12 rounded-xl font-bold text-slate-500 hover:text-red-600 hover:bg-neutral-50 transition-all border-slate-200 sm:order-1"
+              >
+                End Test
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  logActivity('fullscreen_exit_dialog_returned_fullscreen');
+                  setShowFullscreenDialog(false);
+                  if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(e => console.warn(e));
+                  }
+                }}
+                className="flex-1 h-12 rounded-xl font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/20 transition-all sm:order-2"
+              >
+                Return to Fullscreen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 

@@ -37,13 +37,13 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
     switch (role) {
       case 'admin':
         return [
-          { label: 'Profile', path: '/instructor/profile' },
-          { label: 'Settings', path: '/instructor/settings' }
+          { label: 'Profile', path: '/admin/profile' },
+          { label: 'Settings', path: '/admin/settings' }
         ];
       case 'instructor':
         return [
-          { label: 'Profile', path: '/instructor/profile' },
-          { label: 'Settings', path: '/instructor/settings' }
+          { label: 'Profile', path: '/admin/profile' },
+          { label: 'Settings', path: '/admin/settings' }
         ];
       case 'recruiter':
         return [

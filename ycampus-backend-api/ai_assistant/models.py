@@ -96,6 +96,8 @@ class ChatMessage(models.Model):
     )  # Store additional data like tokens used, etc.
     tokens_used = models.PositiveIntegerField(null=True, blank=True)
     response_time_ms = models.PositiveIntegerField(null=True, blank=True)
+    feedback = models.IntegerField(null=True, blank=True)
+    feedback_text = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

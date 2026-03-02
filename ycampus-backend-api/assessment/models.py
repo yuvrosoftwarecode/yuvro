@@ -189,6 +189,9 @@ class MockInterview(BaseModel):
     ai_percentage = models.IntegerField(
         default=100, help_text="Percentage of AI generated questions (0-100)"
     )
+    ai_context = models.JSONField(
+        default=list, blank=True, help_text="Context or roles for the AI interviewer"
+    )
 
     # Voice Configuration
     voice_type = models.CharField(
@@ -440,6 +443,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
         ("suspicious_activity", "Suspicious Activity"),
         ("device_change", "Device Change Detected"),
         ("external_monitor", "External Monitor Detected"),
+        ("forbidden_platform_detected", "Forbidden Platform Detected"),
     ]
 
     ALERT_PRIORITY_LEVELS = [

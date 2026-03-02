@@ -66,25 +66,35 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setIsLoading(true);
-      try {
-        await loginWithGoogle(tokenResponse.access_token);
-        navigate(from, { replace: true });
-      } catch (err) {
-        if (err instanceof ApiError) setError(err.message);
-        else setError('Google Sign In failed');
-      } finally {
+  let handleGoogleLogin = () => {
+    setError('Google login is not configured');
+  };
+
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const googleLogin = useGoogleLogin({
+      onSuccess: async (tokenResponse) => {
+        setError('');
+        setIsLoading(true);
+        try {
+          await loginWithGoogle(tokenResponse.access_token);
+          navigate(from, { replace: true });
+        } catch (err) {
+          if (err instanceof ApiError) setError(err.message);
+          else setError('Google Sign In failed');
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      onError: () => {
+        setError('Google Sign In was unsuccessful');
         setIsLoading(false);
       }
-    },
-    onError: () => {
-      setError('Google Sign In was unsuccessful');
-      setIsLoading(false);
-    }
-  });
+    });
+    handleGoogleLogin = googleLogin;
+  } catch (e) {
+    // If useGoogleLogin throws because of missing context, ignore it
+  }
 
   const features = [
     {

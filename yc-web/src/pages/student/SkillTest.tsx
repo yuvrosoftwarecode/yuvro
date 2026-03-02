@@ -43,9 +43,9 @@ export interface Test {
   duration: number;
   totalMarks: number;
   topicId: string;
-  course: string;
   maxAttempts: number;
   my_submissions?: any[];
+  enable_proctoring?: boolean;
 }
 
 interface TestStats {
@@ -211,7 +211,8 @@ const SkillTest: React.FC = () => {
             topicId: topic.id,
             course: selectedCourse.name,
             maxAttempts: t.max_attempts || 3,
-            my_submissions: (t as any).my_submissions || []
+            my_submissions: (t as any).my_submissions || [],
+            enable_proctoring: t.enable_proctoring,
           }));
           realTests.push(...mappedTests);
         } catch (e) {
@@ -302,7 +303,8 @@ const SkillTest: React.FC = () => {
                     topicId: topic.id,
                     course: foundCourse.name,
                     maxAttempts: t.max_attempts || 3,
-                    my_submissions: (t as any).my_submissions || []
+                    my_submissions: (t as any).my_submissions || [],
+                    enable_proctoring: t.enable_proctoring,
                   }));
                   realTests.push(...mappedTests);
                 } catch (e) {
@@ -390,10 +392,24 @@ const SkillTest: React.FC = () => {
     }
   };
 
-  const handleBeginTest = async () => {
+  const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
+
+  const handleBeginTest = async (screenStream?: MediaStream) => {
     if (!selectedTest) return;
 
+    if (screenStream) {
+      setActiveScreenStream(screenStream);
+    }
+
+    // Request fullscreen synchronously before any async operations
+    if (selectedTest.enable_proctoring && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(e => {
+        console.warn("Fullscreen request declined or failed", e);
+      });
+    }
+
     try {
+
       const loadingToast = toast.loading("Starting test...");
       const res = await startSkillTest(selectedTest.id);
       toast.dismiss(loadingToast);
@@ -537,11 +553,13 @@ const SkillTest: React.FC = () => {
           duration: selectedTest.duration,
           totalQuestions: selectedTest.totalQuestions,
           topicId: selectedTopic.id,
+          proctoring_enabled: selectedTest.enable_proctoring,
         }}
         questions={questions}
         submissionId={currentSubmissionId || ""}
         onComplete={handleTestComplete}
         onBack={handleBackToInstructions}
+        screenStream={activeScreenStream}
       />
     );
   }

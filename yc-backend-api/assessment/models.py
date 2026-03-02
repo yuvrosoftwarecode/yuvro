@@ -223,6 +223,9 @@ class MockInterview(BaseModel):
     ai_percentage = models.IntegerField(
         default=100, help_text="Percentage of AI generated questions (0-100)"
     )
+    ai_context = models.JSONField(
+        default=list, blank=True, help_text="Context or roles for the AI interviewer"
+    )
 
     # Voice Configuration
     voice_type = models.CharField(
@@ -408,7 +411,6 @@ class MockInterviewSubmission(BaseUserSubmission):
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = ["user", "mock_interview"]
 
     def __str__(self):
         return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
