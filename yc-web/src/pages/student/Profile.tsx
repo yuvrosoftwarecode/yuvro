@@ -370,7 +370,7 @@ const Profile = () => {
     }
   };
 
- 
+
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-background">
@@ -434,12 +434,24 @@ const Profile = () => {
                       {profile.title || "Your Title Here"}
                     </p>
 
-                    {profile.education.length > 0 && (
+                    {(profile.college_details || profile.college_other || profile.education.length > 0) && (
                       <p className="text-sm text-muted-foreground flex gap-2 items-center pt-1">
                         <Building2 className="h-4 w-4" />
-                        <span className="font-medium">{profile.education[0].institution}</span>
-                        <span>•</span>
-                        <span>{profile.education[0].degree}</span>
+                        <span className="font-medium">
+                          {profile.college_details?.name || profile.college_other || profile.education[0]?.institution}
+                        </span>
+                        {profile.department_details && (
+                          <>
+                            <span>•</span>
+                            <span>{profile.department_details.name}</span>
+                          </>
+                        )}
+                        {!profile.department_details && profile.education.length > 0 && profile.education[0]?.degree && (
+                          <>
+                            <span>•</span>
+                            <span>{profile.education[0].degree}</span>
+                          </>
+                        )}
                       </p>
                     )}
 
@@ -450,7 +462,7 @@ const Profile = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-6 mt-2">
-                    
+
                     {/* Social Links Row */}
                     <div className="flex gap-3">
                       {profile.links.github && (
@@ -479,7 +491,7 @@ const Profile = () => {
                   <div className="flex gap-2">
                     <Button
                       onClick={() => navigate('/student/resume-builder')}
-                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg transition"
+                      className="bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg transition"
                     >
                       <FileText className="h-4 w-4 mr-2" />
                       Resume Builder
@@ -991,12 +1003,16 @@ const Profile = () => {
           title: profile.title || "",
           location: profile.location || "",
           about: profile.about || "",
+          college: profile.college ?? null,
+          college_other: profile.college_other ?? null,
+          department: profile.department ?? null,
+          student_id: profile.student_id ?? "",
+          id_card_image: profile.id_card_image ?? null,
           github: profile.links.github || "",
           linkedin: profile.links.linkedin || "",
           portfolio: profile.links.portfolio || "",
         }}
-        onSave={async (data) => {
-          await profileService.updateProfile(data);
+        onSave={async () => {
           await loadProfile();
         }}
       />

@@ -46,9 +46,16 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'users',
-    label: 'User Management',
+    label: 'Users',
     icon: UserCheck,
     path: '/instructor/users',
+    roles: ['admin']
+  },
+  {
+    id: 'colleges',
+    label: 'Colleges',
+    icon: Building2,
+    path: '/instructor/colleges',
     roles: ['admin']
   },
   {
@@ -81,7 +88,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'recruiter-jobs-approval',
-    label: 'Jobs Approval',
+    label: 'Job Approvals',
     icon: CheckCircle,
     path: '/recruiter/jobs-approval',
     roles: ['admin', 'recruiter_admin']
@@ -177,13 +184,13 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   return (
     <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out ${className}`}>
       <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
-        <div className="flex items-center justify-between mb-6">
+        <div className={`flex items-center h-9 mb-6 ${sidebarCollapsed ? 'justify-center' : 'justify-between relative'}`}>
           {!sidebarCollapsed && (
-            <h2 className="text-lg font-semibold text-gray-800">{getPortalTitle()}</h2>
+            <h2 className="text-lg font-semibold text-gray-800 w-full text-center pr-8">{getPortalTitle()}</h2>
           )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${!sidebarCollapsed ? 'absolute right-0' : ''}`}
           >
             {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
           </button>

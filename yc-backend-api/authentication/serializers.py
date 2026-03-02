@@ -3,7 +3,22 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import (
     User,
+    College,
+    Department,
 )
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["id", "name", "verification_status", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class CollegeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = College
+        fields = ["id", "name", "verification_status", "created_at"]
+        read_only_fields = ["id", "created_at", "verification_status"]
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    

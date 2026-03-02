@@ -135,7 +135,7 @@
         "about": "Recruiter admin with access to manage candidates and hiring workflows.",
         "gender": "prefer_not_to_say"
       }
-    },    
+    },
     {
       "email": "recruiter@yuvro.com",
       "username": "recruiter",
@@ -205,7 +205,12 @@
               "Collaborated with design team to implement pixel-perfect UI components",
               "Optimized application performance resulting in 30% faster load times"
             ],
-            "technologies": ["React.js", "TypeScript", "CSS3", "Git"]
+            "technologies": [
+              "React.js",
+              "TypeScript",
+              "CSS3",
+              "Git"
+            ]
           }
         ],
         "projects": [
@@ -213,7 +218,13 @@
             "title": "E-commerce Platform",
             "description": "Full-stack e-commerce application with user authentication, product catalog, and payment integration",
             "role": "Full Stack Developer",
-            "tech_stack": ["React.js", "Node.js", "MongoDB", "Express.js", "Stripe API"],
+            "tech_stack": [
+              "React.js",
+              "Node.js",
+              "MongoDB",
+              "Express.js",
+              "Stripe API"
+            ],
             "github_link": "https://github.com/shilpa/ecommerce-platform",
             "live_link": "https://shilpa-ecommerce.netlify.app"
           },
@@ -221,7 +232,12 @@
             "title": "Task Management App",
             "description": "Collaborative task management application with real-time updates and team collaboration features",
             "role": "Frontend Developer",
-            "tech_stack": ["React.js", "Socket.io", "Material-UI", "Firebase"],
+            "tech_stack": [
+              "React.js",
+              "Socket.io",
+              "Material-UI",
+              "Firebase"
+            ],
             "github_link": "https://github.com/shilpa/task-manager",
             "live_link": "https://task-manager-shilpa.vercel.app"
           }
@@ -309,7 +325,13 @@
               "Implemented authentication and authorization systems",
               "Optimized database queries reducing response time by 40%"
             ],
-            "technologies": ["Python", "Django", "PostgreSQL", "Redis", "AWS"]
+            "technologies": [
+              "Python",
+              "Django",
+              "PostgreSQL",
+              "Redis",
+              "AWS"
+            ]
           }
         ],
         "projects": [
@@ -317,20 +339,32 @@
             "title": "Social Media API",
             "description": "RESTful API for social media platform with user management, posts, comments, and real-time notifications",
             "role": "Backend Developer",
-            "tech_stack": ["Django", "PostgreSQL", "Redis", "Celery", "WebSocket"],
+            "tech_stack": [
+              "Django",
+              "PostgreSQL",
+              "Redis",
+              "Celery",
+              "WebSocket"
+            ],
             "github_link": "https://github.com/devendra/social-api"
           },
           {
             "title": "Inventory Management System",
             "description": "Complete inventory management system with barcode scanning and automated reorder functionality",
             "role": "Full Stack Developer",
-            "tech_stack": ["Django", "React.js", "PostgreSQL", "Docker"],
+            "tech_stack": [
+              "Django",
+              "React.js",
+              "PostgreSQL",
+              "Docker"
+            ],
             "github_link": "https://github.com/devendra/inventory-system"
           }
         ],
         "education": [
           {
             "institution": "PES University",
+            "department": "Computer Science",
             "degree": "Bachelor of Engineering",
             "field": "Computer Science",
             "duration": "2020 - 2024",
@@ -410,7 +444,13 @@
               "Built predictive models using scikit-learn and TensorFlow",
               "Created interactive dashboards using Tableau and Power BI"
             ],
-            "technologies": ["Python", "Pandas", "Scikit-learn", "Tableau", "SQL"]
+            "technologies": [
+              "Python",
+              "Pandas",
+              "Scikit-learn",
+              "Tableau",
+              "SQL"
+            ]
           }
         ],
         "projects": [
@@ -418,20 +458,33 @@
             "title": "Customer Churn Prediction",
             "description": "Machine learning model to predict customer churn with 89% accuracy using ensemble methods",
             "role": "Data Scientist",
-            "tech_stack": ["Python", "Scikit-learn", "Pandas", "Matplotlib", "Jupyter"],
+            "tech_stack": [
+              "Python",
+              "Scikit-learn",
+              "Pandas",
+              "Matplotlib",
+              "Jupyter"
+            ],
             "github_link": "https://github.com/rohith/churn-prediction"
           },
           {
             "title": "Stock Price Forecasting",
             "description": "Time series analysis and LSTM neural network for stock price prediction",
             "role": "ML Engineer",
-            "tech_stack": ["Python", "TensorFlow", "Keras", "NumPy", "Plotly"],
+            "tech_stack": [
+              "Python",
+              "TensorFlow",
+              "Keras",
+              "NumPy",
+              "Plotly"
+            ],
             "github_link": "https://github.com/rohith/stock-forecasting"
           }
         ],
         "education": [
           {
             "institution": "IIT Madras",
+            "department": "Computer Science and Engineering",
             "degree": "Bachelor of Technology",
             "field": "Computer Science and Engineering",
             "duration": "2021 - 2025",
@@ -511,7 +564,12 @@
               "Integrated third-party APIs and payment gateways",
               "Implemented push notifications and real-time chat features"
             ],
-            "technologies": ["React Native", "Firebase", "Redux", "AsyncStorage"]
+            "technologies": [
+              "React Native",
+              "Firebase",
+              "Redux",
+              "AsyncStorage"
+            ]
           }
         ],
         "projects": [
@@ -519,14 +577,24 @@
             "title": "Food Delivery App",
             "description": "Complete food delivery application with user authentication, restaurant listings, and order tracking",
             "role": "Mobile Developer",
-            "tech_stack": ["React Native", "Firebase", "Google Maps API", "Stripe"],
+            "tech_stack": [
+              "React Native",
+              "Firebase",
+              "Google Maps API",
+              "Stripe"
+            ],
             "github_link": "https://github.com/manikanta/food-delivery-app"
           },
           {
             "title": "Fitness Tracker",
             "description": "Personal fitness tracking app with workout plans, progress monitoring, and social features",
             "role": "Flutter Developer",
-            "tech_stack": ["Flutter", "Dart", "SQLite", "Provider"],
+            "tech_stack": [
+              "Flutter",
+              "Dart",
+              "SQLite",
+              "Provider"
+            ],
             "github_link": "https://github.com/manikanta/fitness-tracker"
           }
         ],
@@ -613,7 +681,13 @@
               "Managed containerized applications with Docker and Kubernetes",
               "Implemented infrastructure as code using Terraform"
             ],
-            "technologies": ["Docker", "Kubernetes", "Jenkins", "AWS", "Terraform"]
+            "technologies": [
+              "Docker",
+              "Kubernetes",
+              "Jenkins",
+              "AWS",
+              "Terraform"
+            ]
           }
         ],
         "projects": [
@@ -621,14 +695,26 @@
             "title": "Microservices Deployment Platform",
             "description": "Automated deployment platform for microservices using Kubernetes and Helm charts",
             "role": "DevOps Engineer",
-            "tech_stack": ["Kubernetes", "Helm", "Docker", "Prometheus", "Grafana"],
+            "tech_stack": [
+              "Kubernetes",
+              "Helm",
+              "Docker",
+              "Prometheus",
+              "Grafana"
+            ],
             "github_link": "https://github.com/harsha/microservices-platform"
           },
           {
             "title": "CI/CD Pipeline Automation",
             "description": "Complete CI/CD pipeline with automated testing, security scanning, and deployment",
             "role": "DevOps Engineer",
-            "tech_stack": ["Jenkins", "Docker", "SonarQube", "AWS", "Ansible"],
+            "tech_stack": [
+              "Jenkins",
+              "Docker",
+              "SonarQube",
+              "AWS",
+              "Ansible"
+            ],
             "github_link": "https://github.com/harsha/cicd-automation"
           }
         ],
@@ -714,7 +800,13 @@
               "Developed security policies and incident response procedures",
               "Monitored network traffic for suspicious activities"
             ],
-            "technologies": ["Kali Linux", "Metasploit", "Wireshark", "Nmap", "Burp Suite"]
+            "technologies": [
+              "Kali Linux",
+              "Metasploit",
+              "Wireshark",
+              "Nmap",
+              "Burp Suite"
+            ]
           }
         ],
         "projects": [
@@ -722,14 +814,25 @@
             "title": "Network Security Scanner",
             "description": "Automated network vulnerability scanner with reporting and remediation suggestions",
             "role": "Security Developer",
-            "tech_stack": ["Python", "Nmap", "SQLite", "Flask", "Bootstrap"],
+            "tech_stack": [
+              "Python",
+              "Nmap",
+              "SQLite",
+              "Flask",
+              "Bootstrap"
+            ],
             "github_link": "https://github.com/vinod/network-scanner"
           },
           {
             "title": "Secure Chat Application",
             "description": "End-to-end encrypted chat application with advanced security features",
             "role": "Security Engineer",
-            "tech_stack": ["Python", "Cryptography", "Socket.io", "React.js"],
+            "tech_stack": [
+              "Python",
+              "Cryptography",
+              "Socket.io",
+              "React.js"
+            ],
             "github_link": "https://github.com/vinod/secure-chat"
           }
         ],

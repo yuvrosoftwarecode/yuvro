@@ -11,8 +11,25 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { fetchContests, contestService } from "@/services/contestService";
+import { collegeService, College, Department } from '@/services/collegeService';
+import { updateProfileDetail } from '@/services/profileService';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { toast } from 'sonner';
 import ContestLeaderboard from '../../components/student/ContestLeaderboard';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Contest {
     id: number | string;
@@ -33,6 +50,11 @@ interface Contest {
     description?: string;
     rules?: string[];
     prizes?: { rank: string; prize: string }[];
+    openForAllColleges?: boolean;
+    allowedCollegesDetails?: { id: string; name: string }[];
+    openForAllDepartments?: boolean;
+    allowedDepartmentsDetails?: { id: string; name: string }[];
+    requireStudentId?: boolean;
 }
 
 const ContestDetail: React.FC = () => {
@@ -41,6 +63,17 @@ const ContestDetail: React.FC = () => {
     const [contest, setContest] = useState<Contest | null>(null);
     const [loading, setLoading] = useState(true);
     const [registering, setRegistering] = useState(false);
+    const [showProfileHelpModal, setShowProfileHelpModal] = useState(false);
+    const [profileHelpMessage, setProfileHelpMessage] = useState("");
+
+    // Inline college picker state
+    const [showCollegePicker, setShowCollegePicker] = useState(false);
+    const [collegePickerColleges, setCollegePickerColleges] = useState<College[]>([]);
+    const [collegePickerDepts, setCollegePickerDepts] = useState<Department[]>([]);
+    const [selectedCollegeId, setSelectedCollegeId] = useState<string>('');
+    const [selectedDeptId, setSelectedDeptId] = useState<string>('');
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [pickerMode, setPickerMode] = useState<'college' | 'department'>('college');
 
     // Mock additional data since API might not have all fields
     const mockDetails = {
@@ -88,6 +121,11 @@ const ContestDetail: React.FC = () => {
                         ? new Date(data.registration_end_datetime || data.registration_end_date)
                         : undefined,
                     allowLateEntry: data.allow_late_entry || false,
+                    openForAllColleges: data.open_for_all_colleges ?? true,
+                    allowedCollegesDetails: data.allowed_colleges_details || [],
+                    openForAllDepartments: data.open_for_all_departments ?? true,
+                    allowedDepartmentsDetails: data.allowed_departments_details || [],
+                    requireStudentId: data.require_student_id ?? false,
                     ...mockDetails
                 });
 
@@ -109,7 +147,11 @@ const ContestDetail: React.FC = () => {
         setRegistering(true);
         try {
             const response = await contestService.registerContest(String(contest.id));
-            setContest({ ...contest, isRegistered: true });
+            setContest({
+                ...contest,
+                isRegistered: true,
+                participants: (contest.participants || 0) + 1
+            });
 
             if (response.is_late_entry && response.remaining_time_minutes) {
                 toast.success(
@@ -120,8 +162,38 @@ const ContestDetail: React.FC = () => {
                 toast.success("Successfully registered for the contest!");
             }
         } catch (err: any) {
-            const errorMsg = err.response?.data?.error || err.response?.data?.message || "Failed to register for contest";
-            toast.error(errorMsg);
+            const errorData = err.details || err.response?.data;
+            const errorType = errorData?.error_type;
+            const errorMsg = errorData?.error || errorData?.message || err.message || "Failed to register for contest";
+
+            if (errorType === 'no_college' || errorType === 'no_department') {
+                // Show inline picker instead of redirecting to profile
+                setPickerMode(errorType === 'no_college' ? 'college' : 'department');
+                try {
+                    const colleges = await collegeService.getColleges('approved');
+                    setCollegePickerColleges(colleges);
+                } catch { /* ignore */ }
+                setShowCollegePicker(true);
+            } else if (errorType === 'college_mismatch') {
+                const allowed = errorData?.allowed_college_names?.join(', ') || 'specific colleges';
+                const yours = errorData?.student_college_name || 'your current college';
+                toast.error(
+                    `This contest is for: ${allowed}. Your profile shows: ${yours}.`,
+                    { duration: 6000 }
+                );
+            } else if (errorType === 'department_mismatch') {
+                const allowed = errorData?.allowed_department_names?.join(', ') || 'specific departments';
+                const yours = errorData?.student_department_name || 'your current department';
+                toast.error(
+                    `This contest is for: ${allowed}. Your profile shows: ${yours}.`,
+                    { duration: 6000 }
+                );
+            } else if (errorData?.requires_profile_update) {
+                setProfileHelpMessage(errorMsg);
+                setShowProfileHelpModal(true);
+            } else {
+                toast.error(errorMsg);
+            }
         } finally {
             setRegistering(false);
         }
@@ -130,6 +202,41 @@ const ContestDetail: React.FC = () => {
     const handleEnter = () => {
         if (contest) {
             navigate(`/student/contests/${contest.id}/attempt`);
+        }
+    };
+
+    // Load departments when a college is selected in the picker
+    const handlePickerCollegeChange = async (collegeId: string) => {
+        setSelectedCollegeId(collegeId);
+        setSelectedDeptId('');
+        try {
+            const depts = await collegeService.getDepartments('approved');
+            setCollegePickerDepts(depts);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Handle inline college picker save + auto-retry registration
+    const handlePickerSave = async () => {
+        try {
+            setSavingProfile(true);
+            const payload: any = {};
+            if (selectedCollegeId) payload.college = selectedCollegeId;
+            if (selectedDeptId) payload.department = selectedDeptId;
+
+            await updateProfileDetail(payload);
+            toast.success('Profile updated!');
+            setShowCollegePicker(false);
+            setSelectedCollegeId('');
+            setSelectedDeptId('');
+
+            // Auto-retry registration
+            handleRegister();
+        } catch {
+            toast.error('Failed to update profile');
+        } finally {
+            setSavingProfile(false);
         }
     };
 
@@ -254,6 +361,101 @@ const ContestDetail: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <Navigation />
+
+            {/* Profile Requirements Modal */}
+            <Dialog open={showProfileHelpModal} onOpenChange={setShowProfileHelpModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl">
+                            <AlertCircle className="h-6 w-6 text-amber-500" />
+                            Profile Incomplete
+                        </DialogTitle>
+                        <DialogDescription className="pt-3 text-base text-gray-700">
+                            {profileHelpMessage}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="bg-gray-50 p-4 rounded-lg my-2 text-sm text-gray-600 border border-gray-100">
+                        This contest requires specific eligibility criteria (such as verifying your college, department, or student ID). Please update your profile with the required academic information to register.
+                    </div>
+                    <DialogFooter className="sm:justify-between items-center mt-2">
+                        <Button variant="ghost" onClick={() => setShowProfileHelpModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={() => navigate('/student/profile')} className="bg-indigo-600 hover:bg-indigo-700">
+                            Update Profile
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Inline College / Department Picker Modal */}
+            <Dialog open={showCollegePicker} onOpenChange={setShowCollegePicker}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-lg">
+                            <Building2 className="h-5 w-5 text-indigo-500" />
+                            {pickerMode === 'college' ? 'Select Your College' : 'Select Your Department'}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-gray-500">
+                            {pickerMode === 'college'
+                                ? 'Choose your college to continue registration. This will be saved to your profile.'
+                                : 'Choose your department to continue registration.'
+                            }
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-3">
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">College</label>
+                            <Select
+                                value={selectedCollegeId}
+                                onValueChange={(val) => handlePickerCollegeChange(val)}
+                            >
+                                <SelectTrigger className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 rounded-xl">
+                                    <SelectValue placeholder="Select your college" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px] z-[100]">
+                                    {collegePickerColleges.map(c => (
+                                        <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {collegePickerDepts.length > 0 && (
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Department <span className="text-gray-400 font-normal normal-case">(optional)</span></label>
+                                <Select
+                                    value={selectedDeptId}
+                                    onValueChange={(val) => setSelectedDeptId(val)}
+                                >
+                                    <SelectTrigger className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 rounded-xl">
+                                        <SelectValue placeholder="Select department" />
+                                    </SelectTrigger>
+                                    <SelectContent className="z-[100]">
+                                        {collegePickerDepts.map(d => (
+                                            <SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                    </div>
+
+                    <DialogFooter className="gap-2">
+                        <Button variant="ghost" onClick={() => setShowCollegePicker(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handlePickerSave}
+                            disabled={!selectedCollegeId || savingProfile}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                            {savingProfile ? 'Saving...' : 'Save & Register'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <div className="max-w-6xl mx-auto px-6 py-8">
                 {/* Back Button */}
@@ -541,6 +743,51 @@ const ContestDetail: React.FC = () => {
                                         {contest.status}
                                     </Badge>
                                 </div>
+
+                                {(!contest.openForAllColleges || !contest.openForAllDepartments || contest.requireStudentId) && (
+                                    <div className="pt-3 mt-3 border-t border-gray-100">
+                                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Eligibility Rules</span>
+                                        <div className="space-y-2">
+                                            {!contest.openForAllColleges && (
+                                                <div>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                        <Building2 className="h-3 w-3 text-indigo-500" /> Specific Colleges Only
+                                                    </div>
+                                                    {contest.allowedCollegesDetails && contest.allowedCollegesDetails.length > 0 && (
+                                                        <div className="mt-1.5 ml-5 space-y-1">
+                                                            {contest.allowedCollegesDetails.map(c => (
+                                                                <div key={c.id} className="text-xs text-gray-500 bg-indigo-50 rounded px-2 py-0.5 inline-block mr-1 mb-1">
+                                                                    {c.name}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {!contest.openForAllDepartments && (
+                                                <div>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                        <GraduationCap className="h-3 w-3 text-indigo-500" /> Specific Departments Only
+                                                    </div>
+                                                    {contest.allowedDepartmentsDetails && contest.allowedDepartmentsDetails.length > 0 && (
+                                                        <div className="mt-1.5 ml-5 space-y-1">
+                                                            {contest.allowedDepartmentsDetails.map(d => (
+                                                                <div key={d.id} className="text-xs text-gray-500 bg-indigo-50 rounded px-2 py-0.5 inline-block mr-1 mb-1">
+                                                                    {d.name}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {contest.requireStudentId && (
+                                                <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                    <FileText className="h-3 w-3 text-indigo-500" /> Student Verification Required
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>

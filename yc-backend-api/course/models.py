@@ -625,6 +625,13 @@ class StudentCodePractice(BaseTimestampedModel):
         ("descriptive", "Descriptive Question"),
     ]
 
+    context = models.CharField(
+        max_length=20,
+        choices=[("learn", "Learn Concept"), ("practice", "Dedicated Practice")],
+        default="practice",
+        help_text="The context in which this code practice was submitted",
+    )
+
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="student_code_practices"
     )

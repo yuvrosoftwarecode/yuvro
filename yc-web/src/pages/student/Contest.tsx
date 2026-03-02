@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import { fetchContests, contestService } from "@/services/contestService";
+import { collegeService, College } from "@/services/collegeService";
 import { toast } from 'sonner';
 import ContestLeaderboard from '../../components/student/ContestLeaderboard';
 
@@ -33,6 +34,8 @@ interface Contest {
   registrationStartDate?: Date;
   registrationEndDate?: Date;
   allowLateEntry?: boolean;
+  openForAllColleges?: boolean;
+  allowedColleges?: string[];
 }
 
 const ContestPage = () => {
@@ -41,6 +44,9 @@ const ContestPage = () => {
 
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedCollege, setSelectedCollege] = useState<string>('all');
+  const [collegeSearch, setCollegeSearch] = useState<string>('');
+  const [colleges, setColleges] = useState<College[]>([]);
   const [sortBy, setSortBy] = useState<string>('date');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -87,6 +93,8 @@ const ContestPage = () => {
               ? new Date(item.registration_end_date)
               : undefined,
           allowLateEntry: item.allow_late_entry || false,
+          openForAllColleges: item.open_for_all_colleges ?? true,
+          allowedColleges: (item.allowed_colleges ?? []).map(String),
         };
       });
       setContests(formatted);
@@ -99,6 +107,9 @@ const ContestPage = () => {
 
   useEffect(() => {
     loadContests();
+    collegeService.getColleges().then(data => {
+      setColleges(data.filter(c => c.verification_status === 'approved'));
+    }).catch(() => { });
   }, []);
 
   const handleRegister = async (contestId: string | number, e: React.MouseEvent) => {
@@ -217,7 +228,9 @@ const ContestPage = () => {
     const matchesTab = activeTab === 'all' ||
       (activeTab === 'past' && contest.status === 'past') ||
       (activeTab === 'my' && contest.isRegistered);
-    return matchesType && matchesStatus && matchesSearch && matchesTab;
+    const matchesCollege = selectedCollege === 'all' ||
+      (contest.allowedColleges ?? []).includes(selectedCollege);
+    return matchesType && matchesStatus && matchesSearch && matchesTab && matchesCollege;
   });
 
   const ongoingContest = contests.find(c => c.status === 'ongoing');
@@ -419,7 +432,13 @@ const ContestPage = () => {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-center">
-            <Select value={selectedType} onValueChange={setSelectedType}>
+            <Select
+              value={selectedType}
+              onValueChange={(v) => {
+                setSelectedType(v);
+                if (v !== 'college') setSelectedCollege('all');
+              }}
+            >
               <SelectTrigger className="w-36 border border-gray-200 bg-white">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
@@ -431,6 +450,49 @@ const ContestPage = () => {
                 <SelectItem value="monthly">Monthly</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* College dropdown — only when type is 'college' */}
+            {selectedType === 'college' && (
+              <div className="relative">
+                <Select
+                  value={selectedCollege}
+                  onValueChange={(v) => {
+                    setSelectedCollege(v);
+                    setCollegeSearch('');
+                  }}
+                >
+                  <SelectTrigger className="w-52 border border-purple-200 bg-purple-50 text-purple-700">
+                    <GraduationCap className="h-4 w-4 mr-1.5 text-purple-500" />
+                    <SelectValue placeholder="All Colleges" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 max-h-72">
+                    {/* Search inside dropdown */}
+                    <div className="px-2 py-1.5 border-b border-gray-100 sticky top-0 bg-white z-10">
+                      <input
+                        className="w-full text-sm px-2 py-1 rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-purple-300"
+                        placeholder="Search colleges..."
+                        value={collegeSearch}
+                        onChange={(e) => setCollegeSearch(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <SelectItem value="all">All Colleges</SelectItem>
+                    {colleges
+                      .filter(c => c.name.toLowerCase().includes(collegeSearch.toLowerCase()))
+                      .map(c => (
+                        <SelectItem key={String(c.id)} value={String(c.id)}>
+                          {c.name}
+                        </SelectItem>
+                      ))
+                    }
+                    {colleges.filter(c => c.name.toLowerCase().includes(collegeSearch.toLowerCase())).length === 0 && (
+                      <div className="text-sm text-gray-400 px-3 py-2 text-center">No colleges found</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-32 border border-gray-200 bg-white">

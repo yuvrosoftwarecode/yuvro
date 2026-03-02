@@ -1,8 +1,13 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 from .views import admin_users
 
 app_name = "authentication"
+
+router = DefaultRouter()
+router.register(r'colleges', views.CollegeViewSet, basename='college')
+router.register(r'departments', views.DepartmentViewSet, basename='department')
 
 urlpatterns = [
     path("register/", views.UserRegistrationView.as_view(), name="register"),
@@ -35,4 +40,5 @@ urlpatterns = [
     path("resume/generate-pdf/", views.generate_resume_pdf, name="generate_resume_pdf"),
     path("resume/templates/", views.get_resume_templates, name="get_resume_templates"),
     path("resume/config/", views.resume_config_view, name="resume_config"),
+    path("", include(router.urls)),
 ]

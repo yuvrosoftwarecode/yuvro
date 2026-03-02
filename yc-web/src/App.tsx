@@ -40,6 +40,7 @@ import OwnerContest from './pages/instructor/Contest';
 import ContestEdit from './components/instructor/contests/ContestEdit';
 import ContestForm from './components/instructor/contests/ContestForm';
 import InstructorSkillTest from './pages/instructor/SkillTest';
+import Colleges from './pages/instructor/Colleges';
 import SkillTestForm from './components/instructor/skill-tests/SkillTestForm';
 import InstructorProfile from './pages/instructor/Profile';
 import InstructorMockInterview from './pages/instructor/MockInterview';
@@ -50,6 +51,7 @@ import MockInterviewReportView from './pages/instructor/MockInterviewReportView'
 import MockInterviewAnalytics from './pages/instructor/MockInterviewAnalytics';
 import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
 import ContestAnalytics from './pages/instructor/ContestAnalytics';
+import ContestReport from './pages/instructor/ContestReport';
 import ContestSubmissionAnalytics from './pages/instructor/ContestSubmissionAnalytics';
 import InstructorCertifications from './pages/instructor/Certifications';
 import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
@@ -428,6 +430,15 @@ function App() {
               />
 
               <Route
+                path="/instructor/colleges"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Colleges />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
                 path="/student/certifications"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
@@ -494,6 +505,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/contests/:contestId/report"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <ContestReport />
                   </ProtectedRoute>
                 }
               />

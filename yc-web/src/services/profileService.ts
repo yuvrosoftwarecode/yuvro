@@ -64,6 +64,15 @@ export interface Profile {
   profile_image?: string | null;
   cover_image?: string | null;
   google_id?: string | null;
+  college?: string | null;
+  college_name?: string | null;
+  college_other?: string | null;
+  college_details?: { id: string; name: string; verification_status: string } | null;
+  department?: string | null;
+  department_name?: string | null;
+  department_details?: { id: string; name: string } | null;
+  student_id?: string | null;
+  id_card_image?: string | null;
   user?: {
     first_name: string;
     last_name: string;
@@ -84,6 +93,11 @@ export interface EditProfileData {
   title: string;
   location: string;
   about: string;
+  college?: string | 'other' | null;
+  college_other?: string | null;
+  department?: string | null;
+  student_id?: string;
+  id_card_image?: string | File | null;
 }
 
 export const fetchProfileDetail = async (): Promise<Profile> => {
@@ -172,11 +186,27 @@ export async function updateProfile(data: EditProfileData) {
     last_name: data.last_name,
   });
 
-  const profileRes: any = await restApiAuthUtil.patch('/auth/profile/detail/', {
+  const profilePayload: Record<string, any> = {
     title: data.title,
     location: data.location,
     about: data.about,
-  });
+  };
+
+  // Add college/department fields if present
+  if (data.college !== undefined) {
+    profilePayload.college = data.college === 'other' ? null : data.college;
+  }
+  if (data.college_other !== undefined) {
+    profilePayload.college_other = data.college === 'other' ? data.college_other : null;
+  }
+  if (data.department !== undefined) {
+    profilePayload.department = data.department;
+  }
+  if (data.student_id !== undefined) {
+    profilePayload.student_id = data.student_id;
+  }
+
+  const profileRes: any = await restApiAuthUtil.patch('/auth/profile/detail/', profilePayload);
 
   return {
     ...profileRes,

@@ -1,22 +1,7 @@
 import * as React from "react"
-import { Check, ChevronsUpDown, X } from "lucide-react"
+import { Check, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Checkbox } from "@/components/ui/checkbox"
 
 export interface Option {
   label: string
@@ -28,6 +13,8 @@ interface MultiSelectProps {
   selected: string[]
   onChange: (selected: string[]) => void
   placeholder?: string
+  searchPlaceholder?: string
+  emptyText?: string
   className?: string
 }
 
@@ -36,103 +23,105 @@ export function MultiSelect({
   selected,
   onChange,
   placeholder = "Select items...",
+  searchPlaceholder = "Search...",
+  emptyText = "No items found.",
   className,
 }: MultiSelectProps) {
-  const [open, setOpen] = React.useState(false)
+  const [search, setSearch] = React.useState("")
 
-  const handleUnselect = (item: string) => {
-    onChange(selected.filter((i) => i !== item))
+  const handleToggle = (value: string) => {
+    const newSelected = selected.includes(value)
+      ? selected.filter((s) => s !== value)
+      : [...selected, value]
+    onChange(newSelected)
   }
 
-  const handleSelect = (item: string) => {
-    const isSelected = selected.includes(item)
-    if (isSelected) {
-      onChange(selected.filter((i) => i !== item))
-    } else {
-      onChange([...selected, item])
-    }
-  }
+  const selectedLabels = options.filter((o) => selected.includes(o.value))
 
-  const selectedOptions = options.filter((option) => selected.includes(option.value))
+  const filtered = options.filter(
+    (o) => o.value && o.label && o.label.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "w-full justify-between min-h-[40px] h-auto p-2",
-            className
-          )}
-        >
-          <div className="flex flex-wrap gap-1 flex-1">
-            {selected.length > 0 ? (
-              selectedOptions.map((option) => (
-                <Badge
-                  variant="secondary"
-                  key={option.value}
-                  className="mr-1 mb-1"
-                >
-                  {option.label}
-                  <div
-                    className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer hover:bg-destructive/10 p-0.5"
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault()
-                        handleUnselect(option.value)
-                      }
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                    }}
-                    onClick={() => handleUnselect(option.value)}
-                  >
-                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                  </div>
-                </Badge>
-              ))
-            ) : (
-              <span className="text-muted-foreground">{placeholder}</span>
-            )}
-          </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0" style={{ width: 'var(--radix-popover-trigger-width)' }}>
-        <Command>
-          <CommandInput placeholder="Search courses..." />
-          <CommandEmpty>No courses found.</CommandEmpty>
-          <CommandGroup>
-            <CommandList>
-              {options.filter(option => option.value && option.label).map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label.toLowerCase()}
-                  onSelect={() => handleSelect(option.value)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center w-full" onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selected.includes(option.value)}
-                      className="mr-2"
-                      onCheckedChange={() => handleSelect(option.value)}
-                    />
-                    <span className="flex-1">{option.label}</span>
-                    {selected.includes(option.value) && (
-                      <Check className="h-4 w-4" />
-                    )}
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandList>
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <div className={cn("w-full rounded-md border border-gray-200 bg-white overflow-hidden", className)}>
+      {/* Selected badges */}
+      {selectedLabels.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b border-gray-100 bg-gray-50/50">
+          {selectedLabels.map((opt) => (
+            <Badge
+              key={opt.value}
+              variant="secondary"
+              className="bg-orange-50 text-[#F97316] border border-orange-200 text-xs font-medium px-2 py-0.5 cursor-pointer hover:bg-orange-100 transition-colors"
+              onClick={() => handleToggle(opt.value)}
+            >
+              {opt.label}
+              <X className="h-3 w-3 ml-1" />
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Search */}
+      {options.length > 3 && (
+        <div className="flex items-center border-b border-gray-100 px-3 py-2">
+          <Search className="h-4 w-4 text-gray-400 mr-2 shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="w-full text-sm bg-transparent outline-none placeholder:text-gray-400"
+          />
+        </div>
+      )}
+
+      {/* Checkbox list — always visible */}
+      <div className="max-h-48 overflow-y-auto">
+        {filtered.length === 0 ? (
+          <div className="px-3 py-4 text-center text-sm text-gray-400">{emptyText}</div>
+        ) : (
+          filtered.map((opt) => {
+            const isChecked = selected.includes(opt.value)
+            return (
+              <label
+                key={opt.value}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 py-2.5 text-sm cursor-pointer transition-colors border-b border-gray-50 last:border-0",
+                  isChecked ? "bg-orange-50/60" : "hover:bg-gray-50"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleToggle(opt.value)}
+                  className="sr-only"
+                />
+                <div className={cn(
+                  "flex items-center justify-center h-4 w-4 rounded border shrink-0 transition-colors",
+                  isChecked ? "bg-[#F97316] border-[#F97316]" : "border-gray-300 bg-white"
+                )}>
+                  {isChecked && <Check className="h-3 w-3 text-white" />}
+                </div>
+                <span className="flex-1">{opt.label}</span>
+              </label>
+            )
+          })
+        )}
+      </div>
+
+      {/* Footer */}
+      {selected.length > 0 && (
+        <div className="border-t border-gray-100 px-3 py-2 flex items-center justify-between bg-gray-50/50">
+          <span className="text-xs text-gray-500">{selectedLabels.length} selected</span>
+          <button
+            type="button"
+            onClick={() => onChange([])}
+            className="text-xs text-red-500 hover:text-red-700 font-medium"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+    </div>
   )
 }

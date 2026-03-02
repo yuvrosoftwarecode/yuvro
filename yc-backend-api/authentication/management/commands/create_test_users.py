@@ -3,7 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db import models
-from authentication.models import Profile
+from authentication.models import Profile, College
 from job.models import SocialLinks, Skill, Experience, Project, Education, Certification
 
 User = get_user_model()
@@ -142,11 +142,65 @@ class Command(BaseCommand):
 
                 if education_data:
                     Education.objects.filter(profile=profile).delete()
+                    
+                    # Auto-create and link profile.college and profile.department from the first education institution
+                    first_edu = education_data[0] if education_data else {}
+                    first_institution = first_edu.get("institution", "")
+                    first_department = first_edu.get("department", "")
+                    
                     for edu_data in education_data:
+                        # Extract fields that are not part of the Education model
+                        inst = edu_data.pop("institution", "")
+                        dept = edu_data.pop("department", "")
+                        
+                        # Re-add institution for model creation, as Education model expects it
+                        if inst:
+                             edu_data["institution"] = inst
+                             
                         Education.objects.create(profile=profile, **edu_data)
                     self.stdout.write(
                         f"    ✓ Created {len(education_data)} education records for: {user.email}"
                     )
+
+                    # Auto-create and link profile.college and profile.department from the first education institution
+                    first_edu = education_data[0]
+                    first_institution = first_edu.get("institution", "")
+                    first_department = first_edu.get("department", "")
+
+                    if first_institution and not profile.college:
+                        college, col_created = College.objects.get_or_create(
+                            name__iexact=first_institution,
+                            defaults={"name": first_institution, "verification_status": "approved"}
+                        )
+                        profile.college = college
+                        profile.save(update_fields=["college"])
+                        if col_created:
+                            self.stdout.write(
+                                f"    ✓ Created college '{college.name}' and linked to: {user.email}"
+                            )
+                        else:
+                            self.stdout.write(
+                                f"    ✓ Linked existing college '{college.name}' to: {user.email}"
+                            )
+                        
+                        # Now handle department if present
+                        if first_department and not profile.department:
+                            from authentication.models import Department
+                            department, dept_created = Department.objects.get_or_create(
+                                college=college,
+                                name__iexact=first_department,
+                                defaults={"name": first_department}
+                            )
+                            profile.department = department
+                            profile.save(update_fields=["department"])
+                            if dept_created:
+                                self.stdout.write(
+                                    f"    ✓ Created department '{department.name}' and linked to: {user.email}"
+                                )
+                            else:
+                                self.stdout.write(
+                                    f"    ✓ Linked existing department '{department.name}' to: {user.email}"
+                                )
 
                 if certifications_data:
                     Certification.objects.filter(profile=profile).delete()

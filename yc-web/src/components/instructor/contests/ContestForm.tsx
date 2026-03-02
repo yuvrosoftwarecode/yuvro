@@ -3,13 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
+import { Trophy, Calendar, Settings, FileText, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import QuestionBank from '@/components/common/QuestionBank';
-import { contestService } from '@/services/contestService';
+import { contestService, ContestFormModel, mapContestFromBackend } from '@/services/contestService';
 import { fetchQuestionById, Question } from '@/services/questionService';
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -21,74 +21,15 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-interface Contest {
-  id: string;
-  title: string;
-  organizer: string;
-  type: 'company' | 'college' | 'weekly' | 'monthly';
-  status: 'upcoming' | 'ongoing' | 'past';
-  startDate: string;
-  endDate: string;
-  duration: string;
-  participants: number;
-  prize?: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  description: string;
-  registrationStartDate?: string;
-  registrationEndDate?: string;
-  allowLateEntry?: boolean;
-  questions_config?: {
-    mcq_single: string[];
-    mcq_multiple: string[];
-    coding: string[];
-    descriptive: string[];
-  };
-  questions_random_config?: {
-    mcq_single: number;
-    mcq_multiple: number;
-    coding: number;
-    descriptive: number;
-  };
-}
+import { collegeService } from "@/services/collegeService"
 
-function mapContestFromBackend(c: any): Contest {
-  return {
-    id: String(c.id),
-    title: c.title,
-    organizer: c.organizer,
-    type: c.type,
-    status: c.status,
-    startDate: c.start_datetime || c.start_date || '',
-    endDate: c.end_datetime || c.end_date || '',
-    duration: c.duration ? `${Math.round((typeof c.duration === 'string' ? parseFloat(c.duration) : c.duration) / 60)} min` : '',
-    participants: c.participants_count ?? 0,
-    prize: c.prize ?? '',
-    difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
-    description: c.description ?? '',
-    registrationStartDate: c.registration_start_datetime || c.registration_start_date || '',
-    registrationEndDate: c.registration_end_datetime || c.registration_end_date || '',
-    allowLateEntry: c.allow_late_entry ?? false,
-    questions_config: c.questions_config ?? {
-      mcq_single: [],
-      mcq_multiple: [],
-      coding: [],
-      descriptive: []
-    },
-    questions_random_config: c.questions_random_config ?? {
-      mcq_single: 0,
-      mcq_multiple: 0,
-      coding: 0,
-      descriptive: 0
-    },
-  };
-}
-
+interface Option { label: string; value: string; }
 export default function ContestForm() {
   const navigate = useNavigate();
   const { contestId } = useParams<{ contestId: string }>();
   const isEditMode = !!contestId;
 
-  const [contest, setContest] = useState<Contest | null>(null);
+  const [contest, setContest] = useState<ContestFormModel | null>(null);
   const [currentFormTab, setCurrentFormTab] = useState('details');
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [selectedQuestionsByType, setSelectedQuestionsByType] = useState({
@@ -123,7 +64,44 @@ export default function ContestForm() {
     registrationStartDate: '',
     registrationEndDate: '',
     allowLateEntry: false,
+    openForAllColleges: true,
+    allowedColleges: [] as string[],
+    openForAllDepartments: true,
+    allowedDepartments: [] as string[],
+    requireStudentId: false,
+    proctoringTechniques: [] as string[],
   });
+
+  const [collegeOptions, setCollegeOptions] = useState<Option[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<Option[]>([]);
+
+  useEffect(() => {
+    const fetchSelectOptions = async () => {
+      try {
+        const [colleges, departments] = await Promise.all([
+          collegeService.getColleges('approved'),
+          collegeService.getDepartments('approved')
+        ]);
+        setCollegeOptions(colleges.map(c => ({ label: c.name, value: c.id.toString() })));
+        setDepartmentOptions(departments.map(d => ({ label: d.name, value: d.id.toString() })));
+      } catch (error) {
+        console.error("Failed to load select options", error);
+      }
+    };
+    fetchSelectOptions();
+  }, []);
+
+  // Clean stale college/department IDs that no longer exist
+  useEffect(() => {
+    if (collegeOptions.length === 0 && departmentOptions.length === 0) return;
+    const validCollegeIds = new Set(collegeOptions.map(o => o.value));
+    const validDeptIds = new Set(departmentOptions.map(o => o.value));
+    const cleanedColleges = formData.allowedColleges.filter(id => validCollegeIds.has(id));
+    const cleanedDepts = formData.allowedDepartments.filter(id => validDeptIds.has(id));
+    if (cleanedColleges.length !== formData.allowedColleges.length || cleanedDepts.length !== formData.allowedDepartments.length) {
+      setFormData(prev => ({ ...prev, allowedColleges: cleanedColleges, allowedDepartments: cleanedDepts }));
+    }
+  }, [collegeOptions, departmentOptions]);
 
   const categorizeQuestionsByType = async (questionIds: string[]) => {
     if (questionIds.length === 0) {
@@ -222,11 +200,17 @@ export default function ContestForm() {
         registrationStartDate: formatDateTimeForInput(mappedContest.registrationStartDate || ''),
         registrationEndDate: formatDateTimeForInput(mappedContest.registrationEndDate || ''),
         allowLateEntry: mappedContest.allowLateEntry ?? false,
-        instructions: '',
-        totalMarks: '100',
-        passingMarks: '60',
-        enableProctoring: false,
-        publishStatus: 'draft'
+        openForAllColleges: mappedContest.open_for_all_colleges ?? true,
+        allowedColleges: mappedContest.allowed_colleges ?? [],
+        openForAllDepartments: mappedContest.open_for_all_departments ?? true,
+        allowedDepartments: mappedContest.allowed_departments ?? [],
+        requireStudentId: mappedContest.require_student_id ?? false,
+        proctoringTechniques: mappedContest.proctoring_techniques ?? [],
+        instructions: mappedContest.instructions || '',
+        totalMarks: mappedContest.total_marks ? String(mappedContest.total_marks) : '100',
+        passingMarks: mappedContest.passing_marks ? String(mappedContest.passing_marks) : '60',
+        enableProctoring: mappedContest.enable_proctoring ?? false,
+        publishStatus: (mappedContest.publish_status as 'draft' | 'active' | 'inactive' | 'archived') ?? 'draft',
       });
 
       const allQuestions = [
@@ -277,16 +261,28 @@ export default function ContestForm() {
       title: formData.title,
       organizer: formData.organizer,
       type: formData.type,
-      status: 'upcoming',
+      publish_status: formData.publishStatus,
       start_datetime: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
       end_datetime: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
       duration: formData.duration ? parseInt(formData.duration) * 60 : undefined,
       prize: formData.prize,
       difficulty: formData.difficulty.toLowerCase(),
       description: formData.description,
+      instructions: formData.instructions,
+      total_marks: formData.totalMarks ? parseInt(formData.totalMarks) : undefined,
+      passing_marks: formData.passingMarks ? parseInt(formData.passingMarks) : undefined,
       registration_start_datetime: formData.registrationStartDate ? new Date(formData.registrationStartDate).toISOString() : undefined,
       registration_end_datetime: formData.registrationEndDate ? new Date(formData.registrationEndDate).toISOString() : undefined,
       allow_late_entry: formData.allowLateEntry,
+
+      enable_proctoring: formData.enableProctoring,
+      open_for_all_colleges: formData.openForAllColleges,
+      allowed_colleges: formData.allowedColleges.map(String),
+      open_for_all_departments: formData.openForAllDepartments,
+      allowed_departments: formData.allowedDepartments.map(String),
+      require_student_id: formData.requireStudentId,
+      proctoring_techniques: formData.proctoringTechniques,
+
       questions_config: selectedQuestionsByType,
       questions_random_config: randomQuestionsConfig,
     };
@@ -300,8 +296,26 @@ export default function ContestForm() {
         toast.success('Contest created successfully');
       }
       navigate('/instructor/contests');
-    } catch (error) {
-      toast.error(isEditMode ? 'Failed to update contest' : 'Failed to create contest');
+    } catch (error: any) {
+      console.error('Contest save error:', error);
+      console.error('Payload sent:', payload);
+      // Extract the most useful error message from the backend response
+      const responseData = error?.response?.data;
+      let errorMsg = isEditMode ? 'Failed to update contest' : 'Failed to create contest';
+      if (responseData) {
+        if (typeof responseData === 'string') {
+          errorMsg = responseData;
+        } else if (responseData.detail) {
+          errorMsg = responseData.detail;
+        } else {
+          // Flatten DRF field-level validation errors like { field: ["error"] }
+          const fieldErrors = Object.entries(responseData)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(' | ');
+          if (fieldErrors) errorMsg = fieldErrors;
+        }
+      }
+      toast.error(errorMsg, { duration: 8000 });
     }
   };
 
@@ -334,7 +348,7 @@ export default function ContestForm() {
             />
             <div className="px-6 py-6">
               <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F97316]"></div>
               </div>
             </div>
           </div>
@@ -368,7 +382,7 @@ export default function ContestForm() {
                   <Card className="border border-gray-200 shadow-sm">
                     <CardHeader className="pb-4">
                       <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Trophy className="h-5 w-5 mr-2 text-blue-500" />
+                        <Trophy className="h-5 w-5 mr-2 text-[#F97316]" />
                         Basic Information
                       </CardTitle>
                     </CardHeader>
@@ -401,7 +415,7 @@ export default function ContestForm() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Contest Type *</label>
                           <Select
@@ -433,6 +447,23 @@ export default function ContestForm() {
                             </SelectContent>
                           </Select>
                         </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Publish Status *</label>
+                          <Select
+                            value={formData.publishStatus}
+                            onValueChange={(value) => setFormData({ ...formData, publishStatus: value as any })}
+                          >
+                            <SelectTrigger className="bg-orange-50/50 border-orange-200">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="draft">Draft (Hidden)</SelectItem>
+                              <SelectItem value="active">Active (Published)</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                              <SelectItem value="archived">Archived</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -441,7 +472,7 @@ export default function ContestForm() {
                   <Card className="border border-gray-200 shadow-sm">
                     <CardHeader className="pb-4">
                       <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-green-500" />
+                        <Calendar className="h-5 w-5 mr-2 text-[#F97316]" />
                         Schedule & Duration
                       </CardTitle>
                     </CardHeader>
@@ -497,11 +528,144 @@ export default function ContestForm() {
                           <p className="text-sm font-medium text-gray-900">Allow Late Entry</p>
                           <p className="text-xs text-gray-500">Permit registrations after the registration end date.</p>
                         </div>
-                        <Switch
+                        <Checkbox
                           checked={formData.allowLateEntry}
-                          onCheckedChange={(checked) => setFormData({ ...formData, allowLateEntry: checked })}
-                          className="data-[state=unchecked]:bg-gray-200 data-[state=checked]:bg-emerald-500"
+                          onCheckedChange={(checked) => setFormData({ ...formData, allowLateEntry: Boolean(checked) })}
+                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
                         />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Eligibility & Proctoring Card */}
+                  <Card className="border border-gray-200 shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                        <Settings className="h-5 w-5 mr-2 text-[#F97316]" />
+                        Eligibility & Proctoring
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Open For All Colleges</p>
+                          <p className="text-xs text-gray-500">Allow students from any college to register.</p>
+                        </div>
+                        <Checkbox
+                          checked={formData.openForAllColleges}
+                          onCheckedChange={(checked) => {
+                            setFormData({ ...formData, openForAllColleges: Boolean(checked), allowedColleges: checked ? [] : formData.allowedColleges });
+                          }}
+                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                        />
+                      </div>
+
+                      {!formData.openForAllColleges && (
+                        <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Allowed Colleges</label>
+                          {collegeOptions.length === 0 ? (
+                            <p className="text-sm text-gray-400 italic">No colleges available.</p>
+                          ) : (
+                            <div className="max-h-48 overflow-y-auto space-y-2">
+                              {collegeOptions.map(college => (
+                                <label key={college.value} className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100 cursor-pointer hover:border-[#F97316]/30 transition-colors">
+                                  <Checkbox
+                                    checked={formData.allowedColleges.includes(college.value)}
+                                    onCheckedChange={(checked) => {
+                                      const updated = checked
+                                        ? [...formData.allowedColleges, college.value]
+                                        : formData.allowedColleges.filter(id => id !== college.value);
+                                      setFormData({ ...formData, allowedColleges: updated });
+                                    }}
+                                    className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                                  />
+                                  <span className="text-sm font-medium text-gray-900">{college.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Open For All Departments</p>
+                          <p className="text-xs text-gray-500">Allow students from any department to register.</p>
+                        </div>
+                        <Checkbox
+                          checked={formData.openForAllDepartments}
+                          onCheckedChange={(checked) => {
+                            setFormData({ ...formData, openForAllDepartments: Boolean(checked), allowedDepartments: checked ? [] : formData.allowedDepartments });
+                          }}
+                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                        />
+                      </div>
+
+                      {!formData.openForAllDepartments && (
+                        <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select Allowed Departments</label>
+                          {departmentOptions.length === 0 ? (
+                            <p className="text-sm text-gray-400 italic">No departments available.</p>
+                          ) : (
+                            <div className="max-h-48 overflow-y-auto space-y-2">
+                              {departmentOptions.map(dept => (
+                                <label key={dept.value} className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100 cursor-pointer hover:border-[#F97316]/30 transition-colors">
+                                  <Checkbox
+                                    checked={formData.allowedDepartments.includes(dept.value)}
+                                    onCheckedChange={(checked) => {
+                                      const updated = checked
+                                        ? [...formData.allowedDepartments, dept.value]
+                                        : formData.allowedDepartments.filter(id => id !== dept.value);
+                                      setFormData({ ...formData, allowedDepartments: updated });
+                                    }}
+                                    className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                                  />
+                                  <span className="text-sm font-medium text-gray-900">{dept.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Require Student ID</p>
+                          <p className="text-xs text-gray-500">Students must upload their college ID card to register.</p>
+                        </div>
+                        <Checkbox
+                          checked={formData.requireStudentId}
+                          onCheckedChange={(checked) => setFormData({ ...formData, requireStudentId: Boolean(checked) })}
+                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Proctoring Settings */}
+                  <Card className="border border-gray-200 shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                        <ShieldCheck className="h-5 w-5 mr-2 text-[#F97316]" />
+                        Proctoring Settings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="enable_proctoring"
+                          checked={formData.enableProctoring}
+                          onCheckedChange={(checked) =>
+                            setFormData({ ...formData, enableProctoring: Boolean(checked) })
+                          }
+                          className="data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]"
+                        />
+                        <label
+                          htmlFor="enable_proctoring"
+                          className="text-sm font-medium text-gray-900 select-none cursor-pointer"
+                        >
+                          Enable Proctoring
+                        </label>
                       </div>
                     </CardContent>
                   </Card>

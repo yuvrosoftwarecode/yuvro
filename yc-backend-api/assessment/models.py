@@ -122,6 +122,20 @@ class Contest(BaseAssessmentModel):
     registration_end_datetime = models.DateTimeField(null=True, blank=True)
     allow_late_entry = models.BooleanField(default=False)
 
+    # College & Department Constraints
+    open_for_all_colleges = models.BooleanField(default=True)
+    allowed_colleges = models.ManyToManyField("authentication.College", blank=True, related_name="allowed_contests")
+    open_for_all_departments = models.BooleanField(default=True)
+    allowed_departments = models.ManyToManyField("authentication.Department", blank=True, related_name="allowed_contests")
+    
+    # Proctoring & Registration
+    require_student_id = models.BooleanField(default=False)
+    proctoring_techniques = models.JSONField(
+        default=list, 
+        blank=True, 
+        help_text="e.g. ['webcam', 'tab_switch', 'full_screen']"
+    )
+
     class Meta:
         ordering = ["-start_datetime"]
 
@@ -137,6 +151,19 @@ class Contest(BaseAssessmentModel):
         else:
             self.status = self.STATUS_PAST
         return self.status
+
+
+class ContestRegistration(BaseModel):
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="registrations")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contest_registrations")
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('contest', 'user')
+        ordering = ["-registered_at"]
+
+    def __str__(self):
+        return f"{self.user.email} registered for {self.contest.title}"
 
 
 class MockInterview(BaseModel):
