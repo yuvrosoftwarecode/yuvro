@@ -46,6 +46,8 @@ import {
   validateQuestion,
 } from '@/services/questionService';
 
+import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
+
 interface QuestionBankManagerProps {
   subject: any;
   selectedUnit: any;
@@ -79,6 +81,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     level: 'subject',
     difficulty: 'easy',
     marks: 1,
+    duration: 1,
     categories: [],
     mcq_options: [
       { text: '', is_correct: false },
@@ -163,7 +166,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   useEffect(() => {
     if (!editingQuestion && activeTab === 'create') {
       let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
-      let formSubject = subject?.id;
+      const formSubject = subject?.id;
       let formUnit = undefined;
       let formSubUnit = undefined;
 
@@ -186,10 +189,23 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     }
   }, [subject, selectedUnit, selectedSubUnit, editingQuestion, activeTab]);
 
+  // Update marks and duration when type or difficulty changes
+  useEffect(() => {
+    if (!editingQuestion && activeTab === 'create') {
+      const marks = getDefaultMarks(formData.type, formData.difficulty);
+      const duration = getDefaultDuration(formData.type, formData.difficulty);
+      setFormData((prev: CreateQuestionData) => ({
+        ...prev,
+        marks,
+        duration
+      }));
+    }
+  }, [formData.type, formData.difficulty, editingQuestion, activeTab]);
+
   const openCreateForm = () => {
     // Determine default level and set appropriate IDs based on current selection
     let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
-    let formSubject = subject?.id;
+    const formSubject = subject?.id;
     let formUnit = undefined;
     let formSubUnit = undefined;
 
@@ -212,6 +228,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       sub_unit: formSubUnit,
       difficulty: 'easy',
       marks: 1,
+      duration: 1,
       categories: [],
       mcq_options: [
         { text: '', is_correct: false },
@@ -238,6 +255,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       sub_unit: question.sub_unit,
       difficulty: question.difficulty,
       marks: question.marks,
+      duration: question.duration || 1,
       categories: question.categories,
       mcq_options: question.mcq_options || [
         { text: '', is_correct: false },
@@ -745,6 +763,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     max="100"
                     value={formData.marks}
                     onChange={(e) => setFormData(prev => ({ ...prev, marks: parseInt(e.target.value) || 1 }))}
+                    className="bg-white border-slate-300 h-10"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Duration (mins)</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="180"
+                    value={formData.duration}
+                    onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
                     className="bg-white border-slate-300 h-10"
                   />
                 </div>

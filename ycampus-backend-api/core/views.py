@@ -965,11 +965,46 @@ class TaskViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
+        from course.models import Question
         # Auto-set faculty if role is faculty
+        faculty_profile = None
         if self.request.user.role == "faculty":
             from core.models import FacultyProfile
-            faculty = get_object_or_404(FacultyProfile, user=self.request.user)
-            serializer.save(faculty=faculty)
+            faculty_profile = get_object_or_404(FacultyProfile, user=self.request.user)
+            
+        # Check if the task is created manually
+        if serializer.validated_data.get("question_source") == "manual":
+            # Create a corresponding Question under the "task" category
+            try:
+                sub_unit = serializer.validated_data.get("sub_unit")
+                unit = serializer.validated_data.get("unit")
+                question_level = "subunit" if sub_unit else ("unit" if unit else "subject")
+                
+                question = Question.objects.create(
+                    type=serializer.validated_data.get("task_type", "descriptive"),
+                    title=serializer.validated_data.get("title", "Manual Task"),
+                    content=serializer.validated_data.get("description", "Task Description"),
+                    level=question_level,
+                    subject=serializer.validated_data.get("subject"),
+                    unit=unit,
+                    sub_unit=sub_unit,
+                    difficulty="medium",
+                    marks=10,
+                    categories=["task"],
+                    created_by=self.request.user
+                )
+                
+                # Append the created question to the task's questions list
+                questions_qs = serializer.validated_data.get("questions")
+                questions_list = list(questions_qs) if questions_qs is not None else []
+                questions_list.append(question)
+                serializer.validated_data["questions"] = questions_list
+            except Exception as e:
+                # If question creation fails, we just silently continue and create the task itself.
+                print("Failed to auto-create manual question in Question Bank:", str(e))
+
+        if faculty_profile:
+            serializer.save(faculty=faculty_profile)
         else:
             serializer.save()
 

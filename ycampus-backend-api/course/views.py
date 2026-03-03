@@ -464,7 +464,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject = get_object_or_404(Subject, id=subject_id)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().create(request, *a, **kw)
 
@@ -476,7 +476,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().update(request, *a, **kw)
 
@@ -488,7 +488,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -526,7 +526,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         subject = unit.subject
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().create(request, *a, **kw)
 
@@ -538,7 +538,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().update(request, *a, **kw)
 
@@ -550,7 +550,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().destroy(request, *a, **kw)
 
@@ -773,7 +773,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             return Response({"error": "Invalid subject/unit/subunit"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().create(request, *args, **kwargs)
 
@@ -795,7 +795,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             return Response({"error": "Invalid question association"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().update(request, *args, **kwargs)
 
@@ -818,7 +818,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             return Response({"error": "Invalid question association"}, status=400)
 
         if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
+            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
         ):
             return super().destroy(request, *args, **kwargs)
 
