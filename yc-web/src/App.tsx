@@ -52,7 +52,11 @@ import MockInterviewAnalytics from './pages/instructor/MockInterviewAnalytics';
 import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
 import ContestAnalytics from './pages/instructor/ContestAnalytics';
 import ContestReport from './pages/instructor/ContestReport';
+import InstructorStudentAnalytics from './pages/instructor/StudentContestAnalytics';
+import CollegeContestAnalytics from './pages/instructor/CollegeContestAnalytics';
 import ContestSubmissionAnalytics from './pages/instructor/ContestSubmissionAnalytics';
+import StudentContestAnalytics from './pages/student/ContestAnalytics';
+import ContestAnalyticsList from './pages/student/ContestAnalyticsList';
 import InstructorCertifications from './pages/instructor/Certifications';
 import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
 import CertificationExamSubmissions from './pages/instructor/CertificationExamSubmissions';
@@ -243,6 +247,24 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <ContestAttempt />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contests/:contestId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentContestAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contest-analytics-list"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ContestAnalyticsList />
                   </ProtectedRoute>
                 }
               />
@@ -513,6 +535,22 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/contests/:contestId/student-analytics/:userId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <InstructorStudentAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/instructor/contests/:contestId/college-analytics/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <CollegeContestAnalytics />
                   </ProtectedRoute>
                 }
               />

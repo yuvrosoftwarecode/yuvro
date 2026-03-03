@@ -250,7 +250,25 @@ export const contestService = {
     return this.updateContest(contestId, { questions_config: updatedQuestionsConfig });
   },
 
-  async getContestReport(contestId: string): Promise<any> {
-    return restApiAuthUtil.get(`/assessment/contests/${contestId}/report/`);
+  async getContestReport(contestId: string, includeAI: boolean = true): Promise<any> {
+    const params = new URLSearchParams();
+    params.append('include_ai_insights', String(includeAI));
+    return restApiAuthUtil.get(`/assessment/contests/${contestId}/report/?${params.toString()}`);
+  },
+
+  async getStudentAnalytics(contestId: string, includeAI: boolean = true, userId?: string): Promise<any> {
+    const params = new URLSearchParams();
+    params.append('include_ai_insights', String(includeAI));
+    if (userId) {
+      params.append('user_id', userId);
+    }
+    return restApiAuthUtil.get(`/assessment/contests/${contestId}/student_analytics/?${params.toString()}`);
+  },
+
+  async getCollegeAnalytics(contestId: string, collegeId: string, includeAI: boolean = false): Promise<any> {
+    const params = new URLSearchParams();
+    params.append('college_id', collegeId);
+    params.append('include_ai_insights', String(includeAI));
+    return restApiAuthUtil.get(`/assessment/contests/${contestId}/college_analytics/?${params.toString()}`);
   },
 };

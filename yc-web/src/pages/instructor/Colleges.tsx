@@ -18,8 +18,11 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Trash2, Building2, GraduationCap, CheckCircle, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Colleges() {
+    const navigate = useNavigate();
+    
     // -- College state --
     const [colleges, setColleges] = useState<College[]>([]);
     const [loadingColleges, setLoadingColleges] = useState(true);
@@ -157,21 +160,23 @@ export default function Colleges() {
                 <div className="p-2 rounded-lg bg-orange-50">
                     <Building2 className="h-4 w-4 text-[#F97316]" />
                 </div>
-                <div>
-                    <div className="font-semibold text-gray-900">{college.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">Added {new Date(college.created_at).toLocaleDateString()}</div>
+                <div className="flex items-center gap-2">
+                    <div>
+                        <div className="font-semibold text-gray-900">{college.name}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Added {new Date(college.created_at).toLocaleDateString()}</div>
+                    </div>
+                    {college.verification_status === 'approved' && <Badge className="bg-emerald-100 text-emerald-700 border-0">Approved</Badge>}
+                    {college.verification_status === 'pending' && <Badge className="bg-orange-100 text-orange-700 border-0">Pending</Badge>}
+                    {college.verification_status === 'rejected' && <Badge className="bg-red-100 text-red-700 border-0">Rejected</Badge>}
                 </div>
             </div>
             <div className="flex items-center gap-2">
                 {college.verification_status === 'pending' && (
                     <>
-                        <Badge className="bg-orange-100 text-orange-700 border-0">Pending</Badge>
                         <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => handleApproveCollege(college.id)}>Approve</Button>
                         <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleRejectCollege(college.id)}>Reject</Button>
                     </>
                 )}
-                {college.verification_status === 'approved' && <Badge className="bg-emerald-100 text-emerald-700 border-0">Approved</Badge>}
-                {college.verification_status === 'rejected' && <Badge className="bg-red-100 text-red-700 border-0">Rejected</Badge>}
                 <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-500" onClick={() => handleDeleteCollege(college.id)}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
@@ -185,21 +190,23 @@ export default function Colleges() {
                 <div className="p-2 rounded-lg bg-purple-50">
                     <GraduationCap className="h-4 w-4 text-purple-600" />
                 </div>
-                <div>
-                    <div className="font-semibold text-gray-900">{dept.name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">Added {new Date(dept.created_at).toLocaleDateString()}</div>
+                <div className="flex items-center gap-2">
+                    <div>
+                        <div className="font-semibold text-gray-900">{dept.name}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">Added {new Date(dept.created_at).toLocaleDateString()}</div>
+                    </div>
+                    {dept.verification_status === 'approved' && <Badge className="bg-emerald-100 text-emerald-700 border-0">Approved</Badge>}
+                    {dept.verification_status === 'pending' && <Badge className="bg-orange-100 text-orange-700 border-0">Pending</Badge>}
+                    {dept.verification_status === 'rejected' && <Badge className="bg-red-100 text-red-700 border-0">Rejected</Badge>}
                 </div>
             </div>
             <div className="flex items-center gap-2">
                 {dept.verification_status === 'pending' && (
                     <>
-                        <Badge className="bg-orange-100 text-orange-700 border-0">Pending</Badge>
                         <Button size="sm" variant="outline" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => handleApproveDept(dept.id)}>Approve</Button>
                         <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleRejectDept(dept.id)}>Reject</Button>
                     </>
                 )}
-                {dept.verification_status === 'approved' && <Badge className="bg-emerald-100 text-emerald-700 border-0">Approved</Badge>}
-                {dept.verification_status === 'rejected' && <Badge className="bg-red-100 text-red-700 border-0">Rejected</Badge>}
                 <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-500" onClick={() => handleDeleteDept(dept.id)}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
@@ -270,76 +277,28 @@ export default function Colleges() {
 
                             {/* ========== COLLEGES TAB ========== */}
                             <TabsContent value="colleges">
-                                <Tabs defaultValue="approved" className="w-full">
-                                    <TabsList className="mb-4">
-                                        <TabsTrigger value="approved">Approved ({approvedColleges.length})</TabsTrigger>
-                                        <TabsTrigger value="pending">
-                                            Pending
-                                            {pendingColleges.length > 0 && (
-                                                <span className="ml-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-full h-5 min-w-5 inline-flex items-center justify-center px-1.5">
-                                                    {pendingColleges.length}
-                                                </span>
-                                            )}
-                                        </TabsTrigger>
-                                    </TabsList>
-
-                                    <TabsContent value="approved">
-                                        {loadingColleges ? (
-                                            <div className="flex items-center justify-center py-16">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F97316]"></div>
-                                            </div>
-                                        ) : approvedColleges.length === 0 ? (
-                                            renderEmptyState(Building2, 'No approved colleges yet', 'Add a college to get started')
-                                        ) : (
-                                            <div className="space-y-2">{approvedColleges.map(renderCollegeRow)}</div>
-                                        )}
-                                    </TabsContent>
-
-                                    <TabsContent value="pending">
-                                        {pendingColleges.length === 0 ? (
-                                            renderEmptyState(Building2, 'No pending colleges', 'All colleges have been reviewed')
-                                        ) : (
-                                            <div className="space-y-2">{pendingColleges.map(renderCollegeRow)}</div>
-                                        )}
-                                    </TabsContent>
-                                </Tabs>
+                                {loadingColleges ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F97316]"></div>
+                                    </div>
+                                ) : colleges.length === 0 ? (
+                                    renderEmptyState(Building2, 'No colleges yet', 'Add a college to get started')
+                                ) : (
+                                    <div className="space-y-2">{colleges.map(renderCollegeRow)}</div>
+                                )}
                             </TabsContent>
 
                             {/* ========== DEPARTMENTS TAB ========== */}
                             <TabsContent value="departments">
-                                <Tabs defaultValue="approved" className="w-full">
-                                    <TabsList className="mb-4">
-                                        <TabsTrigger value="approved">Approved ({approvedDepts.length})</TabsTrigger>
-                                        <TabsTrigger value="pending">
-                                            Pending
-                                            {pendingDepts.length > 0 && (
-                                                <span className="ml-1.5 bg-orange-500 text-white text-[10px] font-bold rounded-full h-5 min-w-5 inline-flex items-center justify-center px-1.5">
-                                                    {pendingDepts.length}
-                                                </span>
-                                            )}
-                                        </TabsTrigger>
-                                    </TabsList>
-
-                                    <TabsContent value="approved">
-                                        {loadingDepts ? (
-                                            <div className="flex items-center justify-center py-16">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                                            </div>
-                                        ) : approvedDepts.length === 0 ? (
-                                            renderEmptyState(GraduationCap, 'No approved departments yet', 'Add a department to get started')
-                                        ) : (
-                                            <div className="space-y-2">{approvedDepts.map(renderDeptRow)}</div>
-                                        )}
-                                    </TabsContent>
-
-                                    <TabsContent value="pending">
-                                        {pendingDepts.length === 0 ? (
-                                            renderEmptyState(GraduationCap, 'No pending departments', 'All departments have been reviewed')
-                                        ) : (
-                                            <div className="space-y-2">{pendingDepts.map(renderDeptRow)}</div>
-                                        )}
-                                    </TabsContent>
-                                </Tabs>
+                                {loadingDepts ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                                    </div>
+                                ) : departments.length === 0 ? (
+                                    renderEmptyState(GraduationCap, 'No departments yet', 'Add a department to get started')
+                                ) : (
+                                    <div className="space-y-2">{departments.map(renderDeptRow)}</div>
+                                )}
                             </TabsContent>
                         </Tabs>
                     </div>

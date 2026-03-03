@@ -1,12 +1,13 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import StatusBadge from '@/components/common/StatusBadge';
-import { Eye, Clock, Calendar } from 'lucide-react';
+import { Eye, Clock, Calendar, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DataTable, Column } from '@/components/common/DataTable';
 
 interface Submission {
     id: string;
+    user: string;
     user_name: string;
     user_email?: string;
     status: string;
@@ -20,12 +21,14 @@ interface Submission {
 interface CandidatesTableProps {
     submissions: Submission[];
     onViewDetails: (id: string) => void;
+    onViewAnalytics?: (userId: string) => void;
     showProctoring?: boolean;
 }
 
 export default function CandidatesTable({
     submissions,
     onViewDetails,
+    onViewAnalytics,
     showProctoring = true,
 }: CandidatesTableProps) {
 
@@ -115,7 +118,16 @@ export default function CandidatesTable({
             header: 'Actions',
             className: 'text-right',
             cell: (sub) => (
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                    {onViewAnalytics && (
+                        <button
+                            onClick={() => onViewAnalytics(sub.user)}
+                            className="p-2 text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                            title="View Analytics"
+                        >
+                            <BarChart3 className="h-4 w-4" />
+                        </button>
+                    )}
                     <button
                         onClick={() => onViewDetails(sub.id)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"

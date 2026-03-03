@@ -57,4 +57,3 @@ export const collegeService = {
         return restApiAuthUtil.delete(`/auth/departments/${id}/`);
     }
 };
-

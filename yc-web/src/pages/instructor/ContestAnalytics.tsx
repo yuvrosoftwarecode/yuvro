@@ -101,6 +101,7 @@ export default function ContestAnalytics() {
           <CandidatesTable
             submissions={submissions}
             onViewDetails={(id) => navigate(`/instructor/contests/submissions/${id}`)}
+            onViewAnalytics={(userId) => navigate(`/instructor/contests/${contestId}/student-analytics/${userId}`)}
             showProctoring={true}
           />
         </TabsContent>
