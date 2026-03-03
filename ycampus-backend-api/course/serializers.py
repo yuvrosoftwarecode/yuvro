@@ -456,6 +456,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "sub_unit",
             "difficulty",
             "marks",
+            "duration",
             "categories",
             "mcq_options",
             "test_cases_basic",

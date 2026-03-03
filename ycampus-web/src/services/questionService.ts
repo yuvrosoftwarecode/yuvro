@@ -17,6 +17,7 @@ export interface Question {
   sub_unit?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
+  duration: number;
   categories: string[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
@@ -42,6 +43,7 @@ export interface CreateQuestionData {
   sub_unit?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   marks: number;
+  duration: number;
   categories: string[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
@@ -191,6 +193,7 @@ export const QUESTION_CATEGORIES = [
   { value: 'practice', label: 'Practice' },
   { value: 'skill_test', label: 'Skill Test' },
   { value: 'contest', label: 'Contest' },
+  { value: 'task', label: 'Task' },
 ] as const;
 
 // Validation helpers

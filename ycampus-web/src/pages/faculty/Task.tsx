@@ -60,7 +60,7 @@ const FacultyTask: React.FC = () => {
         description: "",
         due_date: "",
         unit: "",
-        subUnit: "",
+        sub_unit: "",
         sections: [] as string[],
         task_type: "descriptive" as 'descriptive' | 'coding',
         question_source: "manual" as 'manual' | 'bank',
@@ -251,7 +251,7 @@ const FacultyTask: React.FC = () => {
                 try {
                     setLoadingQuestions(true);
                     const qType = formState.task_type === 'coding' ? 'coding' : undefined;
-                    const res = await fetchQuestions({ subject: selectedSubject, type: qType });
+                    const res = await fetchQuestions({ subject: selectedSubject, type: qType, categories: 'task' });
                     setBankQuestions(res);
                 } catch (err) {
                     toast.error('Failed to load question bank');
@@ -273,7 +273,7 @@ const FacultyTask: React.FC = () => {
                 description: task.description,
                 due_date: task.due_date ? task.due_date.slice(0, 16) : "",
                 unit: task.unit || "",
-                subUnit: task.sub_unit || "",
+                sub_unit: task.sub_unit || "",
                 sections: task.sections.map(s => String(s)),
                 task_type: task.task_type || 'descriptive',
                 question_source: task.question_source || 'manual',
@@ -286,7 +286,7 @@ const FacultyTask: React.FC = () => {
                 description: "",
                 due_date: "",
                 unit: "",
-                subUnit: "",
+                sub_unit: "",
                 sections: [],
                 task_type: "descriptive",
                 question_source: "manual",
@@ -739,7 +739,7 @@ const FacultyTask: React.FC = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-sm font-bold text-gray-900">Sub Unit</Label>
-                                    <Select value={formState.subUnit} onValueChange={v => setFormState(prev => ({ ...prev, subUnit: v }))} disabled={!formState.unit}>
+                                    <Select value={formState.sub_unit} onValueChange={v => setFormState(prev => ({ ...prev, sub_unit: v }))} disabled={!formState.unit}>
                                         <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
