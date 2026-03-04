@@ -9,19 +9,24 @@ interface RequestOptions extends RequestInit {
 class RestApiAuthUtil extends RestApiUtil {
     private token: string | null = null;
     private isRefreshing: boolean = false;
-    private refreshSubscribers: ((token: string) => void)[] = [];
+    private refreshSubscribers: { resolve: (token: string) => void; reject: (error: any) => void }[] = [];
 
     constructor(baseURL: string) {
         super(baseURL);
     }
 
     private onRefreshed(token: string) {
-        this.refreshSubscribers.forEach((cb) => cb(token));
+        this.refreshSubscribers.forEach((cb) => cb.resolve(token));
         this.refreshSubscribers = [];
     }
 
-    private addSubscriber(cb: (token: string) => void) {
-        this.refreshSubscribers.push(cb);
+    private onRefreshFailed(error: any) {
+        this.refreshSubscribers.forEach((cb) => cb.reject(error));
+        this.refreshSubscribers = [];
+    }
+
+    private addSubscriber(resolve: (token: string) => void, reject: (error: any) => void) {
+        this.refreshSubscribers.push({ resolve, reject });
     }
 
     setAuthToken(token: string) {
@@ -29,7 +34,10 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 
     getAuthToken(): string | null {
-        return this.token || localStorage.getItem('access');
+        const t = this.token || localStorage.getItem('access');
+        // Filter out junk values that sometimes get stuck in localStorage
+        if (!t || t === 'undefined' || t === 'null') return null;
+        return t;
     }
 
     clearAuthToken() {
@@ -47,11 +55,21 @@ class RestApiAuthUtil extends RestApiUtil {
         return await this.refreshToken();
     }
 
-    private getAuthHeaders(): HeadersInit {
+    private getAuthHeaders(endpoint?: string): HeadersInit {
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        const token = this.getAuthToken();
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+
+        // Skip Authorization header for auth-related endpoints to avoid 401 loops
+        const isAuthEndpoint = endpoint && (
+            endpoint.includes('/auth/login') ||
+            endpoint.includes('/auth/register') ||
+            endpoint.includes('/auth/token/refresh')
+        );
+
+        if (!isAuthEndpoint) {
+            const token = this.getAuthToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return headers;
     }
@@ -90,7 +108,7 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 
     protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-        let authHeaders = this.getAuthHeaders() as Record<string, string>;
+        let authHeaders = this.getAuthHeaders(endpoint) as Record<string, string>;
 
         if (options.body instanceof FormData) {
             delete authHeaders['Content-Type'];
@@ -123,25 +141,30 @@ class RestApiAuthUtil extends RestApiUtil {
                         if (success && this.token) {
                             this.onRefreshed(this.token);
                         } else {
-                            this.refreshSubscribers = [];
+                            this.onRefreshFailed(error);
                         }
                     });
                 }
 
-                return new Promise<T>((resolve) => {
-                    this.addSubscriber((newToken) => {
-                        const retryHeaders: HeadersInit = {
-                            ...options.headers,
-                            'Authorization': `Bearer ${newToken}`,
-                            ...((authHeaders as Record<string, string>)['Content-Type'] ? { 'Content-Type': (authHeaders as Record<string, string>)['Content-Type'] } : {})
-                        };
+                return new Promise<T>((resolve, reject) => {
+                    this.addSubscriber(
+                        (newToken) => {
+                            const retryHeaders: HeadersInit = {
+                                ...options.headers,
+                                'Authorization': `Bearer ${newToken}`,
+                                ...((authHeaders as Record<string, string>)['Content-Type'] ? { 'Content-Type': (authHeaders as Record<string, string>)['Content-Type'] } : {})
+                            };
 
-                        const retryOptionsWithAuth = {
-                            ...options,
-                            headers: retryHeaders,
-                        };
-                        resolve(super.request<T>(endpoint, retryOptionsWithAuth));
-                    });
+                            const retryOptionsWithAuth = {
+                                ...options,
+                                headers: retryHeaders,
+                            };
+                            resolve(super.request<T>(endpoint, retryOptionsWithAuth));
+                        },
+                        (err) => {
+                            reject(err);
+                        }
+                    );
                 });
             }
             throw error;

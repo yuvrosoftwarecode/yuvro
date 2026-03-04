@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 from .models import (
     StudentProfile,
     FacultyProfile,
@@ -10,6 +11,8 @@ from .models import (
     Batch,
     Semester,
     Section,
+    AttendanceSession,
+    AttendanceRecord,
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
@@ -136,3 +139,54 @@ class CollegeAdminProfileSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AttendanceRecordSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source="student.user.get_full_name", read_only=True)
+    roll_number = serializers.CharField(source="student.roll_number", read_only=True)
+
+    class Meta:
+        model = AttendanceRecord
+        fields = ["id", "session", "student", "student_name", "roll_number", "is_present", "created_at", "updated_at"]
+        read_only_fields = ["id", "session", "created_at", "updated_at"]
+
+
+class AttendanceSessionSerializer(serializers.ModelSerializer):
+    records = AttendanceRecordSerializer(many=True, required=False)
+    section_name = serializers.CharField(source="section_subject_faculty.section.name", read_only=True)
+    subject_name = serializers.CharField(source="section_subject_faculty.semester_subject.subject.subject_name", read_only=True)
+
+    class Meta:
+        model = AttendanceSession
+        fields = [
+            "id", 
+            "section_subject_faculty", 
+            "section_name", 
+            "subject_name", 
+            "date", 
+            "remarks", 
+            "records", 
+            "created_at", 
+            "updated_at"
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+        validators = []  # Disable class-level UniqueTogetherValidator
+
+    @transaction.atomic
+    def create(self, validated_data):
+        records_data = validated_data.pop('records', [])
+        
+        # Use update_or_create to handle existing sessions for the same date/assignment
+        session, created = AttendanceSession.objects.update_or_create(
+            section_subject_faculty=validated_data.get('section_subject_faculty'),
+            date=validated_data.get('date'),
+            defaults={'remarks': validated_data.get('remarks', '')}
+        )
+        
+        # Clear existing records to avoid duplicates
+        session.records.all().delete()
+            
+        for record_data in records_data:
+            AttendanceRecord.objects.create(session=session, **record_data)
+        
+        return session
