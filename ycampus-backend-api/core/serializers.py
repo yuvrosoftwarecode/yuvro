@@ -165,6 +165,8 @@ class TaskSerializer(serializers.ModelSerializer):
     sub_unit_name = serializers.CharField(source="sub_unit.name", read_only=True)
     section_details = serializers.SerializerMethodField()
     question_details = serializers.SerializerMethodField()
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    task_type = serializers.ChoiceField(choices=[("descriptive", "Descriptive"), ("coding", "Coding")], required=False)
 
     class Meta:
         model = Task
