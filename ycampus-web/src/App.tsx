@@ -69,10 +69,13 @@ import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
+import TakeAttendance from './pages/faculty/TakeAttendance';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
+import FacultyReports from './pages/faculty/Reports';
+import AttendanceReport from './pages/faculty/AttendanceReport';
 import TPODashboard from './pages/tpo/Dashboard';
 
 
@@ -351,6 +354,14 @@ function App() {
                 }
               />
               <Route
+                path="/faculty/attendance/:assignmentId/take"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <TakeAttendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/faculty/task"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
@@ -362,7 +373,15 @@ function App() {
                 path="/faculty/reports"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <FacultyReports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/attendance-report"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <AttendanceReport />
                   </ProtectedRoute>
                 }
               />

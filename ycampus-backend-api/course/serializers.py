@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from core.models import College, Batch, Department, Semester, Section
 from .models import (
@@ -15,7 +16,6 @@ from .models import (
     SectionSubjectFaculty,
 )
 from .gamification_models import UserGamificationProfile
-from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -685,4 +685,7 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
                 f"Status must be one of: {', '.join(valid_statuses)}"
             )
         return value
+
+
+
 

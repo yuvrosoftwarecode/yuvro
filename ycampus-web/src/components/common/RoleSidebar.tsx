@@ -23,7 +23,9 @@ import {
   Layers,
   GraduationCap,
   Activity,
-  Target
+  Target,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -230,10 +232,17 @@ const sidebarItems: SidebarItem[] = [
     roles: ['faculty']
   },
   {
-    id: 'faculty-reports',
-    label: 'Reports',
+    id: 'faculty-individual-report',
+    label: 'Individual Report',
     icon: FileText,
     path: '/faculty/reports',
+    roles: ['faculty']
+  },
+  {
+    id: 'faculty-attendance-report',
+    label: 'Attendance Report',
+    icon: UserCheck,
+    path: '/faculty/attendance-report',
     roles: ['faculty']
   },
   {
@@ -316,6 +325,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const { user } = useAuth();
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [reportsOpen, setReportsOpen] = useState(true);
 
   const userRole = user?.role || 'instructor';
   const userEmail = user?.email || '';
@@ -400,30 +410,96 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         </div>
 
         <nav className="space-y-2">
-          {filteredItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = isActiveItem(item);
+          {userRole === 'faculty' && !sidebarCollapsed && (
+            <div className="px-3 mb-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Navigation</span>
+            </div>
+          )}
+          {filteredItems
+            .filter(item => userRole !== 'faculty' || (!item.id.includes('report')))
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = isActiveItem(item);
 
-            return (
-              <Link
-                key={item.id}
-                to={item.path}
-                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
-                  ? 'bg-orange-50 text-orange-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                title={sidebarCollapsed ? item.label : ''}
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  title={sidebarCollapsed ? item.label : ''}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {!sidebarCollapsed && <span>{item.label}</span>}
+                  {sidebarCollapsed && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                      {item.label}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+
+          {userRole === 'faculty' && !sidebarCollapsed && (
+            <div className="pt-4 space-y-1">
+              <div
+                className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
+                onClick={() => setReportsOpen(!reportsOpen)}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                {!sidebarCollapsed && <span>{item.label}</span>}
-                {sidebarCollapsed && (
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
+                <div className="p-1">
+                  {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />}
+                </div>
+              </div>
+
+              {reportsOpen && filteredItems
+                .filter(item => item.id.includes('report'))
+                .map((item) => {
+                  const Icon = item.icon;
+                  const isActive = isActiveItem(item);
+
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.path}
+                      className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
+                        ? 'bg-orange-50 text-orange-600'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    >
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+            </div>
+          )}
+
+          {userRole === 'faculty' && sidebarCollapsed && filteredItems
+            .filter(item => item.id.includes('report'))
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = isActiveItem(item);
+
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`flex items-center justify-center p-2 rounded-lg cursor-pointer group relative transition-colors ${isActive
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  title={item.label}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
                   <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                     {item.label}
                   </div>
-                )}
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
         </nav>
       </div>
     </div>
