@@ -59,14 +59,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def subject_assigned_to_college_instructor(user, subject):
+def subject_assigned_to_college_faculty(user, subject):
     """
-    Check if the user (instructor/faculty) is linked to a college that has this subject.
+    Check if the user (faculty) is linked to a college that has this subject.
     """
     if not hasattr(user, 'college') or not user.college:
         return False
     return CollegeSubject.objects.filter(college=user.college, subject=subject).exists()
-
 
 class CollegeViewSet(viewsets.ModelViewSet):
     """

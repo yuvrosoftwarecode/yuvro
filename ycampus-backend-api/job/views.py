@@ -285,7 +285,7 @@ class JobViewSet(viewsets.ModelViewSet):
     def applications(self, request, pk=None):
         job = self.get_object()
 
-        if not request.user.role in ["recruiter", "admin", "instructor"]:
+        if not request.user.role in ["recruiter", "admin"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -306,7 +306,7 @@ class JobViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def with_applications(self, request):
-        if not request.user.role in ["recruiter", "admin", "instructor"]:
+        if not request.user.role in ["recruiter", "admin"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -437,7 +437,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role in ["recruiter", "admin", "instructor"]:
+        if user.role in ["recruiter", "admin"]:
             return JobApplication.objects.all()
         else:
             return JobApplication.objects.filter(applicant=user)
@@ -549,7 +549,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["patch"])
     def update_status(self, request, pk=None):
-        if not request.user.role in ["recruiter", "admin", "instructor"]:
+        if not request.user.role in ["recruiter", "admin"]:
             return Response(
                 {"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -821,7 +821,6 @@ class CandidateSearchViewSet(viewsets.ViewSet):
         if hasattr(request.user, "role") and request.user.role in [
             "recruiter",
             "admin",
-            "instructor",
         ]:
             try:
                 CandidateSearchLog.objects.create(
@@ -877,7 +876,7 @@ class CandidateSearchViewSet(viewsets.ViewSet):
         ).count()
 
         recent_searches = 0
-        if request.user.role in ["recruiter", "admin", "instructor"]:
+        if request.user.role in ["recruiter", "admin"]:
             recent_searches = CandidateSearchLog.objects.filter(
                 recruiter=request.user, created_at__gte=thirty_days_ago
             ).count()

@@ -107,13 +107,13 @@ const sidebarItems: SidebarItem[] = [
     path: '/student/community',
     roles: ['student']
   },
-  // Admin/Instructor Items
+  // Admin Items
   {
     id: 'admin-dashboard',
     label: 'Dashboard',
     icon: BarChart3,
     path: '/admin/dashboard',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'recruiter-dashboard',
@@ -328,28 +328,28 @@ const sidebarItems: SidebarItem[] = [
     label: 'Subjects',
     icon: BookOpen,
     path: '/admin/subjects',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'skill-tests',
     label: 'Skill Tests',
     icon: CheckCircle,
     path: '/admin/skill-tests',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'mock-interview',
     label: 'Mock Interview',
     icon: TrendingUp,
     path: '/admin/mock-interview',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'recruiter-jobs',
     label: 'Jobs',
     icon: Briefcase,
     path: '/recruiter/jobs',
-    roles: ['admin', 'recruiter', 'instructor']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'recruiter-jobs-approval',
@@ -363,21 +363,21 @@ const sidebarItems: SidebarItem[] = [
     label: 'Contests',
     icon: Trophy,
     path: '/admin/contests',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'code-editor',
     label: 'Code Editor',
     icon: Code,
     path: '/tools/code-editor',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'certifications',
     label: 'Certifications',
     icon: Trophy,
     path: '/admin/certifications',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'colleges',
@@ -398,7 +398,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(true);
 
-  const userRole = user?.role || 'instructor';
+  const userRole = user?.role || 'student';
   const userEmail = user?.email || '';
 
   const hasJobsApprovalAccess = ['recruiter@yuvro.com', 'recruiter_admin@yuvro.com', 'admin@yuvro.com'].includes(userEmail);
@@ -414,8 +414,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
     switch (userRole) {
       case 'admin':
         return 'Yuvro Admin';
-      case 'instructor':
-        return 'Yuvro Instructor';
       case 'recruiter':
         return 'Yuvro Recruiter';
       case 'college_admin':
@@ -439,11 +437,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return {
           title: 'Admin Tools',
           description: 'Access administrative features for system management'
-        };
-      case 'instructor':
-        return {
-          title: 'Instructor Tools',
-          description: ''
         };
       case 'recruiter':
         return {

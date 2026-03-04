@@ -10,7 +10,6 @@ const DashboardRedirect: React.FC = () => {
     if (!isLoading && isAuthenticated && user) {
       switch (user.role) {
         case 'admin':
-        case 'instructor':
           navigate('/admin/dashboard', { replace: true });
           break;
         case 'college_admin':
