@@ -246,12 +246,18 @@ const FacultyTask: React.FC = () => {
 
     // Fetch questions when source is bank
     useEffect(() => {
-        if (formState.question_source === 'bank' && selectedSubject && isCreateDialogOpen) {
+        if (formState.question_source === 'bank' && selectedSubject && isCreateDialogOpen && formState.unit) {
             const loadQuestions = async () => {
                 try {
                     setLoadingQuestions(true);
                     const qType = formState.task_type === 'coding' ? 'coding' : undefined;
-                    const res = await fetchQuestions({ subject: selectedSubject, type: qType, categories: 'task' });
+                    const res = await fetchQuestions({
+                        subject: selectedSubject,
+                        type: qType,
+                        categories: 'task',
+                        unit: formState.unit,
+                        sub_unit: formState.sub_unit || undefined
+                    });
                     setBankQuestions(res);
                 } catch (err) {
                     toast.error('Failed to load question bank');
@@ -263,7 +269,7 @@ const FacultyTask: React.FC = () => {
         } else {
             setBankQuestions([]);
         }
-    }, [formState.question_source, formState.task_type, selectedSubject, isCreateDialogOpen]);
+    }, [formState.question_source, formState.task_type, selectedSubject, isCreateDialogOpen, formState.unit, formState.sub_unit]);
 
     const openCreateDialog = (task: Task | null = null) => {
         if (task) {
@@ -297,11 +303,20 @@ const FacultyTask: React.FC = () => {
     };
 
     const handleSaveTask = async () => {
-        if (!formState.title || (formState.question_source === 'manual' && !formState.description) || formState.sections.length === 0) {
-            toast.error("Please fill in required fields");
+        const isManual = formState.question_source === 'manual';
+        const isBank = formState.question_source === 'bank';
+
+        if (!formState.title || !formState.unit || formState.sections.length === 0) {
+            toast.error("Title, Unit, and Sections are required");
             return;
         }
-        if (formState.question_source === 'bank' && formState.questions.length === 0) {
+
+        if (isManual && (!formState.sub_unit || !formState.description)) {
+            toast.error("Sub Unit and Description are required for manual tasks");
+            return;
+        }
+
+        if (isBank && (formState.questions?.length === 0 || !formState.questions)) {
             toast.error("Please select at least one question from the bank");
             return;
         }
@@ -699,7 +714,7 @@ const FacultyTask: React.FC = () => {
 
             {/* Create / Edit Task Dialog */}
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogContent className="max-w-2xl rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+                <DialogContent className={`${formState.question_source === 'bank' ? 'max-w-5xl' : 'max-w-2xl'} rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white`}>
                     <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100">
                         <DialogTitle className="text-2xl font-black text-gray-900">{editingTask ? 'Edit Task' : 'New Assignment'}</DialogTitle>
                         <DialogDescription className="font-bold text-gray-400">Fill in the details to {editingTask ? 'update' : 'broadcast'} the task.</DialogDescription>
@@ -727,8 +742,8 @@ const FacultyTask: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Unit</Label>
-                                    <Select value={formState.unit} onValueChange={v => setFormState(prev => ({ ...prev, unit: v, subUnit: "" }))}>
+                                    <Label className="text-sm font-bold text-gray-900">Unit *</Label>
+                                    <Select value={formState.unit} onValueChange={v => setFormState(prev => ({ ...prev, unit: v, sub_unit: "" }))}>
                                         <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
@@ -738,7 +753,7 @@ const FacultyTask: React.FC = () => {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Sub Unit</Label>
+                                    <Label className="text-sm font-bold text-gray-900">Sub Unit {formState.question_source === 'manual' ? '*' : ''}</Label>
                                     <Select value={formState.sub_unit} onValueChange={v => setFormState(prev => ({ ...prev, sub_unit: v }))} disabled={!formState.unit}>
                                         <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
                                             <SelectValue placeholder="Select" />

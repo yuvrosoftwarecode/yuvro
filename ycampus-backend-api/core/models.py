@@ -370,7 +370,7 @@ class Task(models.Model):
         "course.Question", related_name="tasks", blank=True
     )
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     is_sent = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
