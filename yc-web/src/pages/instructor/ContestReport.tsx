@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import {
     ArrowLeft, Download, Users, Target, CheckCircle2, TrendingUp,
     Building2, GraduationCap, ShieldCheck, Clock,
-    Trophy, Star, BarChart3, FileText
+    Trophy, Star, BarChart3, FileText, AlertCircle
 } from 'lucide-react';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
@@ -33,6 +33,7 @@ interface ReportData {
     };
     top_performers: Array<{
         rank: number;
+        user_id: string;
         name: string;
         college: string;
         department: string;
@@ -41,6 +42,7 @@ interface ReportData {
     }>;
     college_breakdown: Array<{
         college: string;
+        college_id?: string;
         participants: number;
         avg_marks: number;
         max_marks: number;
@@ -71,6 +73,16 @@ interface ReportData {
         clean_percentage: number;
         proctoring_enabled: boolean;
         proctoring_techniques: string[];
+    };
+    ai_insights?: {
+        quality_assessment?: string;
+        strengths?: string[];
+        areas_for_improvement?: string[];
+        question_recommendations?: string[];
+        future_suggestions?: string[];
+        participation_insights?: string;
+        ai_generated?: boolean;
+        error?: string;
     };
 }
 
@@ -300,11 +312,12 @@ export default function ContestReport() {
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Avg Score</th>
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Best</th>
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Completion</th>
+                                                        <th className="text-right py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {college_breakdown.map(c => (
-                                                        <tr key={c.college} className="border-b border-slate-50">
+                                                        <tr key={c.college} className="border-b border-slate-50 hover:bg-slate-50/50">
                                                             <td className="py-3 px-3 font-medium text-slate-900">{c.college}</td>
                                                             <td className="py-3 px-3 text-center text-slate-600">{c.participants}</td>
                                                             <td className="py-3 px-3 text-center font-semibold text-slate-800">{c.avg_marks}</td>
@@ -316,6 +329,19 @@ export default function ContestReport() {
                                                                     </div>
                                                                     <span className="text-xs text-slate-500">{c.completion_rate}%</span>
                                                                 </div>
+                                                            </td>
+                                                            <td className="py-3 px-3 text-right">
+                                                                {c.college_id && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() => navigate(`/instructor/contests/${contestId}/college-analytics/${c.college_id}`)}
+                                                                        className="text-xs"
+                                                                    >
+                                                                        <BarChart3 className="h-3 w-3 mr-1" />
+                                                                        View Analytics
+                                                                    </Button>
+                                                                )}
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -479,6 +505,123 @@ export default function ContestReport() {
                                     )}
                                 </CardContent>
                             </Card>
+
+                            {/* Section 7: AI-Powered Contest Insights */}
+                            {report.ai_insights && report.ai_insights.error && (
+                                <Card className="border-2 border-orange-200 bg-orange-50 mb-8">
+                                    <CardContent className="py-8 text-center">
+                                        <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-3" />
+                                        <p className="text-slate-700 font-medium">{report.ai_insights.error}</p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
+                            {report.ai_insights && !report.ai_insights.error && (
+                                <Card className="border border-orange-200 shadow-sm mb-8 print-break">
+                                    <CardHeader className="pb-3 bg-gradient-to-r from-orange-50 to-white border-b border-orange-100">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="flex items-center gap-2 text-lg text-slate-800">
+                                                <Star className="h-5 w-5 text-[#F97316]" />
+                                                AI-Powered Contest Insights
+                                            </CardTitle>
+                                            {report.ai_insights.ai_generated && (
+                                                <Badge className="bg-[#F97316] text-white border-0 text-xs">
+                                                    AI Generated
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-6">
+                                        {/* Quality Assessment */}
+                                        <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                                            <h4 className="font-semibold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                                                <Trophy className="h-4 w-4 text-[#F97316]" />
+                                                Contest Quality Assessment
+                                            </h4>
+                                            <p className="text-sm text-slate-700 leading-relaxed">
+                                                {report.ai_insights.quality_assessment}
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            {/* Strengths */}
+                                            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+                                                <h4 className="font-semibold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                                    Strengths
+                                                </h4>
+                                                <ul className="space-y-2">
+                                                    {report.ai_insights.strengths?.map((strength, i) => (
+                                                        <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                            <span className="text-emerald-600 mt-0.5">✓</span>
+                                                            <span>{strength}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+
+                                            {/* Areas for Improvement */}
+                                            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                                                <h4 className="font-semibold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                                    <TrendingUp className="h-4 w-4 text-amber-600" />
+                                                    Areas for Improvement
+                                                </h4>
+                                                <ul className="space-y-2">
+                                                    {report.ai_insights.areas_for_improvement?.map((area, i) => (
+                                                        <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                            <span className="text-amber-600 mt-0.5">→</span>
+                                                            <span>{area}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* Question Recommendations */}
+                                        <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                                            <h4 className="font-semibold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-blue-600" />
+                                                Question Recommendations
+                                            </h4>
+                                            <ul className="space-y-2">
+                                                {report.ai_insights.question_recommendations?.map((rec, i) => (
+                                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                        <span className="text-blue-600 mt-0.5">•</span>
+                                                        <span>{rec}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Future Suggestions */}
+                                        <div className="mb-6 p-4 bg-purple-50 border border-purple-100 rounded-xl">
+                                            <h4 className="font-semibold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                                <Target className="h-4 w-4 text-purple-600" />
+                                                Future Contest Suggestions
+                                            </h4>
+                                            <ul className="space-y-2">
+                                                {report.ai_insights.future_suggestions?.map((suggestion, i) => (
+                                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                        <span className="text-purple-600 mt-0.5">→</span>
+                                                        <span>{suggestion}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Participation Insights */}
+                                        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                                            <h4 className="font-semibold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                                                <Users className="h-4 w-4 text-slate-600" />
+                                                Participation Insights
+                                            </h4>
+                                            <p className="text-sm text-slate-700 leading-relaxed">
+                                                {report.ai_insights.participation_insights}
+                                            </p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
 
                             {/* Footer */}
                             <div className="text-center text-xs text-slate-400 py-6 border-t border-slate-200">

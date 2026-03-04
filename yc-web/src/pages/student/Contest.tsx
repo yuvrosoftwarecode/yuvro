@@ -421,14 +421,24 @@ const ContestPage = () => {
 
         {/* Filters & Tabs Row */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-gray-100/50 p-1">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">All Contests</TabsTrigger>
-              <TabsTrigger value="past" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">Past Contests</TabsTrigger>
-              <TabsTrigger value="my" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">My Contests</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {/* Tabs and Analytics Button */}
+          <div className="flex items-center gap-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="bg-gray-100/50 p-1">
+                <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">All Contests</TabsTrigger>
+                <TabsTrigger value="past" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">Past Contests</TabsTrigger>
+                <TabsTrigger value="my" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">My Contests</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            <Button
+              onClick={() => navigate('/student/contest-analytics-list')}
+              className="bg-[#F97316] hover:bg-[#EA580C] text-white shadow-sm"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Analytics / Feedback
+            </Button>
+          </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-center">

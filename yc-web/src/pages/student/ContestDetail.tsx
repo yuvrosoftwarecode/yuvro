@@ -48,8 +48,7 @@ interface Contest {
     registrationEndDate?: Date;
     allowLateEntry?: boolean;
     description?: string;
-    rules?: string[];
-    prizes?: { rank: string; prize: string }[];
+    instructions?: string;
     openForAllColleges?: boolean;
     allowedCollegesDetails?: { id: string; name: string }[];
     openForAllDepartments?: boolean;
@@ -75,25 +74,6 @@ const ContestDetail: React.FC = () => {
     const [savingProfile, setSavingProfile] = useState(false);
     const [pickerMode, setPickerMode] = useState<'college' | 'department'>('college');
 
-    // Mock additional data since API might not have all fields
-    const mockDetails = {
-        description: "Join this exciting coding challenge and test your problem-solving skills against participants from around the world. This contest features a mix of algorithmic problems designed to challenge both beginners and experienced programmers.",
-        rules: [
-            "Each participant can submit multiple solutions",
-            "The final score is based on the best submission",
-            "Plagiarism will result in disqualification",
-            "Use of external libraries is restricted to standard libraries",
-            "Time penalty applies for wrong submissions"
-        ],
-        prizes: [
-            { rank: "🥇 1st Place", prize: "₹10,000 + Certificate" },
-            { rank: "🥈 2nd Place", prize: "₹5,000 + Certificate" },
-            { rank: "🥉 3rd Place", prize: "₹2,500 + Certificate" },
-            { rank: "Top 10", prize: "Exclusive Swag Kit" },
-            { rank: "All Participants", prize: "Participation Certificate" }
-        ]
-    };
-
     useEffect(() => {
         const loadContest = async () => {
             if (!contestId) return;
@@ -112,6 +92,8 @@ const ContestDetail: React.FC = () => {
                     duration: typeof data.duration === 'string' ? parseInt(data.duration) : (data.duration || 60),
                     participants: data.participants_count || 0,
                     prize: data.prize,
+                    description: data.description,
+                    instructions: data.instructions,
                     status: data.status,
                     isRegistered: data.is_registered || false,
                     registrationStartDate: (data.registration_start_datetime || data.registration_start_date)
@@ -126,7 +108,6 @@ const ContestDetail: React.FC = () => {
                     openForAllDepartments: data.open_for_all_departments ?? true,
                     allowedDepartmentsDetails: data.allowed_departments_details || [],
                     requireStudentId: data.require_student_id ?? false,
-                    ...mockDetails
                 });
 
                 if (found) {
@@ -457,7 +438,7 @@ const ContestDetail: React.FC = () => {
                 </DialogContent>
             </Dialog>
 
-            <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="container mx-auto px-6 py-8">
                 {/* Back Button */}
                 <Button
                     variant="ghost"
@@ -649,64 +630,56 @@ const ContestDetail: React.FC = () => {
                         </Card>
 
                         {/* Description */}
-                        <Card className="border border-gray-100 shadow-sm">
-                            <CardHeader className="border-b border-gray-100">
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <FileText className="h-5 w-5 text-indigo-500" />
-                                    About This Contest
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <p className="text-gray-600 leading-relaxed">
-                                    {contest.description || mockDetails.description}
-                                </p>
-                            </CardContent>
-                        </Card>
+                        {contest.description && (
+                            <Card className="border border-gray-100 shadow-sm">
+                                <CardHeader className="border-b border-gray-100">
+                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                        <FileText className="h-5 w-5 text-indigo-500" />
+                                        About This Contest
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                                        {contest.description}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
 
-                        {/* Rules */}
-                        <Card className="border border-gray-100 shadow-sm">
-                            <CardHeader className="border-b border-gray-100">
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <AlertCircle className="h-5 w-5 text-amber-500" />
-                                    Rules & Guidelines
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <ul className="space-y-3">
-                                    {(contest.rules || mockDetails.rules).map((rule, index) => (
-                                        <li key={index} className="flex items-start gap-3">
-                                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-sm font-semibold shrink-0">
-                                                {index + 1}
-                                            </span>
-                                            <span className="text-gray-600">{rule}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </CardContent>
-                        </Card>
+                        {/* Rules & Instructions */}
+                        {contest.instructions && (
+                            <Card className="border border-gray-100 shadow-sm">
+                                <CardHeader className="border-b border-gray-100">
+                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                        <AlertCircle className="h-5 w-5 text-amber-500" />
+                                        Rules & Guidelines
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <div className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                                        {contest.instructions}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
 
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* Prizes Card */}
-                        <Card className="border border-gray-100 shadow-sm overflow-hidden">
-                            <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-100">
-                                <CardTitle className="flex items-center gap-2 text-lg text-amber-700">
-                                    <Gift className="h-5 w-5" />
-                                    Prizes
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="divide-y divide-gray-50">
-                                    {(contest.prizes || mockDetails.prizes).map((prize, index) => (
-                                        <div key={index} className="flex items-center justify-between px-5 py-3 hover:bg-gray-50/50">
-                                            <span className="font-medium text-gray-900">{prize.rank}</span>
-                                            <span className="text-sm text-amber-600 font-semibold">{prize.prize}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                        {contest.prize && (
+                            <Card className="border border-gray-100 shadow-sm overflow-hidden">
+                                <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-amber-100">
+                                    <CardTitle className="flex items-center gap-2 text-lg text-amber-700">
+                                        <Gift className="h-5 w-5" />
+                                        Prizes
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    <p className="text-gray-700 font-medium whitespace-pre-wrap">{contest.prize}</p>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         {/* Leaderboard */}
                         <ContestLeaderboard

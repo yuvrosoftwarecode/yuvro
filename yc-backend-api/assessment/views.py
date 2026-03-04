@@ -421,6 +421,8 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def start(self, request, pk=None):
+        from .models import ContestRegistration
+        
         contest = self.get_object()
         user = request.user
         now = timezone.now()
@@ -625,6 +627,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             profile = getattr(sub.user, 'profile', None)
             top_performers.append({
                 'rank': rank,
+                'user_id': str(sub.user.id),
                 'name': f"{sub.user.first_name} {sub.user.last_name}".strip() or sub.user.username,
                 'college': profile.college.name if profile and profile.college else 'N/A',
                 'department': profile.department.name if profile and profile.department else 'N/A',
@@ -637,9 +640,15 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         for sub in submissions:
             profile = getattr(sub.user, 'profile', None)
             college_name = profile.college.name if profile and profile.college else 'Unknown'
+            college_id = profile.college.id if profile and profile.college else None
             
             if college_name not in college_stats:
-                college_stats[college_name] = {'participants': 0, 'marks_list': [], 'completed': 0}
+                college_stats[college_name] = {
+                    'participants': 0, 
+                    'marks_list': [], 
+                    'completed': 0,
+                    'college_id': college_id
+                }
             
             college_stats[college_name]['participants'] += 1
             college_stats[college_name]['marks_list'].append(sub.marks or 0)
@@ -651,6 +660,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             marks = stats['marks_list']
             college_breakdown.append({
                 'college': name,
+                'college_id': str(stats['college_id']) if stats.get('college_id') else None,
                 'participants': stats['participants'],
                 'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
                 'max_marks': max(marks) if marks else 0,
@@ -746,14 +756,242 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             'proctoring_techniques': contest.proctoring_techniques or [],
         }
 
-        return Response({
+        report_data = {
             'summary': summary,
             'top_performers': top_performers,
             'college_breakdown': college_breakdown,
             'department_comparison': department_comparison,
             'question_performance': question_performance,
             'integrity': integrity,
-        })
+        }
+
+        # Check if AI insights should be included
+        include_ai = request.query_params.get('include_ai_insights', 'false').lower() == 'true'
+        
+        if include_ai:
+            try:
+                from .ai_insights_service import generate_contest_insights_sync
+                ai_insights = generate_contest_insights_sync(
+                    contest_data=report_data,
+                    contest_title=contest.title
+                )
+                report_data['ai_insights'] = ai_insights
+            except Exception as ai_error:
+                logger.warning(f"Failed to generate AI insights for contest: {str(ai_error)}")
+                report_data['ai_insights'] = {
+                    "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
+                    "ai_generated": False
+                }
+
+        return Response(report_data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def student_analytics(self, request, pk=None):
+        """
+        Get detailed analytics for the authenticated student's contest performance.
+        Students can only access their own analytics.
+        Admins/Instructors can view any student's analytics by passing user_id query param.
+        
+        Query Parameters:
+            - include_ai_insights: boolean (default: true) - Whether to include AI-generated insights
+            - user_id: string (admin/instructor only) - View analytics for specific user
+        """
+        contest = self.get_object()
+        user = request.user
+        
+        # Check if admin/instructor is requesting another user's analytics
+        target_user_id = request.query_params.get('user_id')
+        
+        if target_user_id:
+            # Only admins/instructors can view other users' analytics
+            if not (user.is_staff or user.role in ['admin', 'instructor']):
+                return Response(
+                    {"error": "You don't have permission to view other users' analytics"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            target_user_id = target_user_id
+        else:
+            # Regular student viewing their own analytics
+            target_user_id = str(user.id)
+
+        # Check if student has participated in this contest
+        try:
+            submission = ContestSubmission.objects.get(contest=contest, user__id=target_user_id)
+        except ContestSubmission.DoesNotExist:
+            return Response(
+                {"error": "This user has not participated in this contest"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            from .analytics_service import ContestAnalyticsService
+            from .ai_insights_service import generate_student_insights_sync
+            
+            analytics_service = ContestAnalyticsService(contest_id=str(contest.id))
+            analytics_data = analytics_service.get_student_analytics(user_id=target_user_id)
+            
+            # Check if AI insights should be included
+            include_ai = request.query_params.get('include_ai_insights', 'true').lower() == 'true'
+            
+            if include_ai:
+                try:
+                    # Generate AI insights
+                    ai_insights = generate_student_insights_sync(
+                        student_analytics=analytics_data,
+                        contest_title=contest.title
+                    )
+                    analytics_data['ai_insights'] = ai_insights
+                except Exception as ai_error:
+                    # If AI insights fail, continue without them
+                    logger.warning(f"Failed to generate AI insights: {str(ai_error)}")
+                    analytics_data['ai_insights'] = {
+                        "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
+                        "ai_generated": False
+                    }
+            
+            return Response(analytics_data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Failed to generate analytics: {str(e)}")
+            return Response(
+                {"error": "Failed to generate analytics", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def college_analytics(self, request, pk=None):
+        """
+        Get detailed analytics for a college's performance in the contest.
+        Only admins/instructors can access college analytics.
+        
+        Query Parameters:
+            - college_id: string (required) - College ID to get analytics for
+            - include_ai_insights: boolean (default: false) - Whether to include AI-generated insights
+        """
+        contest = self.get_object()
+        user = request.user
+        
+        # Only admins/instructors can view college analytics
+        if not (user.is_staff or user.role in ['admin', 'instructor']):
+            return Response(
+                {"error": "You don't have permission to view college analytics"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        college_id = request.query_params.get('college_id')
+        if not college_id:
+            return Response(
+                {"error": "college_id query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            from .analytics_service import ContestAnalyticsService
+            from .ai_insights_service import generate_college_insights_sync
+            
+            analytics_service = ContestAnalyticsService(contest_id=str(contest.id))
+            analytics_data = analytics_service.get_college_analytics(college_id=college_id)
+            
+            # Check if AI insights should be included
+            include_ai = request.query_params.get('include_ai_insights', 'false').lower() == 'true'
+            
+            if include_ai:
+                try:
+                    # Generate AI insights for college
+                    ai_insights = generate_college_insights_sync(
+                        college_analytics=analytics_data,
+                        contest_title=contest.title
+                    )
+                    analytics_data['ai_insights'] = ai_insights
+                except Exception as ai_error:
+                    logger.warning(f"Failed to generate AI insights for college: {str(ai_error)}")
+                    analytics_data['ai_insights'] = {
+                        "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
+                        "ai_generated": False
+                    }
+            
+            return Response(analytics_data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Failed to generate college analytics: {str(e)}")
+            return Response(
+                {"error": "Failed to generate college analytics", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='by-college')
+    def contests_by_college(self, request):
+        """
+        Get all contests that a specific college has participated in.
+        Returns contests with submission counts for that college.
+
+        URL: /api/assessment/contests/by-college/?college_id={college_id}
+        """
+        user = request.user
+
+        # Only admins/instructors can view college contest participation
+        if not (user.is_staff or user.role in ['admin', 'instructor']):
+            return Response(
+                {"error": "You don't have permission to view college contest data"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        college_id = request.query_params.get('college_id')
+        if not college_id:
+            return Response(
+                {"error": "college_id query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            from authentication.models import College
+            college = College.objects.get(id=college_id)
+        except College.DoesNotExist:
+            return Response(
+                {"error": "College not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Find all contests where students from this college have participated
+        from django.db.models import Count, Avg
+
+        contests_with_participation = Contest.objects.filter(
+            contest_submissions__user__profile__college=college
+        ).annotate(
+            college_participants=Count('contest_submissions', filter=Q(contest_submissions__user__profile__college=college), distinct=True),
+            college_avg_score=Avg('contest_submissions__marks', filter=Q(contest_submissions__user__profile__college=college))
+        ).filter(
+            college_participants__gt=0
+        ).order_by('-start_datetime').distinct()
+
+        contest_data = []
+        for contest in contests_with_participation:
+            contest_data.append({
+                'id': str(contest.id),
+                'title': contest.title,
+                'type': contest.type,
+                'difficulty': contest.difficulty,
+                'start_datetime': contest.start_datetime,
+                'end_datetime': contest.end_datetime,
+                'total_marks': contest.total_marks,
+                'status': contest.status,
+                'college_participants': contest.college_participants,
+                'college_avg_score': round(contest.college_avg_score or 0, 1),
+            })
+
+        return Response({
+            'college_id': str(college.id),
+            'college_name': college.name,
+            'contests': contest_data,
+            'total_contests': len(contest_data)
+        }, status=status.HTTP_200_OK)
 
 
 class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
@@ -1080,6 +1318,18 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             }
                         )
                         
+                        # Create InterviewSession linking to ChatSession
+                        # This is crucial for the AI Assistant module to track it as an interview
+                        interview_session = InterviewSession.objects.create(
+                            user=user,
+                            chat_session=chat_session,
+                            role_title=mock_interview.title,
+                            role_level=experience_level,
+                            difficulty="Adaptive", # Mock interviews are generally adaptive
+                            duration_minutes=selected_duration or mock_interview.max_duration,
+                            status='started'
+                        )
+
                         # Create InterviewSession linking to ChatSession
                         # This is crucial for the AI Assistant module to track it as an interview
                         interview_session = InterviewSession.objects.create(
