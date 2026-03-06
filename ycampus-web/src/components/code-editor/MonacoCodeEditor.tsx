@@ -1,5 +1,9 @@
 import MonacoEditor, { loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import { Sparkles, Maximize2, Minimize2, X } from 'lucide-react';
+
+// Configure the loader to use the local monaco-editor instance
+loader.config({ monaco });
 
 interface MonacoCodeEditorProps {
   value: string;

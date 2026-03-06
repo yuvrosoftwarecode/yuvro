@@ -70,6 +70,7 @@ import HODDashboard from './pages/hod/Dashboard';
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
 import FacultyTask from './pages/faculty/Task';
+import StudentTask from './pages/student/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -708,6 +709,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CertificationExam />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/task"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentTask />
                   </ProtectedRoute>
                 }
               />

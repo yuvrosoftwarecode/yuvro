@@ -8,7 +8,7 @@ import { fetchQuestions, Question } from '../../services/questionService';
 import {
     BookOpen, Users, Calendar, ArrowRight, Loader2, Plus, List, Send, Trash2,
     CheckCircle, Clock, Search, MessageSquare, ChevronLeft, Edit2, MoreVertical,
-    User, Filter, Download, ExternalLink, SendHorizonal
+    User, Filter, Download, ExternalLink, SendHorizonal, Paperclip
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ import {
     Dialog, DialogContent, DialogDescription, DialogFooter,
     DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuTrigger
@@ -168,6 +170,25 @@ const FacultyTask: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Polling for updates when viewing student detail
+    useEffect(() => {
+        let interval: any;
+        if (view === 'studentDetail' && selectedSubmission) {
+            interval = setInterval(async () => {
+                try {
+                    const data = await taskService.getSubmissionDetail(selectedSubmission.id);
+                    // Only update if something changed (e.g. more comments)
+                    if (JSON.stringify(data.comments) !== JSON.stringify(selectedSubmission.comments)) {
+                        setSelectedSubmission(data);
+                    }
+                } catch (err) {
+                    console.error("Polling failed", err);
+                }
+            }, 5000); // Poll every 5 seconds
+        }
+        return () => clearInterval(interval);
+    }, [view, selectedSubmission?.id]);
 
     const handleAddComment = async () => {
         if (!selectedSubmission?.id || !newComment.trim()) return;
@@ -469,131 +490,208 @@ const FacultyTask: React.FC = () => {
         </div>
     );
 
-    const renderResponses = () => (
-        <div className="space-y-6">
-            <div className="flex items-center gap-4 mb-2">
-                <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white hover:bg-white shadow-sm border border-gray-100">
-                    <ChevronLeft className="h-5 w-5" />
-                </Button>
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 capitalize">Responses</h2>
-                    <p className="text-gray-500 text-sm font-medium">{selectedTask?.title}</p>
-                </div>
-            </div>
+    const renderResponses = () => {
+        const stats = {
+            total: submissions.length, // Fallback if no full student list
+            completed: submissions.filter(s => s.is_submitted).length,
+            inProgress: submissions.filter(s => !s.is_submitted && (s.answer || s.answers_data)).length,
+            pending: 0 // Will calculate if total > submissions.length
+        };
+        stats.pending = Math.max(0, stats.total - stats.completed - stats.inProgress);
 
-            <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
-                <CardHeader className="border-b border-gray-50 bg-white p-6">
-                    <div className="flex justify-between items-center">
-                        <CardTitle className="text-2xl font-semibold text-foreground">Student Submissions</CardTitle>
-                        <Button variant="outline" size="sm" className="rounded-lg h-9 border-gray-200 text-muted-foreground font-bold text-xs hover:bg-white">
-                            <Download className="h-3.5 w-3.5 mr-2" /> Export
+        return (
+            <div className="space-y-8 pb-10">
+                {/* Header Sub-row */}
+                <div className="flex items-center gap-6">
+                    <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white hover:bg-white shadow-xl border border-gray-100 h-12 w-12">
+                        <ChevronLeft className="h-6 w-6 text-gray-900" />
+                    </Button>
+                    <div className="space-y-1">
+                        <h2 className="text-4xl font-black text-gray-900 tracking-tight">{selectedTask?.title}</h2>
+                        <p className="text-gray-500 font-bold flex items-center gap-2">
+                            View student responses
+                        </p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-3">
+                        <Button className="bg-[#1e1e2d] hover:bg-[#2d2d3d] text-white px-6 h-12 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-gray-200">
+                            <Download className="h-5 w-5" /> Download Report
                         </Button>
                     </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <div className="divide-y divide-gray-50">
-                        {submissions.length > 0 ? submissions.map(sub => (
-                            <div key={sub.id} className="p-4 hover:bg-gray-50 transition-all flex items-center justify-between group">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 rounded-2xl bg-gray-100 border border-white shadow-sm flex items-center justify-center text-gray-400">
-                                        <User className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-gray-900">{sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}</p>
-                                        <div className="flex items-center gap-3 mt-0.5">
-                                            <span className="text-xs font-bold text-gray-400">{sub.student_details?.roll_number || 'No Roll No'}</span>
-                                            <span className="h-1 w-1 rounded-full bg-gray-300"></span>
-                                            <span className="text-xs font-bold text-gray-400">Section {sub.student_details?.section_name}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right hidden sm:block">
-                                        <p className="text-xs font-bold text-gray-900">{sub.is_submitted ? 'Submitted' : 'Pending'}</p>
-                                        <p className="text-[10px] font-bold text-gray-400">{sub.submitted_at ? format(new Date(sub.submitted_at), 'MMM dd, yyyy') : '--'}</p>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => fetchSubmissionDetail(sub.id)}
-                                        className="rounded-xl h-10 w-10 p-0 text-gray-400 border border-transparent"
-                                    >
-                                        <ArrowRight className="h-5 w-5" />
-                                    </Button>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="py-20 text-center flex flex-col items-center">
-                                <Users className="h-12 w-12 text-gray-200 mb-4" />
-                                <p className="text-gray-500 font-bold">No submissions yet.</p>
-                            </div>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    );
-
-    const renderStudentDetail = () => (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-                <div className="flex items-center gap-4 mb-2">
-                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white hover:bg-white shadow-sm border border-gray-100">
-                        <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">{selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}</h2>
-                        <p className="text-gray-500 text-sm font-medium">{selectedTask?.title}</p>
-                    </div>
                 </div>
 
-                <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white">
-                    <CardHeader className="bg-white border-b border-gray-50 p-6">
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="text-2xl font-semibold text-foreground">Answer Content</CardTitle>
-                            <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 font-bold">FINAL SUBMISSION</Badge>
+                {/* Task Description Card */}
+                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden p-8">
+                    <h3 className="text-xl font-black text-gray-900 mb-4">Task Description</h3>
+                    <p className="text-gray-500 font-bold leading-relaxed">{selectedTask?.description || "No description provided."}</p>
+                </Card>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                        { label: 'Total Students', value: stats.total, color: 'text-gray-900' },
+                        { label: 'Completed', value: stats.completed, color: 'text-emerald-500' },
+                        { label: 'In Progress', value: stats.inProgress, color: 'text-blue-500' },
+                        { label: 'Pending', value: stats.pending, color: 'text-orange-500' }
+                    ].map((s, i) => (
+                        <Card key={i} className="rounded-[2.5rem] border-none shadow-xl shadow-gray-200/50 bg-white p-6 text-center">
+                            <p className="text-4xl font-black mb-1" style={{ color: 'inherit' }}>{s.value}</p>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Responses Table Card */}
+                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden">
+                    <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <CardTitle className="text-2xl font-black text-gray-900">Student Responses</CardTitle>
+                        <div className="relative w-full md:w-80 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-gray-900" />
+                            <Input
+                                placeholder="Search by roll no or name"
+                                className="pl-12 h-12 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-gray-100 transition-all font-bold outline-none"
+                            />
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                        <div className="prose prose-gray max-w-none">
-                            <p className="text-gray-700 leading-relaxed font-medium whitespace-pre-wrap">
-                                {selectedSubmission?.answer || "No content provided."}
-                            </p>
+                    </div>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50/50 border-b border-gray-50">
+                                    <tr>
+                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest">Roll No</th>
+                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest">Name</th>
+                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {submissions.map((sub) => (
+                                        <tr key={sub.id} className="hover:bg-gray-50/50 transition-all">
+                                            <td className="p-6 font-black text-gray-900">{sub.student_details?.roll_number || '--'}</td>
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-10 w-10">
+                                                        <AvatarImage src={sub.student_details?.user_details?.profile?.avatar} />
+                                                        <AvatarFallback className="bg-gray-100 text-gray-400 font-black">
+                                                            {sub.student_details?.user_details?.first_name?.[0]}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="font-bold text-gray-900">
+                                                        {sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-center">
+                                                <Badge className={`px-4 py-1.5 rounded-full font-black text-[10px] uppercase border-none ${sub.is_submitted
+                                                    ? 'bg-[#1e1e2d] text-white'
+                                                    : sub.answer ? 'bg-blue-50 text-blue-500' : 'bg-gray-100 text-gray-400'
+                                                    }`}>
+                                                    {sub.is_submitted ? 'Completed' : sub.answer ? 'In Progress' : 'Pending'}
+                                                </Badge>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => fetchSubmissionDetail(sub.id)}
+                                                    className="rounded-xl h-10 border-gray-100 text-gray-900 font-black hover:bg-white shadow-sm"
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {submissions.length === 0 && (
+                                <div className="py-20 text-center flex flex-col items-center">
+                                    <Users className="h-16 w-16 text-gray-100 mb-4" />
+                                    <p className="text-gray-400 font-black uppercase tracking-widest">No responses yet</p>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </div>
+        );
+    };
 
-            <div className="space-y-6">
-                <Card className="border-gray-100 shadow-sm rounded-2xl overflow-hidden bg-white flex flex-col h-[600px]">
-                    <CardHeader className="border-b border-gray-50 bg-white p-6">
-                        <CardTitle className="text-2xl font-semibold text-foreground flex items-center gap-2">
-                            <MessageSquare className="h-5 w-5 text-gray-400" />
-                            Feedbacks & Comments
+    const renderStudentDetail = () => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-180px)] pb-10">
+            <div className="lg:col-span-2 flex flex-col gap-6 h-full min-h-0">
+                <div className="flex items-center gap-6">
+                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white hover:bg-white shadow-xl border border-gray-100 h-12 w-12">
+                        <ChevronLeft className="h-6 w-6 text-gray-900" />
+                    </Button>
+                    <div>
+                        <h2 className="text-3xl font-black text-gray-900 capitalize">
+                            {selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}
+                        </h2>
+                        <p className="text-gray-500 font-bold">{selectedTask?.title}</p>
+                    </div>
+                </div>
+
+                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden flex flex-col flex-1">
+                    <CardHeader className="bg-white border-b border-gray-50 p-8 flex flex-row items-center justify-between">
+                        <CardTitle className="text-2xl font-black text-gray-900">Answer Content</CardTitle>
+                        {selectedSubmission?.file && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(selectedSubmission.file)}
+                                className="rounded-2xl h-10 border-emerald-100 text-emerald-600 bg-emerald-50 font-black hover:bg-emerald-100 gap-2"
+                            >
+                                <Download className="h-4 w-4" /> View Attached File
+                            </Button>
+                        )}
+                    </CardHeader>
+                    <ScrollArea className="flex-1 p-8">
+                        <div className="prose prose-neutral max-w-none">
+                            <p className="text-gray-900 leading-relaxed font-bold whitespace-pre-wrap bg-gray-50 p-8 rounded-[2rem] border border-gray-100 text-lg">
+                                {selectedSubmission?.answer || "No text content provided."}
+                            </p>
+                        </div>
+                    </ScrollArea>
+                </Card>
+            </div>
+
+            <div className="flex flex-col h-full min-h-0">
+                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden flex flex-col h-full">
+                    <CardHeader className="border-b border-gray-50 bg-white p-8">
+                        <CardTitle className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                            <MessageSquare className="h-6 w-6 text-orange-500" />
+                            Feedbacks & Chat
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-                        {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
-                            selectedSubmission.comments.map(c => (
-                                <div key={c.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100/50">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">You (Faculty)</p>
-                                        <p className="text-[10px] font-bold text-gray-400">{format(new Date(c.created_at), 'MMM dd, hh:mm a')}</p>
+                    <CardContent className="flex-1 overflow-hidden p-0">
+                        <ScrollArea className="h-full px-8 py-6">
+                            <div className="space-y-6">
+                                {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
+                                    selectedSubmission.comments.map((c, i) => (
+                                        <div key={c.id || i} className={`flex flex-col ${c.faculty ? 'items-end' : 'items-start'}`}>
+                                            <div className={`p-4 rounded-3xl max-w-[90%] ${c.faculty
+                                                ? 'bg-[#1e1e2d] text-white rounded-br-none shadow-xl shadow-gray-900/10'
+                                                : 'bg-gray-100 text-gray-900 rounded-bl-none'
+                                                }`}>
+                                                <p className="text-sm font-bold leading-normal">{c.comment}</p>
+                                                <span className={`text-[10px] mt-2 block font-black uppercase tracking-widest opacity-50`}>
+                                                    {c.faculty ? 'You' : 'Student'} • {format(new Date(c.created_at), 'hh:mm a')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-30">
+                                        <Clock className="h-12 w-12 text-gray-200 mb-4" />
+                                        <p className="text-xs font-black uppercase tracking-widest">No conversation yet</p>
                                     </div>
-                                    <p className="text-xs font-semibold text-gray-800 leading-normal">{c.comment}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-center px-6">
-                                <Clock className="h-8 w-8 text-gray-200 mb-3" />
-                                <p className="text-xs font-bold text-gray-400">No feedback provided yet. Start by adding a comment below.</p>
+                                )}
                             </div>
-                        )}
+                        </ScrollArea>
                     </CardContent>
-                    <div className="p-4 bg-gray-50 border-t border-gray-100">
-                        <div className="relative">
+                    <div className="p-8 bg-gray-50 border-t border-gray-100">
+                        <div className="relative group">
                             <Textarea
                                 placeholder="Write a comment..."
-                                className="min-h-[100px] bg-white border-gray-200 focus:ring-gray-900 rounded-xl resize-none pr-12 text-sm font-medium"
+                                className="min-h-[120px] bg-white border-none focus:ring-4 focus:ring-gray-200 rounded-[1.5rem] resize-none pr-14 p-6 shadow-sm font-bold text-gray-900 outline-none"
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
                             />
@@ -601,9 +699,9 @@ const FacultyTask: React.FC = () => {
                                 size="icon"
                                 disabled={submitting || !newComment.trim()}
                                 onClick={handleAddComment}
-                                className="absolute right-3 bottom-3 bg-orange-500 hover:bg-orange-500 h-8 w-8 rounded-lg shadow-md transition-all text-white"
+                                className="absolute right-4 bottom-4 bg-[#1e1e2d] hover:bg-gray-800 h-10 w-10 rounded-xl shadow-xl transition-all text-white"
                             >
-                                <SendHorizonal className="h-4 w-4" />
+                                <Send className="h-5 w-5" />
                             </Button>
                         </div>
                     </div>

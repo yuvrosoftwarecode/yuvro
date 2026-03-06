@@ -43,6 +43,7 @@ export interface TaskSubmission {
     student_details?: any;
     answer: string;
     answers_data?: Record<string, any>;
+    file?: string;
     is_submitted: boolean;
     submitted_at?: string;
     comments: TaskComment[];
@@ -85,6 +86,14 @@ export const taskService = {
 
     addCommentToSubmission: async (id: string, comment: string): Promise<TaskComment> => {
         return await restApiAuthUtil.post<TaskComment>(`/core/task-submissions/${id}/add_comment/`, { comment });
+    },
+
+    createTaskSubmission: async (data: FormData): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.post<TaskSubmission>(`/core/task-submissions/`, data);
+    },
+
+    submitTask: async (id: string, data: FormData): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, data);
     }
 };
 
