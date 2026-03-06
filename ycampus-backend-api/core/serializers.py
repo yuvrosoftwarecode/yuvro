@@ -142,10 +142,11 @@ class CollegeAdminProfileSerializer(serializers.ModelSerializer):
 
 class TaskCommentSerializer(serializers.ModelSerializer):
     faculty_details = FacultyProfileSerializer(source="faculty", read_only=True)
+    student_details = StudentProfileSerializer(source="student", read_only=True)
 
     class Meta:
         model = TaskComment
-        fields = ["id", "submission", "faculty", "faculty_details", "comment", "created_at", "updated_at"]
+        fields = ["id", "submission", "faculty", "faculty_details", "student", "student_details", "comment", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
 class TaskSubmissionSerializer(serializers.ModelSerializer):
@@ -154,8 +155,8 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskSubmission
-        fields = ["id", "task", "student", "student_details", "answer", "answers_data", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at", "submitted_at"]
+        fields = ["id", "task", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
+        read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at"]
 
 class TaskSerializer(serializers.ModelSerializer):
     faculty_details = serializers.SerializerMethodField()

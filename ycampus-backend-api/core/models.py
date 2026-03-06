@@ -355,6 +355,7 @@ class TaskSubmission(BaseTimestampedModel):
     )
     is_submitted = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(null=True, blank=True)
+    file = models.FileField(upload_to="task_submissions/", null=True, blank=True)
 
     class Meta:
         unique_together = ("task", "student")
@@ -371,7 +372,10 @@ class TaskComment(BaseTimestampedModel):
         TaskSubmission, on_delete=models.CASCADE, related_name="comments"
     )
     faculty = models.ForeignKey(
-        FacultyProfile, on_delete=models.CASCADE, related_name="task_comments"
+        FacultyProfile, on_delete=models.CASCADE, related_name="task_comments", null=True, blank=True
+    )
+    student = models.ForeignKey(
+        StudentProfile, on_delete=models.CASCADE, related_name="task_comments", null=True, blank=True
     )
     comment = models.TextField()
 
