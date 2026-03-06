@@ -30,6 +30,7 @@ interface CodeEditorWithAIProps {
   onSubmissionComplete?: (problemId: string, success: boolean, submissionResult?: any) => void;
   onCodeChange?: (code: string) => void;
   initialCode?: string;
+  hideSubmitButton?: boolean;
 }
 
 export interface CodeEditorWithAIHandle {
@@ -55,7 +56,8 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   codeSubmissionType = 'practice',
   onSubmissionComplete,
   onCodeChange,
-  initialCode = ""
+  initialCode = "",
+  hideSubmitButton = false
 }, ref) => {
   // UI state
   const [editorOpen, setEditorOpen] = useState(initialEditorOpen);
@@ -447,6 +449,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   templates={apiTemplates}
                   codeSubmissionType={codeSubmissionType}
                   onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                  hideSubmitButton={hideSubmitButton}
                 />
               </div>
             </ResizablePanel>
@@ -552,6 +555,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     templates={apiTemplates}
                     codeSubmissionType={codeSubmissionType}
                     onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                    hideSubmitButton={hideSubmitButton}
                   />
                 </div>
               </ResizablePanel>
