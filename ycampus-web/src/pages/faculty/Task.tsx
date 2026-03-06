@@ -136,11 +136,22 @@ const FacultyTask: React.FC = () => {
             await taskService.sendTask(taskToSend.id);
             toast.success("Task sent successfully!");
             setIsSendConfirmDialogOpen(false);
-            fetchTasks();
+            setNewComment("");
         } catch (err) {
-            toast.error("Failed to send task");
+            toast.error("Failed to send message");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleTextSelection = () => {
+        const selection = window.getSelection();
+        const selectedText = selection?.toString().trim();
+        if (selectedText) {
+            setNewComment(prev => `${prev}${prev ? '\n\n' : ''}> ${selectedText}\n\n`);
+            // Clear selection so user can re-select if needed
+            selection?.removeAllRanges();
+            toast.info("Selected text added to chat");
         }
     };
 
@@ -491,38 +502,53 @@ const FacultyTask: React.FC = () => {
     );
 
     const renderResponses = () => {
+        // Calculate total students from assigned sections
+        const totalStudents = selectedTask?.section_details?.reduce((acc, curr) => acc + (curr.student_count || 0), 0) || 0;
+
         const stats = {
-            total: submissions.length, // Fallback if no full student list
+            total: totalStudents || submissions.length,
             completed: submissions.filter(s => s.is_submitted).length,
-            inProgress: submissions.filter(s => !s.is_submitted && (s.answer || s.answers_data)).length,
-            pending: 0 // Will calculate if total > submissions.length
+            inProgress: submissions.filter(s => !s.is_submitted && (s.answer || s.answers_data || s.file)).length,
+            pending: 0
         };
         stats.pending = Math.max(0, stats.total - stats.completed - stats.inProgress);
 
+        const filteredSubmissions = submissions.filter(sub => {
+            const student = sub.student_details?.user_details;
+            const fullName = `${student?.first_name || ''} ${student?.last_name || ''}`.toLowerCase();
+            const rollNo = (sub.student_details?.roll_number || '').toLowerCase();
+            const query = searchQuery.toLowerCase();
+            return fullName.includes(query) || rollNo.includes(query);
+        });
+
         return (
             <div className="space-y-8 pb-10">
-                {/* Header Sub-row */}
+                {/* Header Row */}
                 <div className="flex items-center gap-6">
-                    <Button variant="ghost" size="icon" onClick={() => setView('taskList')} className="rounded-full bg-white hover:bg-white shadow-xl border border-gray-100 h-12 w-12">
-                        <ChevronLeft className="h-6 w-6 text-gray-900" />
+                    <Button
+                        variant="outline"
+                        onClick={() => setView('taskList')}
+                        className="rounded-xl bg-white border-gray-200 h-10 px-4 text-gray-900 font-bold hover:bg-white gap-2"
+                    >
+                        <ChevronLeft className="h-4 w-4" /> Back to Tasks
                     </Button>
-                    <div className="space-y-1">
-                        <h2 className="text-4xl font-black text-gray-900 tracking-tight">{selectedTask?.title}</h2>
-                        <p className="text-gray-500 font-bold flex items-center gap-2">
+                    <div className="space-y-0">
+                        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">{selectedTask?.title}</h2>
+                        <p className="text-gray-500 text-sm">
                             View student responses
                         </p>
                     </div>
-                    <div className="ml-auto flex items-center gap-3">
-                        <Button className="bg-[#1e1e2d] hover:bg-[#2d2d3d] text-white px-6 h-12 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-gray-200">
-                            <Download className="h-5 w-5" /> Download Report
+                    <div className="ml-auto">
+                        <Button className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-11 rounded-xl font-bold flex items-center gap-2 shadow-sm">
+                            <Download className="h-4 w-4" /> Download Report
                         </Button>
                     </div>
                 </div>
 
                 {/* Task Description Card */}
-                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden p-8">
-                    <h3 className="text-xl font-black text-gray-900 mb-4">Task Description</h3>
-                    <p className="text-gray-500 font-bold leading-relaxed">{selectedTask?.description || "No description provided."}</p>
+                <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Task Description</h3>
+                    <p className="text-gray-500 leading-relaxed">{selectedTask?.description || "No description provided."}</p>
                 </Card>
 
                 {/* Stats row */}
@@ -531,181 +557,225 @@ const FacultyTask: React.FC = () => {
                         { label: 'Total Students', value: stats.total, color: 'text-gray-900' },
                         { label: 'Completed', value: stats.completed, color: 'text-emerald-500' },
                         { label: 'In Progress', value: stats.inProgress, color: 'text-blue-500' },
-                        { label: 'Pending', value: stats.pending, color: 'text-orange-500' }
+                        { label: 'Pending', value: stats.pending, color: 'text-[#F59E0B]' } // Saffron/Amber
                     ].map((s, i) => (
-                        <Card key={i} className="rounded-[2.5rem] border-none shadow-xl shadow-gray-200/50 bg-white p-6 text-center">
-                            <p className="text-4xl font-black mb-1" style={{ color: 'inherit' }}>{s.value}</p>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
+                        <Card key={i} className="rounded-3xl border border-gray-100 shadow-none bg-white p-8 text-center">
+                            <p className={`text-3xl font-bold mb-1 ${s.color}`}>{s.value}</p>
+                            <p className="text-sm text-gray-400">{s.label}</p>
                         </Card>
                     ))}
                 </div>
 
-                {/* Responses Table Card */}
-                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden">
-                    <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <CardTitle className="text-2xl font-black text-gray-900">Student Responses</CardTitle>
-                        <div className="relative w-full md:w-80 group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5 transition-colors group-focus-within:text-gray-900" />
+                {/* Responses Table Area */}
+                <div className="space-y-6">
+                    <div className="px-2 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-900">Student Responses</h3>
+                        <div className="relative w-80">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                             <Input
                                 placeholder="Search by roll no or name"
-                                className="pl-12 h-12 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-gray-100 transition-all font-bold outline-none"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-12 h-11 bg-white border border-gray-900 rounded-xl focus:ring-0 font-normal outline-none"
                             />
                         </div>
                     </div>
-                    <CardContent className="p-0">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50/50 border-b border-gray-50">
-                                    <tr>
-                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest">Roll No</th>
-                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest">Name</th>
-                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
-                                        <th className="p-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Action</th>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-white border-y border-gray-100">
+                                <tr>
+                                    <th className="p-6 text-sm text-gray-400">Roll No</th>
+                                    <th className="p-6 text-sm text-gray-400">Name</th>
+                                    <th className="p-6 text-sm text-gray-400">Status</th>
+                                    <th className="p-6 text-sm text-gray-400">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {filteredSubmissions.map((sub) => (
+                                    <tr key={sub.id} className="hover:bg-gray-50/50 transition-all">
+                                        <td className="p-6 text-gray-900 font-bold">{sub.student_details?.roll_number || 'CS001'}</td>
+                                        <td className="p-6 text-gray-900">{sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}</td>
+                                        <td className="p-6">
+                                            <Badge className={`px-4 py-1.5 rounded-full font-normal border-none shadow-none ${sub.is_submitted
+                                                ? 'bg-slate-900 text-white'
+                                                : sub.answer ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-[#F59E0B]'
+                                                }`}>
+                                                {sub.is_submitted ? 'Completed' : sub.answer ? 'In Progress' : 'Pending'}
+                                            </Badge>
+                                        </td>
+                                        <td className="p-6">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => fetchSubmissionDetail(sub.id)}
+                                                className="rounded-lg h-9 border-gray-200 text-gray-900 font-normal hover:bg-white shadow-none"
+                                            >
+                                                View Details
+                                            </Button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {submissions.map((sub) => (
-                                        <tr key={sub.id} className="hover:bg-gray-50/50 transition-all">
-                                            <td className="p-6 font-black text-gray-900">{sub.student_details?.roll_number || '--'}</td>
-                                            <td className="p-6">
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar className="h-10 w-10">
-                                                        <AvatarImage src={sub.student_details?.user_details?.profile?.avatar} />
-                                                        <AvatarFallback className="bg-gray-100 text-gray-400 font-black">
-                                                            {sub.student_details?.user_details?.first_name?.[0]}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="font-bold text-gray-900">
-                                                        {sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="p-6 text-center">
-                                                <Badge className={`px-4 py-1.5 rounded-full font-black text-[10px] uppercase border-none ${sub.is_submitted
-                                                    ? 'bg-[#1e1e2d] text-white'
-                                                    : sub.answer ? 'bg-blue-50 text-blue-500' : 'bg-gray-100 text-gray-400'
-                                                    }`}>
-                                                    {sub.is_submitted ? 'Completed' : sub.answer ? 'In Progress' : 'Pending'}
-                                                </Badge>
-                                            </td>
-                                            <td className="p-6 text-right">
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => fetchSubmissionDetail(sub.id)}
-                                                    className="rounded-xl h-10 border-gray-100 text-gray-900 font-black hover:bg-white shadow-sm"
-                                                >
-                                                    View Details
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {submissions.length === 0 && (
-                                <div className="py-20 text-center flex flex-col items-center">
-                                    <Users className="h-16 w-16 text-gray-100 mb-4" />
-                                    <p className="text-gray-400 font-black uppercase tracking-widest">No responses yet</p>
-                                </div>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
+                                ))}
+                            </tbody>
+                        </table>
+                        {filteredSubmissions.length === 0 && (
+                            <div className="py-20 text-center flex flex-col items-center">
+                                <Users className="h-16 w-16 text-gray-100 mb-4" />
+                                <p className="text-gray-400 font-normal uppercase tracking-widest">No responses yet</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         );
     };
 
     const renderStudentDetail = () => (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-180px)] pb-10">
-            <div className="lg:col-span-2 flex flex-col gap-6 h-full min-h-0">
-                <div className="flex items-center gap-6">
-                    <Button variant="ghost" size="icon" onClick={() => setView('responses')} className="rounded-full bg-white hover:bg-white shadow-xl border border-gray-100 h-12 w-12">
-                        <ChevronLeft className="h-6 w-6 text-gray-900" />
-                    </Button>
-                    <div>
-                        <h2 className="text-3xl font-black text-gray-900 capitalize">
-                            {selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}
-                        </h2>
-                        <p className="text-gray-500 font-bold">{selectedTask?.title}</p>
-                    </div>
+        <div className="space-y-6 pb-10">
+            {/* Header Area */}
+            <div className="flex items-center gap-6">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setView('responses')}
+                    className="rounded-xl bg-white hover:bg-white shadow-sm border border-gray-100 h-10 w-10"
+                >
+                    <ChevronLeft className="h-5 w-5 text-gray-900" />
+                </Button>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Student Response Details</h2>
+                    <p className="text-gray-400 text-sm font-medium tracking-widest mt-0.5">Review and provide feedback</p>
                 </div>
-
-                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden flex flex-col flex-1">
-                    <CardHeader className="bg-white border-b border-gray-50 p-8 flex flex-row items-center justify-between">
-                        <CardTitle className="text-2xl font-black text-gray-900">Answer Content</CardTitle>
-                        {selectedSubmission?.file && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => window.open(selectedSubmission.file)}
-                                className="rounded-2xl h-10 border-emerald-100 text-emerald-600 bg-emerald-50 font-black hover:bg-emerald-100 gap-2"
-                            >
-                                <Download className="h-4 w-4" /> View Attached File
-                            </Button>
-                        )}
-                    </CardHeader>
-                    <ScrollArea className="flex-1 p-8">
-                        <div className="prose prose-neutral max-w-none">
-                            <p className="text-gray-900 leading-relaxed font-bold whitespace-pre-wrap bg-gray-50 p-8 rounded-[2rem] border border-gray-100 text-lg">
-                                {selectedSubmission?.answer || "No text content provided."}
-                            </p>
-                        </div>
-                    </ScrollArea>
-                </Card>
             </div>
 
-            <div className="flex flex-col h-full min-h-0">
-                <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-gray-200/50 bg-white overflow-hidden flex flex-col h-full">
-                    <CardHeader className="border-b border-gray-50 bg-white p-8">
-                        <CardTitle className="text-2xl font-black text-gray-900 flex items-center gap-2">
-                            <MessageSquare className="h-6 w-6 text-orange-500" />
-                            Feedbacks & Chat
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden p-0">
-                        <ScrollArea className="h-full px-8 py-6">
-                            <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Side: Student Info & Answer */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Student Info Card */}
+                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
+                        <h3 className="text-xl font-bold text-gray-900 mb-6 tracking-wider">Student Information</h3>
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-14 w-14 rounded-full border border-gray-100 shadow-sm">
+                                <AvatarFallback className="bg-orange-50 text-orange-600 font-bold text-xl">
+                                    {selectedSubmission?.student_details?.user_details?.first_name?.[0]}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <h4 className="text-xl font-bold text-gray-900 leading-tight">
+                                        {selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}
+                                    </h4>
+                                    <Badge className={`px-4 py-1.5 rounded-full font-bold border-none shadow-none text-[10px] uppercase tracking-widest ${selectedSubmission?.is_submitted
+                                        ? 'bg-slate-900 text-white'
+                                        : 'bg-orange-50 text-[#F59E0B]'
+                                        }`}>
+                                        {selectedSubmission?.is_submitted ? 'Completed' : 'In Progress'}
+                                    </Badge>
+                                </div>
+                                <p className="text-gray-400 text-sm font-medium mt-1">Roll No: {selectedSubmission?.student_details?.roll_number || 'CS001'}</p>
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Answer Card */}
+                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
+                        <div className="mb-8">
+                            <h3 className="text-lg font-bold text-gray-900 leading-tight">Student Answer</h3>
+                            <p className="text-gray-400 text-sm font-medium mt-1">Select text to add contextual comments</p>
+                        </div>
+
+                        <div
+                            className="bg-[#F8FAFC] p-8 rounded-[2rem] border border-gray-100 min-h-[300px] cursor-text"
+                            onMouseUp={handleTextSelection}
+                        >
+                            <div className="prose prose-neutral max-w-none pointer-events-auto">
+                                <p className="text-gray-900 leading-relaxed whitespace-pre-wrap text-lg font-medium">
+                                    {selectedSubmission?.answer || "No text content provided."}
+                                </p>
+                            </div>
+                        </div>
+
+                        {selectedSubmission?.file && (
+                            <div className="mt-8 flex justify-end">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(selectedSubmission.file)}
+                                    className="rounded-2xl h-11 border-orange-100 text-orange-600 bg-orange-50 font-bold hover:bg-orange-100 gap-2 px-6"
+                                >
+                                    <Download className="h-4 w-4" /> View Attached File
+                                </Button>
+                            </div>
+                        )}
+                    </Card>
+                </div>
+
+                {/* Right Side: Chat / Discussion */}
+                <div className="space-y-6 flex flex-col h-full min-h-[600px]">
+                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white overflow-hidden flex flex-col flex-1">
+                        <div className="p-8 border-b border-gray-50 flex flex-col gap-1">
+                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Discussion</h3>
+                            <p className="text-gray-400 text-sm font-medium">Comments and feedback</p>
+                        </div>
+
+                        <ScrollArea className="flex-1 p-8">
+                            <div className="space-y-6 pb-4">
                                 {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
                                     selectedSubmission.comments.map((c, i) => (
                                         <div key={c.id || i} className={`flex flex-col ${c.faculty ? 'items-end' : 'items-start'}`}>
-                                            <div className={`p-4 rounded-3xl max-w-[90%] ${c.faculty
-                                                ? 'bg-[#1e1e2d] text-white rounded-br-none shadow-xl shadow-gray-900/10'
-                                                : 'bg-gray-100 text-gray-900 rounded-bl-none'
-                                                }`}>
-                                                <p className="text-sm font-bold leading-normal">{c.comment}</p>
-                                                <span className={`text-[10px] mt-2 block font-black uppercase tracking-widest opacity-50`}>
-                                                    {c.faculty ? 'You' : 'Student'} • {format(new Date(c.created_at), 'hh:mm a')}
-                                                </span>
+                                            <div
+                                                className={`p-3.5 rounded-xl max-w-[80%] text-sm leading-relaxed border-l-4 ${c.faculty
+                                                    ? 'bg-[#F0F7FF] border-[#3B82F6] text-black rounded-br-none'
+                                                    : 'bg-[#F0FDF4] border-[#22C55E] text-black rounded-br-none'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center justify-between gap-x-4 mb-1">
+                                                    <span className="text-[14px] font-bold text-black tracking-wide">
+                                                        {c.faculty ? 'Faculty' : 'Student'}
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-500 font-semibold">
+                                                        {format(new Date(c.created_at), 'M/d/yyyy, hh:mm:ss a')}
+                                                    </span>
+                                                </div>
+                                                <p className="whitespace-pre-wrap text-[15px] font-medium text-gray-800">
+                                                    {c.comment}
+                                                </p>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-30">
-                                        <Clock className="h-12 w-12 text-gray-200 mb-4" />
-                                        <p className="text-xs font-black uppercase tracking-widest">No conversation yet</p>
+                                    <div className="flex flex-col items-center justify-center text-center py-20 opacity-30">
+                                        <MessageSquare className="h-12 w-12 text-gray-200 mb-4" />
+                                        <p className="text-xs font-bold uppercase tracking-widest">No conversation yet</p>
                                     </div>
                                 )}
                             </div>
                         </ScrollArea>
-                    </CardContent>
-                    <div className="p-8 bg-gray-50 border-t border-gray-100">
-                        <div className="relative group">
-                            <Textarea
-                                placeholder="Write a comment..."
-                                className="min-h-[120px] bg-white border-none focus:ring-4 focus:ring-gray-200 rounded-[1.5rem] resize-none pr-14 p-6 shadow-sm font-bold text-gray-900 outline-none"
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                            />
+
+                        {/* Input Area */}
+                        <div className="p-8 border-t border-gray-50">
+                            <div className="mb-4">
+                                <Textarea
+                                    placeholder="Add a comment or question..."
+                                    className="min-h-[100px] bg-white border-gray-200 rounded-xl p-4 focus:ring-0 focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-all text-sm font-medium resize-none shadow-none"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleAddComment();
+                                        }
+                                    }}
+                                />
+                            </div>
                             <Button
-                                size="icon"
                                 disabled={submitting || !newComment.trim()}
                                 onClick={handleAddComment}
-                                className="absolute right-4 bottom-4 bg-[#1e1e2d] hover:bg-gray-800 h-10 w-10 rounded-xl shadow-xl transition-all text-white"
+                                className="w-full bg-orange-500 hover:bg-orange-500 h-12 rounded-xl text-white font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
                             >
-                                <Send className="h-5 w-5" />
+                                <SendHorizonal className="h-4 w-4" /> Add Comment
                             </Button>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+                </div>
             </div>
         </div>
     );
@@ -720,7 +790,7 @@ const FacultyTask: React.FC = () => {
                 />
 
                 <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 space-y-6">
-                    {selectedDepartment && selectedSubject && selectedSections.length > 0 && (
+                    {view === 'taskList' && selectedDepartment && selectedSubject && selectedSections.length > 0 && (
                         <div className="flex justify-end">
                             <Button
                                 onClick={() => openCreateDialog()}
@@ -733,61 +803,63 @@ const FacultyTask: React.FC = () => {
                     )}
 
                     {/* Header Selection Flow - Following the reference style */}
-                    <Card className="border-gray-100 shadow-md rounded-[2rem] overflow-hidden bg-white">
-                        <CardHeader className="border-b border-gray-50 px-8 py-4">
-                            <CardTitle className="text-2xl font-semibold text-foreground">Select Subject & Sections</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-foreground">Department</Label>
-                                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
-                                            <SelectValue placeholder="Choose Department" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            {uniqueDepartments.map(d => (
-                                                <SelectItem key={d.id} value={d.id} className="rounded-xl font-medium">{d.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-foreground">Subject</Label>
-                                    <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
-                                            <SelectValue placeholder="Select Subject" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            {uniqueSubjects.map(s => (
-                                                <SelectItem key={s.id} value={s.id} className="rounded-xl font-medium">{s.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium text-foreground">Sections</Label>
-                                    <div className="flex flex-wrap gap-2 pt-1">
-                                        {availableSections.length > 0 ? availableSections.map(a => (
-                                            <Badge
-                                                key={a.section}
-                                                onClick={() => {
-                                                    const id = String(a.section);
-                                                    setSelectedSections(prev =>
-                                                        prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                                                    );
-                                                }}
-                                                variant={selectedSections.includes(String(a.section)) ? "default" : "outline"}
-                                                className={`cursor-pointer h-10 px-6 rounded-2xl font-bold transition-all border-none ${selectedSections.includes(String(a.section)) ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
-                                            >
-                                                {a.section_name}
-                                            </Badge>
-                                        )) : <p className="text-xs font-bold text-gray-300 mt-2">Select a subject first</p>}
+                    {view === 'taskList' && (
+                        <Card className="border-gray-100 shadow-md rounded-[2rem] overflow-hidden bg-white">
+                            <CardHeader className="border-b border-gray-50 px-8 py-4">
+                                <CardTitle className="text-2xl font-semibold text-foreground">Select Subject & Sections</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-foreground">Department</Label>
+                                        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                                            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
+                                                <SelectValue placeholder="Choose Department" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                                {uniqueDepartments.map(d => (
+                                                    <SelectItem key={d.id} value={d.id} className="rounded-xl font-medium">{d.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-foreground">Subject</Label>
+                                        <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
+                                            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
+                                                <SelectValue placeholder="Select Subject" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                                {uniqueSubjects.map(s => (
+                                                    <SelectItem key={s.id} value={s.id} className="rounded-xl font-medium">{s.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-foreground">Sections</Label>
+                                        <div className="flex flex-wrap gap-2 pt-1">
+                                            {availableSections.length > 0 ? availableSections.map(a => (
+                                                <Badge
+                                                    key={a.section}
+                                                    onClick={() => {
+                                                        const id = String(a.section);
+                                                        setSelectedSections(prev =>
+                                                            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                                                        );
+                                                    }}
+                                                    variant={selectedSections.includes(String(a.section)) ? "default" : "outline"}
+                                                    className={`cursor-pointer h-10 px-6 rounded-2xl font-bold transition-all border-none ${selectedSections.includes(String(a.section)) ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                                                >
+                                                    {a.section_name}
+                                                </Badge>
+                                            )) : <p className="text-xs font-bold text-gray-300 mt-2">Select a subject first</p>}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Main Content Area */}
                     <div className="min-h-[400px]">
