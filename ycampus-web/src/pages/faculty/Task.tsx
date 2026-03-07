@@ -28,6 +28,8 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
@@ -80,6 +82,7 @@ const FacultyTask: React.FC = () => {
 
     // Detail Screen State
     const [newComment, setNewComment] = useState("");
+    const [draftComment, setDraftComment] = useState("");
 
     // File Viewer State
     const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
@@ -90,6 +93,7 @@ const FacultyTask: React.FC = () => {
     const [previewType, setPreviewType] = useState<'text' | 'image' | 'other' | null>(null);
     const [previewLanguage, setPreviewLanguage] = useState<string>("plaintext");
     const [loadingFile, setLoadingFile] = useState(false);
+    const [selectedLineNumber, setSelectedLineNumber] = useState<number | null>(null);
 
     useEffect(() => {
         fetchInitialData();
@@ -176,16 +180,19 @@ const FacultyTask: React.FC = () => {
                     setPreviewLanguage(getLanguageFromExtension(filename));
                     setZipFiles([]);
                     setSelectedZipFile(null);
+                    setSelectedLineNumber(null);
                 } else if (isImageFile(filename)) {
                     setPreviewContent(reviewingFile);
                     setPreviewType('image');
                     setZipFiles([]);
                     setSelectedZipFile(null);
+                    setSelectedLineNumber(null);
                 } else {
                     setZipFiles([]);
                     setPreviewContent("");
                     setPreviewType('other');
                     setSelectedZipFile(null);
+                    setSelectedLineNumber(null);
                 }
             } catch (error) {
                 console.error("Error loading file:", error);
@@ -321,15 +328,149 @@ const FacultyTask: React.FC = () => {
         if (!selectedSubmission?.id || !newComment.trim()) return;
         try {
             setSubmitting(true);
-            const comment = await taskService.addCommentToSubmission(selectedSubmission.id, newComment);
+
+            const commentText = newComment.trim();
+            const segments: string[] = [];
+            const regex = /(?:^|\n)(\[(?:Line: \d+|File Review)\])/g;
+            const matches = Array.from(commentText.matchAll(regex));
+
+            if (matches.length > 0) {
+                if ((matches[0].index ?? 0) > 0) {
+                    const textBefore = commentText.substring(0, matches[0].index).trim();
+                    if (textBefore) segments.push(textBefore);
+                }
+                for (let i = 0; i < matches.length; i++) {
+                    const marker = matches[i][1];
+                    const startPos = (matches[i].index ?? 0) + matches[i][0].length;
+                    const endPos = i + 1 < matches.length ? (matches[i + 1].index ?? 0) : commentText.length;
+                    const content = commentText.substring(startPos, endPos).trim();
+                    if (content) {
+                        segments.push(`${marker} ${content}`);
+                    } else {
+                        segments.push(marker);
+                    }
+                }
+            } else {
+                segments.push(commentText);
+            }
+
+            let updatedComments = [...selectedSubmission.comments];
+            for (const segment of segments) {
+                const comment = await taskService.addCommentToSubmission(selectedSubmission.id, segment);
+                updatedComments.push(comment);
+            }
+
             setSelectedSubmission(prev => prev ? {
                 ...prev,
-                comments: [...prev.comments, comment]
+                comments: updatedComments
             } : null);
+
             setNewComment("");
-            toast.success("Comment added");
+            toast.success("Feedback added successfully");
         } catch (err) {
             toast.error("Failed to add comment");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDownloadReport = () => {
+        if (!selectedTask || submissions.length === 0) {
+            toast.error("No data available to download.");
+            return;
+        }
+
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const today = format(new Date(), 'MMMM dd, yyyy');
+
+        // Header
+        doc.setFillColor(249, 115, 22); // orange-500
+        doc.rect(0, 0, pageWidth, 36, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Task Performance Report', 14, 15);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(selectedTask.title, 14, 24);
+        doc.text(today, pageWidth - 14, 24, { align: 'right' });
+
+        // Stats summary
+        const totalStudents = selectedTask?.section_details?.reduce((acc, curr) => acc + (curr.student_count || 0), 0) || submissions.length;
+        const completed = submissions.filter(s => s.is_submitted).length;
+        const inProgress = submissions.filter(s => !s.is_submitted && (s.answer || s.answers_data || s.file)).length;
+        const pending = Math.max(0, totalStudents - completed - inProgress);
+
+        doc.setTextColor(60, 60, 60);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Summary', 14, 48);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(`Total Students: ${totalStudents}   |   Completed: ${completed}   |   In Progress: ${inProgress}   |   Pending: ${pending}`, 14, 56);
+
+        // Table
+        const tableData = submissions.map(sub => {
+            const rollNo = sub.student_details?.roll_number || 'N/A';
+            const name = `${sub.student_details?.user_details?.first_name || ''} ${sub.student_details?.user_details?.last_name || ''}`.trim() || 'Unknown';
+            const status = sub.is_submitted ? 'Completed' : (sub.answer || sub.answers_data || sub.file) ? 'In Progress' : 'Pending';
+            const submittedAt = sub.submitted_at ? format(new Date(sub.submitted_at), 'yyyy-MM-dd HH:mm') : 'Not Submitted';
+            const comments = sub.comments?.length || 0;
+            return [rollNo, name, status, submittedAt, String(comments)];
+        });
+
+        autoTable(doc, {
+            startY: 64,
+            head: [['Roll No', 'Student Name', 'Status', 'Submitted At', 'Comments']],
+            body: tableData,
+            styles: { fontSize: 9, cellPadding: 5 },
+            headStyles: {
+                fillColor: [249, 115, 22],
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'left'
+            },
+            alternateRowStyles: { fillColor: [253, 251, 249] },
+            columnStyles: {
+                0: { cellWidth: 25 },
+                1: { cellWidth: 55 },
+                2: { cellWidth: 30 },
+                3: { cellWidth: 45 },
+                4: { cellWidth: 20, halign: 'center' }
+            },
+            margin: { left: 14, right: 14 }
+        });
+
+        // Footer
+        const pageCount = (doc.internal as any).getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(180, 180, 180);
+            doc.text(`Page ${i} of ${pageCount}   |   Generated by yCampus`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: 'center' });
+        }
+
+        const fileName = `${selectedTask.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.pdf`;
+        doc.save(fileName);
+
+        toast.success('Report downloaded successfully!');
+    };
+
+    const handleClearChat = async () => {
+        if (!selectedSubmission?.id) return;
+        try {
+            setSubmitting(true);
+            // Try API call, fall back to local clear
+            try {
+                await taskService.clearSubmissionChat(selectedSubmission.id);
+            } catch {
+                // backend endpoint may not exist yet; do client-side clear
+            }
+            setSelectedSubmission(prev => prev ? { ...prev, comments: [] } : null);
+            toast.success("Chat cleared");
+        } catch (err) {
+            toast.error("Failed to clear chat");
         } finally {
             setSubmitting(false);
         }
@@ -655,7 +796,10 @@ const FacultyTask: React.FC = () => {
                         </p>
                     </div>
                     <div className="ml-auto">
-                        <Button className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-11 rounded-xl font-bold flex items-center gap-2 shadow-sm">
+                        <Button
+                            onClick={handleDownloadReport}
+                            className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-11 rounded-xl font-bold flex items-center gap-2 shadow-sm"
+                        >
                             <Download className="h-4 w-4" /> Download Report
                         </Button>
                     </div>
@@ -696,7 +840,7 @@ const FacultyTask: React.FC = () => {
                             />
                         </div>
                     </div>
-                    <div className="overflow-x-auto">
+                    <div>
                         <table className="w-full text-left">
                             <thead className="bg-white border-y border-gray-100">
                                 <tr>
@@ -798,45 +942,76 @@ const FacultyTask: React.FC = () => {
                             <p className="text-gray-400 text-sm font-medium mt-1">Select text to add contextual comments</p>
                         </div>
 
-                        <div
-                            className="bg-[#F8FAFC] p-8 rounded-[2rem] border border-gray-100 min-h-[300px] cursor-text"
-                            onMouseUp={handleTextSelection}
-                        >
-                            <div className="prose prose-neutral max-w-none pointer-events-auto">
-                                <p className="text-gray-900 leading-relaxed whitespace-pre-wrap text-lg font-medium">
-                                    {selectedSubmission?.answer || "No text content provided."}
-                                </p>
-                            </div>
-                        </div>
-
-                        {selectedSubmission?.file && (
-                            <div className="mt-8 flex justify-end">
+                        {selectedSubmission?.answer ? (
+                            <>
+                                <div
+                                    className="bg-[#F8FAFC] p-8 rounded-[2rem] border border-gray-100 min-h-[300px] cursor-text"
+                                    onMouseUp={handleTextSelection}
+                                >
+                                    <div className="prose prose-neutral max-w-none pointer-events-auto">
+                                        <p className="text-gray-900 leading-relaxed whitespace-pre-wrap text-[15px] font-semibold">
+                                            {selectedSubmission.answer}
+                                        </p>
+                                    </div>
+                                </div>
+                                {selectedSubmission?.file && (
+                                    <div className="mt-8 flex justify-end border-t border-gray-50 pt-8">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                setReviewingFile(selectedSubmission.file || null);
+                                                setIsFileViewerOpen(true);
+                                            }}
+                                            className="rounded-2xl h-11 border-orange-100 text-orange-600 bg-orange-50 font-bold hover:bg-orange-100 gap-2 px-6"
+                                        >
+                                            <Eye className="h-4 w-4" /> Review Attached File
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
+                        ) : selectedSubmission?.file ? (
+                            <div className="bg-[#F8FAFC] p-12 rounded-[2rem] border border-gray-100 min-h-[300px] flex flex-col items-center justify-center text-center">
                                 <Button
                                     variant="outline"
-                                    size="sm"
                                     onClick={() => {
                                         setReviewingFile(selectedSubmission.file || null);
                                         setIsFileViewerOpen(true);
                                     }}
-                                    className="rounded-2xl h-11 border-orange-100 text-orange-600 bg-orange-50 font-bold hover:bg-orange-100 gap-2 px-6"
+                                    className="rounded-[2rem] h-16 px-10 border-orange-200 text-orange-600 bg-orange-50 font-black hover:bg-orange-100 gap-3 shadow-sm mb-6 text-lg hover:scale-105 transition-all"
                                 >
-                                    <Eye className="h-4 w-4" /> Review Attached File
+                                    <Eye className="h-6 w-6" /> Review Attached File
                                 </Button>
+                                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">No text content provided.</p>
+                            </div>
+                        ) : (
+                            <div className="bg-[#F8FAFC] p-12 rounded-[2rem] border border-gray-100 min-h-[300px] flex flex-col items-center justify-center text-center">
+                                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">No submission provided.</p>
                             </div>
                         )}
                     </Card>
                 </div>
 
                 {/* Right Side: Chat / Discussion */}
-                <div className="space-y-6 flex flex-col h-full min-h-[600px]">
-                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white overflow-hidden flex flex-col flex-1">
-                        <div className="p-8 border-b border-gray-50 flex flex-col gap-1">
-                            <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Discussion</h3>
-                            <p className="text-gray-400 text-sm font-medium">Comments and feedback</p>
+                <div className="space-y-6 flex flex-col">
+                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white overflow-hidden flex flex-col">
+                        <div className="p-8 border-b border-gray-50 flex items-center justify-between gap-1">
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Discussion</h3>
+                                <p className="text-gray-400 text-sm font-medium">Comments and feedback</p>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearChat}
+                                className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl h-9 px-3 font-bold gap-1.5 flex-shrink-0"
+                            >
+                                <Trash2 className="h-4 w-4" /> Clear Chat
+                            </Button>
                         </div>
 
-                        <ScrollArea className="flex-1 p-8">
-                            <div className="space-y-6 pb-4">
+                        <div className="p-6 overflow-y-auto max-h-[400px] custom-scrollbar">
+                            <div className="space-y-4">
                                 {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
                                     selectedSubmission.comments.map((c, i) => (
                                         <div key={c.id || i} className={`flex flex-col ${c.faculty ? 'items-end' : 'items-start'}`}>
@@ -867,7 +1042,7 @@ const FacultyTask: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                        </ScrollArea>
+                        </div>
 
                         {/* Input Area */}
                         <div className="p-8 border-t border-gray-50">
@@ -1005,7 +1180,7 @@ const FacultyTask: React.FC = () => {
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogContent className={`${formState.question_source === 'bank' ? 'max-w-5xl' : 'max-w-2xl'} rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white`}>
                     <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100">
-                        <DialogTitle className="text-2xl font-black text-gray-900">{editingTask ? 'Edit Task' : 'New Assignment'}</DialogTitle>
+                        <DialogTitle className="text-2xl font-black text-gray-900">{editingTask ? 'Edit Task' : 'New Task'}</DialogTitle>
                         <DialogDescription className="font-bold text-gray-400">Fill in the details to {editingTask ? 'update' : 'broadcast'} the task.</DialogDescription>
                     </DialogHeader>
 
@@ -1184,7 +1359,7 @@ const FacultyTask: React.FC = () => {
 
             {/* File Review Modal */}
             <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
-                <DialogContent className="max-w-6xl w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col">
+                <DialogContent className="max-w-6xl w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
                     <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
                         <div>
                             <DialogTitle className="text-2xl font-black text-gray-900">Review Attached File</DialogTitle>
@@ -1258,6 +1433,11 @@ const FacultyTask: React.FC = () => {
                                                 language={previewLanguage}
                                                 value={previewContent}
                                                 theme="vs-light"
+                                                onMount={(editor) => {
+                                                    editor.onDidChangeCursorSelection((e: any) => {
+                                                        setSelectedLineNumber(e.selection.startLineNumber);
+                                                    });
+                                                }}
                                                 options={{
                                                     readOnly: true,
                                                     fontSize: 14,
@@ -1331,73 +1511,100 @@ const FacultyTask: React.FC = () => {
                                     )}
                                 </div>
                             )}
+                        </div>
 
-                            {/* In-line Feedback Area */}
-                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 ring-1 ring-gray-950/[0.02]">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-xl font-black text-gray-900">Annotation & Comments</h3>
-                                    <Badge variant="outline" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-bold px-4 py-1">
-                                        {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).length} Comments
+                        {/* Right Sidebar: In-line Feedback Area */}
+                        <div className="w-full md:w-[400px] border-l border-gray-200 bg-white flex flex-col shrink-0 custom-scrollbar z-10 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
+                            <div className="p-8 border-b border-gray-50 flex-none">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h3 className="text-lg font-black text-gray-900">Annotations</h3>
+                                    <Badge variant="outline" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-bold px-3 py-0.5">
+                                        {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).length}
                                     </Badge>
                                 </div>
-                                <div className="space-y-4 mb-8">
-                                    {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).map((c, i) => (
-                                        <div key={i} className="p-5 bg-gray-50/50 border border-gray-100 rounded-[2rem] hover:bg-white hover:shadow-md transition-all flex flex-col items-start min-w-[300px] w-max max-w-full">
-                                            <p className="text-[15px] font-semibold text-gray-800 leading-relaxed text-wrap">{c.comment.replace('[File Review] ', '')}</p>
-                                            <div className="flex items-center gap-2 mt-3">
-                                                <div className="h-1 w-1 rounded-full bg-gray-300" />
-                                                <p className="text-[11px] text-gray-400 font-black uppercase tracking-wider">{format(new Date(c.created_at), 'hh:mm a, MMM dd')}</p>
-                                            </div>
+                                <p className="text-xs font-semibold text-gray-400 leading-relaxed">Click any line in the code editor to attach your comment to that specific line.</p>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).map((c, i) => (
+                                    <div key={i} className="p-5 bg-gray-50/50 border border-gray-100 rounded-3xl hover:bg-white hover:shadow-md transition-all flex flex-col items-start w-full">
+                                        {c.comment.includes(']') && (c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')) ? (
+                                            <>
+                                                <Badge className="bg-orange-50 text-orange-600 font-black tracking-widest uppercase text-[9px] mb-3 border-none hover:bg-orange-100 rounded-md px-2 py-0.5 shadow-none">
+                                                    {c.comment.substring(1, c.comment.indexOf(']'))}
+                                                </Badge>
+                                                <p className="text-[14px] font-semibold text-gray-800 leading-relaxed">{c.comment.substring(c.comment.indexOf(']') + 1).trim()}</p>
+                                            </>
+                                        ) : (
+                                            <p className="text-[14px] font-semibold text-gray-800 leading-relaxed">{c.comment.replace('[File Review] ', '')}</p>
+                                        )}
+                                        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/5 w-full">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider">{format(new Date(c.created_at), 'hh:mm a, MMM dd')}</p>
                                         </div>
-                                    ))}
-                                    {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).length === 0 && (
-                                        <div className="p-12 text-center border-2 border-dashed border-gray-50 rounded-[2.5rem]">
-                                            <MessageSquare className="h-10 w-10 text-gray-100 mx-auto mb-4" />
-                                            <p className="text-sm font-bold text-gray-300 uppercase tracking-widest">No annotations added yet</p>
+                                    </div>
+                                ))}
+                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).length === 0 && (
+                                    <div className="flex flex-col items-center justify-center p-10 text-center opacity-70 mt-10">
+                                        <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 border-dashed">
+                                            <MessageSquare className="h-6 w-6 text-gray-300" />
                                         </div>
-                                    )}
-                                </div>
-                                <div className="relative group">
-                                    <Textarea
-                                        placeholder="Add an annotation or feedback about this file..."
-                                        className="min-h-[140px] bg-[#FDFDFD] border-gray-100 rounded-[2.5rem] p-8 focus:ring-0 focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 text-[15px] font-semibold resize-none shadow-none transition-all placeholder:text-gray-300 ring-1 ring-gray-950/[0.01]"
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                e.preventDefault();
-                                                if (!newComment.trim()) return;
-                                                const originalComment = newComment;
-                                                setNewComment(`[File Review] ${originalComment}`);
-                                                handleAddComment();
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No annotations</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-6 border-t border-gray-50 bg-white flex-none relative group">
+                                {selectedLineNumber !== null && previewType === 'text' && (
+                                    <div className="absolute -top-10 left-6 right-6">
+                                        <Badge className="bg-white border-gray-200 text-gray-500 shadow-sm px-3 py-1 text-xs">
+                                            Drafting for Line {selectedLineNumber}
+                                        </Badge>
+                                    </div>
+                                )}
+                                <Textarea
+                                    placeholder="Add feedback..."
+                                    className="min-h-[60px] bg-[#FDFDFD] border-gray-200 rounded-3xl p-4 pr-14 focus:ring-0 focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 text-[14px] font-semibold resize-none shadow-none transition-all placeholder:text-gray-300 ring-1 ring-gray-950/[0.01]"
+                                    value={draftComment}
+                                    onChange={(e) => setDraftComment(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            if (!draftComment.trim() && !newComment.trim()) {
+                                                setIsFileViewerOpen(false);
+                                                return;
                                             }
-                                        }}
-                                    />
-                                    <Button
-                                        onClick={() => {
-                                            if (!newComment.trim()) return;
-                                            const originalComment = newComment;
-                                            setNewComment(`[File Review] ${originalComment}`);
-                                            handleAddComment();
-                                        }}
-                                        disabled={submitting || !newComment.trim()}
-                                        size="icon"
-                                        className="absolute bottom-6 right-6 h-12 w-12 rounded-2xl bg-orange-500 hover:bg-orange-600 shadow-2xl shadow-orange-100 transition-all active:scale-95 group-hover:scale-105"
-                                    >
-                                        <SendHorizonal className="h-6 w-6 text-white" />
-                                    </Button>
-                                </div>
+                                            if (draftComment.trim()) {
+                                                const originalComment = draftComment;
+                                                const prefix = selectedLineNumber && previewType === 'text' ? `[Line: ${selectedLineNumber}]\n` : `[File Review]\n`;
+                                                setNewComment(prev => prev + (prev ? '\n\n' : '') + `${prefix}${originalComment.trim()}`);
+                                                setDraftComment("");
+                                            }
+                                            setIsFileViewerOpen(false);
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        if (!draftComment.trim()) return;
+                                        const originalComment = draftComment;
+                                        const prefix = selectedLineNumber && previewType === 'text' ? `[Line: ${selectedLineNumber}]\n` : `[File Review]\n`;
+                                        setNewComment(prev => prev + (prev ? '\n\n' : '') + `${prefix}${originalComment.trim()}`);
+                                        setDraftComment("");
+                                        toast.success("Added to draft");
+                                    }}
+                                    disabled={submitting || !draftComment.trim()}
+                                    size="icon"
+                                    className="absolute bottom-8 right-8 h-10 w-10 rounded-xl bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-100 transition-all group-hover:scale-105"
+                                >
+                                    <Plus className="h-5 w-5 text-white" />
+                                </Button>
                             </div>
                         </div>
                     </div>
 
-                    <DialogFooter className="p-8 border-t border-gray-100 bg-gray-50/50 shrink-0 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Badge className={`px-4 py-1.5 rounded-full font-bold border-none shadow-none text-[10px] uppercase tracking-widest ${selectedSubmission?.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : selectedSubmission?.status === 'rejected' ? 'bg-rose-100 text-rose-700' : 'bg-slate-900 text-white'}`}>
-                                Current Status: {selectedSubmission?.status}
-                            </Badge>
-                        </div>
-                        <div className="flex items-center gap-3">
+                    <DialogFooter className="p-6 pr-8 border-t border-gray-100 bg-white shrink-0 flex items-center justify-end rounded-b-[2.5rem]">
+                        <div className="flex items-center gap-3 w-full justify-end">
                             {selectedSubmission?.status === 'accepted' && (
                                 <Button
                                     variant="outline"
@@ -1407,23 +1614,6 @@ const FacultyTask: React.FC = () => {
                                     <Download className="h-4 w-4 mr-2" /> Download Approved File
                                 </Button>
                             )}
-                            {selectedSubmission?.status === 'pending' && (
-                                <>
-                                    <Button
-                                        onClick={() => handleUpdateStatus('accepted')}
-                                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-emerald-100 flex items-center gap-2"
-                                    >
-                                        <Check className="h-4 w-4" /> Accept Work
-                                    </Button>
-                                    <Button
-                                        onClick={() => handleUpdateStatus('rejected')}
-                                        className="bg-rose-500 hover:bg-rose-600 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-rose-100 flex items-center gap-2"
-                                    >
-                                        <X className="h-4 w-4" /> Reject Work
-                                    </Button>
-                                </>
-                            )}
-                            <Button variant="ghost" onClick={() => setIsFileViewerOpen(false)} className="rounded-xl font-bold text-gray-400">Close Review</Button>
                         </div>
                     </DialogFooter>
                 </DialogContent>

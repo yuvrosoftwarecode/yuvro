@@ -99,6 +99,10 @@ export const taskService = {
 
     updateSubmissionStatus: async (id: string, status: 'pending' | 'accepted' | 'rejected'): Promise<TaskSubmission> => {
         return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, { status });
+    },
+
+    clearSubmissionChat: async (id: string): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.post<TaskSubmission>(`/core/task-submissions/${id}/clear_chat/`);
     }
 };
 
