@@ -45,6 +45,7 @@ export interface TaskSubmission {
     answers_data?: Record<string, any>;
     file?: string;
     is_submitted: boolean;
+    status: 'pending' | 'accepted' | 'rejected';
     submitted_at?: string;
     comments: TaskComment[];
     created_at: string;
@@ -94,6 +95,10 @@ export const taskService = {
 
     submitTask: async (id: string, data: FormData): Promise<TaskSubmission> => {
         return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, data);
+    },
+
+    updateSubmissionStatus: async (id: string, status: 'pending' | 'accepted' | 'rejected'): Promise<TaskSubmission> => {
+        return await restApiAuthUtil.patch<TaskSubmission>(`/core/task-submissions/${id}/`, { status });
     }
 };
 
