@@ -8,7 +8,7 @@ import { fetchQuestions, Question } from '../../services/questionService';
 import {
     BookOpen, Users, Calendar, ArrowRight, Loader2, Plus, List, Send, Trash2,
     CheckCircle, Clock, Search, MessageSquare, ChevronLeft, Edit2, MoreVertical,
-    User, Filter, Download, ExternalLink, SendHorizonal, Paperclip
+    User, Filter, Download, ExternalLink, SendHorizonal, Paperclip, Check, X, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import Editor from '@monaco-editor/react';
 
 const FacultyTask: React.FC = () => {
     const { user } = useAuth();
@@ -80,6 +81,16 @@ const FacultyTask: React.FC = () => {
     // Detail Screen State
     const [newComment, setNewComment] = useState("");
 
+    // File Viewer State
+    const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+    const [reviewingFile, setReviewingFile] = useState<string | null>(null);
+    const [zipFiles, setZipFiles] = useState<{ name: string; content: string; type: 'text' | 'image' | 'other' }[]>([]);
+    const [selectedZipFile, setSelectedZipFile] = useState<string | null>(null);
+    const [previewContent, setPreviewContent] = useState<string>("");
+    const [previewType, setPreviewType] = useState<'text' | 'image' | 'other' | null>(null);
+    const [previewLanguage, setPreviewLanguage] = useState<string>("plaintext");
+    const [loadingFile, setLoadingFile] = useState(false);
+
     useEffect(() => {
         fetchInitialData();
     }, [user]);
@@ -94,6 +105,111 @@ const FacultyTask: React.FC = () => {
             toast.error("Failed to load assignments");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const getLanguageFromExtension = (filename: string) => {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        const map: Record<string, string> = { 'js': 'javascript', 'ts': 'typescript', 'tsx': 'typescript', 'jsx': 'javascript', 'py': 'python', 'java': 'java', 'c': 'c', 'cpp': 'cpp', 'cs': 'csharp', 'html': 'html', 'css': 'css', 'json': 'json', 'md': 'markdown', 'txt': 'plaintext', 'sql': 'sql', 'sh': 'shell' };
+        return map[ext || ''] || 'plaintext';
+    };
+
+    const isTextFile = (filename: string) => {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        return ['js', 'ts', 'tsx', 'jsx', 'py', 'java', 'c', 'cpp', 'cs', 'html', 'css', 'json', 'md', 'txt', 'sql', 'sh'].includes(ext || '');
+    };
+
+    const isImageFile = (filename: string) => {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '');
+    };
+
+    useEffect(() => {
+        const processFile = async () => {
+            if (!reviewingFile || !isFileViewerOpen) {
+                setZipFiles([]);
+                setPreviewContent("");
+                setPreviewType(null);
+                setSelectedZipFile(null);
+                return;
+            }
+
+            setLoadingFile(true);
+            try {
+                const response = await fetch(reviewingFile);
+                const blob = await response.blob();
+                const filename = reviewingFile.split('/').pop()?.split('?')[0] || '';
+
+                if (filename.toLowerCase().endsWith('.zip')) {
+                    const jszipModule = await import(/* @vite-ignore */ 'https://esm.run/jszip');
+                    const JSZip = jszipModule.default || jszipModule;
+                    const zip = new JSZip();
+                    const contents = await zip.loadAsync(blob);
+                    const files: { name: string; content: string; type: 'text' | 'image' | 'other' }[] = [];
+
+                    for (const [name, file] of Object.entries(contents.files)) {
+                        if (!file.dir) {
+                            if (isTextFile(name)) {
+                                const content = await file.async('string');
+                                files.push({ name, content, type: 'text' });
+                            } else if (isImageFile(name)) {
+                                const base64 = await file.async('base64');
+                                const ext = name.split('.').pop()?.toLowerCase();
+                                files.push({ name, content: `data:image/${ext};base64,${base64}`, type: 'image' });
+                            } else {
+                                files.push({ name, content: '', type: 'other' });
+                            }
+                        }
+                    }
+                    setZipFiles(files);
+                    if (files.length > 0) {
+                        const firstPreviewable = files.find(f => f.type !== 'other') || files[0];
+                        setSelectedZipFile(firstPreviewable.name);
+                        setPreviewContent(firstPreviewable.content);
+                        setPreviewType(firstPreviewable.type);
+                        setPreviewLanguage(getLanguageFromExtension(firstPreviewable.name));
+                    }
+                } else if (isTextFile(filename)) {
+                    const text = await blob.text();
+                    setPreviewContent(text);
+                    setPreviewType('text');
+                    setPreviewLanguage(getLanguageFromExtension(filename));
+                    setZipFiles([]);
+                    setSelectedZipFile(null);
+                } else if (isImageFile(filename)) {
+                    setPreviewContent(reviewingFile);
+                    setPreviewType('image');
+                    setZipFiles([]);
+                    setSelectedZipFile(null);
+                } else {
+                    setZipFiles([]);
+                    setPreviewContent("");
+                    setPreviewType('other');
+                    setSelectedZipFile(null);
+                }
+            } catch (error) {
+                console.error("Error loading file:", error);
+                toast.error("Failed to load file contents");
+            } finally {
+                setLoadingFile(false);
+            }
+        };
+
+        processFile();
+    }, [reviewingFile, isFileViewerOpen]);
+
+    const handleUpdateStatus = async (status: 'accepted' | 'rejected') => {
+        if (!selectedSubmission) return;
+        try {
+            setSubmitting(true);
+            await taskService.updateSubmissionStatus(selectedSubmission.id, status);
+            setSelectedSubmission(prev => prev ? { ...prev, status } : null);
+            setSubmissions(prev => prev.map(s => s.id === selectedSubmission.id ? { ...s, status } : s));
+            toast.success(`Task ${status} successfully`);
+        } catch (error) {
+            toast.error(`Failed to mark as ${status}`);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -698,10 +814,13 @@ const FacultyTask: React.FC = () => {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => window.open(selectedSubmission.file)}
+                                    onClick={() => {
+                                        setReviewingFile(selectedSubmission.file || null);
+                                        setIsFileViewerOpen(true);
+                                    }}
                                     className="rounded-2xl h-11 border-orange-100 text-orange-600 bg-orange-50 font-bold hover:bg-orange-100 gap-2 px-6"
                                 >
-                                    <Download className="h-4 w-4" /> View Attached File
+                                    <Eye className="h-4 w-4" /> Review Attached File
                                 </Button>
                             </div>
                         )}
@@ -1059,6 +1178,253 @@ const FacultyTask: React.FC = () => {
                             {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                             {editingTask ? 'Save Changes' : 'Publish Task'}
                         </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* File Review Modal */}
+            <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
+                <DialogContent className="max-w-6xl w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col">
+                    <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
+                        <div>
+                            <DialogTitle className="text-2xl font-black text-gray-900">Review Attached File</DialogTitle>
+                            <DialogDescription className="font-bold text-gray-400">Review the student's submission and mark errors.</DialogDescription>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsFileViewerOpen(false)}
+                            className="h-10 w-10 rounded-xl hover:bg-gray-100"
+                        >
+                            <X className="h-5 w-5" />
+                        </Button>
+                    </DialogHeader>
+
+                    <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-[#F8FAFC]">
+                        {/* File Explorer Sidebar (for ZIP) */}
+                        {zipFiles.length > 0 && (
+                            <div className="w-full md:w-64 border-r border-gray-200 bg-white overflow-y-auto shrink-0 custom-scrollbar">
+                                <div className="p-4 border-b border-gray-50 bg-gray-50/30">
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Files in ZIP</h4>
+                                </div>
+                                <div className="p-2 space-y-1">
+                                    {zipFiles.map((file) => (
+                                        <button
+                                            key={file.name}
+                                            onClick={() => {
+                                                setSelectedZipFile(file.name);
+                                                setPreviewContent(file.content);
+                                                setPreviewType(file.type);
+                                                setPreviewLanguage(getLanguageFromExtension(file.name));
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${selectedZipFile === file.name
+                                                ? 'bg-orange-50 text-orange-600 font-bold shadow-sm ring-1 ring-orange-100'
+                                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
+                                                }`}
+                                        >
+                                            <Paperclip className={`h-4 w-4 shrink-0 ${selectedZipFile === file.name ? 'text-orange-500' : 'text-gray-400'}`} />
+                                            <span className="text-sm truncate leading-tight">{file.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Main Content Area */}
+                        <div className="flex-1 overflow-auto flex flex-col p-8 custom-scrollbar relative">
+                            {loadingFile ? (
+                                <div className="flex-1 flex flex-col items-center justify-center py-20">
+                                    <Loader2 className="h-12 w-12 text-orange-500 animate-spin mb-4" />
+                                    <p className="text-lg font-bold text-gray-900">Processing Attachment...</p>
+                                    <p className="text-sm text-gray-400 font-medium">Extracting and preparing preview</p>
+                                </div>
+                            ) : previewContent ? (
+                                <div className="flex-1 flex flex-col min-h-[50vh] bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 ring-1 ring-gray-950/[0.02]">
+                                    <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="text-sm font-bold text-gray-900 truncate">
+                                                {selectedZipFile || (reviewingFile?.split('/').pop()?.split('?')[0])}
+                                            </span>
+                                        </div>
+                                        <Badge variant="outline" className="rounded-lg font-bold text-[10px] uppercase tracking-tighter bg-white border-gray-100 text-gray-400 px-2 py-0.5">
+                                            {previewLanguage}
+                                        </Badge>
+                                    </div>
+                                    <div className="flex-1">
+                                        {previewType === 'text' ? (
+                                            <Editor
+                                                height="100%"
+                                                language={previewLanguage}
+                                                value={previewContent}
+                                                theme="vs-light"
+                                                options={{
+                                                    readOnly: true,
+                                                    fontSize: 14,
+                                                    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                                                    minimap: { enabled: true },
+                                                    scrollBeyondLastLine: false,
+                                                    automaticLayout: true,
+                                                    padding: { top: 20, bottom: 20 },
+                                                    lineNumbers: 'on',
+                                                    renderLineHighlight: 'all',
+                                                    scrollbar: {
+                                                        vertical: 'visible',
+                                                        horizontal: 'visible',
+                                                        useShadows: false,
+                                                        verticalScrollbarSize: 10,
+                                                        horizontalScrollbarSize: 10
+                                                    }
+                                                }}
+                                            />
+                                        ) : previewType === 'image' ? (
+                                            <div className="flex items-center justify-center p-8 h-full min-h-[40vh] bg-white">
+                                                <img src={previewContent} alt="ZIP Internal" className="max-w-full h-auto rounded-xl shadow-md border border-gray-100" />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+                                                <Paperclip className="h-12 w-12 text-gray-200 mb-4" />
+                                                <p className="text-sm font-bold text-gray-400">Preview Not Available for this file type</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex-1 min-h-[50vh] bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 ring-1 ring-gray-950/[0.02]">
+                                    {reviewingFile ? (
+                                        <div className="h-full">
+                                            {reviewingFile.toLowerCase().endsWith('.pdf') ? (
+                                                <iframe
+                                                    src={`${reviewingFile}#toolbar=0`}
+                                                    className="w-full h-full min-h-[50vh]"
+                                                    title="PDF Viewer"
+                                                />
+                                            ) : reviewingFile.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                                <div className="flex items-center justify-center p-8 h-full min-h-[40vh]">
+                                                    <img src={reviewingFile} alt="Attached" className="max-w-full h-auto rounded-2xl shadow-lg border border-gray-100" />
+                                                </div>
+                                            ) : (
+                                                <div className="p-12 h-full flex flex-col items-center justify-center text-center">
+                                                    <div className="h-24 w-24 rounded-full bg-orange-50 flex items-center justify-center mb-6">
+                                                        <Paperclip className="h-10 w-10 text-orange-500" />
+                                                    </div>
+                                                    <h4 className="text-2xl font-black text-gray-900 mb-2">Detailed View Not Available</h4>
+                                                    <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
+                                                        This file type ({reviewingFile.split('.').pop()}) cannot be previewed directly. You can download it to review locally.
+                                                    </p>
+                                                    <Button
+                                                        onClick={() => window.open(reviewingFile)}
+                                                        className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 px-8 rounded-2xl shadow-xl shadow-orange-100 transition-all flex items-center gap-2"
+                                                    >
+                                                        <Download className="h-4 w-4" /> Download File to Review
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-full text-gray-400 py-20">
+                                            <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center mb-6 border border-gray-100 border-dashed">
+                                                <Eye className="h-8 w-8 text-gray-200" />
+                                            </div>
+                                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No file selected for preview</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* In-line Feedback Area */}
+                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 ring-1 ring-gray-950/[0.02]">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-black text-gray-900">Annotation & Comments</h3>
+                                    <Badge variant="outline" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-bold px-4 py-1">
+                                        {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).length} Comments
+                                    </Badge>
+                                </div>
+                                <div className="space-y-4 mb-8">
+                                    {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).map((c, i) => (
+                                        <div key={i} className="p-5 bg-gray-50/50 border border-gray-100 rounded-[2rem] hover:bg-white hover:shadow-md transition-all flex flex-col items-start min-w-[300px] w-max max-w-full">
+                                            <p className="text-[15px] font-semibold text-gray-800 leading-relaxed text-wrap">{c.comment.replace('[File Review] ', '')}</p>
+                                            <div className="flex items-center gap-2 mt-3">
+                                                <div className="h-1 w-1 rounded-full bg-gray-300" />
+                                                <p className="text-[11px] text-gray-400 font-black uppercase tracking-wider">{format(new Date(c.created_at), 'hh:mm a, MMM dd')}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {selectedSubmission?.comments.filter(c => c.comment.startsWith('[File Review]')).length === 0 && (
+                                        <div className="p-12 text-center border-2 border-dashed border-gray-50 rounded-[2.5rem]">
+                                            <MessageSquare className="h-10 w-10 text-gray-100 mx-auto mb-4" />
+                                            <p className="text-sm font-bold text-gray-300 uppercase tracking-widest">No annotations added yet</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="relative group">
+                                    <Textarea
+                                        placeholder="Add an annotation or feedback about this file..."
+                                        className="min-h-[140px] bg-[#FDFDFD] border-gray-100 rounded-[2.5rem] p-8 focus:ring-0 focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 text-[15px] font-semibold resize-none shadow-none transition-all placeholder:text-gray-300 ring-1 ring-gray-950/[0.01]"
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                if (!newComment.trim()) return;
+                                                const originalComment = newComment;
+                                                setNewComment(`[File Review] ${originalComment}`);
+                                                handleAddComment();
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            if (!newComment.trim()) return;
+                                            const originalComment = newComment;
+                                            setNewComment(`[File Review] ${originalComment}`);
+                                            handleAddComment();
+                                        }}
+                                        disabled={submitting || !newComment.trim()}
+                                        size="icon"
+                                        className="absolute bottom-6 right-6 h-12 w-12 rounded-2xl bg-orange-500 hover:bg-orange-600 shadow-2xl shadow-orange-100 transition-all active:scale-95 group-hover:scale-105"
+                                    >
+                                        <SendHorizonal className="h-6 w-6 text-white" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="p-8 border-t border-gray-100 bg-gray-50/50 shrink-0 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Badge className={`px-4 py-1.5 rounded-full font-bold border-none shadow-none text-[10px] uppercase tracking-widest ${selectedSubmission?.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' : selectedSubmission?.status === 'rejected' ? 'bg-rose-100 text-rose-700' : 'bg-slate-900 text-white'}`}>
+                                Current Status: {selectedSubmission?.status}
+                            </Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {selectedSubmission?.status === 'accepted' && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => window.open(selectedSubmission.file)}
+                                    className="rounded-xl h-11 px-6 font-bold border-orange-100 text-orange-600 bg-orange-50 hover:bg-orange-100"
+                                >
+                                    <Download className="h-4 w-4 mr-2" /> Download Approved File
+                                </Button>
+                            )}
+                            {selectedSubmission?.status === 'pending' && (
+                                <>
+                                    <Button
+                                        onClick={() => handleUpdateStatus('accepted')}
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-emerald-100 flex items-center gap-2"
+                                    >
+                                        <Check className="h-4 w-4" /> Accept Work
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleUpdateStatus('rejected')}
+                                        className="bg-rose-500 hover:bg-rose-600 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-rose-100 flex items-center gap-2"
+                                    >
+                                        <X className="h-4 w-4" /> Reject Work
+                                    </Button>
+                                </>
+                            )}
+                            <Button variant="ghost" onClick={() => setIsFileViewerOpen(false)} className="rounded-xl font-bold text-gray-400">Close Review</Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
