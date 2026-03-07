@@ -1,128 +1,691 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import Navigation from '../../components/common/Navigation';
-
+import RoleSidebar from '../../components/common/RoleSidebar';
+import RoleHeader from '../../components/common/RoleHeader';
+import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/card';
+import studentDashboardService, {
+  NotesProgressData,
+  TestPerformanceData,
+  TasksData,
+  AssessmentsData,
+  ContestsData,
+} from '../../services/studentDashboardService';
 import {
   BookOpen,
   Code,
   Trophy,
-  Briefcase,
-  Target,
-  MessageCircle,
-  TrendingUp,
-  Calendar,
+  BarChart3,
   Clock,
-  Award,
-  Users,
+  Bell,
   CheckCircle,
-  ArrowRight,
-  Play,
+  AlertCircle,
+  XCircle,
+  ChevronRight,
+  TrendingUp,
+  Target,
+  Medal,
+  ClipboardCheck,
+  FileCheck,
+  TrendingDown,
+  Calendar,
+  Award,
+  Flame,
   Star,
-  MapPin,
-  DollarSign
+  MedalIcon
 } from 'lucide-react';
-import { studentDashboardService, DashboardData } from '@/services/studentDashboardService';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+
+const mockAttendance = { present: 85, absent: 15 };
+
+const mockAnnouncements = [
+  {
+    id: 1,
+    title: 'New Python Course Available',
+    description: 'Advanced Python programming course is now live',
+    time: '2 hours ago',
+    tag: 'course',
+  },
+  {
+    id: 2,
+    title: 'Contest Registration Open',
+    description: 'Register for the upcoming coding contest by March 15',
+    time: '1 day ago',
+    tag: 'system',
+  },
+];
+
+const mockStreaks = {
+  days: 12,
+  currentBadge: 'Bronze',
+  badgeProgress: { target: 'Silver', daysLeft: 3 },
+  badges: ['Bronze'],
+  recentAchievements: [
+    { text: 'Completed 5 notes in a week', time: '2 days ago' },
+    { text: 'Perfect score in Python test', time: '5 days ago' },
+    { text: '10 day learning streak', time: '1 week ago' },
+  ],
+};
+
+const mockPerformance = {
+  learningProgress: 78,
+  taskCompletion: 85,
+  assessmentAverage: 82,
+  contestParticipation: 70,
+  attendanceRate: 85,
+  overall: 80,
+};
+
+const getColorClass = (value: number) => {
+  if (value >= 80) return 'text-green-600';
+  if (value >= 60) return 'text-amber-500';
+  return 'text-red-500';
+};
+
+// ─── Widget Components ─────────────────────────────────────────
+
+const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-blue-600" />
+          <h3 className="font-semibold text-gray-900">Learning Progress</h3>
+        </div>
+        <div className="flex items-center gap-1 text-amber-500 text-sm font-medium">
+          <Flame className="w-4 h-4" />
+          {data.streak} day streak
+        </div>
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-800">Overall Progress</span>
+        <span className={`text-sm font-bold ${getColorClass(data.overall)}`}>{data.overall}%</span>
+      </div>
+      <div className="w-full bg-gray-100 rounded-full h-2 mb-5">
+        <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${data.overall}%` }} />
+      </div>
+
+      <div className="space-y-5">
+        {data.subjects.map((s, i) => {
+          const pct = s.total > 0 ? Math.round((s.progress / s.total) * 100) : 0;
+          return (
+            <div key={i}>
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span className="text-gray-500 font-medium truncate pr-2">{s.name}</span>
+                <span className="text-gray-500 whitespace-nowrap">{s.progress}/{s.total}</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div className="bg-orange-500 h-1 rounded-full transition-all" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <a href="/student/learn" className="text-gray-600 text-sm font-medium flex items-center gap-1 hover:text-blue-700">
+        Click to view all progress and continue learning <ChevronRight className="w-4 h-4" />
+      </a>
+    </CardFooter>
+  </Card>
+);
+
+const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ClipboardCheck className="w-5 h-5 text-amber-600" />
+          <h3 className="font-semibold text-gray-900">Test Performance</h3>
+        </div>
+        <Trophy className="w-5 h-5 text-gray-400" />
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-blue-600">{data.completed}</p>
+          <p className="text-xs text-gray-500 mt-1">Completed</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className={`text-2xl font-bold ${getColorClass(data.avgScore)}`}>{data.avgScore}%</p>
+          <p className="text-xs text-gray-500 mt-1">Avg Score</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className={`text-2xl font-bold ${getColorClass(data.accuracy)}`}>{data.accuracy}%</p>
+          <p className="text-xs text-gray-500 mt-1">Accuracy</p>
+        </div>
+      </div>
+
+      <div className="space-y-2 mb-4">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Chapters Completed</span>
+          <span className="font-medium">{data.chaptersCompleted}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Last Test Score</span>
+          <span className={`inline-block bg-green-100 ${getColorClass(data.lastTestScore)} text-xs font-semibold px-2 py-0.5 rounded-full`}>{data.lastTestScore}%</span>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-3">
+        <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+          <BarChart3 className="w-4 h-4" />
+          Leaderboard Comparison
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className={`text-lg font-bold ${getColorClass(data.leaderboard.you)}`}>{data.leaderboard.you}%</p>
+            <p className="text-xs text-gray-500">Your Average</p>
+          </div>
+          <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className={`text-lg font-bold ${getColorClass(data.leaderboard.global)}`}>{data.leaderboard.global}%</p>
+            <p className="text-xs text-gray-500">Global Average</p>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <a href="/student/skill-test" className="text-gray-600 text-sm font-medium flex items-center gap-1 hover:text-purple-700">
+        Click to attempt practice tests <ChevronRight className="w-4 h-4" />
+      </a>
+    </CardFooter>
+  </Card>
+);
+
+const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-green-600" />
+          <h3 className="font-semibold text-gray-900">Tasks Summary</h3>
+        </div>
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-600">Overall Progress</span>
+        <span className={`text-sm font-bold ${getColorClass(data.overall)}`}>{data.overall}%</span>
+      </div>
+      <div className="w-full bg-gray-100 rounded-full h-2 mb-5">
+        <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${data.overall}%` }} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-green-600">{data.completed}</p>
+          <p className="text-xs text-gray-500 mt-1">Completed</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-amber-500">{data.inProgress}</p>
+          <p className="text-xs text-gray-500 mt-1">In Progress</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-red-500">{data.pending}</p>
+          <p className="text-xs text-gray-500 mt-1">Pending</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-gray-700">{data.total}</p>
+          <p className="text-xs text-gray-500 mt-1">Total Tasks</p>
+        </div>
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <a href="/student/code-practice" className="text-gray-600 text-sm font-medium flex items-center gap-1 hover:text-emerald-700">
+        Click to view all tasks <ChevronRight className="w-4 h-4" />
+      </a>
+    </CardFooter>
+  </Card>
+);
+
+const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FileCheck className="w-5 h-5 text-indigo-600" />
+          <h3 className="font-semibold text-gray-900">Assessments Overview</h3>
+        </div>
+        <span className="text-sm text-gray-500 font-small bg-gray-100 px-2 py-1 rounded-full">{data.completed} / {data.total}</span>
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div className="grid grid-cols-3 gap-4 mb-5">
+        <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-green-600">{data.completed}</p>
+          <p className="text-xs text-gray-500">Completed</p>
+        </div>
+        <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-amber-500">{data.inProgress}</p>
+          <p className="text-xs text-gray-500">In Progress</p>
+        </div>
+        <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-red-500">{data.pending}</p>
+          <p className="text-xs text-gray-500">Pending</p>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 pt-4">
+        <div className="space-y-4 mb-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium text-base">Average Score</span>
+            <span className={`font-bold ${getColorClass(data.avgScore)} text-xl`}>{data.avgScore}%</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Highest Score</span>
+            <span className={`font-medium ${getColorClass(data.highestScore)} flex items-center gap-1`}>
+              <TrendingUp className="h-4 w-4" />
+              {data.highestScore}%
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Lowest Score</span>
+            <span className={`font-medium ${getColorClass(data.lowestScore)} flex items-center gap-1`}>
+              <TrendingDown className="h-4 w-4" />
+              {data.lowestScore}%
+            </span>
+          </div>
+          <div className="border-t border-gray-200 pt-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Recent Status</span>
+              <span className={`inline-block bg-green-100 ${getColorClass(data.recentStatus)} text-xs font-semibold px-2 py-0.5 rounded-full`}>
+                Completed - {data.recentStatus}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <a href="/student/certifications" className="text-gray-600 text-sm font-medium flex items-center gap-1 hover:text-indigo-700">
+        Click to view all assessments <ChevronRight className="w-4 h-4" />
+      </a>
+    </CardFooter>
+  </Card>
+);
+
+const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-amber-500" />
+          <h3 className="font-semibold text-gray-900">Contest Performance</h3>
+        </div>
+        <MedalIcon className="w-5 h-5 text-amber-400" />
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-blue-600">{data.completed}</p>
+          <p className="text-xs text-gray-500 mt-1">Completed</p>
+        </div>
+        <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-2xl font-bold text-amber-600">#{data.bestRank}</p>
+          <p className="text-xs text-gray-500 mt-1">Best Rank</p>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 pt-3">
+        <div className="space-y-2 mb-4">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Average Score</span>
+            <span className={`inline-block ${getColorClass(data.avgScore)} text-xs font-semibold px-2 py-0.5 rounded-full`}>{data.avgScore}%</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Success Rate</span>
+            <span className={`inline-block ${getColorClass(data.successRate)} text-xs font-semibold px-2 py-0.5 rounded-full`}>{data.successRate}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200 pt-3">
+        <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+          <Star className="w-4 h-4" />
+          Last Contest Performance
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className="text-lg font-bold text-gray-900">#{data.lastContest.rank}</p>
+            <p className="text-xs text-gray-500">Rank</p>
+          </div>
+          <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className={`text-lg font-bold ${getColorClass(data.lastContest.accuracy)}`}>{data.lastContest.accuracy}%</p>
+            <p className="text-xs text-gray-500">Accuracy</p>
+          </div>
+          <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className="text-lg font-bold text-gray-900">{data.lastContest.time}</p>
+            <p className="text-xs text-gray-500">Time</p>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <p className="text-xs text-gray-500 italic">Keep participating to improve your ranking!</p>
+    </CardFooter>
+  </Card>
+);
+
+const AttendanceOverview: React.FC = () => {
+  const { present, absent } = mockAttendance;
+  const data = [
+    { name: 'Present', value: present, color: '#22c55e' },
+    { name: 'Absent', value: absent, color: '#ef4444' },
+  ];
+
+  return (
+    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-green-600" />
+            <h3 className="font-semibold text-gray-900">Attendance Overview</h3>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-grow flex flex-col items-center justify-center">
+        <div className="relative w-48 h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={5}
+                dataKey="value"
+                stroke="none"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: number) => `${value}%`} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center flex-col">
+            <span className="text-3xl font-bold text-gray-900">{present}%</span>
+            <span className="text-xs text-gray-500 font-medium">Present</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 w-full mt-2">
+          <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className="text-2xl font-bold text-green-600">{present}%</p>
+            <p className="text-xs text-gray-500 mt-1">Present</p>
+          </div>
+          <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className="text-2xl font-bold text-red-500">{absent}%</p>
+            <p className="text-xs text-gray-500 mt-1">Absent</p>
+          </div>
+        </div>
+      </CardContent>
+
+      <CardFooter className="justify-center border-t border-gray-200 pt-4">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="text-gray-600">Present</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <div className="w-3 h-3 rounded-full bg-red-500" />
+            <span className="text-gray-600">Absent</span>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+const Announcements: React.FC = () => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Bell className="w-5 h-5 text-amber-500" />
+          <h3 className="font-semibold text-gray-900">Announcements</h3>
+        </div>
+        <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+          {mockAnnouncements.length} new
+        </span>
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div
+        className="space-y-3 max-h-80 pr-1"
+        style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+      >
+        {mockAnnouncements.map((a) => (
+          <div key={a.id} className="border border-gray-200 border-l-4 border-l-orange-400 rounded-lg p-3 hover:bg-gray-50 transition-colors" style={{ backgroundColor: '#f3f4f6' }}>
+            <p className="text-sm font-semibold text-gray-900">{a.title}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{a.description}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {a.time}
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-600 border border-gray-200">{a.tag}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </CardContent>
+
+    <CardFooter>
+      <a href="/student/announcements" className="text-gray-600 text-sm font-medium flex items-center gap-1 hover:text-amber-700">
+        View all announcements <ChevronRight className="w-4 h-4" />
+      </a>
+    </CardFooter>
+  </Card>
+);
+
+const StreaksBadges: React.FC = () => {
+  const badges = [
+    { name: 'Bronze', earned: true, icon: '🥉' },
+    { name: 'Silver', earned: false, icon: '🥈' },
+    { name: 'Gold', earned: false, icon: '🥇' },
+    { name: 'Platinum', earned: false, icon: '💎' },
+  ];
+  return (
+    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Flame className="w-5 h-5 text-orange-500" />
+            <h3 className="font-semibold text-gray-900">Streaks & Badges</h3>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-grow">
+        {/* Streak count */}
+        <div className="flex items-center justify-center gap-2 mb-4 rounded-lg py-4" style={{ backgroundColor: '#f3f4f6' }}>
+          <Flame className="w-8 h-8 text-orange-500" />
+          <span className="text-4xl font-bold text-orange-600">{mockStreaks.days}</span>
+          <span className="text-sm text-gray-500 self-end mb-1">Day Streak</span>
+        </div>
+
+        {/* Badge progress */}
+        <div className="border-t border-gray-200 pt-3">
+          <div className="flex items-center justify-between text-sm mb-1">
+            <span className="text-gray-600 font-medium">Progress to {mockStreaks.badgeProgress.target}</span>
+            <span className="text-black-500">{mockStreaks.badgeProgress.daysLeft} days left</span>
+          </div>
+          <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: '70%' }} />
+          </div>
+        </div>
+
+        {/* Badge icons */}
+        <div className="border-t border-gray-200 pt-3">
+          <div className="flex items-center gap-2 mb-3">
+            <Award className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Earned Badges</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2 mb-5">
+            {badges.map((badge) => (
+              <div
+                key={badge.name}
+                className={`text-center p-2 rounded-lg border ${badge.earned
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'bg-gray-50 border-gray-200'
+                  }`}
+              >
+                <span className="text-2xl block mb-1">{badge.icon}</span>
+                <span className={`text-xs ${badge.earned ? 'text-amber-700 font-medium' : 'text-gray-400'}`}>
+                  {badge.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent achievements */}
+        <div className="flex items-center gap-2 mb-2">
+          <Star className="w-4 h-4 text-amber-500" />
+          <span className="text-sm font-medium text-gray-700">Recent Achievements</span>
+        </div>
+        <div className="space-y-2">
+          {mockStreaks.recentAchievements.map((a, i) => (
+            <div key={i} className="flex items-start gap-2 text-sm">
+              <TrendingUp className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-gray-800">{a.text}</p>
+                <p className="text-xs text-gray-400">{a.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const PerformanceMetrics: React.FC = () => {
+  const getColorClass = (value: number) => {
+    if (value >= 80) return 'text-green-600';
+    if (value >= 60) return 'text-amber-500';
+    return 'text-red-500';
+  };
+
+  /* const getBgColorClass = (value: number) => {
+    if (value >= 80) return 'bg-green-600';
+    if (value >= 60) return 'bg-amber-500';
+    return 'bg-red-500';
+  }; */
+
+  const metrics = [
+    { label: 'Learning Progress', value: mockPerformance.learningProgress },
+    { label: 'Task Completion', value: mockPerformance.taskCompletion },
+    { label: 'Assessment Average', value: mockPerformance.assessmentAverage },
+    { label: 'Contest Participation', value: mockPerformance.contestParticipation },
+    { label: 'Attendance Rate', value: mockPerformance.attendanceRate },
+  ];
+
+  return (
+    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-green-600" />
+            <h3 className="font-semibold text-gray-900">Performance Metrics</h3>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-grow">
+        <div className="space-y-6">
+          {metrics.map((m, i) => (
+            <div key={i}>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700">{m.label}</span>
+                <span className={`font-bold ${getColorClass(m.value)}`}>{m.value}%</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2">
+                <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${m.value}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+
+      <CardFooter className="justify-center border-t border-gray-200 pt-6">
+        <div className="text-center w-full rounded-lg py-3" style={{ backgroundColor: '#f3f4f6' }}>
+          <p className="text-4xl font-bold text-green-600">{mockPerformance.overall}%</p>
+          <p className="text-sm text-gray-500 mt-1">Overall Performance Score</p>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+// ─── Main Dashboard ────────────────────────────────────────────
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  const [notesData, setNotesData] = useState<NotesProgressData | null>(null);
+  const [testsData, setTestsData] = useState<TestPerformanceData | null>(null);
+  const [tasksData, setTasksData] = useState<TasksData | null>(null);
+  const [assessmentsData, setAssessmentsData] = useState<AssessmentsData | null>(null);
+  const [contestsData, setContestsData] = useState<ContestsData | null>(null);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAll = async () => {
       try {
-        const data = await studentDashboardService.getDashboardData();
-        setDashboardData(data);
+        const [notes, tests, tasks, assessments, contests] = await Promise.all([
+          studentDashboardService.getNotesProgress(),
+          studentDashboardService.getTestPerformance(),
+          studentDashboardService.getTasksSummary(),
+          studentDashboardService.getAssessments(),
+          studentDashboardService.getContests(),
+        ]);
+
+        setNotesData(notes);
+        setTestsData(tests);
+        setTasksData(tasks);
+        setAssessmentsData(assessments);
+        setContestsData(contests);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        // Use mock data as fallback
-        const mockData = await studentDashboardService.getDashboardData();
-        setDashboardData(mockData);
+        console.warn('Dashboard data fetch failed:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboardData();
+    fetchAll();
   }, []);
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'subject': return BookOpen;
-      case 'coding': return Code;
-      case 'job': return Briefcase;
-      case 'contest': return Trophy;
-      case 'skill-test': return Target;
-      case 'interview': return MessageCircle;
-      default: return BookOpen;
-    }
-  };
-
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'subject': return 'text-blue-600';
-      case 'coding': return 'text-green-600';
-      case 'job': return 'text-purple-600';
-      case 'contest': return 'text-yellow-600';
-      case 'skill-test': return 'text-indigo-600';
-      case 'interview': return 'text-pink-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  if (!dashboardData) {
-    return null;
-  }
-
-  const stats = [
-    {
-      name: 'Subjects Enrolled',
-      value: dashboardData.stats.subjectsEnrolled.toString(),
-      change: '+2 this month',
-      icon: BookOpen,
-      color: 'bg-blue-500',
-      path: '/student/learn'
-    },
-    {
-      name: 'Problems Solved',
-      value: dashboardData.stats.problemsSolved.toString(),
-      change: '+12 this week',
-      icon: Code,
-      color: 'bg-green-500',
-      path: '/student/code-practice'
-    },
-    {
-      name: 'Contests Joined',
-      value: dashboardData.stats.contestsParticipated.toString(),
-      change: '+3 this month',
-      icon: Trophy,
-      color: 'bg-yellow-500',
-      path: '/student/contests'
-    },
-    {
-      name: 'Job Applications',
-      value: dashboardData.stats.jobApplications.toString(),
-      change: '+5 this week',
-      icon: Briefcase,
-      color: 'bg-purple-500',
-      path: '/student/jobs'
-    }
-  ];
-
-  if (loading) {
+  if (loading || !notesData || !testsData || !tasksData || !assessmentsData || !contestsData) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <Navigation />
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
-            <div className="bg-gray-300 rounded-lg h-32 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-gray-300 rounded-lg h-24"></div>
-              ))}
+        <div className="flex">
+          <RoleSidebar />
+          <div className="flex-1">
+            <RoleHeader title="Loading..." subtitle="Please wait while we load your dashboard." />
+            <div className="p-6">
+              <div className="animate-pulse grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(9)].map((_, i) => (
+                  <Card key={i} className="h-64 bg-gray-200 animate-pulse" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -132,361 +695,37 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
-
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-8 text-white">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">
-                  Welcome back, {user?.first_name || user?.username || 'Student'}! 👋
-                </h1>
-                <p className="text-indigo-100 text-lg mb-4">
-                  Continue your learning journey and track your progress.
-                </p>
-                <div className="flex items-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-indigo-100">Learning Streak</p>
-                      <p className="font-semibold">7 days</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                      <Star className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-indigo-100">XP Points</p>
-                      <p className="font-semibold">2,450</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-indigo-100 text-sm mb-1">Today's Goal</p>
-                <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                  <p className="font-semibold mb-1">2 / 3 Problems</p>
-                  <div className="w-24 bg-white bg-opacity-30 rounded-full h-2">
-                    <div className="bg-white h-2 rounded-full" style={{ width: '67%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(stat.path)}
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  </div>
-                  <div className={`${stat.color} p-3 rounded-lg`}>
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <span className="text-sm font-medium text-green-600">
-                    {stat.change}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Recent Activity & Course Progress */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {dashboardData.recentActivity.map((activity) => {
-                    const ActivityIcon = getActivityIcon(activity.type);
-                    const activityColor = getActivityColor(activity.type);
-
-                    return (
-                      <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div className={`p-2 rounded-lg ${activityColor} bg-opacity-10`}>
-                          <ActivityIcon className={`w-5 h-5 ${activityColor}`} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.action} <span className="text-indigo-600">{activity.target}</span>
-                          </p>
-                          <p className="text-xs text-gray-500">{activity.time}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+      <div className="flex">
+        <RoleSidebar />
+        <div className="flex-1">
+          <RoleHeader
+            title="Dashboard Overview"
+            subtitle="Monitor your academic progress and performance metrics"
+          />
+          <div className="p-6 space-y-6">
+            {/* Row 1: 3 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <NotesProgress data={notesData} />
+              <TestPerformance data={testsData} />
+              <TasksSummary data={tasksData} />
             </div>
 
-            {/* Subject Progress */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Subject Progress</h3>
-                <button
-                  onClick={() => navigate('/student/learn')}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
-                >
-                  View All <ArrowRight className="w-4 h-4 ml-1" />
-                </button>
-              </div>
-              <div className="p-6">
-                <div className="space-y-6">
-                  {dashboardData.subjectProgress.map((subject) => (
-                    <div key={subject.id} className="border-l-4 border-indigo-500 pl-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-gray-900">{subject.name}</h4>
-                        <span className="text-sm text-gray-500">{subject.progress}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                        <div
-                          className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${subject.progress}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {subject.completedLessons} of {subject.totalLessons} lessons completed
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Row 2: 2 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <AssessmentsOverview data={assessmentsData} />
+              <ContestPerformance data={contestsData} />
             </div>
 
-            {/* Performance Metrics */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Performance Metrics</h3>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">{dashboardData.stats.skillTestsCompleted}</div>
-                    <div className="text-sm text-gray-600">Tests Completed</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{dashboardData.stats.mockInterviewsCompleted}</div>
-                    <div className="text-sm text-gray-600">Mock Interviews</div>
-                  </div>
-                </div>
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-                    <span className="text-sm text-gray-500">78%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" style={{ width: '78%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => navigate('/student/code-practice')}
-                    className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center transition-colors"
-                  >
-                    <Code className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Practice Code</div>
-                  </button>
-                  <button
-                    onClick={() => navigate('/student/skill-test')}
-                    className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center transition-colors"
-                  >
-                    <Target className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Take Test</div>
-                  </button>
-                  <button
-                    onClick={() => navigate('/student/contests')}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center transition-colors"
-                  >
-                    <Trophy className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Join Contest</div>
-                  </button>
-                  <button
-                    onClick={() => navigate('/student/mock-interview')}
-                    className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center transition-colors"
-                  >
-                    <MessageCircle className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Mock Interview</div>
-                  </button>
-                </div>
-              </div>
+            {/* Row 3: 2 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <AttendanceOverview />
+              <Announcements />
             </div>
 
-            {/* Upcoming Events */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Upcoming Events</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {dashboardData.upcomingEvents.map((event) => (
-                    <div key={event.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-shrink-0">
-                        <Calendar className="w-5 h-5 text-indigo-600 mt-0.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {event.title}
-                        </p>
-                        <p className="text-xs text-gray-500">{event.date}</p>
-                        {event.participants && (
-                          <p className="text-xs text-gray-400">{event.participants} participants</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Recommended Jobs */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Recommended Jobs</h3>
-                <button
-                  onClick={() => navigate('/student/jobs')}
-                  className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center"
-                >
-                  View All <ArrowRight className="w-4 h-4 ml-1" />
-                </button>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  {dashboardData.recommendedJobs.map((job) => (
-                    <div key={job.id} className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors cursor-pointer">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-gray-900 text-sm">{job.title}</h4>
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          {job.match}% match
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{job.company}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {job.location}
-                        </div>
-                        <div className="flex items-center">
-                          <DollarSign className="w-3 h-3 mr-1" />
-                          {job.salary}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Achievements */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Achievements</h3>
-              </div>
-              <div className="p-6">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <Trophy className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Problem Solver</p>
-                      <p className="text-xs text-gray-500">Solved 50+ problems</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Course Completer</p>
-                      <p className="text-xs text-gray-500">Completed 3 courses</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Test Taker</p>
-                      <p className="text-xs text-gray-500">Passed 15 skill tests</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Profile Summary */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Profile Summary</h3>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                    {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">
-                      {user?.first_name && user?.last_name
-                        ? `${user.first_name} ${user.last_name}`
-                        : user?.username || 'Student'}
-                    </h4>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Profile Completion</span>
-                    <span className="text-sm font-medium text-gray-900">85%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => navigate('/student/profile')}
-                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Complete Profile
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* Row 4: 2 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StreaksBadges />
+              <PerformanceMetrics />
             </div>
           </div>
         </div>

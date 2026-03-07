@@ -1,6 +1,8 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -265,7 +267,11 @@ ${codeEditorRef.current?.getCode() || ''}
                     <Layout className="w-3.5 h-3.5 text-indigo-500" /> Challenge Overview
                   </h3>
                   <div className="prose prose-slate max-w-none">
-                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">{problem.description}</p>
+                    <div className="text-gray-700 text-base leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-code:text-sm">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {problem.description}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
 
@@ -385,7 +391,11 @@ ${codeEditorRef.current?.getCode() || ''}
                     <div className="space-y-8">
                       <div>
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Task</h4>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{problem.description}</p>
+                        <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {problem.description}
+                          </ReactMarkdown>
+                        </div>
                       </div>
 
                       {problem.examples && problem.examples.length > 0 && (
