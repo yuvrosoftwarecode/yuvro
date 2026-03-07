@@ -1076,3 +1076,39 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
         
         serializer = TaskCommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], url_path="clear_chat")
+    def clear_chat(self, request, pk=None):
+        """
+        Permanently delete all comments for a submission.
+        Only the student who owns the submission or the faculty who assigned the task can clear the chat.
+        """
+        submission = self.get_object()
+
+        if request.user.role == "faculty":
+            from core.models import FacultyProfile
+            faculty = get_object_or_404(FacultyProfile, user=request.user)
+            if submission.task.faculty != faculty:
+                return Response(
+                    {"error": "You can only clear chat for submissions on your own tasks"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        elif request.user.role == "student":
+            from core.models import StudentProfile
+            student = get_object_or_404(StudentProfile, user=request.user)
+            if submission.student != student:
+                return Response(
+                    {"error": "You can only clear your own submission chat"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        else:
+            return Response(
+                {"error": "Only faculty and students can clear chat"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        deleted_count, _ = TaskComment.objects.filter(submission=submission).delete()
+        return Response(
+            {"message": f"Successfully deleted {deleted_count} comment(s)"},
+            status=status.HTTP_200_OK
+        )
