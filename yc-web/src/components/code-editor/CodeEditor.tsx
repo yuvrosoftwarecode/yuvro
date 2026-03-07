@@ -2,7 +2,7 @@
 // For AI-enhanced coding with problem descriptions, use CodeEditorWithAI.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Send, X, FlaskConical, Terminal, CheckCircle2, XCircle, Zap, Activity } from 'lucide-react';
+import { Play, Send, X, FlaskConical, Terminal, CheckCircle2, XCircle, Zap, Activity, Sparkles } from 'lucide-react';
 import MonacoCodeEditor from './MonacoCodeEditor';
 import codeEditorService from '@/services/codeEditorService';
 import ExampleCodeGallery from '@/components/code-editor/ExampleCodeGallery';
@@ -61,6 +61,7 @@ export interface CodeEditorHandle {
   getLanguage: () => string;
   getCode: () => string;
   setCode: (code: string) => void;
+  insertText: (text: string) => void;
 }
 
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
@@ -761,10 +762,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                                 onToggleAiChat();
                                               }
                                               // Dispatch a custom event that AIChatContainer will listen to
-                                              window.dispatchEvent(new CustomEvent('ai-buddy-ask', { 
-                                                detail: { 
-                                                  prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}` 
-                                                } 
+                                              window.dispatchEvent(new CustomEvent('ai-buddy-ask', {
+                                                detail: {
+                                                  prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}`
+                                                }
                                               }));
                                             }}
                                           >

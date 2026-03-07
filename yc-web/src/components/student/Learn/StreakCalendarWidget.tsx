@@ -158,8 +158,8 @@ const StreakCalendarWidget: React.FC<StreakCalendarProps> = ({ currentStreak, ma
                 <div className="flex flex-col justify-start">
                     {/* Days Header */}
                     <div className="grid grid-cols-7 mb-0.5 text-center">
-                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                            <div key={d} className="flex items-center justify-center text-[10px] font-bold text-gray-400 h-3">
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                            <div key={`day-header-${i}`} className="flex items-center justify-center text-[10px] font-bold text-gray-400 h-3">
                                 {d}
                             </div>
                         ))}

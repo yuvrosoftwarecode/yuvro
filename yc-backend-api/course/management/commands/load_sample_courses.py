@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -19,6 +20,22 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing data before loading new data",
         )
+        parser.add_argument(
+            "--file",
+            type=str,
+            default="sample_courses_data.json",
+            help="Name of the specific JSON file to load (defaults to sample_courses_data.json)",
+        )
+        parser.add_argument(
+            "--fallback",
+            type=str,
+            help="Name of a fallback JSON file to load if the main file fails parsing or database insertion",
+        )
+        parser.add_argument(
+            "--dir",
+            type=str,
+            help="Directory name within fixtures to load multiple JSON files from (e.g., dsa_parts)",
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -35,34 +52,112 @@ class Command(BaseCommand):
         # Load instructors from test users data
         self.load_instructors()
 
-        # Load data from JSON file
-        json_file_path = os.path.join(
-            os.path.dirname(__file__), "../../fixtures/sample_courses_data.json"
-        )
+        # Define the base fixtures directory
+        fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures"
 
+        # Load data from JSON file(s)
+        has_errors = False
+        
+        if options.get("dir"):
+            dir_name = options["dir"]
+            scan_dir = fixtures_dir / dir_name
+            if not scan_dir.exists() or not scan_dir.is_dir():
+                self.stdout.write(self.style.ERROR(f"Directory not found: {scan_dir}"))
+                return
+            
+            # Get all JSON files sorted alphabetically
+            json_files = sorted(scan_dir.glob("*.json"))
+            if not json_files:
+                self.stdout.write(self.style.WARNING(f"No JSON files found in {scan_dir}"))
+                return
+                
+            for filepath in json_files:
+                self.stdout.write(f"\nProcessing file: {filepath.name}")
+                data = self._try_load_json(filepath)
+                if data:
+                    self.load_courses_from_json(data)
+                    self.load_assessments_from_json(data)
+                else:
+                    self.stdout.write(self.style.WARNING(f"Failed to load data from {filepath.name}"))
+                    has_errors = True
+                    
+        else:
+            # Single file logic with explicit fallback
+            fixture_filename = options["file"]
+            primary_file = fixtures_dir / fixture_filename
+            
+            # Attempt 1: Try the primary file
+            self.stdout.write(f"\nAttempting to load primary JSON from {fixture_filename}...")
+            data = self._try_load_json(primary_file)
+            
+            fallback_triggered = False
+            if data:
+                try:
+                    self.load_courses_from_json(data)
+                    self.load_assessments_from_json(data)
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f"\nFailed while loading from primary JSON: {str(e)}"))
+                    fallback_triggered = True
+            else:
+                fallback_triggered = True
+                
+            # Attempt 2: If primary failed, clear partial data and run fallback
+            if fallback_triggered and options.get("fallback"):
+                fallback_filename = options.get("fallback")
+                fallback_file = fixtures_dir / fallback_filename
+                
+                self.stdout.write(self.style.WARNING(f"\nPrimary file failed. Clearing partial data to engage fallback: {fallback_filename}"))
+                Question.objects.all().delete()
+                Video.objects.all().delete()
+                Subtopic.objects.all().delete()
+                Topic.objects.all().delete()
+                Course.objects.all().delete()
+                SkillTest.objects.all().delete()
+                Contest.objects.all().delete()
+                
+                self.load_instructors() # Reload instructors since we cleared DB
+                
+                fallback_data = self._try_load_json(fallback_file)
+                if fallback_data:
+                    self.stdout.write(f"\nLoading fallback data from {fallback_filename}...")
+                    try:
+                        self.load_courses_from_json(fallback_data)
+                        self.load_assessments_from_json(fallback_data)
+                        has_errors = False # Rescued by fallback
+                    except Exception as fallback_e:
+                        self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} also failed: {str(fallback_e)}"))
+                        has_errors = True
+                else:
+                    self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} could not be loaded."))
+                    has_errors = True
+            elif fallback_triggered:
+                 self.stdout.write(self.style.ERROR("\nPrimary failed and no fallback specified. Aborting."))
+                 has_errors = True
+
+        if not has_errors:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "\nSuccessfully loaded all sample courses and assessments from JSON!"
+                )
+            )
+
+    def _try_load_json(self, filepath):
+        """Helper to load JSON data from a given filepath, handling errors."""
         try:
-            with open(json_file_path, "r", encoding="utf-8") as file:
+            with open(filepath, "r", encoding="utf-8") as file:
                 data = json.load(file)
+            return data
         except FileNotFoundError:
             self.stdout.write(
-                self.style.ERROR(f"JSON file not found at: {json_file_path}")
+                self.style.ERROR(f"JSON file not found at: {filepath}")
             )
-            return
+            return None
         except json.JSONDecodeError as e:
-            self.stdout.write(self.style.ERROR(f"Invalid JSON format: {e}"))
-            return
-
-        self.stdout.write("Loading sample courses from JSON...")
-
-        # Load courses and their content
-        self.load_courses_from_json(data)
-
-        # Load assessments
-        self.load_assessments_from_json(data)
-
-        self.stdout.write(
-            self.style.SUCCESS("Successfully loaded all sample courses from JSON!")
-        )
+            self.stdout.write(self.style.ERROR(f"Invalid JSON format in {filepath}: {e}"))
+            return None
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Error reading JSON from {filepath}: {e}"))
+            return None
 
     def load_instructors(self):
         """Load instructors from test users data"""
@@ -150,10 +245,14 @@ class Command(BaseCommand):
             subtopic_map = {}  # To store subtopic references for questions
 
             for topic_data in course_data.get("topics", []):
+                topic_defaults = {}
+                if "order_index" in topic_data:
+                    topic_defaults["order_index"] = topic_data["order_index"]
+
                 topic, topic_created = Topic.objects.get_or_create(
                     course=course,
                     name=topic_data["name"],
-                    defaults={"order_index": topic_data["order_index"]},
+                    defaults=topic_defaults,
                 )
                 topic_map[topic_data["name"]] = topic
 

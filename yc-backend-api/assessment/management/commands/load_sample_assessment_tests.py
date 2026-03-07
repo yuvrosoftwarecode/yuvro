@@ -21,6 +21,17 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing assessment data before loading new data",
         )
+        parser.add_argument(
+            "--file",
+            type=str,
+            default="sample_assessment_skill_tests_data.json",
+            help="Name of the specific skill tests JSON file to load",
+        )
+        parser.add_argument(
+            "--fallback",
+            type=str,
+            help="Name of a fallback skill tests JSON file to load if the main file fails",
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -35,9 +46,9 @@ class Command(BaseCommand):
         here = Path(__file__).resolve()
         fixtures_dir = here.parents[2] / "fixtures"
 
-        skill_file = fixtures_dir / "sample_assessment_skill_tests_data.json"
-        contests_file = fixtures_dir / "sample_assessment_contests_data.json"
-        mock_file = fixtures_dir / "sample_assessment_mock_interviews_data.json"
+        skill_file_name = options.get("file")
+        primary_skill_file = fixtures_dir / skill_file_name
+        fallback_trigger = False
 
         def _load_json(path):
             try:
@@ -46,19 +57,52 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f"JSON file not found at: {path}"))
                 return {}
             except json.JSONDecodeError as e:
-                self.stdout.write(
-                    self.style.ERROR(f"Invalid JSON format in {path}: {e}")
-                )
+                self.stdout.write(self.style.ERROR(f"Invalid JSON format in {path}: {e}"))
+                return {}
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Error reading JSON from {path}: {e}"))
                 return {}
 
-        self.stdout.write("Loading sample assessment tests from fixtures...")
-
-        # Load skill tests from skill tests file
-        skill_data = _load_json(skill_file)
+        self.stdout.write(f"\nAttempting to load primary skill tests from {skill_file_name}...")
+        
+        # Load skill tests primary
+        skill_data = _load_json(primary_skill_file)
         if skill_data:
-            self.load_skill_tests_from_json(skill_data)
+            try:
+                self.load_skill_tests_from_json(skill_data)
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"\nFailed while loading from primary JSON: {str(e)}"))
+                fallback_trigger = True
+        else:
+            fallback_trigger = True
 
-        # Load contests from dedicated contests file
+        # Process Fallback
+        if fallback_trigger and options.get("fallback"):
+            fallback_filename = options.get("fallback")
+            fallback_file = fixtures_dir / fallback_filename
+            
+            self.stdout.write(self.style.WARNING(f"\nPrimary file failed. Clearing partial data to engage fallback: {fallback_filename}"))
+            JobTest.objects.all().delete()
+            MockInterview.objects.all().delete()
+            Contest.objects.all().delete()
+            SkillTest.objects.all().delete()
+            
+            fallback_data = _load_json(fallback_file)
+            if fallback_data:
+                self.stdout.write(f"\nLoading fallback data from {fallback_filename}...")
+                try:
+                    self.load_skill_tests_from_json(fallback_data)
+                except Exception as fallback_e:
+                    self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} also failed: {str(fallback_e)}"))
+            else:
+                self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} could not be loaded."))
+        elif fallback_trigger:
+            self.stdout.write(self.style.ERROR("\nPrimary failed and no fallback specified for skill tests. Skipping."))
+
+        # Below we still load the original contests and mocks
+        contests_file = fixtures_dir / "sample_assessment_contests_data.json"
+        mock_file = fixtures_dir / "sample_assessment_mock_interviews_data.json"
+
         contests_data = _load_json(contests_file)
         if contests_data:
             self.load_contests_from_json(contests_data)
@@ -70,7 +114,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "Successfully loaded all sample assessment tests from JSON!"
+                "\nSuccessfully completed sample assessment test loading!"
             )
         )
 

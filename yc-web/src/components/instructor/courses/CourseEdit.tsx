@@ -66,10 +66,11 @@ import {
   Course,
 } from "@/services/courseService";
 
-type Category = "fundamentals" | "programming_languages" | "databases" | "ai_tools";
+type Category = "fundamentals" | "advanced" | "programming_languages" | "databases" | "ai_tools";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   fundamentals: "Fundamentals",
+  advanced: "Advanced",
   programming_languages: "Programming Languages",
   databases: "Databases",
   ai_tools: "AI Tools",

@@ -1,0 +1,657 @@
+{
+    "courses": [
+        {
+            "short_code": "DSA101",
+            "name": "Data Structures",
+            "category": "advanced",
+            "instructor_email": "admin@yuvro.com",
+            "topics": [
+                {
+                    "name": "Heaps",
+                    "order_index": 0,
+                    "subtopics": [
+                        {
+                            "name": "Priority Queues and Heaps",
+                            "content": "A heap is a specialized tree-based data structure satisfying the heap property. In a max heap, every node's value is greater than or equal to its children. In a min heap, every node's value is less than or equal to its children. Heaps power Priority Queues and are used for efficiently extracting min/max elements in O(log N) time.",
+                            "order_index": 0,
+                            "videos": [
+                                {
+                                    "title": "Introduction to Heaps and Priority Queues",
+                                    "video_link": "https://www.youtube.com/watch?v=t0Cq6tVNRBA",
+                                    "ai_context": "Introduction to heap data structure and priority queue concepts"
+                                },
+                                {
+                                    "title": "Heap Sort Algorithm Explained",
+                                    "video_link": "https://www.youtube.com/watch?v=2DmK_H7IdTo",
+                                    "ai_context": "Heap sort algorithm walkthrough and complexity analysis"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Trees",
+                    "order_index": 1,
+                    "subtopics": [
+                        {
+                            "name": "Binary Trees and BST",
+                            "content": "A binary tree is a tree where each node has at most two children (left and right). A Binary Search Tree (BST) is a binary tree where every node's left subtree contains only values smaller than it, and its right subtree contains only values greater than it. BSTs allow O(log N) search, insert, and delete on balanced trees.",
+                            "order_index": 0,
+                            "videos": [
+                                {
+                                    "title": "Binary Trees Explained - Structure and Traversals",
+                                    "video_link": "https://www.youtube.com/watch?v=oSWTXtMglKE",
+                                    "ai_context": "Binary tree structure, properties, and traversal algorithms"
+                                },
+                                {
+                                    "title": "Tree Traversals - Inorder, Preorder, Postorder, Level Order",
+                                    "video_link": "https://www.youtube.com/watch?v=BHB0B1jFKQc",
+                                    "ai_context": "All major tree traversal strategies with examples"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Balanced Trees and Tries",
+                            "content": "Balanced BSTs like AVL Trees and Red-Black Trees ensure O(log N) operations by keeping tree height balanced through rotations. Tries (prefix trees) store strings character by character, enabling O(L) search and autocomplete where L is the word length.",
+                            "order_index": 1,
+                            "videos": [
+                                {
+                                    "title": "AVL Trees - Self-Balancing BST",
+                                    "video_link": "https://www.youtube.com/watch?v=jDM6_TnYIqE",
+                                    "ai_context": "AVL tree rotations and self-balancing mechanism"
+                                },
+                                {
+                                    "title": "Trie Data Structure - Prefix Tree Explained",
+                                    "video_link": "https://www.youtube.com/watch?v=oobqoCJlHA0",
+                                    "ai_context": "Trie construction and prefix search operations"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Graphs",
+                    "order_index": 2,
+                    "subtopics": [
+                        {
+                            "name": "Graph Representation and BFS/DFS",
+                            "content": "A graph consists of vertices (nodes) and edges. Graphs can be directed or undirected, weighted or unweighted. They are stored as adjacency lists or adjacency matrices. BFS (Breadth-First Search) explores level-by-level and finds shortest paths in unweighted graphs. DFS (Depth-First Search) explores depth-first and is used for cycle detection, topological sort, and connected components.",
+                            "order_index": 0,
+                            "videos": [
+                                {
+                                    "title": "Graph Representation - Adjacency List vs Matrix",
+                                    "video_link": "https://www.youtube.com/watch?v=AfYqN3fGapc",
+                                    "ai_context": "How to store graphs in memory using different data structures"
+                                },
+                                {
+                                    "title": "BFS and DFS Graph Traversal",
+                                    "video_link": "https://www.youtube.com/watch?v=pcKY4hjDrxk",
+                                    "ai_context": "Breadth-first and depth-first search with code examples"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Dynamic Programming",
+                    "order_index": 3,
+                    "subtopics": [
+                        {
+                            "name": "Memoization and Tabulation",
+                            "content": "Dynamic Programming (DP) solves problems by breaking them into overlapping subproblems and storing results to avoid recomputation. Memoization (top-down) caches recursive call results. Tabulation (bottom-up) iteratively fills a table from base cases up. DP requires optimal substructure (optimal solution built from optimal subproblem solutions) and overlapping subproblems.",
+                            "order_index": 0,
+                            "videos": [
+                                {
+                                    "title": "Dynamic Programming - Learn to Solve Algorithmic Problems",
+                                    "video_link": "https://www.youtube.com/watch?v=oBt53YbR9Kk",
+                                    "ai_context": "Comprehensive introduction to dynamic programming concepts"
+                                },
+                                {
+                                    "title": "Memoization vs Tabulation - Top Down vs Bottom Up DP",
+                                    "video_link": "https://www.youtube.com/watch?v=UBoVQcMCGCQ",
+                                    "ai_context": "Comparing memoization and tabulation with practical examples"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "questions": [
+                {
+                    "type": "mcq_single",
+                    "title": "Min-Heap Property",
+                    "content": "Which of the following correctly describes a Min-Heap?",
+                    "level": "subtopic",
+                    "topic_name": "Heaps",
+                    "subtopic_name": "Priority Queues and Heaps",
+                    "difficulty": "easy",
+                    "marks": 2,
+                    "categories": [
+                        "learn",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "For every node, its value is less than or equal to the values of its children.",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "For every node, its value is greater than or equal to the values of its children.",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "The tree must be a complete binary search tree.",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "The smallest element is always at a leaf node.",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "mcq_single",
+                    "title": "Heap Insert Time Complexity",
+                    "content": "What is the time complexity of inserting an element into a binary heap of size N?",
+                    "level": "subtopic",
+                    "topic_name": "Heaps",
+                    "subtopic_name": "Priority Queues and Heaps",
+                    "difficulty": "easy",
+                    "marks": 2,
+                    "categories": [
+                        "learn",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "O(log N)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "O(N)",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "O(1)",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "O(N log N)",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Kth Largest Element in an Array",
+                    "content": "Given an integer array nums and an integer k, return the kth largest element in the array.\n\nNote: it is the kth largest in sorted order, not the kth distinct element.\n\n**Example 1:**\nInput: nums = [3,2,1,5,6,4], k = 2\nOutput: 5\n\n**Example 2:**\nInput: nums = [3,2,3,1,2,4,5,5,6], k = 4\nOutput: 4\n\n**Constraints:**\n- 1 <= k <= nums.length <= 10^5\n- -10^4 <= nums[i] <= 10^4",
+                    "level": "subtopic",
+                    "topic_name": "Heaps",
+                    "subtopic_name": "Priority Queues and Heaps",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[3,2,1,5,6,4]\n2",
+                            "expected_output": "5"
+                        },
+                        {
+                            "input": "[3,2,3,1,2,4,5,5,6]\n4",
+                            "expected_output": "4"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[-1,2,0]\n1",
+                            "expected_output": "2"
+                        },
+                        {
+                            "input": "[1]\n1",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "[3,2,1,5,6,4]\n2",
+                            "expected_output": "5",
+                            "explanation": "After sorting in descending order: [6,5,4,3,2,1]. The 2nd largest is 5."
+                        }
+                    ],
+                    "inputFormat": "The first line contains the integer array nums as a JSON list.\nThe second line contains the integer k.",
+                    "outputFormat": "A single integer, the kth largest element."
+                },
+                {
+                    "type": "coding",
+                    "title": "Top K Frequent Elements",
+                    "content": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.\n\n**Example 1:**\nInput: nums = [1,1,1,2,2,3], k = 2\nOutput: [1,2]\n\n**Example 2:**\nInput: nums = [1], k = 1\nOutput: [1]\n\n**Constraints:**\n- 1 <= nums.length <= 10^5\n- k is in the range [1, the number of unique elements in the array]\n- The answer is guaranteed to be unique.",
+                    "level": "subtopic",
+                    "topic_name": "Heaps",
+                    "subtopic_name": "Priority Queues and Heaps",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,1,1,2,2,3]\n2",
+                            "expected_output": "[1, 2]"
+                        },
+                        {
+                            "input": "[1]\n1",
+                            "expected_output": "[1]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[4,1,-1,2,-1,2,3]\n2",
+                            "expected_output": "[-1, 2]"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "[1,1,1,2,2,3]\n2",
+                            "expected_output": "[1,2]",
+                            "explanation": "1 appears 3 times and 2 appears 2 times. They are the 2 most frequent."
+                        }
+                    ],
+                    "inputFormat": "The first line contains the integer array nums as a JSON list.\nThe second line contains the integer k.",
+                    "outputFormat": "A sorted list of the k most frequent elements."
+                },
+                {
+                    "type": "mcq_single",
+                    "title": "BST Inorder Traversal Order",
+                    "content": "An inorder traversal of a valid Binary Search Tree (BST) produces elements in which order?",
+                    "level": "subtopic",
+                    "topic_name": "Trees",
+                    "subtopic_name": "Binary Trees and BST",
+                    "difficulty": "easy",
+                    "marks": 2,
+                    "categories": [
+                        "learn",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "Ascending (sorted) order",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Descending order",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Random order",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Level-by-level (breadth-first) order",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "mcq_multiple",
+                    "title": "Binary Tree Traversal Types",
+                    "content": "Which of the following are valid binary tree traversal methods?",
+                    "level": "subtopic",
+                    "topic_name": "Trees",
+                    "subtopic_name": "Binary Trees and BST",
+                    "difficulty": "easy",
+                    "marks": 3,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "Inorder (Left, Root, Right)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Preorder (Root, Left, Right)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Postorder (Left, Right, Root)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Level Order (BFS)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Spiral Order (S-shaped)",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Maximum Depth of Binary Tree",
+                    "content": "Given the root of a binary tree, return its maximum depth.\n\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\n**Example 1:**\nInput: root = [3,9,20,null,null,15,7]\nOutput: 3\n\n**Example 2:**\nInput: root = [1,null,2]\nOutput: 2\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -100 <= Node.val <= 100",
+                    "level": "subtopic",
+                    "topic_name": "Trees",
+                    "subtopic_name": "Binary Trees and BST",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[3,9,20,null,null,15,7]",
+                            "expected_output": "3"
+                        },
+                        {
+                            "input": "[1,null,2]",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[]",
+                            "expected_output": "0"
+                        },
+                        {
+                            "input": "[0]",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "[3,9,20,null,null,15,7]",
+                            "expected_output": "3",
+                            "explanation": "The longest path is 3 -> 20 -> 15 (or 3 -> 20 -> 7), which has 3 nodes."
+                        }
+                    ],
+                    "inputFormat": "A level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.",
+                    "outputFormat": "A single integer representing the maximum depth."
+                },
+                {
+                    "type": "coding",
+                    "title": "Validate Binary Search Tree",
+                    "content": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).\n\nA valid BST is defined as follows:\n- The left subtree of a node contains only nodes with keys less than the node's key.\n- The right subtree of a node contains only nodes with keys greater than the node's key.\n- Both the left and right subtrees must also be binary search trees.\n\n**Example 1:**\nInput: root = [2,1,3]\nOutput: true\n\n**Example 2:**\nInput: root = [5,1,4,null,null,3,6]\nOutput: false\nExplanation: The root node's value is 5 but its right child's value is 4.",
+                    "level": "subtopic",
+                    "topic_name": "Trees",
+                    "subtopic_name": "Binary Trees and BST",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[2,1,3]",
+                            "expected_output": "True"
+                        },
+                        {
+                            "input": "[5,1,4,null,null,3,6]",
+                            "expected_output": "False"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[2,2,2]",
+                            "expected_output": "False"
+                        },
+                        {
+                            "input": "[1]",
+                            "expected_output": "True"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "[5,1,4,null,null,3,6]",
+                            "expected_output": "False",
+                            "explanation": "Node 4 is the right child of root 5, but 4 < 5. This violates the BST property."
+                        }
+                    ],
+                    "inputFormat": "A level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.",
+                    "outputFormat": "True if the tree is a valid BST, False otherwise."
+                },
+                {
+                    "type": "mcq_single",
+                    "title": "BFS vs DFS for Shortest Path",
+                    "content": "Which graph traversal algorithm is best suited for finding the shortest path in an unweighted graph?",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "easy",
+                    "marks": 2,
+                    "categories": [
+                        "learn",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "BFS (Breadth-First Search)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "DFS (Depth-First Search)",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Both are equally efficient for shortest path",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Neither; only Dijkstra's algorithm works",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Number of Islands",
+                    "content": "Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.\n\n**Example 1:**\nInput: grid = [[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]\nOutput: 1\n\n**Example 2:**\nInput: grid = [[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]\nOutput: 3",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+                            "expected_output": "1"
+                        },
+                        {
+                            "input": "[[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]",
+                            "expected_output": "3"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[[\"1\",\"1\"],[\"1\",\"1\"]]",
+                            "expected_output": "1"
+                        },
+                        {
+                            "input": "[[\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\"]]",
+                            "expected_output": "0"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "[[\"1\",\"0\",\"0\"],[\"0\",\"1\",\"0\"],[\"0\",\"0\",\"1\"]]",
+                            "expected_output": "3",
+                            "explanation": "There are 3 separate islands, each consisting of a single land cell."
+                        }
+                    ],
+                    "inputFormat": "A 2D JSON list of strings where '1' is land and '0' is water.",
+                    "outputFormat": "A single integer representing the number of islands."
+                },
+                {
+                    "type": "mcq_single",
+                    "title": "Graph Cycle Detection Algorithm",
+                    "content": "Which traversal is most commonly used to detect a cycle in a directed graph?",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "medium",
+                    "marks": 3,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "DFS with a recursion stack (visited + in-stack tracking)",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "BFS with a simple visited set",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Binary search on the adjacency matrix",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "Inorder traversal",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "mcq_single",
+                    "title": "DP Optimal Substructure",
+                    "content": "Which of the following is a required property for a problem to be solvable using Dynamic Programming?",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "easy",
+                    "marks": 2,
+                    "categories": [
+                        "learn",
+                        "skill_test"
+                    ],
+                    "mcq_options": [
+                        {
+                            "text": "Optimal substructure and overlapping subproblems",
+                            "is_correct": true
+                        },
+                        {
+                            "text": "Greedy choice property only",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "The problem must be NP-hard",
+                            "is_correct": false
+                        },
+                        {
+                            "text": "The input must be sorted",
+                            "is_correct": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Climbing Stairs",
+                    "content": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?\n\n**Example 1:**\nInput: n = 2\nOutput: 2\nExplanation: Two ways - (1+1) or (2).\n\n**Example 2:**\nInput: n = 3\nOutput: 3\nExplanation: Three ways - (1+1+1), (1+2), or (2+1).\n\n**Constraints:** 1 <= n <= 45",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "2",
+                            "expected_output": "2"
+                        },
+                        {
+                            "input": "3",
+                            "expected_output": "3"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "10",
+                            "expected_output": "89"
+                        },
+                        {
+                            "input": "1",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "3",
+                            "expected_output": "3",
+                            "explanation": "Three distinct ways to climb 3 stairs: 1+1+1, 1+2, 2+1."
+                        }
+                    ],
+                    "inputFormat": "A single integer n.",
+                    "outputFormat": "A single integer representing the number of distinct ways to climb n stairs."
+                },
+                {
+                    "type": "coding",
+                    "title": "Longest Common Subsequence",
+                    "content": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\n\nA subsequence is a string derived from the original by deleting some characters (or none) without changing the relative order of the remaining characters.\n\n**Example 1:**\nInput: text1 = abcde, text2 = ace\nOutput: 3\nExplanation: The LCS is 'ace' with length 3.\n\n**Example 2:**\nInput: text1 = abc, text2 = abc\nOutput: 3\n\n**Example 3:**\nInput: text1 = abc, text2 = def\nOutput: 0\n\n**Constraints:**\n- 1 <= text1.length, text2.length <= 1000\n- text1 and text2 consist of only lowercase English characters.",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "abcde\nace",
+                            "expected_output": "3"
+                        },
+                        {
+                            "input": "abc\nabc",
+                            "expected_output": "3"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "abc\ndef",
+                            "expected_output": "0"
+                        },
+                        {
+                            "input": "oxcpqrsvwf\nshmtulqrypy",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "examples": [
+                        {
+                            "input": "abcde\nace",
+                            "expected_output": "3",
+                            "explanation": "The longest common subsequence is 'ace' which has length 3."
+                        }
+                    ],
+                    "inputFormat": "The first line contains string text1.\nThe second line contains string text2.",
+                    "outputFormat": "A single integer representing the length of the longest common subsequence."
+                }
+            ]
+        }
+    ]
+}
