@@ -59,14 +59,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def subject_assigned_to_college_instructor(user, subject):
+def subject_assigned_to_college_faculty(user, subject):
     """
-    Check if the user (instructor/faculty) is linked to a college that has this subject.
+    Check if the user (faculty) is linked to a college that has this subject.
     """
     if not hasattr(user, 'college') or not user.college:
         return False
     return CollegeSubject.objects.filter(college=user.college, subject=subject).exists()
-
 
 class CollegeViewSet(viewsets.ModelViewSet):
     """
@@ -405,8 +404,8 @@ class UnitViewSet(viewsets.ModelViewSet):
         qs = Unit.objects.select_related("subject")
         user = self.request.user
 
-        if user.role == "instructor":
-            # For instructors, they can only see units of subjects linked to their college
+        if user.role == "faculty":
+            # For faculty, they can only see units of subjects linked to their college
             if hasattr(user, 'college') and user.college:
                 assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
                     "subject_id", flat=True
@@ -464,9 +463,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject_id = request.data.get("subject")
         subject = get_object_or_404(Subject, id=subject_id)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -476,9 +473,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject = unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -488,9 +483,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject = unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -510,7 +503,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
             qs = qs.filter(unit_id=unit_id)
 
         user = self.request.user
-        if user.role == "instructor":
+        if user.role == "faculty":
             if hasattr(user, 'college') and user.college:
                 assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
                     "subject_id", flat=True
@@ -526,9 +519,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         unit = get_object_or_404(Unit, id=request.data.get("unit"))
         subject = unit.subject
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -538,9 +529,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         subject = sub.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -550,9 +539,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         subject = sub.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -571,12 +558,15 @@ class VideoViewSet(viewsets.ModelViewSet):
             qs = qs.filter(sub_unit_id=sub)
 
         user = self.request.user
-        if user.role == "instructor":
-            qs = qs.filter(
-                sub_unit__unit__subject_id__in=SubjectInstructor.objects.filter(
-                    instructor=user
-                ).values_list("subject_id", flat=True)
-            )
+        if user.role == "faculty":
+            # Faculty can only see videos for subjects assigned to their college
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
         return qs
 
     def create(self, request, *a, **kw):
@@ -584,9 +574,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -596,9 +584,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = video.sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -608,9 +594,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = video.sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -628,16 +612,19 @@ class NoteViewSet(viewsets.ModelViewSet):
         qs = Note.objects.select_related("sub_unit", "user")
         user = self.request.user
 
-        if user.role == "instructor":
-            qs = qs.filter(
-                sub_unit__unit__subject_id__in=SubjectInstructor.objects.filter(
-                    instructor=user
-                ).values_list("subject_id", flat=True)
-            )
+        if user.role == "faculty":
+            # Faculty can only see notes for subjects assigned to their college
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
         if user.role == "student":
             qs = qs.filter(
                 Q(user=user) | 
-                Q(user__role__in=["instructor", "admin"])
+                Q(user__role__in=["faculty", "admin"])
             )
 
         if sid := self.request.query_params.get("sub_unit"):
@@ -658,10 +645,10 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
         is_admin = user.role == "admin"
 
-        if not (is_owner or is_instructor or is_admin):
+        if not (is_owner or is_faculty or is_admin):
             return Response({"error": "Not allowed"}, status=403)
 
         return super().update(request, *a, **kw)
@@ -672,10 +659,10 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
         is_admin = user.role == "admin"
 
-        if not (is_owner or is_instructor or is_admin):
+        if not (is_owner or is_faculty or is_admin):
             return Response({"error": "Not allowed"}, status=403)
 
         return super().destroy(request, *a, **kw)
@@ -711,7 +698,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         )
         user = self.request.user
 
-        if user.role == "instructor":
+        if user.role == "faculty":
             assigned_subject_ids = self.get_assigned_subject_ids(user)
             qs = qs.filter(
                 models.Q(subject_id__in=assigned_subject_ids)
@@ -773,9 +760,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid subject/unit/subunit"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -795,9 +780,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid question association"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -818,9 +801,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid question association"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)

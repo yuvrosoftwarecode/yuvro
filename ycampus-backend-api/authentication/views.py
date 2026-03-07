@@ -46,7 +46,7 @@ from django.core.exceptions import ValidationError
 from authentication.permissions import (
     IsAdminUser,
     IsAuthenticatedUser,
-    IsInstructorOrAdmin,
+    IsContentManagerOrAdmin,
 )
 from django.contrib.auth import get_user_model
 
@@ -293,15 +293,7 @@ class UsersListCreateView(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == "GET":
-            role_filter = self.request.query_params.get("role", None)
-            if (
-                role_filter == "instructor"
-                and self.request.user.is_authenticated
-                and self.request.user.can_manage_content()
-            ):
-                return [IsInstructorOrAdmin()]
-            else:
-                return [IsAdminUser()]
+            return [IsAdminUser()]
         else:
             return [IsAdminUser()]
 

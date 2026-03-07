@@ -25,7 +25,13 @@ import {
   Activity,
   Target,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  LayoutDashboard,
+  StickyNote,
+  ClipboardCheck,
+  ListChecks,
+  Bell,
+  MessageCircle
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -37,12 +43,77 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
+  // Student Items
+  {
+    id: 'student-dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/student/dashboard',
+    roles: ['student']
+  },
+  {
+    id: 'student-notes',
+    label: 'Notes',
+    icon: StickyNote,
+    path: '/student/learn',
+    roles: ['student']
+  },
+  {
+    id: 'student-practice-test',
+    label: 'Practice Test',
+    icon: ClipboardCheck,
+    path: '/student/skill-test',
+    roles: ['student']
+  },
+  {
+    id: 'student-task',
+    label: 'Task',
+    icon: ListChecks,
+    path: '/student/code-practice',
+    roles: ['student']
+  },
+  {
+    id: 'student-assessment',
+    label: 'Assessment',
+    icon: FileText,
+    path: '/student/certifications',
+    roles: ['student']
+  },
+  {
+    id: 'student-contest',
+    label: 'Contest',
+    icon: Trophy,
+    path: '/student/contests',
+    roles: ['student']
+  },
+  {
+    id: 'student-jobs',
+    label: 'Jobs',
+    icon: Briefcase,
+    path: '/student/jobs',
+    roles: ['student']
+  },
+  {
+    id: 'student-announcements',
+    label: 'Announcements',
+    icon: Bell,
+    path: '/student/announcements',
+    roles: ['student']
+  },
+  {
+    id: 'student-community',
+    label: 'Community',
+    icon: MessageCircle,
+    path: '/student/community',
+    roles: ['student']
+  },
+  // Admin Items
   {
     id: 'admin-dashboard',
     label: 'Dashboard',
     icon: BarChart3,
     path: '/admin/dashboard',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'recruiter-dashboard',
@@ -257,28 +328,28 @@ const sidebarItems: SidebarItem[] = [
     label: 'Subjects',
     icon: BookOpen,
     path: '/admin/subjects',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'skill-tests',
     label: 'Skill Tests',
     icon: CheckCircle,
     path: '/admin/skill-tests',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'mock-interview',
     label: 'Mock Interview',
     icon: TrendingUp,
     path: '/admin/mock-interview',
-    roles: ['admin', 'instructor']
+    roles: ['admin']
   },
   {
     id: 'recruiter-jobs',
     label: 'Jobs',
     icon: Briefcase,
     path: '/recruiter/jobs',
-    roles: ['admin', 'recruiter', 'instructor']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'recruiter-jobs-approval',
@@ -292,21 +363,21 @@ const sidebarItems: SidebarItem[] = [
     label: 'Contests',
     icon: Trophy,
     path: '/admin/contests',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'code-editor',
     label: 'Code Editor',
     icon: Code,
     path: '/tools/code-editor',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'certifications',
     label: 'Certifications',
     icon: Trophy,
     path: '/admin/certifications',
-    roles: ['admin', 'instructor', 'recruiter']
+    roles: ['admin', 'recruiter']
   },
   {
     id: 'colleges',
@@ -327,7 +398,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(true);
 
-  const userRole = user?.role || 'instructor';
+  const userRole = user?.role || 'student';
   const userEmail = user?.email || '';
 
   const hasJobsApprovalAccess = ['recruiter@yuvro.com', 'recruiter_admin@yuvro.com', 'admin@yuvro.com'].includes(userEmail);
@@ -343,8 +414,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
     switch (userRole) {
       case 'admin':
         return 'Yuvro Admin';
-      case 'instructor':
-        return 'Yuvro Instructor ';
       case 'recruiter':
         return 'Yuvro Recruiter';
       case 'college_admin':
@@ -353,13 +422,12 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return 'Principal';
       case 'hod':
         return 'HOD';
-
       case 'faculty':
         return 'Faculty';
       case 'tpo':
         return 'TPO Portal';
       default:
-        return 'Yuvro';
+        return 'Yuvro Campus';
     }
   };
 
@@ -369,11 +437,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         return {
           title: 'Admin Tools',
           description: 'Access administrative features for system management'
-        };
-      case 'instructor':
-        return {
-          title: 'Instructor Tools',
-          description: ''
         };
       case 'recruiter':
         return {
@@ -397,13 +460,13 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   return (
     <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out ${className}`}>
       <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
-        <div className="flex items-center justify-between mb-6">
+        <div className={`flex items-center h-9 mb-6 ${sidebarCollapsed ? 'justify-center' : 'justify-between relative'}`}>
           {!sidebarCollapsed && (
-            <h2 className="text-lg font-semibold text-gray-800">{getPortalTitle()}</h2>
+            <h2 className="text-lg font-semibold text-gray-800 w-full text-center pr-8">{getPortalTitle()}</h2>
           )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${!sidebarCollapsed ? 'absolute right-0' : ''}`}
           >
             {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
           </button>

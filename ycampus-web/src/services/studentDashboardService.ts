@@ -1,235 +1,299 @@
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
-export interface DashboardStats {
-  subjectsEnrolled: number;
-  problemsSolved: number;
-  contestsParticipated: number;
-  jobApplications: number;
-  skillTestsCompleted: number;
-  mockInterviewsCompleted: number;
+// ─── Types ────────────────────────────────────────────────────
+
+export interface NotesProgressData {
+  overall: number;
+  streak: number;
+  subjects: { name: string; progress: number; total: number }[];
+  chaptersCompleted: number;
 }
 
-export interface RecentActivity {
-  id: number;
-  type: 'subject' | 'coding' | 'job' | 'contest' | 'skill-test' | 'interview';
-  action: string;
-  target: string;
-  time: string;
-  icon?: string;
-  color?: string;
+export interface TestPerformanceData {
+  completed: number;
+  avgScore: number;
+  accuracy: number;
+  chaptersCompleted: string;
+  lastTestScore: number;
+  leaderboard: { you: number; global: number };
 }
 
-export interface UpcomingEvent {
-  id: number;
-  title: string;
-  date: string;
-  type: 'contest' | 'interview' | 'job' | 'subject';
-  participants?: number;
-  duration?: string;
-  company?: string;
+export interface TasksData {
+  overall: number;
+  completed: number;
+  inProgress: number;
+  pending: number;
+  total: number;
 }
 
-export interface RecommendedJob {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  salary: string;
-  match: number;
+export interface AssessmentsData {
+  completed: number;
+  inProgress: number;
+  pending: number;
+  total: number;
+  avgScore: number;
+  highestScore: number;
+  lowestScore: number;
+  recentStatus: number;
 }
 
-export interface SubjectProgress {
-  id: number;
-  name: string;
-  progress: number;
-  totalLessons: number;
-  completedLessons: number;
+export interface ContestsData {
+  completed: number;
+  bestRank: number;
+  avgScore: number;
+  successRate: number;
+  lastContest: { rank: number; accuracy: number; time: string };
 }
 
-export interface DashboardData {
-  stats: DashboardStats;
-  recentActivity: RecentActivity[];
-  upcomingEvents: UpcomingEvent[];
-  recommendedJobs: RecommendedJob[];
-  subjectProgress: SubjectProgress[];
-}
+// ─── Mock Data (fallback) ─────────────────────────────────────
+
+const mockNotes: NotesProgressData = {
+  overall: 81,
+  streak: 12,
+  subjects: [
+    { name: 'Python Basics', progress: 85, total: 100 },
+    { name: 'Data Structures', progress: 60, total: 80 },
+    { name: 'JavaScript Fundamentals', progress: 45, total: 75 },
+    { name: 'SQL Queries', progress: 90, total: 90 },
+  ],
+  chaptersCompleted: 75,
+};
+
+const mockTests: TestPerformanceData = {
+  completed: 38,
+  avgScore: 82,
+  accuracy: 85,
+  chaptersCompleted: '75%',
+  lastTestScore: 88,
+  leaderboard: { you: 82, global: 76 },
+};
+
+const mockTasks: TasksData = {
+  overall: 75,
+  completed: 18,
+  inProgress: 4,
+  pending: 2,
+  total: 24,
+};
+
+const mockAssessments: AssessmentsData = {
+  completed: 9,
+  inProgress: 2,
+  pending: 1,
+  total: 12,
+  avgScore: 85,
+  highestScore: 96,
+  lowestScore: 72,
+  recentStatus: 88,
+};
+
+const mockContests: ContestsData = {
+  completed: 12,
+  bestRank: 8,
+  avgScore: 78,
+  successRate: 80,
+  lastContest: { rank: 12, accuracy: 82, time: '45 min' },
+};
+
+// ─── Service ──────────────────────────────────────────────────
 
 class StudentDashboardService {
-  private baseUrl = '/api/student/dashboard';
 
-  async getDashboardData(): Promise<DashboardData> {
+  /**
+   * Notes Progress — fetches student subject progress and transforms to widget shape.
+   * Endpoint: GET /api/course/student-subject-progress/
+   */
+  async getNotesProgress(): Promise<NotesProgressData> {
     try {
-      const response = await restApiAuthUtil.get<DashboardData>(`${this.baseUrl}/`);
-      return response;
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      return this.getMockDashboardData();
-    }
-  }
+      const response = await restApiAuthUtil.get<any[]>('/course/student-subject-progress/');
+      if (!response || !Array.isArray(response) || response.length === 0) {
+        return mockNotes;
+      }
 
-  async getStats(): Promise<DashboardStats> {
-    try {
-      const response = await restApiAuthUtil.get<DashboardStats>(`${this.baseUrl}/stats/`);
-      return response;
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+      // Group progress by subject
+      const subjectMap = new Map<string, { completed: number; total: number }>();
+      let totalCompleted = 0;
+      let totalItems = 0;
+
+      response.forEach((item: any) => {
+        const subjectName = item.subject_name || item.subject?.name || 'Unknown';
+        const existing = subjectMap.get(subjectName) || { completed: 0, total: 0 };
+        existing.total += 1;
+        if (item.is_completed || item.progress_percent >= 100) {
+          existing.completed += 1;
+          totalCompleted += 1;
+        }
+        totalItems += 1;
+        subjectMap.set(subjectName, existing);
+      });
+
+      const subjects = Array.from(subjectMap.entries()).map(([name, data]) => ({
+        name,
+        progress: data.completed,
+        total: data.total,
+      }));
+
       return {
-        subjectsEnrolled: 3,
-        problemsSolved: 47,
-        contestsParticipated: 8,
-        jobApplications: 12,
-        skillTestsCompleted: 15,
-        mockInterviewsCompleted: 5
+        overall: totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0,
+        streak: mockNotes.streak, // No backend endpoint for streaks
+        subjects,
+        chaptersCompleted: totalCompleted,
       };
-    }
-  }
-
-  async getRecentActivity(): Promise<RecentActivity[]> {
-    try {
-      const response = await restApiAuthUtil.get<RecentActivity[]>(`${this.baseUrl}/activity/`);
-      return response;
     } catch (error) {
-      console.error('Error fetching recent activity:', error);
-      return [];
+      console.warn('Notes progress API failed, using mock data:', error);
+      return mockNotes;
     }
   }
 
-  async getUpcomingEvents(): Promise<UpcomingEvent[]> {
+  /**
+   * Test Performance — fetches skill test submissions.
+   * Endpoint: GET /api/assessment/skill-test/submissions/
+   */
+  async getTestPerformance(): Promise<TestPerformanceData> {
     try {
-      const response = await restApiAuthUtil.get<UpcomingEvent[]>(`${this.baseUrl}/events/`);
-      return response;
+      const response = await restApiAuthUtil.get<any>('/assessment/skill-test/submissions/');
+      const results = Array.isArray(response) ? response : response?.results || [];
+      if (results.length === 0) return mockTests;
+
+      const scores = results.map((s: any) => s.marks || s.score || 0);
+      const totalScore = scores.reduce((a: number, b: number) => a + b, 0);
+      const avgScore = Math.round(totalScore / scores.length);
+      const lastScore = scores[scores.length - 1] || 0;
+
+      return {
+        completed: results.length,
+        avgScore,
+        accuracy: avgScore, // Approximation — real accuracy needs per-question data
+        chaptersCompleted: mockTests.chaptersCompleted,
+        lastTestScore: lastScore,
+        leaderboard: { you: avgScore, global: mockTests.leaderboard.global },
+      };
     } catch (error) {
-      console.error('Error fetching upcoming events:', error);
-      return [];
+      console.warn('Test performance API failed, using mock data:', error);
+      return mockTests;
     }
   }
 
-  async getRecommendedJobs(): Promise<RecommendedJob[]> {
+  /**
+   * Tasks Summary — fetches student code practice submissions.
+   * Endpoint: GET /api/course/student-code-practices/
+   */
+  async getTasksSummary(): Promise<TasksData> {
     try {
-      const response = await restApiAuthUtil.get<RecommendedJob[]>(`${this.baseUrl}/recommended-jobs/`);
-      return response;
+      const response = await restApiAuthUtil.get<any>('/course/student-code-practices/');
+      const results = Array.isArray(response) ? response : response?.results || [];
+      if (results.length === 0) return mockTasks;
+
+      let completed = 0;
+      let inProgress = 0;
+      let pending = 0;
+
+      results.forEach((task: any) => {
+        const status = task.status || (task.is_successful ? 'completed' : 'in_progress');
+        if (status === 'completed' || task.is_successful) completed++;
+        else if (status === 'in_progress') inProgress++;
+        else pending++;
+      });
+
+      const total = results.length;
+      const overall = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      return { overall, completed, inProgress, pending, total };
     } catch (error) {
-      console.error('Error fetching recommended jobs:', error);
-      return [];
+      console.warn('Tasks API failed, using mock data:', error);
+      return mockTasks;
     }
   }
 
-  async getSubjectProgress(): Promise<SubjectProgress[]> {
+  /**
+   * Assessments — fetches certification submissions.
+   * Endpoint: GET /api/assessment/certification-submissions/
+   */
+  async getAssessments(): Promise<AssessmentsData> {
     try {
-      const response = await restApiAuthUtil.get<SubjectProgress[]>(`${this.baseUrl}/subject-progress/`);
-      return response;
+      const response = await restApiAuthUtil.get<any>('/assessment/certification-submissions/');
+      const results = Array.isArray(response) ? response : response?.results || [];
+      if (results.length === 0) return mockAssessments;
+
+      let completed = 0;
+      let inProgress = 0;
+      let pending = 0;
+      const scores: number[] = [];
+
+      results.forEach((item: any) => {
+        const status = item.status || 'completed';
+        if (status === 'completed' || status === 'passed' || status === 'failed') {
+          completed++;
+          if (item.marks !== undefined && item.marks !== null) scores.push(item.marks);
+          else if (item.score !== undefined && item.score !== null) scores.push(item.score);
+        } else if (status === 'in_progress' || status === 'started') {
+          inProgress++;
+        } else {
+          pending++;
+        }
+      });
+
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
+      const lowestScore = scores.length > 0 ? Math.min(...scores) : 0;
+
+      return {
+        completed,
+        inProgress,
+        pending,
+        total: results.length,
+        avgScore,
+        highestScore,
+        lowestScore,
+        recentStatus: scores.length > 0 ? scores[scores.length - 1] : 0,
+      };
     } catch (error) {
-      console.error('Error fetching subject progress:', error);
-      return [];
+      console.warn('Assessments API failed, using mock data:', error);
+      return mockAssessments;
     }
   }
 
-  private getMockDashboardData(): DashboardData {
-    return {
-      stats: {
-        subjectsEnrolled: 3,
-        problemsSolved: 47,
-        contestsParticipated: 8,
-        jobApplications: 12,
-        skillTestsCompleted: 15,
-        mockInterviewsCompleted: 5
-      },
-      recentActivity: [
-        {
-          id: 1,
-          type: 'subject',
-          action: 'Completed lesson',
-          target: 'Arrays and Strings - Array Fundamentals',
-          time: '2 hours ago'
-        },
-        {
-          id: 2,
-          type: 'coding',
-          action: 'Solved problem',
-          target: 'Two Sum - Easy',
-          time: '4 hours ago'
-        },
-        {
-          id: 3,
-          type: 'job',
-          action: 'Applied to job',
-          target: 'Frontend Developer at TechCorp',
-          time: '1 day ago'
-        },
-        {
-          id: 4,
-          type: 'contest',
-          action: 'Participated in contest',
-          target: 'Weekly Coding Challenge #42',
-          time: '2 days ago'
-        }
-      ],
-      upcomingEvents: [
-        {
-          id: 1,
-          title: 'Weekly Coding Contest',
-          date: 'Today, 8:00 PM',
-          type: 'contest',
-          participants: 1250
-        },
-        {
-          id: 2,
-          title: 'Mock Interview Session',
-          date: 'Tomorrow, 2:00 PM',
-          type: 'interview',
-          duration: '45 min'
-        },
-        {
-          id: 3,
-          title: 'TechCorp Hiring Drive',
-          date: 'Dec 20, 10:00 AM',
-          type: 'job',
-          company: 'TechCorp'
-        }
-      ],
-      recommendedJobs: [
-        {
-          id: 1,
-          title: 'Frontend Developer',
-          company: 'TechCorp',
-          location: 'Remote',
-          salary: '$80k - $120k',
-          match: 95
-        },
-        {
-          id: 2,
-          title: 'Full Stack Engineer',
-          company: 'StartupXYZ',
-          location: 'San Francisco',
-          salary: '$90k - $130k',
-          match: 88
-        }
-      ],
-      subjectProgress: [
-        {
-          id: 1,
-          name: 'Data Structures & Algorithms',
-          progress: 75,
-          totalLessons: 24,
-          completedLessons: 18
-        },
-        {
-          id: 2,
-          name: 'Python Programming',
-          progress: 60,
-          totalLessons: 20,
-          completedLessons: 12
-        },
-        {
-          id: 3,
-          name: 'Web Development',
-          progress: 40,
-          totalLessons: 30,
-          completedLessons: 12
-        }
-      ]
-    };
+  /**
+   * Contests — fetches contest data.
+   * Endpoint: GET /api/assessment/contests/
+   */
+  async getContests(): Promise<ContestsData> {
+    try {
+      const response = await restApiAuthUtil.get<any>('/assessment/contests/');
+      const results = Array.isArray(response) ? response : response?.results || [];
+      if (results.length === 0) return mockContests;
+
+      const completedContests = results.filter(
+        (c: any) => c.status === 'completed' || c.status === 'ended'
+      );
+
+      const scores = completedContests
+        .map((c: any) => c.score || c.marks || 0)
+        .filter((s: number) => s > 0);
+      const ranks = completedContests
+        .map((c: any) => c.rank || 0)
+        .filter((r: number) => r > 0);
+
+      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : mockContests.avgScore;
+      const bestRank = ranks.length > 0 ? Math.min(...ranks) : mockContests.bestRank;
+
+      const last = completedContests[completedContests.length - 1];
+
+      return {
+        completed: completedContests.length,
+        bestRank,
+        avgScore,
+        successRate: mockContests.successRate, // Not computable from list endpoint
+        lastContest: last
+          ? { rank: last.rank || 0, accuracy: last.accuracy || last.score || 0, time: last.duration || '—' }
+          : mockContests.lastContest,
+      };
+    } catch (error) {
+      console.warn('Contests API failed, using mock data:', error);
+      return mockContests;
+    }
   }
 }
 
 export const studentDashboardService = new StudentDashboardService();
+export default studentDashboardService;
