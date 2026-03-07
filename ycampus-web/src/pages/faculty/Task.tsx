@@ -461,14 +461,9 @@ const FacultyTask: React.FC = () => {
         if (!selectedSubmission?.id) return;
         try {
             setSubmitting(true);
-            // Try API call, fall back to local clear
-            try {
-                await taskService.clearSubmissionChat(selectedSubmission.id);
-            } catch {
-                // backend endpoint may not exist yet; do client-side clear
-            }
+            await taskService.clearSubmissionChat(selectedSubmission.id);
             setSelectedSubmission(prev => prev ? { ...prev, comments: [] } : null);
-            toast.success("Chat cleared");
+            toast.success("Chat cleared successfully");
         } catch (err) {
             toast.error("Failed to clear chat");
         } finally {

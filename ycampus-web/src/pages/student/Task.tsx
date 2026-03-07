@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Dialog, DialogContent, DialogDescription,
     DialogFooter, DialogHeader, DialogTitle,
@@ -17,9 +16,11 @@ import { toast } from 'sonner';
 import {
     Calendar, Clock, CheckCircle2, AlertCircle,
     Search, Paperclip, Download, PlayCircle,
-    FileText, Code, Send, LayoutGrid, MessageSquare
+    FileText, Code, Send, LayoutGrid, MessageSquare,
+    Eye, Trash2, X
 } from 'lucide-react';
 import { format } from 'date-fns';
+import Editor from '@monaco-editor/react';
 
 import { CodeEditorWithAI } from '@/components/code-editor';
 import type { Subject as EditorSubject, Unit as EditorUnit, CodingProblem } from './CodePractice';
@@ -37,11 +38,20 @@ const StudentTask: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isClearingChat, setIsClearingChat] = useState(false);
+
+    // File viewer modal
+    const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+    const [fileViewerUrl, setFileViewerUrl] = useState<string | null>(null);
+    const [fileViewerContent, setFileViewerContent] = useState<string | null>(null);
+    const [fileViewerLanguage, setFileViewerLanguage] = useState('plaintext');
+    const [fileViewerLoading, setFileViewerLoading] = useState(false);
 
     // Chat state
     const [commentText, setCommentText] = useState('');
     const [isSendingComment, setIsSendingComment] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const chatEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-resize for descriptive textarea
     useEffect(() => {
@@ -50,6 +60,11 @@ const StudentTask: React.FC = () => {
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
     }, [answerText, activeTask]);
+
+    // Scroll chat to bottom
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [submissions, isDialogOpen]);
 
     useEffect(() => {
         loadTasks();
@@ -68,7 +83,7 @@ const StudentTask: React.FC = () => {
                 } catch (err) {
                     console.error("Polling failed", err);
                 }
-            }, 4000); // Poll every 4 seconds
+            }, 4000);
         }
         return () => clearInterval(interval);
     }, [isDialogOpen, activeTask]);
@@ -79,7 +94,6 @@ const StudentTask: React.FC = () => {
             const data = await taskService.getTasks();
             setTasks(data);
 
-            // Load submissions for all tasks to check status
             const submissionMap: Record<string, TaskSubmission> = {};
             await Promise.all(data.map(async (task) => {
                 const subs = await taskService.getTaskSubmissions(task.id);
@@ -119,9 +133,10 @@ const StudentTask: React.FC = () => {
             const formData = new FormData();
             formData.append('answer', answerText);
             formData.append('is_submitted', 'true');
-            formData.append('task', activeTask.id); // Include task ID for creation
+            formData.append('task', activeTask.id);
 
-            if (selectedFile) {
+            // Only include file on first submission (no re-upload)
+            if (selectedFile && !sub?.file) {
                 formData.append('file', selectedFile);
             }
 
@@ -149,7 +164,6 @@ const StudentTask: React.FC = () => {
         try {
             setIsSendingComment(true);
 
-            // If no submission exists, create one first (not submitted yet)
             if (!sub) {
                 const formData = new FormData();
                 formData.append('task', activeTask.id);
@@ -173,6 +187,58 @@ const StudentTask: React.FC = () => {
         } finally {
             setIsSendingComment(false);
         }
+    };
+
+    const handleClearChat = async () => {
+        if (!activeTask) return;
+        const sub = submissions[activeTask.id];
+        if (!sub) return;
+        try {
+            setIsClearingChat(true);
+            await taskService.clearSubmissionChat(sub.id);
+            setSubmissions(prev => ({
+                ...prev,
+                [activeTask.id]: { ...sub, comments: [] }
+            }));
+            toast.success('Chat cleared successfully');
+        } catch {
+            toast.error('Failed to clear chat');
+        } finally {
+            setIsClearingChat(false);
+        }
+    };
+
+    const getLanguageFromExtension = (filename: string): string => {
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
+        const map: Record<string, string> = {
+            js: 'javascript', ts: 'typescript', py: 'python', java: 'java',
+            cpp: 'cpp', c: 'c', html: 'html', css: 'css', json: 'json',
+            xml: 'xml', md: 'markdown', txt: 'plaintext', sh: 'shell',
+        };
+        return map[ext] || 'plaintext';
+    };
+
+    const openFileViewer = async (url: string) => {
+        setFileViewerUrl(url);
+        setFileViewerContent(null);
+        setIsFileViewerOpen(true);
+        setFileViewerLoading(true);
+
+        const filename = url.split('/').pop()?.split('?')[0] || '';
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
+        const textTypes = ['txt', 'md', 'py', 'js', 'ts', 'java', 'cpp', 'c', 'html', 'css', 'json', 'xml', 'sh'];
+
+        if (textTypes.includes(ext)) {
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                setFileViewerContent(text);
+                setFileViewerLanguage(getLanguageFromExtension(filename));
+            } catch {
+                setFileViewerContent(null);
+            }
+        }
+        setFileViewerLoading(false);
     };
 
     const filteredTasks = tasks.filter(t =>
@@ -209,6 +275,16 @@ const StudentTask: React.FC = () => {
             icon: <CheckCircle2 className="w-3.5 h-3.5" />
         };
     };
+
+    // Current active submission
+    const activeSub = activeTask ? submissions[activeTask.id] : null;
+    const hasFilePreviouslySubmitted = !!(activeSub?.file);
+    const fileAlreadyUploaded = hasFilePreviouslySubmitted;
+
+    // Filter inline comments (from faculty file review)
+    const inlineComments = (activeSub?.comments || []).filter(
+        c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')
+    );
 
     return (
         <div className="p-4 md:p-8 min-h-screen bg-[#F8FAFC]">
@@ -331,51 +407,57 @@ const StudentTask: React.FC = () => {
 
             {/* Submission Modal */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-7xl w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col h-[90vh] bg-white">
-                    <div className="flex flex-col md:flex-row flex-1 min-h-0">
+                <DialogContent className="max-w-7xl w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
+                    {/* Custom close button */}
+                    <button
+                        onClick={() => setIsDialogOpen(false)}
+                        className="absolute top-6 right-6 z-10 h-9 w-9 flex items-center justify-center rounded-xl bg-white/80 hover:bg-gray-100 text-gray-500 transition-colors shadow-sm"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex flex-col md:flex-row flex-1">
                         {/* Main Submission Area */}
-                        <div className="w-full md:w-[68%] border-r border-slate-50 p-10 flex flex-col overflow-y-auto custom-scrollbar">
-                            <div className="mb-10 flex justify-between items-start gap-4">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-600 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
-                                            {activeTask?.task_type} Task
-                                        </Badge>
-                                        <div className="flex items-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
-                                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
-                                                Due: {activeTask?.due_date ? format(new Date(activeTask?.due_date), 'MMM dd, yyyy') : 'No Deadline'}
-                                            </span>
-                                        </div>
+                        <div className="w-full md:w-[68%] border-r border-slate-50 p-8 flex flex-col gap-6">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-600 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
+                                        {activeTask?.task_type} Task
+                                    </Badge>
+                                    <div className="flex items-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
+                                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
+                                            Due: {activeTask?.due_date ? format(new Date(activeTask?.due_date), 'MMM dd, yyyy') : 'No Deadline'}
+                                        </span>
                                     </div>
-                                    <h2 className="text-4xl font-bold text-slate-900 tracking-tight">{activeTask?.title}</h2>
-                                    <p className="text-slate-500 text-lg leading-relaxed max-w-2xl font-medium">
-                                        {activeTask?.description || "No specific instructions provided. Please ensure all requirements are met."}
-                                    </p>
                                 </div>
+                                <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{activeTask?.title}</h2>
+                                <p className="text-slate-500 text-base leading-relaxed max-w-2xl font-medium">
+                                    {activeTask?.description || "No specific instructions provided. Please ensure all requirements are met."}
+                                </p>
                             </div>
 
-                            <div className="flex-1 space-y-10">
+                            <div className="space-y-10">
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
                                             {activeTask?.task_type === 'coding' ? 'Source Code Editor' : 'Your Answer Content'}
                                         </Label>
-                                        {submissions[activeTask?.id || '']?.is_submitted && (
-                                            <Badge className={`border-none px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${submissions[activeTask?.id || '']?.status === 'accepted'
+                                        {activeSub?.is_submitted && (
+                                            <Badge className={`border-none px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${activeSub?.status === 'accepted'
                                                 ? 'bg-emerald-50 text-emerald-600'
-                                                : submissions[activeTask?.id || '']?.status === 'rejected'
+                                                : activeSub?.status === 'rejected'
                                                     ? 'bg-rose-50 text-rose-600'
                                                     : 'bg-blue-50 text-blue-600'
                                                 }`}>
-                                                {submissions[activeTask?.id || '']?.status === 'accepted' ? <CheckCircle2 className="w-3 h-3" /> : submissions[activeTask?.id || '']?.status === 'rejected' ? <AlertCircle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-                                                {submissions[activeTask?.id || '']?.status}
+                                                {activeSub?.status === 'accepted' ? <CheckCircle2 className="w-3 h-3" /> : activeSub?.status === 'rejected' ? <AlertCircle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                                                {activeSub?.status}
                                             </Badge>
                                         )}
                                     </div>
 
                                     {activeTask?.task_type === 'coding' ? (
-                                        <div className="h-[450px] border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+                                        <div className="h-[380px] border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
                                             <CodeEditorWithAI
                                                 problem={{
                                                     id: activeTask.id,
@@ -401,96 +483,84 @@ const StudentTask: React.FC = () => {
                                                 showProblemDescription={false}
                                                 codeSubmissionType="practice"
                                                 initialEditorOpen={true}
-                                                initialCode={answerText || submissions[activeTask.id]?.answer || ''}
+                                                initialCode={answerText || activeSub?.answer || ''}
                                                 onCodeChange={(newCode) => setAnswerText(newCode)}
                                                 hideSubmitButton={true}
                                             />
                                         </div>
                                     ) : (
-                                        <>
-                                            {(!answerText && submissions[activeTask?.id || '']?.file) ? (
-                                                <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center space-y-4">
-                                                    <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm">
-                                                        <FileText className="h-10 w-10 text-orange-500" />
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-xl font-bold text-slate-900">Document Submitted</h4>
-                                                        <p className="text-slate-500 font-medium">You have uploaded a file as your response.</p>
-                                                    </div>
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={() => window.open(submissions[activeTask?.id || ''].file)}
-                                                        className="rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-white"
-                                                    >
-                                                        <Download className="h-4 w-4 mr-2" /> View Submitted File
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <Textarea
-                                                    ref={textareaRef}
-                                                    value={answerText}
-                                                    onChange={(e) => setAnswerText(e.target.value)}
-                                                    placeholder="Explain your answer in detail..."
-                                                    className="min-h-[150px] bg-slate-50 border-none rounded-[2.5rem] p-8 focus:ring-0 hover:border-orange-500 focus:border-orange-500 border-2 border-transparent transition-all text-lg font-medium resize-none shadow-inner leading-relaxed overflow-hidden"
-                                                    disabled={submissions[activeTask?.id || '']?.status === 'accepted'}
-                                                />
-                                            )}
-                                        </>
+                                        <Textarea
+                                            ref={textareaRef}
+                                            value={answerText}
+                                            onChange={(e) => setAnswerText(e.target.value)}
+                                            placeholder="Explain your answer in detail..."
+                                            className="min-h-[120px] bg-slate-50 border-none rounded-2xl p-5 focus:ring-0 hover:border-orange-500 focus:border-orange-500 border-2 border-transparent transition-all text-base font-medium resize-none shadow-inner leading-relaxed"
+                                            disabled={activeSub?.status === 'accepted'}
+                                        />
                                     )}
                                 </div>
 
                                 {activeTask?.task_type === 'descriptive' && (
                                     <div className="space-y-4">
                                         <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Supporting Documents</Label>
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="file"
-                                                    id="file-upload"
-                                                    className="hidden"
-                                                    accept=".pdf,.jpg,.jpeg,.png,.zip,.rar"
-                                                    disabled={submissions[activeTask?.id || '']?.status === 'accepted'}
-                                                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                                />
-                                                <label
-                                                    htmlFor="file-upload"
-                                                    className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${submissions[activeTask?.id || '']?.status === 'accepted'
-                                                        ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400'
-                                                        : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-500'}`}
-                                                >
-                                                    <Paperclip className={`w-5 h-5 ${submissions[activeTask?.id || '']?.file ? 'text-slate-300' : 'text-orange-500'}`} />
-                                                    {selectedFile ? (
-                                                        <span className="text-slate-900 truncate">{selectedFile.name}</span>
-                                                    ) : submissions[activeTask?.id || '']?.file ? (
-                                                        <span className="text-orange-600">Change Attachment ({submissions[activeTask?.id || '']?.file?.split('/').pop()})</span>
-                                                    ) : (
-                                                        'Add Attachment (PDF / Image / ZIP / RAR)'
-                                                    )}
-                                                </label>
+                                        {/* File upload only shown if student never uploaded a file before */}
+                                        {!fileAlreadyUploaded ? (
+                                            <div className="flex items-center gap-4">
+                                                <div className="relative flex-1">
+                                                    <input
+                                                        type="file"
+                                                        id="file-upload"
+                                                        className="hidden"
+                                                        accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c"
+                                                        disabled={activeSub?.status === 'accepted'}
+                                                        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                                    />
+                                                    <label
+                                                        htmlFor="file-upload"
+                                                        className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${activeSub?.status === 'accepted'
+                                                            ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400'
+                                                            : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-500'}`}
+                                                    >
+                                                        <Paperclip className="w-5 h-5 text-orange-500" />
+                                                        {selectedFile ? (
+                                                            <span className="text-slate-900 truncate">{selectedFile.name}</span>
+                                                        ) : (
+                                                            'Add Attachment (PDF / Image / ZIP / RAR / Code Files)'
+                                                        )}
+                                                    </label>
+                                                </div>
                                             </div>
-                                            {submissions[activeTask?.id || '']?.file && (
+                                        ) : (
+                                            <div className="flex items-center gap-4 bg-slate-50 border-2 border-slate-100 rounded-3xl p-5">
+                                                <Paperclip className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-slate-700 truncate">
+                                                        {activeSub?.file?.split('/').pop()?.split('?')[0] || 'Uploaded File'}
+                                                    </p>
+                                                    <p className="text-xs text-slate-400 font-medium">File already submitted — cannot change</p>
+                                                </div>
                                                 <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="h-20 w-20 rounded-3xl border-slate-100 hover:bg-slate-50 text-slate-400 hover:text-orange-500 transition-colors"
-                                                    onClick={() => window.open(submissions[activeTask?.id || ''].file)}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => openFileViewer(activeSub!.file!)}
+                                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-xl font-bold gap-1.5 flex-shrink-0"
                                                 >
-                                                    <Download className="w-6 h-6" />
+                                                    <Eye className="w-4 h-4" /> View
                                                 </Button>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
                                 <Button
                                     onClick={handleSubmit}
-                                    disabled={isSubmitting || submissions[activeTask?.id || '']?.status === 'accepted' || (submissions[activeTask?.id || '']?.is_submitted && submissions[activeTask?.id || '']?.status !== 'rejected' && !selectedFile && submissions[activeTask?.id || '']?.answer === answerText)}
+                                    disabled={isSubmitting || activeSub?.status === 'accepted' || (activeSub?.is_submitted && activeSub?.status !== 'rejected' && !selectedFile && activeSub?.answer === answerText)}
                                     className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-100 gap-4 transition-all active:scale-[0.98]"
                                 >
                                     {isSubmitting ? 'Processing...' : (
                                         <>
                                             <Send className="w-6 h-6" />
-                                            {submissions[activeTask?.id || '']?.status === 'rejected' ? 'Resubmit My Work' : submissions[activeTask?.id || '']?.is_submitted ? 'Update Submission' : 'Submit My Work'}
+                                            {activeSub?.status === 'rejected' ? 'Resubmit My Work' : activeSub?.is_submitted ? 'Update Submission' : 'Submit My Work'}
                                         </>
                                     )}
                                 </Button>
@@ -498,55 +568,82 @@ const StudentTask: React.FC = () => {
                         </div>
 
                         {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col h-full overflow-hidden">
-                            <div className="mb-8">
-                                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
-                                <p className="text-slate-400 text-sm font-medium mt-1">Comments and feedback from faculty</p>
+                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col">
+                            <div className="mb-6 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
+                                    <p className="text-slate-400 text-sm font-medium mt-1">Comments and feedback from faculty</p>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleClearChat}
+                                    disabled={isClearingChat}
+                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl h-9 px-3 font-bold gap-1.5 flex-shrink-0"
+                                >
+                                    <Trash2 className="h-4 w-4" /> Clear
+                                </Button>
                             </div>
 
-                            <ScrollArea className="flex-1 pr-4">
-                                <div className="space-y-6 pb-6 mt-2">
-                                    {submissions[activeTask?.id || '']?.comments && submissions[activeTask?.id || '']?.comments.length > 0 ? (
-                                        submissions[activeTask?.id || '']?.comments.map((comment, idx) => (
+                            <div className="overflow-y-auto max-h-[380px] space-y-4 pb-4 pr-1 custom-scrollbar">
+                                {activeSub?.comments && activeSub.comments.length > 0 ? (
+                                    activeSub.comments.map((comment, idx) => {
+                                        const isInline = comment.comment.startsWith('[Line:') || comment.comment.startsWith('[File Review]');
+                                        return (
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
-                                                <div className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed border-l-4 ${comment.faculty
-                                                    ? 'bg-white border-blue-500 text-slate-900 rounded-bl-none shadow-sm'
-                                                    : 'bg-orange-50 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
+                                                <div className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed ${isInline
+                                                    ? 'bg-orange-50 border-l-4 border-orange-400 text-slate-900 rounded-bl-none shadow-sm w-full'
+                                                    : comment.faculty
+                                                        ? 'bg-white border-l-4 border-blue-500 text-slate-900 rounded-bl-none shadow-sm'
+                                                        : 'bg-orange-50 border-l-4 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
                                                     }`}>
-                                                    <div className="flex items-center justify-between gap-x-4 mb-1">
-                                                        <span className={`text-[11px] font-bold tracking-wide ${comment.faculty ? 'text-blue-600' : 'text-orange-600'}`}>
-                                                            {comment.faculty ? 'Faculty' : 'You'}
-                                                        </span>
+                                                    {isInline && (
+                                                        <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-widest mb-2 rounded-md px-2 py-0.5 shadow-none">
+                                                            {comment.comment.substring(1, comment.comment.indexOf(']'))}
+                                                        </Badge>
+                                                    )}
+                                                    <div className={`flex items-center ${isInline ? 'justify-end' : 'justify-between'} gap-x-4 mb-1`}>
+                                                        {!isInline && (
+                                                            <span className={`text-[11px] font-bold tracking-wide ${comment.faculty ? 'text-blue-600' : 'text-orange-600'}`}>
+                                                                {comment.faculty ? 'Faculty' : 'You'}
+                                                            </span>
+                                                        )}
                                                         <span className="text-[10px] text-slate-400 font-semibold">
                                                             {format(new Date(comment.created_at), 'M/dd, hh:mm a')}
                                                         </span>
                                                     </div>
-                                                    <p className="whitespace-pre-wrap font-medium text-slate-700">{comment.comment}</p>
+                                                    <p className="whitespace-pre-wrap font-medium text-slate-700">
+                                                        {isInline
+                                                            ? comment.comment.substring(comment.comment.indexOf(']') + 1).trim()
+                                                            : comment.comment
+                                                        }
+                                                    </p>
                                                 </div>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center text-center py-32 opacity-20">
-                                            <MessageSquare className="w-16 h-16 text-slate-300 mb-4" />
-                                            <p className="text-xs font-bold uppercase tracking-[0.2em]">No conversation started</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </ScrollArea>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center text-center py-12 opacity-30">
+                                        <MessageSquare className="w-12 h-12 text-slate-300 mb-3" />
+                                        <p className="text-xs font-bold uppercase tracking-[0.2em]">No conversation started</p>
+                                    </div>
+                                )}
+                                <div ref={chatEndRef} />
+                            </div>
 
-                            <div className="pt-6 mt-auto">
+                            <div className="pt-4 mt-auto">
                                 <div className="relative group">
                                     <Textarea
                                         value={commentText}
                                         onChange={(e) => setCommentText(e.target.value)}
-                                        onKeyPress={(e) => {
+                                        onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
                                                 handleAddComment();
                                             }
                                         }}
                                         placeholder="Type your message here..."
-                                        className="min-h-[120px] bg-white border-slate-200 rounded-[2rem] p-6 pr-16 focus:ring-0 focus:border-orange-500 hover:border-orange-400 transition-all text-sm font-medium resize-none shadow-sm"
+                                        className="min-h-[80px] bg-white border-slate-200 rounded-[2rem] p-5 pr-16 focus:ring-0 focus:border-orange-500 hover:border-orange-400 transition-all text-sm font-medium resize-none shadow-sm"
                                     />
                                     <Button
                                         onClick={handleAddComment}
@@ -559,6 +656,104 @@ const StudentTask: React.FC = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* File Viewer Modal */}
+            <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
+                <DialogContent className="max-w-5xl w-[95vw] h-[85vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
+                    <DialogHeader className="p-6 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
+                        <div>
+                            <DialogTitle className="text-xl font-black text-gray-900">Submitted File</DialogTitle>
+                            <DialogDescription className="font-bold text-gray-400">
+                                {fileViewerUrl?.split('/').pop()?.split('?')[0]}
+                            </DialogDescription>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {inlineComments.length > 0 && (
+                                <Badge className="bg-orange-50 text-orange-600 border-none font-bold rounded-full px-3">
+                                    {inlineComments.length} Annotation{inlineComments.length > 1 ? 's' : ''}
+                                </Badge>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setIsFileViewerOpen(false)}
+                                className="h-10 w-10 rounded-xl hover:bg-gray-100"
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+                    </DialogHeader>
+
+                    <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-[#F8FAFC]">
+                        {/* File Preview */}
+                        <div className="flex-1 overflow-auto p-6">
+                            {fileViewerLoading ? (
+                                <div className="h-full flex items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="h-12 w-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                        <p className="text-gray-500 font-medium">Loading file...</p>
+                                    </div>
+                                </div>
+                            ) : fileViewerContent ? (
+                                <div className="h-full min-h-[60vh] bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                                    <Editor
+                                        height="100%"
+                                        language={fileViewerLanguage}
+                                        value={fileViewerContent}
+                                        theme="vs-light"
+                                        options={{
+                                            readOnly: true,
+                                            fontSize: 14,
+                                            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                                            minimap: { enabled: false },
+                                            scrollBeyondLastLine: false,
+                                            automaticLayout: true,
+                                            padding: { top: 16, bottom: 16 },
+                                            lineNumbers: 'on',
+                                        }}
+                                    />
+                                </div>
+                            ) : fileViewerUrl?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                <div className="h-full flex items-center justify-center">
+                                    <img src={fileViewerUrl} alt="Submitted" className="max-w-full h-auto rounded-2xl shadow-md border border-gray-100" />
+                                </div>
+                            ) : fileViewerUrl?.toLowerCase().endsWith('.pdf') ? (
+                                <iframe src={`${fileViewerUrl}#toolbar=0`} className="w-full h-full min-h-[60vh] rounded-2xl" title="PDF Viewer" />
+                            ) : (
+                                <div className="h-full flex flex-col items-center justify-center text-center py-20">
+                                    <Paperclip className="h-12 w-12 text-gray-200 mb-4" />
+                                    <p className="text-sm font-bold text-gray-400">Preview not available for this file type</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Inline Annotations Panel */}
+                        {inlineComments.length > 0 && (
+                            <div className="w-full md:w-[320px] border-l border-gray-100 bg-white flex flex-col shrink-0">
+                                <div className="p-5 border-b border-gray-50">
+                                    <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Faculty Annotations</h4>
+                                    <p className="text-xs text-gray-400 font-medium mt-1">Inline feedback from your faculty</p>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                                    {inlineComments.map((c, i) => (
+                                        <div key={i} className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl">
+                                            <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-widest mb-2 rounded-md px-2 py-0.5 shadow-none">
+                                                {c.comment.substring(1, c.comment.indexOf(']'))}
+                                            </Badge>
+                                            <p className="text-sm font-medium text-gray-800 leading-relaxed">
+                                                {c.comment.substring(c.comment.indexOf(']') + 1).trim()}
+                                            </p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-2">
+                                                {format(new Date(c.created_at), 'hh:mm a, MMM dd')}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>
