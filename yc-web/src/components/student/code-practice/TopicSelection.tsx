@@ -208,7 +208,7 @@ const TopicSelection = ({
                     <button
                       key={level}
                       className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${difficulty === level
-                        ? 'bg-black text-white shadow-sm'
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                         }`}
                       onClick={() => setDifficulty(level)}
@@ -262,7 +262,7 @@ const TopicSelection = ({
 
                           <Button
                             size="sm"
-                            className="bg-gray-900 text-white hover:bg-black transition-colors shadow-sm text-xs h-8"
+                            className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white hover:bg-black transition-colors shadow-sm text-xs h-8"
                             onClick={() => onProblemSelect(problem)}
                           >
                             Solve Challenge

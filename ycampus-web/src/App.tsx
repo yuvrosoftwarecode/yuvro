@@ -76,6 +76,7 @@ import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import FacultyReports from './pages/faculty/Reports';
 import AttendanceReport from './pages/faculty/AttendanceReport';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 
 
@@ -424,6 +425,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <StudentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
