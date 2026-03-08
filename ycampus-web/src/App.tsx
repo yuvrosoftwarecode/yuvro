@@ -92,6 +92,9 @@ import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPOScreen from './pages/college-admin/TPOScreen';
+import FacultyReports from './pages/faculty/Reports';
+import AttendanceReport from './pages/faculty/AttendanceReport';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
@@ -735,7 +738,15 @@ function App() {
                 }
               />
               <Route
-                path="/college-admin/tpo"
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/subjects"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <TPOScreen />
