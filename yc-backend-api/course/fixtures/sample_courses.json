@@ -223,7 +223,51 @@
                         }
                     ],
                     "inputFormat": "The first line contains the integer array nums as a JSON list.\nThe second line contains the integer k.",
-                    "outputFormat": "A single integer, the kth largest element."
+                    "outputFormat": "A single integer, the kth largest element.",
+                    "solutions": [
+                        {
+                            "title": "Brute Force - Sorting",
+                            "language": "python",
+                            "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nnums.sort(reverse=True)\nprint(nums[k-1])",
+                            "complexity_analysis": "Time: O(N log N) for sorting. Space: O(1) if in-place sort.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Optimized - Min Heap of Size K",
+                            "language": "python",
+                            "code": "import sys, heapq\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\nheap = []\nfor num in nums:\n    heapq.heappush(heap, num)\n    if len(heap) > k:\n        heapq.heappop(heap)\nprint(heap[0])",
+                            "complexity_analysis": "Time: O(N log K) — push/pop on a heap of size K. Space: O(K).",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Sorting - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Arrays.sort(nums);\n        System.out.println(nums[nums.length - k]);\n    }\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Min Heap - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        PriorityQueue<Integer> heap = new PriorityQueue<>();\n        for (String p : parts) {\n            heap.offer(Integer.parseInt(p.trim()));\n            if (heap.size() > k) heap.poll();\n        }\n        System.out.println(heap.peek());\n    }\n}",
+                            "complexity_analysis": "Time: O(N log K). Space: O(K).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Sorting - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    sort(nums.begin(), nums.end(), greater<int>());\n    cout << nums[k-1] << endl;\n    return 0;\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Min Heap - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    priority_queue<int, vector<int>, greater<int>> heap;\n    for (int num : nums) {\n        heap.push(num);\n        if ((int)heap.size() > k) heap.pop();\n    }\n    cout << heap.top() << endl;\n    return 0;\n}",
+                            "complexity_analysis": "Time: O(N log K). Space: O(K).",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "coding",
@@ -263,7 +307,51 @@
                         }
                     ],
                     "inputFormat": "The first line contains the integer array nums as a JSON list.\nThe second line contains the integer k.",
-                    "outputFormat": "A sorted list of the k most frequent elements."
+                    "outputFormat": "A sorted list of the k most frequent elements.",
+                    "solutions": [
+                        {
+                            "title": "Brute Force - Sort by Frequency",
+                            "language": "python",
+                            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nsorted_items = sorted(count.keys(), key=lambda x: count[x], reverse=True)\nprint(sorted(sorted_items[:k]))",
+                            "complexity_analysis": "Time: O(N log N) for sorting. Space: O(N) for the counter.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Optimized - Bucket Sort",
+                            "language": "python",
+                            "code": "import sys\nfrom collections import Counter\ninput_data = sys.stdin.read().split('\\n')\nnums = eval(input_data[0])\nk = int(input_data[1])\ncount = Counter(nums)\nbuckets = [[] for _ in range(len(nums) + 1)]\nfor num, freq in count.items():\n    buckets[freq].append(num)\nresult = []\nfor i in range(len(buckets) - 1, 0, -1):\n    for num in buckets[i]:\n        result.append(num)\n        if len(result) == k:\n            print(sorted(result))\n            exit()\nprint(sorted(result))",
+                            "complexity_analysis": "Time: O(N) — counting + bucket iteration. Space: O(N) for buckets.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Sort by Frequency - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        Map<Integer,Integer> count = new HashMap<>();\n        for (String p : parts) {\n            int n = Integer.parseInt(p.trim());\n            count.put(n, count.getOrDefault(n, 0) + 1);\n        }\n        List<Integer> keys = new ArrayList<>(count.keySet());\n        keys.sort((a, b) -> count.get(b) - count.get(a));\n        List<Integer> result = keys.subList(0, k);\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bucket Sort - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int k = Integer.parseInt(sc.nextLine().trim());\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        Map<Integer,Integer> count = new HashMap<>();\n        for (int n : nums) count.put(n, count.getOrDefault(n, 0) + 1);\n        List<List<Integer>> buckets = new ArrayList<>();\n        for (int i = 0; i <= nums.length; i++) buckets.add(new ArrayList<>());\n        for (var e : count.entrySet()) buckets.get(e.getValue()).add(e.getKey());\n        List<Integer> result = new ArrayList<>();\n        for (int i = buckets.size()-1; i > 0 && result.size() < k; i--)\n            for (int n : buckets.get(i)) { result.add(n); if (result.size() == k) break; }\n        Collections.sort(result);\n        System.out.println(result);\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Sort by Frequency - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<pair<int,int>> freq(count.begin(), count.end());\n    sort(freq.begin(), freq.end(), [](auto& a, auto& b){ return a.second > b.second; });\n    vector<int> result;\n    for (int i = 0; i < k; i++) result.push_back(freq[i].first);\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bucket Sort - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line;\n    getline(cin, line);\n    int k;\n    cin >> k;\n    vector<int> nums;\n    stringstream ss(line.substr(1, line.size()-2));\n    string token;\n    while (getline(ss, token, ',')) nums.push_back(stoi(token));\n    unordered_map<int,int> count;\n    for (int n : nums) count[n]++;\n    vector<vector<int>> buckets(nums.size()+1);\n    for (auto& [num, freq] : count) buckets[freq].push_back(num);\n    vector<int> result;\n    for (int i = buckets.size()-1; i > 0 && (int)result.size() < k; i--)\n        for (int n : buckets[i]) { result.push_back(n); if ((int)result.size() == k) break; }\n    sort(result.begin(), result.end());\n    cout << \"[\";\n    for (int i = 0; i < (int)result.size(); i++) { if (i) cout << \", \"; cout << result[i]; }\n    cout << \"]\" << endl;\n    return 0;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "mcq_single",
@@ -376,7 +464,37 @@
                         }
                     ],
                     "inputFormat": "A level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.",
-                    "outputFormat": "A single integer representing the maximum depth."
+                    "outputFormat": "A single integer representing the maximum depth.",
+                    "solutions": [
+                        {
+                            "title": "Recursive DFS",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\ninput_data = sys.stdin.read().strip()\nnodes = json.loads(input_data)\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build_tree(nodes):\n    if not nodes or nodes[0] is None:\n        return None\n    root = TreeNode(nodes[0])\n    queue = deque([root])\n    i = 1\n    while queue and i < len(nodes):\n        node = queue.popleft()\n        if i < len(nodes) and nodes[i] is not None:\n            node.left = TreeNode(nodes[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(nodes) and nodes[i] is not None:\n            node.right = TreeNode(nodes[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef maxDepth(root):\n    if not root:\n        return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))\n\nroot = build_tree(nodes)\nprint(maxDepth(root))",
+                            "complexity_analysis": "Time: O(N) — visits every node once. Space: O(H) recursion stack where H is tree height.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Iterative BFS (Level Order)",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\ninput_data = sys.stdin.read().strip()\nnodes = json.loads(input_data)\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build_tree(nodes):\n    if not nodes or nodes[0] is None:\n        return None\n    root = TreeNode(nodes[0])\n    queue = deque([root])\n    i = 1\n    while queue and i < len(nodes):\n        node = queue.popleft()\n        if i < len(nodes) and nodes[i] is not None:\n            node.left = TreeNode(nodes[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(nodes) and nodes[i] is not None:\n            node.right = TreeNode(nodes[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef maxDepth(root):\n    if not root:\n        return 0\n    depth = 0\n    queue = deque([root])\n    while queue:\n        depth += 1\n        for _ in range(len(queue)):\n            node = queue.popleft()\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n    return depth\n\nroot = build_tree(nodes)\nprint(maxDepth(root))",
+                            "complexity_analysis": "Time: O(N) — visits every node once. Space: O(W) where W is the max width of the tree.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Recursive DFS - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    static int[] nodes;\n    static int idx;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        if (line.equals(\"[]\")) { System.out.println(0); return; }\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        // Build tree from level-order\n        Integer[] vals = new Integer[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            String p = parts[i].trim();\n            vals[i] = p.equals(\"null\") ? null : Integer.parseInt(p);\n        }\n        if (vals.length == 0 || vals[0] == null) { System.out.println(0); return; }\n        int[][] tree = new int[vals.length][2];\n        for (int[] t : tree) Arrays.fill(t, -1);\n        Queue<Integer> queue = new LinkedList<>();\n        queue.offer(0);\n        int i = 1;\n        while (!queue.isEmpty() && i < vals.length) {\n            int node = queue.poll();\n            if (i < vals.length && vals[i] != null) { tree[node][0] = i; queue.offer(i); }\n            i++;\n            if (i < vals.length && vals[i] != null) { tree[node][1] = i; queue.offer(i); }\n            i++;\n        }\n        System.out.println(maxDepth(tree, 0));\n    }\n    static int maxDepth(int[][] tree, int node) {\n        if (node == -1) return 0;\n        return 1 + Math.max(maxDepth(tree, tree[node][0]), maxDepth(tree, tree[node][1]));\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(H) recursion stack.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Recursive DFS - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nstruct TreeNode { int val; TreeNode *left, *right; TreeNode(int v):val(v),left(nullptr),right(nullptr){} };\nTreeNode* buildTree(vector<string>& tokens) {\n    if (tokens.empty() || tokens[0]==\"null\") return nullptr;\n    TreeNode* root = new TreeNode(stoi(tokens[0]));\n    queue<TreeNode*> q; q.push(root);\n    int i = 1;\n    while (!q.empty() && i < (int)tokens.size()) {\n        TreeNode* node = q.front(); q.pop();\n        if (i < (int)tokens.size() && tokens[i]!=\"null\") { node->left = new TreeNode(stoi(tokens[i])); q.push(node->left); } i++;\n        if (i < (int)tokens.size() && tokens[i]!=\"null\") { node->right = new TreeNode(stoi(tokens[i])); q.push(node->right); } i++;\n    }\n    return root;\n}\nint maxDepth(TreeNode* root) { return root ? 1 + max(maxDepth(root->left), maxDepth(root->right)) : 0; }\nint main() {\n    string line; getline(cin, line);\n    line = line.substr(1, line.size()-2);\n    vector<string> tokens;\n    stringstream ss(line); string tok;\n    while(getline(ss,tok,',')) { while(!tok.empty()&&tok[0]==' ')tok=tok.substr(1); tokens.push_back(tok); }\n    if (tokens.empty()||tokens[0]==\"\") { cout<<0<<endl; return 0; }\n    cout << maxDepth(buildTree(tokens)) << endl;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(H) recursion stack.",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "coding",
@@ -420,7 +538,37 @@
                         }
                     ],
                     "inputFormat": "A level-order (BFS) representation of the binary tree as a JSON list. null represents a missing node.",
-                    "outputFormat": "True if the tree is a valid BST, False otherwise."
+                    "outputFormat": "True if the tree is a valid BST, False otherwise.",
+                    "solutions": [
+                        {
+                            "title": "Recursive - Min/Max Range Check",
+                            "language": "python",
+                            "code": "import sys, json, math\nfrom collections import deque\ninput_data = sys.stdin.read().strip()\nnodes = json.loads(input_data)\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build_tree(nodes):\n    if not nodes or nodes[0] is None:\n        return None\n    root = TreeNode(nodes[0])\n    queue = deque([root])\n    i = 1\n    while queue and i < len(nodes):\n        node = queue.popleft()\n        if i < len(nodes) and nodes[i] is not None:\n            node.left = TreeNode(nodes[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(nodes) and nodes[i] is not None:\n            node.right = TreeNode(nodes[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef isValidBST(node, lo=-math.inf, hi=math.inf):\n    if not node:\n        return True\n    if node.val <= lo or node.val >= hi:\n        return False\n    return isValidBST(node.left, lo, node.val) and isValidBST(node.right, node.val, hi)\n\nroot = build_tree(nodes)\nprint(isValidBST(root))",
+                            "complexity_analysis": "Time: O(N) — visits every node once. Space: O(H) recursion stack.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Inorder Traversal Check",
+                            "language": "python",
+                            "code": "import sys, json, math\nfrom collections import deque\ninput_data = sys.stdin.read().strip()\nnodes = json.loads(input_data)\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build_tree(nodes):\n    if not nodes or nodes[0] is None:\n        return None\n    root = TreeNode(nodes[0])\n    queue = deque([root])\n    i = 1\n    while queue and i < len(nodes):\n        node = queue.popleft()\n        if i < len(nodes) and nodes[i] is not None:\n            node.left = TreeNode(nodes[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(nodes) and nodes[i] is not None:\n            node.right = TreeNode(nodes[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef isValidBST(root):\n    stack, prev = [], -math.inf\n    while stack or root:\n        while root:\n            stack.append(root)\n            root = root.left\n        root = stack.pop()\n        if root.val <= prev:\n            return False\n        prev = root.val\n        root = root.right\n    return True\n\nroot = build_tree(nodes)\nprint(isValidBST(root))",
+                            "complexity_analysis": "Time: O(N). Space: O(H) for the stack. Uses the property that inorder traversal of a BST is strictly ascending.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Min/Max Range Check - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length()-1);\n        String[] parts = line.split(\",\");\n        Integer[] vals = new Integer[parts.length];\n        for (int i = 0; i < parts.length; i++) {\n            String p = parts[i].trim();\n            vals[i] = p.equals(\"null\") ? null : Integer.parseInt(p);\n        }\n        if (vals.length == 0 || vals[0] == null) { System.out.println(\"True\"); return; }\n        int[][] tree = new int[vals.length][2];\n        int[] treeVals = new int[vals.length];\n        for (int[] t : tree) Arrays.fill(t, -1);\n        treeVals[0] = vals[0];\n        Queue<Integer> queue = new LinkedList<>();\n        queue.offer(0); int i = 1;\n        while (!queue.isEmpty() && i < vals.length) {\n            int node = queue.poll();\n            if (i < vals.length && vals[i] != null) { tree[node][0] = i; treeVals[i] = vals[i]; queue.offer(i); } i++;\n            if (i < vals.length && vals[i] != null) { tree[node][1] = i; treeVals[i] = vals[i]; queue.offer(i); } i++;\n        }\n        System.out.println(isValid(tree, treeVals, 0, Long.MIN_VALUE, Long.MAX_VALUE));\n    }\n    static boolean isValid(int[][] tree, int[] vals, int node, long lo, long hi) {\n        if (node == -1) return true;\n        if (vals[node] <= lo || vals[node] >= hi) return false;\n        return isValid(tree, vals, tree[node][0], lo, vals[node]) && isValid(tree, vals, tree[node][1], vals[node], hi);\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(H) recursion stack.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Min/Max Range Check - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nstruct TreeNode { int val; TreeNode *left, *right; TreeNode(int v):val(v),left(nullptr),right(nullptr){} };\nTreeNode* buildTree(vector<string>& tokens) {\n    if (tokens.empty() || tokens[0]==\"null\") return nullptr;\n    TreeNode* root = new TreeNode(stoi(tokens[0]));\n    queue<TreeNode*> q; q.push(root);\n    int i = 1;\n    while (!q.empty() && i < (int)tokens.size()) {\n        TreeNode* node = q.front(); q.pop();\n        if (i < (int)tokens.size() && tokens[i]!=\"null\") { node->left = new TreeNode(stoi(tokens[i])); q.push(node->left); } i++;\n        if (i < (int)tokens.size() && tokens[i]!=\"null\") { node->right = new TreeNode(stoi(tokens[i])); q.push(node->right); } i++;\n    }\n    return root;\n}\nbool isValidBST(TreeNode* node, long lo, long hi) {\n    if (!node) return true;\n    if (node->val <= lo || node->val >= hi) return false;\n    return isValidBST(node->left, lo, node->val) && isValidBST(node->right, node->val, hi);\n}\nint main() {\n    string line; getline(cin, line);\n    line = line.substr(1, line.size()-2);\n    vector<string> tokens;\n    stringstream ss(line); string tok;\n    while(getline(ss,tok,',')) { while(!tok.empty()&&tok[0]==' ')tok=tok.substr(1); tokens.push_back(tok); }\n    TreeNode* root = buildTree(tokens);\n    cout << (isValidBST(root, LONG_MIN, LONG_MAX) ? \"True\" : \"False\") << endl;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(H) recursion stack.",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "mcq_single",
@@ -496,7 +644,37 @@
                         }
                     ],
                     "inputFormat": "A 2D JSON list of strings where '1' is land and '0' is water.",
-                    "outputFormat": "A single integer representing the number of islands."
+                    "outputFormat": "A single integer representing the number of islands.",
+                    "solutions": [
+                        {
+                            "title": "DFS - Recursive Flood Fill",
+                            "language": "python",
+                            "code": "import sys, json\ninput_data = sys.stdin.read().strip()\ngrid = json.loads(input_data)\n\ndef numIslands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':\n            return\n        grid[r][c] = '0'\n        dfs(r+1, c)\n        dfs(r-1, c)\n        dfs(r, c+1)\n        dfs(r, c-1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count\n\nprint(numIslands(grid))",
+                            "complexity_analysis": "Time: O(M*N) — visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "BFS - Iterative Flood Fill",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\ninput_data = sys.stdin.read().strip()\ngrid = json.loads(input_data)\n\ndef numIslands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def bfs(r, c):\n        queue = deque([(r, c)])\n        grid[r][c] = '0'\n        while queue:\n            cr, cc = queue.popleft()\n            for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:\n                nr, nc = cr+dr, cc+dc\n                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == '1':\n                    grid[nr][nc] = '0'\n                    queue.append((nr, nc))\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                bfs(r, c)\n    return count\n\nprint(numIslands(grid))",
+                            "complexity_analysis": "Time: O(M*N). Space: O(min(M,N)) for the BFS queue in the worst case.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "DFS Flood Fill - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    static char[][] grid;\n    static int rows, cols;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        // Parse 2D array\n        line = line.substring(1, line.length()-1); // remove outer []\n        List<char[]> gridList = new ArrayList<>();\n        int i = 0;\n        while (i < line.length()) {\n            if (line.charAt(i) == '[') {\n                int j = line.indexOf(']', i);\n                String row = line.substring(i+1, j);\n                String[] cells = row.split(\",\");\n                char[] r = new char[cells.length];\n                for (int c = 0; c < cells.length; c++) r[c] = cells[c].trim().charAt(1);\n                gridList.add(r);\n                i = j + 1;\n            } else i++;\n        }\n        grid = gridList.toArray(new char[0][]);\n        rows = grid.length; cols = grid[0].length;\n        int count = 0;\n        for (int r = 0; r < rows; r++)\n            for (int c = 0; c < cols; c++)\n                if (grid[r][c] == '1') { count++; dfs(r, c); }\n        System.out.println(count);\n    }\n    static void dfs(int r, int c) {\n        if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] == '0') return;\n        grid[r][c] = '0';\n        dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);\n    }\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N) worst case recursion stack.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "DFS Flood Fill - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nvector<vector<char>> grid;\nint rows, cols;\nvoid dfs(int r, int c) {\n    if (r<0||r>=rows||c<0||c>=cols||grid[r][c]=='0') return;\n    grid[r][c]='0';\n    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);\n}\nint main() {\n    string line; getline(cin, line);\n    // Parse JSON-style 2D array\n    vector<string> rowStrs;\n    int depth = 0; string cur;\n    for (char ch : line) {\n        if (ch=='[') { depth++; if(depth==2) cur=\"\"; }\n        else if (ch==']') { depth--; if(depth==1) rowStrs.push_back(cur); }\n        else if (depth==2) cur+=ch;\n    }\n    for (auto& rs : rowStrs) {\n        vector<char> row;\n        for (char ch : rs) if (ch=='1'||ch=='0') row.push_back(ch);\n        grid.push_back(row);\n    }\n    rows=grid.size(); cols=grid[0].size();\n    int count=0;\n    for (int r=0;r<rows;r++) for(int c=0;c<cols;c++) if(grid[r][c]=='1'){count++;dfs(r,c);}\n    cout<<count<<endl;\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N) recursion stack.",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "mcq_single",
@@ -605,7 +783,51 @@
                         }
                     ],
                     "inputFormat": "A single integer n.",
-                    "outputFormat": "A single integer representing the number of distinct ways to climb n stairs."
+                    "outputFormat": "A single integer representing the number of distinct ways to climb n stairs.",
+                    "solutions": [
+                        {
+                            "title": "Top-Down DP (Memoization)",
+                            "language": "python",
+                            "code": "import sys\nn = int(sys.stdin.read().strip())\nmemo = {}\n\ndef climb(n):\n    if n <= 1:\n        return 1\n    if n in memo:\n        return memo[n]\n    memo[n] = climb(n-1) + climb(n-2)\n    return memo[n]\n\nprint(climb(n))",
+                            "complexity_analysis": "Time: O(N). Space: O(N) for memo dict + recursion stack.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP (Tabulation)",
+                            "language": "python",
+                            "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1:\n    print(1)\nelse:\n    a, b = 1, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    print(b)",
+                            "complexity_analysis": "Time: O(N). Space: O(1) — only two variables needed.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Top-Down DP (Memoization) - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    static int[] memo;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = Integer.parseInt(sc.nextLine().trim());\n        memo = new int[n+1];\n        Arrays.fill(memo, -1);\n        System.out.println(climb(n));\n    }\n    static int climb(int n) {\n        if (n <= 1) return 1;\n        if (memo[n] != -1) return memo[n];\n        memo[n] = climb(n-1) + climb(n-2);\n        return memo[n];\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = Integer.parseInt(sc.nextLine().trim());\n        if (n <= 1) { System.out.println(1); return; }\n        int a = 1, b = 1;\n        for (int i = 2; i <= n; i++) { int temp = b; b = a + b; a = temp; }\n        System.out.println(b);\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Top-Down DP (Memoization) - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint memo[46];\nint climb(int n) {\n    if (n <= 1) return 1;\n    if (memo[n] != -1) return memo[n];\n    return memo[n] = climb(n-1) + climb(n-2);\n}\nint main() {\n    int n; cin >> n;\n    memset(memo, -1, sizeof(memo));\n    cout << climb(n) << endl;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    if (n <= 1) { cout << 1 << endl; return 0; }\n    int a = 1, b = 1;\n    for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n    cout << b << endl;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": false
+                        }
+                    ]
                 },
                 {
                     "type": "coding",
@@ -649,7 +871,974 @@
                         }
                     ],
                     "inputFormat": "The first line contains string text1.\nThe second line contains string text2.",
-                    "outputFormat": "A single integer representing the length of the longest common subsequence."
+                    "outputFormat": "A single integer representing the length of the longest common subsequence.",
+                    "solutions": [
+                        {
+                            "title": "Top-Down DP (Memoization)",
+                            "language": "python",
+                            "code": "import sys\nfrom functools import lru_cache\ninput_data = sys.stdin.read().split('\\n')\ntext1 = input_data[0].strip()\ntext2 = input_data[1].strip()\n\n@lru_cache(maxsize=None)\ndef lcs(i, j):\n    if i == len(text1) or j == len(text2):\n        return 0\n    if text1[i] == text2[j]:\n        return 1 + lcs(i+1, j+1)\n    return max(lcs(i+1, j), lcs(i, j+1))\n\nprint(lcs(0, 0))",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N) for the memoization cache.",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP (Tabulation)",
+                            "language": "python",
+                            "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\ntext1 = input_data[0].strip()\ntext2 = input_data[1].strip()\nm, n = len(text1), len(text2)\ndp = [[0] * (n + 1) for _ in range(m + 1)]\nfor i in range(m - 1, -1, -1):\n    for j in range(n - 1, -1, -1):\n        if text1[i] == text2[j]:\n            dp[i][j] = 1 + dp[i+1][j+1]\n        else:\n            dp[i][j] = max(dp[i+1][j], dp[i][j+1])\nprint(dp[0][0])",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N) for the DP table. Can be optimized to O(min(M,N)) with space optimization.",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Top-Down DP (Memoization) - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    static String t1, t2;\n    static int[][] memo;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        t1 = sc.nextLine().trim();\n        t2 = sc.nextLine().trim();\n        memo = new int[t1.length()][t2.length()];\n        for (int[] row : memo) Arrays.fill(row, -1);\n        System.out.println(lcs(0, 0));\n    }\n    static int lcs(int i, int j) {\n        if (i == t1.length() || j == t2.length()) return 0;\n        if (memo[i][j] != -1) return memo[i][j];\n        if (t1.charAt(i) == t2.charAt(j)) return memo[i][j] = 1 + lcs(i+1, j+1);\n        return memo[i][j] = Math.max(lcs(i+1, j), lcs(i, j+1));\n    }\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP (Tabulation) - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String t1 = sc.nextLine().trim();\n        String t2 = sc.nextLine().trim();\n        int m = t1.length(), n = t2.length();\n        int[][] dp = new int[m+1][n+1];\n        for (int i = m-1; i >= 0; i--)\n            for (int j = n-1; j >= 0; j--)\n                dp[i][j] = t1.charAt(i) == t2.charAt(j) ? 1 + dp[i+1][j+1] : Math.max(dp[i+1][j], dp[i][j+1]);\n        System.out.println(dp[0][0]);\n    }\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Top-Down DP (Memoization) - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nstring t1, t2;\nint memo[1001][1001];\nint lcs(int i, int j) {\n    if (i == (int)t1.size() || j == (int)t2.size()) return 0;\n    if (memo[i][j] != -1) return memo[i][j];\n    if (t1[i] == t2[j]) return memo[i][j] = 1 + lcs(i+1, j+1);\n    return memo[i][j] = max(lcs(i+1, j), lcs(i, j+1));\n}\nint main() {\n    getline(cin, t1); getline(cin, t2);\n    memset(memo, -1, sizeof(memo));\n    cout << lcs(0, 0) << endl;\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up DP (Tabulation) - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string t1, t2;\n    getline(cin, t1); getline(cin, t2);\n    int m = t1.size(), n = t2.size();\n    vector<vector<int>> dp(m+1, vector<int>(n+1, 0));\n    for (int i = m-1; i >= 0; i--)\n        for (int j = n-1; j >= 0; j--)\n            dp[i][j] = t1[i] == t2[j] ? 1 + dp[i+1][j+1] : max(dp[i+1][j], dp[i][j+1]);\n    cout << dp[0][0] << endl;\n}",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Last Stone Weight",
+                    "content": "You are given an array of integers stones where stones[i] is the weight of the ith stone.\n\nWe are playing a game with the stones. On each turn, we choose the heaviest two stones and smash them together. Suppose the heaviest two stones have weights x and y with x <= y:\n- If x == y, both stones are destroyed.\n- If x != y, the stone of weight x is destroyed, and the stone of weight y has new weight y - x.\n\nAt the end of the game, there is at most one stone left. Return the weight of the last remaining stone. If there are no stones left, return 0.\n\n**Example 1:**\nInput: stones = [2,7,4,1,8,1]\nOutput: 1\nExplanation: We combine 7 and 8 to get 1, then 2 and 4 to get 2, then 1 and 2 to get 1.\n\n**Example 2:**\nInput: stones = [1]\nOutput: 1\n\n**Constraints:**\n- 1 <= stones.length <= 30\n- 1 <= stones[i] <= 1000",
+                    "level": "topic",
+                    "topic_name": "Heaps",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[2,7,4,1,8,1]",
+                            "expected_output": "1"
+                        },
+                        {
+                            "input": "[1]",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[2,2]",
+                            "expected_output": "0"
+                        },
+                        {
+                            "input": "[10,4,2,10]",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Max Heap - Python",
+                            "language": "python",
+                            "code": "import sys, heapq\nstones = eval(sys.stdin.read().strip())\nheap = [-s for s in stones]\nheapq.heapify(heap)\nwhile len(heap) > 1:\n    y = -heapq.heappop(heap)\n    x = -heapq.heappop(heap)\n    if y != x:\n        heapq.heappush(heap, -(y - x))\nprint(-heap[0] if heap else 0)",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Max Heap - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length()-1);\n        PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\n        for (String s : line.split(\",\")) pq.offer(Integer.parseInt(s.trim()));\n        while (pq.size() > 1) {\n            int y = pq.poll(), x = pq.poll();\n            if (y != x) pq.offer(y - x);\n        }\n        System.out.println(pq.isEmpty() ? 0 : pq.peek());\n    }\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Max Heap - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string line; getline(cin, line);\n    priority_queue<int> pq;\n    stringstream ss(line.substr(1, line.size()-2));\n    string tok;\n    while(getline(ss,tok,',')) pq.push(stoi(tok));\n    while(pq.size()>1) {\n        int y=pq.top(); pq.pop();\n        int x=pq.top(); pq.pop();\n        if(y!=x) pq.push(y-x);\n    }\n    cout<<(pq.empty()?0:pq.top())<<endl;\n}",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Task Scheduler",
+                    "content": "Given a characters array tasks, representing the tasks a CPU needs to do, where each letter represents a different task. Tasks could be done in any order. Each task is done in one unit of time. For each unit of time, the CPU could complete either one task or just be idle.\n\nHowever, there is a non-negative integer n that represents the cooldown period between two same tasks. There must be at least n units of time between any two same tasks.\n\nReturn the least number of units of times that the CPU will take to finish all the given tasks.\n\n**Example 1:**\nInput: tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2\nOutput: 8\nExplanation: A -> B -> idle -> A -> B -> idle -> A -> B\n\n**Example 2:**\nInput: tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 0\nOutput: 6\n\n**Constraints:**\n- 1 <= tasks.length <= 10^4\n- tasks[i] is upper-case English letter\n- 0 <= n <= 100",
+                    "level": "topic",
+                    "topic_name": "Heaps",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"]\n2",
+                            "expected_output": "8"
+                        },
+                        {
+                            "input": "[\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"]\n0",
+                            "expected_output": "6"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[\"A\",\"A\",\"A\",\"A\",\"A\",\"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\"]\n2",
+                            "expected_output": "16"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Greedy Formula - Python",
+                            "language": "python",
+                            "code": "import sys\nfrom collections import Counter\nlines = sys.stdin.read().strip().split('\\n')\ntasks = eval(lines[0])\nn = int(lines[1])\ncount = Counter(tasks)\nmax_freq = max(count.values())\nmax_count = sum(1 for v in count.values() if v == max_freq)\nresult = max(len(tasks), (max_freq - 1) * (n + 1) + max_count)\nprint(result)",
+                            "complexity_analysis": "Time: O(N). Space: O(1) since at most 26 letters.",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Merge K Sorted Lists",
+                    "content": "You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.\n\nMerge all the linked-lists into one sorted linked-list and return it.\n\n**Example 1:**\nInput: lists = [[1,4,5],[1,3,4],[2,6]]\nOutput: [1,1,2,3,4,4,5,6]\n\n**Example 2:**\nInput: lists = []\nOutput: []\n\n**Example 3:**\nInput: lists = [[]]\nOutput: []\n\n**Constraints:**\n- k == lists.length\n- 0 <= k <= 10^4\n- 0 <= lists[i].length <= 500\n- -10^4 <= lists[i][j] <= 10^4",
+                    "level": "topic",
+                    "topic_name": "Heaps",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[[1,4,5],[1,3,4],[2,6]]",
+                            "expected_output": "[1, 1, 2, 3, 4, 4, 5, 6]"
+                        },
+                        {
+                            "input": "[]",
+                            "expected_output": "[]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[[]]",
+                            "expected_output": "[]"
+                        },
+                        {
+                            "input": "[[1],[0]]",
+                            "expected_output": "[0, 1]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Min Heap - Python",
+                            "language": "python",
+                            "code": "import sys, heapq, json\nlists = json.loads(sys.stdin.read().strip())\nheap = []\nfor i, lst in enumerate(lists):\n    if lst:\n        heapq.heappush(heap, (lst[0], i, 0))\nresult = []\nwhile heap:\n    val, i, j = heapq.heappop(heap)\n    result.append(val)\n    if j + 1 < len(lists[i]):\n        heapq.heappush(heap, (lists[i][j+1], i, j+1))\nprint(result)",
+                            "complexity_analysis": "Time: O(N log K) where N is total elements, K is number of lists. Space: O(K).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Find Median from Data Stream",
+                    "content": "The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value, and the median is the mean of the two middle values.\n\nImplement the MedianFinder class:\n- MedianFinder() initializes the MedianFinder object.\n- void addNum(int num) adds the integer num to the data structure.\n- double findMedian() returns the median of all elements so far.\n\n**Example:**\nInput: [\"addNum\",\"addNum\",\"findMedian\",\"addNum\",\"findMedian\"]\n[[1],[2],[],[3],[]]\nOutput: [null,null,1.5,null,2.0]\n\n**Constraints:**\n- -10^5 <= num <= 10^5\n- There will be at least one element before calling findMedian.",
+                    "level": "topic",
+                    "topic_name": "Heaps",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[\"addNum\",\"addNum\",\"findMedian\",\"addNum\",\"findMedian\"]\n[[1],[2],[],[3],[]]",
+                            "expected_output": "[null, null, 1.5, null, 2.0]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[\"addNum\",\"findMedian\",\"addNum\",\"findMedian\"]\n[[5],[],[10],[]]",
+                            "expected_output": "[null, 5.0, null, 7.5]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Two Heaps - Python",
+                            "language": "python",
+                            "code": "import sys, heapq, json\nlines = sys.stdin.read().strip().split('\\n')\nops = json.loads(lines[0])\nargs = json.loads(lines[1])\nsmall, large = [], []  # max-heap (neg), min-heap\nresult = []\nfor op, arg in zip(ops, args):\n    if op == 'addNum':\n        heapq.heappush(small, -arg[0])\n        heapq.heappush(large, -heapq.heappop(small))\n        if len(large) > len(small):\n            heapq.heappush(small, -heapq.heappop(large))\n        result.append(None)\n    else:\n        if len(small) > len(large):\n            result.append(float(-small[0]))\n        else:\n            result.append((-small[0] + large[0]) / 2)\nprint(json.dumps(result))",
+                            "complexity_analysis": "Time: O(log N) per addNum, O(1) per findMedian. Space: O(N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Sliding Window Maximum",
+                    "content": "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.\n\nReturn the max sliding window.\n\n**Example 1:**\nInput: nums = [1,3,-1,-3,5,3,6,7], k = 3\nOutput: [3,3,5,5,6,7]\n\n**Example 2:**\nInput: nums = [1], k = 1\nOutput: [1]\n\n**Constraints:**\n- 1 <= nums.length <= 10^5\n- -10^4 <= nums[i] <= 10^4\n- 1 <= k <= nums.length",
+                    "level": "topic",
+                    "topic_name": "Heaps",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,3,-1,-3,5,3,6,7]\n3",
+                            "expected_output": "[3, 3, 5, 5, 6, 7]"
+                        },
+                        {
+                            "input": "[1]\n1",
+                            "expected_output": "[1]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[7,2,4]\n2",
+                            "expected_output": "[7, 4]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Monotonic Deque - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nlines = sys.stdin.read().strip().split('\\n')\nnums = json.loads(lines[0])\nk = int(lines[1])\ndq = deque()\nresult = []\nfor i, n in enumerate(nums):\n    while dq and dq[0] < i - k + 1:\n        dq.popleft()\n    while dq and nums[dq[-1]] < n:\n        dq.pop()\n    dq.append(i)\n    if i >= k - 1:\n        result.append(nums[dq[0]])\nprint(result)",
+                            "complexity_analysis": "Time: O(N). Space: O(K).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Binary Tree Level Order Traversal",
+                    "content": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).\n\n**Example 1:**\nInput: root = [3,9,20,null,null,15,7]\nOutput: [[3],[9,20],[15,7]]\n\n**Example 2:**\nInput: root = [1]\nOutput: [[1]]\n\n**Example 3:**\nInput: root = []\nOutput: []\n\n**Constraints:**\n- The number of nodes is in the range [0, 2000].\n- -1000 <= Node.val <= 1000",
+                    "level": "topic",
+                    "topic_name": "Trees",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[3,9,20,null,null,15,7]",
+                            "expected_output": "[[3], [9, 20], [15, 7]]"
+                        },
+                        {
+                            "input": "[1]",
+                            "expected_output": "[[1]]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[]",
+                            "expected_output": "[]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "BFS Queue - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nnodes = json.loads(sys.stdin.read().strip())\nif not nodes:\n    print([])\n    exit()\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\ndef build(nodes):\n    if not nodes or nodes[0] is None: return None\n    root=TreeNode(nodes[0]); q=deque([root]); i=1\n    while q and i<len(nodes):\n        n=q.popleft()\n        if i<len(nodes) and nodes[i] is not None: n.left=TreeNode(nodes[i]); q.append(n.left)\n        i+=1\n        if i<len(nodes) and nodes[i] is not None: n.right=TreeNode(nodes[i]); q.append(n.right)\n        i+=1\n    return root\nroot=build(nodes)\nresult=[]\nq=deque([root])\nwhile q:\n    level=[]\n    for _ in range(len(q)):\n        n=q.popleft(); level.append(n.val)\n        if n.left: q.append(n.left)\n        if n.right: q.append(n.right)\n    result.append(level)\nprint(result)",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Lowest Common Ancestor of a BST",
+                    "content": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.\n\nThe lowest common ancestor is the deepest node that has both p and q as descendants (where we allow a node to be a descendant of itself).\n\n**Example 1:**\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8\nOutput: 6\n\n**Example 2:**\nInput: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4\nOutput: 2\n\n**Constraints:**\n- All Node.val are unique.\n- p != q\n- p and q will exist in the BST.",
+                    "level": "topic",
+                    "topic_name": "Trees",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n8",
+                            "expected_output": "6"
+                        },
+                        {
+                            "input": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n4",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[2,1]\n2\n1",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "BST Property - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nlines = sys.stdin.read().strip().split('\\n')\nnodes = json.loads(lines[0])\np, q = int(lines[1]), int(lines[2])\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\ndef build(nodes):\n    if not nodes: return None\n    root=TreeNode(nodes[0]); queue=deque([root]); i=1\n    while queue and i<len(nodes):\n        n=queue.popleft()\n        if i<len(nodes) and nodes[i] is not None: n.left=TreeNode(nodes[i]); queue.append(n.left)\n        i+=1\n        if i<len(nodes) and nodes[i] is not None: n.right=TreeNode(nodes[i]); queue.append(n.right)\n        i+=1\n    return root\nroot = build(nodes)\nnode = root\nwhile node:\n    if p < node.val and q < node.val: node = node.left\n    elif p > node.val and q > node.val: node = node.right\n    else: print(node.val); break",
+                            "complexity_analysis": "Time: O(H). Space: O(1).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Binary Tree Maximum Path Sum",
+                    "content": "A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.\n\nThe path sum of a path is the sum of the node's values in the path.\n\nGiven the root of a binary tree, return the maximum path sum of any non-empty path.\n\n**Example 1:**\nInput: root = [1,2,3]\nOutput: 6\nExplanation: The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.\n\n**Example 2:**\nInput: root = [-10,9,20,null,null,15,7]\nOutput: 42\nExplanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.\n\n**Constraints:**\n- The number of nodes is in the range [1, 3 * 10^4].\n- -1000 <= Node.val <= 1000",
+                    "level": "topic",
+                    "topic_name": "Trees",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,2,3]",
+                            "expected_output": "6"
+                        },
+                        {
+                            "input": "[-10,9,20,null,null,15,7]",
+                            "expected_output": "42"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[-3]",
+                            "expected_output": "-3"
+                        },
+                        {
+                            "input": "[2,-1]",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "DFS with Global Max - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nnodes = json.loads(sys.stdin.read().strip())\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\ndef build(nodes):\n    if not nodes or nodes[0] is None: return None\n    root=TreeNode(nodes[0]); q=deque([root]); i=1\n    while q and i<len(nodes):\n        n=q.popleft()\n        if i<len(nodes) and nodes[i] is not None: n.left=TreeNode(nodes[i]); q.append(n.left)\n        i+=1\n        if i<len(nodes) and nodes[i] is not None: n.right=TreeNode(nodes[i]); q.append(n.right)\n        i+=1\n    return root\nroot = build(nodes)\nmax_sum = float('-inf')\ndef dfs(node):\n    global max_sum\n    if not node: return 0\n    left = max(dfs(node.left), 0)\n    right = max(dfs(node.right), 0)\n    max_sum = max(max_sum, node.val + left + right)\n    return node.val + max(left, right)\ndfs(root)\nprint(max_sum)",
+                            "complexity_analysis": "Time: O(N). Space: O(H).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Serialize and Deserialize Binary Tree",
+                    "content": "Serialization is the process of converting a data structure into a sequence of bits. Design an algorithm to serialize and deserialize a binary tree.\n\nYou need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.\n\n**Example 1:**\nInput: root = [1,2,3,null,null,4,5]\nOutput: [1,2,3,null,null,4,5]\n\n**Example 2:**\nInput: root = []\nOutput: []\n\n**Constraints:**\n- The number of nodes is in the range [0, 10^4].\n- -1000 <= Node.val <= 1000",
+                    "level": "topic",
+                    "topic_name": "Trees",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,2,3,null,null,4,5]",
+                            "expected_output": "[1, 2, 3, null, null, 4, 5]"
+                        },
+                        {
+                            "input": "[]",
+                            "expected_output": "[]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[1]",
+                            "expected_output": "[1]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "BFS Level Order - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nnodes = json.loads(sys.stdin.read().strip())\nif not nodes:\n    print([])\n    exit()\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\ndef build(nodes):\n    if not nodes or nodes[0] is None: return None\n    root=TreeNode(nodes[0]); q=deque([root]); i=1\n    while q and i<len(nodes):\n        n=q.popleft()\n        if i<len(nodes) and nodes[i] is not None: n.left=TreeNode(nodes[i]); q.append(n.left)\n        i+=1\n        if i<len(nodes) and nodes[i] is not None: n.right=TreeNode(nodes[i]); q.append(n.right)\n        i+=1\n    return root\ndef serialize(root):\n    if not root: return []\n    result=[]; q=deque([root])\n    while q:\n        n=q.popleft()\n        if n: result.append(n.val); q.append(n.left); q.append(n.right)\n        else: result.append(None)\n    while result and result[-1] is None: result.pop()\n    return result\nroot = build(nodes)\nprint(json.dumps(serialize(root)))",
+                            "complexity_analysis": "Time: O(N). Space: O(N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+                    "content": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.\n\n**Example 1:**\nInput: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]\nOutput: [3,9,20,null,null,15,7]\n\n**Example 2:**\nInput: preorder = [-1], inorder = [-1]\nOutput: [-1]\n\n**Constraints:**\n- 1 <= preorder.length <= 3000\n- preorder.length == inorder.length\n- All values are unique.",
+                    "level": "topic",
+                    "topic_name": "Trees",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[3,9,20,15,7]\n[9,3,15,20,7]",
+                            "expected_output": "[3, 9, 20, null, null, 15, 7]"
+                        },
+                        {
+                            "input": "[-1]\n[-1]",
+                            "expected_output": "[-1]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[1,2]\n[2,1]",
+                            "expected_output": "[1, 2]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Recursive with HashMap - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque\nlines = sys.stdin.read().strip().split('\\n')\npreorder = json.loads(lines[0])\ninorder = json.loads(lines[1])\nclass TreeNode:\n    def __init__(self, val=0): self.val=val; self.left=None; self.right=None\nidx_map = {v: i for i, v in enumerate(inorder)}\npre_idx = [0]\ndef build(lo, hi):\n    if lo > hi: return None\n    val = preorder[pre_idx[0]]; pre_idx[0] += 1\n    node = TreeNode(val)\n    mid = idx_map[val]\n    node.left = build(lo, mid-1)\n    node.right = build(mid+1, hi)\n    return node\nroot = build(0, len(inorder)-1)\ndef serialize(root):\n    if not root: return []\n    result=[]; q=deque([root])\n    while q:\n        n=q.popleft()\n        if n: result.append(n.val); q.append(n.left); q.append(n.right)\n        else: result.append(None)\n    while result and result[-1] is None: result.pop()\n    return result\nprint(json.dumps(serialize(root)))",
+                            "complexity_analysis": "Time: O(N). Space: O(N) for the hash map.",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Flood Fill",
+                    "content": "An image is represented by an m x n integer grid image where image[i][j] represents the pixel value of the image.\n\nYou are also given three integers sr, sc, and color. You should perform a flood fill on the image starting from the pixel image[sr][sc].\n\nTo perform a flood fill, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color), and so on. Replace the color of all of the aforementioned pixels with color.\n\n**Example 1:**\nInput: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2\nOutput: [[2,2,2],[2,2,0],[2,0,1]]\n\n**Example 2:**\nInput: image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0\nOutput: [[0,0,0],[0,0,0]]\n\n**Constraints:**\n- m == image.length, n == image[i].length\n- 1 <= m, n <= 50\n- 0 <= image[i][j], color < 2^16",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2",
+                            "expected_output": "[[2, 2, 2], [2, 2, 0], [2, 0, 1]]"
+                        },
+                        {
+                            "input": "[[0,0,0],[0,0,0]]\n0\n0\n0",
+                            "expected_output": "[[0, 0, 0], [0, 0, 0]]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[[0,0,0],[0,1,1]]\n1\n1\n1",
+                            "expected_output": "[[0, 0, 0], [0, 1, 1]]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "DFS - Python",
+                            "language": "python",
+                            "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\nimage = json.loads(lines[0])\nsr, sc, color = int(lines[1]), int(lines[2]), int(lines[3])\noriginal = image[sr][sc]\nif original == color:\n    print(json.dumps(image)); exit()\ndef dfs(r, c):\n    if r<0 or r>=len(image) or c<0 or c>=len(image[0]) or image[r][c]!=original: return\n    image[r][c] = color\n    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1)\ndfs(sr, sc)\nprint(json.dumps(image))",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Find if Path Exists in Graph",
+                    "content": "There is a bi-directional graph with n vertices, where each vertex is labeled from 0 to n - 1. The edges in the graph are represented as a 2D integer array edges, where each edges[i] = [ui, vi] denotes a bi-directional edge between vertex ui and vertex vi.\n\nGiven integers n, source, and destination, return true if there is a valid path from source to destination, or false otherwise.\n\n**Example 1:**\nInput: n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2\nOutput: true\n\n**Example 2:**\nInput: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5\nOutput: false\n\n**Constraints:**\n- 1 <= n <= 2 * 10^5\n- 0 <= edges.length <= 2 * 10^5",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "3\n[[0,1],[1,2],[2,0]]\n0\n2",
+                            "expected_output": "True"
+                        },
+                        {
+                            "input": "6\n[[0,1],[0,2],[3,5],[5,4],[4,3]]\n0\n5",
+                            "expected_output": "False"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "1\n[]\n0\n0",
+                            "expected_output": "True"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "BFS - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nn = int(lines[0])\nedges = json.loads(lines[1])\nsrc, dst = int(lines[2]), int(lines[3])\ngraph = defaultdict(list)\nfor u, v in edges:\n    graph[u].append(v); graph[v].append(u)\nvisited = set([src])\nq = deque([src])\nwhile q:\n    node = q.popleft()\n    if node == dst: print('True'); exit()\n    for nb in graph[node]:\n        if nb not in visited: visited.add(nb); q.append(nb)\nprint('False')",
+                            "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Course Schedule",
+                    "content": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nReturn true if you can finish all courses. Otherwise, return false.\n\n**Example 1:**\nInput: numCourses = 2, prerequisites = [[1,0]]\nOutput: true\nExplanation: To take course 1 you should have finished course 0. So it is possible.\n\n**Example 2:**\nInput: numCourses = 2, prerequisites = [[1,0],[0,1]]\nOutput: false\nExplanation: To take course 1 you should have finished course 0, and vice versa. Impossible.\n\n**Constraints:**\n- 1 <= numCourses <= 2000\n- 0 <= prerequisites.length <= 5000",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "2\n[[1,0]]",
+                            "expected_output": "True"
+                        },
+                        {
+                            "input": "2\n[[1,0],[0,1]]",
+                            "expected_output": "False"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "3\n[[0,1],[0,2],[1,2]]",
+                            "expected_output": "True"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Topological Sort (Kahn's BFS) - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nnumCourses = int(lines[0])\nprereqs = json.loads(lines[1])\ngraph = defaultdict(list)\nin_degree = [0] * numCourses\nfor a, b in prereqs:\n    graph[b].append(a); in_degree[a] += 1\nq = deque([i for i in range(numCourses) if in_degree[i] == 0])\ncount = 0\nwhile q:\n    node = q.popleft(); count += 1\n    for nb in graph[node]:\n        in_degree[nb] -= 1\n        if in_degree[nb] == 0: q.append(nb)\nprint(count == numCourses)",
+                            "complexity_analysis": "Time: O(V + E). Space: O(V + E).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Word Ladder",
+                    "content": "A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:\n- Every adjacent pair of words differs by a single letter.\n- Every si for 1 <= i <= k is in wordList.\n\nGiven two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.\n\n**Example 1:**\nInput: beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]\nOutput: 5\nExplanation: hit -> hot -> dot -> dog -> cog\n\n**Example 2:**\nInput: beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]\nOutput: 0\n\n**Constraints:**\n- 1 <= beginWord.length <= 10\n- All words have the same length.\n- 1 <= wordList.length <= 5000",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+                            "expected_output": "5"
+                        },
+                        {
+                            "input": "hit\ncog\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+                            "expected_output": "0"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "a\nc\n[\"a\",\"b\",\"c\"]",
+                            "expected_output": "2"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "BFS - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import deque, defaultdict\nlines = sys.stdin.read().strip().split('\\n')\nbegin = lines[0].strip()\nend = lines[1].strip()\nwords = json.loads(lines[2])\nif end not in words: print(0); exit()\nL = len(begin)\nall_combo = defaultdict(list)\nfor w in words:\n    for i in range(L): all_combo[w[:i]+'*'+w[i+1:]].append(w)\nq = deque([(begin, 1)])\nvisited = {begin}\nwhile q:\n    word, level = q.popleft()\n    for i in range(L):\n        pattern = word[:i]+'*'+word[i+1:]\n        for nb in all_combo[pattern]:\n            if nb == end: print(level+1); exit()\n            if nb not in visited: visited.add(nb); q.append((nb, level+1))\nprint(0)",
+                            "complexity_analysis": "Time: O(M^2 * N) where M is word length, N is word list size. Space: O(M^2 * N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Pacific Atlantic Water Flow",
+                    "content": "There is an m x n rectangular island that borders both the Pacific Ocean and the Atlantic Ocean. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.\n\nThe island receives a lot of rain, and the rain water can flow to neighboring cells directly north, south, east, and west if the neighboring cell's height is less than or equal to the current cell's height. Water can flow from any cell adjacent to an ocean into the ocean.\n\nReturn a 2D list of grid coordinates result where result[i] = [ri, ci] denotes that rain water can flow from cell (ri, ci) to both the Pacific and Atlantic oceans.\n\n**Example 1:**\nInput: heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]\nOutput: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]\n\n**Constraints:**\n- m == heights.length, n == heights[r].length\n- 1 <= m, n <= 200\n- 0 <= heights[r][c] <= 10^5",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+                            "expected_output": "[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[[1]]",
+                            "expected_output": "[[0, 0]]"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "DFS from Oceans - Python",
+                            "language": "python",
+                            "code": "import sys, json\nheights = json.loads(sys.stdin.read().strip())\nif not heights: print([]); exit()\nrows, cols = len(heights), len(heights[0])\npac, atl = set(), set()\ndef dfs(r, c, visit, prev_h):\n    if r<0 or r>=rows or c<0 or c>=cols or (r,c) in visit or heights[r][c]<prev_h: return\n    visit.add((r,c))\n    for dr,dc in [(1,0),(-1,0),(0,1),(0,-1)]: dfs(r+dr,c+dc,visit,heights[r][c])\nfor c in range(cols): dfs(0,c,pac,heights[0][c]); dfs(rows-1,c,atl,heights[rows-1][c])\nfor r in range(rows): dfs(r,0,pac,heights[r][0]); dfs(r,cols-1,atl,heights[r][cols-1])\nresult = sorted([list(x) for x in pac & atl])\nprint(json.dumps(result))",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Alien Dictionary",
+                    "content": "There is a new alien language that uses the English alphabet. However, the order of the letters is unknown to you.\n\nYou are given a list of strings words from the alien language's dictionary, where the strings in words are sorted lexicographically by the rules of this new language.\n\nDerive the order of letters in this language. If the order is invalid, return an empty string. If there are multiple valid orderings, return any of them.\n\n**Example 1:**\nInput: words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]\nOutput: \"wertf\"\n\n**Example 2:**\nInput: words = [\"z\",\"x\"]\nOutput: \"zx\"\n\n**Example 3:**\nInput: words = [\"z\",\"x\",\"z\"]\nOutput: \"\"\nExplanation: The order is invalid, so return empty string.\n\n**Constraints:**\n- 1 <= words.length <= 100\n- 1 <= words[i].length <= 100\n- words[i] consists of only lowercase English letters.",
+                    "level": "subtopic",
+                    "topic_name": "Graphs",
+                    "subtopic_name": "Graph Representation and BFS/DFS",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+                            "expected_output": "wertf"
+                        },
+                        {
+                            "input": "[\"z\",\"x\"]",
+                            "expected_output": "zx"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[\"z\",\"x\",\"z\"]",
+                            "expected_output": ""
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Topological Sort - Python",
+                            "language": "python",
+                            "code": "import sys, json\nfrom collections import defaultdict, deque\nwords = json.loads(sys.stdin.read().strip())\nadj = defaultdict(set)\nin_deg = {c: 0 for w in words for c in w}\nfor i in range(len(words)-1):\n    w1, w2 = words[i], words[i+1]\n    minLen = min(len(w1), len(w2))\n    if len(w1) > len(w2) and w1[:minLen] == w2[:minLen]: print(''); exit()\n    for j in range(minLen):\n        if w1[j] != w2[j]:\n            if w2[j] not in adj[w1[j]]: adj[w1[j]].add(w2[j]); in_deg[w2[j]] += 1\n            break\nq = deque([c for c in in_deg if in_deg[c] == 0])\nresult = []\nwhile q:\n    c = q.popleft(); result.append(c)\n    for nb in adj[c]:\n        in_deg[nb] -= 1\n        if in_deg[nb] == 0: q.append(nb)\nprint(''.join(result) if len(result) == len(in_deg) else '')",
+                            "complexity_analysis": "Time: O(C) where C is total characters. Space: O(1) since at most 26 letters.",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Fibonacci Number",
+                    "content": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.\n\nF(0) = 0, F(1) = 1\nF(n) = F(n - 1) + F(n - 2), for n > 1.\n\nGiven n, calculate F(n).\n\n**Example 1:**\nInput: n = 2\nOutput: 1\nExplanation: F(2) = F(1) + F(0) = 1 + 0 = 1.\n\n**Example 2:**\nInput: n = 3\nOutput: 2\n\n**Example 3:**\nInput: n = 4\nOutput: 3\n\n**Constraints:** 0 <= n <= 30",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "easy",
+                    "marks": 5,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "2",
+                            "expected_output": "1"
+                        },
+                        {
+                            "input": "3",
+                            "expected_output": "2"
+                        },
+                        {
+                            "input": "4",
+                            "expected_output": "3"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "0",
+                            "expected_output": "0"
+                        },
+                        {
+                            "input": "10",
+                            "expected_output": "55"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Bottom-Up - Python",
+                            "language": "python",
+                            "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1: print(n)\nelse:\n    a, b = 0, 1\n    for _ in range(2, n+1): a, b = b, a+b\n    print(b)",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": true
+                        },
+                        {
+                            "title": "Bottom-Up - Java",
+                            "language": "java",
+                            "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        int n = Integer.parseInt(new Scanner(System.in).nextLine().trim());\n        if (n <= 1) { System.out.println(n); return; }\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n        System.out.println(b);\n    }\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Bottom-Up - C++",
+                            "language": "cpp",
+                            "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    if (n <= 1) { cout << n << endl; return 0; }\n    int a=0, b=1;\n    for (int i=2; i<=n; i++) { int t=b; b=a+b; a=t; }\n    cout << b << endl;\n}",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": false
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "House Robber",
+                    "content": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.\n\n**Example 1:**\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3). Total = 1 + 3 = 4.\n\n**Example 2:**\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1). Total = 2 + 9 + 1 = 12.\n\n**Constraints:**\n- 1 <= nums.length <= 100\n- 0 <= nums[i] <= 400",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,2,3,1]",
+                            "expected_output": "4"
+                        },
+                        {
+                            "input": "[2,7,9,3,1]",
+                            "expected_output": "12"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[0]",
+                            "expected_output": "0"
+                        },
+                        {
+                            "input": "[100]",
+                            "expected_output": "100"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Bottom-Up DP - Python",
+                            "language": "python",
+                            "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\nif not nums: print(0)\nelif len(nums) == 1: print(nums[0])\nelse:\n    a, b = 0, 0\n    for n in nums: a, b = b, max(b, a + n)\n    print(b)",
+                            "complexity_analysis": "Time: O(N). Space: O(1).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Coin Change",
+                    "content": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n**Example 1:**\nInput: coins = [1,2,5], amount = 11\nOutput: 3\nExplanation: 11 = 5 + 5 + 1\n\n**Example 2:**\nInput: coins = [2], amount = 3\nOutput: -1\n\n**Example 3:**\nInput: coins = [1], amount = 0\nOutput: 0\n\n**Constraints:**\n- 1 <= coins.length <= 12\n- 1 <= coins[i] <= 2^31 - 1\n- 0 <= amount <= 10^4",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "medium",
+                    "marks": 10,
+                    "categories": [
+                        "learn",
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[1,2,5]\n11",
+                            "expected_output": "3"
+                        },
+                        {
+                            "input": "[2]\n3",
+                            "expected_output": "-1"
+                        },
+                        {
+                            "input": "[1]\n0",
+                            "expected_output": "0"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[1,2,5]\n100",
+                            "expected_output": "20"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Bottom-Up DP - Python",
+                            "language": "python",
+                            "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ncoins = json.loads(lines[0])\namount = int(lines[1])\ndp = [float('inf')] * (amount + 1)\ndp[0] = 0\nfor i in range(1, amount + 1):\n    for c in coins:\n        if c <= i: dp[i] = min(dp[i], dp[i - c] + 1)\nprint(dp[amount] if dp[amount] != float('inf') else -1)",
+                            "complexity_analysis": "Time: O(amount * len(coins)). Space: O(amount).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Edit Distance",
+                    "content": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character\n\n**Example 1:**\nInput: word1 = \"horse\", word2 = \"ros\"\nOutput: 3\nExplanation: horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')\n\n**Example 2:**\nInput: word1 = \"intention\", word2 = \"execution\"\nOutput: 5\n\n**Constraints:**\n- 0 <= word1.length, word2.length <= 500\n- word1 and word2 consist of lowercase English letters.",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "horse\nros",
+                            "expected_output": "3"
+                        },
+                        {
+                            "input": "intention\nexecution",
+                            "expected_output": "5"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "\nabc",
+                            "expected_output": "3"
+                        },
+                        {
+                            "input": "abc\nabc",
+                            "expected_output": "0"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Bottom-Up DP - Python",
+                            "language": "python",
+                            "code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nw1 = lines[0] if lines[0] else ''\nw2 = lines[1] if len(lines) > 1 else ''\nm, n = len(w1), len(w2)\ndp = [[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0] = i\nfor j in range(n+1): dp[0][j] = j\nfor i in range(1, m+1):\n    for j in range(1, n+1):\n        if w1[i-1] == w2[j-1]: dp[i][j] = dp[i-1][j-1]\n        else: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])\nprint(dp[m][n])",
+                            "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Word Break",
+                    "content": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.\n\n**Example 1:**\nInput: s = \"leetcode\", wordDict = [\"leet\",\"code\"]\nOutput: true\nExplanation: Return true because \"leetcode\" can be segmented as \"leet code\".\n\n**Example 2:**\nInput: s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]\nOutput: true\n\n**Example 3:**\nInput: s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]\nOutput: false\n\n**Constraints:**\n- 1 <= s.length <= 300\n- 1 <= wordDict.length <= 1000\n- 1 <= wordDict[i].length <= 20",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "leetcode\n[\"leet\",\"code\"]",
+                            "expected_output": "True"
+                        },
+                        {
+                            "input": "applepenapple\n[\"apple\",\"pen\"]",
+                            "expected_output": "True"
+                        },
+                        {
+                            "input": "catsandog\n[\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
+                            "expected_output": "False"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "a\n[\"a\"]",
+                            "expected_output": "True"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "Bottom-Up DP - Python",
+                            "language": "python",
+                            "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ns = lines[0].strip()\nwords = set(json.loads(lines[1]))\ndp = [False] * (len(s) + 1)\ndp[0] = True\nfor i in range(1, len(s) + 1):\n    for j in range(i):\n        if dp[j] and s[j:i] in words: dp[i] = True; break\nprint(dp[len(s)])",
+                            "complexity_analysis": "Time: O(N^2 * M) where M is max word length. Space: O(N).",
+                            "is_primary": true
+                        }
+                    ]
+                },
+                {
+                    "type": "coding",
+                    "title": "Longest Increasing Subsequence",
+                    "content": "Given an integer array nums, return the length of the longest strictly increasing subsequence.\n\n**Example 1:**\nInput: nums = [10,9,2,5,3,7,101,18]\nOutput: 4\nExplanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.\n\n**Example 2:**\nInput: nums = [0,1,0,3,2,3]\nOutput: 4\n\n**Example 3:**\nInput: nums = [7,7,7,7,7,7,7]\nOutput: 1\n\n**Constraints:**\n- 1 <= nums.length <= 2500\n- -10^4 <= nums[i] <= 10^4",
+                    "level": "subtopic",
+                    "topic_name": "Dynamic Programming",
+                    "subtopic_name": "Memoization and Tabulation",
+                    "difficulty": "hard",
+                    "marks": 15,
+                    "categories": [
+                        "practice",
+                        "skill_test"
+                    ],
+                    "test_cases_basic": [
+                        {
+                            "input": "[10,9,2,5,3,7,101,18]",
+                            "expected_output": "4"
+                        },
+                        {
+                            "input": "[0,1,0,3,2,3]",
+                            "expected_output": "4"
+                        },
+                        {
+                            "input": "[7,7,7,7,7,7,7]",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "test_cases_advanced": [
+                        {
+                            "input": "[1]",
+                            "expected_output": "1"
+                        }
+                    ],
+                    "solutions": [
+                        {
+                            "title": "DP - Python",
+                            "language": "python",
+                            "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\nn = len(nums)\ndp = [1] * n\nfor i in range(1, n):\n    for j in range(i):\n        if nums[j] < nums[i]: dp[i] = max(dp[i], dp[j] + 1)\nprint(max(dp))",
+                            "complexity_analysis": "Time: O(N^2). Space: O(N).",
+                            "is_primary": false
+                        },
+                        {
+                            "title": "Binary Search + Patience Sort - Python",
+                            "language": "python",
+                            "code": "import sys, json, bisect\nnums = json.loads(sys.stdin.read().strip())\ntails = []\nfor n in nums:\n    pos = bisect.bisect_left(tails, n)\n    if pos == len(tails): tails.append(n)\n    else: tails[pos] = n\nprint(len(tails))",
+                            "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                            "is_primary": true
+                        }
+                    ]
                 }
             ]
         }

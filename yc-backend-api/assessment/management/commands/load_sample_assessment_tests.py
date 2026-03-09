@@ -267,30 +267,17 @@ class Command(BaseCommand):
 
                 skill_test_kwargs["questions_config"] = q_config
 
-                # Check if skill test already exists
-                existing_skill_test = SkillTest.objects.filter(
-                    title=skill_test_kwargs["title"], course=course
-                ).first()
+                # Sync skill test (always update if exists)
+                skill_test, skill_test_created = SkillTest.objects.update_or_create(
+                    title=skill_test_kwargs["title"],
+                    course=course,
+                    defaults=skill_test_kwargs
+                )
 
-                if not existing_skill_test:
-                    SkillTest.objects.create(**skill_test_kwargs)
-                    self.stdout.write(
-                        f'✓ Created skill test: {skill_test_data["title"]}'
-                    )
+                if skill_test_created:
+                    self.stdout.write(f'✓ Created skill test: {skill_test.title}')
                 else:
-                    # Update questions_config if empty
-                    if not existing_skill_test.questions_config:
-                        existing_skill_test.questions_config = skill_test_kwargs[
-                            "questions_config"
-                        ]
-                        existing_skill_test.save()
-                        self.stdout.write(
-                            f'↻ Updated questions_config for existing skill test: {skill_test_data["title"]}'
-                        )
-                    else:
-                        self.stdout.write(
-                            f'→ Skill test already exists: {skill_test_data["title"]}'
-                        )
+                    self.stdout.write(f'→ Skill test exists (synced): {skill_test.title}')
 
             except Exception as e:
                 self.stdout.write(
@@ -371,27 +358,17 @@ class Command(BaseCommand):
 
                 contest_kwargs["questions_config"] = q_config
 
-                # Check if contest already exists
-                existing_contest = Contest.objects.filter(
-                    title=contest_kwargs["title"], organizer=contest_kwargs["organizer"]
-                ).first()
+                # Sync contest (always update if exists)
+                contest, contest_created = Contest.objects.update_or_create(
+                    title=contest_kwargs["title"],
+                    organizer=contest_kwargs["organizer"],
+                    defaults=contest_kwargs
+                )
 
-                if not existing_contest:
-                    Contest.objects.create(**contest_kwargs)
-                    self.stdout.write(f'✓ Created contest: {contest_data["title"]}')
+                if contest_created:
+                    self.stdout.write(f'✓ Created contest: {contest.title}')
                 else:
-                    if not existing_contest.questions_config:
-                        existing_contest.questions_config = contest_kwargs[
-                            "questions_config"
-                        ]
-                        existing_contest.save()
-                        self.stdout.write(
-                            f'↻ Updated questions_config for existing contest: {contest_data["title"]}'
-                        )
-                    else:
-                        self.stdout.write(
-                            f'→ Contest already exists: {contest_data["title"]}'
-                        )
+                    self.stdout.write(f'→ Contest exists (synced): {contest.title}')
 
             except Exception as e:
                 self.stdout.write(
@@ -483,25 +460,16 @@ class Command(BaseCommand):
 
                 mock_interview_kwargs["questions_config"] = q_config
 
-                # Check if mock interview already exists
-                existing_mock_interview = MockInterview.objects.filter(
-                    title=mock_interview_kwargs["title"]
-                ).first()
+                # Sync mock interview (always update if exists)
+                mock_interview, mock_interview_created = MockInterview.objects.update_or_create(
+                    title=mock_interview_kwargs["title"],
+                    defaults=mock_interview_kwargs
+                )
 
-                if not existing_mock_interview:
-                    MockInterview.objects.create(**mock_interview_kwargs)
-                    self.stdout.write(
-                        f'✓ Created mock interview: {mock_interview_data["title"]}'
-                    )
+                if mock_interview_created:
+                    self.stdout.write(f'✓ Created mock interview: {mock_interview.title}')
                 else:
-                    # Update existing mock interview with new data
-                    for key, value in mock_interview_kwargs.items():
-                        if key != "created_by":  # Don't update the creator
-                            setattr(existing_mock_interview, key, value)
-                    existing_mock_interview.save()
-                    self.stdout.write(
-                        f'↻ Updated existing mock interview: {mock_interview_data["title"]}'
-                    )
+                    self.stdout.write(f'→ Mock interview exists (synced): {mock_interview.title}')
 
             except Exception as e:
                 self.stdout.write(

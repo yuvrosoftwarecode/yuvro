@@ -249,19 +249,30 @@ class Command(BaseCommand):
                 if "order_index" in topic_data:
                     topic_defaults["order_index"] = topic_data["order_index"]
 
-                topic, topic_created = Topic.objects.get_or_create(
+                topic, topic_created = Topic.objects.update_or_create(
                     course=course,
                     name=topic_data["name"],
                     defaults=topic_defaults,
                 )
+
+                # Force the correct order_index via QuerySet.update() to bypass
+                # Topic.save()'s conflict-shifting logic which can scramble indexes
+                if "order_index" in topic_data:
+                    Topic.objects.filter(pk=topic.pk).update(
+                        order_index=topic_data["order_index"]
+                    )
+                    topic.refresh_from_db()
+
                 topic_map[topic_data["name"]] = topic
 
                 if topic_created:
                     self.stdout.write(f"  ✓ Created topic: {topic.name}")
+                else:
+                    self.stdout.write(f"  → Topic exists (synced): {topic.name}")
 
                 # Create subtopics
                 for subtopic_data in topic_data.get("subtopics", []):
-                    subtopic, subtopic_created = Subtopic.objects.get_or_create(
+                    subtopic, subtopic_created = Subtopic.objects.update_or_create(
                         topic=topic,
                         name=subtopic_data["name"],
                         defaults={
@@ -270,12 +281,19 @@ class Command(BaseCommand):
                         },
                     )
 
+                    # Force correct order_index via QuerySet.update() to bypass save() conflicts
+                    Subtopic.objects.filter(pk=subtopic.pk).update(
+                        order_index=subtopic_data["order_index"]
+                    )
+
                     # Store subtopic reference with topic name for lookup
                     subtopic_key = f"{topic_data['name']}::{subtopic_data['name']}"
                     subtopic_map[subtopic_key] = subtopic
 
                     if subtopic_created:
                         self.stdout.write(f"    ✓ Created subtopic: {subtopic.name}")
+                    else:
+                        self.stdout.write(f"    → Subtopic exists (synced): {subtopic.name}")
 
                     # Create videos for subtopic
                     for video_data in subtopic_data.get("videos", []):
@@ -397,35 +415,40 @@ class Command(BaseCommand):
                 "test_cases_advanced", []
             )
 
-        # Check if question already exists to avoid duplicates
-        existing_question = Question.objects.filter(
+        # Sync question (update if exists, create if not)
+        q_obj, q_created = Question.objects.update_or_create(
             title=question_kwargs["title"],
             course=question_kwargs.get("course"),
             topic=question_kwargs.get("topic"),
-        ).first()
+            defaults=question_kwargs,
+        )
 
-        if not existing_question:
-            q_obj = Question.objects.create(**question_kwargs)
-            
-            # Create solutions if they exist
-            if "solutions" in question_data:
-                for sol_data in question_data["solutions"]:
-                    QuestionSolution.objects.create(
-                        question=q_obj,
-                        title=sol_data.get("title", ""),
-                        language=sol_data.get("language", "python"),
-                        code=sol_data.get("code", ""),
-                        complexity_analysis=sol_data.get("complexity_analysis", ""),
-                        is_primary=sol_data.get("is_primary", False)
-                    )
-            
+        if q_created:
             self.stdout.write(
                 f'    ✓ Created question: {question_data["title"][:50]}...'
             )
         else:
             self.stdout.write(
-                f'    → Question already exists: {question_data["title"][:50]}...'
+                f'    → Question exists (synced): {question_data["title"][:50]}...'
             )
+
+        # Sync solutions if they exist
+        if "solutions" in question_data:
+            for sol_data in question_data["solutions"]:
+                sol_obj, sol_created = QuestionSolution.objects.update_or_create(
+                    question=q_obj,
+                    title=sol_data.get("title", ""),
+                    defaults={
+                        "language": sol_data.get("language", "python"),
+                        "code": sol_data.get("code", ""),
+                        "complexity_analysis": sol_data.get("complexity_analysis", ""),
+                        "is_primary": sol_data.get("is_primary", False),
+                    },
+                )
+                status = "✓ Created" if sol_created else "→ Synced"
+                self.stdout.write(
+                    f'      {status} solution: {sol_data.get("title", "Untitled")}'
+                )
 
     def load_assessments_from_json(self, data):
         """Load skill tests and contests from JSON data"""
