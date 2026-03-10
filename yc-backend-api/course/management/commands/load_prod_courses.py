@@ -44,7 +44,28 @@ class Command(LoadSampleCoursesCommand):
                 if course_file.exists():
                     self.stdout.write(f"\nProcessing production course from {entry.name}/course.json...")
                     data = self._try_load_json(course_file)
+                    
                     if data:
+                        # Stitch topic files if they exist
+                        topics_dir = entry / "topics"
+                        if topics_dir.exists() and topics_dir.is_dir():
+                            topics_data = []
+                            all_questions = []
+                            for topic_file in sorted(topics_dir.glob("*.json")):
+                                t_data = self._try_load_json(topic_file)
+                                if t_data:
+                                    # Extract questions if they are stored in the topic file
+                                    if "questions" in t_data:
+                                        all_questions.extend(t_data.pop("questions"))
+                                    topics_data.append(t_data)
+                            
+                            # Inject topics and merged questions back into the course object
+                            if "courses" in data and len(data["courses"]) > 0:
+                                data["courses"][0]["topics"] = topics_data
+                                if "questions" not in data["courses"][0]:
+                                    data["courses"][0]["questions"] = []
+                                data["courses"][0]["questions"].extend(all_questions)
+
                         try:
                             self.load_courses_from_json(data)
                             self.load_assessments_from_json(data)

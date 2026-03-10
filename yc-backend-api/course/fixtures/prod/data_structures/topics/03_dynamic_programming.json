@@ -1,0 +1,519 @@
+{
+    "name": "Dynamic Programming",
+    "order_index": 3,
+    "subtopics": [
+        {
+            "name": "Memoization and Tabulation",
+            "content": "Dynamic Programming (DP) solves problems by breaking them into overlapping subproblems and storing results to avoid recomputation. Memoization (top-down) caches recursive call results. Tabulation (bottom-up) iteratively fills a table from base cases up. DP requires optimal substructure (optimal solution built from optimal subproblem solutions) and overlapping subproblems.",
+            "order_index": 0,
+            "videos": [
+                {
+                    "title": "Dynamic Programming - Learn to Solve Algorithmic Problems",
+                    "video_link": "https://www.youtube.com/watch?v=oBt53YbR9Kk",
+                    "ai_context": "Comprehensive introduction to dynamic programming concepts"
+                },
+                {
+                    "title": "Memoization vs Tabulation - Top Down vs Bottom Up DP",
+                    "video_link": "https://www.youtube.com/watch?v=UBoVQcMCGCQ",
+                    "ai_context": "Comparing memoization and tabulation with practical examples"
+                }
+            ]
+        }
+    ],
+    "questions": [
+        {
+            "type": "mcq_single",
+            "title": "DP Optimal Substructure",
+            "content": "Which of the following is a required property for a problem to be solvable using Dynamic Programming?",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "easy",
+            "marks": 2,
+            "categories": [
+                "learn",
+                "skill_test"
+            ],
+            "mcq_options": [
+                {
+                    "text": "Optimal substructure and overlapping subproblems",
+                    "is_correct": true
+                },
+                {
+                    "text": "Greedy choice property only",
+                    "is_correct": false
+                },
+                {
+                    "text": "The problem must be NP-hard",
+                    "is_correct": false
+                },
+                {
+                    "text": "The input must be sorted",
+                    "is_correct": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Climbing Stairs",
+            "content": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?\n\n**Example 1:**\nInput: n = 2\nOutput: 2\nExplanation: Two ways - (1+1) or (2).\n\n**Example 2:**\nInput: n = 3\nOutput: 3\nExplanation: Three ways - (1+1+1), (1+2), or (2+1).\n\n**Constraints:** 1 <= n <= 45",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2",
+                    "expected_output": "2"
+                },
+                {
+                    "input": "3",
+                    "expected_output": "3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "10",
+                    "expected_output": "89"
+                },
+                {
+                    "input": "1",
+                    "expected_output": "1"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "3",
+                    "expected_output": "3",
+                    "explanation": "Three distinct ways to climb 3 stairs: 1+1+1, 1+2, 2+1."
+                }
+            ],
+            "inputFormat": "A single integer n.",
+            "outputFormat": "A single integer representing the number of distinct ways to climb n stairs.",
+            "solutions": [
+                {
+                    "title": "Top-Down DP (Memoization)",
+                    "language": "python",
+                    "code": "import sys\nn = int(sys.stdin.read().strip())\nmemo = {}\n\ndef climb(n):\n    if n <= 1:\n        return 1\n    if n in memo:\n        return memo[n]\n    memo[n] = climb(n-1) + climb(n-2)\n    return memo[n]\n\nprint(climb(n))",
+                    "complexity_analysis": "Time: O(N). Space: O(N) for memo dict + recursion stack.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP (Tabulation)",
+                    "language": "python",
+                    "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1:\n    print(1)\nelse:\n    a, b = 1, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    print(b)",
+                    "complexity_analysis": "Time: O(N). Space: O(1) \u2014 only two variables needed.",
+                    "is_primary": true
+                },
+                {
+                    "title": "Top-Down DP (Memoization) - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    static int[] memo;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = Integer.parseInt(sc.nextLine().trim());\n        memo = new int[n+1];\n        Arrays.fill(memo, -1);\n        System.out.println(climb(n));\n    }\n    static int climb(int n) {\n        if (n <= 1) return 1;\n        if (memo[n] != -1) return memo[n];\n        memo[n] = climb(n-1) + climb(n-2);\n        return memo[n];\n    }\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = Integer.parseInt(sc.nextLine().trim());\n        if (n <= 1) { System.out.println(1); return; }\n        int a = 1, b = 1;\n        for (int i = 2; i <= n; i++) { int temp = b; b = a + b; a = temp; }\n        System.out.println(b);\n    }\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Top-Down DP (Memoization) - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint memo[46];\nint climb(int n) {\n    if (n <= 1) return 1;\n    if (memo[n] != -1) return memo[n];\n    return memo[n] = climb(n-1) + climb(n-2);\n}\nint main() {\n    int n; cin >> n;\n    memset(memo, -1, sizeof(memo));\n    cout << climb(n) << endl;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    if (n <= 1) { cout << 1 << endl; return 0; }\n    int a = 1, b = 1;\n    for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n    cout << b << endl;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Longest Common Subsequence",
+            "content": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\n\nA subsequence is a string derived from the original by deleting some characters (or none) without changing the relative order of the remaining characters.\n\n**Example 1:**\nInput: text1 = abcde, text2 = ace\nOutput: 3\nExplanation: The LCS is 'ace' with length 3.\n\n**Example 2:**\nInput: text1 = abc, text2 = abc\nOutput: 3\n\n**Example 3:**\nInput: text1 = abc, text2 = def\nOutput: 0\n\n**Constraints:**\n- 1 <= text1.length, text2.length <= 1000\n- text1 and text2 consist of only lowercase English characters.",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "abcde\nace",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "abc\nabc",
+                    "expected_output": "3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "abc\ndef",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "oxcpqrsvwf\nshmtulqrypy",
+                    "expected_output": "2"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "abcde\nace",
+                    "expected_output": "3",
+                    "explanation": "The longest common subsequence is 'ace' which has length 3."
+                }
+            ],
+            "inputFormat": "The first line contains string text1.\nThe second line contains string text2.",
+            "outputFormat": "A single integer representing the length of the longest common subsequence.",
+            "solutions": [
+                {
+                    "title": "Top-Down DP (Memoization)",
+                    "language": "python",
+                    "code": "import sys\nfrom functools import lru_cache\ninput_data = sys.stdin.read().split('\\n')\ntext1 = input_data[0].strip()\ntext2 = input_data[1].strip()\n\n@lru_cache(maxsize=None)\ndef lcs(i, j):\n    if i == len(text1) or j == len(text2):\n        return 0\n    if text1[i] == text2[j]:\n        return 1 + lcs(i+1, j+1)\n    return max(lcs(i+1, j), lcs(i, j+1))\n\nprint(lcs(0, 0))",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N) for the memoization cache.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP (Tabulation)",
+                    "language": "python",
+                    "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\ntext1 = input_data[0].strip()\ntext2 = input_data[1].strip()\nm, n = len(text1), len(text2)\ndp = [[0] * (n + 1) for _ in range(m + 1)]\nfor i in range(m - 1, -1, -1):\n    for j in range(n - 1, -1, -1):\n        if text1[i] == text2[j]:\n            dp[i][j] = 1 + dp[i+1][j+1]\n        else:\n            dp[i][j] = max(dp[i+1][j], dp[i][j+1])\nprint(dp[0][0])",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N) for the DP table. Can be optimized to O(min(M,N)) with space optimization.",
+                    "is_primary": true
+                },
+                {
+                    "title": "Top-Down DP (Memoization) - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    static String t1, t2;\n    static int[][] memo;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        t1 = sc.nextLine().trim();\n        t2 = sc.nextLine().trim();\n        memo = new int[t1.length()][t2.length()];\n        for (int[] row : memo) Arrays.fill(row, -1);\n        System.out.println(lcs(0, 0));\n    }\n    static int lcs(int i, int j) {\n        if (i == t1.length() || j == t2.length()) return 0;\n        if (memo[i][j] != -1) return memo[i][j];\n        if (t1.charAt(i) == t2.charAt(j)) return memo[i][j] = 1 + lcs(i+1, j+1);\n        return memo[i][j] = Math.max(lcs(i+1, j), lcs(i, j+1));\n    }\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP (Tabulation) - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String t1 = sc.nextLine().trim();\n        String t2 = sc.nextLine().trim();\n        int m = t1.length(), n = t2.length();\n        int[][] dp = new int[m+1][n+1];\n        for (int i = m-1; i >= 0; i--)\n            for (int j = n-1; j >= 0; j--)\n                dp[i][j] = t1.charAt(i) == t2.charAt(j) ? 1 + dp[i+1][j+1] : Math.max(dp[i+1][j], dp[i][j+1]);\n        System.out.println(dp[0][0]);\n    }\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Top-Down DP (Memoization) - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nstring t1, t2;\nint memo[1001][1001];\nint lcs(int i, int j) {\n    if (i == (int)t1.size() || j == (int)t2.size()) return 0;\n    if (memo[i][j] != -1) return memo[i][j];\n    if (t1[i] == t2[j]) return memo[i][j] = 1 + lcs(i+1, j+1);\n    return memo[i][j] = max(lcs(i+1, j), lcs(i, j+1));\n}\nint main() {\n    getline(cin, t1); getline(cin, t2);\n    memset(memo, -1, sizeof(memo));\n    cout << lcs(0, 0) << endl;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up DP (Tabulation) - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string t1, t2;\n    getline(cin, t1); getline(cin, t2);\n    int m = t1.size(), n = t2.size();\n    vector<vector<int>> dp(m+1, vector<int>(n+1, 0));\n    for (int i = m-1; i >= 0; i--)\n        for (int j = n-1; j >= 0; j--)\n            dp[i][j] = t1[i] == t2[j] ? 1 + dp[i+1][j+1] : max(dp[i+1][j], dp[i][j+1]);\n    cout << dp[0][0] << endl;\n}",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Fibonacci Number",
+            "content": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.\n\nF(0) = 0, F(1) = 1\nF(n) = F(n - 1) + F(n - 2), for n > 1.\n\nGiven n, calculate F(n).\n\n**Example 1:**\nInput: n = 2\nOutput: 1\nExplanation: F(2) = F(1) + F(0) = 1 + 0 = 1.\n\n**Example 2:**\nInput: n = 3\nOutput: 2\n\n**Example 3:**\nInput: n = 4\nOutput: 3\n\n**Constraints:** 0 <= n <= 30",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "2",
+                    "expected_output": "1"
+                },
+                {
+                    "input": "3",
+                    "expected_output": "2"
+                },
+                {
+                    "input": "4",
+                    "expected_output": "3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "0",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "10",
+                    "expected_output": "55"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Bottom-Up - Python",
+                    "language": "python",
+                    "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1: print(n)\nelse:\n    a, b = 0, 1\n    for _ in range(2, n+1): a, b = b, a+b\n    print(b)",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Bottom-Up - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        int n = Integer.parseInt(new Scanner(System.in).nextLine().trim());\n        if (n <= 1) { System.out.println(n); return; }\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n        System.out.println(b);\n    }\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Bottom-Up - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int n; cin >> n;\n    if (n <= 1) { cout << n << endl; return 0; }\n    int a=0, b=1;\n    for (int i=2; i<=n; i++) { int t=b; b=a+b; a=t; }\n    cout << b << endl;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "House Robber",
+            "content": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.\n\n**Example 1:**\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3). Total = 1 + 3 = 4.\n\n**Example 2:**\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1). Total = 2 + 9 + 1 = 12.\n\n**Constraints:**\n- 1 <= nums.length <= 100\n- 0 <= nums[i] <= 400",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[1,2,3,1]",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "[2,7,9,3,1]",
+                    "expected_output": "12"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[0]",
+                    "expected_output": "0"
+                },
+                {
+                    "input": "[100]",
+                    "expected_output": "100"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Bottom-Up DP - Python",
+                    "language": "python",
+                    "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\nif not nums: print(0)\nelif len(nums) == 1: print(nums[0])\nelse:\n    a, b = 0, 0\n    for n in nums: a, b = b, max(b, a + n)\n    print(b)",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Coin Change",
+            "content": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n**Example 1:**\nInput: coins = [1,2,5], amount = 11\nOutput: 3\nExplanation: 11 = 5 + 5 + 1\n\n**Example 2:**\nInput: coins = [2], amount = 3\nOutput: -1\n\n**Example 3:**\nInput: coins = [1], amount = 0\nOutput: 0\n\n**Constraints:**\n- 1 <= coins.length <= 12\n- 1 <= coins[i] <= 2^31 - 1\n- 0 <= amount <= 10^4",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "medium",
+            "marks": 10,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[1,2,5]\n11",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "[2]\n3",
+                    "expected_output": "-1"
+                },
+                {
+                    "input": "[1]\n0",
+                    "expected_output": "0"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[1,2,5]\n100",
+                    "expected_output": "20"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Bottom-Up DP - Python",
+                    "language": "python",
+                    "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ncoins = json.loads(lines[0])\namount = int(lines[1])\ndp = [float('inf')] * (amount + 1)\ndp[0] = 0\nfor i in range(1, amount + 1):\n    for c in coins:\n        if c <= i: dp[i] = min(dp[i], dp[i - c] + 1)\nprint(dp[amount] if dp[amount] != float('inf') else -1)",
+                    "complexity_analysis": "Time: O(amount * len(coins)). Space: O(amount).",
+                    "is_primary": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Edit Distance",
+            "content": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character\n\n**Example 1:**\nInput: word1 = \"horse\", word2 = \"ros\"\nOutput: 3\nExplanation: horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')\n\n**Example 2:**\nInput: word1 = \"intention\", word2 = \"execution\"\nOutput: 5\n\n**Constraints:**\n- 0 <= word1.length, word2.length <= 500\n- word1 and word2 consist of lowercase English letters.",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "horse\nros",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "intention\nexecution",
+                    "expected_output": "5"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "\nabc",
+                    "expected_output": "3"
+                },
+                {
+                    "input": "abc\nabc",
+                    "expected_output": "0"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Bottom-Up DP - Python",
+                    "language": "python",
+                    "code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nw1 = lines[0] if lines[0] else ''\nw2 = lines[1] if len(lines) > 1 else ''\nm, n = len(w1), len(w2)\ndp = [[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0] = i\nfor j in range(n+1): dp[0][j] = j\nfor i in range(1, m+1):\n    for j in range(1, n+1):\n        if w1[i-1] == w2[j-1]: dp[i][j] = dp[i-1][j-1]\n        else: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])\nprint(dp[m][n])",
+                    "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
+                    "is_primary": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Word Break",
+            "content": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.\n\n**Example 1:**\nInput: s = \"leetcode\", wordDict = [\"leet\",\"code\"]\nOutput: true\nExplanation: Return true because \"leetcode\" can be segmented as \"leet code\".\n\n**Example 2:**\nInput: s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]\nOutput: true\n\n**Example 3:**\nInput: s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]\nOutput: false\n\n**Constraints:**\n- 1 <= s.length <= 300\n- 1 <= wordDict.length <= 1000\n- 1 <= wordDict[i].length <= 20",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "leetcode\n[\"leet\",\"code\"]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "applepenapple\n[\"apple\",\"pen\"]",
+                    "expected_output": "True"
+                },
+                {
+                    "input": "catsandog\n[\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
+                    "expected_output": "False"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "a\n[\"a\"]",
+                    "expected_output": "True"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Bottom-Up DP - Python",
+                    "language": "python",
+                    "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ns = lines[0].strip()\nwords = set(json.loads(lines[1]))\ndp = [False] * (len(s) + 1)\ndp[0] = True\nfor i in range(1, len(s) + 1):\n    for j in range(i):\n        if dp[j] and s[j:i] in words: dp[i] = True; break\nprint(dp[len(s)])",
+                    "complexity_analysis": "Time: O(N^2 * M) where M is max word length. Space: O(N).",
+                    "is_primary": true
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Longest Increasing Subsequence",
+            "content": "Given an integer array nums, return the length of the longest strictly increasing subsequence.\n\n**Example 1:**\nInput: nums = [10,9,2,5,3,7,101,18]\nOutput: 4\nExplanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.\n\n**Example 2:**\nInput: nums = [0,1,0,3,2,3]\nOutput: 4\n\n**Example 3:**\nInput: nums = [7,7,7,7,7,7,7]\nOutput: 1\n\n**Constraints:**\n- 1 <= nums.length <= 2500\n- -10^4 <= nums[i] <= 10^4",
+            "level": "subtopic",
+            "topic_name": "Dynamic Programming",
+            "subtopic_name": "Memoization and Tabulation",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "[10,9,2,5,3,7,101,18]",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "[0,1,0,3,2,3]",
+                    "expected_output": "4"
+                },
+                {
+                    "input": "[7,7,7,7,7,7,7]",
+                    "expected_output": "1"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "[1]",
+                    "expected_output": "1"
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "DP - Python",
+                    "language": "python",
+                    "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\nn = len(nums)\ndp = [1] * n\nfor i in range(1, n):\n    for j in range(i):\n        if nums[j] < nums[i]: dp[i] = max(dp[i], dp[j] + 1)\nprint(max(dp))",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Binary Search + Patience Sort - Python",
+                    "language": "python",
+                    "code": "import sys, json, bisect\nnums = json.loads(sys.stdin.read().strip())\ntails = []\nfor n in nums:\n    pos = bisect.bisect_left(tails, n)\n    if pos == len(tails): tails.append(n)\n    else: tails[pos] = n\nprint(len(tails))",
+                    "complexity_analysis": "Time: O(N log N). Space: O(N).",
+                    "is_primary": true
+                }
+            ]
+        }
+    ]
+}
