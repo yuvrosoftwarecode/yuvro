@@ -63,41 +63,14 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"Error reading JSON from {path}: {e}"))
                 return {}
 
-        self.stdout.write(f"\nAttempting to load primary skill tests from {skill_file_name}...")
+        self.stdout.write(f"\nAttempting to load skill tests from {primary_skill_file}...")
         
-        # Load skill tests primary
         skill_data = _load_json(primary_skill_file)
         if skill_data:
             try:
                 self.load_skill_tests_from_json(skill_data)
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"\nFailed while loading from primary JSON: {str(e)}"))
-                fallback_trigger = True
-        else:
-            fallback_trigger = True
-
-        # Process Fallback
-        if fallback_trigger and options.get("fallback"):
-            fallback_filename = options.get("fallback")
-            fallback_file = fixtures_dir / fallback_filename
-            
-            self.stdout.write(self.style.WARNING(f"\nPrimary file failed. Clearing partial data to engage fallback: {fallback_filename}"))
-            JobTest.objects.all().delete()
-            MockInterview.objects.all().delete()
-            Contest.objects.all().delete()
-            SkillTest.objects.all().delete()
-            
-            fallback_data = _load_json(fallback_file)
-            if fallback_data:
-                self.stdout.write(f"\nLoading fallback data from {fallback_filename}...")
-                try:
-                    self.load_skill_tests_from_json(fallback_data)
-                except Exception as fallback_e:
-                    self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} also failed: {str(fallback_e)}"))
-            else:
-                self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} could not be loaded."))
-        elif fallback_trigger:
-            self.stdout.write(self.style.ERROR("\nPrimary failed and no fallback specified for skill tests. Skipping."))
+                self.stdout.write(self.style.ERROR(f"\nFailed while loading from JSON: {str(e)}"))
 
         # Below we still load the original contests and mocks
         contests_file = fixtures_dir / "sample_assessment_contests_data.json"

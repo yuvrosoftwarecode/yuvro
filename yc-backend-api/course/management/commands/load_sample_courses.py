@@ -82,62 +82,27 @@ class Command(BaseCommand):
                     has_errors = True
                     
         else:
-            # Single file logic with explicit fallback
+            # Single file logic
             fixture_filename = options["file"]
-            primary_file = fixtures_dir / fixture_filename
+            primary_file = fixtures_dir / "dev" / fixture_filename
             
-            # Attempt 1: Try the primary file
-            self.stdout.write(f"\nAttempting to load primary JSON from {fixture_filename}...")
+            self.stdout.write(f"\nAttempting to load JSON from {primary_file}...")
             data = self._try_load_json(primary_file)
             
-            fallback_triggered = False
             if data:
                 try:
                     self.load_courses_from_json(data)
                     self.load_assessments_from_json(data)
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f"\nFailed while loading from primary JSON: {str(e)}"))
-                    fallback_triggered = True
-            else:
-                fallback_triggered = True
-                
-            # Attempt 2: If primary failed, clear partial data and run fallback
-            if fallback_triggered and options.get("fallback"):
-                fallback_filename = options.get("fallback")
-                fallback_file = fixtures_dir / fallback_filename
-                
-                self.stdout.write(self.style.WARNING(f"\nPrimary file failed. Clearing partial data to engage fallback: {fallback_filename}"))
-                Question.objects.all().delete()
-                Video.objects.all().delete()
-                Subtopic.objects.all().delete()
-                Topic.objects.all().delete()
-                Course.objects.all().delete()
-                SkillTest.objects.all().delete()
-                Contest.objects.all().delete()
-                
-                self.load_instructors() # Reload instructors since we cleared DB
-                
-                fallback_data = self._try_load_json(fallback_file)
-                if fallback_data:
-                    self.stdout.write(f"\nLoading fallback data from {fallback_filename}...")
-                    try:
-                        self.load_courses_from_json(fallback_data)
-                        self.load_assessments_from_json(fallback_data)
-                        has_errors = False # Rescued by fallback
-                    except Exception as fallback_e:
-                        self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} also failed: {str(fallback_e)}"))
-                        has_errors = True
-                else:
-                    self.stdout.write(self.style.ERROR(f"\nFatal: Fallback file {fallback_filename} could not be loaded."))
+                    self.stdout.write(self.style.ERROR(f"\nFailed while loading from JSON: {str(e)}"))
                     has_errors = True
-            elif fallback_triggered:
-                 self.stdout.write(self.style.ERROR("\nPrimary failed and no fallback specified. Aborting."))
-                 has_errors = True
+            else:
+                has_errors = True
 
         if not has_errors:
             self.stdout.write(
                 self.style.SUCCESS(
-                    "\nSuccessfully loaded all sample courses and assessments from JSON!"
+                    "\nSuccessfully loaded courses and assessments from JSON!"
                 )
             )
 
