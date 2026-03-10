@@ -190,8 +190,8 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 # Run async function in sync context
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                # Ensure we handle checking if stream is requested by user, for now we will set to True
-                is_streaming = True
+                # Check if stream is requested by user
+                is_streaming = validated_data.get("stream", False)
                 
                 if is_streaming:
                     return self._handle_streaming_response(

@@ -1330,18 +1330,6 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             status='started'
                         )
 
-                        # Create InterviewSession linking to ChatSession
-                        # This is crucial for the AI Assistant module to track it as an interview
-                        interview_session = InterviewSession.objects.create(
-                            user=user,
-                            chat_session=chat_session,
-                            role_title=mock_interview.title,
-                            role_level=experience_level,
-                            difficulty="Adaptive", # Mock interviews are generally adaptive
-                            duration_minutes=selected_duration or mock_interview.max_duration,
-                            status='started'
-                        )
-
                 # 4. Create NEW submission
                 submission = MockInterviewSubmission.objects.create(
                     mock_interview=mock_interview,
