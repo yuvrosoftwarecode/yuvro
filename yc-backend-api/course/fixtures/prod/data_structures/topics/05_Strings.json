@@ -2741,6 +2741,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n reverse(s.begin(),s.end());\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Reverse a String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}for(int i=n-1;i>=0;i--)printf(\"%c\",s[i]);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2836,6 +2843,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n string r=s;\n reverse(r.begin(),r.end());\n if(s==r) cout<<\"Palindrome\";\n else cout<<\"Not Palindrome\";\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Check Palindrome String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}int l=0,r=n-1;while(l<r){if(s[l]!=s[r]){printf(\"Not Palindrome\");return 0;}l++;r--;}printf(\"Palindrome\");}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2929,6 +2943,13 @@
                     "title": "Count Vowels and Consonants - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n int v=0,c=0;\n for(char &ch:s){\n  ch=tolower(ch);\n  if(isalpha(ch)){\n   if(ch=='a'||ch=='e'||ch=='i'||ch=='o'||ch=='u') v++;\n   else c++;\n  }\n }\n cout<<\"Vowels: \"<<v<<\"\\n\";\n cout<<\"Consonants: \"<<c;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Count Vowels and Consonants - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int v=0,c=0;for(int i=0;s[i];i++){char ch=tolower(s[i]);if(isalpha(ch)){if(ch=='a'||ch=='e'||ch=='i'||ch=='o'||ch=='u')v++;else c++;}}printf(\"Vowels: %d\\n\",v);printf(\"Consonants: %d\",c);}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3026,6 +3047,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n for(char &ch:s){\n  if(ch>='a' && ch<='z') ch=ch-32;\n }\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Convert String to Uppercase Without Built-in - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);for(int i=0;s[i];i++){if(s[i]>='a' && s[i]<='z') s[i]-=32;}printf(\"%s\",s);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3120,6 +3148,13 @@
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n string res=\"\";\n for(char ch:s) if(ch!=' ') res+=ch;\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Remove Spaces from String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);for(int i=0;s[i];i++){if(s[i]!=' ' && s[i]!='\\n')printf(\"%c\",s[i]);}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -3216,6 +3251,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,word; getline(cin,s);\n stringstream ss(s);\n vector<string> res;\n while(ss>>word){\n  reverse(word.begin(),word.end());\n  res.push_back(word);\n }\n for(int i=0;i<res.size();i++){\n  if(i) cout<<\" \";\n  cout<<res[i];\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Reverse Each Word in a Sentence - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s),start=0;for(int i=0;i<=n;i++){if(s[i]==' '||s[i]=='\\n'||s[i]=='\\0'){for(int j=i-1;j>=start;j--)printf(\"%c\",s[j]);if(s[i]==' ')printf(\" \");start=i+1;}}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3310,6 +3352,13 @@
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n set<char> seen;\n string res=\"\";\n for(char ch:s){\n  if(!seen.count(ch)){\n   seen.insert(ch);\n   res+=ch;\n  }\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Remove Duplicate Characters from String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main(){char s[10005];int seen[256]={0};fgets(s,sizeof(s),stdin);for(int i=0;s[i] && s[i]!='\\n';i++){if(!seen[(unsigned char)s[i]]){seen[(unsigned char)s[i]]=1;printf(\"%c\",s[i]);}}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -3406,6 +3455,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n unordered_map<char,int> mp;\n for(char ch:s) mp[ch]++;\n for(char ch:s){\n  if(mp[ch]==1){\n   cout<<ch;\n   return 0;\n  }\n }\n cout<<-1;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "First Non-Repeating Character - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int freq[256]={0};fgets(s,sizeof(s),stdin);for(int i=0;s[i] && s[i]!='\\n';i++)freq[(unsigned char)s[i]]++;for(int i=0;s[i] && s[i]!='\\n';i++){if(freq[(unsigned char)s[i]]==1){printf(\"%c\",s[i]);return 0;}}printf(\"-1\");}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3500,6 +3556,13 @@
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string a,b; getline(cin,a); getline(cin,b);\n sort(a.begin(),a.end());\n sort(b.begin(),b.end());\n if(a==b) cout<<\"Anagram\";\n else cout<<\"Not Anagram\";\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Check if Two Strings are Anagrams - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char a[10005],b[10005];int freq[256]={0};fgets(a,sizeof(a),stdin);fgets(b,sizeof(b),stdin);for(int i=0;a[i] && a[i]!='\\n';i++)freq[(unsigned char)a[i]]++;for(int i=0;b[i] && b[i]!='\\n';i++)freq[(unsigned char)b[i]]--;for(int i=0;i<256;i++){if(freq[i]!=0){printf(\"Not Anagram\");return 0;}}printf(\"Anagram\");}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -3596,6 +3659,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,old,rep;\n getline(cin,s);\n getline(cin,old);\n getline(cin,rep);\n size_t pos=0;\n while((pos=s.find(old,pos))!=string::npos){\n  s.replace(pos,old.length(),rep);\n  pos+=rep.length();\n }\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Replace All Occurrences of Substring - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],old[1005],rep[1005],res[20005];fgets(s,sizeof(s),stdin);fgets(old,sizeof(old),stdin);fgets(rep,sizeof(rep),stdin);old[strcspn(old,\"\\n\")]=0;rep[strcspn(rep,\"\\n\")]=0;int i=0,j=0,len=strlen(old);while(s[i]){if(strncmp(&s[i],old,len)==0){strcpy(&res[j],rep);j+=strlen(rep);i+=len;}else res[j++]=s[i++];}res[j]='\\0';printf(\"%s\",res);}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3689,6 +3759,13 @@
                     "title": "Implement strStr - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n size_t pos=s.find(p);\n if(pos==string::npos) cout<<-1;\n else cout<<pos;\n}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Implement strStr - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[1005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p);for(int i=0;i<=n-m;i++){int j=0;while(j<m && s[i+j]==p[j])j++;if(j==m){printf(\"%d\",i);return 0;}}printf(\"-1\");}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -3786,6 +3863,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n string res=\"\";\n int count=1;\n for(int i=1;i<=s.size();i++){\n  if(i<s.size() && s[i]==s[i-1]) count++;\n  else{\n   res+=s[i-1];\n   res+=to_string(count);\n   count=1;\n  }\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "String Compression - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}int count=1;for(int i=1;i<=n;i++){if(i<n && s[i]==s[i-1])count++;else{printf(\"%c%d\",s[i-1],count);count=1;}}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3881,6 +3965,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n set<char> st;\n int l=0,res=0;\n for(int r=0;r<s.size();r++){\n  while(st.count(s[r])){\n   st.erase(s[l++]);\n  }\n  st.insert(s[r]);\n  res=max(res,r-l+1);\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Longest Substring Without Repeating Characters - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int last[256];for(int i=0;i<256;i++)last[i]=-1;fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}int start=0,res=0;for(int i=0;i<n;i++){if(last[(unsigned char)s[i]]>=start)start=last[(unsigned char)s[i]]+1;last[(unsigned char)s[i]]=i;if(i-start+1>res)res=i-start+1;}printf(\"%d\",res);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3974,6 +4065,13 @@
                     "title": "Check String Rotation - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string a,b;\n getline(cin,a);\n getline(cin,b);\n if(a.size()==b.size() && (a+a).find(b)!=string::npos) cout<<\"True\";\n else cout<<\"False\";\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Check String Rotation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char a[10005],b[10005];fgets(a,sizeof(a),stdin);fgets(b,sizeof(b),stdin);a[strcspn(a,\"\\n\")]=0;b[strcspn(b,\"\\n\")]=0;if(strlen(a)==strlen(b)&&strstr(strcat(a,a),b))printf(\"True\");else printf(\"False\");}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -4071,6 +4169,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n int i=0,sign=1;\n long res=0;\n while(i<s.size() && s[i]==' ') i++;\n if(i<s.size() && (s[i]=='+'||s[i]=='-')){\n  if(s[i]=='-') sign=-1;\n  i++;\n }\n while(i<s.size() && isdigit(s[i])){\n  res=res*10+(s[i]-'0');\n  if(sign*res>INT_MAX){ cout<<INT_MAX; return 0; }\n  if(sign*res<INT_MIN){ cout<<INT_MIN; return 0; }\n  i++;\n }\n cout<<sign*res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "String to Integer (atoi) - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <limits.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int i=0,sign=1;long res=0;while(s[i]==' ')i++;if(s[i]=='+'||s[i]=='-'){if(s[i]=='-')sign=-1;i++;}while(isdigit(s[i])){res=res*10+(s[i]-'0');if(sign*res>INT_MAX){printf(\"%d\",INT_MAX);return 0;}if(sign*res<INT_MIN){printf(\"%d\",INT_MIN);return 0;}i++;}printf(\"%ld\",sign*res);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4166,6 +4271,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n for(int i=0;i<s.length();i++){\n  for(int j=i+1;j<=s.length();j++){\n   cout<<s.substr(i,j-i)<<\" \";\n  }\n }\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
+                },
+                {
+                    "title": "Print All Substrings of a String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int i=0;i<n;i++){for(int j=i;j<n;j++){for(int k=i;k<=j;k++)printf(\"%c\",s[k]);printf(\" \");}}}",
+                    "complexity_analysis": "Time: O(N^3). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4259,6 +4371,13 @@
                     "title": "Count Total Number of Substrings - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int n=s.length();\n cout<<n*(n+1)/2;\n}",
+                    "complexity_analysis": "Time: O(1). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Count Total Number of Substrings - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);long n=strlen(s);printf(\"%ld\",n*(n+1)/2);}",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": false
                 }
@@ -4356,6 +4475,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int maxlen=0;\n for(int i=0;i<s.length();i++){\n  set<char> st;\n  for(int j=i;j<s.length();j++){\n   if(st.count(s[j])) break;\n   st.insert(s[j]);\n   maxlen=max(maxlen,j-i+1);\n  }\n }\n cout<<maxlen;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Longest Substring with Unique Characters (Brute Force) - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),max=0;for(int i=0;i<n;i++){int vis[256]={0};for(int j=i;j<n;j++){if(vis[(unsigned char)s[j]])break;vis[(unsigned char)s[j]]=1;if(j-i+1>max)max=j-i+1;}}printf(\"%d\",max);}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4449,6 +4575,13 @@
                     "title": "Count Substrings Starting with Vowel and Ending with Consonant - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nbool vowel(char c){\n string v=\"aeiouAEIOU\";\n return v.find(c)!=string::npos;\n}\nint main(){\n string s; cin>>s;\n int count=0;\n for(int i=0;i<s.length();i++){\n  if(vowel(s[i])){\n   for(int j=i;j<s.length();j++){\n    if(!vowel(s[j])) count++;\n   }\n  }\n }\n cout<<count;\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Count Substrings Starting with Vowel and Ending with Consonant - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint vowel(char c){char v[]=\"aeiouAEIOU\";for(int i=0;i<10;i++)if(c==v[i])return 1;return 0;}int main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),count=0;for(int i=0;i<n;i++){if(vowel(s[i])){for(int j=i;j<n;j++){if(!vowel(s[j]))count++;}}}printf(\"%d\",count);}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -4546,6 +4679,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; int k;\n cin>>s>>k;\n for(int i=0;i<=s.length()-k;i++){\n  cout<<s.substr(i,k)<<\" \";\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Find All Substrings of Length K - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int n=strlen(s);for(int i=0;i<=n-k;i++){for(int j=i;j<i+k;j++)printf(\"%c\",s[j]);printf(\" \");}}",
+                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4641,6 +4781,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> mp;\n int left=0,maxlen=0;\n for(int right=0;right<s.length();right++){\n  if(mp.count(s[right]) && mp[s[right]]>=left)\n   left=mp[s[right]]+1;\n  mp[s[right]]=right;\n  maxlen=max(maxlen,right-left+1);\n }\n cout<<maxlen;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Longest Substring Without Repeating Characters (Optimized) - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int last[256];for(int i=0;i<256;i++)last[i]=-1;int n=strlen(s),start=0,max=0;for(int i=0;i<n;i++){if(last[(unsigned char)s[i]]>=start)start=last[(unsigned char)s[i]]+1;last[(unsigned char)s[i]]=i;if(i-start+1>max)max=i-start+1;}printf(\"%d\",max);}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4734,6 +4881,13 @@
                     "title": "Longest Palindromic Substring - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nstring expand(string s,int l,int r){\n while(l>=0 && r<s.length() && s[l]==s[r]){l--;r++;}\n return s.substr(l+1,r-l-1);\n}\nint main(){\n string s; cin>>s;\n string res=\"\";\n for(int i=0;i<s.length();i++){\n  string a=expand(s,i,i);\n  string b=expand(s,i,i+1);\n  if(a.length()>res.length()) res=a;\n  if(b.length()>res.length()) res=b;\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Palindromic Substring - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nvoid expand(char*s,int l,int r,int*n,int*st,int*mx){while(l>=0&&r<*n&&s[l]==s[r]){if(r-l+1>*mx){*mx=r-l+1;*st=l;}l--;r++;}}int main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),start=0,max=0;for(int i=0;i<n;i++){expand(s,i,i,&n,&start,&max);expand(s,i,i+1,&n,&start,&max);}for(int i=start;i<start+max;i++)printf(\"%c\",s[i]);}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -4831,6 +4985,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint atMostK(string s,int k){\n unordered_map<char,int> mp;\n int left=0,res=0;\n for(int right=0;right<s.length();right++){\n  mp[s[right]]++;\n  while(mp.size()>k){\n   mp[s[left]]--;\n   if(mp[s[left]]==0) mp.erase(s[left]);\n   left++;\n  }\n  res+=right-left+1;\n }\n return res;\n}\nint main(){\n string s; int k;\n cin>>s>>k;\n cout<<atMostK(s,k)-atMostK(s,k-1);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(K).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Substrings with Exactly K Distinct Characters - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint atMost(char*s,int k){int freq[256]={0},left=0,res=0,distinct=0;for(int right=0;s[right];right++){if(freq[(unsigned char)s[right]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[left]]==0)distinct--;left++;}res+=right-left+1;}return res;}int main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);printf(\"%d\",atMost(s,k)-atMost(s,k-1));}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4925,6 +5086,13 @@
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,t; cin>>s>>t;\n unordered_map<char,int> need,have;\n for(char c:t) need[c]++;\n int formed=0,l=0,minlen=INT_MAX,start=0;\n for(int r=0;r<s.length();r++){\n  have[s[r]]++;\n  if(need.count(s[r]) && have[s[r]]==need[s[r]]) formed++;\n  while(l<=r && formed==need.size()){\n   if(r-l+1<minlen){minlen=r-l+1;start=l;}\n   have[s[l]]--;\n   if(need.count(s[l]) && have[s[l]]<need[s[l]]) formed--;\n   l++;\n  }\n }\n if(minlen==INT_MAX) cout<<-1;\n else cout<<s.substr(start,minlen);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(M).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Smallest Substring Containing All Characters of Another String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\nint main(){char s[10005],t[1005];scanf(\"%s\",s);scanf(\"%s\",t);int need[256]={0},have[256]={0};for(int i=0;t[i];i++)need[(unsigned char)t[i]]++;int count=strlen(t),start=0,min=INT_MAX,l=0;for(int r=0;s[r];r++){have[(unsigned char)s[r]]++;if(need[(unsigned char)s[r]]&&have[(unsigned char)s[r]]<=need[(unsigned char)s[r]])count--;while(count==0){if(r-l+1<min){min=r-l+1;start=l;}have[(unsigned char)s[l]]--;if(need[(unsigned char)s[l]]&&have[(unsigned char)s[l]]<need[(unsigned char)s[l]])count++;l++;}}if(min==INT_MAX)printf(\"-1\");else for(int i=start;i<start+min;i++)printf(\"%c\",s[i]);}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
             ]
@@ -5021,6 +5189,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; int k;\n cin>>s>>k;\n unordered_map<char,int> mp;\n int l=0,maxlen=0;\n for(int r=0;r<s.length();r++){\n  mp[s[r]]++;\n  while(mp.size()>k){\n   mp[s[l]]--;\n   if(mp[s[l]]==0) mp.erase(s[l]);\n   l++;\n  }\n  maxlen=max(maxlen,r-l+1);\n }\n cout<<maxlen;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(K).",
                     "is_primary": false
+                },
+                {
+                    "title": "Longest Substring with At Most K Distinct Characters - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int freq[256]={0},distinct=0,l=0,max=0;for(int r=0;s[r];r++){if(freq[(unsigned char)s[r]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[l]]==0)distinct--;l++;}if(r-l+1>max)max=r-l+1;}printf(\"%d\",max);}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5116,6 +5291,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,t;getline(cin,s);getline(cin,t);\n unordered_map<char,int> need,have;\n for(char c:t) need[c]++;\n int req=need.size(),formed=0,l=0;\n int minLen=INT_MAX,start=0;\n for(int r=0;r<s.size();r++){\n  char c=s[r];\n  have[c]++;\n  if(need.count(c)&&have[c]==need[c]) formed++;\n  while(l<=r&&formed==req){\n   if(r-l+1<minLen){minLen=r-l+1;start=l;}\n   have[s[l]]--;\n   if(need.count(s[l])&&have[s[l]]<need[s[l]]) formed--;\n   l++;\n  }\n }\n if(minLen==INT_MAX) cout<<-1;\n else cout<<s.substr(start,minLen);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(M).",
                     "is_primary": false
+                },
+                {
+                    "title": "Minimum Window Substring - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\nint main(){char s[10005],t[1005];scanf(\"%s\",s);scanf(\"%s\",t);int need[256]={0},have[256]={0};for(int i=0;t[i];i++)need[(unsigned char)t[i]]++;int count=strlen(t),l=0,start=0,min=INT_MAX;for(int r=0;s[r];r++){have[(unsigned char)s[r]]++;if(need[(unsigned char)s[r]]&&have[(unsigned char)s[r]]<=need[(unsigned char)s[r]])count--;while(count==0){if(r-l+1<min){min=r-l+1;start=l;}have[(unsigned char)s[l]]--;if(need[(unsigned char)s[l]]&&have[(unsigned char)s[l]]<need[(unsigned char)s[l]])count++;l++;}}if(min==INT_MAX)printf(\"-1\");else for(int i=start;i<start+min;i++)printf(\"%c\",s[i]);}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5209,6 +5391,13 @@
                     "title": "Equal 0s and 1s Substrings - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n unordered_map<int,int> mp;\n mp[0]=1;\n int sum=0,res=0;\n for(char c:s){\n  sum+=c=='1'?1:-1;\n  res+=mp[sum];\n  mp[sum]++;\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Equal 0s and 1s Substrings - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#define MAX 200005\nint main(){char s[MAX];scanf(\"%s\",s);int n=strlen(s);int freq[2*MAX]={0};int offset=MAX,sum=0,res=0;freq[offset]=1;for(int i=0;i<n;i++){sum+=s[i]=='1'?1:-1;res+=freq[sum+offset];freq[sum+offset]++;}printf(\"%d\",res);}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -5306,6 +5495,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;int k;cin>>s>>k;\n unordered_map<char,int> mp;\n int l=0,res=0;\n for(int r=0;r<s.size();r++){\n  mp[s[r]]++;\n  while(mp.size()>k){\n   mp[s[l]]--;\n   if(mp[s[l]]==0) mp.erase(s[l]);\n   l++;\n  }\n  if(mp.size()==k) res=max(res,r-l+1);\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(K).",
                     "is_primary": false
+                },
+                {
+                    "title": "Longest Substring with K Unique - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int freq[256]={0},distinct=0,l=0,res=0;for(int r=0;s[r];r++){if(freq[(unsigned char)s[r]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[l]]==0)distinct--;l++;}if(distinct==k && r-l+1>res)res=r-l+1;}printf(\"%d\",res);}",
+                    "complexity_analysis": "Time: O(N). Space: O(256).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5399,6 +5595,13 @@
                     "title": "Substrings Divisible by K - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;int k;cin>>s>>k;\n int n=s.size(),res=0;\n for(int i=0;i<n;i++){\n  long long num=0;\n  for(int j=i;j<n;j++){\n   num=num*10+(s[j]-'0');\n   if(num%k==0) res++;\n  }\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Substrings Divisible by K - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int n=strlen(s),res=0;for(int i=0;i<n;i++){long long num=0;for(int j=i;j<n;j++){num=num*10+(s[j]-'0');if(num%k==0)res++;}}printf(\"%d\",res);}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -5496,6 +5699,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n int n=s.size(),res=0;\n vector<vector<bool>> dp(n,vector<bool>(n,false));\n for(int g=0;g<n;g++){\n  for(int i=0;i+g<n;i++){\n   int j=i+g;\n   if(g==0) dp[i][j]=true;\n   else if(g==1) dp[i][j]=(s[i]==s[j]);\n   else dp[i][j]=(s[i]==s[j]&&dp[i+1][j-1]);\n   if(dp[i][j]) res++;\n  }\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
+                },
+                {
+                    "title": "Palindromic Substrings DP - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1005];scanf(\"%s\",s);int n=strlen(s),res=0;int dp[n][n];for(int g=0;g<n;g++){for(int i=0;i+g<n;i++){int j=i+g;if(g==0)dp[i][j]=1;else if(g==1)dp[i][j]=(s[i]==s[j]);else dp[i][j]=(s[i]==s[j]&&dp[i+1][j-1]);if(dp[i][j])res++;}}printf(\"%d\",res);}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5589,6 +5799,13 @@
                     "title": "Check Pattern Exists - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n cout<<(s.find(p)!=string::npos?\"True\":\"False\");\n}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Check Pattern Exists - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;if(strstr(s,p))printf(\"True\");else printf(\"False\");}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -5686,6 +5903,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n int count=0;\n for(int i=0;i<=s.size()-p.size();i++)\n  if(s.substr(i,p.size())==p) count++;\n cout<<count;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Pattern Occurrences - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p),count=0;for(int i=0;i<=n-m;i++){if(strncmp(&s[i],p,m)==0)count++;}printf(\"%d\",count);}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5779,6 +6003,13 @@
                     "title": "Find First Pattern Index - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n size_t pos=s.find(p);\n if(pos==string::npos) cout<<-1;\n else cout<<pos;\n}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Find First Pattern Index - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;char *pos=strstr(s,p);if(pos)printf(\"%ld\",pos-s);else printf(\"-1\");}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -5876,6 +6107,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n cout<<(s.find(p)!=string::npos?\"Yes\":\"No\");\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Pattern Appears At Least Once - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;if(strstr(s,p))printf(\"Yes\");else printf(\"No\");}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -5969,6 +6207,13 @@
                     "title": "Find All Pattern Indices - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;\n getline(cin,s);\n getline(cin,p);\n bool found=false;\n for(int i=0;i<=s.size()-p.size();i++){\n  if(s.substr(i,p.size())==p){\n   cout<<i<<\" \";\n   found=true;\n  }\n }\n if(!found) cout<<-1;\n}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Find All Pattern Indices - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&s[i],p,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6066,6 +6311,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string text,pat;\n getline(cin,text);\n getline(cin,pat);\n int n=text.size(),m=pat.size();\n bool found=false;\n for(int i=0;i<=n-m;i++){\n  if(text.substr(i,m)==pat){\n   cout<<i<<\" \";\n   found=true;\n  }\n }\n if(!found) cout<<-1;\n}",
                     "complexity_analysis": "Average Time: O(N+M). Worst: O(N*M). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Rabin-Karp Pattern Matching - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;int n=strlen(text),m=strlen(pat),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&text[i],pat,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
+                    "complexity_analysis": "Average Time: O(N+M). Worst: O(N*M). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6159,6 +6411,13 @@
                     "title": "KMP First Occurrence - C++",
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string text,pat;\n getline(cin,text);\n getline(cin,pat);\n size_t pos=text.find(pat);\n if(pos==string::npos) cout<<-1;\n else cout<<pos;\n}",
+                    "complexity_analysis": "Time: O(N+M). Space: O(M).",
+                    "is_primary": false
+                },
+                {
+                    "title": "KMP First Occurrence - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;char *pos=strstr(text,pat);if(pos)printf(\"%ld\",pos-text);else printf(\"-1\");}",
                     "complexity_analysis": "Time: O(N+M). Space: O(M).",
                     "is_primary": false
                 }
@@ -6256,6 +6515,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string text,pat;\n getline(cin,text);\n getline(cin,pat);\n bool found=false;\n for(int i=0;i<=text.size()-pat.size();i++){\n  if(text.substr(i,pat.size())==pat){\n   cout<<i<<\" \";\n   found=true;\n  }\n }\n if(!found) cout<<-1;\n}",
                     "complexity_analysis": "Time: O(N+M). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "KMP All Occurrences - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;int n=strlen(text),m=strlen(pat),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&text[i],pat,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
+                    "complexity_analysis": "Time: O(N+M). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6350,6 +6616,13 @@
                     "language": "cpp",
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n string t=(s+s).substr(1,2*s.size()-2);\n cout<<(t.find(s)!=string::npos?\"true\":\"false\");\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Repeated Substring Pattern - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int len=1;len<=n/2;len++){if(n%len==0){int ok=1;for(int i=len;i<n;i++){if(s[i]!=s[i%len]){ok=0;break;}}if(ok){printf(\"true\");return 0;}}}printf(\"false\");}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -6446,6 +6719,13 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string p,line;\n getline(cin,p);\n getline(cin,line);\n stringstream ss(line);\n vector<string> w;string x;\n while(ss>>x) w.push_back(x);\n if(p.size()!=w.size()){cout<<\"false\";return 0;}\n map<char,string> m1; map<string,char> m2;\n for(int i=0;i<p.size();i++){\n  if((m1.count(p[i])&&m1[p[i]]!=w[i])||(m2.count(w[i])&&m2[w[i]]!=p[i])){\n   cout<<\"false\";return 0;\n  }\n  m1[p[i]]=w[i]; m2[w[i]]=p[i];\n }\n cout<<\"true\";\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Pattern Mapping - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char p[1005],line[10005];fgets(p,sizeof(p),stdin);fgets(line,sizeof(line),stdin);p[strcspn(p,\"\\n\")]=0;line[strcspn(line,\"\\n\")]=0;char *words[1000];int wc=0;char *t=strtok(line,\" \");while(t){words[wc++]=t;t=strtok(NULL,\" \");}if(strlen(p)!=wc){printf(\"false\");return 0;}char map[256][100],rev[1000];for(int i=0;i<256;i++) map[i][0]='\\0';for(int i=0;i<wc;i++) rev[i]=-1;for(int i=0;i<wc;i++){char c=p[i];if(map[(int)c][0]=='\\0') strcpy(map[(int)c],words[i]);else if(strcmp(map[(int)c],words[i])){printf(\"false\");return 0;}for(int j=0;j<i;j++) if(strcmp(words[i],words[j])==0 && p[j]!=c){printf(\"false\");return 0;}}printf(\"true\");}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6539,6 +6819,13 @@
                     "title": "Wildcard Pattern Matching - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;cin>>s>>p;\n int m=s.size(),n=p.size();\n vector<vector<bool>> dp(m+1,vector<bool>(n+1,false));\n dp[0][0]=true;\n for(int j=1;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-1];\n for(int i=1;i<=m;i++){\n  for(int j=1;j<=n;j++){\n   if(p[j-1]=='?'||s[i-1]==p[j-1]) dp[i][j]=dp[i-1][j-1];\n   else if(p[j-1]=='*') dp[i][j]=dp[i][j-1]||dp[i-1][j];\n  }\n }\n cout<<(dp[m][n]?\"true\":\"false\");\n}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Wildcard Pattern Matching - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nint main(){char s[1005],p[1005];scanf(\"%s\",s);scanf(\"%s\",p);int m=strlen(s),n=strlen(p);bool dp[m+1][n+1];memset(dp,0,sizeof(dp));dp[0][0]=1;for(int j=1;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-1];for(int i=1;i<=m;i++){for(int j=1;j<=n;j++){if(p[j-1]=='?'||s[i-1]==p[j-1]) dp[i][j]=dp[i-1][j-1];else if(p[j-1]=='*') dp[i][j]=dp[i][j-1]||dp[i-1][j];}}printf(dp[m][n]?\"true\":\"false\");}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
                     "is_primary": false
                 }
@@ -6636,6 +6923,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;getline(cin,s);getline(cin,p);\n int m=s.size(),n=p.size();\n vector<vector<bool>> dp(m+1,vector<bool>(n+1,false));\n dp[0][0]=true;\n for(int j=2;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];\n for(int i=1;i<=m;i++){\n  for(int j=1;j<=n;j++){\n   if(p[j-1]=='.'||p[j-1]==s[i-1]) dp[i][j]=dp[i-1][j-1];\n   else if(p[j-1]=='*'){\n    dp[i][j]=dp[i][j-2];\n    if(p[j-2]=='.'||p[j-2]==s[i-1]) dp[i][j]|=dp[i-1][j];\n   }\n  }\n }\n cout<<(dp[m][n]?\"true\":\"false\");\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
                     "is_primary": false
+                },
+                {
+                    "title": "Regular Expression Matching - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nint main(){char s[1005],p[1005];scanf(\"%s\",s);scanf(\"%s\",p);int m=strlen(s),n=strlen(p);bool dp[m+1][n+1];memset(dp,0,sizeof(dp));dp[0][0]=1;for(int j=2;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];for(int i=1;i<=m;i++){for(int j=1;j<=n;j++){if(p[j-1]=='.'||p[j-1]==s[i-1]) dp[i][j]=dp[i-1][j-1];else if(p[j-1]=='*'){dp[i][j]=dp[i][j-2];if(p[j-2]=='.'||p[j-2]==s[i-1]) dp[i][j]|=dp[i-1][j];}}}printf(dp[m][n]?\"true\":\"false\");}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6729,6 +7023,13 @@
                     "title": "Longest Prefix Also Suffix - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n int n=s.size();\n vector<int> lps(n);\n int j=0;\n for(int i=1;i<n;i++){\n  while(j>0 && s[i]!=s[j]) j=lps[j-1];\n  if(s[i]==s[j]) j++;\n  lps[i]=j;\n }\n if(lps[n-1]>0) cout<<s.substr(0,lps[n-1]);\n else cout<<-1;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Prefix Also Suffix - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),lps[n];lps[0]=0;int j=0;for(int i=1;i<n;i++){while(j>0&&s[i]!=s[j]) j=lps[j-1];if(s[i]==s[j]) j++;lps[i]=j;}if(lps[n-1]>0){for(int i=0;i<lps[n-1];i++) printf(\"%c\",s[i]);}else printf(\"-1\");}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -6826,6 +7127,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string text,pattern;\n getline(cin,text);\n getline(cin,pattern);\n string s=pattern+\"$\"+text;\n int n=s.size();\n vector<int> z(n);\n int l=0,r=0;\n for(int i=1;i<n;i++){\n  if(i<=r) z[i]=min(r-i+1,z[i-l]);\n  while(i+z[i]<n && s[z[i]]==s[i+z[i]]) z[i]++;\n  if(i+z[i]-1>r){\n   l=i;\n   r=i+z[i]-1;\n  }\n }\n int res=-1;\n for(int i=pattern.size()+1;i<n;i++){\n  if(z[i]==pattern.size()){\n   res=i-pattern.size()-1;\n   break;\n  }\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N+M). Space: O(N+M).",
                     "is_primary": false
+                },
+                {
+                    "title": "Z Algorithm Pattern Matching - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];scanf(\"%s\",text);scanf(\"%s\",pat);char s[20010];sprintf(s,\"%s$%s\",pat,text);int n=strlen(s),z[n];memset(z,0,sizeof(z));int l=0,r=0;for(int i=1;i<n;i++){if(i<=r) z[i]=(r-i+1<z[i-l]?r-i+1:z[i-l]);while(i+z[i]<n && s[z[i]]==s[i+z[i]]) z[i]++;if(i+z[i]-1>r){l=i;r=i+z[i]-1;}}int res=-1,m=strlen(pat);for(int i=m+1;i<n;i++){if(z[i]==m){res=i-m-1;break;}}printf(\"%d\",res);}",
+                    "complexity_analysis": "Time: O(N+M). Space: O(N+M).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6920,6 +7228,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;\n cin>>s;\n string t=s+s;\n t=t.substr(1,t.size()-2);\n if(t.find(s)!=string::npos) cout<<\"true\";\n else cout<<\"false\";\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Repeated Substring Pattern - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int len=1;len<=n/2;len++){if(n%len==0){int ok=1;for(int i=len;i<n;i++){if(s[i]!=s[i%len]){ok=0;break;}}if(ok){printf(\"true\");return 0;}}}printf(\"false\");}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -7016,6 +7331,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n string r=s;\n reverse(r.begin(),r.end());\n cout<<(s==r?\"true\":\"false\");\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Check if a String is Palindrome - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int l=0,r=strlen(s)-1;while(l<r){if(s[l++]!=s[r--]){printf(\"false\");return 0;}}printf(\"true\");}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -7109,6 +7431,13 @@
                     "title": "Palindrome After Removing One Character - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nbool check(string &s,int l,int r){\n while(l<r){\n  if(s[l]!=s[r]) return false;\n  l++;r--;\n }\n return true;\n}\nint main(){\n string s;cin>>s;\n int l=0,r=s.size()-1;\n while(l<r){\n  if(s[l]!=s[r]){\n   cout<<(check(s,l+1,r)||check(s,l,r-1)?\"true\":\"false\");\n   return 0;\n  }\n  l++;r--;\n }\n cout<<\"true\";\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Palindrome After Removing One Character - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint check(char*s,int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[10005];scanf(\"%s\",s);int l=0,r=strlen(s)-1;while(l<r){if(s[l]!=s[r]){printf(check(s,l+1,r)||check(s,l,r-1)?\"true\":\"false\");return 0;}l++;r--;}printf(\"true\");}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -7206,6 +7535,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nbool isPal(string s){\n int l=0,r=s.size()-1;\n while(l<r) if(s[l++]!=s[r--]) return false;\n return true;\n}\nint main(){\n string s;cin>>s;\n int n=s.size(),c=0;\n for(int i=0;i<n;i++){\n  for(int j=i;j<n;j++){\n   if(isPal(s.substr(i,j-i+1))) c++;\n  }\n }\n cout<<c;\n}",
                     "complexity_analysis": "Time: O(N^3). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Palindromic Substrings (Brute Force) - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s,int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[1005];scanf(\"%s\",s);int n=strlen(s),c=0;for(int i=0;i<n;i++){for(int j=i;j<n;j++){if(isPal(s,i,j)) c++;}}printf(\"%d\",c);}",
+                    "complexity_analysis": "Time: O(N^3). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -7299,6 +7635,13 @@
                     "title": "Find Longest Palindrome Word in Sentence - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nbool isPal(string s){\n int l=0,r=s.size()-1;\n while(l<r) if(s[l++]!=s[r--]) return false;\n return true;\n}\nint main(){\n string line;getline(cin,line);\n stringstream ss(line);\n string w,ans=\"\";\n while(ss>>w){\n  if(isPal(w)&&w.size()>ans.size()) ans=w;\n }\n if(ans==\"\") cout<<-1;\n else cout<<ans;\n}",
+                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Find Longest Palindrome Word in Sentence - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s){int l=0,r=strlen(s)-1;while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char line[10005];fgets(line,sizeof(line),stdin);line[strcspn(line,\"\\n\")]=0;char *w=strtok(line,\" \");char ans[1000]=\"\";while(w){if(isPal(w)&&strlen(w)>strlen(ans)) strcpy(ans,w);w=strtok(NULL,\" \");}if(strlen(ans)==0) printf(\"-1\");else printf(\"%s\",ans);}",
                     "complexity_analysis": "Time: O(N*K). Space: O(1).",
                     "is_primary": false
                 }
@@ -7396,6 +7739,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s;cin>>s;\n string r=s;\n reverse(r.begin(),r.end());\n cout<<(s==r?\"true\":\"false\");\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Reverse String and Compare - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);char r[1000];for(int i=0;i<n;i++) r[i]=s[n-i-1];r[n]='\\0';printf(strcmp(s,r)==0?\"true\":\"false\");}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -7489,6 +7839,13 @@
                     "title": "Longest Palindromic Substring - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int start=0,maxLen=1;\n auto expand=[&](int l,int r){\n  while(l>=0 && r<s.size() && s[l]==s[r]){\n   if(r-l+1>maxLen){\n    start=l;\n    maxLen=r-l+1;\n   }\n   l--; r++;\n  }\n };\n for(int i=0;i<s.size();i++){\n  expand(i,i);\n  expand(i,i+1);\n }\n cout<<s.substr(start,maxLen);\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Palindromic Substring - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nvoid expand(char*s,int l,int r,int*start,int*maxLen){int n=strlen(s);while(l>=0&&r<n&&s[l]==s[r]){if(r-l+1>*maxLen){*start=l;*maxLen=r-l+1;}l--;r++;}}int main(){char s[1000];scanf(\"%s\",s);int start=0,maxLen=1;int n=strlen(s);for(int i=0;i<n;i++){expand(s,i,i,&start,&maxLen);expand(s,i,i+1,&start,&maxLen);}for(int i=start;i<start+maxLen;i++) printf(\"%c\",s[i]);}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -7586,6 +7943,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint expand(string &s,int l,int r){\n int count=0;\n while(l>=0 && r<s.size() && s[l]==s[r]){\n  count++;\n  l--; r++;\n }\n return count;\n}\nint main(){\n string s; cin>>s;\n int res=0;\n for(int i=0;i<s.size();i++){\n  res+=expand(s,i,i);\n  res+=expand(s,i,i+1);\n }\n cout<<res;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Palindromic Substrings Using Center Expansion - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint expand(char*s,int l,int r){int c=0,n=strlen(s);while(l>=0&&r<n&&s[l]==s[r]){c++;l--;r++;}return c;}int main(){char s[1000];scanf(\"%s\",s);int res=0,n=strlen(s);for(int i=0;i<n;i++){res+=expand(s,i,i);res+=expand(s,i,i+1);}printf(\"%d\",res);}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -7679,6 +8043,13 @@
                     "title": "Partition String into Palindromes - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nstring s;\nunordered_map<int,int> memo;\nbool isPal(int l,int r){\n while(l<r) if(s[l++]!=s[r--]) return false;\n return true;\n}\nint dfs(int i){\n if(i==s.size()) return 1;\n if(memo.count(i)) return memo[i];\n int res=0;\n for(int j=i;j<s.size();j++)\n  if(isPal(i,j)) res+=dfs(j+1);\n return memo[i]=res;\n}\nint main(){\n cin>>s;\n cout<<dfs(0);\n}",
+                    "complexity_analysis": "Time: O(N^3). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Partition String into Palindromes - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nchar s[1000];int n;int isPal(int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int dfs(int i){if(i==n) return 1;int res=0;for(int j=i;j<n;j++) if(isPal(i,j)) res+=dfs(j+1);return res;}int main(){scanf(\"%s\",s);n=strlen(s);printf(\"%d\",dfs(0));}",
                     "complexity_analysis": "Time: O(N^3). Space: O(N).",
                     "is_primary": false
                 }
@@ -7776,6 +8147,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int n=s.size();\n vector<vector<int>> dp(n,vector<int>(n));\n for(int len=2;len<=n;len++){\n  for(int i=0;i<=n-len;i++){\n   int j=i+len-1;\n   if(s[i]==s[j]) dp[i][j]=dp[i+1][j-1];\n   else dp[i][j]=1+min(dp[i+1][j],dp[i][j-1]);\n  }\n }\n cout<<dp[0][n-1];\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
+                },
+                {
+                    "title": "Minimum Deletions to Make String Palindrome - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint min(int a,int b){return a<b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int dp[n][n];memset(dp,0,sizeof(dp));for(int len=2;len<=n;len++){for(int i=0;i<=n-len;i++){int j=i+len-1;if(s[i]==s[j]) dp[i][j]=dp[i+1][j-1];else dp[i][j]=1+min(dp[i+1][j],dp[i][j-1]);}}printf(\"%d\",dp[0][n-1]);}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
+                    "is_primary": false
                 }
             ]
         },
@@ -7869,6 +8247,13 @@
                     "title": "Check if Permutation of String Can Form Palindrome - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> mp;\n for(char c:s) mp[c]++;\n int odd=0;\n for(auto &p:mp) if(p.second%2) odd++;\n cout<<(odd<=1?\"true\":\"false\");\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Check if Permutation of String Can Form Palindrome - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;i<strlen(s);i++) freq[s[i]]++;int odd=0;for(int i=0;i<256;i++) if(freq[i]%2) odd++;printf(odd<=1?\"true\":\"false\");}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -7966,6 +8351,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int n=s.size();\n vector<vector<bool>> pal(n,vector<bool>(n,false));\n vector<int> cut(n);\n for(int i=0;i<n;i++){\n int min_cut=i;\n for(int j=0;j<=i;j++){\n if(s[i]==s[j]&&(i-j<2||pal[j+1][i-1])){\n pal[j][i]=true;\n min_cut=j==0?0:min(min_cut,cut[j-1]+1);\n }\n }\n cut[i]=min_cut;\n }\n cout<<cut[n-1];\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
+                },
+                {
+                    "title": "Minimum Cuts for Palindrome Partitioning - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint min(int a,int b){return a<b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int cut[n];int pal[n][n];memset(pal,0,sizeof(pal));for(int i=0;i<n;i++){int m=i;for(int j=0;j<=i;j++){if(s[i]==s[j]&&(i-j<2||pal[j+1][i-1])){pal[j][i]=1;m=j==0?0:min(m,cut[j-1]+1);} }cut[i]=m;}printf(\"%d\",cut[n-1]);}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8059,6 +8451,13 @@
                     "title": "Longest Palindromic Subsequence - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int n=s.size();\n vector<vector<int>> dp(n,vector<int>(n));\n for(int i=n-1;i>=0;i--){\n dp[i][i]=1;\n for(int j=i+1;j<n;j++){\n if(s[i]==s[j]) dp[i][j]=2+dp[i+1][j-1];\n else dp[i][j]=max(dp[i+1][j],dp[i][j-1]);\n }\n }\n cout<<dp[0][n-1];\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Palindromic Subsequence - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint max(int a,int b){return a>b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int dp[n][n];for(int i=0;i<n;i++) dp[i][i]=1;for(int i=n-1;i>=0;i--){for(int j=i+1;j<n;j++){if(s[i]==s[j]) dp[i][j]=2+dp[i+1][j-1];else dp[i][j]=max(dp[i+1][j],dp[i][j-1]);}}printf(\"%d\",dp[0][n-1]);}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
                 }
@@ -8156,6 +8555,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nbool isPal(string s){\n int l=0,r=s.size()-1;\n while(l<r) if(s[l++]!=s[r--]) return false;\n return true;\n}\nint main(){\n string s; cin>>s;\n int n=s.size();\n set<string> st;\n for(int mask=1;mask<(1<<n);mask++){\n string t=\"\";\n for(int i=0;i<n;i++) if(mask&(1<<i)) t+=s[i];\n if(isPal(t)) st.insert(t);\n }\n cout<<st.size();\n}",
                     "complexity_analysis": "Time: O(2^N * N). Space: O(2^N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Distinct Palindromic Subsequences - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s){int l=0,r=strlen(s)-1;while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[20];scanf(\"%s\",s);int n=strlen(s);char subs[1<<10][20];int count=0;for(int mask=1;mask<(1<<n);mask++){char t[20];int k=0;for(int i=0;i<n;i++) if(mask&(1<<i)) t[k++]=s[i];t[k]='\\0';if(isPal(t)){int unique=1;for(int j=0;j<count;j++) if(strcmp(subs[j],t)==0) unique=0;if(unique) strcpy(subs[count++],t);} }printf(\"%d\",count);}",
+                    "complexity_analysis": "Time: O(2^N * N). Space: O(2^N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8249,6 +8655,13 @@
                     "title": "Find All Palindrome Partitions of String - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint countRes=0;\n\nbool isPal(string s){\n int l=0,r=s.size()-1;\n while(l<r){\n if(s[l++]!=s[r--]) return false;\n }\n return true;\n}\n\nvoid dfs(string &s,int start){\n if(start==s.size()){\n countRes++;\n return;\n }\n for(int i=start;i<s.size();i++){\n string sub=s.substr(start,i-start+1);\n if(isPal(sub)) dfs(s,i+1);\n }\n}\n\nint main(){\n string s; cin>>s;\n dfs(s,0);\n cout<<countRes;\n}",
+                    "complexity_analysis": "Time: O(2^N * N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Find All Palindrome Partitions of String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nchar s[1000];int n,count=0;int isPal(int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}void dfs(int start){if(start==n){count++;return;}for(int i=start;i<n;i++) if(isPal(start,i)) dfs(i+1);}int main(){scanf(\"%s\",s);n=strlen(s);dfs(0);printf(\"%d\",count);}",
                     "complexity_analysis": "Time: O(2^N * N). Space: O(N).",
                     "is_primary": false
                 }
@@ -8346,6 +8759,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n string r=s;\n reverse(r.begin(),r.end());\n for(int i=0;i<=s.size();i++){\n if(s.substr(0,s.size()-i)==r.substr(i)){\n cout<<r.substr(0,i)+s;\n break;\n }\n }\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Shortest Palindrome by Adding Characters in Front - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);char r[1000];strcpy(r,s);int n=strlen(s);for(int i=0;i<n/2;i++){char t=r[i];r[i]=r[n-i-1];r[n-i-1]=t;}for(int i=0;i<=n;i++){if(strncmp(s,r+i,n-i)==0){for(int j=0;j<i;j++) printf(\"%c\",r[j]);printf(\"%s\",s);break;}}}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8440,6 +8860,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n for(char &c:s){\n if(isupper(c)) c=tolower(c);\n else if(islower(c)) c=toupper(c);\n }\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1) in-place modification.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Toggle Case of Characters in String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++){if(isupper(s[i])) s[i]=tolower(s[i]);else if(islower(s[i])) s[i]=toupper(s[i]);}printf(\"%s\",s);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -8536,6 +8963,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n for(char c:s) cout<<c<<' ';\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1) for in-place printing.",
                     "is_primary": false
+                },
+                {
+                    "title": "Convert String to Character Array - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++){printf(\"%c\",s[i]);if(i!=strlen(s)-1) printf(\" \");}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8630,6 +9064,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n string result;\n for(char c:s) if(!isdigit(c)) result+=c;\n cout<<result;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N) for the result string.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Remove Digits from String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++) if(!isdigit(s[i])) printf(\"%c\",s[i]);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -8726,6 +9167,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n for(auto &entry:freq) cout<<entry.first<<':'<<entry.second<<' ';\n}",
                     "complexity_analysis": "Time: O(N). Space: O(U).",
                     "is_primary": false
+                },
+                {
+                    "title": "Count Frequency of Each Character - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;s[i];i++) freq[s[i]]++;for(int i=0;s[i];i++){if(freq[s[i]]!=0){printf(\"%c:%d \",s[i],freq[s[i]]);freq[s[i]]=0;}}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8821,6 +9269,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n sort(s.begin(),s.end());\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(1) for in-place sorting.",
                     "is_primary": false
+                },
+                {
+                    "title": "Sort Characters in String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(char*)a-*(char*)b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);qsort(s,n,sizeof(char),cmp);printf(\"%s\",s);}",
+                    "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -8895,6 +9350,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n vector<string> strings(n);\n for(int i=0;i<n;i++) cin>>strings[i];\n unordered_map<string,vector<string>> anagramGroups;\n for(string s:strings){\n string key=s;\n sort(key.begin(),key.end());\n anagramGroups[key].push_back(s);\n }\n for(auto &entry:anagramGroups){\n cout<<'[';\n for(string s:entry.second) cout<<s<<' ';\n cout<<']'<<endl;\n }\n}",
                     "complexity_analysis": "Time: O(N K log K). Space: O(N K).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Group Anagrams from List of Strings - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#define MAX 100\nint cmp(const void*a,const void*b){return *(char*)a-*(char*)b;}int main(){int n;scanf(\"%d\",&n);char arr[MAX][50],sorted[MAX][50];for(int i=0;i<n;i++){scanf(\"%s\",arr[i]);strcpy(sorted[i],arr[i]);qsort(sorted[i],strlen(sorted[i]),sizeof(char),cmp);}int used[MAX]={0};for(int i=0;i<n;i++){if(used[i])continue;printf(\"[\");for(int j=i;j<n;j++){if(strcmp(sorted[i],sorted[j])==0){printf(\"%s \",arr[j]);used[j]=1;}}printf(\"]\\n\");}}",
+                    "complexity_analysis": "Time: O(N*K log K). Space: O(N*K).",
                     "is_primary": false
                 }
             ]
@@ -8971,6 +9433,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n string result;\n for(size_t i=0;i<s.length();i+=2){\n char c=s[i];\n int freq=s[i+1]-'0';\n result+=string(freq,c);\n }\n cout<<result;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(M).",
                     "is_primary": false
+                },
+                {
+                    "title": "Decode a Run-Length Encoded String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i+=2){char c=s[i];int freq=s[i+1]-'0';for(int j=0;j<freq;j++) printf(\"%c\",c);}return 0;}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -9045,6 +9514,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n string result;\n int count=1;\n for(size_t i=1;i<s.length();i++){\n if(s[i]==s[i-1]) count++;\n else{\n result+=s[i-1]+to_string(count);\n count=1;\n }\n }\n result+=s.back()+to_string(count);\n cout<<result;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(M).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Encode String Using Run-Length Encoding - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int count=1;for(int i=1;i<=strlen(s);i++){if(s[i]==s[i-1]) count++;else{printf(\"%c%d\",s[i-1],count);count=1;}}}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -9121,6 +9597,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n vector<string> strings(n);\n for(int i=0;i<n;i++) cin>>strings[i];\n int maxFreq=0;\n string result;\n for(string s:strings){\n unordered_map<char,int> freqMap;\n for(char c:s) freqMap[c]++;\n int freq=0;\n for(auto &entry:freqMap) freq=max(freq,entry.second);\n if(freq>maxFreq){\n maxFreq=freq;\n result=s;\n }\n }\n cout<<result;\n}",
                     "complexity_analysis": "Time: O(N M). Space: O(U).",
                     "is_primary": false
+                },
+                {
+                    "title": "Find String with Highest Frequency Character - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){int n;scanf(\"%d\",&n);char s[1000],result[1000];int maxFreq=0;for(int i=0;i<n;i++){scanf(\"%s\",s);int freq[256]={0},localMax=0;for(int j=0;s[j];j++){freq[s[j]]++;if(freq[s[j]]>localMax)localMax=freq[s[j]];}if(localMax>maxFreq){maxFreq=localMax;strcpy(result,s);}}printf(\"%s\",result);}",
+                    "complexity_analysis": "Time: O(N*M). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -9194,6 +9677,13 @@
                     "title": "Rearrange String So No Two Adjacent Characters Are Same - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n pair<int,char> prev={0,'#'};\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n if(prev.first>0) maxHeap.push(prev);\n count--;\n prev={count,char};\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
+                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Rearrange String So No Two Adjacent Characters Are Same - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\ntypedef struct{char c;int freq;}Node;int cmp(const void*a,const void*b){return ((Node*)b)->freq-((Node*)a)->freq;}int main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;s[i];i++) freq[s[i]]++;Node arr[256];int n=0;for(int i=0;i<256;i++) if(freq[i]){arr[n].c=i;arr[n++].freq=freq[i];}qsort(arr,n,sizeof(Node),cmp);char res[1000];int k=0;while(1){int done=1;for(int i=0;i<n;i++){if(arr[i].freq>0){res[k++]=arr[i].c;arr[i].freq--;done=0;}}if(done)break;}res[k]='\\0';for(int i=1;i<k;i++) if(res[i]==res[i-1]){printf(\"-1\");return 0;}printf(\"%s\",res);}",
                     "complexity_analysis": "Time: O(N log U). Space: O(U).",
                     "is_primary": false
                 }
@@ -9291,6 +9781,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nstring decodeString(const string &s){\n stack<pair<string,int>> st;\n string currentString;\n int currentNum=0;\n for(char c:s){\n if(isdigit(c)){\n currentNum=currentNum*10+(c-'0');\n }else if(c=='['){\n st.push({currentString,currentNum});\n currentString=\"\";\n currentNum=0;\n }else if(c==']'){\n auto [prevString,num]=st.top(); st.pop();\n string temp=prevString;\n for(int i=0;i<num;i++) temp+=currentString;\n currentString=temp;\n }else{\n currentString+=c;\n }\n }\n return currentString;\n}\nint main(){\n string s; cin>>s;\n cout<<decodeString(s);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Decode Nested Encoded String - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\nchar stackStr[100][1000];int stackNum[100];int top=-1;int main(){char s[1000];scanf(\"%s\",s);char curr[1000]=\"\";int num=0;for(int i=0;s[i];i++){if(isdigit(s[i])) num=num*10+(s[i]-'0');else if(s[i]=='['){top++;stackNum[top]=num;strcpy(stackStr[top],curr);num=0;curr[0]='\\0';}else if(s[i]==']'){char temp[1000];strcpy(temp,stackStr[top]);for(int j=0;j<stackNum[top];j++) strcat(temp,curr);strcpy(curr,temp);top--;}else{int len=strlen(curr);curr[len]=s[i];curr[len+1]='\\0';}}printf(\"%s\",curr);}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -9385,6 +9882,13 @@
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n pair<int,char> prev={0,'#'};\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n if(prev.first>0) maxHeap.push(prev);\n count--;\n prev={count,char};\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
                     "complexity_analysis": "Time: O(N log U). Space: O(U).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Reorganize String So Adjacent Characters Are Different - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[26]={0};for(int i=0;s[i];i++) freq[s[i]-'a']++;int n=strlen(s),max=0;for(int i=0;i<26;i++) if(freq[i]>max) max=freq[i];if(max>(n+1)/2){printf(\"-1\");return 0;}char res[1000];int idx=0;for(int i=0;i<26;i++)while(freq[i]--){res[idx]=i+'a';idx+=2;if(idx>=n) idx=1;}printf(\"%s\",res);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -9481,6 +9985,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n sort(s.begin(),s.end());\n cout<<s;\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Smallest Lexicographical String After Operations - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(char*)a-*(char*)b;}int main(){char s[1000];scanf(\"%s\",s);qsort(s,strlen(s),sizeof(char),cmp);printf(\"%s\",s);}",
+                    "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -9576,6 +10087,13 @@
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int k; cin>>k;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n queue<pair<char,int>> q;\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n count--;\n q.push({char,count});\n if(q.size()>=k){\n auto [frontChar,frontCount]=q.front(); q.pop();\n if(frontCount>0) maxHeap.push({frontCount,frontChar});\n }\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
                     "complexity_analysis": "Time: O(N log U). Space: O(U).",
                     "is_primary": false
+                },
+                {
+                    "title": "Rearrange String With Distance K Between Same Characters - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nint main(){char s[1000];int k;scanf(\"%s%d\",s,&k);int freq[26]={0};for(int i=0;s[i];i++) freq[s[i]-'a']++;int n=strlen(s);char res[1000];int idx=0;for(int i=0;i<26;i++){while(freq[i]--){if(idx>=n) idx=(idx%n)+1;res[idx]=i+'a';idx+=k;}}printf(\"%s\",res);}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -9669,6 +10187,13 @@
                     "title": "Minimum Swaps to Make Two Strings Equal - C++",
                     "language": "cpp",
                     "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s1,s2; cin>>s1>>s2;\n int xCount=0,yCount=0;\n for(size_t i=0;i<s1.size();i++){\n char a=s1[i],b=s2[i];\n if(a=='x' && b=='y') xCount++;\n else if(a=='y' && b=='x') yCount++;\n }\n if((xCount+yCount)%2!=0) cout<<-1;\n else cout<<xCount/2+yCount/2+xCount%2;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Minimum Swaps to Make Two Strings Equal - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s1[1000],s2[1000];scanf(\"%s%s\",s1,s2);int x=0,y=0;for(int i=0;s1[i];i++){if(s1[i]=='x'&&s2[i]=='y')x++;else if(s1[i]=='y'&&s2[i]=='x')y++;}if((x+y)%2){printf(\"-1\");return 0;}printf(\"%d\",x/2+y/2+x%2);}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
