@@ -16,7 +16,7 @@ import logging
 
 from ai_assistant.models import AIAgent, ChatSession, ChatMessage
 from authentication.models import Profile
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
+from authentication.permissions import IsOwnerOrContentManagerOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import (
     Contest, MockInterview, JobTest, SkillTest,
@@ -40,7 +40,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     submission_lookup_field = 'certification_exam'
     submission_related_field = 'certification_submission'
     
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'course__name']
@@ -243,7 +243,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
 class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CertificationSubmission.objects.all()
     serializer_class = CertificationSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     
     def get_queryset(self):
         qs = super().get_queryset()
@@ -253,7 +253,7 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 from course.models import Question
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
+from authentication.permissions import IsOwnerOrContentManagerOrAdmin
 from .mixins import ProctoringMixin
 from django.core.mail import send_mail
 from django.conf import settings
@@ -270,7 +270,7 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
     submission_lookup_field = 'contest'
     submission_related_field = 'contest_submission'
     
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'organizer', 'description']
@@ -484,7 +484,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
     question_activity_model = SkillTestQuestionActivity
     submission_lookup_field = 'skill_test'
     submission_related_field = 'skill_test_submission'
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'description']
@@ -694,7 +694,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
 class MockInterviewViewSet(viewsets.ModelViewSet):
     queryset = MockInterview.objects.all()
     serializer_class = MockInterviewSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
     search_fields = ['title', 'description']
@@ -892,7 +892,7 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
 class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SkillTestSubmission.objects.all()
     serializer_class = SkillTestSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'marks']
     
@@ -907,7 +907,7 @@ class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
 class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CertificationSubmission.objects.all()
     serializer_class = CertificationSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'marks']
     
