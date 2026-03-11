@@ -287,32 +287,7 @@ const AnnouncementsScreen: React.FC = () => {
     });
   };
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return <Badge variant="destructive" className="text-[11px] uppercase px-1.5 py-0 font-bold">Urgent</Badge>;
-      case 'important':
-        return <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px] uppercase px-1.5 py-0 font-bold">Important</Badge>;
-      default:
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[11px] uppercase px-1.5 py-0 font-bold">Normal</Badge>;
-    }
-  };
 
-  const getLevelBadge = (level: string) => {
-    switch (level) {
-      case 'college':
-        return <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[11px] uppercase px-1.5 py-0 font-bold">College</Badge>;
-      default:
-        return <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[11px] uppercase px-1.5 py-0 font-bold">Department</Badge>;
-    }
-  };
-
-  const getStatusBadge = (isActive: boolean) => {
-    if (isActive) {
-      return <Badge className="bg-green-50 text-green-700 border-green-200 text-[11px] uppercase px-1.5 py-0 font-bold">Active</Badge>;
-    }
-    return <Badge variant="secondary" className="text-[11px] uppercase px-1.5 py-0 font-bold">Inactive</Badge>;
-  };
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
