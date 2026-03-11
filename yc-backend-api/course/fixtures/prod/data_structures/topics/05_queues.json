@@ -108,6 +108,13 @@
                 {
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint queue[10000];\nint front=0,rear=0;\n\nint ping(int t){\n    queue[rear++]=t;\n\n    while(queue[front] < t-3000) front++;\n\n    return rear-front;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass RecentCounter {\n    queue<int> q;\npublic:\n    RecentCounter() {}\n    int ping(int t) {\n        q.push(t);\n        while(q.front() < t - 3000) q.pop();\n        return q.size();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -179,6 +186,13 @@
                 {
                     "language": "c",
                     "code": "#include<stdio.h>\n\nint queue[10000];\nint front=0,rear=0,size;\ndouble sum=0;\n\ndouble next(int val){\n    queue[rear++]=val;\n    sum+=val;\n\n    if(rear-front>size){\n        sum-=queue[front++];\n    }\n\n    return sum/(rear-front);\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MovingAverage {\n    queue<int> q;\n    int size;\n    double sum;\npublic:\n    MovingAverage(int size) {\n        this->size = size;\n        this->sum = 0;\n    }\n    double next(int val) {\n        q.push(val);\n        sum += val;\n        if(q.size() > size) { sum -= q.front(); q.pop(); }\n        return sum / q.size();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -250,6 +264,13 @@
                 {
                     "language": "c",
                     "code": "int timeRequiredToBuy(int* tickets,int n,int k){\n    int time=0;\n\n    for(int i=0;i<n;i++){\n        if(i<=k)\n            time+= tickets[i]<tickets[k] ? tickets[i] : tickets[k];\n        else\n            time+= tickets[i]<(tickets[k]-1) ? tickets[i] : (tickets[k]-1);\n    }\n\n    return time;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int timeRequiredToBuy(vector<int>& tickets, int k) {\n        int time = 0;\n        for(int i = 0; i < tickets.size(); i++) {\n            if(i <= k) time += min(tickets[i], tickets[k]);\n            else time += min(tickets[i], tickets[k] - 1);\n        }\n        return time;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -321,6 +342,13 @@
                 {
                     "language": "c",
                     "code": "int countStudents(int* students,int n,int* sandwiches){\n    int count[2]={0,0};\n\n    for(int i=0;i<n;i++) count[students[i]]++;\n\n    for(int i=0;i<n;i++){\n        if(count[sandwiches[i]]==0) break;\n        count[sandwiches[i]]--;\n    }\n\n    return count[0]+count[1];\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int countStudents(vector<int>& students, vector<int>& sandwiches) {\n        vector<int> count(2, 0);\n        for(int s : students) count[s]++;\n        for(int s : sandwiches) {\n            if(count[s] == 0) break;\n            count[s]--;\n        }\n        return count[0] + count[1];\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -392,6 +420,13 @@
                 {
                     "language": "c",
                     "code": "// Simplified conceptual implementation\n#include<stdio.h>\n#include<stdlib.h>\n"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> deckRevealedIncreasing(vector<int>& deck) {\n        sort(deck.begin(), deck.end());\n        queue<int> q;\n        for(int i = 0; i < deck.size(); i++) q.push(i);\n        vector<int> res(deck.size());\n        for(int card : deck) {\n            res[q.front()] = card;\n            q.pop();\n            if(!q.empty()) {\n                q.push(q.front());\n                q.pop();\n            }\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -463,6 +498,13 @@
                 {
                     "language": "c",
                     "code": "int findTheWinner(int n,int k){\n    int res=0;\n\n    for(int i=1;i<=n;i++)\n        res=(res+k)%i;\n\n    return res+1;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int findTheWinner(int n, int k) {\n        queue<int> q;\n        for(int i = 1; i <= n; i++) q.push(i);\n        while(q.size() > 1) {\n            for(int i = 1; i < k; i++) {\n                q.push(q.front());\n                q.pop();\n            }\n            q.pop();\n        }\n        return q.front();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -534,6 +576,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual queue simulation implementation\n#include <stdio.h>\n"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    string predictPartyVictory(string senate) {\n        queue<int> rq, dq;\n        int n = senate.size();\n        for(int i = 0; i < n; i++) {\n            if(senate[i] == 'R') rq.push(i);\n            else dq.push(i);\n        }\n        while(!rq.empty() && !dq.empty()) {\n            int r_idx = rq.front(); rq.pop();\n            int d_idx = dq.front(); dq.pop();\n            if(r_idx < d_idx) rq.push(r_idx + n);\n            else dq.push(d_idx + n);\n        }\n        return rq.empty() ? \"Dire\" : \"Radiant\";\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -605,6 +654,13 @@
                 {
                     "language": "c",
                     "code": "int truckTour(int pumps[][2],int n){\n    int start=0,tank=0,total=0;\n\n    for(int i=0;i<n;i++){\n        tank+=pumps[i][0]-pumps[i][1];\n\n        if(tank<0){\n            start=i+1;\n            total+=tank;\n            tank=0;\n        }\n    }\n\n    if(total+tank>=0) return start;\n\n    return -1;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {\n        int total_tank = 0, curr_tank = 0, starting_station = 0;\n        for(int i = 0; i < gas.size(); i++) {\n            total_tank += gas[i] - cost[i];\n            curr_tank += gas[i] - cost[i];\n            if(curr_tank < 0) {\n                starting_station = i + 1;\n                curr_tank = 0;\n            }\n        }\n        return total_tank >= 0 ? starting_station : -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -676,6 +732,13 @@
                 {
                     "language": "c",
                     "code": "// BFS implementation using queue\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int minimumMoves(vector<string>& grid, int startX, int startY, int goalX, int goalY) {\n        int n = grid.size();\n        vector<vector<int>> dist(n, vector<int>(n, -1));\n        queue<pair<int, int>> q;\n        q.push({startX, startY});\n        dist[startX][startY] = 0;\n        int dx[] = {-1, 1, 0, 0};\n        int dy[] = {0, 0, -1, 1};\n        while(!q.empty()){\n            auto [x, y] = q.front(); q.pop();\n            if (x == goalX && y == goalY) return dist[x][y];\n            for(int k=0; k<4; k++){\n                int nx = x + dx[k], ny = y + dy[k];\n                while(nx >= 0 && nx < n && ny >= 0 && ny < n && grid[nx][ny] == '.'){\n                    if (dist[nx][ny] == -1){\n                        dist[nx][ny] = dist[x][y] + 1;\n                        q.push({nx, ny});\n                    }\n                    nx += dx[k]; ny += dy[k];\n                }\n            }\n        }\n        return -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -747,6 +810,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual implementation using two stacks\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyQueue {\n    stack<int> s1, s2;\n    void move() {\n        if(s2.empty()) { while(!s1.empty()) { s2.push(s1.top()); s1.pop(); } }\n    }\npublic:\n    void push(int x) { s1.push(x); }\n    int pop() { move(); int res = s2.top(); s2.pop(); return res; }\n    int peek() { move(); return s2.top(); }\n    bool empty() { return s1.empty() && s2.empty(); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -818,6 +888,13 @@
                 {
                     "language": "c",
                     "code": "// Queue simulation using two stacks concept\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyQueue {\n    stack<int> s1, s2;\n    void move() {\n        if(s2.empty()) { while(!s1.empty()) { s2.push(s1.top()); s1.pop(); } }\n    }\npublic:\n    void push(int x) { s1.push(x); }\n    int pop() { move(); int res = s2.top(); s2.pop(); return res; }\n    int peek() { move(); return s2.top(); }\n    bool empty() { return s1.empty() && s2.empty(); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -889,6 +966,13 @@
                 {
                     "language": "c",
                     "code": "// Stack using queue rotation technique\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyStack {\n    queue<int> q;\npublic:\n    void push(int x) {\n        q.push(x);\n        for(int i = 0; i < q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int res = q.front(); q.pop(); return res; }\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -960,6 +1044,13 @@
                 {
                     "language": "c",
                     "code": "// Stack using queue rotation technique\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyStack {\n    queue<int> q;\npublic:\n    void push(int x) {\n        q.push(x);\n        for(int i = 0; i < q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int res = q.front(); q.pop(); return res; }\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1031,6 +1122,13 @@
                 {
                     "language": "c",
                     "code": "// Circular queue using array\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyCircularQueue {\n    vector<int> q; int head, count, size;\npublic:\n    MyCircularQueue(int k) { size=k; head=0; count=0; q.resize(k); }\n    bool enQueue(int value) { if(isFull()) return false; q[(head+count)%size] = value; count++; return true; }\n    bool deQueue() { if(isEmpty()) return false; head = (head+1)%size; count--; return true; }\n    int Front() { return isEmpty() ? -1 : q[head]; }\n    int Rear() { return isEmpty() ? -1 : q[(head+count-1)%size]; }\n    bool isEmpty() { return count == 0; }\n    bool isFull() { return count == size; }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1102,6 +1200,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual implementation using queue + frequency map\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass FirstUnique {\n    queue<int> q;\n    unordered_map<int, int> counts;\npublic:\n    FirstUnique(vector<int>& nums) { for(int num : nums) add(num); }\n    int showFirstUnique() {\n        while(!q.empty() && counts[q.front()] > 1) q.pop();\n        return q.empty() ? -1 : q.front();\n    }\n    void add(int value) {\n        counts[value]++;\n        if(counts[value] == 1) q.push(value);\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1173,6 +1278,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual implementation using deque\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass FrontMiddleBackQueue {\n    deque<int> a, b;\n    void balance() {\n        if(a.size() > b.size()) { b.push_front(a.back()); a.pop_back(); }\n        else if(b.size() > a.size() + 1) { a.push_back(b.front()); b.pop_front(); }\n    }\npublic:\n    void pushFront(int val) { a.push_front(val); balance(); }\n    void pushMiddle(int val) { if(a.size() < b.size()) a.push_back(val); else b.push_front(val); balance(); }\n    void pushBack(int val) { b.push_back(val); balance(); }\n    int popFront() {\n        if(a.empty() && b.empty()) return -1;\n        int res;\n        if(a.empty()) { res = b.front(); b.pop_front(); }\n        else { res = a.front(); a.pop_front(); }\n        balance(); return res;\n    }\n    int popMiddle() {\n        if(a.empty() && b.empty()) return -1;\n        int res;\n        if(a.size() == b.size()) { res = a.back(); a.pop_back(); }\n        else { res = b.front(); b.pop_front(); }\n        balance(); return res;\n    }\n    int popBack() {\n        if(b.empty()) return -1;\n        int res = b.back(); b.pop_back();\n        balance(); return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1244,6 +1356,13 @@
                 {
                     "language": "c",
                     "code": "// Simplified conceptual implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MKAverage {\n    int m, k, count = 0;\n    queue<int> q;\n    multiset<int> lower, middle, upper;\n    long long midSum = 0;\n    \n    void add(int num) {\n        if(lower.empty() || num <= *lower.rbegin()) { lower.insert(num); }\n        else if(middle.empty() || num <= *middle.rbegin()) { middle.insert(num); midSum += num; }\n        else { upper.insert(num); }\n    }\n    \n    void remove(int num) {\n        if(lower.find(num) != lower.end()) { lower.erase(lower.find(num)); }\n        else if(middle.find(num) != middle.end()) { middle.erase(middle.find(num)); midSum -= num; }\n        else { upper.erase(upper.find(num)); }\n    }\n    \n    void balance() {\n        while(lower.size() < k) {\n            if(!middle.empty()) { int v = *middle.begin(); middle.erase(middle.begin()); midSum -= v; lower.insert(v); }\n            else { int v = *upper.begin(); upper.erase(upper.begin()); lower.insert(v); }\n        }\n        while(lower.size() > k) { int v = *lower.rbegin(); lower.erase(std::prev(lower.end())); middle.insert(v); midSum += v; }\n        \n        while(upper.size() < k) { int v = *middle.rbegin(); middle.erase(std::prev(middle.end())); midSum -= v; upper.insert(v); }\n        while(upper.size() > k) { int v = *upper.begin(); upper.erase(upper.begin()); middle.insert(v); midSum += v; }\n    }\npublic:\n    MKAverage(int m, int k) : m(m), k(k) {}\n    \n    void addElement(int num) {\n        q.push(num); count++; add(num);\n        if(count > m) { int rem = q.front(); q.pop(); remove(rem); count--; }\n        if(count == m) balance();\n    }\n    \n    int calculateMKAverage() {\n        if(count < m) return -1;\n        return midSum / (m - 2*k);\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1315,6 +1434,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual sliding window implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int maximumRobots(vector<int>& chargeTimes, vector<int>& runningCosts, long long budget) {\n        int res = 0, n = chargeTimes.size(), l = 0;\n        long long sum = 0;\n        deque<int> d;\n        for(int r = 0; r < n; r++) {\n            sum += runningCosts[r];\n            while(!d.empty() && chargeTimes[d.back()] <= chargeTimes[r]) d.pop_back();\n            d.push_back(r);\n            while(l <= r && (d.empty() ? 0 : chargeTimes[d.front()]) + (r - l + 1) * sum > budget) {\n                sum -= runningCosts[l];\n                if(!d.empty() && d.front() == l) d.pop_front();\n                l++;\n            }\n            res = max(res, r - l + 1);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1386,6 +1512,13 @@
                 {
                     "language": "c",
                     "code": "// Simulation using queues\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> timeTaken(vector<int>& arrival, vector<int>& state) {\n        int n = arrival.size();\n        vector<int> res(n);\n        queue<int> enter, exit;\n        for(int i = 0; i < n; i++) {\n            if(state[i] == 0) enter.push(i);\n            else exit.push(i);\n        }\n        int time = 0, prev = 1;\n        while(!enter.empty() || !exit.empty()) {\n            if(!enter.empty() && arrival[enter.front()] <= time && !exit.empty() && arrival[exit.front()] <= time) {\n                if(prev == 1) { res[exit.front()] = time; exit.pop(); prev = 1; }\n                else { res[enter.front()] = time; enter.pop(); prev = 0; }\n            } else if(!exit.empty() && arrival[exit.front()] <= time) {\n                res[exit.front()] = time; exit.pop(); prev = 1;\n            } else if(!enter.empty() && arrival[enter.front()] <= time) {\n                res[enter.front()] = time; enter.pop(); prev = 0;\n            } else {\n                int nextTime = INT_MAX;\n                if(!enter.empty()) nextTime = min(nextTime, arrival[enter.front()]);\n                if(!exit.empty()) nextTime = min(nextTime, arrival[exit.front()]);\n                time = nextTime - 1;\n                prev = 1;\n            }\n            time++;\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1457,6 +1590,13 @@
                 {
                     "language": "c",
                     "code": "// Circular deque conceptual implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyCircularDeque {\n    vector<int> q; int head, tail, count, size;\npublic:\n    MyCircularDeque(int k) { size = k; q.resize(k); head = 0; tail = 0; count = 0; }\n    bool insertFront(int value) { if(isFull()) return false; head = (head - 1 + size) % size; q[head] = value; count++; return true; }\n    bool insertLast(int value) { if(isFull()) return false; q[tail] = value; tail = (tail + 1) % size; count++; return true; }\n    bool deleteFront() { if(isEmpty()) return false; head = (head + 1) % size; count--; return true; }\n    bool deleteLast() { if(isEmpty()) return false; tail = (tail - 1 + size) % size; count--; return true; }\n    int getFront() { return isEmpty() ? -1 : q[head]; }\n    int getRear() { return isEmpty() ? -1 : q[(tail - 1 + size) % size]; }\n    bool isEmpty() { return count == 0; }\n    bool isFull() { return count == size; }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1528,6 +1668,13 @@
                 {
                     "language": "c",
                     "code": "// Queue based hit counter\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass HitCounter {\n    queue<int> q;\npublic:\n    HitCounter() {}\n    void hit(int timestamp) { q.push(timestamp); }\n    int getHits(int timestamp) {\n        while(!q.empty() && timestamp - q.front() >= 300) q.pop();\n        return q.size();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1599,6 +1746,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual implementation using queue and set\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass PhoneDirectory {\n    unordered_set<int> available;\npublic:\n    PhoneDirectory(int maxNumbers) {\n        for(int i = 0; i < maxNumbers; i++) available.insert(i);\n    }\n    int get() {\n        if(available.empty()) return -1;\n        int num = *available.begin();\n        available.erase(available.begin());\n        return num;\n    }\n    bool check(int number) { return available.count(number); }\n    void release(int number) { available.insert(number); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1670,6 +1824,13 @@
                 {
                     "language": "c",
                     "code": "// Kadane's algorithm for circular array\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int maxSubarraySumCircular(vector<int>& nums) {\n        int total = 0, maxSum = nums[0], curMax = 0, minSum = nums[0], curMin = 0;\n        for(int a : nums) {\n            curMax = max(curMax + a, a);\n            maxSum = max(maxSum, curMax);\n            curMin = min(curMin + a, a);\n            minSum = min(minSum, curMin);\n            total += a;\n        }\n        return maxSum > 0 ? max(maxSum, total - minSum) : maxSum;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1741,6 +1902,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual sliding window implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int kEmptySlots(vector<int>& bulbs, int k) {\n        int n = bulbs.size();\n        vector<int> days(n + 1);\n        for(int i = 0; i < n; i++) days[bulbs[i]] = i + 1;\n        int l = 1, r = k + 2, res = INT_MAX;\n        for(int i = 1; r <= n; i++) {\n            if(days[i] > max(days[l], days[r])) continue;\n            if(i == r) res = min(res, max(days[l], days[r]));\n            l = i; r = i + k + 1;\n        }\n        return res == INT_MAX ? -1 : res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1812,6 +1980,13 @@
                 {
                     "language": "c",
                     "code": "// BFS queue simulation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int orangesRotting(vector<vector<int>>& grid) {\n        int m = grid.size(), n = grid[0].size();\n        queue<pair<int, int>> q;\n        int fresh = 0, mins = 0;\n        for(int i = 0; i < m; i++) {\n            for(int j = 0; j < n; j++) {\n                if(grid[i][j] == 2) q.push({i, j});\n                else if(grid[i][j] == 1) fresh++;\n            }\n        }\n        vector<int> dirs = {-1, 0, 1, 0, -1};\n        while(!q.empty() && fresh > 0) {\n            int sz = q.size();\n            for(int k = 0; k < sz; k++) {\n                auto [x, y] = q.front(); q.pop();\n                for(int d = 0; d < 4; d++) {\n                    int nx = x + dirs[d], ny = y + dirs[d+1];\n                    if(nx >= 0 && nx < m && ny >= 0 && ny < n && grid[nx][ny] == 1) {\n                        grid[nx][ny] = 2;\n                        fresh--;\n                        q.push({nx, ny});\n                    }\n                }\n            }\n            mins++;\n        }\n        return fresh == 0 ? mins : -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1883,6 +2058,13 @@
                 {
                     "language": "c",
                     "code": "// BFS state exploration\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int openLock(vector<string>& deadends, string target) {\n        unordered_set<string> dead(deadends.begin(), deadends.end()), vis;\n        if(dead.count(\"0000\")) return -1;\n        queue<string> q;\n        q.push(\"0000\"); vis.insert(\"0000\");\n        int turns = 0;\n        while(!q.empty()) {\n            int sz = q.size();\n            for(int i = 0; i < sz; i++) {\n                string curr = q.front(); q.pop();\n                if(curr == target) return turns;\n                for(int j = 0; j < 4; j++) {\n                    for(int d : {-1, 1}) {\n                        string next = curr;\n                        next[j] = (next[j] - '0' + d + 10) % 10 + '0';\n                        if(!dead.count(next) && !vis.count(next)) {\n                            vis.insert(next);\n                            q.push(next);\n                        }\n                    }\n                }\n            }\n            turns++;\n        }\n        return -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1954,6 +2136,13 @@
                 {
                     "language": "c",
                     "code": "// BFS board traversal\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int snakesAndLadders(vector<vector<int>>& board) {\n        int n = board.size();\n        auto getCoord = [&](int s) {\n            int r = n - 1 - (s - 1) / n;\n            int c = (s - 1) % n;\n            if((n - 1 - r) % 2 != 0) c = n - 1 - c;\n            return make_pair(r, c);\n        };\n        queue<int> q;\n        vector<bool> vis(n * n + 1, false);\n        q.push(1); vis[1] = true;\n        int moves = 0;\n        while(!q.empty()) {\n            int sz = q.size();\n            for(int i = 0; i < sz; i++) {\n                int curr = q.front(); q.pop();\n                if(curr == n * n) return moves;\n                for(int next = curr + 1; next <= min(curr + 6, n * n); next++) {\n                    auto [r, c] = getCoord(next);\n                    int dest = board[r][c] != -1 ? board[r][c] : next;\n                    if(!vis[dest]) { vis[dest] = true; q.push(dest); }\n                }\n            }\n            moves++;\n        }\n        return -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2025,6 +2214,13 @@
                 {
                     "language": "c",
                     "code": "// Queue simulation using indices\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> deckRevealedIncreasing(vector<int>& deck) {\n        sort(deck.begin(), deck.end());\n        queue<int> q;\n        for(int i = 0; i < deck.size(); i++) q.push(i);\n        vector<int> res(deck.size());\n        for(int card : deck) {\n            res[q.front()] = card;\n            q.pop();\n            if(!q.empty()) {\n                q.push(q.front());\n                q.pop();\n            }\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2096,6 +2292,13 @@
                 {
                     "language": "c",
                     "code": "int findTheWinner(int n,int k){\nint res=0;\n\nfor(int i=1;i<=n;i++)\nres=(res+k)%i;\n\nreturn res+1;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int lastRemaining(int n) {\n        int head = 1, step = 1, rem = n;\n        bool left = true;\n        while(rem > 1) {\n            if(left || rem % 2 == 1) head += step;\n            step *= 2; rem /= 2; left = !left;\n        }\n        return head;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2167,6 +2370,13 @@
                 {
                     "language": "c",
                     "code": "// BFS grid traversal\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    void wallsAndGates(vector<vector<int>>& rooms) {\n        int m = rooms.size();\n        if(m == 0) return;\n        int n = rooms[0].size();\n        queue<pair<int, int>> q;\n        for(int i = 0; i < m; i++) \n            for(int j = 0; j < n; j++) \n                if(rooms[i][j] == 0) q.push({i, j});\n        vector<int> dirs = {-1, 0, 1, 0, -1};\n        while(!q.empty()) {\n            auto [x, y] = q.front(); q.pop();\n            for(int k = 0; k < 4; k++) {\n                int nx = x + dirs[k], ny = y + dirs[k+1];\n                if(nx >= 0 && nx < m && ny >= 0 && ny < n && rooms[nx][ny] == 2147483647) {\n                    rooms[nx][ny] = rooms[x][y] + 1;\n                    q.push({nx, ny});\n                }\n            }\n        }\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2238,6 +2448,13 @@
                 {
                     "language": "c",
                     "code": "int firstUniqChar(char* s){\nint freq[26]={0};\n\nfor(int i=0;s[i];i++)\nfreq[s[i]-'a']++;\n\nfor(int i=0;s[i];i++)\nif(freq[s[i]-'a']==1)\nreturn i;\n\nreturn -1;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int firstUniqChar(string s) {\n        vector<int> count(26, 0);\n        for(char c : s) count[c - 'a']++;\n        for(int i = 0; i < s.length(); i++)\n            if(count[s[i] - 'a'] == 1) return i;\n        return -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2309,6 +2526,13 @@
                 {
                     "language": "c",
                     "code": "// Queue based hit counter simulation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass HitCounter {\n    queue<int> q;\npublic:\n    HitCounter() {}\n    void hit(int timestamp) { q.push(timestamp); }\n    int getHits(int timestamp) {\n        while(!q.empty() && timestamp - q.front() >= 300) q.pop();\n        return q.size();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2380,6 +2604,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual deque implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyCircularDeque {\n    vector<int> q; int head, tail, count, size;\npublic:\n    MyCircularDeque(int k) { size = k; q.resize(k); head = 0; tail = 0; count = 0; }\n    bool insertFront(int value) { if(isFull()) return false; head = (head - 1 + size) % size; q[head] = value; count++; return true; }\n    bool insertLast(int value) { if(isFull()) return false; q[tail] = value; tail = (tail + 1) % size; count++; return true; }\n    bool deleteFront() { if(isEmpty()) return false; head = (head + 1) % size; count--; return true; }\n    bool deleteLast() { if(isEmpty()) return false; tail = (tail - 1 + size) % size; count--; return true; }\n    int getFront() { return isEmpty() ? -1 : q[head]; }\n    int getRear() { return isEmpty() ? -1 : q[(tail - 1 + size) % size]; }\n    bool isEmpty() { return count == 0; }\n    bool isFull() { return count == size; }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2451,6 +2682,13 @@
                 {
                     "language": "c",
                     "code": "// Conceptual hashmap-based implementation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass UndergroundSystem {\n    unordered_map<int, pair<string, int>> checkIns;\n    unordered_map<string, pair<int, int>> journeyStats;\npublic:\n    UndergroundSystem() {}\n    void checkIn(int id, string stationName, int t) {\n        checkIns[id] = {stationName, t};\n    }\n    void checkOut(int id, string stationName, int t) {\n        auto [startStation, startTime] = checkIns[id];\n        string journey = startStation + \"->\" + stationName;\n        journeyStats[journey].first += t - startTime;\n        journeyStats[journey].second++;\n    }\n    double getAverageTime(string startStation, string endStation) {\n        string journey = startStation + \"->\" + endStation;\n        auto [totalTime, count] = journeyStats[journey];\n        return (double)totalTime / count;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2522,6 +2760,13 @@
                 {
                     "language": "c",
                     "code": "// Queue based router simulation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\n    // This assumes a generic packet router simulation where packets are queued and dequeued based on some logic. \n    // Usually it resembles wait time calculation.\npublic:\n    vector<int> processPackets(vector<vector<int>>& packets, int capacity) {\n        queue<pair<int, int>> q;\n        int time = 0;\n        vector<int> res;\n        for(auto& p : packets) {\n            time = max(time, p[0]);\n            while(!q.empty() && q.front().first + q.front().second <= p[0]) {\n                int start = max(time, q.front().first);\n                time = start + q.front().second;\n                q.pop();\n            }\n            if(q.size() < capacity) {\n                q.push({p[0], p[1]});\n                res.push_back(time + p[1]);\n                time += p[1];\n            } else {\n                res.push_back(-1);\n            }\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2593,6 +2838,13 @@
                 {
                     "language": "c",
                     "code": "// Queue with running sum\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass StatisticsTracker {\n    // Generic placeholder if specific tracker not fully defined\n    queue<int> q;\n    int sum = 0;\npublic:\n    void add(int val) { q.push(val); sum += val; }\n    double getMean() { return (double)sum / q.size(); }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2664,6 +2916,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window with monotonic queues\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int longestSubarray(vector<int>& nums, int limit) {\n        deque<int> maxd, mind;\n        int l = 0, res = 0;\n        for(int r = 0; r < nums.size(); r++) {\n            while(!maxd.empty() && maxd.back() < nums[r]) maxd.pop_back();\n            while(!mind.empty() && mind.back() > nums[r]) mind.pop_back();\n            maxd.push_back(nums[r]); mind.push_back(nums[r]);\n            while(maxd.front() - mind.front() > limit) {\n                if(maxd.front() == nums[l]) maxd.pop_front();\n                if(mind.front() == nums[l]) mind.pop_front();\n                l++;\n            }\n            res = max(res, r - l + 1);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2735,6 +2994,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window algorithm\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    long long continuousSubarrays(vector<int>& nums) {\n        map<int, int> count;\n        int l = 0;\n        long long res = 0;\n        for(int r = 0; r < nums.size(); r++) {\n            count[nums[r]]++;\n            while(count.rbegin()->first - count.begin()->first > 2) {\n                count[nums[l]]--;\n                if(count[nums[l]] == 0) count.erase(nums[l]);\n                l++;\n            }\n            res += r - l + 1;\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2806,6 +3072,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window max using deque\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> maxSlidingWindow(vector<int>& nums, int k) {\n        deque<int> dq;\n        vector<int> res;\n        for(int i = 0; i < nums.size(); i++) {\n            if(!dq.empty() && dq.front() == i - k) dq.pop_front();\n            while(!dq.empty() && nums[dq.back()] <= nums[i]) dq.pop_back();\n            dq.push_back(i);\n            if(i >= k - 1) res.push_back(nums[dq.front()]);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2877,6 +3150,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window flip simulation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int minKBitFlips(vector<int>& nums, int k) {\n        queue<int> q;\n        int flips = 0, n = nums.size();\n        for(int i = 0; i < n; i++) {\n            if((nums[i] + q.size()) % 2 == 0) {\n                if(i + k > n) return -1;\n                q.push(i + k - 1);\n                flips++;\n            }\n            if(!q.empty() && q.front() == i) q.pop();\n        }\n        return flips;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2948,13 +3228,20 @@
                 {
                     "language": "c",
                     "code": "// Prefix sum + deque technique\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int shortestSubarray(vector<int>& nums, int k) {\n        int n = nums.size(), res = n + 1;\n        vector<long long> prefix(n + 1, 0);\n        for(int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + nums[i];\n        deque<int> d;\n        for(int i = 0; i <= n; i++) {\n            while(!d.empty() && prefix[i] - prefix[d.front()] >= k) {\n                res = min(res, i - d.front());\n                d.pop_front();\n            }\n            while(!d.empty() && prefix[i] <= prefix[d.back()]) d.pop_back();\n            d.push_back(i);\n        }\n        return res <= n ? res : -1;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Maximum Value of Equation",
-            "content": "You are given an array of points where points[i] = [xi, yi] and an integer k.\n\nReturn the maximum value of yi + yj + |xi − xj| where |xi − xj| ≤ k and i < j.\n\nEfficient solutions use a monotonic deque.",
+            "content": "You are given an array of points where points[i] = [xi, yi] and an integer k.\n\nReturn the maximum value of yi + yj + |xi \u2212 xj| where |xi \u2212 xj| \u2264 k and i < j.\n\nEfficient solutions use a monotonic deque.",
             "level": "subtopic",
             "topic_name": "Queues",
             "subtopic_name": "Double Ended Queue",
@@ -3019,6 +3306,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window + deque\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int findMaxValueOfEquation(vector<vector<int>>& points, int k) {\n        deque<pair<int, int>> q;\n        int res = INT_MIN;\n        for(auto& p : points) {\n            int x = p[0], y = p[1];\n            while(!q.empty() && x - q.front().second > k) q.pop_front();\n            if(!q.empty()) res = max(res, q.front().first + x + y);\n            while(!q.empty() && q.back().first <= y - x) q.pop_back();\n            q.push_back({y - x, x});\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3090,6 +3384,13 @@
                 {
                     "language": "c",
                     "code": "// DP sliding window solution\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int maxResult(vector<int>& nums, int k) {\n        deque<int> dq;\n        dq.push_back(0);\n        for(int i = 1; i < nums.size(); i++) {\n            if(dq.front() < i - k) dq.pop_front();\n            nums[i] += nums[dq.front()];\n            while(!dq.empty() && nums[dq.back()] <= nums[i]) dq.pop_back();\n            dq.push_back(i);\n        }\n        return nums.back();\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3161,6 +3462,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window dynamic programming\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int constrainedSubsetSum(vector<int>& nums, int k) {\n        deque<int> q;\n        int res = nums[0];\n        vector<int> dp = nums;\n        for(int i = 0; i < nums.size(); i++) {\n            if(!q.empty() && q.front() < i - k) q.pop_front();\n            if(!q.empty()) dp[i] = max(dp[i], dp[i] + dp[q.front()]);\n            while(!q.empty() && dp[q.back()] <= dp[i]) q.pop_back();\n            q.push_back(i);\n            res = max(res, dp[i]);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3232,6 +3540,13 @@
                 {
                     "language": "c",
                     "code": "double findMaxAverage(int* nums,int n,int k){\ndouble sum=0;\n\nfor(int i=0;i<k;i++) sum+=nums[i];\n\ndouble max=sum;\n\nfor(int i=k;i<n;i++){\nsum+=nums[i]-nums[i-k];\nif(sum>max) max=sum;\n}\n\nreturn max/k;\n}"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    double findMaxAverage(vector<int>& nums, int k) {\n        double sum = 0, res = 0;\n        for(int i = 0; i < k; i++) sum += nums[i];\n        res = sum;\n        for(int i = k; i < nums.size(); i++) {\n            sum += nums[i] - nums[i - k];\n            res = max(res, sum);\n        }\n        return res / k;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3303,6 +3618,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window simulation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int maximumRobots(vector<int>& chargeTimes, vector<int>& runningCosts, long long budget) {\n        int res = 0, n = chargeTimes.size(), l = 0;\n        long long sum = 0;\n        deque<int> d;\n        for(int r = 0; r < n; r++) {\n            sum += runningCosts[r];\n            while(!d.empty() && chargeTimes[d.back()] <= chargeTimes[r]) d.pop_back();\n            d.push_back(r);\n            while(l <= r && (d.empty() ? 0 : chargeTimes[d.front()]) + (r - l + 1) * sum > budget) {\n                sum -= runningCosts[l];\n                if(!d.empty() && d.front() == l) d.pop_front();\n                l++;\n            }\n            res = max(res, r - l + 1);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3374,6 +3696,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window technique\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    long long continuousSubarrays(vector<int>& nums) {\n        map<int, int> count;\n        int l = 0;\n        long long res = 0;\n        for(int r = 0; r < nums.size(); r++) {\n            count[nums[r]]++;\n            while(count.rbegin()->first - count.begin()->first > 2) {\n                count[nums[l]]--;\n                if(count[nums[l]] == 0) count.erase(nums[l]);\n                l++;\n            }\n            res += r - l + 1;\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3445,6 +3774,13 @@
                 {
                     "language": "c",
                     "code": "// Sliding window using deques\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int longestSubarray(vector<int>& nums, int limit) {\n        deque<int> maxd, mind;\n        int l = 0, res = 0;\n        for(int r = 0; r < nums.size(); r++) {\n            while(!maxd.empty() && maxd.back() < nums[r]) maxd.pop_back();\n            while(!mind.empty() && mind.back() > nums[r]) mind.pop_back();\n            maxd.push_back(nums[r]); mind.push_back(nums[r]);\n            while(maxd.front() - mind.front() > limit) {\n                if(maxd.front() == nums[l]) maxd.pop_front();\n                if(mind.front() == nums[l]) mind.pop_front();\n                l++;\n            }\n            res = max(res, r - l + 1);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3516,6 +3852,13 @@
                 {
                     "language": "c",
                     "code": "// Monotonic stack solution\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> dailyTemperatures(vector<int>& temperatures) {\n        int n = temperatures.size();\n        vector<int> res(n, 0);\n        stack<int> st;\n        for(int i = 0; i < n; i++) {\n            while(!st.empty() && temperatures[st.top()] < temperatures[i]) {\n                int prev = st.top(); st.pop();\n                res[prev] = i - prev;\n            }\n            st.push(i);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3587,13 +3930,20 @@
                 {
                     "language": "c",
                     "code": "// Circular next greater element\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> nextGreaterElements(vector<int>& nums) {\n        int n = nums.size();\n        vector<int> res(n, -1);\n        stack<int> st;\n        for(int i = 0; i < 2 * n; i++) {\n            while(!st.empty() && nums[st.top()] < nums[i % n]) {\n                res[st.top()] = nums[i % n];\n                st.pop();\n            }\n            st.push(i % n);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Final Prices With Discount",
-            "content": "You are given an array prices where prices[i] is the price of the ith item in a shop.\n\nFor each item i, find the first item j such that j > i and prices[j] ≤ prices[i]. The discount is prices[j].\n\nReturn the final price after applying the discount.",
+            "content": "You are given an array prices where prices[i] is the price of the ith item in a shop.\n\nFor each item i, find the first item j such that j > i and prices[j] \u2264 prices[i]. The discount is prices[j].\n\nReturn the final price after applying the discount.",
             "level": "subtopic",
             "topic_name": "Queues",
             "subtopic_name": "Monotonic Queue Pattern",
@@ -3658,6 +4008,13 @@
                 {
                     "language": "c",
                     "code": "// Discount calculation using stack\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> finalPrices(vector<int>& prices) {\n        stack<int> st;\n        vector<int> res = prices;\n        for(int i = 0; i < prices.size(); i++) {\n            while(!st.empty() && prices[st.top()] >= prices[i]) {\n                res[st.top()] -= prices[i];\n                st.pop();\n            }\n            st.push(i);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3729,6 +4086,13 @@
                 {
                     "language": "c",
                     "code": "// Right-to-left scan\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> findBuildings(vector<int>& heights) {\n        vector<int> res;\n        int max_height = -1;\n        for(int i = heights.size() - 1; i >= 0; i--) {\n            if(heights[i] > max_height) {\n                res.push_back(i);\n                max_height = heights[i];\n            }\n        }\n        reverse(res.begin(), res.end());\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3800,6 +4164,13 @@
                 {
                     "language": "c",
                     "code": "// Next greater element using stack\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {\n        unordered_map<int, int> mp;\n        stack<int> st;\n        for(int num : nums2) {\n            while(!st.empty() && st.top() < num) {\n                mp[st.top()] = num;\n                st.pop();\n            }\n            st.push(num);\n        }\n        vector<int> res;\n        for(int num : nums1) {\n            res.push_back(mp.count(num) ? mp[num] : -1);\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3871,6 +4242,13 @@
                 {
                     "language": "c",
                     "code": "// Contribution technique with stack\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int sumSubarrayMins(vector<int>& arr) {\n        int n = arr.size(), mod = 1e9 + 7;\n        vector<int> left(n), right(n);\n        stack<int> st;\n        for(int i = 0; i < n; i++) {\n            while(!st.empty() && arr[st.top()] > arr[i]) st.pop();\n            left[i] = st.empty() ? i + 1 : i - st.top();\n            st.push(i);\n        }\n        while(!st.empty()) st.pop();\n        for(int i = n - 1; i >= 0; i--) {\n            while(!st.empty() && arr[st.top()] >= arr[i]) st.pop();\n            right[i] = st.empty() ? n - i : st.top() - i;\n            st.push(i);\n        }\n        long long res = 0;\n        for(int i = 0; i < n; i++) {\n            res = (res + (long long)arr[i] * left[i] * right[i]) % mod;\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3942,6 +4320,13 @@
                 {
                     "language": "c",
                     "code": "// Histogram stack solution\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int largestRectangleArea(vector<int>& heights) {\n        int res = 0;\n        stack<int> st;\n        heights.push_back(0);\n        for(int i = 0; i < heights.size(); i++) {\n            while(!st.empty() && heights[st.top()] > heights[i]) {\n                int h = heights[st.top()]; st.pop();\n                int w = st.empty() ? i : i - st.top() - 1;\n                res = max(res, h * w);\n            }\n            st.push(i);\n        }\n        heights.pop_back();\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4013,6 +4398,13 @@
                 {
                     "language": "c",
                     "code": "// Stack based water calculation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int trap(vector<int>& height) {\n        int l = 0, r = height.size() - 1, res = 0, maxl = 0, maxr = 0;\n        while(l <= r) {\n            if(maxl <= maxr) {\n                res += max(0, maxl - height[l]);\n                maxl = max(maxl, height[l]);\n                l++;\n            } else {\n                res += max(0, maxr - height[r]);\n                maxr = max(maxr, height[r]);\n                r--;\n            }\n        }\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4084,6 +4476,13 @@
                 {
                     "language": "c",
                     "code": "// Nested loop range calculation\n#include<stdio.h>"
+                },
+                {
+                    "title": "Queue implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    long long subArrayRanges(vector<int>& nums) {\n        int n = nums.size();\n        long long res = 0;\n        stack<int> st;\n        vector<int> left(n), right(n);\n        for(int i = 0; i < n; i++) {\n            while(!st.empty() && nums[st.top()] > nums[i]) st.pop();\n            left[i] = st.empty() ? i + 1 : i - st.top();\n            st.push(i);\n        }\n        while(!st.empty()) st.pop();\n        for(int i = n - 1; i >= 0; i--) {\n            while(!st.empty() && nums[st.top()] >= nums[i]) st.pop();\n            right[i] = st.empty() ? n - i : st.top() - i;\n            st.push(i);\n        }\n        for(int i = 0; i < n; i++) res -= (long long)nums[i] * left[i] * right[i];\n        while(!st.empty()) st.pop();\n        for(int i = 0; i < n; i++) {\n            while(!st.empty() && nums[st.top()] < nums[i]) st.pop();\n            left[i] = st.empty() ? i + 1 : i - st.top();\n            st.push(i);\n        }\n        while(!st.empty()) st.pop();\n        for(int i = n - 1; i >= 0; i--) {\n            while(!st.empty() && nums[st.top()] <= nums[i]) st.pop();\n            right[i] = st.empty() ? n - i : st.top() - i;\n            st.push(i);\n        }\n        for(int i = 0; i < n; i++) res += (long long)nums[i] * left[i] * right[i];\n        return res;\n    }\n};",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -6256,7 +6655,7 @@
                     "is_correct": false
                 },
                 {
-                    "text": "O(n²)",
+                    "text": "O(n\u00b2)",
                     "is_correct": false
                 },
                 {
@@ -6557,7 +6956,7 @@
                     "is_correct": false
                 },
                 {
-                    "text": "Shortest Subarray with Sum ≥ K",
+                    "text": "Shortest Subarray with Sum \u2265 K",
                     "is_correct": true
                 }
             ]
@@ -6722,7 +7121,7 @@
                     "is_correct": false
                 },
                 {
-                    "text": "Topological Sorting (Kahn’s Algorithm)",
+                    "text": "Topological Sorting (Kahn\u2019s Algorithm)",
                     "is_correct": true
                 }
             ]

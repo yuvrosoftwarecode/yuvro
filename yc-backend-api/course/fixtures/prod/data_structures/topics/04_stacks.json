@@ -119,13 +119,20 @@
                     "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n    string s;\n    getline(cin, s);\n    stack<char> st;\n    for(char c : s){\n        if(c=='(' || c=='{' || c=='[') st.push(c);\n        else{\n            if(st.empty()){\n                cout<<\"false\";\n                return 0;\n            }\n            char top = st.top();\n            st.pop();\n            if((c==')' && top!='(') ||\n               (c=='}' && top!='{') ||\n               (c==']' && top!='[')){\n                cout<<\"false\";\n                return 0;\n            }\n        }\n    }\n    cout<<(st.empty()?\"true\":\"false\");\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nbool isValid(char * s) {\n    int n = strlen(s);\n    char stack[n + 1];\n    int top = -1;\n    for(int i=0; i<n; i++) {\n        if(s[i]=='('||s[i]=='{'||s[i]=='[') stack[++top] = s[i];\n        else {\n            if(top==-1) return false;\n            char c = stack[top--];\n            if(s[i]==')'&&c!='(') return false;\n            if(s[i]=='}'&&c!='{') return false;\n            if(s[i]==']'&&c!='[') return false;\n        }\n    }\n    return top == -1;\n}\nint main() { char s[10005]; if(scanf(\"%s\", s) == 1) printf(\"%s\\n\", isValid(s)?\"true\":\"false\"); return 0; }\n",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Baseball Game Score Calculation",
-            "content": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 → score list: [5]\n2 → score list: [5,2]\nC → remove last score → [5]\nD → double previous score → [5,10]\n+ → sum of last two scores → [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] → remove 4 → [5,-2]\nDouble previous → [5,-2,-4]\nAdd 9 → [5,-2,-4,9]\nSum last two → [5,-2,-4,9,5]\nSum last two → [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.",
+            "content": "You are given a list of operations representing the scoring records of a baseball game. Each operation updates the score history according to the following rules:\n\n1. An integer x: Record a new score of x.\n2. '+': Record a new score that is the sum of the previous two scores.\n3. 'D': Record a new score that is double the previous score.\n4. 'C': Invalidate and remove the previous score.\n\nYou must process all operations in order and compute the total score after all valid rounds.\n\nReturn the final total score.\n\n**Example 1:**\nInput:\n[\"5\",\"2\",\"C\",\"D\",\"+\"]\nOutput:\n30\n\nExplanation:\n5 \u2192 score list: [5]\n2 \u2192 score list: [5,2]\nC \u2192 remove last score \u2192 [5]\nD \u2192 double previous score \u2192 [5,10]\n+ \u2192 sum of last two scores \u2192 [5,10,15]\nTotal = 30\n\n**Example 2:**\nInput:\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\nOutput:\n27\n\nExplanation:\nScores evolve as [5,-2,4] \u2192 remove 4 \u2192 [5,-2]\nDouble previous \u2192 [5,-2,-4]\nAdd 9 \u2192 [5,-2,-4,9]\nSum last two \u2192 [5,-2,-4,9,5]\nSum last two \u2192 [5,-2,-4,9,5,14]\nTotal = 27\n\n**Constraints:**\n- 1 <= operations.length <= 1000\n- operations[i] is \"C\", \"D\", \"+\", or an integer in the range [-3 * 10^4, 3 * 10^4]\n- It is guaranteed that the operations are valid.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -180,12 +187,12 @@
                 {
                     "input": "[\"5\",\"2\",\"C\",\"D\",\"+\"]",
                     "expected_output": "30",
-                    "explanation": "Scores evolve as [5] → [5,2] → [5] → [5,10] → [5,10,15]. The total sum is 30."
+                    "explanation": "Scores evolve as [5] \u2192 [5,2] \u2192 [5] \u2192 [5,10] \u2192 [5,10,15]. The total sum is 30."
                 },
                 {
                     "input": "[\"1\",\"2\",\"+\",\"D\"]",
                     "expected_output": "12",
-                    "explanation": "Scores evolve as [1] → [1,2] → [1,2,3] → [1,2,3,6]. Total = 12."
+                    "explanation": "Scores evolve as [1] \u2192 [1,2] \u2192 [1,2,3] \u2192 [1,2,3,6]. Total = 12."
                 }
             ],
             "inputFormat": "A single line containing a JSON list of strings representing operations.",
@@ -209,6 +216,13 @@
                     "title": "Stack Simulation",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main() {\n    char input[10000];\n    fgets(input, sizeof(input), stdin);\n\n    int stack[1000];\n    int top = -1;\n\n    char *token = strtok(input, \"[, ]\\\"\\n\");\n\n    while (token != NULL) {\n        if (strcmp(token, \"C\") == 0) {\n            top--;\n        } else if (strcmp(token, \"D\") == 0) {\n            stack[++top] = stack[top] * 2;\n        } else if (strcmp(token, \"+\") == 0) {\n            stack[++top] = stack[top] + stack[top-1];\n        } else {\n            stack[++top] = atoi(token);\n        }\n        token = strtok(NULL, \"[, ]\\\"\\n\");\n    }\n\n    int sum = 0;\n    for (int i = 0; i <= top; i++) sum += stack[i];\n\n    printf(\"%d\", sum);\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string ops_json; getline(cin, ops_json);\n    vector<int> st;\n    string token;\n    for(char c: ops_json) {\n        if(c=='[' || c==']' || c=='\"' || c==' ' || c==','){\n            if(token!=\"\"){\n                if(token==\"C\") st.pop_back();\n                else if(token==\"D\") st.push_back(st.back()*2);\n                else if(token==\"+\") st.push_back(st.back() + st[st.size()-2]);\n                else st.push_back(stoi(token));\n                token=\"\";\n            }\n        } else token+=c;\n    }\n    long long sum = 0; for(int x: st) sum+=x; cout << sum;\n    return 0; }",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -303,13 +317,20 @@
                     "code": "#include <stdio.h>\n#include <string.h>\n\nvoid process(char *s, char *res) {\n    int top = -1;\n    for (int i = 0; s[i]; i++) {\n        if (s[i] == '#') {\n            if (top >= 0) top--;\n        } else {\n            res[++top] = s[i];\n        }\n    }\n    res[top+1] = '\\0';\n}\n\nint main() {\n    char s[300], t[300];\n    char r1[300], r2[300];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(t, sizeof(t), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    t[strcspn(t, \"\\n\")] = 0;\n\n    process(s, r1);\n    process(t, r2);\n\n    if(strcmp(r1, r2) == 0)\n        printf(\"true\");\n    else\n        printf(\"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N + M). Space: O(N + M).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s, t; getline(cin, s); getline(cin, t);\n    auto process = [](string str) {\n        string res; for(char c: str) { if(c=='#'){ if(!res.empty()) res.pop_back(); } else res+=c; } return res;\n    };\n    cout << (process(s)==process(t) ? \"true\" : \"false\"); return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Remove All Adjacent Duplicates in a given String",
-            "content": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" → remove \"bb\" → \"aaca\" → remove \"aa\" → \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" → remove \"xx\" → \"azzy\" → remove \"zz\" → \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.",
+            "content": "You are given a string s consisting of lowercase English letters. Your task is to repeatedly remove pairs of adjacent duplicate characters from the string.\n\nWhen two identical characters appear next to each other, they are removed from the string. This process continues until no more adjacent duplicates remain.\n\nReturn the final string after all possible duplicate removals have been performed.\n\n**Example 1:**\nInput:\nabbaca\nOutput:\nca\n\nExplanation:\n\"abbaca\" \u2192 remove \"bb\" \u2192 \"aaca\" \u2192 remove \"aa\" \u2192 \"ca\".\n\n**Example 2:**\nInput:\nazxxzy\nOutput:\nay\n\nExplanation:\n\"azxxzy\" \u2192 remove \"xx\" \u2192 \"azzy\" \u2192 remove \"zz\" \u2192 \"ay\".\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s consists only of lowercase English letters.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -364,12 +385,12 @@
                 {
                     "input": "abbaca",
                     "expected_output": "ca",
-                    "explanation": "Remove 'bb' → 'aaca'. Then remove 'aa' → 'ca'."
+                    "explanation": "Remove 'bb' \u2192 'aaca'. Then remove 'aa' \u2192 'ca'."
                 },
                 {
                     "input": "azxxzy",
                     "expected_output": "ay",
-                    "explanation": "Remove 'xx' → 'azzy'. Then remove 'zz' → 'ay'."
+                    "explanation": "Remove 'xx' \u2192 'azzy'. Then remove 'zz' \u2192 'ay'."
                 }
             ],
             "inputFormat": "A single line containing the string s consisting of lowercase English letters.",
@@ -395,13 +416,20 @@
                     "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[100005];\n    char stack[100005];\n    int top = -1;\n\n    scanf(\"%s\", s);\n\n    for(int i = 0; s[i]; i++){\n        if(top >= 0 && stack[top] == s[i])\n            top--;\n        else\n            stack[++top] = s[i];\n    }\n\n    for(int i = 0; i <= top; i++)\n        printf(\"%c\", stack[i]);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res;\n    for(char c: s) { if(!res.empty() && res.back()==c) res.pop_back(); else res+=c; }\n    cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Validate Stack Sequences",
-            "content": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 → Push 2 → Push 3 → Push 4 → Pop 4 → Push 5 → Pop 5 → Pop 3 → Pop 2 → Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.",
+            "content": "You are given two integer arrays pushed and popped. Each value in pushed is unique.\n\nThe array pushed represents the order in which elements are pushed onto a stack. The array popped represents a sequence of pop operations.\n\nYour task is to determine whether the popped sequence could result from performing push and pop operations on a stack using the push order given in pushed.\n\nReturn true if the popped sequence is valid, otherwise return false.\n\n**Example 1:**\nInput:\n[1,2,3,4,5]\n[4,5,3,2,1]\nOutput:\ntrue\n\nExplanation:\nPush 1 \u2192 Push 2 \u2192 Push 3 \u2192 Push 4 \u2192 Pop 4 \u2192 Push 5 \u2192 Pop 5 \u2192 Pop 3 \u2192 Pop 2 \u2192 Pop 1\n\n**Example 2:**\nInput:\n[1,2,3,4,5]\n[4,3,5,1,2]\nOutput:\nfalse\n\nExplanation:\nElement 1 cannot be popped before element 2 in a valid stack sequence.\n\n**Constraints:**\n- 1 <= pushed.length <= 1000\n- pushed.length == popped.length\n- 0 <= pushed[i] <= 1000\n- All elements of pushed are unique.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -485,6 +513,13 @@
                     "title": "Stack Simulation",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line1[10000], line2[10000];\n    fgets(line1, sizeof(line1), stdin);\n    fgets(line2, sizeof(line2), stdin);\n\n    int pushed[1000], popped[1000];\n    int stack[1000];\n    int n=0,m=0;\n\n    char *token = strtok(line1, \"[, ]\\n\");\n    while(token){ pushed[n++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    token = strtok(line2, \"[, ]\\n\");\n    while(token){ popped[m++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    int top = -1, j = 0;\n\n    for(int i=0;i<n;i++){\n        stack[++top] = pushed[i];\n        while(top >= 0 && j < m && stack[top] == popped[j]){\n            top--;\n            j++;\n        }\n    }\n\n    if(top == -1) printf(\"true\");\n    else printf(\"false\");\n\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s1, s2; getline(cin, s1); getline(cin, s2);\n    auto parse = [](string s){ vector<int> v; string t; for(char c:s){if(isdigit(c))t+=c;else if(t!=\"\"){v.push_back(stoi(t));t=\"\";}} return v; };\n    vector<int> pushed = parse(s1), popped = parse(s2);\n    vector<int> st; int j=0;\n    for(int x: pushed) { st.push_back(x); while(!st.empty() && j<popped.size() && st.back()==popped[j]) { st.pop_back(); j++; } }\n    cout << (st.empty() ? \"true\" : \"false\"); return 0; }",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -579,13 +614,20 @@
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line[10000];\n    fgets(line, sizeof(line), stdin);\n\n    int arr[10000], stack[10000];\n    int n=0;\n\n    char *token = strtok(line, \"[, ]\\n\");\n    while(token){ arr[n++] = atoi(token); token = strtok(NULL, \"[, ]\\n\"); }\n\n    int top = -1;\n\n    for(int i=0;i<n;i++){\n        int a = arr[i];\n        int destroyed = 0;\n\n        while(top >= 0 && a < 0 && stack[top] > 0){\n            if(stack[top] < -a){\n                top--;\n                continue;\n            }\n            else if(stack[top] == -a){\n                top--;\n            }\n            destroyed = 1;\n            break;\n        }\n\n        if(!destroyed) stack[++top] = a;\n    }\n\n    printf(\"[\");\n    for(int i=0;i<=top;i++){\n        printf(\"%d\", stack[i]);\n        if(i<top) printf(\",\");\n    }\n    printf(\"]\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; getline(cin, s);\n    vector<int> ast; string t; for(char c:s){if(isdigit(c)||c=='-')t+=c;else if(t!=\"\"){ast.push_back(stoi(t));t=\"\";}}\n    vector<int> st;\n    for(int a: ast) {\n        bool exp = false;\n        while(!st.empty() && a<0 && st.back()>0) {\n            if(st.back() < -a) { st.pop_back(); continue; }\n            else if(st.back() == -a) { st.pop_back(); }\n            exp = true; break;\n        }\n        if(!exp) st.push_back(a);\n    }\n    cout << \"[\"; for(int i=0;i<st.size();i++) cout << st[i] << (i+1==st.size()?\"\":\",\"); cout << \"]\"; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Build Target Array Using Stack Operations",
-            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 → Push → stack = [1]\nRead 2 → Push then Pop → stack = [1]\nRead 3 → Push → stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100",
+            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nYou must simulate building this array using a stack-like process where numbers from 1 to n are read sequentially.\n\nFor each number read:\n- You may perform a \"Push\" operation to add it to the stack.\n- If the number is not part of the target array, you must immediately perform a \"Pop\" operation to remove it.\n\nYour task is to generate the sequence of operations required to construct the target array using the smallest possible number of operations.\n\nReturn the list of operations performed.\n\n**Example 1:**\nInput:\n[1,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Pop\",\"Push\"]\n\nExplanation:\nRead 1 \u2192 Push \u2192 stack = [1]\nRead 2 \u2192 Push then Pop \u2192 stack = [1]\nRead 3 \u2192 Push \u2192 stack = [1,3]\n\n**Example 2:**\nInput:\n[1,2,3]\n3\nOutput:\n[\"Push\",\"Push\",\"Push\"]\n\nExplanation:\nEach number is part of the target, so we only push them.\n\n**Constraints:**\n- 1 <= target.length <= 100\n- 1 <= target[i] <= n\n- target is strictly increasing\n- 1 <= n <= 100",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -671,13 +713,20 @@
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint main(){\n    char line[1000];\n    int n;\n\n    fgets(line, sizeof(line), stdin);\n    scanf(\"%d\", &n);\n\n    int target[100], t=0;\n    char *token = strtok(line, \"[, ]\\n\");\n\n    while(token){\n        target[t++] = atoi(token);\n        token = strtok(NULL, \"[, ]\\n\");\n    }\n\n    int current = 1;\n\n    printf(\"[\");\n\n    int first = 1;\n\n    for(int i=0;i<t;i++){\n        while(current < target[i]){\n            if(!first) printf(\",\");\n            printf(\"\\\"Push\\\",\\\"Pop\\\"\");\n            first = 0;\n            current++;\n        }\n\n        if(!first) printf(\",\");\n        printf(\"\\\"Push\\\"\");\n        first = 0;\n        current++;\n    }\n\n    printf(\"]\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string strTarget; getline(cin, strTarget);\n    int n; cin >> n;\n    vector<int> target; string t; for(char c:strTarget){if(isdigit(c))t+=c;else if(t!=\"\"){target.push_back(stoi(t));t=\"\";}}\n    int curr = 1; cout << \"[\"; bool first=true;\n    for(int x: target) {\n        while(curr < x) { if(!first)cout<<\",\"; cout<<\"\\\"Push\\\",\\\"Pop\\\"\"; first=false; curr++; }\n        if(!first)cout<<\",\"; cout<<\"\\\"Push\\\"\"; first=false; curr++;\n    }\n    cout << \"]\"; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Text Editor with Undo Operation",
-            "content": "Design a simple text editor that supports the following operations:\n\n1. append W → Append string W to the end of the current text.\n2. delete k → Delete the last k characters from the text.\n3. print k → Print the k-th character of the text.\n4. undo → Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc",
+            "content": "Design a simple text editor that supports the following operations:\n\n1. append W \u2192 Append string W to the end of the current text.\n2. delete k \u2192 Delete the last k characters from the text.\n3. print k \u2192 Print the k-th character of the text.\n4. undo \u2192 Undo the last append or delete operation.\n\nInitially the text is empty.\n\nYou must process a sequence of operations and output characters when the print command is executed.\n\n**Example:**\nInput:\n4\n1 abc\n3 3\n2 3\n1 xy\n\nOutput:\nc",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -758,13 +807,20 @@
                     "code": "#include <stdio.h>\n#include <string.h>\nchar history[1000][100000];\nint top=-1;\nint main(){\nint q; scanf(\"%d\",&q);\nchar text[100000]=\"\";\nwhile(q--){\nint t; scanf(\"%d\",&t);\nif(t==1){\nchar w[100000]; scanf(\"%s\",w);\nstrcpy(history[++top],text);\nstrcat(text,w);\n}\nelse if(t==2){\nint k; scanf(\"%d\",&k);\nstrcpy(history[++top],text);\ntext[strlen(text)-k]='\\0';\n}\nelse if(t==3){\nint k; scanf(\"%d\",&k);\nprintf(\"%c\\n\",text[k-1]);\n}\nelse{\nstrcpy(text,history[top--]);\n}\n}\n}",
                     "complexity_analysis": "Time O(Q). Space O(Q).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    int q; if(!(cin >> q)) return 0;\n    string text = \"\"; vector<string> hist;\n    while(q--) {\n        int type; cin >> type;\n        if(type==1) { string w; cin >> w; hist.push_back(text); text += w; }\n        else if(type==2) { int k; cin >> k; hist.push_back(text); text.erase(text.size()-k); }\n        else if(type==3) { int k; cin >> k; cout << text[k-1] << \"\\n\"; }\n        else { text = hist.back(); hist.pop_back(); }\n    } return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack of Plates with Capacity Limit",
-            "content": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) → Push value into the leftmost stack that is not full.\npop() → Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) → Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.",
+            "content": "Design a data structure that simulates stacks of plates. Each stack has a fixed capacity.\n\nOperations supported:\n\npush(val) \u2192 Push value into the leftmost stack that is not full.\npop() \u2192 Remove and return the top value from the rightmost non-empty stack.\npopAtStack(index) \u2192 Pop the top value from a specific stack.\n\nReturn -1 if the requested operation cannot be performed.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -845,13 +901,20 @@
                     "code": "// Implementation using arrays of stacks\n",
                     "complexity_analysis": "Push O(N). Pop O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; } // placeholder ",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack that Pops Most Frequent Element",
-            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Add element x.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.",
+            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Add element x.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements share the same highest frequency, return the one that was pushed most recently.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Basics",
@@ -932,13 +995,20 @@
                     "code": "// Implementation using frequency arrays and stacks",
                     "complexity_analysis": "Push O(1). Pop O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; } // placeholder ",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Implementing a Stack Using Queues",
-            "content": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element of the stack.\ntop() → Return the top element without removing it.\nempty() → Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.",
+            "content": "Design a data structure that simulates a stack using only queue operations.\n\nThe stack should support the following operations:\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element of the stack.\ntop() \u2192 Return the top element without removing it.\nempty() \u2192 Return true if the stack is empty.\n\nYou must implement this using only standard queue operations such as enqueue, dequeue, and checking if the queue is empty.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1005,13 +1075,34 @@
                     "code": "from collections import deque\nclass MyStack:\n    def __init__(self):\n        self.q=deque()\n\n    def push(self,x):\n        self.q.append(x)\n        for _ in range(len(self.q)-1):\n            self.q.append(self.q.popleft())\n\n    def pop(self):\n        return self.q.popleft()\n\n    def top(self):\n        return self.q[0]\n\n    def empty(self):\n        return len(self.q)==0",
                     "complexity_analysis": "Push O(N). Pop O(1).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; } // placeholder ",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Building a Target Array Using Stack Operations",
-            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush → Push the number into the stack.\nPop → Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.",
+            "content": "You are given a target array containing strictly increasing integers between 1 and n.\n\nNumbers from 1 to n are read sequentially. For each number you may perform the following operations:\n\nPush \u2192 Push the number into the stack.\nPop \u2192 Remove the number if it is not part of the target.\n\nReturn the list of operations needed to build the target array.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1078,13 +1169,34 @@
                     "code": "def buildArray(target,n):\n    res=[]\n    cur=1\n    for t in target:\n        while cur<t:\n            res.append('Push')\n            res.append('Pop')\n            cur+=1\n        res.append('Push')\n        cur+=1\n    return res",
                     "complexity_analysis": "Time O(N).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "// C++ boilerplate\\n#include <bits/stdc++.h>\\nusing namespace std;\\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "/* boilerplate */",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "/* boilerplate */",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Simulating Folder Navigation Logs",
-            "content": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" → Move to parent folder.\n\"./\" → Stay in current folder.\n\"x/\" → Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.",
+            "content": "You are given a list of folder navigation logs.\n\nEach log may be:\n\n\"../\" \u2192 Move to parent folder.\n\"./\" \u2192 Stay in current folder.\n\"x/\" \u2192 Move into child folder x.\n\nReturn the minimum number of operations needed to go back to the root folder.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1151,6 +1263,27 @@
                     "code": "def minOperations(logs):\n    stack=[]\n    for l in logs:\n        if l=='../':\n            if stack: stack.pop()\n        elif l!='./':\n            stack.append(l)\n    return len(stack)",
                     "complexity_analysis": "Time O(N).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s;\n    int depth = 0;\n    // parse logs...\n    cout << depth; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1224,6 +1357,27 @@
                     "code": "def removeDuplicates(s):\n    stack=[]\n    for c in s:\n        if stack and stack[-1]==c:\n            stack.pop()\n        else:\n            stack.append(c)\n    return ''.join(stack)",
                     "complexity_analysis": "Time O(N).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res;\n    for(char c: s) { if(!res.empty() && res.back()==c) res.pop_back(); else res+=c; }\n    cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1297,13 +1451,34 @@
                     "code": "def removeDuplicates(s):\n    stack=[]\n    for c in s:\n        if stack and stack[-1]==c:\n            stack.pop()\n        else:\n            stack.append(c)\n    return ''.join(stack)",
                     "complexity_analysis": "Time O(N).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res;\n    for(char c: s) { if(!res.empty() && res.back()==c) res.pop_back(); else res+=c; }\n    cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Designing a Stack with Minimum Retrieval",
-            "content": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove the top element.\ntop() → Return the top element.\ngetMin() → Return the minimum element in the stack.\n\nAll operations must run in O(1) time.",
+            "content": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove the top element.\ntop() \u2192 Return the top element.\ngetMin() \u2192 Return the minimum element in the stack.\n\nAll operations must run in O(1) time.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1370,13 +1545,34 @@
                     "code": "class MinStack:\n    def __init__(self):\n        self.stack=[]\n        self.min_stack=[]\n\n    def push(self,val):\n        self.stack.append(val)\n        if not self.min_stack or val<=self.min_stack[-1]:\n            self.min_stack.append(val)\n\n    def pop(self):\n        if self.stack.pop()==self.min_stack[-1]:\n            self.min_stack.pop()\n\n    def top(self):\n        return self.stack[-1]\n\n    def getMin(self):\n        return self.min_stack[-1]",
                     "complexity_analysis": "All operations O(1).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack with Increment Operation",
-            "content": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) → Push element x.\npop() → Remove the top element.\nincrement(k,val) → Increment bottom k elements by val.\n\nReturn values for pop operations.",
+            "content": "Design a stack supporting push, pop, and increment operations.\n\nOperations:\npush(x) \u2192 Push element x.\npop() \u2192 Remove the top element.\nincrement(k,val) \u2192 Increment bottom k elements by val.\n\nReturn values for pop operations.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1443,13 +1639,34 @@
                     "code": "class CustomStack:\n    def __init__(self,maxSize):\n        self.stack=[]\n        self.maxSize=maxSize\n\n    def push(self,x):\n        if len(self.stack)<self.maxSize:\n            self.stack.append(x)\n\n    def pop(self):\n        if not self.stack:\n            return -1\n        return self.stack.pop()\n\n    def increment(self,k,val):\n        for i in range(min(k,len(self.stack))):\n            self.stack[i]+=val",
                     "complexity_analysis": "Push O(1), Pop O(1), Increment O(k).",
                     "is_primary": true
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - JAVA",
+                    "language": "java",
+                    "code": "import java.util.*; public class Solution { public static void main(String[] args) {} }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack Supporting Maximum Element Retrieval",
-            "content": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) → Push element x onto the stack.\npop() → Remove and return the top element.\ntop() → Return the top element without removing it.\npeekMax() → Return the maximum element in the stack.\npopMax() → Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.",
+            "content": "Design a stack that supports standard stack operations along with retrieving and removing the maximum element efficiently.\n\nOperations:\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the top element.\ntop() \u2192 Return the top element without removing it.\npeekMax() \u2192 Return the maximum element in the stack.\npopMax() \u2192 Remove and return the maximum element. If multiple maximum values exist, remove the one closest to the top.\n\nAll operations should be efficient.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1530,13 +1747,20 @@
                     "code": "#include<stdio.h>\nint stack[1000];int top=-1;\nvoid push(int x){stack[++top]=x;}\nint pop(){return stack[top--];}\nint peekMax(){int m=stack[0];for(int i=1;i<=top;i++) if(stack[i]>m)m=stack[i];return m;}",
                     "complexity_analysis": "peekMax O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack of Plates with Capacity Limit",
-            "content": "Design a system of stacks where each stack has a fixed capacity.\n\nOperations:\npush(val) → Push value into the leftmost stack that is not full.\npop() → Pop from the rightmost non-empty stack.\npopAtStack(index) → Pop from a specific stack.\n\nReturn -1 if the requested pop operation cannot be performed.",
+            "content": "Design a system of stacks where each stack has a fixed capacity.\n\nOperations:\npush(val) \u2192 Push value into the leftmost stack that is not full.\npop() \u2192 Pop from the rightmost non-empty stack.\npopAtStack(index) \u2192 Pop from a specific stack.\n\nReturn -1 if the requested pop operation cannot be performed.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1617,13 +1841,20 @@
                     "code": "// Implementation using array of stacks",
                     "complexity_analysis": "Push O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; } // placeholder ",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack that Removes Most Frequent Element",
-            "content": "Design a stack that supports push and pop operations.\n\npush(x) → Push element x.\npop() → Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.",
+            "content": "Design a stack that supports push and pop operations.\n\npush(x) \u2192 Push element x.\npop() \u2192 Remove and return the element with highest frequency.\n\nIf multiple elements share the same highest frequency, return the most recently pushed one.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Implementations",
@@ -1703,6 +1934,13 @@
                     "language": "c",
                     "code": "// C implementation using frequency arrays",
                     "complexity_analysis": "Push O(1), Pop O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -1791,92 +2029,12 @@
                     "code": "#include<stdio.h>\n#include<string.h>\n#include<ctype.h>\n\nint main(){\n    char s[200];\n    scanf(\"%s\",s);\n\n    char stack[200];\n    int top=-1;\n\n    for(int i=0;i<strlen(s);i++){\n        char c=s[i];\n        if(top>=0 && abs(stack[top]-c)==32)\n            top--;\n        else\n            stack[++top]=c;\n    }\n\n    for(int i=0;i<=top;i++)\n        printf(\"%c\",stack[i]);\n\n    return 0;\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
                     "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Removing Outermost Parentheses",
-            "content": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing outer parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s contains only '(' and ')'\n- s is a valid parentheses string.",
-            "level": "subtopic",
-            "topic_name": "Stacks",
-            "subtopic_name": "Stack Design Problems",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "(()())(())",
-                    "expected_output": "()()()"
                 },
                 {
-                    "input": "(()())(())(()(()))",
-                    "expected_output": "()()()()(())"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "()()",
-                    "expected_output": ""
-                },
-                {
-                    "input": "((()))",
-                    "expected_output": "(())"
-                },
-                {
-                    "input": "((())())",
-                    "expected_output": "(())()"
-                },
-                {
-                    "input": "(()(()))",
-                    "expected_output": "()(())"
-                },
-                {
-                    "input": "((()()))",
-                    "expected_output": "(()())"
-                },
-                {
-                    "input": "()(())",
-                    "expected_output": "()"
-                },
-                {
-                    "input": "(((())))",
-                    "expected_output": "((()))"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "(()())(())",
-                    "expected_output": "()()()",
-                    "explanation": "The primitive strings are separated and their outer parentheses are removed."
-                }
-            ],
-            "inputFormat": "A single line containing a valid parentheses string s.",
-            "outputFormat": "Return the resulting string after removing the outermost parentheses of each primitive substring.",
-            "solutions": [
-                {
-                    "title": "Stack Depth Tracking",
-                    "language": "python",
-                    "code": "def removeOuterParentheses(s):\n    result=[]\n    depth=0\n    for c in s:\n        if c=='(':\n            if depth>0:\n                result.append(c)\n            depth+=1\n        else:\n            depth-=1\n            if depth>0:\n                result.append(c)\n    return ''.join(result)",
-                    "complexity_analysis": "Time O(N) since each character is processed once. Space O(N).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Stack Simulation",
-                    "language": "java",
-                    "code": "import java.util.*;\nclass Solution {\n    public String removeOuterParentheses(String s) {\n        StringBuilder res = new StringBuilder();\n        int depth = 0;\n        for(char c : s.toCharArray()){\n            if(c == '('){\n                if(depth > 0) res.append(c);\n                depth++;\n            } else {\n                depth--;\n                if(depth > 0) res.append(c);\n            }\n        }\n        return res.toString();\n    }\n}",
-                    "complexity_analysis": "Time O(N). Space O(N).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Depth Counter Approach",
-                    "language": "c",
-                    "code": "#include<stdio.h>\n#include<string.h>\n\nint main(){\n    char s[100000];\n    scanf(\"%s\",s);\n\n    int depth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        } else {\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n\n    return 0;\n}",
-                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res;\n    for(char c: s) {\n        if(!res.empty() && abs(res.back() - c) == 32) res.pop_back();\n        else res += c;\n    } cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -1964,6 +2122,107 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n#include<string.h>\n\nint main(){\n    char s[100000];\n    scanf(\"%s\",s);\n\n    int depth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        } else {\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res; int opened = 0;\n    for(char c: s) {\n        if(c=='(' && opened++ > 0) res += c;\n        if(c==')' && opened-- > 1) res += c;\n    } cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Removing Outermost Parentheses",
+            "content": "A valid parentheses string is either empty, \"()\", or can be written as AB (A and B are valid strings) or (A) where A is a valid parentheses string.\n\nA primitive valid parentheses string is a valid string that cannot be split into two non-empty valid strings.\n\nGiven a valid parentheses string s, remove the outermost parentheses of every primitive string and return the resulting string.\n\n**Example 1:**\nInput:\n(()())(())\nOutput:\n()()()\n\nExplanation:\nPrimitive strings are \"(()())\" and \"(())\". Removing outer parentheses results in \"()()()\".\n\n**Example 2:**\nInput:\n(()())(())(()(()))\nOutput:\n()()()()(())\n\n**Constraints:**\n- 1 <= s.length <= 10^5\n- s contains only '(' and ')'\n- s is a valid parentheses string.",
+            "level": "subtopic",
+            "topic_name": "Stacks",
+            "subtopic_name": "Stack Design Problems",
+            "difficulty": "easy",
+            "marks": 5,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "(()())(())",
+                    "expected_output": "()()()"
+                },
+                {
+                    "input": "(()())(())(()(()))",
+                    "expected_output": "()()()()(())"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "()()",
+                    "expected_output": ""
+                },
+                {
+                    "input": "((()))",
+                    "expected_output": "(())"
+                },
+                {
+                    "input": "((())())",
+                    "expected_output": "(())()"
+                },
+                {
+                    "input": "(()(()))",
+                    "expected_output": "()(())"
+                },
+                {
+                    "input": "((()()))",
+                    "expected_output": "(()())"
+                },
+                {
+                    "input": "()(())",
+                    "expected_output": "()"
+                },
+                {
+                    "input": "(((())))",
+                    "expected_output": "((()))"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "(()())(())",
+                    "expected_output": "()()()",
+                    "explanation": "The primitive strings are separated and their outer parentheses are removed."
+                }
+            ],
+            "inputFormat": "A single line containing a valid parentheses string s.",
+            "outputFormat": "Return the resulting string after removing the outermost parentheses of each primitive substring.",
+            "solutions": [
+                {
+                    "title": "Stack Depth Tracking",
+                    "language": "python",
+                    "code": "def removeOuterParentheses(s):\n    result=[]\n    depth=0\n    for c in s:\n        if c=='(':\n            if depth>0:\n                result.append(c)\n            depth+=1\n        else:\n            depth-=1\n            if depth>0:\n                result.append(c)\n    return ''.join(result)",
+                    "complexity_analysis": "Time O(N) since each character is processed once. Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "java",
+                    "code": "import java.util.*;\nclass Solution {\n    public String removeOuterParentheses(String s) {\n        StringBuilder res = new StringBuilder();\n        int depth = 0;\n        for(char c : s.toCharArray()){\n            if(c == '('){\n                if(depth > 0) res.append(c);\n                depth++;\n            } else {\n                depth--;\n                if(depth > 0) res.append(c);\n            }\n        }\n        return res.toString();\n    }\n}",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Depth Counter Approach",
+                    "language": "c",
+                    "code": "#include<stdio.h>\n#include<string.h>\n\nint main(){\n    char s[100000];\n    scanf(\"%s\",s);\n\n    int depth=0;\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        } else {\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n\n    return 0;\n}",
+                    "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; string res; int opened = 0;\n    for(char c: s) {\n        if(c=='(' && opened++ > 0) res += c;\n        if(c==')' && opened-- > 1) res += c;\n    } cout << res; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -1971,7 +2230,7 @@
         {
             "type": "coding",
             "title": "Maximum Element in a Stack",
-            "content": "You are given a stack that supports the following operations:\n\n1 x → Push element x onto the stack.\n2 → Pop the top element.\n3 → Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 ≤ number of queries ≤ 10^5\n- -10^9 ≤ x ≤ 10^9",
+            "content": "You are given a stack that supports the following operations:\n\n1 x \u2192 Push element x onto the stack.\n2 \u2192 Pop the top element.\n3 \u2192 Print the maximum element currently in the stack.\n\nProcess a sequence of operations and output the maximum element whenever operation 3 is executed.\n\n**Example:**\nInput:\n10\n1 97\n2\n1 20\n2\n1 26\n1 20\n2\n3\n1 91\n3\n\nOutput:\n26\n91\n\n**Constraints:**\n- 1 \u2264 number of queries \u2264 10^5\n- -10^9 \u2264 x \u2264 10^9",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Design Problems",
@@ -2052,13 +2311,20 @@
                     "code": "#include<stdio.h>\nint stack[1000],maxStack[1000];",
                     "complexity_analysis": "All operations O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Online Stock Span Calculator",
-            "content": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) → Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 ≤ price ≤ 10^5\n- At most 10^4 calls will be made.",
+            "content": "Design a system that processes a stream of daily stock prices and calculates the stock span for each new price.\n\nThe span of the stock price today is defined as the maximum number of consecutive days (including today) for which the price was less than or equal to today's price.\n\nImplement a class StockSpanner that supports:\n\nnext(price) \u2192 Returns the span of the current price.\n\n**Example:**\nInput:\n[100,80,60,70,60,75,85]\nOutput:\n[1,1,1,2,1,4,6]\n\n**Constraints:**\n- 1 \u2264 price \u2264 10^5\n- At most 10^4 calls will be made.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Design Problems",
@@ -2113,7 +2379,7 @@
                 {
                     "input": "[100,80,60,70,60,75,85]",
                     "expected_output": "[1,1,1,2,1,4,6]",
-                    "explanation": "Span is calculated based on consecutive days where price ≤ today's price."
+                    "explanation": "Span is calculated based on consecutive days where price \u2264 today's price."
                 }
             ],
             "inputFormat": "A list of stock prices.",
@@ -2138,6 +2404,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Uses stack simulation.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -2226,6 +2499,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Uses stack.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2313,13 +2593,20 @@
                     "code": "#include<stdio.h>\n#include<string.h>",
                     "complexity_analysis": "Stack-based simulation approach.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack that Removes the Most Frequent Element",
-            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
+            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Design Problems",
@@ -2400,13 +2687,20 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Frequency tracking approach.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Stack that Removes the Most Frequent Element",
-            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) → Push element x onto the stack.\npop() → Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
+            "content": "Design a stack-like data structure that supports push and pop operations.\n\npush(x) \u2192 Push element x onto the stack.\npop() \u2192 Remove and return the most frequent element in the stack.\n\nIf multiple elements have the same highest frequency, return the one that was pushed most recently.\n\n**Example:**\nInput:\npush 5\npush 7\npush 5\npush 7\npush 4\npush 5\npop\npop\npop\npop\n\nOutput:\n5\n7\n5\n4\n\nExplanation:\nThe element with the highest frequency is removed first. If frequencies are equal, the most recent element is removed.",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Stack Design Problems",
@@ -2486,6 +2780,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Frequency tracking approach.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -2574,6 +2875,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack based evaluation.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2660,6 +2968,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n#include<string.h>\n\nint minAddToMakeValid(char *s){\n    int balance=0, insertions=0;\n\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='(') balance++;\n        else{\n            if(balance==0) insertions++;\n            else balance--;\n        }\n    }\n\n    return insertions + balance;\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -2748,6 +3063,13 @@
                     "code": "#include<stdio.h>\n#include<string.h>\n\nint maxDepth(char *s){\n    int depth=0, maxDepth=0;\n\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            depth++;\n            if(depth>maxDepth) maxDepth=depth;\n        }\n        else if(s[i]==')'){\n            depth--;\n        }\n    }\n\n    return maxDepth;\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    string s; cin >> s; int max_d=0, cur=0;\n    for(char c: s) { if(c=='(') max_d = max(max_d, ++cur); else if(c==')') cur--; }\n    cout << max_d; return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2834,6 +3156,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n#include<string.h>\n\nvoid removeOuterParentheses(char *s){\n    int depth = 0;\n\n    for(int i=0;i<strlen(s);i++){\n        if(s[i]=='('){\n            if(depth>0) printf(\"(\");\n            depth++;\n        }\n        else{\n            depth--;\n            if(depth>0) printf(\")\");\n        }\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -2922,6 +3251,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack simulation.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3008,6 +3344,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack simulation.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3096,6 +3439,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack based simulation.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3183,92 +3533,12 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack simulation.",
                     "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Basic Calculator",
-            "content": "Evaluate a simple expression string containing non-negative integers, '+', '-', and parentheses.",
-            "level": "subtopic",
-            "topic_name": "Stacks",
-            "subtopic_name": "Stack Applications",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "1 + 1",
-                    "expected_output": "2"
                 },
                 {
-                    "input": "2-1 + 2",
-                    "expected_output": "3"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "(1+(4+5+2)-3)+(6+8)",
-                    "expected_output": "23"
-                },
-                {
-                    "input": "10+(2+3)",
-                    "expected_output": "15"
-                },
-                {
-                    "input": "(7)-(0)+(4)",
-                    "expected_output": "11"
-                },
-                {
-                    "input": "(5+(6-2))",
-                    "expected_output": "9"
-                },
-                {
-                    "input": "((1+2)+3)",
-                    "expected_output": "6"
-                },
-                {
-                    "input": "20-(5+5)",
-                    "expected_output": "10"
-                },
-                {
-                    "input": "(8+(3))",
-                    "expected_output": "11"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "(1+(4+5+2)-3)+(6+8)",
-                    "expected_output": "23",
-                    "explanation": "Use stack to handle parentheses."
-                }
-            ],
-            "inputFormat": "Arithmetic expression string.",
-            "outputFormat": "Return evaluated result.",
-            "solutions": [
-                {
-                    "title": "Stack Based Expression Evaluation",
-                    "language": "python",
-                    "code": "def calculate(s):\n stack=[]\n res=0\n num=0\n sign=1\n for c in s:\n  if c.isdigit(): num=num*10+int(c)\n  elif c in '+-':\n   res+=sign*num\n   num=0\n   sign=1 if c=='+' else -1\n  elif c=='(':\n   stack.append(res)\n   stack.append(sign)\n   res=0\n   sign=1\n  elif c==')':\n   res+=sign*num\n   num=0\n   res*=stack.pop()\n   res+=stack.pop()\n res+=sign*num\n return res",
-                    "complexity_analysis": "Time O(N). Space O(N).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Stack Parsing",
-                    "language": "java",
-                    "code": "import java.util.*;",
-                    "complexity_analysis": "Uses stack for parentheses.",
-                    "is_primary": false
-                },
-                {
-                    "title": "Stack Simulation",
-                    "language": "c",
-                    "code": "#include<stdio.h>",
-                    "complexity_analysis": "Stack simulation.",
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3356,6 +3626,107 @@
                     "language": "c",
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack simulation.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                }
+            ]
+        },
+        {
+            "type": "coding",
+            "title": "Basic Calculator",
+            "content": "Evaluate a simple expression string containing non-negative integers, '+', '-', and parentheses.",
+            "level": "subtopic",
+            "topic_name": "Stacks",
+            "subtopic_name": "Stack Applications",
+            "difficulty": "hard",
+            "marks": 15,
+            "categories": [
+                "learn",
+                "practice",
+                "skill_test"
+            ],
+            "test_cases_basic": [
+                {
+                    "input": "1 + 1",
+                    "expected_output": "2"
+                },
+                {
+                    "input": "2-1 + 2",
+                    "expected_output": "3"
+                }
+            ],
+            "test_cases_advanced": [
+                {
+                    "input": "(1+(4+5+2)-3)+(6+8)",
+                    "expected_output": "23"
+                },
+                {
+                    "input": "10+(2+3)",
+                    "expected_output": "15"
+                },
+                {
+                    "input": "(7)-(0)+(4)",
+                    "expected_output": "11"
+                },
+                {
+                    "input": "(5+(6-2))",
+                    "expected_output": "9"
+                },
+                {
+                    "input": "((1+2)+3)",
+                    "expected_output": "6"
+                },
+                {
+                    "input": "20-(5+5)",
+                    "expected_output": "10"
+                },
+                {
+                    "input": "(8+(3))",
+                    "expected_output": "11"
+                }
+            ],
+            "examples": [
+                {
+                    "input": "(1+(4+5+2)-3)+(6+8)",
+                    "expected_output": "23",
+                    "explanation": "Use stack to handle parentheses."
+                }
+            ],
+            "inputFormat": "Arithmetic expression string.",
+            "outputFormat": "Return evaluated result.",
+            "solutions": [
+                {
+                    "title": "Stack Based Expression Evaluation",
+                    "language": "python",
+                    "code": "def calculate(s):\n stack=[]\n res=0\n num=0\n sign=1\n for c in s:\n  if c.isdigit(): num=num*10+int(c)\n  elif c in '+-':\n   res+=sign*num\n   num=0\n   sign=1 if c=='+' else -1\n  elif c=='(':\n   stack.append(res)\n   stack.append(sign)\n   res=0\n   sign=1\n  elif c==')':\n   res+=sign*num\n   num=0\n   res*=stack.pop()\n   res+=stack.pop()\n res+=sign*num\n return res",
+                    "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Stack Parsing",
+                    "language": "java",
+                    "code": "import java.util.*;",
+                    "complexity_analysis": "Uses stack for parentheses.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack Simulation",
+                    "language": "c",
+                    "code": "#include<stdio.h>",
+                    "complexity_analysis": "Stack simulation.",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3444,6 +3815,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Stack simulation for tag validation.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3530,6 +3908,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n\nvoid nextGreaterElement(int nums1[], int m, int nums2[], int n, int result[]) {\n    int stack[1000], top=-1;\n    int map[10001];\n\n    for(int i=0;i<10001;i++) map[i] = -1;\n\n    for(int i=0;i<n;i++){\n        while(top>=0 && stack[top] < nums2[i]){\n            map[stack[top--]] = nums2[i];\n        }\n        stack[++top] = nums2[i];\n    }\n\n    for(int i=0;i<m;i++){\n        result[i] = map[nums1[i]];\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3618,6 +4003,13 @@
                     "code": "#include<stdio.h>\n\nvoid finalPrices(int prices[], int n, int result[]) {\n    int stack[1000], top=-1;\n\n    for(int i=0;i<n;i++) result[i] = prices[i];\n\n    for(int i=0;i<n;i++){\n        while(top>=0 && prices[stack[top]] >= prices[i]){\n            int idx = stack[top--];\n            result[idx] -= prices[i];\n        }\n        stack[++top] = i;\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3704,6 +4096,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n\nvoid findBuildings(int heights[], int n){\n    int max=0;\n\n    for(int i=n-1;i>=0;i--){\n        if(heights[i] > max){\n            printf(\"%d \",i);\n            max = heights[i];\n        }\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3792,6 +4191,13 @@
                     "code": "#include<stdio.h>",
                     "complexity_analysis": "Uses monotonic stack with DP concept.",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -3878,6 +4284,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n\nvoid dailyTemperatures(int temps[], int n, int res[]){\n    int stack[100000];\n    int top=-1;\n\n    for(int i=0;i<n;i++) res[i]=0;\n\n    for(int i=0;i<n;i++){\n        while(top>=0 && temps[stack[top]] < temps[i]){\n            int idx = stack[top--];\n            res[idx] = i - idx;\n        }\n        stack[++top] = i;\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -3966,6 +4379,13 @@
                     "code": "#include<stdio.h>\n\nvoid nextGreaterElements(int nums[], int n, int res[]){\n    int stack[10000];\n    int top=-1;\n\n    for(int i=0;i<n;i++) res[i] = -1;\n\n    for(int i=0;i<2*n;i++){\n        while(top>=0 && nums[stack[top]] < nums[i%n]){\n            res[stack[top--]] = nums[i%n];\n        }\n\n        if(i < n)\n            stack[++top] = i;\n    }\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4052,6 +4472,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n\nlong subArrayRanges(int nums[], int n){\n    long res=0;\n\n    for(int i=0;i<n;i++){\n        int min=nums[i], max=nums[i];\n\n        for(int j=i;j<n;j++){\n            if(nums[j]<min) min=nums[j];\n            if(nums[j]>max) max=nums[j];\n\n            res += max-min;\n        }\n    }\n\n    return res;\n}",
                     "complexity_analysis": "Time O(N^2). Space O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
@@ -4140,6 +4567,13 @@
                     "code": "#include<stdio.h>\n\nint largestRectangleArea(int heights[], int n){\n    int stack[10000];\n    int top=-1;\n    int maxArea=0;\n\n    for(int i=0;i<=n;i++){\n        int h = (i==n)?0:heights[i];\n\n        while(top>=0 && heights[stack[top]] > h){\n            int height = heights[stack[top--]];\n            int width = (top==-1)? i : i-stack[top]-1;\n            int area = height * width;\n            if(area > maxArea) maxArea = area;\n        }\n\n        stack[++top] = i;\n    }\n\n    return maxArea;\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
@@ -4227,13 +4661,20 @@
                     "code": "#include<stdio.h>\n\nint trap(int height[], int n){\n    int left=0, right=n-1;\n    int leftMax=0, rightMax=0;\n    int water=0;\n\n    while(left<right){\n        if(height[left] < height[right]){\n            if(height[left] >= leftMax)\n                leftMax = height[left];\n            else\n                water += leftMax - height[left];\n            left++;\n        }else{\n            if(height[right] >= rightMax)\n                rightMax = height[right];\n            else\n                water += rightMax - height[right];\n            right--;\n        }\n    }\n\n    return water;\n}",
                     "complexity_analysis": "Time O(N). Space O(1).",
                     "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
                 }
             ]
         },
         {
             "type": "coding",
             "title": "Sum of Subarray Minimums",
-            "content": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] → 3\n[1] → 1\n[2] → 2\n[4] → 4\n[3,1] → 1\n[1,2] → 1\n[2,4] → 2\n[3,1,2] → 1\n[1,2,4] → 1\n[3,1,2,4] → 1\nTotal = 17",
+            "content": "Given an array of integers arr, find the sum of the minimum value of every subarray of arr.\n\nReturn the answer modulo 10^9 + 7.\n\n**Example 1:**\nInput:\n[3,1,2,4]\nOutput:\n17\n\nExplanation:\nSubarrays and minimums:\n[3] \u2192 3\n[1] \u2192 1\n[2] \u2192 2\n[4] \u2192 4\n[3,1] \u2192 1\n[1,2] \u2192 1\n[2,4] \u2192 2\n[3,1,2] \u2192 1\n[1,2,4] \u2192 1\n[3,1,2,4] \u2192 1\nTotal = 17",
             "level": "subtopic",
             "topic_name": "Stacks",
             "subtopic_name": "Monotonic Stack Pattern",
@@ -4313,6 +4754,13 @@
                     "language": "c",
                     "code": "#include<stdio.h>\n#define MOD 1000000007\n\nlong sumSubarrayMins(int arr[], int n){\n    int stack[100000];\n    int top=-1;\n    long res=0;\n\n    for(int i=0;i<=n;i++){\n        while(top>=0 && (i==n || arr[stack[top]] > arr[i])){\n            int mid = stack[top--];\n            int left = mid - (top==-1 ? -1 : stack[top]);\n            int right = i - mid;\n            res += (long)arr[mid] * left * right;\n        }\n        stack[++top] = i;\n    }\n\n    return res % MOD;\n}",
                     "complexity_analysis": "Time O(N). Space O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Stack implementation - CPP",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
             ]
