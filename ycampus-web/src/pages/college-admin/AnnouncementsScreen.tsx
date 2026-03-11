@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
 import RoleHeader from '@/components/common/RoleHeader';
 import announcementService, { Announcement, AnnouncementFilters } from '@/services/announcementService';
+import departmentService, { Department } from '@/services/departmentService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,28 +23,31 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, parse, isValid } from 'date-fns';
+import { 
   Card, 
   CardContent
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { AnnouncementsList } from '@/components/college-admin/announcements/AnnouncementsList';
 import { 
   Plus, 
   Search, 
   Edit, 
   Trash2, 
-  Calendar,
+  Calendar as CalendarIcon,
   X,
   ChevronLeft,
   ChevronRight,
-  Bell
+  Bell,
+  Building2,
+  Paperclip,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -57,15 +61,19 @@ const AnnouncementsScreen: React.FC = () => {
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
+  const [viewAnnouncement, setViewAnnouncement] = useState<Announcement | null>(null);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    level: 'college' as 'college' | 'department',
-    priority: 'normal' as 'normal' | 'important' | 'urgent',
+    level: '' as 'college' | 'department' | '',
+    priority: '' as 'normal' | 'important' | 'urgent' | '',
     is_active: true,
-    publish_date: '',
+    department: '',
     expiry_date: '',
   });
 
@@ -74,7 +82,21 @@ const AnnouncementsScreen: React.FC = () => {
 
   useEffect(() => {
     loadAnnouncements(1);
-  }, [filterLevel, filterPriority]);
+    
+    if (collegeId) {
+      loadDepartments();
+    }
+  }, [filterLevel, filterPriority, collegeId]);
+
+  const loadDepartments = async () => {
+    try {
+      const data = await departmentService.getDepartments(collegeId);
+      setDepartments(data);
+    } catch (error) {
+      console.error('Error loading departments:', error);
+      toast.error('Failed to load departments');
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,22 +151,60 @@ const AnnouncementsScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const payload = {
-        ...formData,
-        college: collegeId,
-      };
+      if (!formData.title || !formData.content || !formData.level || !formData.priority) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      if (formData.level === 'department' && !formData.department) {
+        toast.error('Please select at least one department');
+        return;
+      }
+
+      let parsedExpiryDate = null;
+      if (formData.expiry_date) {
+        const parts = formData.expiry_date.split('-');
+        if (parts.length === 3 && parts[0].length === 2 && parts[2].length === 4) {
+          // It's in DD-MM-YYYY format, save it as YYYY-MM-DD for the backend
+          parsedExpiryDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        } else {
+          parsedExpiryDate = formData.expiry_date;
+        }
+      }
+
+      const payloadFormData = new FormData();
+      payloadFormData.append('title', formData.title);
+      payloadFormData.append('content', formData.content);
+      payloadFormData.append('level', formData.level);
+      payloadFormData.append('priority', formData.priority);
+      payloadFormData.append('is_active', formData.is_active.toString());
+      payloadFormData.append('college', collegeId);
+      payloadFormData.append('publish_date', new Date().toISOString());
       
+      if (formData.level === 'department' && formData.department) {
+        payloadFormData.append('department', formData.department);
+      }
+      
+      if (parsedExpiryDate) {
+        payloadFormData.append('expiry_date', parsedExpiryDate);
+      }
+      
+      if (attachmentFile) {
+        payloadFormData.append('attachment', attachmentFile);
+      }
+
       if (editingAnnouncement) {
-        await announcementService.updateAnnouncement(editingAnnouncement.id, payload);
+        await announcementService.updateAnnouncement(editingAnnouncement.id, payloadFormData);
         toast.success('Announcement updated successfully');
+        loadAnnouncements(currentPage);
       } else {
-        await announcementService.createAnnouncement(payload);
+        await announcementService.createAnnouncement(payloadFormData);
         toast.success('Announcement created successfully');
+        loadAnnouncements(1);
       }
       
       setIsDialogOpen(false);
       resetForm();
-      loadAnnouncements(currentPage);
     } catch (error: any) {
       console.error('Error saving announcement:', error);
       toast.error(error.response?.data?.detail || 'Failed to save announcement');
@@ -166,57 +226,44 @@ const AnnouncementsScreen: React.FC = () => {
 
   const handleEdit = (announcement: Announcement) => {
     setEditingAnnouncement(announcement);
+    
+    let formattedExpiryDate = '';
+    if (announcement.expiry_date) {
+      const datePart = announcement.expiry_date.split('T')[0];
+      const parts = datePart.split('-');
+      if (parts.length === 3) {
+        // Convert YYYY-MM-DD to DD-MM-YYYY
+        formattedExpiryDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     setFormData({
       title: announcement.title,
       content: announcement.content,
       level: announcement.level,
       priority: announcement.priority,
       is_active: announcement.is_active,
-      publish_date: announcement.publish_date ? announcement.publish_date.split('T')[0] : '',
-      expiry_date: announcement.expiry_date ? announcement.expiry_date.split('T')[0] : '',
+      department: announcement.department || '',
+      expiry_date: formattedExpiryDate,
     });
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
     setEditingAnnouncement(null);
+    setAttachmentFile(null);
     setFormData({
       title: '',
       content: '',
-      level: 'college',
-      priority: 'normal',
+      level: '',
+      priority: '',
       is_active: true,
-      publish_date: '',
+      department: '',
       expiry_date: '',
     });
   };
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return <Badge variant="destructive" className="text-[11px] uppercase px-1.5 py-0 font-bold">Urgent</Badge>;
-      case 'important':
-        return <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[11px] uppercase px-1.5 py-0 font-bold">Important</Badge>;
-      default:
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[11px] uppercase px-1.5 py-0 font-bold">Normal</Badge>;
-    }
-  };
 
-  const getLevelBadge = (level: string) => {
-    switch (level) {
-      case 'college':
-        return <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[11px] uppercase px-1.5 py-0 font-bold">College</Badge>;
-      default:
-        return <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[11px] uppercase px-1.5 py-0 font-bold">Department</Badge>;
-    }
-  };
-
-  const getStatusBadge = (isActive: boolean) => {
-    if (isActive) {
-      return <Badge className="bg-green-50 text-green-700 border-green-200 text-[11px] uppercase px-1.5 py-0 font-bold">Active</Badge>;
-    }
-    return <Badge variant="secondary" className="text-[11px] uppercase px-1.5 py-0 font-bold">Inactive</Badge>;
-  };
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -352,68 +399,13 @@ const AnnouncementsScreen: React.FC = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
-                <Table>
-                  <TableHeader className="bg-gray-50/50">
-                    <TableRow>
-                      <TableHead className="w-[60px] text-center">Sl. No</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Content</TableHead>
-                      <TableHead>Level</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created By</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right px-4">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {announcements.map((announcement, index) => (
-                      <TableRow
-                        key={announcement.id}
-                        className="group hover:bg-orange-50/30 transition-colors"
-                      >
-                        <TableCell className="text-center font-medium text-gray-500">{(currentPage - 1) * pageSize + index + 1}</TableCell>
-                        <TableCell>
-                          <span className="font-semibold text-gray-900">{announcement.title}</span>
-                        </TableCell>
-                        <TableCell className="text-gray-700 text-xs max-w-[200px] truncate" title={announcement.content}>
-                          {announcement.content}
-                        </TableCell>
-                        <TableCell>{getLevelBadge(announcement.level)}</TableCell>
-                        <TableCell>{getPriorityBadge(announcement.priority)}</TableCell>
-                        <TableCell>{getStatusBadge(announcement.is_active)}</TableCell>
-                        <TableCell className="text-gray-700 text-xs">{announcement.created_by_name || 'N/A'}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm text-gray-500">
-                            <Calendar className="h-3.5 w-3.5 mr-1" />
-                            {new Date(announcement.created_at).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right px-4">
-                          <div className="flex items-center justify-end gap-1 transition-all duration-300">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-gray-400 hover:text-orange-600 hover:bg-orange-50"
-                              onClick={() => handleEdit(announcement)}
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-gray-400 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => handleDelete(announcement)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="flex flex-col gap-4">
+                <AnnouncementsList 
+                  announcements={announcements} 
+                  onView={(ann) => setViewAnnouncement(ann)} 
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
 
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100">
@@ -496,7 +488,10 @@ const AnnouncementsScreen: React.FC = () => {
 
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         setIsDialogOpen(open);
-        if (!open) resetForm();
+        if (!open) {
+          resetForm();
+          setIsCalendarOpen(false);
+        }
       }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -541,7 +536,7 @@ const AnnouncementsScreen: React.FC = () => {
                   }
                 >
                   <SelectTrigger className="border-gray-200 focus:border-orange-300">
-                    <SelectValue placeholder="Select level" />
+                    <SelectValue placeholder="-select-" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="college">College Level</SelectItem>
@@ -558,7 +553,7 @@ const AnnouncementsScreen: React.FC = () => {
                   }
                 >
                   <SelectTrigger className="border-gray-200 focus:border-orange-300">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="-select-" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="normal">Normal</SelectItem>
@@ -567,27 +562,116 @@ const AnnouncementsScreen: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <label htmlFor="publish_date" className="text-sm font-medium text-gray-700">Publish Date</label>
-                <Input
-                  id="publish_date"
-                  type="date"
-                  value={formData.publish_date}
-                  onChange={(e) => setFormData({...formData, publish_date: e.target.value})}
-                  className="border-gray-200 focus:border-orange-300"
-                />
-              </div>
+              {formData.level === 'department' && (
+                <div className="grid gap-2">
+                  <label htmlFor="department" className="text-sm font-medium text-gray-700">Department</label>
+                  <Select
+                    value={formData.department}
+                    onValueChange={(value) => 
+                      setFormData({...formData, department: value})
+                    }
+                  >
+                    <SelectTrigger className="border-gray-200 focus:border-orange-300 bg-white">
+                      <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {departments.map((dept) => (
+                        <SelectItem 
+                          key={dept.id} 
+                          value={dept.id.toString()}
+                          className="cursor-pointer font-medium"
+                          icon={<Building2 className="h-4 w-4 text-orange-500 shrink-0" />}
+                        >
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="grid gap-2">
                 <label htmlFor="expiry_date" className="text-sm font-medium text-gray-700">Expiry Date</label>
-                <Input
-                  id="expiry_date"
-                  type="date"
-                  value={formData.expiry_date}
-                  onChange={(e) => setFormData({...formData, expiry_date: e.target.value})}
-                  className="border-gray-200 focus:border-orange-300"
+                <div className="relative">
+                  <Input
+                    id="expiry_date"
+                    value={formData.expiry_date}
+                    onChange={(e) => {
+                      setFormData({...formData, expiry_date: e.target.value});
+                    }}
+                    placeholder="DD-MM-YYYY"
+                    className="border-gray-200 focus:border-orange-300 pr-10"
+                  />
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <button 
+                        type="button"
+                        className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-400 hover:text-orange-600 transition-colors"
+                      >
+                        <CalendarIcon className="h-4 w-4" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-[10005]" align="end">
+                      <Calendar
+                        mode="single"
+                        selected={
+                          formData.expiry_date && /^\d{2}-\d{2}-\d{4}$/.test(formData.expiry_date) 
+                            ? parse(formData.expiry_date, 'dd-MM-yyyy', new Date()) 
+                            : undefined
+                        }
+                        onSelect={(date) => {
+                          if (date) {
+                            setFormData({...formData, expiry_date: format(date, 'dd-MM-yyyy')});
+                          } else {
+                            setFormData({...formData, expiry_date: ''});
+                          }
+                          setIsCalendarOpen(false);
+                        }}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-2 mb-2">
+              <label htmlFor="attachment" className="text-sm font-medium text-gray-700">Attachment (Optional)</label>
+              <div className="flex items-center gap-4">
+                <label 
+                  htmlFor="attachment" 
+                  className="cursor-pointer bg-white border border-gray-300 hover:border-orange-400 text-gray-700 font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-sm flex items-center gap-2"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  Choose File
+                </label>
+                <input
+                  type="file"
+                  id="attachment"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setAttachmentFile(e.target.files[0]);
+                    }
+                  }}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
+                {(attachmentFile || editingAnnouncement?.attachment) && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md border border-gray-100 flex-1 truncate">
+                    <span className="truncate">
+                      {attachmentFile ? attachmentFile.name : (editingAnnouncement?.attachment?.split('/').pop() || 'Existing attachment')}
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setAttachmentFile(null);
+                        // If we want to clear a previously uploaded attachment, we'd need more logic, 
+                        // but for now this just clears the pending upload.
+                      }}
+                      className="text-gray-400 hover:text-red-500 ml-auto"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -609,6 +693,54 @@ const AnnouncementsScreen: React.FC = () => {
               {editingAnnouncement ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* View Announcement Modal */}
+      <Dialog open={!!viewAnnouncement} onOpenChange={(open) => !open && setViewAnnouncement(null)}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white">
+          <div className="bg-orange-50 border-b border-orange-100 px-6 py-4 flex flex-wrap gap-2 items-center">
+             <Badge className="bg-white text-orange-700 border-orange-200">
+                {viewAnnouncement?.level === 'college' ? 'College Level' : 'Department Level'}
+             </Badge>
+             <Badge className={`bg-white ${viewAnnouncement?.priority === 'urgent' ? 'text-red-600 border-red-200' : viewAnnouncement?.priority === 'important' ? 'text-orange-600 border-orange-200' : 'text-blue-600 border-blue-200'}`}>
+                {viewAnnouncement?.priority ? viewAnnouncement.priority.charAt(0).toUpperCase() + viewAnnouncement.priority.slice(1) : 'Normal'}
+             </Badge>
+          </div>
+          <div className="px-6 py-6 pb-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">{viewAnnouncement?.title}</h2>
+            <div className="prose max-w-none text-gray-700 text-[15px] leading-relaxed mb-6 whitespace-pre-wrap">
+              {viewAnnouncement?.content}
+            </div>
+          </div>
+          <div className="bg-gray-50 border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
+                <div className="flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-gray-400" />
+                  <span>{viewAnnouncement?.created_by_name?.includes('@') ? 'College Admin' : (viewAnnouncement?.created_by_name || 'College Admin')}</span>
+                </div>
+                {viewAnnouncement?.expiry_date && (
+                  <div className="flex items-center gap-1.5">
+                    <CalendarIcon className="w-4 h-4 text-gray-400" />
+                    <span>
+                      {new Date(viewAnnouncement.expiry_date).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      })} (Expiry)
+                    </span>
+                  </div>
+                )}
+             </div>
+             {viewAnnouncement?.attachment && (
+                <a 
+                  href={viewAnnouncement.attachment}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-blue-100 bg-white shadow-sm shrink-0 w-fit"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  <span>Download Attachment</span>
+                </a>
+             )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

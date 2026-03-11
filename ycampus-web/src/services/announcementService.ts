@@ -17,6 +17,7 @@ export interface Announcement {
   expiry_date: string | null;
   created_at: string;
   updated_at: string;
+  attachment?: string | null;
 }
 
 export interface AnnouncementFilters {
@@ -51,11 +52,11 @@ export const announcementService = {
     return await restApiAuthUtil.get<Announcement>(`/core/announcement/${id}/`);
   },
 
-  createAnnouncement: async (data: Partial<Announcement>) => {
+  createAnnouncement: async (data: Partial<Announcement> | FormData) => {
     return await restApiAuthUtil.post<Announcement>('/core/announcement/', data);
   },
 
-  updateAnnouncement: async (id: string, data: Partial<Announcement>) => {
+  updateAnnouncement: async (id: string, data: Partial<Announcement> | FormData) => {
     return await restApiAuthUtil.patch<Announcement>(`/core/announcement/${id}/`, data);
   },
 
