@@ -60,7 +60,7 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
     mode = 'editor',
     original = '',
     disableCopyPaste = false,
-}) => {
+}, ref) => {
 
     const handleEditorDidMount = (editor: any, monaco: any) => {
         if (disableCopyPaste) {

@@ -448,7 +448,7 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         contest.save(update_fields=['status'])
         return Response({'status': new_status}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['get'], permission_classes=[IsOwnerOrContentManagerOrAdmin])
     def leaderboard(self, request, pk=None):
         contest = self.get_object()
         
