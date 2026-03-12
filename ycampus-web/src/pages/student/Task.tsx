@@ -47,9 +47,13 @@ const StudentTask: React.FC = () => {
     const [fileViewerLanguage, setFileViewerLanguage] = useState('plaintext');
     const [fileViewerLoading, setFileViewerLoading] = useState(false);
 
-    // Chat state
     const [commentText, setCommentText] = useState('');
     const [isSendingComment, setIsSendingComment] = useState(false);
+
+    // ZIP preview state
+    const [zipFiles, setZipFiles] = useState<{ name: string; content: string; type: 'text' | 'image' | 'other' }[]>([]);
+    const [selectedZipFile, setSelectedZipFile] = useState<string | null>(null);
+
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -83,10 +87,18 @@ const StudentTask: React.FC = () => {
                 } catch (err) {
                     console.error("Polling failed", err);
                 }
-            }, 4000);
+            }, 5000);
         }
         return () => clearInterval(interval);
     }, [isDialogOpen, activeTask]);
+
+    // Polling for task list updates (background)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadTasks();
+        }, 15000); // Check for new tasks every 15s
+        return () => clearInterval(interval);
+    }, []);
 
     const loadTasks = async () => {
         try {
@@ -189,6 +201,7 @@ const StudentTask: React.FC = () => {
         }
     };
 
+    /* 
     const handleClearChat = async () => {
         if (!activeTask) return;
         const sub = submissions[activeTask.id];
@@ -207,6 +220,7 @@ const StudentTask: React.FC = () => {
             setIsClearingChat(false);
         }
     };
+    */
 
     const getLanguageFromExtension = (filename: string): string => {
         const ext = filename.split('.').pop()?.toLowerCase() || '';
@@ -218,32 +232,95 @@ const StudentTask: React.FC = () => {
         return map[ext] || 'plaintext';
     };
 
-    const openFileViewer = async (url: string) => {
+    const openFileViewer = (url: string) => {
         setFileViewerUrl(url);
-        setFileViewerContent(null);
         setIsFileViewerOpen(true);
-        setFileViewerLoading(true);
-
-        const filename = url.split('/').pop()?.split('?')[0] || '';
-        const ext = filename.split('.').pop()?.toLowerCase() || '';
-        const textTypes = ['txt', 'md', 'py', 'js', 'ts', 'java', 'cpp', 'c', 'html', 'css', 'json', 'xml', 'sh'];
-
-        if (textTypes.includes(ext)) {
-            try {
-                const response = await fetch(url);
-                const text = await response.text();
-                setFileViewerContent(text);
-                setFileViewerLanguage(getLanguageFromExtension(filename));
-            } catch {
-                setFileViewerContent(null);
-            }
-        }
-        setFileViewerLoading(false);
     };
+
+    const isTextFile = (filename: string) => {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        return ['js', 'ts', 'tsx', 'jsx', 'py', 'java', 'c', 'cpp', 'cs', 'html', 'css', 'json', 'md', 'txt', 'sql', 'sh'].includes(ext || '');
+    };
+
+    const isImageFile = (filename: string) => {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '');
+    };
+
+    useEffect(() => {
+        const processFile = async () => {
+            if (!fileViewerUrl || !isFileViewerOpen) {
+                setZipFiles([]);
+                setFileViewerContent(null);
+                setSelectedZipFile(null);
+                return;
+            }
+
+            setFileViewerLoading(true);
+            try {
+                const response = await fetch(fileViewerUrl);
+                const blob = await response.blob();
+                const filename = fileViewerUrl.split('/').pop()?.split('?')[0] || '';
+
+                if (filename.toLowerCase().endsWith('.zip')) {
+                    const jszipModule = await import(/* @vite-ignore */ 'https://esm.run/jszip');
+                    const JSZip = jszipModule.default || jszipModule;
+                    const zip = new JSZip();
+                    const contents = await zip.loadAsync(blob);
+                    const files: { name: string; content: string; type: 'text' | 'image' | 'other' }[] = [];
+
+                    for (const [name, file] of Object.entries(contents.files)) {
+                        const anyFile = file as any;
+                        if (!anyFile.dir) {
+                            if (isTextFile(name)) {
+                                const content = await anyFile.async('string');
+                                files.push({ name, content, type: 'text' });
+                            } else if (isImageFile(name)) {
+                                const base64 = await anyFile.async('base64');
+                                const ext = name.split('.').pop()?.toLowerCase();
+                                files.push({ name, content: `data:image/${ext};base64,${base64}`, type: 'image' });
+                            } else {
+                                files.push({ name, content: '', type: 'other' });
+                            }
+                        }
+                    }
+                    setZipFiles(files);
+                    if (files.length > 0) {
+                        const firstPreviewable = files.find(f => f.type !== 'other') || files[0];
+                        setSelectedZipFile(firstPreviewable.name);
+                        setFileViewerContent(firstPreviewable.content);
+                        setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                    }
+                } else if (isTextFile(filename)) {
+                    const text = await blob.text();
+                    setFileViewerContent(text);
+                    setFileViewerLanguage(getLanguageFromExtension(filename));
+                    setZipFiles([]);
+                    setSelectedZipFile(null);
+                } else if (isImageFile(filename)) {
+                    setFileViewerContent(null);
+                    setZipFiles([]);
+                    setSelectedZipFile(null);
+                } else {
+                    setZipFiles([]);
+                    setFileViewerContent(null);
+                    setSelectedZipFile(null);
+                }
+            } catch (error) {
+                console.error("Error loading file:", error);
+                toast.error("Failed to load file contents");
+            } finally {
+                setFileViewerLoading(false);
+            }
+        };
+
+        processFile();
+    }, [fileViewerUrl, isFileViewerOpen]);
 
     const filteredTasks = tasks.filter(t =>
         t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.subject_details?.name.toLowerCase().includes(searchQuery.toLowerCase())
+        (t.subject_details?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.description || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const getStatusInfo = (taskId: string) => {
@@ -283,7 +360,7 @@ const StudentTask: React.FC = () => {
 
     // Filter inline comments (from faculty file review)
     const inlineComments = (activeSub?.comments || []).filter(
-        c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')
+        c => c.comment.startsWith('[') && c.comment.includes(']')
     );
 
     return (
@@ -507,14 +584,14 @@ const StudentTask: React.FC = () => {
                                         {!fileAlreadyUploaded ? (
                                             <div className="flex items-center gap-4">
                                                 <div className="relative flex-1">
-                                                    <input
-                                                        type="file"
-                                                        id="file-upload"
-                                                        className="hidden"
-                                                        accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c"
-                                                        disabled={activeSub?.status === 'accepted'}
-                                                        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                                    />
+                                                        <input
+                                                            type="file"
+                                                            id="file-upload"
+                                                            className="hidden"
+                                                            accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c,.cs,.html,.css,.json,.xml,.sh"
+                                                            disabled={activeSub?.status === 'accepted'}
+                                                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                                        />
                                                     <label
                                                         htmlFor="file-upload"
                                                         className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${activeSub?.status === 'accepted'
@@ -574,6 +651,7 @@ const StudentTask: React.FC = () => {
                                     <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
                                     <p className="text-slate-400 text-sm font-medium mt-1">Comments and feedback from faculty</p>
                                 </div>
+                                {/* 
                                 <Button
                                     variant="ghost"
                                     size="sm"
@@ -583,12 +661,13 @@ const StudentTask: React.FC = () => {
                                 >
                                     <Trash2 className="h-4 w-4" /> Clear
                                 </Button>
+                                */}
                             </div>
 
                             <div className="overflow-y-auto max-h-[380px] space-y-4 pb-4 pr-1 custom-scrollbar">
                                 {activeSub?.comments && activeSub.comments.length > 0 ? (
                                     activeSub.comments.map((comment, idx) => {
-                                        const isInline = comment.comment.startsWith('[Line:') || comment.comment.startsWith('[File Review]');
+                                        const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
                                         return (
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
                                                 <div className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed ${isInline
@@ -598,7 +677,7 @@ const StudentTask: React.FC = () => {
                                                         : 'bg-orange-50 border-l-4 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
                                                     }`}>
                                                     {isInline && (
-                                                        <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-widest mb-2 rounded-md px-2 py-0.5 shadow-none">
+                                                        <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                             {comment.comment.substring(1, comment.comment.indexOf(']'))}
                                                         </Badge>
                                                     )}
@@ -688,6 +767,34 @@ const StudentTask: React.FC = () => {
                     </DialogHeader>
 
                     <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-[#F8FAFC]">
+                        {/* File Explorer Sidebar (for ZIP) */}
+                        {zipFiles.length > 0 && (
+                            <div className="w-full md:w-64 border-r border-gray-200 bg-white overflow-y-auto shrink-0 custom-scrollbar">
+                                <div className="p-4 border-b border-gray-50 bg-gray-50/30">
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Files in ZIP</h4>
+                                </div>
+                                <div className="p-2 space-y-1">
+                                    {zipFiles.map((file) => (
+                                        <button
+                                            key={file.name}
+                                            onClick={() => {
+                                                setSelectedZipFile(file.name);
+                                                setFileViewerContent(file.content);
+                                                setFileViewerLanguage(getLanguageFromExtension(file.name));
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${selectedZipFile === file.name
+                                                ? 'bg-orange-50 text-orange-600 font-bold shadow-sm ring-1 ring-orange-100'
+                                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
+                                                }`}
+                                        >
+                                            <Paperclip className={`h-4 w-4 shrink-0 ${selectedZipFile === file.name ? 'text-orange-500' : 'text-gray-400'}`} />
+                                            <span className="text-sm truncate leading-tight">{file.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* File Preview */}
                         <div className="flex-1 overflow-auto p-6">
                             {fileViewerLoading ? (
@@ -716,16 +823,23 @@ const StudentTask: React.FC = () => {
                                         }}
                                     />
                                 </div>
-                            ) : fileViewerUrl?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                            ) : zipFiles.find(f => f.name === selectedZipFile)?.type === 'image' ? (
+                                <div className="h-full flex items-center justify-center">
+                                    <img src={zipFiles.find(f => f.name === selectedZipFile)?.content} alt="Submitted" className="max-w-full h-auto rounded-2xl shadow-md border border-gray-100" />
+                                </div>
+                            ) : !zipFiles.length && fileViewerUrl?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                                 <div className="h-full flex items-center justify-center">
                                     <img src={fileViewerUrl} alt="Submitted" className="max-w-full h-auto rounded-2xl shadow-md border border-gray-100" />
                                 </div>
-                            ) : fileViewerUrl?.toLowerCase().endsWith('.pdf') ? (
+                            ) : !zipFiles.length && fileViewerUrl?.toLowerCase().endsWith('.pdf') ? (
                                 <iframe src={`${fileViewerUrl}#toolbar=0`} className="w-full h-full min-h-[60vh] rounded-2xl" title="PDF Viewer" />
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-center py-20">
                                     <Paperclip className="h-12 w-12 text-gray-200 mb-4" />
-                                    <p className="text-sm font-bold text-gray-400">Preview not available for this file type</p>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-2">Preview Not Available</h4>
+                                    <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
+                                        This file type cannot be previewed directly.
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -740,7 +854,7 @@ const StudentTask: React.FC = () => {
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                                     {inlineComments.map((c, i) => (
                                         <div key={i} className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl">
-                                            <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-widest mb-2 rounded-md px-2 py-0.5 shadow-none">
+                                            <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                 {c.comment.substring(1, c.comment.indexOf(']'))}
                                             </Badge>
                                             <p className="text-sm font-medium text-gray-800 leading-relaxed">

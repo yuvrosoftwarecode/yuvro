@@ -257,11 +257,17 @@ const FacultyTask: React.FC = () => {
         try {
             setSubmitting(true);
             await taskService.sendTask(taskToSend.id);
+            
+            // Update local state immediately
+            setTasks(prev => prev.map(t => 
+                t.id === taskToSend.id ? { ...t, is_sent: true } : t
+            ));
+            
             toast.success("Task sent successfully!");
             setIsSendConfirmDialogOpen(false);
             setNewComment("");
         } catch (err) {
-            toast.error("Failed to send message");
+            toast.error("Failed to send task");
         } finally {
             setSubmitting(false);
         }
@@ -995,6 +1001,7 @@ const FacultyTask: React.FC = () => {
                                 <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Discussion</h3>
                                 <p className="text-gray-400 text-sm font-medium">Comments and feedback</p>
                             </div>
+                            {/* 
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -1003,6 +1010,7 @@ const FacultyTask: React.FC = () => {
                             >
                                 <Trash2 className="h-4 w-4" /> Clear Chat
                             </Button>
+                            */}
                         </div>
 
                         <div className="p-6 overflow-y-auto max-h-[400px] custom-scrollbar">
@@ -1514,18 +1522,18 @@ const FacultyTask: React.FC = () => {
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-black text-gray-900">Annotations</h3>
                                     <Badge variant="outline" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-bold px-3 py-0.5">
-                                        {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).length}
+                                        {selectedSubmission?.comments.filter(c => c.comment.startsWith('[') && c.comment.includes(']')).length}
                                     </Badge>
                                 </div>
                                 <p className="text-xs font-semibold text-gray-400 leading-relaxed">Click any line in the code editor to attach your comment to that specific line.</p>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).map((c, i) => (
+                             <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[') && c.comment.includes(']')).map((c, i) => (
                                     <div key={i} className="p-5 bg-gray-50/50 border border-gray-100 rounded-3xl hover:bg-white hover:shadow-md transition-all flex flex-col items-start w-full">
-                                        {c.comment.includes(']') && (c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')) ? (
+                                        {c.comment.includes(']') ? (
                                             <>
-                                                <Badge className="bg-orange-50 text-orange-600 font-black tracking-widest uppercase text-[9px] mb-3 border-none hover:bg-orange-100 rounded-md px-2 py-0.5 shadow-none">
+                                                <Badge className="bg-orange-50 text-orange-600 font-black tracking-normal text-[9px] mb-3 border-none hover:bg-orange-100 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                     {c.comment.substring(1, c.comment.indexOf(']'))}
                                                 </Badge>
                                                 <p className="text-[14px] font-semibold text-gray-800 leading-relaxed">{c.comment.substring(c.comment.indexOf(']') + 1).trim()}</p>
@@ -1539,7 +1547,7 @@ const FacultyTask: React.FC = () => {
                                         </div>
                                     </div>
                                 ))}
-                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[Line:') || c.comment.startsWith('[File Review]')).length === 0 && (
+                                {selectedSubmission?.comments.filter(c => c.comment.startsWith('[') && c.comment.includes(']')).length === 0 && (
                                     <div className="flex flex-col items-center justify-center p-10 text-center opacity-70 mt-10">
                                         <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 border-dashed">
                                             <MessageSquare className="h-6 w-6 text-gray-300" />
@@ -1571,7 +1579,12 @@ const FacultyTask: React.FC = () => {
                                             }
                                             if (draftComment.trim()) {
                                                 const originalComment = draftComment;
-                                                const prefix = selectedLineNumber && previewType === 'text' ? `[Line: ${selectedLineNumber}]\n` : `[File Review]\n`;
+                                                let prefix = "";
+                                                if (selectedLineNumber && previewType === 'text') {
+                                                    prefix = selectedZipFile ? `[${selectedZipFile} | Line: ${selectedLineNumber}]\n` : `[Line: ${selectedLineNumber}]\n`;
+                                                } else {
+                                                    prefix = selectedZipFile ? `[${selectedZipFile} | File Review]\n` : `[File Review]\n`;
+                                                }
                                                 setNewComment(prev => prev + (prev ? '\n\n' : '') + `${prefix}${originalComment.trim()}`);
                                                 setDraftComment("");
                                             }
@@ -1583,7 +1596,12 @@ const FacultyTask: React.FC = () => {
                                     onClick={() => {
                                         if (!draftComment.trim()) return;
                                         const originalComment = draftComment;
-                                        const prefix = selectedLineNumber && previewType === 'text' ? `[Line: ${selectedLineNumber}]\n` : `[File Review]\n`;
+                                        let prefix = "";
+                                        if (selectedLineNumber && previewType === 'text') {
+                                            prefix = selectedZipFile ? `[${selectedZipFile} | Line: ${selectedLineNumber}]\n` : `[Line: ${selectedLineNumber}]\n`;
+                                        } else {
+                                            prefix = selectedZipFile ? `[${selectedZipFile} | File Review]\n` : `[File Review]\n`;
+                                        }
                                         setNewComment(prev => prev + (prev ? '\n\n' : '') + `${prefix}${originalComment.trim()}`);
                                         setDraftComment("");
                                         toast.success("Added to draft");
