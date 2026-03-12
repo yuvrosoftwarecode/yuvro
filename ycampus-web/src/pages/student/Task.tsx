@@ -61,11 +61,12 @@ const StudentTask: React.FC = () => {
 
 
 
-    // Auto-resize for descriptive textarea
+    // Auto-resize for descriptive textarea up to max-height
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = scrollHeight > 400 ? '400px' : `${scrollHeight}px`;
         }
     }, [answerText, activeTask]);
 
@@ -489,7 +490,7 @@ const StudentTask: React.FC = () => {
                                             </Badge>
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-normal text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2">
+                                            <h3 className="text-xl font-normal text-slate-900 group- transition-colors line-clamp-2">
                                                 {task.title}
                                             </h3>
                                             <p className="text-sm font-normal text-slate-400 mt-1">{task.subject_details?.name}</p>
@@ -516,9 +517,9 @@ const StudentTask: React.FC = () => {
 
                                         <Button
                                             onClick={() => handleStartTask(task)}
-                                            className={`w-full h-14 rounded-3xl font-normal text-lg gap-3 transition-all active:scale-[0.97] ${isSubmitted
-                                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100 shadow-none border border-orange-100'
-                                                : 'bg-orange-500 text-white hover:bg-orange-500 shadow-xl shadow-orange-100'
+                                            className={`w-full h-14 rounded-3xl font-normal text-lg gap-3 transition-all ${isSubmitted
+                                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-50 shadow-none border border-orange-100'
+                                                : 'bg-orange-500 text-white  shadow-xl shadow-orange-100'
                                                 }`}
                                         >
                                             {isSubmitted ? (
@@ -559,18 +560,18 @@ const StudentTask: React.FC = () => {
 
             {/* Submission Modal */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-7xl w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
+                <DialogContent className="max-w-7xl max-h-[85vh] w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
                     {/* Custom close button */}
                     <button
                         onClick={() => setIsDialogOpen(false)}
-                        className="absolute top-6 right-6 z-10 h-9 w-9 flex items-center justify-center rounded-xl bg-white/80 hover:bg-gray-100 text-gray-500 transition-colors shadow-sm"
+                        className="absolute top-6 right-6 z-10 h-9 w-9 flex items-center justify-center rounded-xl bg-white/80 text-gray-500 shadow-sm"
                     >
                         <X className="w-4 h-4" />
                     </button>
 
-                    <div className="flex flex-col md:flex-row flex-1">
+                    <div className="flex flex-col md:flex-row flex-1 min-h-0">
                         {/* Main Submission Area */}
-                        <div className="w-full md:w-[68%] border-r border-slate-50 p-8 flex flex-col gap-6">
+                        <div className="w-full md:w-[68%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3 flex-wrap">
                                     <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-600 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
@@ -646,7 +647,7 @@ const StudentTask: React.FC = () => {
                                             value={answerText}
                                             onChange={(e) => setAnswerText(e.target.value)}
                                             placeholder="Explain your answer in detail..."
-                                            className="min-h-[120px] bg-slate-50 border-none rounded-2xl p-5 focus:ring-0 hover:border-orange-500 focus:border-orange-500 border-2 border-transparent transition-all text-base font-medium resize-none shadow-inner leading-relaxed"
+                                            className="min-h-[120px] max-h-[400px] overflow-y-auto bg-slate-50/50 border border-gray-300 rounded-2xl p-6 focus:ring-4 focus:ring-orange-100 transition-all text-base font-medium resize-none leading-relaxed"
                                             disabled={activeSub?.status === 'accepted'}
                                         />
                                     )}
@@ -671,7 +672,7 @@ const StudentTask: React.FC = () => {
                                                         htmlFor="file-upload"
                                                         className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${activeSub?.status === 'accepted'
                                                             ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400'
-                                                            : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-500'}`}
+                                                            : 'bg-slate-50 border-slate-200 text-slate-500'}`}
                                                     >
                                                         <Paperclip className="w-5 h-5 text-orange-500" />
                                                         {selectedFile ? (
@@ -695,7 +696,7 @@ const StudentTask: React.FC = () => {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => openFileViewer(activeSub!.file!)}
-                                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-xl font-bold gap-1.5 flex-shrink-0"
+                                                    className="text-orange-600 rounded-xl font-bold gap-1.5 flex-shrink-0"
                                                 >
                                                     <Eye className="w-4 h-4" /> View
                                                 </Button>
@@ -707,7 +708,7 @@ const StudentTask: React.FC = () => {
                                 <Button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting || activeSub?.status === 'accepted' || (activeSub?.is_submitted && activeSub?.status !== 'rejected' && !selectedFile && activeSub?.answer === answerText)}
-                                    className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-100 gap-4 transition-all active:scale-[0.98]"
+                                    className="w-full h-14 bg-orange-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-100 gap-4 transition-all"
                                 >
                                     {isSubmitting ? 'Processing...' : (
                                         <>
@@ -720,7 +721,7 @@ const StudentTask: React.FC = () => {
                         </div>
 
                         {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col">
+                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
                             <div className="mb-6 flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
@@ -739,7 +740,7 @@ const StudentTask: React.FC = () => {
                                 */}
                             </div>
 
-                            <div className="overflow-y-auto max-h-[380px] space-y-4 pb-4 pr-1 custom-scrollbar">
+                            <div className="flex-1 overflow-y-auto min-h-0 space-y-4 pb-4 pr-1 custom-scrollbar">
                                 {activeSub?.comments && activeSub.comments.length > 0 ? (
                                     activeSub.comments.map((comment, idx) => {
                                         const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
@@ -747,11 +748,11 @@ const StudentTask: React.FC = () => {
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
                                                 <div 
                                                     onClick={() => isInline && handleAnnotationClick(comment.comment)}
-                                                    className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed ${isInline
-                                                        ? 'bg-orange-50 border-l-4 border-orange-400 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-orange-100/50 transition-colors'
+                                                    className={`p-4 rounded-2xl max-w-[90%] text-sm leading-relaxed shadow-none ${isInline
+                                                        ? 'bg-orange-50 border border-orange-100 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-orange-100/50 transition-colors'
                                                         : comment.faculty
-                                                            ? 'bg-white border-l-4 border-blue-500 text-slate-900 rounded-bl-none shadow-sm'
-                                                            : 'bg-orange-50 border-l-4 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
+                                                            ? 'bg-blue-50/50 text-blue-900 self-start rounded-bl-none'
+                                                            : 'bg-orange-50/50 text-orange-900 self-end rounded-br-none'
                                                         }`}
                                                 >
                                                     {isInline && (
@@ -806,7 +807,7 @@ const StudentTask: React.FC = () => {
                                         onClick={handleAddComment}
                                         disabled={isSendingComment || !commentText.trim()}
                                         size="icon"
-                                        className="absolute bottom-4 right-4 h-10 w-10 rounded-2xl bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-100 transition-all active:scale-90"
+                                        className="absolute bottom-4 right-4 h-10 w-10 rounded-2xl bg-orange-500  shadow-xl shadow-orange-100 transition-all active:scale-90"
                                     >
                                         <Send className="w-5 h-5 text-white" />
                                     </Button>
@@ -941,7 +942,7 @@ const StudentTask: React.FC = () => {
                                         <div 
                                             key={i} 
                                             onClick={() => handleAnnotationClick(c.comment)}
-                                            className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl cursor-pointer hover:bg-orange-100/80 transition-all active:scale-[0.98]"
+                                            className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl cursor-pointer hover:bg-orange-100/80 transition-all "
                                         >
                                             <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                 {c.comment.substring(1, c.comment.indexOf(']'))}
