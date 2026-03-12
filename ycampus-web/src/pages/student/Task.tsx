@@ -56,6 +56,10 @@ const StudentTask: React.FC = () => {
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const editorRef = useRef<any>(null);
+    const decorationsRef = useRef<string[]>([]);
+
+
 
     // Auto-resize for descriptive textarea
     useEffect(() => {
@@ -249,10 +253,19 @@ const StudentTask: React.FC = () => {
 
     useEffect(() => {
         const processFile = async () => {
-            if (!fileViewerUrl || !isFileViewerOpen) {
-                setZipFiles([]);
+            const closeFileViewer = () => {
+                setIsFileViewerOpen(false);
+                setFileViewerUrl(null);
                 setFileViewerContent(null);
                 setSelectedZipFile(null);
+                setZipFiles([]);
+                if (editorRef.current) {
+                    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, []);
+                }
+            };
+
+            if (!fileViewerUrl || !isFileViewerOpen) {
+                closeFileViewer();
                 return;
             }
 
@@ -357,6 +370,68 @@ const StudentTask: React.FC = () => {
     const activeSub = activeTask ? submissions[activeTask.id] : null;
     const hasFilePreviouslySubmitted = !!(activeSub?.file);
     const fileAlreadyUploaded = hasFilePreviouslySubmitted;
+
+    // Handler for clicking an annotation to jump to that line
+    const handleAnnotationClick = (comment: string) => {
+        const bracketEndIndex = comment.indexOf(']');
+        if (bracketEndIndex === -1) return;
+
+        const tag = comment.substring(1, bracketEndIndex);
+        let filename = '';
+        let lineNumber = 0;
+
+        if (tag.includes('|')) {
+            const parts = tag.split('|');
+            filename = parts[0].trim();
+            const linePart = parts[1].trim();
+            if (linePart.startsWith('Line:')) {
+                lineNumber = parseInt(linePart.replace('Line:', '').trim());
+            }
+        } else if (tag.startsWith('Line:')) {
+            lineNumber = parseInt(tag.replace('Line:', '').trim());
+        }
+
+        if (lineNumber > 0) {
+            // First, ensure file viewer is open
+            if (!isFileViewerOpen) {
+                const url = activeSub?.file;
+                if (url) openFileViewer(url);
+            }
+
+            // If it's a file inside a ZIP, switch to it
+            if (filename && zipFiles.length > 0) {
+                const targetFile = zipFiles.find(f => f.name === filename);
+                if (targetFile) {
+                    setSelectedZipFile(targetFile.name);
+                    setFileViewerContent(targetFile.content);
+                    setFileViewerLanguage(getLanguageFromExtension(targetFile.name));
+                }
+            }
+
+            // Scroll the editor to the line
+            if (editorRef.current) {
+                // Small delay to ensure content is loaded if we switched files
+                setTimeout(() => {
+                    editorRef.current.revealLineInCenter(lineNumber);
+                    editorRef.current.setPosition({ lineNumber, column: 1 });
+                    editorRef.current.focus();
+
+                    // Apply visual highlight
+                    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                        {
+                            range: { startLineNumber: lineNumber, startColumn: 1, endLineNumber: lineNumber, endColumn: 1 },
+                            options: {
+                                isWholeLine: true,
+                                className: 'line-highlight',
+                                marginClassName: 'line-highlight-margin'
+                            }
+                        }
+                    ]);
+                }, 200);
+            }
+        }
+    };
+
 
     // Filter inline comments (from faculty file review)
     const inlineComments = (activeSub?.comments || []).filter(
@@ -670,12 +745,15 @@ const StudentTask: React.FC = () => {
                                         const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
                                         return (
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
-                                                <div className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed ${isInline
-                                                    ? 'bg-orange-50 border-l-4 border-orange-400 text-slate-900 rounded-bl-none shadow-sm w-full'
-                                                    : comment.faculty
-                                                        ? 'bg-white border-l-4 border-blue-500 text-slate-900 rounded-bl-none shadow-sm'
-                                                        : 'bg-orange-50 border-l-4 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
-                                                    }`}>
+                                                <div 
+                                                    onClick={() => isInline && handleAnnotationClick(comment.comment)}
+                                                    className={`p-4 rounded-xl max-w-[90%] text-sm leading-relaxed ${isInline
+                                                        ? 'bg-orange-50 border-l-4 border-orange-400 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-orange-100/50 transition-colors'
+                                                        : comment.faculty
+                                                            ? 'bg-white border-l-4 border-blue-500 text-slate-900 rounded-bl-none shadow-sm'
+                                                            : 'bg-orange-50 border-l-4 border-orange-500 text-slate-900 rounded-br-none shadow-sm'
+                                                        }`}
+                                                >
                                                     {isInline && (
                                                         <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                             {comment.comment.substring(1, comment.comment.indexOf(']'))}
@@ -781,6 +859,10 @@ const StudentTask: React.FC = () => {
                                                 setSelectedZipFile(file.name);
                                                 setFileViewerContent(file.content);
                                                 setFileViewerLanguage(getLanguageFromExtension(file.name));
+                                                // Clear highlights when switching files
+                                                if (editorRef.current) {
+                                                    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, []);
+                                                }
                                             }}
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${selectedZipFile === file.name
                                                 ? 'bg-orange-50 text-orange-600 font-bold shadow-sm ring-1 ring-orange-100'
@@ -811,6 +893,9 @@ const StudentTask: React.FC = () => {
                                         language={fileViewerLanguage}
                                         value={fileViewerContent}
                                         theme="vs-light"
+                                        onMount={(editor) => {
+                                            editorRef.current = editor;
+                                        }}
                                         options={{
                                             readOnly: true,
                                             fontSize: 14,
@@ -853,7 +938,11 @@ const StudentTask: React.FC = () => {
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                                     {inlineComments.map((c, i) => (
-                                        <div key={i} className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl">
+                                        <div 
+                                            key={i} 
+                                            onClick={() => handleAnnotationClick(c.comment)}
+                                            className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl cursor-pointer hover:bg-orange-100/80 transition-all active:scale-[0.98]"
+                                        >
                                             <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                 {c.comment.substring(1, c.comment.indexOf(']'))}
                                             </Badge>
