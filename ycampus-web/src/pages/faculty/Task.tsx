@@ -10,6 +10,7 @@ import {
     CheckCircle, Clock, Search, MessageSquare, ChevronLeft, Edit2, MoreVertical,
     User, Filter, Download, ExternalLink, SendHorizonal, Paperclip, Check, X, Eye
 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
@@ -33,6 +42,7 @@ import autoTable from 'jspdf-autotable';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
+import { useRef } from 'react';
 
 const FacultyTask: React.FC = () => {
     const { user } = useAuth();
@@ -89,6 +99,14 @@ const FacultyTask: React.FC = () => {
     const [reviewingFile, setReviewingFile] = useState<string | null>(null);
     const [zipFiles, setZipFiles] = useState<{ name: string; content: string; type: 'text' | 'image' | 'other' }[]>([]);
     const [selectedZipFile, setSelectedZipFile] = useState<string | null>(null);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+
+    // Scroll chat to bottom
+    useEffect(() => {
+        if (view === 'studentDetail') {
+            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [selectedSubmission?.comments, view]);
     const [previewContent, setPreviewContent] = useState<string>("");
     const [previewType, setPreviewType] = useState<'text' | 'image' | 'other' | null>(null);
     const [previewLanguage, setPreviewLanguage] = useState<string>("plaintext");
@@ -661,7 +679,7 @@ const FacultyTask: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                         placeholder="Search tasks by title..."
-                        className="pl-10 h-11 bg-white border-gray-200 focus:ring-2 focus:ring-gray-100 rounded-xl"
+                        className="pl-10 h-11 bg-white border-gray-300 focus:ring-2 focus:ring-gray-100 rounded-xl"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -673,73 +691,75 @@ const FacultyTask: React.FC = () => {
             ) : filteredTasks.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredTasks.map(task => (
-                        <Card key={task.id} className="flex flex-col h-full border-gray-100 shadow-sm rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow">
-                            <CardContent className="p-4 flex flex-col h-full">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-lg font-bold text-gray-900 leading-tight pr-8 line-clamp-2 capitalize">{task.title}</h3>
-                                    <Badge
-                                        variant="secondary"
-                                        className={task.is_sent ? "bg-orange-500 text-white border-none shadow-none font-bold" : "bg-blue-50 text-blue-600 border-none shadow-none font-bold"}
-                                    >
+                        <Card key={task.id} className="flex flex-col h-full border-gray-300">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-start justify-between gap-2">
+                                    <CardTitle className="text-lg leading-tight capitalize">{task.title}</CardTitle>
+                                    <Badge variant={task.is_sent ? 'default' : 'secondary'}>
                                         {task.is_sent ? 'Sent' : 'Draft'}
                                     </Badge>
                                 </div>
+                            </CardHeader>
 
-                                <div className="flex gap-2 mb-2">
-                                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                                        {task.task_type === 'coding' ? 'Coding' : 'Descriptive'}
-                                    </Badge>
-                                    {task.question_source === 'bank' && (
-                                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 border-emerald-200 bg-emerald-50">
-                                            Question Bank
+                            <CardContent className="flex flex-1 flex-col">
+                                <div className="flex-1 space-y-3">
+                                    <div className="flex gap-2 mb-2">
+                                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                            {task.task_type === 'coding' ? 'Coding' : 'Descriptive'}
                                         </Badge>
-                                    )}
-                                </div>
-
-                                <p className="text-[13px] text-gray-700 mb-2 line-clamp-2 font-medium">
-                                    {task.question_source === 'bank' ? `${task.questions?.length || 0} Questions attached` : task.description}
-                                </p>
-
-                                <div className="mt-auto space-y-4">
-                                    <div className="space-y-1">
-                                        <div className="text-[11px] font-medium text-gray-600 tracking-wider">
-                                            Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
-                                        </div>
-                                        <div className="text-[11px] font-medium text-gray-600 tracking-wider">
-                                            Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
-                                        </div>
+                                        {task.question_source === 'bank' && (
+                                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 border-emerald-200 bg-emerald-50">
+                                                Question Bank
+                                            </Badge>
+                                        )}
                                     </div>
 
+                                    <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                                        {task.question_source === 'bank' ? `${task.questions?.length || 0} Questions attached` : task.description}
+                                    </p>
+
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-muted-foreground">
+                                            Created: {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Due Date: {task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Due Date'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 pt-4">
                                     {!task.is_sent && (
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex gap-2">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white hover:bg-white"
+                                                className="flex-1 border-orange-200 text-orange-600"
                                                 onClick={() => openCreateDialog(task)}
                                             >
-                                                <Edit2 className="h-4 w-4" /> Edit
+                                                <Edit2 className="mr-1 h-3 w-3" /> Edit
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="rounded-xl h-10 border-gray-200 font-semibold text-gray-900 gap-2 bg-white hover:bg-white"
+                                                className="flex-1 border-red-200 text-red-600"
                                                 onClick={() => handleDeleteRequest(task)}
                                             >
-                                                <Trash2 className="h-4 w-4" /> Delete
+                                                <Trash2 className="mr-1 h-3 w-3" /> Delete
                                             </Button>
                                         </div>
                                     )}
 
                                     <Button
-                                        className="w-full bg-orange-500 hover:bg-orange-500 text-white font-bold h-12 rounded-xl gap-2 shadow-sm transition-colors"
+                                        className="w-full bg-orange-500  text-white"
+                                        size="sm"
                                         onClick={() => task.is_sent ? fetchSubmissions(task) : handleSendTaskRequest(task)}
                                         disabled={submitting}
                                     >
                                         {task.is_sent ? (
-                                            <><Search className="h-4 w-4" /> View Responses</>
+                                            <><Eye className="mr-1 h-3 w-3" /> View Responses</>
                                         ) : (
-                                            <><Send className="h-4 w-4" /> Send Task</>
+                                            <><Send className="mr-1 h-3 w-3" /> Send Task</>
                                         )}
                                     </Button>
                                 </div>
@@ -796,263 +816,258 @@ const FacultyTask: React.FC = () => {
                             View student responses
                         </p>
                     </div>
-                    <div className="ml-auto">
-                        <Button
-                            onClick={handleDownloadReport}
-                            className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-11 rounded-xl font-bold flex items-center gap-2 shadow-sm"
-                        >
-                            <Download className="h-4 w-4" /> Download Report
-                        </Button>
-                    </div>
+                    <Button
+                        onClick={handleDownloadReport}
+                        className="bg-orange-500  text-white ml-auto"
+                    >
+                        <Download className="mr-2 h-4 w-4" /> Download Report
+                    </Button>
                 </div>
 
                 {/* Task Description Card */}
-                <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Task Description</h3>
-                    <p className="text-gray-500 leading-relaxed">{selectedTask?.description || "No description provided."}</p>
+                <Card className="border-gray-300">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Task Description</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="leading-relaxed text-sm text-muted-foreground">{selectedTask?.description || "No description provided."}</p>
+                    </CardContent>
                 </Card>
 
                 {/* Stats row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                        { label: 'Total Students', value: stats.total, color: 'text-gray-900' },
-                        { label: 'Completed', value: stats.completed, color: 'text-emerald-500' },
-                        { label: 'In Progress', value: stats.inProgress, color: 'text-blue-500' },
-                        { label: 'Pending', value: stats.pending, color: 'text-[#F59E0B]' } // Saffron/Amber
-                    ].map((s, i) => (
-                        <Card key={i} className="rounded-3xl border border-gray-100 shadow-none bg-white p-8 text-center">
-                            <p className={`text-3xl font-bold mb-1 ${s.color}`}>{s.value}</p>
-                            <p className="text-sm text-gray-400">{s.label}</p>
-                        </Card>
-                    ))}
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <Card className="border-gray-300">
+                        <CardContent className="p-4 text-center">
+                            <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+                            <div className="text-sm text-muted-foreground">Total Students</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-gray-300">
+                        <CardContent className="p-4 text-center">
+                            <div className="text-2xl font-bold text-emerald-600">{stats.completed}</div>
+                            <div className="text-sm text-muted-foreground">Completed</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-gray-300">
+                        <CardContent className="p-4 text-center">
+                            <div className="text-2xl font-bold text-blue-600">{stats.inProgress}</div>
+                            <div className="text-sm text-muted-foreground">In Progress</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="border-gray-300">
+                        <CardContent className="p-4 text-center">
+                            <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
+                            <div className="text-sm text-muted-foreground">Pending</div>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {/* Responses Table Area */}
-                <div className="space-y-6">
-                    <div className="px-2 flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-gray-900">Student Responses</h3>
-                        <div className="relative w-80">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search by roll no or name"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-12 h-11 bg-white border border-gray-900 rounded-xl focus:ring-0 font-normal outline-none"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <table className="w-full text-left">
-                            <thead className="bg-white border-y border-gray-100">
-                                <tr>
-                                    <th className="p-6 text-sm text-gray-400">Roll No</th>
-                                    <th className="p-6 text-sm text-gray-400">Name</th>
-                                    <th className="p-6 text-sm text-gray-400">Status</th>
-                                    <th className="p-6 text-sm text-gray-400">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {filteredSubmissions.map((sub) => (
-                                    <tr key={sub.id} className="hover:bg-gray-50/50 transition-all">
-                                        <td className="p-6 text-gray-900 font-bold">{sub.student_details?.roll_number || 'CS001'}</td>
-                                        <td className="p-6 text-gray-900">{sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}</td>
-                                        <td className="p-6">
-                                            <Badge className={`px-4 py-1.5 rounded-full font-normal border-none shadow-none ${sub.is_submitted
-                                                ? 'bg-slate-900 text-white'
-                                                : sub.answer ? 'bg-blue-50 text-blue-500' : 'bg-orange-50 text-[#F59E0B]'
-                                                }`}>
-                                                {sub.is_submitted ? 'Completed' : sub.answer ? 'In Progress' : 'Pending'}
-                                            </Badge>
-                                        </td>
-                                        <td className="p-6">
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => fetchSubmissionDetail(sub.id)}
-                                                className="rounded-lg h-9 border-gray-200 text-gray-900 font-normal hover:bg-white shadow-none"
-                                            >
-                                                View Details
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {filteredSubmissions.length === 0 && (
-                            <div className="py-20 text-center flex flex-col items-center">
-                                <Users className="h-16 w-16 text-gray-100 mb-4" />
-                                <p className="text-gray-400 font-normal uppercase tracking-widest">No responses yet</p>
+                    <Card className="border-gray-300">
+                        <CardHeader>
+                            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <CardTitle className="text-lg">Student Responses</CardTitle>
+                                <div className="relative w-full md:w-64">
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search by roll no or name"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-10 border-gray-300"
+                                    />
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </div>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Roll No</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredSubmissions.map((sub) => (
+                                        <TableRow key={sub.id} className="cursor-pointer hover:bg-muted/50" onClick={() => fetchSubmissionDetail(sub.id)}>
+                                            <TableCell className="font-medium">{sub.student_details?.roll_number || 'CS001'}</TableCell>
+                                            <TableCell>{sub.student_details?.user_details?.first_name} {sub.student_details?.user_details?.last_name || sub.student}</TableCell>
+                                            <TableCell>
+                                                <Badge className="rounded-full bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100 px-3">
+                                                    {sub.is_submitted ? 'Completed' : sub.answer ? 'In Progress' : 'Pending'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        fetchSubmissionDetail(sub.id);
+                                                    }}
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            {filteredSubmissions.length === 0 && (
+                                <div className="py-20 text-center">
+                                    <Users className="h-16 w-16 text-muted-foreground/20 mx-auto mb-4" />
+                                    <p className="text-muted-foreground">No responses yet</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
             </div>
         );
     };
 
     const renderStudentDetail = () => (
         <div className="space-y-6 pb-10">
-            {/* Header Area */}
-            <div className="flex items-center gap-6">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setView('responses')}
-                    className="rounded-xl bg-white hover:bg-white shadow-sm border border-gray-100 h-10 w-10"
-                >
-                    <ChevronLeft className="h-5 w-5 text-gray-900" />
-                </Button>
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Student Response Details</h2>
-                    <p className="text-gray-400 text-sm font-medium tracking-widest mt-0.5">Review and provide feedback</p>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setView('responses')}
+                        className="h-10 w-10 rounded-xl border-gray-300"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                            <AvatarFallback className="bg-orange-50 text-orange-600 font-bold">
+                                {selectedSubmission?.student_details?.user_details?.first_name?.[0]}
+                                {selectedSubmission?.student_details?.user_details?.last_name?.[0]}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}
+                                </h2>
+                                <Badge className="rounded-full bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100 px-3 py-1 text-xs font-bold">
+                                    {selectedSubmission?.is_submitted ? 'Completed' : 'In Progress'}
+                                </Badge>
+                            </div>
+                            <p className="text-sm font-medium text-gray-400">Roll No: {selectedSubmission?.student_details?.roll_number || 'CS001'}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Side: Student Info & Answer */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Student Info Card */}
-                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
-                        <h3 className="text-xl font-bold text-gray-900 mb-6 tracking-wider">Student Information</h3>
-                        <div className="flex items-center gap-4">
-                            <Avatar className="h-14 w-14 rounded-full border border-gray-100 shadow-sm">
-                                <AvatarFallback className="bg-orange-50 text-orange-600 font-bold text-xl">
-                                    {selectedSubmission?.student_details?.user_details?.first_name?.[0]}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3">
-                                    <h4 className="text-xl font-bold text-gray-900 leading-tight">
-                                        {selectedSubmission?.student_details?.user_details?.first_name} {selectedSubmission?.student_details?.user_details?.last_name}
-                                    </h4>
-                                    <Badge className={`px-4 py-1.5 rounded-full font-bold border-none shadow-none text-[10px] uppercase tracking-widest ${selectedSubmission?.is_submitted
-                                        ? 'bg-slate-900 text-white'
-                                        : 'bg-orange-50 text-[#F59E0B]'
-                                        }`}>
-                                        {selectedSubmission?.is_submitted ? 'Completed' : 'In Progress'}
-                                    </Badge>
-                                </div>
-                                <p className="text-gray-400 text-sm font-medium mt-1">Roll No: {selectedSubmission?.student_details?.roll_number || 'CS001'}</p>
-                            </div>
-                        </div>
-                    </Card>
+                <div className="lg:col-span-2 flex flex-col">
 
-                    {/* Answer Card */}
-                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white p-8">
-                        <div className="mb-8">
-                            <h3 className="text-lg font-bold text-gray-900 leading-tight">Student Answer</h3>
-                            <p className="text-gray-400 text-sm font-medium mt-1">Select text to add contextual comments</p>
-                        </div>
-
-                        {selectedSubmission?.answer ? (
-                            <>
-                                <div
-                                    className="bg-[#F8FAFC] p-8 rounded-[2rem] border border-gray-100 min-h-[300px] cursor-text"
-                                    onMouseUp={handleTextSelection}
-                                >
-                                    <div className="prose prose-neutral max-w-none pointer-events-auto">
-                                        <p className="text-gray-900 leading-relaxed whitespace-pre-wrap text-[15px] font-semibold">
-                                            {selectedSubmission.answer}
-                                        </p>
-                                    </div>
-                                </div>
-                                {selectedSubmission?.file && (
-                                    <div className="mt-8 flex justify-end border-t border-gray-50 pt-8">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                setReviewingFile(selectedSubmission.file || null);
-                                                setIsFileViewerOpen(true);
-                                            }}
-                                            className="rounded-2xl h-11 border-orange-100 text-orange-600 bg-orange-50 font-bold hover:bg-orange-100 gap-2 px-6"
+                    <Card className="border border-gray-300 shadow-sm h-full flex flex-col">
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-lg">Student Answer</CardTitle>
+                            <CardDescription className="text-gray-400 font-medium whitespace-nowrap">Select text to add contextual comments</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {selectedSubmission?.answer ? (
+                                <div className="space-y-4">
+                                    <ScrollArea className="h-[400px]">
+                                        <div
+                                            className="cursor-text select-text rounded-2xl border border-gray-300 bg-gray-50/10 p-6 whitespace-pre-wrap leading-relaxed text-sm font-medium text-slate-700 min-h-[150px]"
+                                            onMouseUp={handleTextSelection}
                                         >
-                                            <Eye className="h-4 w-4" /> Review Attached File
-                                        </Button>
-                                    </div>
-                                )}
-                            </>
-                        ) : selectedSubmission?.file ? (
-                            <div className="bg-[#F8FAFC] p-12 rounded-[2rem] border border-gray-100 min-h-[300px] flex flex-col items-center justify-center text-center">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setReviewingFile(selectedSubmission.file || null);
-                                        setIsFileViewerOpen(true);
-                                    }}
-                                    className="rounded-[2rem] h-16 px-10 border-orange-200 text-orange-600 bg-orange-50 font-black hover:bg-orange-100 gap-3 shadow-sm mb-6 text-lg hover:scale-105 transition-all"
-                                >
-                                    <Eye className="h-6 w-6" /> Review Attached File
-                                </Button>
-                                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">No text content provided.</p>
-                            </div>
-                        ) : (
-                            <div className="bg-[#F8FAFC] p-12 rounded-[2rem] border border-gray-100 min-h-[300px] flex flex-col items-center justify-center text-center">
-                                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">No submission provided.</p>
-                            </div>
-                        )}
+                                            {selectedSubmission.answer}
+                                        </div>
+                                    </ScrollArea>
+                                    {selectedSubmission?.file && (
+                                        <div className="flex justify-end pt-4">
+                                            <Button
+                                                onClick={() => {
+                                                    setReviewingFile(selectedSubmission.file || null);
+                                                    setIsFileViewerOpen(true);
+                                                }}
+                                                size="sm"
+                                                className="bg-orange-500  text-white"
+                                            >
+                                                <Eye className="mr-2 h-4 w-4" /> Review Attached File
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : selectedSubmission?.file ? (
+                                <div className="py-12 text-center">
+                                    <Button
+                                        onClick={() => {
+                                            setReviewingFile(selectedSubmission.file || null);
+                                            setIsFileViewerOpen(true);
+                                        }}
+                                        className="h-12 px-6 bg-orange-500  text-white"
+                                    >
+                                        <Eye className="mr-2 h-5 w-5" /> Review Attached File
+                                    </Button>
+                                    <p className="mt-4 text-xs font-medium text-muted-foreground uppercase tracking-widest">No text content provided.</p>
+                                </div>
+                            ) : (
+                                <div className="py-12 text-center">
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">No submission provided.</p>
+                                </div>
+                            )}
+                        </CardContent>
                     </Card>
                 </div>
 
                 {/* Right Side: Chat / Discussion */}
-                <div className="space-y-6 flex flex-col">
-                    <Card className="rounded-3xl border border-gray-100 shadow-none bg-white overflow-hidden flex flex-col">
-                        <div className="p-8 border-b border-gray-50 flex items-center justify-between gap-1">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900 tracking-tight">Discussion</h3>
-                                <p className="text-gray-400 text-sm font-medium">Comments and feedback</p>
-                            </div>
-                            {/* 
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleClearChat}
-                                className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl h-9 px-3 font-bold gap-1.5 flex-shrink-0"
-                            >
-                                <Trash2 className="h-4 w-4" /> Clear Chat
-                            </Button>
-                            */}
-                        </div>
+                <div className="flex flex-col">
+                    <Card className="border border-gray-300 shadow-sm flex flex-col h-[520px]">
+                        <CardHeader>
+                            <CardTitle>Discussion</CardTitle>
+                            <CardDescription>Comments and feedback</CardDescription>
+                        </CardHeader>
 
-                        <div className="p-6 overflow-y-auto max-h-[400px] custom-scrollbar">
-                            <div className="space-y-4">
-                                {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
-                                    selectedSubmission.comments.map((c, i) => (
-                                        <div key={c.id || i} className={`flex flex-col ${c.faculty ? 'items-end' : 'items-start'}`}>
+                        <CardContent className="flex-1 flex flex-col p-4 min-h-0 overflow-hidden">
+                            <ScrollArea className="flex-1 pr-4 h-full">
+                                <div className="space-y-4">
+                                    {selectedSubmission?.comments && selectedSubmission.comments.length > 0 ? (
+                                        selectedSubmission.comments.map((c, i) => (
                                             <div
-                                                className={`p-3.5 rounded-xl max-w-[80%] text-sm leading-relaxed border-l-4 ${c.faculty
-                                                    ? 'bg-[#F0F7FF] border-[#3B82F6] text-black rounded-br-none'
-                                                    : 'bg-[#F0FDF4] border-[#22C55E] text-black rounded-br-none'
-                                                    }`}
+                                                key={c.id || i}
+                                                className={`rounded-2xl p-4 shadow-none ${
+                                                    c.faculty
+                                                        ? 'bg-blue-50/50 text-blue-900 self-start rounded-bl-none'
+                                                        : 'bg-green-50/50 text-green-900 self-end rounded-br-none'
+                                                }`}
                                             >
-                                                <div className="flex items-center justify-between gap-x-4 mb-1">
-                                                    <span className="text-[14px] font-bold text-black tracking-wide">
+                                                <div className="mb-2 flex items-start justify-between gap-3">
+                                                    <span className="text-sm font-medium">
                                                         {c.faculty ? 'Faculty' : 'Student'}
                                                     </span>
-                                                    <span className="text-[11px] text-gray-500 font-semibold">
-                                                        {format(new Date(c.created_at), 'M/d/yyyy, hh:mm:ss a')}
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {format(new Date(c.created_at), 'MMM dd, h:mm a')}
                                                     </span>
                                                 </div>
-                                                <p className="whitespace-pre-wrap text-[15px] font-medium text-gray-800">
+                                                <p className="text-sm whitespace-pre-wrap text-foreground font-medium">
                                                     {c.comment}
                                                 </p>
                                             </div>
+                                        ))
+                                    ) : (
+                                        <div className="py-12 text-center">
+                                            <MessageSquare className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
+                                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">No conversation yet</p>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center text-center py-20 opacity-30">
-                                        <MessageSquare className="h-12 w-12 text-gray-200 mb-4" />
-                                        <p className="text-xs font-bold uppercase tracking-widest">No conversation yet</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                                    )}
+                                    <div ref={chatEndRef} />
+                                </div>
+                            </ScrollArea>
 
-                        {/* Input Area */}
-                        <div className="p-8 border-t border-gray-50">
-                            <div className="mb-4">
+                            <Separator className="my-4" />
+
+                            <div className="relative mt-2">
                                 <Textarea
-                                    placeholder="Add a comment or question..."
-                                    className="min-h-[100px] bg-white border-gray-200 rounded-xl p-4 focus:ring-0 focus-visible:ring-0 hover:border-orange-500 focus:border-orange-500 transition-all text-sm font-medium resize-none shadow-none"
+                                    placeholder="Add a comment..."
+                                    className="min-h-[100px] text-sm border-gray-300 rounded-2xl bg-gray-50/50 focus:bg-white transition-colors pr-12 pb-12"
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     onKeyDown={(e) => {
@@ -1062,15 +1077,19 @@ const FacultyTask: React.FC = () => {
                                         }
                                     }}
                                 />
+                                <div className="absolute bottom-3 right-3">
+                                    <Button
+                                        disabled={submitting || !newComment.trim()}
+                                        onClick={handleAddComment}
+                                        size="sm"
+                                        className="bg-orange-500  text-white rounded-xl px-4 py-2 h-9 flex items-center gap-2"
+                                    >
+                                        <SendHorizonal className="h-4 w-4" /> 
+                                        <span>Add Comment</span>
+                                    </Button>
+                                </div>
                             </div>
-                            <Button
-                                disabled={submitting || !newComment.trim()}
-                                onClick={handleAddComment}
-                                className="w-full bg-orange-500 hover:bg-orange-500 h-12 rounded-xl text-white font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
-                            >
-                                <SendHorizonal className="h-4 w-4" /> Add Comment
-                            </Button>
-                        </div>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
@@ -1091,29 +1110,28 @@ const FacultyTask: React.FC = () => {
                         <div className="flex justify-end">
                             <Button
                                 onClick={() => openCreateDialog()}
-                                className="bg-orange-500 hover:bg-orange-500 text-white px-6 h-10 rounded-xl shadow-lg shadow-orange-100 transition-all flex items-center gap-2 font-bold"
+                                className="bg-orange-500 text-white w-full md:w-auto"
                             >
-                                <Plus className="h-4 w-4" />
-                                Create New Task
+                                <Plus className="mr-2 h-4 w-4" /> Create New Task
                             </Button>
                         </div>
                     )}
 
                     {/* Header Selection Flow - Following the reference style */}
                     {view === 'taskList' && (
-                        <Card className="border-gray-100 shadow-md rounded-[2rem] overflow-hidden bg-white">
-                            <CardHeader className="border-b border-gray-50 px-8 py-4">
-                                <CardTitle className="text-2xl font-semibold text-foreground">Select Subject & Sections</CardTitle>
+                        <Card className="border-gray-300">
+                            <CardHeader>
+                                <CardTitle className="text-xl">Select Subject & Sections</CardTitle>
                             </CardHeader>
                             <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div className="space-y-2">
                                         <Label className="text-sm font-medium text-foreground">Department</Label>
                                         <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Choose Department" />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            <SelectContent className="rounded-2xl border-gray-300 shadow-2xl p-2">
                                                 {uniqueDepartments.map(d => (
                                                     <SelectItem key={d.id} value={d.id} className="rounded-xl font-medium">{d.name}</SelectItem>
                                                 ))}
@@ -1123,10 +1141,10 @@ const FacultyTask: React.FC = () => {
                                     <div className="space-y-2">
                                         <Label className="text-sm font-medium text-foreground">Subject</Label>
                                         <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                                            <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium">
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select Subject" />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
+                                            <SelectContent className="rounded-2xl border-gray-300 shadow-2xl p-2">
                                                 {uniqueSubjects.map(s => (
                                                     <SelectItem key={s.id} value={s.id} className="rounded-xl font-medium">{s.name}</SelectItem>
                                                 ))}
@@ -1181,182 +1199,172 @@ const FacultyTask: React.FC = () => {
 
             {/* Create / Edit Task Dialog */}
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogContent className={`${formState.question_source === 'bank' ? 'max-w-5xl' : 'max-w-2xl'} rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white`}>
-                    <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100">
-                        <DialogTitle className="text-2xl font-black text-gray-900">{editingTask ? 'Edit Task' : 'New Task'}</DialogTitle>
-                        <DialogDescription className="font-bold text-gray-400">Fill in the details to {editingTask ? 'update' : 'broadcast'} the task.</DialogDescription>
-                    </DialogHeader>
-
-                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[60vh] overflow-y-auto">
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <Label className="text-sm font-bold text-gray-900">Task Title *</Label>
-                                <Input
-                                    value={formState.title}
-                                    onChange={e => setFormState(prev => ({ ...prev, title: e.target.value }))}
-                                    placeholder="e.g. Project Phase 1"
-                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-medium"
-                                />
+                <DialogContent className={`${formState.question_source === 'bank' ? 'max-w-5xl' : 'max-w-2xl'} p-0 overflow-hidden`}>
+                    <Card className="border-gray-300 shadow-none">
+                        <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-xl">{editingTask ? 'Edit Task' : 'Create New Task'}</CardTitle>
+                                <DialogDescription className="sr-only">Fill in the details to {editingTask ? 'update' : 'broadcast'} the task.</DialogDescription>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-sm font-bold text-gray-900">Due Date</Label>
-                                <Input
-                                    type="datetime-local"
-                                    value={formState.due_date}
-                                    onChange={e => setFormState(prev => ({ ...prev, due_date: e.target.value }))}
-                                    className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Unit *</Label>
-                                    <Select value={formState.unit} onValueChange={v => setFormState(prev => ({ ...prev, unit: v, sub_unit: "" }))}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
-                                            <SelectValue placeholder="Select" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            {units.map(u => <SelectItem key={u.id} value={u.id} className="rounded-xl">{u.name}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Sub Unit {formState.question_source === 'manual' ? '*' : ''}</Label>
-                                    <Select value={formState.sub_unit} onValueChange={v => setFormState(prev => ({ ...prev, sub_unit: v }))} disabled={!formState.unit}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
-                                            <SelectValue placeholder="Select" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            {subUnits.map(su => <SelectItem key={su.id} value={su.id} className="rounded-xl">{su.name}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Task Type</Label>
-                                    <Select value={formState.task_type} onValueChange={(v: 'descriptive' | 'coding') => setFormState(prev => ({ ...prev, task_type: v, questions: [] }))}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
-                                            <SelectValue placeholder="Select Type" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            <SelectItem value="descriptive" className="rounded-xl">Descriptive</SelectItem>
-                                            <SelectItem value="coding" className="rounded-xl">Coding</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Source</Label>
-                                    <Select value={formState.question_source} onValueChange={(v: 'manual' | 'bank') => setFormState(prev => ({ ...prev, question_source: v, questions: [] }))}>
-                                        <SelectTrigger className="h-12 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold">
-                                            <SelectValue placeholder="Select Source" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2">
-                                            <SelectItem value="manual" className="rounded-xl">Manual Entry</SelectItem>
-                                            <SelectItem value="bank" className="rounded-xl">Question Bank</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            {formState.question_source === 'manual' ? (
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Description *</Label>
-                                    <Textarea
-                                        value={formState.description}
-                                        onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
-                                        placeholder="What should students do?"
-                                        className="h-[150px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-4"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Select Questions *</Label>
-                                    {loadingQuestions ? (
-                                        <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-gray-300" /></div>
-                                    ) : !selectedSubject ? (
-                                        <div className="bg-orange-50/50 rounded-xl p-4 text-center text-sm font-bold text-orange-600">
-                                            Please select a Subject first to browse questions.
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[60vh] overflow-y-auto pr-2">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-foreground">Task Title *</Label>
+                                        <Input
+                                            value={formState.title}
+                                            onChange={e => setFormState(prev => ({ ...prev, title: e.target.value }))}
+                                            placeholder="Enter task title"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-foreground">Due Date</Label>
+                                        <Input
+                                            type="datetime-local"
+                                            value={formState.due_date}
+                                            onChange={e => setFormState(prev => ({ ...prev, due_date: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Unit *</Label>
+                                            <Select value={formState.unit} onValueChange={v => setFormState(prev => ({ ...prev, unit: v, sub_unit: "" }))}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {units.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                    ) : bankQuestions.length > 0 ? (
-                                        <div className="flex flex-col gap-2 max-h-[170px] overflow-y-auto pr-2 custom-scrollbar">
-                                            {bankQuestions.map(q => (
-                                                <div
-                                                    key={q.id}
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Sub Unit {formState.question_source === 'manual' ? '*' : ''}</Label>
+                                            <Select value={formState.sub_unit} onValueChange={v => setFormState(prev => ({ ...prev, sub_unit: v }))} disabled={!formState.unit}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {subUnits.map(su => <SelectItem key={su.id} value={su.id}>{su.name}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 pt-2">
+                                        <Label className="text-sm font-medium text-foreground">Confirm Sections *</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableSections.map(a => (
+                                                <Badge
+                                                    key={a.id}
                                                     onClick={() => {
-                                                        const id = String(q.id);
+                                                        const id = String(a.section);
                                                         setFormState(prev => ({
                                                             ...prev,
-                                                            questions: prev.questions.includes(id) ? prev.questions.filter(x => x !== id) : [...prev.questions, id]
+                                                            sections: prev.sections.includes(id) ? prev.sections.filter(x => x !== id) : [...prev.sections, id]
                                                         }));
                                                     }}
-                                                    className={`cursor-pointer p-3 rounded-xl border-none transition-all flex items-start gap-3 ${formState.questions.includes(String(q.id)) ? 'bg-orange-50 text-orange-900 border border-orange-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'}`}
+                                                    variant={formState.sections.includes(String(a.section)) ? "default" : "outline"}
+                                                    className="cursor-pointer"
                                                 >
-                                                    <CheckCircle className={`mt-0.5 h-4 w-4 flex-shrink-0 transition-colors ${formState.questions.includes(String(q.id)) ? 'text-orange-500' : 'text-gray-300'}`} />
-                                                    <div>
-                                                        <p className="text-sm font-bold leading-tight line-clamp-1">{q.title}</p>
-                                                        <p className="text-xs font-semibold text-gray-400 line-clamp-1 mt-0.5">{q.content.replace(/<[^>]*>?/gm, '')}</p>
-                                                    </div>
-                                                </div>
+                                                    {a.section_name}
+                                                </Badge>
                                             ))}
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Task Type</Label>
+                                            <Select value={formState.task_type} onValueChange={(v: 'descriptive' | 'coding') => setFormState(prev => ({ ...prev, task_type: v, questions: [] }))}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="descriptive">Descriptive</SelectItem>
+                                                    <SelectItem value="coding">Coding</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Source</Label>
+                                            <Select value={formState.question_source} onValueChange={(v: 'manual' | 'bank') => setFormState(prev => ({ ...prev, question_source: v, questions: [] }))}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Source" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="manual">Manual Entry</SelectItem>
+                                                    <SelectItem value="bank">Question Bank</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    {formState.question_source === 'manual' ? (
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Task Description *</Label>
+                                            <div className="relative">
+                                                <Textarea
+                                                    value={formState.description}
+                                                    onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
+                                                    placeholder="Enter detailed task description..."
+                                                    className="h-[150px] resize-none"
+                                                />
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <div className="bg-gray-50 rounded-xl p-4 text-center text-sm font-bold text-gray-400">
-                                            No questions found for the selected unit/type.
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-foreground">Select Questions *</Label>
+                                            {loadingQuestions ? (
+                                                <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+                                            ) : !selectedSubject ? (
+                                                <div className="bg-muted p-4 rounded-lg text-center text-sm text-muted-foreground">
+                                                    Please select a Subject first.
+                                                </div>
+                                            ) : bankQuestions.length > 0 ? (
+                                                <ScrollArea className="h-[170px] rounded-md border p-2">
+                                                    <div className="space-y-2">
+                                                        {bankQuestions.map(q => (
+                                                            <div
+                                                                key={q.id}
+                                                                onClick={() => {
+                                                                    const id = String(q.id);
+                                                                    setFormState(prev => ({
+                                                                        ...prev,
+                                                                        questions: prev.questions.includes(id) ? prev.questions.filter(x => x !== id) : [...prev.questions, id]
+                                                                    }));
+                                                                }}
+                                                                className={`cursor-pointer p-3 rounded-lg border transition-all flex items-start gap-3 ${formState.questions.includes(String(q.id)) ? 'bg-primary/5 border-primary/20' : 'hover:bg-muted'}`}
+                                                            >
+                                                                <CheckCircle className={`mt-0.5 h-4 w-4 shrink-0 ${formState.questions.includes(String(q.id)) ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                                                                <div className="flex-1">
+                                                                    <p className="text-sm font-semibold leading-tight line-clamp-1">{q.title}</p>
+                                                                    <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{q.content.replace(/<[^>]*>?/gm, '')}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </ScrollArea>
+                                            ) : (
+                                                <div className="bg-muted p-4 rounded-lg text-center text-sm text-muted-foreground">
+                                                    No questions found.
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
-                            )}
 
-                            {formState.question_source === 'bank' && (
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-bold text-gray-900">Additional Instructions (Optional)</Label>
-                                    <Textarea
-                                        value={formState.description}
-                                        onChange={e => setFormState(prev => ({ ...prev, description: e.target.value }))}
-                                        placeholder="Any extra instructions..."
-                                        className="h-[60px] bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gray-100 transition-all font-semibold resize-none p-3 text-sm"
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="md:col-span-2 space-y-3">
-                            <Label className="text-sm font-bold text-gray-900">Confirm Sections *</Label>
-                            <div className="flex flex-wrap gap-2">
-                                {availableSections.map(a => (
-                                    <div
-                                        key={a.id}
-                                        onClick={() => {
-                                            const id = String(a.section);
-                                            setFormState(prev => ({
-                                                ...prev,
-                                                sections: prev.sections.includes(id) ? prev.sections.filter(x => x !== id) : [...prev.sections, id]
-                                            }));
-                                        }}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all border-none font-bold ${formState.sections.includes(String(a.section)) ? 'bg-gray-100 text-gray-900 border border-gray-200' : 'bg-gray-50 text-gray-300'}`}
-                                    >
-                                        <CheckCircle className={`h-4 w-4 ${formState.sections.includes(String(a.section)) ? 'text-gray-900' : 'text-gray-200'}`} />
-                                        <span className="text-xs">{a.section_name}</span>
-                                    </div>
-                                ))}
                             </div>
-                        </div>
-                    </div>
-
-                    <DialogFooter className="p-8 border-t border-gray-100 bg-gray-50/50 flex flex-row items-center justify-end gap-3">
-                        <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} className="rounded-2xl h-12 px-6 font-bold text-gray-400 hover:text-gray-900 hover:bg-transparent">Cancel</Button>
-                        <Button
-                            onClick={handleSaveTask}
-                            disabled={submitting}
-                            className="bg-orange-500 hover:bg-orange-500 text-white px-10 h-12 rounded-[1.25rem] font-bold shadow-xl shadow-orange-100 active:scale-95 transition-all"
-                        >
-                            {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                            {editingTask ? 'Save Changes' : 'Publish Task'}
-                        </Button>
-                    </DialogFooter>
+                        </CardContent>
+                        <DialogFooter className="p-6 border-t gap-3">
+                            <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="flex-1 border-gray-300">Cancel</Button>
+                            <Button type="button" onClick={handleSaveTask} disabled={submitting} className="flex-1 bg-orange-500  text-white">
+                                {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                                {editingTask ? 'Save Task' : 'Create Task'}
+                            </Button>
+                        </DialogFooter>
+                    </Card>
                 </DialogContent>
             </Dialog>
 
@@ -1497,7 +1505,7 @@ const FacultyTask: React.FC = () => {
                                                     </p>
                                                     <Button
                                                         onClick={() => window.open(reviewingFile)}
-                                                        className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-bold h-12 px-8 rounded-2xl shadow-xl shadow-orange-100 transition-all flex items-center gap-2"
+                                                        className="mt-8 bg-orange-500  text-white font-bold h-12 px-8 rounded-2xl shadow-xl shadow-orange-100 transition-all flex items-center gap-2"
                                                     >
                                                         <Download className="h-4 w-4" /> Download File to Review
                                                     </Button>
@@ -1608,7 +1616,7 @@ const FacultyTask: React.FC = () => {
                                     }}
                                     disabled={submitting || !draftComment.trim()}
                                     size="icon"
-                                    className="absolute bottom-8 right-8 h-10 w-10 rounded-xl bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-100 transition-all group-hover:scale-105"
+                                    className="absolute bottom-8 right-8 h-10 w-10 rounded-xl bg-orange-500  shadow-xl shadow-orange-100 transition-all group-hover:scale-105"
                                 >
                                     <Plus className="h-5 w-5 text-white" />
                                 </Button>
@@ -1651,7 +1659,7 @@ const FacultyTask: React.FC = () => {
                         </Button>
                         <Button
                             onClick={confirmDelete}
-                            className="bg-orange-500 hover:bg-orange-500 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
+                            className="bg-orange-500  text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
                         >
                             Delete
                         </Button>
@@ -1679,7 +1687,7 @@ const FacultyTask: React.FC = () => {
                         <Button
                             onClick={confirmSend}
                             disabled={submitting}
-                            className="bg-orange-500 hover:bg-orange-500 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
+                            className="bg-orange-500  text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
                         >
                             {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                             Send Task
