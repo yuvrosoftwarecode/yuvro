@@ -72,6 +72,7 @@ import Attendance from './pages/faculty/Attendance';
 import TakeAttendance from './pages/faculty/TakeAttendance';
 import FacultyTask from './pages/faculty/Task';
 import Revise from './pages/faculty/Revise';
+import Syllabus from './pages/faculty/Syllabus';
 import StudentTask from './pages/student/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
@@ -328,7 +329,7 @@ function App() {
                 path="/faculty/syllabus"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <Syllabus />
                   </ProtectedRoute>
                 }
               />
