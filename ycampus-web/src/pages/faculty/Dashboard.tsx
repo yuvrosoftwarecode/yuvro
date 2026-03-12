@@ -16,28 +16,28 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 
-// Mock topics data per subject — replace with real API data when available
 const topicsData: Record<string, {
   overallProgress: number; currentStep: number; totalSteps: number; subjectName: string;
   modules: { id: string; name: string; progress: number; currentStep: number; totalSteps: number; topics: { id: string; name: string; status: string; step: number }[] }[];
 }> = {
   default: {
-    overallProgress: 92, currentStep: 4, totalSteps: 5, subjectName: 'Physics Lab',
+    overallProgress: 65, currentStep: 4, totalSteps: 7, subjectName: 'Matrices & Calculus',
     modules: [
       {
-        id: 'm1', name: 'Classical Mechanics', progress: 100, currentStep: 3, totalSteps: 3,
+        id: 'm1', name: 'Linear Algebra', progress: 100, currentStep: 3, totalSteps: 3,
         topics: [
-          { id: 't1', name: "Newton's Laws", status: 'completed', step: 1 },
-          { id: 't2', name: 'Motion in 2D', status: 'completed', step: 2 },
-          { id: 't3', name: 'Energy and Work', status: 'completed', step: 3 },
+          { id: 't1', name: 'Matrix Operations & Properties', status: 'completed', step: 1 },
+          { id: 't2', name: 'Determinants & Matrix Inversion', status: 'completed', step: 2 },
+          { id: 't3', name: 'Systems of Linear Equations', status: 'completed', step: 3 },
         ]
       },
       {
-        id: 'm2', name: 'Thermodynamics', progress: 75, currentStep: 2, totalSteps: 3,
+        id: 'm2', name: 'Differential Calculus', progress: 40, currentStep: 1, totalSteps: 4,
         topics: [
-          { id: 't4', name: 'Heat and Temperature', status: 'completed', step: 4 },
-          { id: 't5', name: 'First Law', status: 'in-progress', step: 5 },
-          { id: 't6', name: 'Second Law', status: 'pending', step: 6 },
+          { id: 't4', name: 'Limits & Continuity', status: 'completed', step: 4 },
+          { id: 't5', name: 'Differentiation Rules', status: 'in-progress', step: 5 },
+          { id: 't6', name: 'Mean Value Theorem', status: 'pending', step: 6 },
+          { id: 't7', name: 'Partial Differentiation', status: 'pending', step: 7 },
         ]
       },
     ]
