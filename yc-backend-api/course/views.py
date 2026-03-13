@@ -58,7 +58,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         return CourseSerializer if self.action == "retrieve" else CourseBasicSerializer
 
     def get_queryset(self):
-        queryset = Course.objects.all()
+        queryset = Course.objects.prefetch_related('course_instructors__instructor').all()
         category = self.request.query_params.get("category")
         if category:
             queryset = queryset.filter(category=category)
@@ -69,14 +69,6 @@ class CourseViewSet(viewsets.ModelViewSet):
             total_problems=Count(
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
-                distinct=True
-            ) + Count(
-                'topics__questions',
-                filter=Q(topics__questions__type='coding') & Q(topics__questions__categories__contains=['practice']),
-                distinct=True
-            ) + Count(
-                'topics__subtopics__questions',
-                filter=Q(topics__subtopics__questions__type='coding') & Q(topics__subtopics__questions__categories__contains=['practice']),
                 distinct=True
             )
         )
@@ -197,16 +189,13 @@ class TopicViewSet(viewsets.ModelViewSet):
         course_id = self.request.query_params.get("course")
         if course_id:
             qs = qs.filter(course_id=course_id)
+        if self.action == "retrieve":
+            qs = qs.prefetch_related("subtopics")
 
-        
         qs = qs.annotate(
             total_problems=Count(
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
-                distinct=True
-            ) + Count(
-                'subtopics__questions',
-                filter=Q(subtopics__questions__type='coding') & Q(subtopics__questions__categories__contains=['practice']),
                 distinct=True
             )
         )

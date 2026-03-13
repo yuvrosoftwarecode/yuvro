@@ -1,6 +1,7 @@
 {
     "name": "Arrays",
-    "order_index": 4,
+    "course_short_code": "DSA100",
+    "order_index": 0,
     "subtopics": [
         {
             "name": "Basic Array Traversal & Operations",

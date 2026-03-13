@@ -117,10 +117,7 @@ class CourseSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.FloatField(read_only=True)
 
     def get_instructors(self, obj):
-        mappings = CourseInstructor.objects.filter(course=obj).select_related(
-            "instructor"
-        )
-        return CourseInstructorSerializer(mappings, many=True).data
+        return CourseInstructorSerializer(obj.course_instructors.all(), many=True).data
 
     def validate_short_code(self, value):
         """
