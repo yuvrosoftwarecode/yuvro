@@ -27,6 +27,7 @@ class Course(models.Model):
         ("databases", "Databases"),
         ("ai_tools", "AI Tools"),
         ("web_development", "Web Development"),
+        ("advanced", "Advanced"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

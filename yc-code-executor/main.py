@@ -363,36 +363,8 @@ class CodeExecutorService:
     @staticmethod
     async def execute_code(code: str, language: str, input_data: str = "", timeout: int = 10) -> Dict[str, Any]:
         """Execute code and return results"""
-        if language in ['cpp', 'c', 'java']:
-            try:
-                processed_lines = []
-                for line in input_data.split('\n'):
-                    line = line.strip()
-                    if not line: continue
-                    try:
-                        data = json.loads(line)
-                        if isinstance(data, list):
-                            processed_lines.append(str(len(data)))
-                            processed_lines.append(" ".join(map(str, data)))
-                        else:
-                            processed_lines.append(str(data))
-                    except:
-                        # Fallback for Malformed or string-quoted arrays like "[1, 2, 3]"
-                        if line.startswith('[') and line.endswith(']'):
-                            # remove brackets and commas
-                            content = line[1:-1].replace(',', ' ')
-                            parts = content.split()
-                            if parts:
-                                processed_lines.append(str(len(parts)))
-                                processed_lines.append(" ".join(parts))
-                            else:
-                                processed_lines.append(line)
-                        else:
-                            processed_lines.append(line)
-                if processed_lines:
-                    input_data = "\n".join(processed_lines)
-            except:
-                pass
+        # Note: Input is passed as-is to all languages (no preprocessing).
+        # Solutions in C/C++/Java parse the same raw JSON input as Python.
 
         if language not in LANGUAGE_CONFIGS:
             return {
@@ -763,34 +735,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
             for test_case in all_test_cases:
                 # Pre-process input for this test case
                 input_data = test_case.input
-                if language in ['cpp', 'c', 'java']:
-                    try:
-                        processed_lines = []
-                        for line in input_data.split('\n'):
-                            line = line.strip()
-                            if not line: continue
-                            try:
-                                data = json.loads(line)
-                                if isinstance(data, list):
-                                    processed_lines.append(str(len(data)))
-                                    processed_lines.append(" ".join(map(str, data)))
-                                else:
-                                    processed_lines.append(str(data))
-                            except:
-                                if line.startswith('[') and line.endswith(']'):
-                                    content = line[1:-1].replace(',', ' ')
-                                    parts = content.split()
-                                    if parts:
-                                        processed_lines.append(str(len(parts)))
-                                        processed_lines.append(" ".join(parts))
-                                    else:
-                                        processed_lines.append(line)
-                                else:
-                                    processed_lines.append(line)
-                        if processed_lines:
-                            input_data = "\n".join(processed_lines)
-                    except:
-                        pass
+                # Note: Input is passed as-is to all languages (no preprocessing).
+                # Solutions in C/C++/Java parse the same raw JSON input as Python.
 
                 # Run process
                 start_time = time.time()

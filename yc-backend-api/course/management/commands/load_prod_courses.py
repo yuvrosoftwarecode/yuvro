@@ -49,22 +49,43 @@ class Command(LoadSampleCoursesCommand):
                         # Stitch topic files if they exist
                         topics_dir = entry / "topics"
                         if topics_dir.exists() and topics_dir.is_dir():
-                            topics_data = []
-                            all_questions = []
+                            # Load all topic files in the directory
+                            raw_topics = []
                             for topic_file in sorted(topics_dir.glob("*.json")):
                                 t_data = self._try_load_json(topic_file)
                                 if t_data:
-                                    # Extract questions if they are stored in the topic file
-                                    if "questions" in t_data:
-                                        all_questions.extend(t_data.pop("questions"))
-                                    topics_data.append(t_data)
-                            
-                            # Inject topics and merged questions back into the course object
-                            if "courses" in data and len(data["courses"]) > 0:
-                                data["courses"][0]["topics"] = topics_data
-                                if "questions" not in data["courses"][0]:
-                                    data["courses"][0]["questions"] = []
-                                data["courses"][0]["questions"].extend(all_questions)
+                                    raw_topics.append(t_data)
+
+                            # Distribute topics into their respective courses
+                            for course_config in data.get("courses", []):
+                                course_code = course_config.get("short_code")
+                                topics_for_this_course = []
+                                questions_for_this_course = []
+
+                                for t_data in raw_topics:
+                                    # Copy data so we don't mutate the raw list for other courses
+                                    t_copy = t_data.copy()
+                                    target_code = t_copy.get("course_short_code")
+
+                                    # ROUTING LOGIC:
+                                    # 1. If topic has course_short_code, it MUST match
+                                    # 2. If topic has NO code, it goes to the first course (legacy support)
+                                    if target_code:
+                                        if target_code != course_code:
+                                            continue
+                                    elif data.get("courses").index(course_config) != 0:
+                                        # Skip if no code and not first course
+                                        continue
+
+                                    if "questions" in t_copy:
+                                        questions_for_this_course.extend(t_copy.pop("questions"))
+                                    
+                                    topics_for_this_course.append(t_copy)
+
+                                course_config["topics"] = topics_for_this_course
+                                if "questions" not in course_config:
+                                    course_config["questions"] = []
+                                course_config["questions"].extend(questions_for_this_course)
 
                         try:
                             self.load_courses_from_json(data)
