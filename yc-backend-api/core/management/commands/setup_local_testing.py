@@ -40,9 +40,9 @@ class Command(BaseCommand):
 
             self.stdout.write("📚 Loading sample course data...")
             if options["clear"]:
-                call_command("load_sample_courses", "--clear", verbosity=1)
+                call_command("load_sample_courses", "--clear", "--file", "sample_courses_data.json", verbosity=1)
             else:
-                call_command("load_sample_courses", verbosity=1)
+                call_command("load_sample_courses", "--file", "sample_courses_data.json", verbosity=1)
             self.stdout.write("")
 
             self.stdout.write("💼 Loading sample companies and jobs...")
@@ -54,9 +54,9 @@ class Command(BaseCommand):
 
             self.stdout.write("📝 Loading sample assessment tests...")
             if options["clear"]:
-                call_command("load_sample_assessment_tests", "--clear", verbosity=1)
+                call_command("load_sample_assessment_tests", "--clear", "--file", "sample_assessment_skill_tests_data.json", verbosity=1)
             else:
-                call_command("load_sample_assessment_tests", verbosity=1)
+                call_command("load_sample_assessment_tests", "--file", "sample_assessment_skill_tests_data.json", verbosity=1)
             self.stdout.write("")
 
             self.stdout.write(

@@ -46,6 +46,7 @@ type Instructor = {
 
 const CATEGORY_LABELS: Record<Course["category"], string> = {
   fundamentals: "Fundamentals",
+  advanced: "Advanced",
   programming_languages: "Programming Languages",
   databases: "Databases",
   ai_tools: "AI Tools",
@@ -53,6 +54,7 @@ const CATEGORY_LABELS: Record<Course["category"], string> = {
 
 const CATEGORY_GRADIENTS: Record<Course["category"], string> = {
   fundamentals: "from-blue-900 to-blue-700",
+  advanced: "from-indigo-900 to-indigo-700",
   programming_languages: "from-purple-900 to-purple-700",
   databases: "from-green-900 to-green-700",
   ai_tools: "from-orange-900 to-orange-700",
@@ -350,6 +352,7 @@ const Courses: React.FC = () => {
           <TabsList className="inline-flex w-auto gap-1">
             {[
               { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
+              { key: 'advanced', label: 'Advanced', count: courseCounts.advanced || 0 },
               { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
               { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
               { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }
@@ -573,6 +576,7 @@ const Courses: React.FC = () => {
               >
                 <option value="">Choose a category</option>
                 <option value="fundamentals">Fundamentals</option>
+                <option value="advanced">Advanced</option>
                 <option value="programming_languages">Programming Languages</option>
                 <option value="databases">Databases</option>
                 <option value="ai_tools">AI Tools</option>
@@ -836,6 +840,7 @@ const Courses: React.FC = () => {
               >
                 <option value="">Select category</option>
                 <option value="fundamentals">Fundamentals</option>
+                <option value="advanced">Advanced</option>
                 <option value="programming_languages">Programming Languages</option>
                 <option value="databases">Databases</option>
                 <option value="ai_tools">AI Tools</option>
