@@ -141,7 +141,12 @@ export default function MockInterviewForm() {
     // AI Config
     ai_generation_mode: 'full_ai' as 'full_ai' | 'mixed' | 'predefined',
     ai_percentage: 100,
-    ai_context: '',
+    ai_context: {
+      intern: '',
+      beginner: '',
+      '1_3_years': '',
+      '3_plus_years': ''
+    },
     ai_verbal_question_count: 5,
     ai_coding_question_count: 1,
 
@@ -187,7 +192,26 @@ export default function MockInterviewForm() {
 
           ai_generation_mode: data.ai_generation_mode || 'full_ai',
           ai_percentage: data.ai_percentage || 100,
-          ai_context: Array.isArray(data.ai_context) ? data.ai_context.join(', ') : '',
+          ai_context: (() => {
+            if (Array.isArray(data.ai_context)) {
+              // Backward compatibility
+              const oldStr = data.ai_context.join(', ');
+              return {
+                intern: oldStr,
+                beginner: oldStr,
+                '1_3_years': oldStr,
+                '3_plus_years': oldStr
+              };
+            } else if (typeof data.ai_context === 'object' && data.ai_context !== null) {
+              return {
+                intern: Array.isArray(data.ai_context.intern) ? data.ai_context.intern.join(', ') : '',
+                beginner: Array.isArray(data.ai_context.beginner) ? data.ai_context.beginner.join(', ') : '',
+                '1_3_years': Array.isArray(data.ai_context['1_3_years']) ? data.ai_context['1_3_years'].join(', ') : '',
+                '3_plus_years': Array.isArray(data.ai_context['3_plus_years']) ? data.ai_context['3_plus_years'].join(', ') : ''
+              };
+            }
+            return { intern: '', beginner: '', '1_3_years': '', '3_plus_years': '' };
+          })(),
           ai_verbal_question_count: data.ai_verbal_question_count || 5,
           ai_coding_question_count: data.ai_coding_question_count || 1,
 
@@ -250,7 +274,12 @@ export default function MockInterviewForm() {
 
         ai_generation_mode: formData.ai_generation_mode,
         ai_percentage: formData.ai_percentage,
-        ai_context: formData.ai_context.split(',').map(s => s.trim()).filter(Boolean),
+        ai_context: {
+          intern: formData.ai_context.intern.split(',').map(s => s.trim()).filter(Boolean),
+          beginner: formData.ai_context.beginner.split(',').map(s => s.trim()).filter(Boolean),
+          '1_3_years': formData.ai_context['1_3_years'].split(',').map(s => s.trim()).filter(Boolean),
+          '3_plus_years': formData.ai_context['3_plus_years'].split(',').map(s => s.trim()).filter(Boolean),
+        },
         ai_verbal_question_count: Number(formData.ai_verbal_question_count),
         ai_coding_question_count: Number(formData.ai_coding_question_count),
 
@@ -446,13 +475,42 @@ export default function MockInterviewForm() {
                       </div>
 
                       <div className="mt-4 border-t pt-4 border-gray-100">
-                        <label className="block text-sm font-medium mb-1">AI Context / Roles</label>
-                        <Textarea 
-                          value={formData.ai_context} 
-                          onChange={e => setFormData({ ...formData, ai_context: e.target.value })} 
-                          placeholder="e.g. Senior Frontend Developer, Strict Interviewer" 
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Comma-separated background context or specific roles for the AI Interviewer.</p>
+                        <h3 className="text-sm font-medium mb-3">AI Context by Experience Level</h3>
+                        <p className="text-xs text-gray-500 mb-4">Provide comma-separated specific focus areas or roles for the AI based on candidate's experience.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Intern</label>
+                            <Textarea 
+                              value={formData.ai_context.intern} 
+                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, intern: e.target.value } })} 
+                              placeholder="e.g. Focus on fundamentals, algorithms" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Beginner (0-1 yrs)</label>
+                            <Textarea 
+                              value={formData.ai_context.beginner} 
+                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, beginner: e.target.value } })} 
+                              placeholder="e.g. Junior developer projects" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Intermediate (1-3 yrs)</label>
+                            <Textarea 
+                              value={formData.ai_context['1_3_years']} 
+                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '1_3_years': e.target.value } })} 
+                              placeholder="e.g. System design basics, architecture" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Experienced (3+ yrs)</label>
+                            <Textarea 
+                              value={formData.ai_context['3_plus_years']} 
+                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '3_plus_years': e.target.value } })} 
+                              placeholder="e.g. Scalability, advanced microservices" 
+                            />
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

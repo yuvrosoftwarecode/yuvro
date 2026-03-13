@@ -1286,15 +1286,34 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
                 # 3. Initialize AI Chat Session
                 if mock_interview.ai_generation_mode in [MockInterview.AI_GEN_FULL, MockInterview.AI_GEN_MIXED]:
-                    # Find an active AI agent (prefer Gemini)
-                    ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
+                    # Find an active AI agent (prefer Claude/Anthropic)
+                    ai_agent = AIAgent.objects.filter(is_active=True, provider='anthropic').first()
                     if not ai_agent:
-                        ai_agent = AIAgent.objects.filter(is_active=True).first()
+                        # Fallback to Gemini
+                        ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
+                        if not ai_agent:
+                            # Last resort fallback
+                            ai_agent = AIAgent.objects.filter(is_active=True).first()
                     
                     if ai_agent:
                         # Safe user name
                         user_first_name = user.first_name if user.first_name else "Candidate"
                         
+                        # Safe extraction of AI Context and Coding Count
+                        raw_ai_context = mock_interview.ai_context.get(
+                            experience_level.lower(), {}
+                        ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+
+                        # Backwards compatibility check
+                        if isinstance(raw_ai_context, dict):
+                            # Try both keys, default to empty list or string accordingly
+                            actual_ai_context = raw_ai_context.get('context_str') or raw_ai_context.get('context', [])
+                            coding_count = raw_ai_context.get('coding_questions_count', 1)
+                        else:
+                            # Fallback for legacy flat array format
+                            actual_ai_context = raw_ai_context
+                            coding_count = 1
+
                         chat_session = ChatSession.objects.create(
                             user=user,
                             ai_agent=ai_agent,
@@ -1313,23 +1332,12 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                 "interviewer_name": mock_interview.interviewer_name,
                                 "interviewer_voice_id": mock_interview.interviewer_voice_id,
                                 "voice_speed": mock_interview.voice_speed,
-                                "ai_context": mock_interview.ai_context,
+                                "ai_context": actual_ai_context,
+                                "coding_questions_count": coding_count,
                                 "candidate_info": context_text
                             }
                         )
                         
-                        # Create InterviewSession linking to ChatSession
-                        # This is crucial for the AI Assistant module to track it as an interview
-                        interview_session = InterviewSession.objects.create(
-                            user=user,
-                            chat_session=chat_session,
-                            role_title=mock_interview.title,
-                            role_level=experience_level,
-                            difficulty="Adaptive", # Mock interviews are generally adaptive
-                            duration_minutes=selected_duration or mock_interview.max_duration,
-                            status='started'
-                        )
-
                         # Create InterviewSession linking to ChatSession
                         # This is crucial for the AI Assistant module to track it as an interview
                         interview_session = InterviewSession.objects.create(
@@ -1376,6 +1384,12 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                          status='started'
                      )
 
+            # Extract coding count one more time for frontend response
+            raw_ai_context_resp = mock_interview.ai_context.get(
+                experience_level.lower(), {}
+            ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+            coding_count_resp = raw_ai_context_resp.get('coding_questions_count', 1) if isinstance(raw_ai_context_resp, dict) else 1
+
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
@@ -1388,8 +1402,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 'chat_session_id': chat_session.id if chat_session else None,
                 'ai_config': {
                     'mode': mock_interview.ai_generation_mode,
-                    'verbal_count': mock_interview.ai_verbal_question_count,
-                    'coding_count': mock_interview.ai_coding_question_count,
+                    'coding_count': coding_count_resp,
                     'voice_type': mock_interview.voice_type,
                     'voice_speed': mock_interview.voice_speed,
                     'interviewer_name': mock_interview.interviewer_name,

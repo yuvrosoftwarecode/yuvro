@@ -46,6 +46,34 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [currentCode, setCurrentCode] = useState('');
   const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
 
+  const checkCodingQuestion = (text: string) => {
+    const aiText = text.toLowerCase();
+    const codingPrompts = [
+      "write code",
+      "coding question",
+      "write a function",
+      "please write",
+      "implement a",
+      "coding challenge",
+      "logic to solve",
+      "create a function"
+    ];
+
+    const hasCodingPrompt = codingPrompts.some(prompt => aiText.includes(prompt));
+    const hasCodeBlock = text.includes("```");
+
+    if (hasCodingPrompt || hasCodeBlock) {
+      setShowCodeEditor(true);
+
+      // Extract code if present
+      const codeBlockRegex = /```(?:javascript|js|python|java|cpp|typescript|ts)?\s*([\s\S]*?)```/i;
+      const match = text.match(codeBlockRegex);
+      if (match && match[1]) {
+        setCurrentCode(match[1].trim());
+      }
+    }
+  };
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -150,7 +178,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           const initialPrompt = "The interview is starting now. Please introduce yourself and ask the first question.";
           const aiResponse = await aiAssistantService.sendMessage(response.chat_session_id, initialPrompt);
 
-          const aiText = aiResponse.response;
+          const aiText = aiResponse.response || "Welcome to the interview.";
           setConversation([{
             type: 'ai',
             content: aiText,
@@ -160,12 +188,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
 
           speakText(aiText);
 
-          // Check if coding question (heuristic: contains "code" or "function")
-          if (aiText.toLowerCase().includes("code") || aiText.toLowerCase().includes("function")) {
-            setShowCodeEditor(true);
-          } else {
-            setShowCodeEditor(false);
-          }
+          checkCodingQuestion(aiText);
         }
         setIsAITyping(false);
       } catch (error) {
@@ -332,7 +355,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       setIsAITyping(true);
       try {
         const aiResp = await aiAssistantService.sendMessage(chatSessionId, combinedAnswer);
-        const aiText = aiResp.response;
+        const aiText = aiResp.response || "Could you provide more details?";
 
         const aiMessage: Message = {
           type: 'ai',
@@ -343,21 +366,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
 
-        if (aiText.toLowerCase().includes("write code") ||
-          aiText.toLowerCase().includes("coding question") ||
-          aiText.toLowerCase().includes("write a function") ||
-          aiText.match(/```/)) {
-
-          const codeBlockRegex = /```(?:javascript|js|python|java|cpp|typescript|ts)?\s*([\s\S]*?)```/i;
-          const match = aiText.match(codeBlockRegex);
-
-          if (match && match[1]) {
-            setCurrentCode(match[1].trim());
-            if (!showCodeEditor) setShowCodeEditor(true);
-          } else {
-            if (!showCodeEditor) setShowCodeEditor(true);
-          }
-        }
+        checkCodingQuestion(aiText);
       } catch (err) {
         console.error("AI Error", err);
       } finally {
