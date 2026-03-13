@@ -411,6 +411,7 @@ class AIServiceFactory:
         # The other providers are kept in the file for future re-enablement.
         # To re-enable a provider, add it back to this mapping.
         "gemini": GeminiService,
+        "anthropic": AnthropicService,
     }
 
     @classmethod

@@ -1286,10 +1286,14 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
                 # 3. Initialize AI Chat Session
                 if mock_interview.ai_generation_mode in [MockInterview.AI_GEN_FULL, MockInterview.AI_GEN_MIXED]:
-                    # Find an active AI agent (prefer Gemini)
-                    ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
+                    # Find an active AI agent (prefer Claude/Anthropic)
+                    ai_agent = AIAgent.objects.filter(is_active=True, provider='anthropic').first()
                     if not ai_agent:
-                        ai_agent = AIAgent.objects.filter(is_active=True).first()
+                        # Fallback to Gemini
+                        ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
+                        if not ai_agent:
+                            # Last resort fallback
+                            ai_agent = AIAgent.objects.filter(is_active=True).first()
                     
                     if ai_agent:
                         # Safe user name

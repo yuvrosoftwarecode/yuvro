@@ -181,6 +181,12 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 
                 # Prepare messages for AI service
                 messages = self._prepare_messages(chat_session, user_config)
+                
+                # IMPORTANT: If it's a trigger, it wasn't saved to the DB, so it's not in the 
+                # 'messages' list from _prepare_messages. We MUST add it manually for providers 
+                # like Anthropic that require at least one user message.
+                if is_trigger:
+                    messages.append({"role": "user", "content": message_content})
 
                 # Generate AI response
                 ai_service = AIServiceFactory.create_service(
@@ -713,13 +719,16 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
              context_text = "No resume provided. Ask questions based on the role title."
 
         # 2. Create a ChatSession
-        # We need an AI Agent. For now, we pick the first active Gemini agent or create a default one.
-        ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
+        # We prefer an Anthropic (Claude) agent if available.
+        ai_agent = AIAgent.objects.filter(provider="anthropic", is_active=True).first()
         if not ai_agent:
-            # Fallback for dev env for now
-            ai_agent = AIAgent.objects.first()
+            # Fallback to Gemini if Claude is not configured
+            ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
             if not ai_agent:
-                raise serializers.ValidationError("No active AI Agent found for interview. Please configure at least one agent.")
+                # Last resort fallback
+                ai_agent = AIAgent.objects.first()
+                if not ai_agent:
+                    raise serializers.ValidationError("No active AI Agent found for interview. Please configure at least one agent.")
 
         chat_session = ChatSession.objects.create(
             user=self.request.user,
