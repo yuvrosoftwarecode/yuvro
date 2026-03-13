@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('course', '0020_sectionsubjectfaculty'),
-        ('core', '0013_tpoprofile'),
+        ('core', '0014_tpoprofile'),
     ]
 
     operations = [
