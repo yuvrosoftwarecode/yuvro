@@ -165,6 +165,49 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
               Completed
             </div>
           </div>
+const Announcements: React.FC<{ announcements: any[], count: number }> = ({ announcements, count }) => (
+  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <CardHeader className="pb-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Bell className="w-5 h-5 text-amber-500" />
+          <h3 className="font-semibold text-gray-900">Announcements</h3>
+        </div>
+        <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+          {count} new
+        </span>
+      </div>
+    </CardHeader>
+
+    <CardContent className="flex-grow">
+      <div
+        className="space-y-3 max-h-80 pr-1"
+        style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+      >
+        {announcements.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Bell className="h-8 w-8 text-gray-200 mb-2" />
+            <p className="text-sm text-gray-400">No new announcements</p>
+          </div>
+        ) : (
+          announcements.map((a) => (
+            <div key={a.id} className="border border-gray-200 border-l-4 border-l-orange-400 rounded-lg p-3 hover:bg-gray-50 transition-colors" style={{ backgroundColor: '#f3f4f6' }}>
+              <p className="text-sm font-semibold text-gray-900 line-clamp-1">{a.title}</p>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{a.content}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {a.expiry_date ? new Date(a.expiry_date).toLocaleDateString() : 'No expiry'}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full bg-white border border-gray-200 ${a.level === 'college' ? 'text-blue-600' : 'text-purple-600'}`}>
+                  {a.level === 'college' ? 'College' : 'Dept'}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </CardContent>
 
           <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
             <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
