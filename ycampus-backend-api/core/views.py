@@ -36,6 +36,8 @@ from .serializers import (
 )
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
+from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 

@@ -330,6 +330,7 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
                     <Syllabus />
+                    <Syllabus />
                   </ProtectedRoute>
                 }
               />
@@ -337,6 +338,7 @@ function App() {
                 path="/faculty/revise"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
+                    <Revise />
                     <Revise />
                   </ProtectedRoute>
                 }
@@ -369,6 +371,7 @@ function App() {
                 path="/faculty/task"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
+                    <FacultyTask />
                     <FacultyTask />
                   </ProtectedRoute>
                 }
@@ -730,6 +733,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CertificationExam />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/task"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentTask />
                   </ProtectedRoute>
                 }
               />
