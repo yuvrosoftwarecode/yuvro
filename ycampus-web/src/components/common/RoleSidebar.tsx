@@ -146,7 +146,7 @@ const sidebarItems: SidebarItem[] = [
   {
     id: 'student-announcements',
     label: 'Announcements',
-    icon: Megaphone,
+    icon: Activity,
     path: '/student/announcements',
     roles: ['student']
   },
