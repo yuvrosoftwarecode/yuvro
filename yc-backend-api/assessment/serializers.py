@@ -402,8 +402,6 @@ class MockInterviewSerializer(serializers.ModelSerializer):
             "ai_generation_mode",
             "ai_percentage",
             "ai_context",
-            "ai_verbal_question_count",
-            "ai_coding_question_count",
             "voice_type",
             "interviewer_name",
             "interviewer_voice_id",

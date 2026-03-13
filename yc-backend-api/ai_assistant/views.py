@@ -427,6 +427,7 @@ CORE RULES:
 INTERVIEW CONTEXT:
 - **Role**: {role}
 - **Level**: {level}
+- **Coding Questions to Ask**: {context.get('coding_questions_count', 1)}
 - **Required Skills**: {required_skills}
 - **AI Focus Context**: 
 {ai_context_str}
