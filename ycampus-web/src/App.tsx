@@ -80,6 +80,8 @@ import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 
 
+import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
+
 function App() {
   return (
     <ErrorBoundary>
@@ -87,6 +89,14 @@ function App() {
         <Router>
           <div className="App">
             <Routes>
+              <Route
+                path="/student/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

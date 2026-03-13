@@ -80,6 +80,13 @@ const AnnouncementsScreen: React.FC = () => {
   const collegeId = (user as any)?.college_id;
   const pageSize = 25;
 
+  const getAttachmentUrl = (url: string | null | undefined) => {
+    if (!url) return undefined;
+    if (url.startsWith('http')) return url;
+    const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   useEffect(() => {
     loadAnnouncements(1);
     
@@ -136,7 +143,10 @@ const AnnouncementsScreen: React.FC = () => {
         count = data.count || announcementsData.length;
       }
       
-      setAnnouncements(announcementsData);
+      setAnnouncements(announcementsData.map(ann => ({
+        ...ann,
+        attachment: getAttachmentUrl(ann.attachment)
+      })));
       setTotalCount(count);
       setCurrentPage(page);
     } catch (error) {
@@ -636,42 +646,45 @@ const AnnouncementsScreen: React.FC = () => {
             <div className="grid gap-2 mb-2">
               <label htmlFor="attachment" className="text-sm font-medium text-gray-700">Attachment (Optional)</label>
               <div className="flex items-center gap-4">
-                <label 
-                  htmlFor="attachment" 
-                  className="cursor-pointer bg-white border border-gray-300 hover:border-orange-400 text-gray-700 font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-sm flex items-center gap-2"
-                >
-                  <Paperclip className="w-4 h-4" />
-                  Choose File
-                </label>
-                <input
-                  type="file"
-                  id="attachment"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setAttachmentFile(e.target.files[0]);
-                    }
-                  }}
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                />
-                {(attachmentFile || editingAnnouncement?.attachment) && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md border border-gray-100 flex-1 truncate">
-                    <span className="truncate">
-                      {attachmentFile ? attachmentFile.name : (editingAnnouncement?.attachment?.split('/').pop() || 'Existing attachment')}
-                    </span>
+                <div className="relative flex-1">
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c,.cs,.html,.css,.json,.xml,.sh"
+                    onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                  />
+
+                  <label
+                    htmlFor="file-upload"
+                    className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${
+                      attachmentFile
+                        ? 'bg-slate-50 border-orange-200 text-slate-900'
+                        : 'bg-slate-50 border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    <Paperclip className="w-5 h-5 text-orange-500" />
+
+                    {attachmentFile ? (
+                      <span className="text-slate-900 truncate">{attachmentFile.name}</span>
+                    ) : (
+                      'Add Attachment (PDF / Image / ZIP / RAR / Code Files)'
+                    )}
+                  </label>
+                  
+                  {attachmentFile && (
                     <button 
-                      type="button" 
-                      onClick={() => {
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
                         setAttachmentFile(null);
-                        // If we want to clear a previously uploaded attachment, we'd need more logic, 
-                        // but for now this just clears the pending upload.
                       }}
-                      className="text-gray-400 hover:text-red-500 ml-auto"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-red-500"
                     >
                       <X className="w-4 h-4" />
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -700,7 +713,9 @@ const AnnouncementsScreen: React.FC = () => {
         <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white">
           <div className="bg-orange-50 border-b border-orange-100 px-6 py-4 flex flex-wrap gap-2 items-center">
              <Badge className="bg-white text-orange-700 border-orange-200">
-                {viewAnnouncement?.level === 'college' ? 'College Level' : 'Department Level'}
+                {viewAnnouncement?.level === 'college' 
+                  ? 'College Level' 
+                  : (viewAnnouncement?.department_name ? `${viewAnnouncement.department_name} Department` : 'Department Level')}
              </Badge>
              <Badge className={`bg-white ${viewAnnouncement?.priority === 'urgent' ? 'text-red-600 border-red-200' : viewAnnouncement?.priority === 'important' ? 'text-orange-600 border-orange-200' : 'text-blue-600 border-blue-200'}`}>
                 {viewAnnouncement?.priority ? viewAnnouncement.priority.charAt(0).toUpperCase() + viewAnnouncement.priority.slice(1) : 'Normal'}
@@ -716,7 +731,7 @@ const AnnouncementsScreen: React.FC = () => {
              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-gray-400" />
-                  <span>{viewAnnouncement?.created_by_name?.includes('@') ? 'College Admin' : (viewAnnouncement?.created_by_name || 'College Admin')}</span>
+                  <span>{viewAnnouncement?.created_by_name?.split('@')[0] || 'Admin'}</span>
                 </div>
                 {viewAnnouncement?.expiry_date && (
                   <div className="flex items-center gap-1.5">
