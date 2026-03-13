@@ -48,7 +48,9 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ announcement
                 : 'bg-purple-50 text-purple-600 border-purple-200'
             }`}
           >
-            {announcement.level === 'college' ? 'College Level' : 'Department Level'}
+            {announcement.level === 'college' 
+              ? 'College Level' 
+              : (announcement.department_name ? `${announcement.department_name} Department` : 'Department Announcement')}
           </span>
 
           <span

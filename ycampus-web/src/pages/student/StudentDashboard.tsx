@@ -452,7 +452,7 @@ const AttendanceOverview: React.FC = () => {
   );
 };
 
-const Announcements: React.FC = () => (
+const Announcements: React.FC<{ announcements: any[], count: number }> = ({ announcements, count }) => (
   <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
@@ -461,7 +461,7 @@ const Announcements: React.FC = () => (
           <h3 className="font-semibold text-gray-900">Announcements</h3>
         </div>
         <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-          {mockAnnouncements.length} new
+          {count} new
         </span>
       </div>
     </CardHeader>
@@ -471,19 +471,28 @@ const Announcements: React.FC = () => (
         className="space-y-3 max-h-80 pr-1"
         style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
       >
-        {mockAnnouncements.map((a) => (
-          <div key={a.id} className="border border-gray-200 border-l-4 border-l-orange-400 rounded-lg p-3 hover:bg-gray-50 transition-colors" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className="text-sm font-semibold text-gray-900">{a.title}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{a.description}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {a.time}
-              </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-600 border border-gray-200">{a.tag}</span>
-            </div>
+        {announcements.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Bell className="h-8 w-8 text-gray-200 mb-2" />
+            <p className="text-sm text-gray-400">No new announcements</p>
           </div>
-        ))}
+        ) : (
+          announcements.map((a) => (
+            <div key={a.id} className="border border-gray-200 border-l-4 border-l-orange-400 rounded-lg p-3 hover:bg-gray-50 transition-colors" style={{ backgroundColor: '#f3f4f6' }}>
+              <p className="text-sm font-semibold text-gray-900 line-clamp-1">{a.title}</p>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{a.content}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {a.expiry_date ? new Date(a.expiry_date).toLocaleDateString() : 'No expiry'}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full bg-white border border-gray-200 ${a.level === 'college' ? 'text-blue-600' : 'text-purple-600'}`}>
+                  {a.level === 'college' ? 'College' : 'Dept'}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </CardContent>
 
@@ -646,16 +655,19 @@ const Dashboard: React.FC = () => {
   const [tasksData, setTasksData] = useState<TasksData | null>(null);
   const [assessmentsData, setAssessmentsData] = useState<AssessmentsData | null>(null);
   const [contestsData, setContestsData] = useState<ContestsData | null>(null);
+  const [announcementsData, setAnnouncementsData] = useState<any[]>([]);
+  const [announcementCount, setAnnouncementCount] = useState(0);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [notes, tests, tasks, assessments, contests] = await Promise.all([
+        const [notes, tests, tasks, assessments, contests, announcementsRes] = await Promise.all([
           studentDashboardService.getNotesProgress(),
           studentDashboardService.getTestPerformance(),
           studentDashboardService.getTasksSummary(),
           studentDashboardService.getAssessments(),
           studentDashboardService.getContests(),
+          announcementService.getAnnouncements({ college: (user as any)?.college_id })
         ]);
 
         setNotesData(notes);
@@ -663,6 +675,17 @@ const Dashboard: React.FC = () => {
         setTasksData(tasks);
         setAssessmentsData(assessments);
         setContestsData(contests);
+        
+        // Handle announcement visibility
+        const deptId = (user as any)?.department_id;
+        const results = (announcementsRes as any).results || (announcementsRes as any).data || (Array.isArray(announcementsRes) ? announcementsRes : []);
+        const filtered = results.filter((ann: any) => {
+          if (ann.level === 'college') return true;
+          if (ann.level === 'department') return ann.department?.toString() === deptId?.toString();
+          return false;
+        });
+        setAnnouncementsData(filtered.slice(0, 5));
+        setAnnouncementCount(filtered.length);
       } catch (error) {
         console.warn('Dashboard data fetch failed:', error);
       } finally {
@@ -671,7 +694,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchAll();
-  }, []);
+  }, [user]);
 
   if (loading || !notesData || !testsData || !tasksData || !assessmentsData || !contestsData) {
     return (
@@ -719,7 +742,7 @@ const Dashboard: React.FC = () => {
             {/* Row 3: 2 cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <AttendanceOverview />
-              <Announcements />
+              <Announcements announcements={announcementsData} count={announcementCount} />
             </div>
 
             {/* Row 4: 2 cards */}
