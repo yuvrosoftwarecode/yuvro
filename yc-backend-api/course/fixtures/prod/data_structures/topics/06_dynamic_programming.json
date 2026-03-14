@@ -52,12 +52,17 @@
                     "text": "The input must be sorted",
                     "is_correct": false
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Try to break down the problem into smaller overlapping subproblems.",
+                "Can you write a recursive relation? Once you have that, you can use memoization or tabulation to optimize it."
             ]
         },
         {
             "type": "coding",
             "title": "Climbing Stairs",
-            "content": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?\n\n**Example 1:**\nInput: n = 2\nOutput: 2\nExplanation: Two ways - (1+1) or (2).\n\n**Example 2:**\nInput: n = 3\nOutput: 3\nExplanation: Three ways - (1+1+1), (1+2), or (2+1).\n\n**Constraints:** 1 <= n <= 45",
+            "content": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?\n\n**Constraints:** 1 <= n <= 45",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -119,28 +124,35 @@
                     "language": "python",
                     "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1: print(1)\nelse:\n    a, b = 1, 1\n    for _ in range(2, n + 1): a, b = b, a + b\n    print(b)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = Integer.parseInt(sc.nextLine().trim());\n        if (n <= 1) { System.out.println(1); return; }\n        int a = 1, b = 1;\n        for (int i = 2; i <= n; i++) { int temp = b; b = a + b; a = temp; }\n        System.out.println(b);\n    }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\nint main() {\n    int n; if(scanf(\"%d\", &n) != 1) return 0;\n    if (n <= 1) { printf(\"1\\n\"); return 0; }\n    int a = 1, b = 1;\n    for (int i = 2; i <= n; i++) { int temp = b; b = a + b; a = temp; }\n    printf(\"%d\\n\", b); return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Longest Common Subsequence",
-            "content": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\n\nA subsequence is a string derived from the original by deleting some characters (or none) without changing the relative order of the remaining characters.\n\n**Example 1:**\nInput: text1 = abcde, text2 = ace\nOutput: 3\nExplanation: The LCS is 'ace' with length 3.\n\n**Example 2:**\nInput: text1 = abc, text2 = abc\nOutput: 3\n\n**Example 3:**\nInput: text1 = abc, text2 = def\nOutput: 0\n\n**Constraints:**\n- 1 <= text1.length, text2.length <= 1000\n- text1 and text2 consist of only lowercase English characters.",
+            "content": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\n\nA subsequence is a string derived from the original by deleting some characters (or none) without changing the relative order of the remaining characters.\n\n**Constraints:**\n- 1 <= text1.length, text2.length <= 1000\n- text1 and text2 consist of only lowercase English characters.",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -202,28 +214,35 @@
                     "language": "python",
                     "code": "import sys\ninput_data = sys.stdin.read().split('\\n')\ntext1 = input_data[0].strip(); text2 = input_data[1].strip()\nm, n = len(text1), len(text2)\ndp = [[0] * (n + 1) for _ in range(m + 1)]\nfor i in range(m - 1, -1, -1):\n    for j in range(n - 1, -1, -1):\n        if text1[i] == text2[j]: dp[i][j] = 1 + dp[i+1][j+1]\n        else: dp[i][j] = max(dp[i+1][j], dp[i][j+1])\nprint(dp[0][0])",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Memoization - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    static String t1, t2; static int[][] memo;\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        t1 = sc.nextLine().trim(); t2 = sc.nextLine().trim();\n        memo = new int[t1.length()][t2.length()];\n        for (int[] row : memo) Arrays.fill(row, -1);\n        System.out.println(lcs(0, 0));\n    }\n    static int lcs(int i, int j) {\n        if (i == t1.length() || j == t2.length()) return 0;\n        if (memo[i][j] != -1) return memo[i][j];\n        if (t1.charAt(i) == t2.charAt(j)) return memo[i][j] = 1 + lcs(i+1, j+1);\n        return memo[i][j] = Math.max(lcs(i+1, j), lcs(i, j+1));\n    }\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Tabulation - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <string.h>\n#define MAX(a,b) ((a)>(b)?(a):(b))\nint dp[1001][1001];\nint main() {\n    char t1[1005], t2[1005];\n    if(!fgets(t1, 1005, stdin)) return 0; if(!fgets(t2, 1005, stdin)) return 0;\n    int m = strlen(t1); if(t1[m-1]=='\\n') t1[--m]='\\0';\n    int n = strlen(t2); if(t2[n-1]=='\\n') t2[--n]='\\0';\n    for(int i=m; i>=0; i--) for(int j=n; j>=0; j--) {\n        if(i==m || j==n) dp[i][j]=0;\n        else if(t1[i]==t2[j]) dp[i][j] = 1 + dp[i+1][j+1];\n        else dp[i][j] = MAX(dp[i+1][j], dp[i][j+1]);\n    }\n    printf(\"%d\\n\", dp[0][0]); return 0;\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Fibonacci Number",
-            "content": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.\n\nF(0) = 0, F(1) = 1\nF(n) = F(n - 1) + F(n - 2), for n > 1.\n\nGiven n, calculate F(n).\n\n**Example 1:**\nInput: n = 2\nOutput: 1\nExplanation: F(2) = F(1) + F(0) = 1 + 0 = 1.\n\n**Example 2:**\nInput: n = 3\nOutput: 2\n\n**Example 3:**\nInput: n = 4\nOutput: 3\n\n**Constraints:** 0 <= n <= 30",
+            "content": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.\n\nF(0) = 0, F(1) = 1\nF(n) = F(n - 1) + F(n - 2), for n > 1.\n\nGiven n, calculate F(n).\n\n**Constraints:** 0 <= n <= 30",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -276,28 +295,35 @@
                     "language": "python",
                     "code": "import sys\nn = int(sys.stdin.read().strip())\nif n <= 1: print(n)\nelse:\n    a, b = 0, 1\n    for _ in range(2, n+1): a, b = b, a+b\n    print(b)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Bottom-Up - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if(!sc.hasNextInt()) return;\n        int n = sc.nextInt();\n        if (n <= 1) { System.out.println(n); return; }\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n        System.out.println(b);\n    }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Bottom-Up - C",
                     "language": "c",
                     "code": "#include <stdio.h>\nint main() {\n    int n; if(scanf(\"%d\", &n) != 1) return 0;\n    if (n <= 1) { printf(\"%d\\n\", n); return 0; }\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; i++) { int t = b; b = a + b; a = t; }\n    printf(\"%d\\n\", b); return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "House Robber",
-            "content": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.\n\n**Example 1:**\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3). Total = 1 + 3 = 4.\n\n**Example 2:**\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1). Total = 2 + 9 + 1 = 12.\n\n**Constraints:**\n- 1 <= nums.length <= 100\n- 0 <= nums[i] <= 400",
+            "content": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.\n\n**Constraints:**\n- 1 <= nums.length <= 100\n- 0 <= nums[i] <= 400",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -350,28 +376,35 @@
                     "language": "python",
                     "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\nif not nums: print(0)\nelif len(nums) == 1: print(nums[0])\nelse:\n    a, b = 0, 0\n    for n in nums: a, b = b, max(b, a + n)\n    print(b)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length()-1);\n        if (line.isEmpty()) { System.out.println(0); return; }\n        String[] parts = line.split(\",\");\n        int a = 0, b = 0;\n        for (String p : parts) {\n            int n = Integer.parseInt(p.trim());\n            int t = b; b = Math.max(b, a + n); a = t;\n        }\n        System.out.println(b);\n    }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#define MAX(a,b) ((a)>(b)?(a):(b))\nint main() {\n    char line[1000]; if(!fgets(line, 1000, stdin)) return 0;\n    int a = 0, b = 0;\n    char *p = line;\n    while (*p) {\n        if (*p >= '0' && *p <= '9') {\n            int n = strtol(p, &p, 10);\n            int t = b; b = MAX(b, a + n); a = t;\n        } else p++;\n    }\n    printf(\"%d\\n\", b); return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Coin Change",
-            "content": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n**Example 1:**\nInput: coins = [1,2,5], amount = 11\nOutput: 3\nExplanation: 11 = 5 + 5 + 1\n\n**Example 2:**\nInput: coins = [2], amount = 3\nOutput: -1\n\n**Example 3:**\nInput: coins = [1], amount = 0\nOutput: 0\n\n**Constraints:**\n- 1 <= coins.length <= 12\n- 1 <= coins[i] <= 2^31 - 1\n- 0 <= amount <= 10^4",
+            "content": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n**Constraints:**\n- 1 <= coins.length <= 12\n- 1 <= coins[i] <= 2^31 - 1\n- 0 <= amount <= 10^4",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -424,28 +457,35 @@
                     "language": "python",
                     "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ncoins = json.loads(lines[0]); amount = int(lines[1])\ndp = [float('inf')] * (amount + 1); dp[0] = 0\nfor i in range(1, amount + 1):\n    for c in coins:\n        if c <= i: dp[i] = min(dp[i], dp[i - c] + 1)\nprint(dp[amount] if dp[amount] != float('inf') else -1)",
                     "complexity_analysis": "Time: O(amount * len(coins)). Space: O(amount).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        int amount = Integer.parseInt(sc.nextLine().trim());\n        String[] parts = line.substring(1, line.length()-1).split(\",\");\n        int[] coins = new int[parts.length];\n        for(int i=0; i<parts.length; i++) coins[i] = Integer.parseInt(parts[i].trim());\n        int[] dp = new int[amount + 1];\n        Arrays.fill(dp, amount + 1); dp[0] = 0;\n        for (int i = 1; i <= amount; i++) {\n            for (int c : coins) if (c <= i) dp[i] = Math.min(dp[i], dp[i - c] + 1);\n        }\n        System.out.println(dp[amount] > amount ? -1 : dp[amount]);\n    }\n}",
                     "complexity_analysis": "Time: O(amount * N). Space: O(amount).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define MIN(a,b) ((a)<(b)?(a):(b))\nint main() {\n    char line[1000]; if(!fgets(line, 1000, stdin)) return 0;\n    int amount; if(scanf(\"%d\", &amount) != 1) return 0;\n    int coins[20], n = 0; char *p = line;\n    while (*p) {\n        if (*p >= '0' && *p <= '9') coins[n++] = strtol(p, &p, 10);\n        else p++;\n    }\n    int *dp = malloc((amount + 1) * sizeof(int));\n    for (int i=0; i<=amount; i++) dp[i] = amount + 1; dp[0] = 0;\n    for (int i=1; i<=amount; i++) {\n        for (int j=0; j<n; j++) if (coins[j] <= i) dp[i] = MIN(dp[i], dp[i - coins[j]] + 1);\n    }\n    printf(\"%d\\n\", dp[amount] > amount ? -1 : dp[amount]);\n    free(dp); return 0;\n}",
                     "complexity_analysis": "Time: O(amount * N). Space: O(amount).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Edit Distance",
-            "content": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character\n\n**Example 1:**\nInput: word1 = \"horse\", word2 = \"ros\"\nOutput: 3\nExplanation: horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')\n\n**Example 2:**\nInput: word1 = \"intention\", word2 = \"execution\"\nOutput: 5\n\n**Constraints:**\n- 0 <= word1.length, word2.length <= 500\n- word1 and word2 consist of lowercase English letters.",
+            "content": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.\n\nYou have the following three operations permitted on a word:\n- Insert a character\n- Delete a character\n- Replace a character\n\n**Constraints:**\n- 0 <= word1.length, word2.length <= 500\n- word1 and word2 consist of lowercase English letters.",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -497,28 +537,35 @@
                     "language": "python",
                     "code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nw1 = lines[0] if lines else ''; w2 = lines[1] if len(lines) > 1 else ''\nm, n = len(w1), len(w2)\ndp = [[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0] = i\nfor j in range(n+1): dp[0][j] = j\nfor i in range(1, m+1):\n    for j in range(1, n+1):\n        if w1[i-1] == w2[j-1]: dp[i][j] = dp[i-1][j-1]\n        else: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])\nprint(dp[m][n])",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <string.h>\n#define MIN(a,b) ((a)<(b)?(a):(b))\n#define MIN3(a,b,c) MIN(a, MIN(b,c))\nint dp[505][505];\nint main() {\n    char w1[505], w2[505];\n    if(!fgets(w1, 505, stdin)) w1[0]='\\0'; else { int l = strlen(w1); if(w1[l-1]=='\\n') w1[--l]='\\0'; }\n    if(!fgets(w2, 505, stdin)) w2[0]='\\0'; else { int l = strlen(w2); if(w2[l-1]=='\\n') w2[--l]='\\0'; }\n    int m = strlen(w1), n = strlen(w2);\n    for (int i=0; i<=m; i++) dp[i][0] = i;\n    for (int j=0; j<=n; j++) dp[0][j] = j;\n    for (int i=1; i<=m; i++) for (int j=1; j<=n; j++) {\n        if (w1[i-1] == w2[j-1]) dp[i][j] = dp[i-1][j-1];\n        else dp[i][j] = 1 + MIN3(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);\n    }\n    printf(\"%d\\n\", dp[m][n]); return 0;\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - JAVA",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String word1 = sc.hasNextLine() ? sc.nextLine().trim() : \"\";\n        String word2 = sc.hasNextLine() ? sc.nextLine().trim() : \"\";\n        int m = word1.length(), n = word2.length();\n        int[][] dp = new int[m + 1][n + 1];\n        for (int i = 0; i <= m; i++) dp[i][0] = i;\n        for (int j = 0; j <= n; j++) dp[0][j] = j;\n        for (int i = 1; i <= m; i++)\n            for (int j = 1; j <= n; j++) {\n                if (word1.charAt(i - 1) == word2.charAt(j - 1))\n                    dp[i][j] = dp[i - 1][j - 1];\n                else\n                    dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1]));\n            }\n        System.out.println(dp[m][n]);\n    }\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(M*N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Word Break",
-            "content": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.\n\n**Example 1:**\nInput: s = \"leetcode\", wordDict = [\"leet\",\"code\"]\nOutput: true\nExplanation: Return true because \"leetcode\" can be segmented as \"leet code\".\n\n**Example 2:**\nInput: s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]\nOutput: true\n\n**Example 3:**\nInput: s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]\nOutput: false\n\n**Constraints:**\n- 1 <= s.length <= 300\n- 1 <= wordDict.length <= 1000\n- 1 <= wordDict[i].length <= 20",
+            "content": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.\n\nNote that the same word in the dictionary may be reused multiple times in the segmentation.\n\n**Constraints:**\n- 1 <= s.length <= 300\n- 1 <= wordDict.length <= 1000\n- 1 <= wordDict[i].length <= 20",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -570,28 +617,35 @@
                     "language": "python",
                     "code": "import sys, json\nlines = sys.stdin.read().strip().split('\\n')\ns = lines[0].strip(); words = set(json.loads(lines[1]))\ndp = [False] * (len(s) + 1); dp[0] = True\nfor i in range(1, len(s) + 1):\n    for j in range(i):\n        if dp[j] and s[j:i] in words: dp[i] = True; break\nprint(dp[len(s)])",
                     "complexity_analysis": "Time: O(N^2 * M). Space: O(N).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine().trim();\n        String line = sc.nextLine().trim();\n        Set<String> set = new HashSet<>(Arrays.asList(line.substring(2, line.length()-2).split(\"\\\",\\\"\")));\n        boolean[] dp = new boolean[s.length() + 1];\n        dp[0] = true;\n        for (int i=1; i<=s.length(); i++) {\n            for (int j=0; j<i; j++) {\n                if (dp[j] && set.contains(s.substring(j, i))) { dp[i] = true; break; }\n            }\n        }\n        System.out.println(dp[s.length()] ? \"True\" : \"False\");\n    }\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nbool dp[305];\nchar words[1005][25]; int wordCount = 0;\n\nint main() {\n    char s[305]; if(!fgets(s, 305, stdin)) return 0;\n    int slen = strlen(s); if(s[slen-1]=='\\n') s[--slen]='\\0';\n    char line[5000]; if(!fgets(line, 5000, stdin)) return 0;\n    char *p = line; while(*p) {\n        if(*p == '\"') {\n            p++; char *start = p; while(*p && *p != '\"') p++;\n            int len = p - start; strncpy(words[wordCount], start, len); words[wordCount][len] = '\\0'; wordCount++;\n        } if(*p) p++;\n    }\n    dp[0] = true;\n    for (int i=1; i<=slen; i++) {\n        for (int j=0; j<i; j++) {\n            if (dp[j]) {\n                char sub[305]; strncpy(sub, s + j, i - j); sub[i-j] = '\\0';\n                for (int k=0; k<wordCount; k++) if (strcmp(sub, words[k]) == 0) { dp[i] = true; break; }\n            }\n            if (dp[i]) break;\n        }\n    }\n    printf(\"%s\\n\", dp[slen] ? \"True\" : \"False\"); return 0;\n}",
                     "complexity_analysis": "Time: O(N^2 * wordCount). Space: O(N + wordCount).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Longest Increasing Subsequence",
-            "content": "Given an integer array nums, return the length of the longest strictly increasing subsequence.\n\n**Example 1:**\nInput: nums = [10,9,2,5,3,7,101,18]\nOutput: 4\nExplanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.\n\n**Example 2:**\nInput: nums = [0,1,0,3,2,3]\nOutput: 4\n\n**Example 3:**\nInput: nums = [7,7,7,7,7,7,7]\nOutput: 1\n\n**Constraints:**\n- 1 <= nums.length <= 2500\n- -10^4 <= nums[i] <= 10^4",
+            "content": "Given an integer array nums, return the length of the longest strictly increasing subsequence.\n\n**Constraints:**\n- 1 <= nums.length <= 2500\n- -10^4 <= nums[i] <= 10^4",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -643,28 +697,35 @@
                     "language": "python",
                     "code": "import sys, json, bisect\nnums = json.loads(sys.stdin.read().strip())\ntails = []\nfor n in nums:\n    pos = bisect.bisect_left(tails, n)\n    if pos == len(tails): tails.append(n)\n    else: tails[pos] = n\nprint(len(tails))",
                     "complexity_analysis": "Time: O(N log N). Space: O(N).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        String[] parts = line.substring(1, line.length()-1).split(\",\");\n        if (line.equals(\"[]\") || parts[0].isEmpty()) { System.out.println(0); return; }\n        int[] nums = new int[parts.length];\n        for(int i=0; i<parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        int[] tails = new int[nums.length];\n        int size = 0;\n        for (int x : nums) {\n            int i = 0, j = size;\n            while (i != j) {\n                int m = (i + j) / 2;\n                if (tails[m] < x) i = m + 1; else j = m;\n            }\n            tails[i] = x; if (i == size) ++size;\n        }\n        System.out.println(size);\n    }\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    char line[10000]; if(!fgets(line, 10000, stdin)) return 0;\n    int nums[2505], n = 0; char *p = line;\n    while (*p) {\n        if ((*p >= '0' && *p <= '9') || *p == '-') nums[n++] = strtol(p, &p, 10);\n        else p++;\n    }\n    int *tails = malloc(n * sizeof(int));\n    int size = 0;\n    for (int k=0; k<n; k++) {\n        int i = 0, j = size;\n        while (i != j) {\n            int m = (i + j) / 2;\n            if (tails[m] < nums[k]) i = m + 1; else j = m;\n        }\n        tails[i] = nums[k]; if (i == size) ++size;\n    }\n    printf(\"%d\\n\", size); free(tails); return 0;\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Longest Palindromic Substring",
-            "content": "Given a string `s`, return the longest palindromic substring in `s`.\n\n**Example 1:**\nInput: s = \"babad\"\nOutput: \"bab\"\nExplanation: \"aba\" is also a valid answer.\n\n**Example 2:**\nInput: s = \"cbbd\"\nOutput: \"bb\"\n\n**Constraints:**\n- 1 <= s.length <= 1000\n- s consists of only digits and English letters.",
+            "content": "Given a string `s`, return the longest palindromic substring in `s`.\n\n**Constraints:**\n- 1 <= s.length <= 1000\n- s consists of only digits and English letters.",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -700,28 +761,35 @@
                     "language": "python",
                     "code": "import sys, json\ns = json.loads(sys.stdin.read().strip())\nif not s: print(\"\"); exit()\ndef expand(l, r):\n    while l>=0 and r<len(s) and s[l]==s[r]: l-=1; r+=1\n    return s[l+1:r]\nres = \"\"\nfor i in range(len(s)):\n    s1 = expand(i, i)\n    s2 = expand(i, i+1)\n    res = max(res, s1, s2, key=len)\nprint(json.dumps(res))",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Expand Around Center - Java",
                     "language": "java",
                     "code": "import java.util.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNext()) return;\n        String s = sc.next().trim();\n        if (s.startsWith(\"\\\"\") && s.endsWith(\"\\\"\")) s = s.substring(1, s.length()-1);\n        \n        if (s.isEmpty()) { System.out.println(\"\\\"\\\"\"); return; }\n        \n        String res = \"\";\n        for (int i = 0; i < s.length(); i++) {\n            String s1 = extend(s, i, i);\n            String s2 = extend(s, i, i + 1);\n            if (s1.length() > res.length()) res = s1;\n            if (s2.length() > res.length()) res = s2;\n        }\n        System.out.println(\"\\\"\" + res + \"\\\"\");\n    }\n    private static String extend(String s, int l, int r) {\n        while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) {\n            l--; r++;\n        }\n        return s.substring(l + 1, r);\n    }\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Expand Around Center - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint lo, maxLen;\n\nvoid expandAroundCenter(char* s, int j, int k, int len) {\n    while (j >= 0 && k < len && s[j] == s[k]) {\n        j--;\n        k++;\n    }\n    if (maxLen < k - j - 1) {\n        lo = j + 1;\n        maxLen = k - j - 1;\n    }\n}\n\nint main() {\n    char s_input[1005];\n    if (!fgets(s_input, sizeof(s_input), stdin)) return 0;\n    \n    int s_len = strlen(s_input);\n    if (s_len > 0 && s_input[s_len - 1] == '\\n') s_input[--s_len] = '\\0';\n    if (s_len > 0 && s_input[s_len - 1] == '\\r') s_input[--s_len] = '\\0';\n\n    char* s_ptr = s_input;\n    if (s_len >= 2 && s_input[0] == '\"' && s_input[s_len - 1] == '\"') {\n        s_ptr++;\n        s_input[s_len - 1] = '\\0';\n        s_len -= 2;\n    }\n\n    if (s_len == 0) {\n        printf(\"\\\"\\\"\\n\");\n        return 0;\n    }\n\n    lo = 0;\n    maxLen = 0;\n\n    for (int i = 0; i < s_len; i++) {\n        expandAroundCenter(s_ptr, i, i, s_len);\n        expandAroundCenter(s_ptr, i, i + 1, s_len);\n    }\n\n    printf(\"\\\"\");\n    for (int i = 0; i < maxLen; i++) {\n        putchar(s_ptr[lo + i]);\n    }\n    printf(\"\\\"\\n\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Jump Game",
-            "content": "You are given an integer array `nums`. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.\n\nReturn `true` if you can reach the last index, or `false` otherwise.\n\n**Example 1:**\nInput: nums = [2,3,1,1,4]\nOutput: true\n\n**Example 2:**\nInput: nums = [3,2,1,0,4]\nOutput: false\n\n**Constraints:**\n- 1 <= nums.length <= 10^4",
+            "content": "You are given an integer array `nums`. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.\n\nReturn `true` if you can reach the last index, or `false` otherwise.\n\n**Constraints:**\n- 1 <= nums.length <= 10^4",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -752,28 +820,35 @@
                     "language": "python",
                     "code": "import sys, json\nnums = json.loads(sys.stdin.read().strip())\ngoal = len(nums)-1\nfor i in range(len(nums)-1, -1, -1):\n    if i + nums[i] >= goal: goal = i\nprint(goal == 0)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Greedy - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String line = sc.nextLine().trim();\n        line = line.substring(1, line.length() - 1);\n        String[] parts = line.split(\",\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i].trim());\n        int maxReach = 0;\n        for (int i = 0; i < nums.length; i++) {\n            if (i > maxReach) { System.out.println(\"False\"); return; }\n            maxReach = Math.max(maxReach, i + nums[i]);\n            if (maxReach >= nums.length - 1) { System.out.println(\"True\"); return; }\n        }\n        System.out.println(\"True\");\n    }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "Greedy - C",
                     "language": "c",
                     "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\n\nint main() {\n    char line[10000];\n    if (!fgets(line, sizeof(line), stdin)) return 1;\n\n    int nums[10005];\n    int n = 0;\n    char *p = line;\n    while (*p) {\n        if ((*p >= '0' && *p <= '9') || *p == '-') {\n            nums[n++] = strtol(p, &p, 10);\n        } else {\n            p++;\n        }\n    }\n\n    if (n == 0) {\n        printf(\"False\\n\"); // Or handle as per problem statement for empty array\n        return 0;\n    }\n\n    int goal = n - 1;\n    for (int i = n - 1; i >= 0; i--) {\n        if (i + nums[i] >= goal) {\n            goal = i;\n        }\n    }\n\n    printf(\"%s\\n\", goal == 0 ? \"True\" : \"False\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         },
         {
             "type": "coding",
             "title": "Unique Paths",
-            "content": "There is a robot on an `m x n` grid. The robot is initially located at the **top-left corner**. The robot tries to move to the **bottom-right corner**. The robot can only move either down or right at any point in time.\n\nGiven the two integers `m` and `n`, return the number of possible unique paths that the robot can take to reach the bottom-right corner.\n\n**Example 1:**\nInput: m = 3, n = 7\nOutput: 28\n\n**Constraints:**\n- `1 <= m, n <= 100`",
+            "content": "There is a robot on an `m x n` grid. The robot is initially located at the **top-left corner**. The robot tries to move to the **bottom-right corner**. The robot can only move either down or right at any point in time.\n\nGiven the two integers `m` and `n`, return the number of possible unique paths that the robot can take to reach the bottom-right corner.\n\n**Constraints:**\n- `1 <= m, n <= 100`",
             "level": "subtopic",
             "topic_name": "Dynamic Programming",
             "subtopic_name": "Memoization and Tabulation",
@@ -801,22 +876,29 @@
                     "language": "python",
                     "code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nm, n = int(lines[0]), int(lines[1])\nrow = [1] * n\nfor i in range(m - 1):\n    new_row = [1] * n\n    for j in range(n - 2, -1, -1):\n        new_row[j] = new_row[j+1] + row[j]\n    row = new_row\nprint(row[0])",
                     "complexity_analysis": "Time: O(M*N). Space: O(N).",
-                    "is_primary": true
+                    "is_primary": true,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP Table - Java",
                     "language": "java",
                     "code": "import java.util.*;\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int m = Integer.parseInt(sc.nextLine().trim());\n        int n = Integer.parseInt(sc.nextLine().trim());\n        int[][] dp = new int[m][n];\n        for (int i = 0; i < m; i++) dp[i][0] = 1;\n        for (int j = 0; j < n; j++) dp[0][j] = 1;\n        for (int i = 1; i < m; i++)\n            for (int j = 1; j < n; j++)\n                dp[i][j] = dp[i - 1][j] + dp[i][j - 1];\n        System.out.println(dp[m - 1][n - 1]);\n    }\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 },
                 {
                     "title": "DP Table - C",
                     "language": "c",
                     "code": "#include <stdio.h>\nint main() {\n    int m, n;\n    if (scanf(\"%d\", &m) != 1) return 0;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int dp[m][n];\n    for (int i = 0; i < m; i++) dp[i][0] = 1;\n    for (int j = 0; j < n; j++) dp[0][j] = 1;\n    for (int i = 1; i < m; i++)\n        for (int j = 1; j < n; j++)\n            dp[i][j] = dp[i - 1][j] + dp[i][j - 1];\n    printf(\"%d\\n\", dp[m - 1][n - 1]);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(M*N). Space: O(N).",
-                    "is_primary": false
+                    "is_primary": false,
+                    "approach": "optimal"
                 }
+            ],
+            "hints": [
+                "Start by carefully reading the problem statement and understanding the input/output format.",
+                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
             ]
         }
     ]

@@ -402,6 +402,11 @@ class Question(models.Model):
     test_cases_advanced = models.JSONField(
         default=list, blank=True, help_text="Advanced test cases for evaluation"
     )
+    
+    # Hints
+    hints = models.JSONField(
+        default=list, blank=True, help_text="List of predefined hint strings"
+    )
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
@@ -566,12 +571,24 @@ class QuestionSolution(models.Model):
     Allows instructors to provide different approaches (e.g., Brute Force, Optimized).
     """
 
+    APPROACH_CHOICES = [
+        ("brute_force", "Brute Force"),
+        ("better", "Better"),
+        ("optimal", "Optimal"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="solutions"
     )
     title = models.CharField(
         max_length=100, help_text="Title of the solution (e.g., 'Brute Force Approach')"
+    )
+    approach = models.CharField(
+        max_length=20,
+        choices=APPROACH_CHOICES,
+        default="optimal",
+        help_text="The approach type (Brute Force, Better, Optimal)",
     )
     language = models.CharField(
         max_length=20,
@@ -677,6 +694,8 @@ class StudentCodePractice(BaseTimestampedModel):
     
     answer_attempt_count = models.IntegerField(default=0, help_text="Number of times answer was modified")
     ai_help_count = models.IntegerField(default=0, help_text="Number of times AI help was used")
+    used_hint = models.BooleanField(default=False, help_text="Whether the student used a predefined hint")
+    viewed_solution = models.BooleanField(default=False, help_text="Whether the student viewed the solution")
     
     execution_output = models.TextField(blank=True, help_text="Code execution output")
 

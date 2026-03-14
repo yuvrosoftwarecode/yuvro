@@ -85,6 +85,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     marks: 1,
     duration: 1,
     categories: [],
+    hints: [],
     mcq_options: [
       { text: '', is_correct: false },
       { text: '', is_correct: false },
@@ -236,6 +237,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       marks: 1,
       duration: 1,
       categories: [],
+      hints: [],
       mcq_options: [
         { text: '', is_correct: false },
         { text: '', is_correct: false },
@@ -265,6 +267,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       marks: question.marks,
       duration: question.duration,
       categories: question.categories,
+      hints: question.hints || [],
       mcq_options: question.mcq_options || [
         { text: '', is_correct: false },
         { text: '', is_correct: false },
@@ -407,6 +410,24 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       ...prev,
       mcq_options: newOptions
     }));
+  };
+
+  const addHint = () => {
+    setFormData(prev => ({
+      ...prev,
+      hints: [...(prev.hints || []), '']
+    }));
+  };
+
+  const updateHint = (index: number, value: string) => {
+    const newHints = [...(formData.hints || [])];
+    newHints[index] = value;
+    setFormData(prev => ({ ...prev, hints: newHints }));
+  };
+
+  const removeHint = (index: number) => {
+    const newHints = formData.hints?.filter((_, i) => i !== index) || [];
+    setFormData(prev => ({ ...prev, hints: newHints }));
   };
 
 
@@ -885,6 +906,59 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   rows={4}
                   className="bg-white border-slate-300"
                 />
+              </div>
+
+              {/* Hints Section */}
+              <div className="space-y-4 pt-2 border-t border-slate-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-600" />
+                      Predefined Hints
+                    </Label>
+                    <p className="text-sm text-slate-500">Provide hints to help students when they are stuck. Using a hint will result in a 0 score for the question.</p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={addHint}
+                    variant="outline"
+                    className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Hint
+                  </Button>
+                </div>
+                
+                <div className="space-y-3">
+                  {formData.hints && formData.hints.length > 0 ? (
+                    formData.hints.map((hint, index) => (
+                      <div key={index} className="flex gap-3 items-start">
+                        <div className="bg-amber-100 text-amber-800 w-8 h-8 rounded-full flex items-center justify-center font-medium shrink-0 mt-1">
+                          {index + 1}
+                        </div>
+                        <Textarea
+                          value={hint}
+                          onChange={(e) => updateHint(index, e.target.value)}
+                          placeholder={`Hint ${index + 1} content...`}
+                          className="bg-white border-slate-300 min-h-[60px]"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => removeHint(index)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0 mt-1 h-8 w-8 p-0"
+                          title="Remove Hint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                      <p className="text-sm text-slate-500">No hints added yet.</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Reference Solution Manager (Multi-solution) & Code - Only for coding/descriptive */}

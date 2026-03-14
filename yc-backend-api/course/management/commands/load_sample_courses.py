@@ -313,6 +313,7 @@ class Command(BaseCommand):
             "content": question_data["content"],
             "level": question_data["level"],
             "difficulty": question_data["difficulty"],
+            "hints": question_data.get("hints", []),
             "marks": question_data["marks"],
             "categories": question_data["categories"],
             "created_by": instructor,
