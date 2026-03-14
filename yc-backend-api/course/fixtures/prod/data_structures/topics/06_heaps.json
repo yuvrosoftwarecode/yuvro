@@ -1,7 +1,7 @@
 {
     "name": "Heaps",
     "course_short_code": "DSA101",
-    "order_index": 1,
+    "order_index": 6,
     "subtopics": [
         {
             "name": "Priority Queues and Heaps",

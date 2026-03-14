@@ -1,7 +1,7 @@
 {
     "name": "Graphs",
     "course_short_code": "DSA101",
-    "order_index": 2,
+    "order_index": 7,
     "subtopics": [
         {
             "name": "Graph Representation and BFS/DFS",

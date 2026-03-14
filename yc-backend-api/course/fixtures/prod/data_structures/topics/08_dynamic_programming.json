@@ -1,7 +1,7 @@
 {
     "name": "Dynamic Programming",
     "course_short_code": "DSA101",
-    "order_index": 3,
+    "order_index": 8,
     "subtopics": [
         {
             "name": "Memoization and Tabulation",
