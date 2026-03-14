@@ -164,6 +164,7 @@ const LearnDashboard: React.FC = () => {
 
   const groupedFiltered = {
     fundamentals: filteredCourses.filter((c) => c.category === "fundamentals"),
+    advanced: filteredCourses.filter((c) => c.category === "advanced"),
     programming_languages: filteredCourses.filter((c) => c.category === "programming_languages"),
     databases: filteredCourses.filter((c) => c.category === "databases"),
     ai_tools: filteredCourses.filter((c) => c.category === "ai_tools"),
@@ -172,6 +173,7 @@ const LearnDashboard: React.FC = () => {
   const getIconFor = (category: string) => {
     switch (category) {
       case "fundamentals": return <Binary className="w-5 h-5 text-blue-600" />;
+      case "advanced": return <Sparkles className="w-5 h-5 text-indigo-600" />;
       case "programming_languages": return <Code className="w-5 h-5 text-green-600" />;
       case "databases": return <Database className="w-5 h-5 text-orange-600" />;
       case "ai_tools": return <Sparkles className="w-5 h-5 text-purple-600" />;

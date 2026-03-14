@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -488,7 +490,11 @@ ${code}
               {/* Description */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                <p className="text-gray-700 text-sm whitespace-pre-wrap">{problem.description}</p>
+                <div className="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {problem.description}
+                  </ReactMarkdown>
+                </div>
               </div>
 
               {/* Input format */}
@@ -610,7 +616,11 @@ ${code}
 
                   <CardContent className="flex-1 overflow-y-auto p-4">
                     <div className="space-y-6">
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{problem.description}</p>
+                      <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {problem.description}
+                        </ReactMarkdown>
+                      </div>
 
                       {problem.examples && problem.examples.length > 0 && (
                         <div>

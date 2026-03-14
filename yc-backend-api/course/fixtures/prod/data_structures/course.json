@@ -1,0 +1,10 @@
+{
+    "courses": [
+        {
+            "short_code": "DSA101",
+            "name": "Data Structures",
+            "category": "advanced",
+            "instructor_email": "admin@yuvro.com"
+        }
+    ]
+}

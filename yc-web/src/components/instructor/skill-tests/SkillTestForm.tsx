@@ -180,11 +180,23 @@ export default function SkillTestForm() {
         coding: [],
         descriptive: []
       });
-      setRandomQuestionsConfig(data.questions_random_config || {
-        mcq_single: { easy: 0, medium: 0, hard: 0 },
-        mcq_multiple: { easy: 0, medium: 0, hard: 0 },
-        coding: { easy: 0, medium: 0, hard: 0 },
-        descriptive: { easy: 0, medium: 0, hard: 0 }
+      // Normalize questions_random_config to handle flat number format from backend
+      const rawConfig = data.questions_random_config || {};
+      const defaultDifficulty = { easy: 0, medium: 0, hard: 0 };
+      const normalizeEntry = (entry: any) => {
+        if (typeof entry === 'number') {
+          return { easy: 0, medium: entry, hard: 0 };
+        }
+        if (entry && typeof entry === 'object') {
+          return { easy: entry.easy || 0, medium: entry.medium || 0, hard: entry.hard || 0 };
+        }
+        return { ...defaultDifficulty };
+      };
+      setRandomQuestionsConfig({
+        mcq_single: normalizeEntry(rawConfig.mcq_single),
+        mcq_multiple: normalizeEntry(rawConfig.mcq_multiple),
+        coding: normalizeEntry(rawConfig.coding),
+        descriptive: normalizeEntry(rawConfig.descriptive),
       });
     } catch (error) {
       console.error('Failed to fetch skill test:', error);

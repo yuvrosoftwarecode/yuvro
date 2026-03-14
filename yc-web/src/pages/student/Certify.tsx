@@ -29,6 +29,7 @@ const Certify: React.FC = () => {
 
     const CATEGORY_LABELS: Record<string, string> = {
         fundamentals: "Fundamentals",
+        advanced: "Advanced",
         programming_languages: "Programming Languages",
         databases: "Databases",
         ai_tools: "AI Tools",
@@ -36,6 +37,7 @@ const Certify: React.FC = () => {
 
     const CATEGORY_GRADIENTS: Record<string, string> = {
         fundamentals: "from-blue-900 to-blue-700",
+        advanced: "from-indigo-900 to-indigo-700",
         programming_languages: "from-purple-900 to-purple-700",
         databases: "from-green-900 to-green-700",
         ai_tools: "from-orange-900 to-orange-700",
@@ -131,6 +133,7 @@ const Certify: React.FC = () => {
                                 <nav className="flex space-x-8">
                                     {[
                                         { key: 'fundamentals', label: 'Fundamentals', count: courseCounts.fundamentals || 0 },
+                                        { key: 'advanced', label: 'Advanced', count: courseCounts.advanced || 0 },
                                         { key: 'programming_languages', label: 'Programming Languages', count: courseCounts.programming_languages || 0 },
                                         { key: 'databases', label: 'Databases', count: courseCounts.databases || 0 },
                                         { key: 'ai_tools', label: 'AI Tools', count: courseCounts.ai_tools || 0 }

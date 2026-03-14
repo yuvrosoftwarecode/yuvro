@@ -237,7 +237,7 @@ class TopicViewSet(viewsets.ModelViewSet):
             )
         )
 
-        return qs
+        return qs.order_by('order_index')
 
     def create(self, request, *a, **kw):
         user = request.user
