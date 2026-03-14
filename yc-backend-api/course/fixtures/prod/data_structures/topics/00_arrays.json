@@ -3944,30 +3944,30 @@
             "outputFormat": "Print each pair in a new line.",
             "solutions": [
                 {
-                    "title": "Hash Set Pair Detection - Python",
+                    "title": "Unique Pair Detection Using Hash Set - Python",
                     "language": "python",
-                    "code": "import sys\nlines=sys.stdin.read().strip().split('\\n')\nn=int(lines[0])\narr=list(map(int,lines[1].split()))\ntarget=int(lines[2])\nseen=set()\nprinted=set()\nfor x in arr:\n y=target-x\n if y in seen and (y,x) not in printed:\n  print(y,x)\n  printed.add((y,x))\n seen.add(x)",
-                    "complexity_analysis": "Time: O(N). Space: O(N) for the hash set.",
+                    "code": "import sys\n\nlines = sys.stdin.read().strip().split('\\n')\nn = int(lines[0])\narr = list(map(int, lines[1].split()))\ntarget = int(lines[2])\n\nseen = set()\npairs = set()\n\nfor x in arr:\n    y = target - x\n\n    if y in seen:\n        a = min(x, y)\n        b = max(x, y)\n        pairs.add((a, b))\n\n    seen.add(x)\n\npairs = sorted(pairs)\n\nfor a, b in pairs:\n    print(a, b)",
+                    "complexity_analysis": "Time: O(N). Space: O(N) for storing seen elements and printed pairs.",
                     "is_primary": true
                 },
                 {
-                    "title": "Pair Search Using HashSet - Java",
+                    "title": "Unique Pair Detection Using HashSet - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++) arr[i]=sc.nextInt();\n  int target=sc.nextInt();\n  Set<Integer> set=new HashSet<>();\n  for(int x:arr){\n   int y=target-x;\n   if(set.contains(y)) System.out.println(y+\" \"+x);\n   set.add(x);\n  }\n }\n}",
+                    "code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n\n        int[] arr = new int[n];\n        for (int i = 0; i < n; i++) {\n            arr[i] = sc.nextInt();\n        }\n\n        int target = sc.nextInt();\n\n        HashSet<Integer> seen = new HashSet<>();\n        HashSet<String> pairs = new HashSet<>();\n\n        for (int x : arr) {\n            int y = target - x;\n\n            if (seen.contains(y)) {\n                int a = Math.min(x, y);\n                int b = Math.max(x, y);\n                pairs.add(a + \" \" + b);\n            }\n\n            seen.add(x);\n        }\n\n        List<String> result = new ArrayList<>(pairs);\n        Collections.sort(result);\n\n        for (String p : result) {\n            System.out.println(p);\n        }\n    }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 },
                 {
-                    "title": "Pair Search Using HashSet - C++",
+                    "title": "Unique Pair Detection Using HashSet - C++",
                     "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n,target,x;\n cin>>n;\n vector<int>a(n);\n for(int&i:a) cin>>i;\n cin>>target;\n unordered_set<int> s;\n for(int v:a){\n  int y=target-v;\n  if(s.count(y)) cout<<y<<\" \"<<v<<\"\\n\";\n  s.insert(v);\n }\n}",
+                    "code": "#include <iostream>\n#include <vector>\n#include <set>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n\n    vector<int> arr(n);\n    for(int i = 0; i < n; i++) cin >> arr[i];\n\n    int target;\n    cin >> target;\n\n    set<int> seen;\n    set<pair<int,int>> pairs;\n\n    for(int x : arr) {\n        int y = target - x;\n\n        if(seen.count(y)) {\n            int a = min(x, y);\n            int b = max(x, y);\n            pairs.insert({a, b});\n        }\n\n        seen.insert(x);\n    }\n\n    for(auto p : pairs) {\n        cout << p.first << \" \" << p.second << endl;\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 },
                 {
-                    "title": "Pair Search - C",
+                    "title": "Pair Search Using Nested Loops - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){\n int n,target;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n scanf(\"%d\",&target);\n for(int i=0;i<n;i++){\n  for(int j=i+1;j<n;j++){\n   if(a[i]+a[j]==target)\n    printf(\"%d %d\\n\",a[i],a[j]);\n  }\n }\n}\n",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint compare(const void *a, const void *b) {\n    int *x = (int *)a;\n    int *y = (int *)b;\n\n    if (x[0] == y[0]) return x[1] - y[1];\n    return x[0] - y[0];\n}\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    int arr[n];\n    for(int i = 0; i < n; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    int target;\n    scanf(\"%d\", &target);\n\n    int pairs[n][2];\n    int count = 0;\n\n    for(int i = 0; i < n; i++) {\n        for(int j = i + 1; j < n; j++) {\n            if(arr[i] + arr[j] == target) {\n                int a = arr[i] < arr[j] ? arr[i] : arr[j];\n                int b = arr[i] > arr[j] ? arr[i] : arr[j];\n                pairs[count][0] = a;\n                pairs[count][1] = b;\n                count++;\n            }\n        }\n    }\n\n    qsort(pairs, count, sizeof(pairs[0]), compare);\n\n    for(int i = 0; i < count; i++) {\n        if(i == 0 || pairs[i][0] != pairs[i-1][0] || pairs[i][1] != pairs[i-1][1]) {\n            printf(\"%d %d\\n\", pairs[i][0], pairs[i][1]);\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -4987,7 +4987,7 @@
                 {
                     "title": "Find Last Occurrence Using Binary Search - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){int n,x;scanf(\"%d\",&n);int arr[n];for(int i=0;i<n;i++)scanf(\"%d\",&arr[i]);scanf(\"%d\",&x);int l=0,r=n-1,res=-1;while(l<=r){int mid=(l+r)/2;if(arr[mid]==x){res=mid;l=mid+1;}else if(arr[mid]<x)l=mid+1;else r=mid-1;}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n\n int arr[n];\n for(int i=0;i<n;i++)\n  scanf(\"%d\",&arr[i]);\n\n scanf(\"%d\",&x);\n\n int l=0,r=n-1,res=-1;\n\n while(l<=r){\n  int mid=(l+r)/2;\n\n  if(arr[mid]==x){\n   res=mid;\n   l=mid+1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n\n printf(\"%d\",res);\n}",
                     "complexity_analysis": "Time: O(log N). Space: O(1).",
                     "is_primary": false
                 }
@@ -5089,7 +5089,7 @@
                 {
                     "title": "Count Total Occurrences in Sorted Array - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint first(int arr[],int n,int x){int l=0,r=n-1,res=-1;while(l<=r){int mid=(l+r)/2;if(arr[mid]==x){res=mid;r=mid-1;}else if(arr[mid]<x)l=mid+1;else r=mid-1;}return res;}int last(int arr[],int n,int x){int l=0,r=n-1,res=-1;while(l<=r){int mid=(l+r)/2;if(arr[mid]==x){res=mid;l=mid+1;}else if(arr[mid]<x)l=mid+1;else r=mid-1;}return res;}int main(){int n,x;scanf(\"%d\",&n);int arr[n];for(int i=0;i<n;i++)scanf(\"%d\",&arr[i]);scanf(\"%d\",&x);int f=first(arr,n,x);int l=last(arr,n,x);if(f==-1)printf(\"0\");else printf(\"%d\",l-f+1);}",
+                    "code": "#include <stdio.h>\n\nint first(int arr[], int n, int x){\n int l=0, r=n-1, res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){\n   res=mid;\n   r=mid-1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n return res;\n}\n\nint last(int arr[], int n, int x){\n int l=0, r=n-1, res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]==x){\n   res=mid;\n   l=mid+1;\n  }\n  else if(arr[mid]<x)\n   l=mid+1;\n  else\n   r=mid-1;\n }\n return res;\n}\n\nint main(){\n int n, x;\n scanf(\"%d\", &n);\n int arr[n];\n\n for(int i=0;i<n;i++)\n  scanf(\"%d\", &arr[i]);\n\n scanf(\"%d\", &x);\n\n int f=first(arr,n,x);\n int l=last(arr,n,x);\n\n if(f==-1)\n  printf(\"0\");\n else\n  printf(\"%d\", l-f+1);\n}",
                     "complexity_analysis": "Time: O(log N). Space: O(1).",
                     "is_primary": false
                 }
@@ -5191,7 +5191,7 @@
                 {
                     "title": "Find Floor of a Number in Sorted Array - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){int n,x;scanf(\"%d\",&n);int arr[n];for(int i=0;i<n;i++)scanf(\"%d\",&arr[i]);scanf(\"%d\",&x);int l=0,r=n-1,res=-1;while(l<=r){int mid=(l+r)/2;if(arr[mid]<=x){res=arr[mid];l=mid+1;}else r=mid-1;}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\nint main(){\n int n,x;\n scanf(\"%d\",&n);\n int arr[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&arr[i]);\n scanf(\"%d\",&x);\n int l=0,r=n-1,res=-1;\n while(l<=r){\n  int mid=(l+r)/2;\n  if(arr[mid]<=x){\n   res=arr[mid];\n   l=mid+1;\n  }\n  else r=mid-1;\n }\n printf(\"%d\",res);\n}",
                     "complexity_analysis": "Time: O(log N). Space: O(1).",
                     "is_primary": false
                 }
@@ -7068,28 +7068,28 @@
                 {
                     "title": "Rearrange Array So No Element Equals Its Index - Python",
                     "language": "python",
-                    "code": "import sys\ninput=sys.stdin.read\nn,*a=map(int,input().split())\nif n==1:\n print(-1)\nelse:\n print(*(a[1:]+a[:1]))",
+                    "code": "import sys\ninput=sys.stdin.read\nn,*a=map(int,input().split())\nif n==1:\n print(-1)\nelse:\n for i in range(n-1):\n  if a[i]==i:\n   a[i],a[i+1]=a[i+1],a[i]\n if a[n-1]==n-1:\n  a[n-1],a[n-2]=a[n-2],a[n-1]\n print(*a)",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": true
                 },
                 {
                     "title": "Rearrange Array So No Element Equals Its Index - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] a=new int[n];\n  for(int i=0;i<n;i++) a[i]=sc.nextInt();\n  if(n==1){System.out.print(-1);return;}\n  for(int i=1;i<n;i++) System.out.print(a[i]+\" \");\n  System.out.print(a[0]);\n }\n}",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  int[] a=new int[n];\n  for(int i=0;i<n;i++) a[i]=sc.nextInt();\n  if(n==1){System.out.print(-1);return;}\n  for(int i=0;i<n-1;i++){\n   if(a[i]==i){\n    int t=a[i];a[i]=a[i+1];a[i+1]=t;\n   }\n  }\n  if(a[n-1]==n-1){\n   int t=a[n-1];a[n-1]=a[n-2];a[n-2]=t;\n  }\n  for(int i=0;i<n;i++){\n   System.out.print(a[i]);\n   if(i<n-1) System.out.print(\" \");\n  }\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 },
                 {
                     "title": "Rearrange Array So No Element Equals Its Index - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n;cin>>n;\n vector<int>a(n);\n for(int i=0;i<n;i++)cin>>a[i];\n if(n==1){cout<<-1;return 0;}\n for(int i=1;i<n;i++)cout<<a[i]<<\" \";\n cout<<a[0];\n}",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n;cin>>n;\n vector<int>a(n);\n for(int i=0;i<n;i++) cin>>a[i];\n if(n==1){cout<<-1;return 0;}\n for(int i=0;i<n-1;i++){\n  if(a[i]==i) swap(a[i],a[i+1]);\n }\n if(a[n-1]==n-1) swap(a[n-1],a[n-2]);\n for(int i=0;i<n;i++){\n  cout<<a[i];\n  if(i<n-1) cout<<\" \";\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 },
                 {
                     "title": "Rearrange Array So No Element Equals Its Index - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){int n;scanf(\"%d\",&n);int a[n];for(int i=0;i<n;i++)scanf(\"%d\",&a[i]);if(n==1){printf(\"-1\");return 0;}for(int i=1;i<n;i++)printf(\"%d \",a[i]);printf(\"%d\",a[0]);}",
+                    "code": "#include <stdio.h>\nint main(){\n int n;scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n if(n==1){printf(\"-1\");return 0;}\n for(int i=0;i<n-1;i++){\n  if(a[i]==i){\n   int t=a[i];\n   a[i]=a[i+1];\n   a[i+1]=t;\n  }\n }\n if(a[n-1]==n-1){\n  int t=a[n-1];\n  a[n-1]=a[n-2];\n  a[n-2]=t;\n }\n for(int i=0;i<n;i++){\n  printf(\"%d\",a[i]);\n  if(i<n-1) printf(\" \");\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -7222,7 +7222,7 @@
                 },
                 {
                     "input": "4\n1 1 1 1",
-                    "expected_output": "10"
+                    "expected_output": "20"
                 }
             ],
             "test_cases_advanced": [
@@ -7680,28 +7680,28 @@
                 {
                     "title": "Count Total Number of Subarrays - Python",
                     "language": "python",
-                    "code": "import sys\ninput=sys.stdin.read\nn=int(input())\nprint(n*(n+1)//2)",
+                    "code": "import sys\nn=int(sys.stdin.readline().strip())\nprint(n*(n+1)//2)",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": true
                 },
                 {
                     "title": "Count Total Number of Subarrays - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  long n=sc.nextLong();\n  System.out.print(n*(n+1)/2);\n }\n}",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  long n=sc.nextLong();\n  for(int i=0;i<n;i++) sc.nextLong();\n  System.out.print(n*(n+1)/2);\n }\n}",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": false
                 },
                 {
                     "title": "Count Total Number of Subarrays - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n long long n;cin>>n;\n cout<<n*(n+1)/2;\n}",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n long long n;cin>>n;\n long long x;\n for(int i=0;i<n;i++) cin>>x;\n cout<<n*(n+1)/2;\n}",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": false
                 },
                 {
                     "title": "Count Total Number of Subarrays - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){long long n;scanf(\"%lld\",&n);printf(\"%lld\",n*(n+1)/2);}",
+                    "code": "#include <stdio.h>\nint main(){\n long long n,x;\n scanf(\"%lld\",&n);\n for(int i=0;i<n;i++) scanf(\"%lld\",&x);\n printf(\"%lld\",n*(n+1)/2);\n}",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": false
                 }
@@ -8118,7 +8118,7 @@
         {
             "type": "coding",
             "title": "Find Subarray With Sum Closest to Zero",
-            "content": "Given an array of integers, find the subarray whose sum is closest to zero and print that sum.\n\n**Example:**\nInput:\n5\n1 2 -3 4 5\nOutput:\n0",
+            "content": "Given an array of integers, find the absolute value of the subarray sum closest to zero.\n\n**Example:**\nInput:\n5\n1 2 -3 4 5\nOutput:\n0",
             "level": "subtopic",
             "topic_name": "Arrays",
             "subtopic_name": "Subarray Problems",
@@ -8136,7 +8136,7 @@
                 },
                 {
                     "input": "4\n2 -5 4 -2",
-                    "expected_output": "-1"
+                    "expected_output": "1"
                 },
                 {
                     "input": "3\n1 2 3",
@@ -8158,7 +8158,7 @@
                 },
                 {
                     "input": "5\n1 -2 3 -4 5",
-                    "expected_output": "-1"
+                    "expected_output": "1"
                 },
                 {
                     "input": "6\n2 -3 1 4 -4 2",
@@ -8185,7 +8185,7 @@
                 }
             ],
             "inputFormat": "The first line contains integer N.\nThe second line contains N space-separated integers.",
-            "outputFormat": "Print the sum of the subarray whose sum is closest to zero.",
+            "outputFormat": "Print the absolute value of the subarray sum closest to zero.",
             "solutions": [
                 {
                     "title": "Find Subarray With Sum Closest to Zero - Python",
@@ -8628,7 +8628,7 @@
         {
             "type": "coding",
             "title": "Find Maximum Sum Rectangle in Matrix",
-            "content": "Given a 2D matrix of integers, find the maximum sum rectangle in the matrix.\n\n**Example:**\nInput:\n3 3\n1 2 -1\n-3 4 5\n2 -1 3\nOutput:\n11",
+            "content": "Given a 2D matrix of integers, find the maximum sum rectangle in the matrix.\n\n**Example:**\nInput:\n3 3\n1 2 -1\n-3 4 5\n2 -1 3\nOutput:\n13",
             "level": "subtopic",
             "topic_name": "Arrays",
             "subtopic_name": "Subarray Problems",
@@ -8642,7 +8642,7 @@
             "test_cases_basic": [
                 {
                     "input": "3 3\n1 2 -1\n-3 4 5\n2 -1 3",
-                    "expected_output": "11"
+                    "expected_output": "13"
                 },
                 {
                     "input": "2 2\n1 2\n3 4",
@@ -8676,7 +8676,7 @@
                 },
                 {
                     "input": "3 3\n-1 2 3\n4 -5 6\n7 8 -9",
-                    "expected_output": "16"
+                    "expected_output": "20"
                 },
                 {
                     "input": "2 4\n1 -2 3 4\n-5 6 7 -8",
@@ -8690,8 +8690,8 @@
             "examples": [
                 {
                     "input": "3 3\n1 2 -1\n-3 4 5\n2 -1 3",
-                    "expected_output": "11",
-                    "explanation": "The rectangle with maximum sum is formed by selecting elements that add up to 11."
+                    "expected_output": "13",
+                    "explanation": "The rectangle with maximum sum is formed by selecting elements that add up to 13."
                 }
             ],
             "inputFormat": "The first line contains two integers R and C representing rows and columns.\nThe next R lines contain C space-separated integers representing the matrix.",
@@ -8714,7 +8714,7 @@
                 {
                     "title": "Find Maximum Sum Rectangle in Matrix - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint kadane(vector<int>&a){\n int cur=a[0],mx=a[0];\n for(int i=1;i<a.size();i++){\n  cur=max(a[i],cur+a[i]);\n  mx=max(mx,cur);\n }\n return mx;\n}\nint main(){\n int r,c;cin>>r>>c;\n vector<vector<int>> a(r,vector<int>(c));\n for(int i=0;i<r;i++)for(int j=0;j<c;j++)cin>>a[i][j];\n int res=INT_MIN;\n for(int left=0;left<c;left++){\n  vector<int> temp(r,0);\n  for(int right=left;right<c;right++){\n   for(int i=0;i<r;i++) temp[i]+=a[i][right];\n   res=max(res,kadane(temp));\n  }\n }\n cout<<res;\n}",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint kadane(vector<int>&a){int cur=a[0],mx=a[0];for(int i=1;i<a.size();i++){cur=max(a[i],cur+a[i]);mx=max(mx,cur);}return mx;}int main(){int r,c;cin>>r>>c;vector<vector<int>> a(r,vector<int>(c));for(int i=0;i<r;i++)for(int j=0;j<c;j++)cin>>a[i][j];int res=INT_MIN;for(int left=0;left<c;left++){vector<int> temp(r,0);for(int right=left;right<c;right++){for(int i=0;i<r;i++) temp[i]+=a[i][right];res=max(res,kadane(temp));}}cout<<res;}",
                     "complexity_analysis": "Time: O(C^2 * R). Space: O(R).",
                     "is_primary": false
                 },
@@ -9648,7 +9648,7 @@
         {
             "type": "coding",
             "title": "Count Pairs With Difference K",
-            "content": "Given an array of integers and an integer K, count the number of pairs whose absolute difference equals K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
+            "content": "Given an array of integers and an integer K, count the number of pairs (i, j) such that i < j and |arr[i] − arr[j]| = K.\n\n**Example:**\nInput:\n5\n1 5 3 4 2\n2\nOutput:\n3",
             "level": "subtopic",
             "topic_name": "Arrays",
             "subtopic_name": "Two Pointer / Sliding Window",
@@ -9692,7 +9692,7 @@
                 },
                 {
                     "input": "7\n8 12 16 4 0 20 24\n4",
-                    "expected_output": "5"
+                    "expected_output": "6"
                 },
                 {
                     "input": "6\n-1 -3 -5 -7 -9 -11\n2",
@@ -9700,7 +9700,7 @@
                 },
                 {
                     "input": "5\n1 2 2 3 3\n1",
-                    "expected_output": "4"
+                    "expected_output": "6"
                 },
                 {
                     "input": "4\n100 200 300 400\n100",
@@ -9711,7 +9711,7 @@
                 {
                     "input": "5\n1 5 3 4 2\n2",
                     "expected_output": "3",
-                    "explanation": "Pairs are (1,3), (5,3), (4,2)."
+                    "explanation": "Pairs are (1,3), (3,5), (2,4)."
                 }
             ],
             "inputFormat": "First line contains integer N.\nSecond line contains N space separated integers.\nThird line contains integer K.",
@@ -9727,22 +9727,22 @@
                 {
                     "title": "Count Pairs With Difference K - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  Map<Integer,Integer> map=new HashMap<>();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++){\n   arr[i]=sc.nextInt();\n   map.put(arr[i],map.getOrDefault(arr[i],0)+1);\n  }\n  int k=sc.nextInt();\n  int count=0;\n  if(k==0){\n   for(int v:map.values()) count+=v*(v-1)/2;\n  }else{\n   for(int x:map.keySet())\n    if(map.containsKey(x+k)) count+=map.get(x)*map.get(x+k);\n  }\n  System.out.print(count);\n }\n}",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  int n=sc.nextInt();\n  Map<Integer,Integer> map=new HashMap<>();\n  int[] arr=new int[n];\n  for(int i=0;i<n;i++){\n   arr[i]=sc.nextInt();\n   map.put(arr[i],map.getOrDefault(arr[i],0)+1);\n  }\n  int k=sc.nextInt();\n  long count=0;\n  if(k==0){\n   for(int v:map.values()) count+= (long)v*(v-1)/2;\n  }else{\n   for(int x:map.keySet())\n    if(map.containsKey(x+k)) count+= (long)map.get(x)*map.get(x+k);\n  }\n  System.out.print(count);\n }\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 },
                 {
                     "title": "Count Pairs With Difference K - C++",
                     "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n vector<int>a(n);\n unordered_map<int,int> mp;\n for(int i=0;i<n;i++){cin>>a[i]; mp[a[i]]++;}\n int k; cin>>k;\n long long count=0;\n if(k==0){\n  for(auto &p:mp) count+=1LL*p.second*(p.second-1)/2;\n }else{\n  for(auto &p:mp)\n   if(mp.count(p.first+k))\n    count+=1LL*p.second*mp[p.first+k];\n }\n cout<<count;\n}",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n unordered_map<int,long long> mp;\n for(int i=0;i<n;i++){int x;cin>>x; mp[x]++;}\n int k; cin>>k;\n long long count=0;\n if(k==0){\n  for(auto &p:mp) count+=p.second*(p.second-1)/2;\n }else{\n  for(auto &p:mp)\n   if(mp.count(p.first+k))\n    count+=p.second*mp[p.first+k];\n }\n cout<<count;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 },
                 {
                     "title": "Count Pairs With Difference K - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return (*(int*)a-*(int*)b);}int main(){int n;scanf(\"%d\",&n);int a[n];for(int i=0;i<n;i++)scanf(\"%d\",&a[i]);int k;scanf(\"%d\",&k);qsort(a,n,sizeof(int),cmp);int l=0,r=1,count=0;while(r<n){int diff=a[r]-a[l];if(diff==k){count++;l++;r++;}else if(diff<k)r++;else l++;if(l==r)r++;}printf(\"%d\",count);}",
-                    "complexity_analysis": "Time: O(N log N). Space: O(1).",
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint cmp(const void *a,const void *b){\n return (*(int*)a-*(int*)b);\n}\n\nint main(){\n int n;\n scanf(\"%d\",&n);\n int a[n];\n for(int i=0;i<n;i++) scanf(\"%d\",&a[i]);\n int k;\n scanf(\"%d\",&k);\n\n qsort(a,n,sizeof(int),cmp);\n\n long long count=0;\n\n for(int i=0;i<n;i++){\n  for(int j=i+1;j<n;j++){\n   int diff=abs(a[j]-a[i]);\n   if(diff==k) count++;\n   if(diff>k) break;\n  }\n }\n\n printf(\"%lld\",count);\n}",
+                    "complexity_analysis": "Time: O(N^2) worst case. Space: O(1).",
                     "is_primary": false
                 }
             ]
