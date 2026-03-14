@@ -1,0 +1,151 @@
+# YCode Platform Makefile
+
+.PHONY: setup dev dev-detached stop restart logs clean reload-data
+.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
+.PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
+.PHONY: frontend-shell frontend-test frontend-test-watch frontend-format frontend-format-fix frontend-lint frontend-install
+
+# ============================================================================
+# Setup
+# ============================================================================
+
+setup:
+	@echo "🚀 Setting up YCode Platform..."
+	@echo "Checking dependencies..."
+	@command -v docker >/dev/null 2>&1 || { echo "❌ Docker is required but not installed."; exit 1; }
+	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
+
+	@echo "Creating environment files..."
+	@if [ ! -f yc-backend-api/.env ]; then cp yc-backend-api/.env.example yc-backend-api/.env; echo "✅ Created backend .env"; fi
+	@if [ ! -f yc-web/.env ]; then cp yc-web/.env.example yc-web/.env; echo "✅ Created frontend .env"; fi
+
+	@echo "Creating executor network..."
+	@docker network create executor 2>/dev/null || true
+
+	@echo "Stopping existing YCode containers (preserving volumes)..."
+	docker compose down
+	@sleep 2
+
+	@echo "Building and starting YCode services..."
+	docker compose up -d --build --wait
+
+	@echo "Waiting for database to be ready..."
+	@sleep 5
+
+	@echo "Loading test data (migrations already run in container command)..."
+	docker compose exec ycode-backend python manage.py setup_local_testing --clear
+	
+	@echo "✅ YCode setup complete!"
+	@echo "🌐 Frontend: http://localhost:3000"
+	@echo "🔧 Backend API: http://localhost:8001"
+
+# ============================================================================
+# Development
+# ============================================================================
+
+dev:
+	docker compose up --remove-orphans
+
+dev-detached:
+	docker compose up -d --remove-orphans
+
+stop:
+	docker compose down
+
+restart:
+	docker compose restart
+
+logs:
+	@if [ "$(SERVICE)" = "" ]; then \
+		docker compose logs -f; \
+	else \
+		docker compose logs -f $(SERVICE); \
+	fi
+
+clean:
+	@echo "🧹 Cleaning YCode containers and volumes..."
+	docker compose down -v --remove-orphans
+	@echo "✅ Cleanup complete!"
+
+reload-data:
+	@echo "🔄 Reloading YCode test data..."
+	docker compose exec ycode-backend python manage.py setup_local_testing --clear
+	@echo "✅ Test data reloaded!"
+
+# ============================================================================
+# Database
+# ============================================================================
+
+db-shell:
+	docker compose exec ycode-db psql -U postgres -d yc_app
+
+db-migrate:
+	docker compose exec ycode-backend python manage.py migrate
+
+db-makemigrations:
+	docker compose exec ycode-backend python manage.py makemigrations
+
+db-createsuperuser:
+	docker compose exec ycode-backend python manage.py createsuperuser
+
+db-reset:
+	@echo "🔄 Resetting database..."
+	docker compose down ycode-db -v
+	docker compose up -d ycode-db
+	@echo "✅ Database reset complete!"
+
+# ============================================================================
+# Backend
+# ============================================================================
+
+backend-shell:
+	docker compose exec ycode-backend python manage.py shell
+
+backend-test:
+	docker compose exec ycode-backend python manage.py test
+
+backend-format:
+	docker compose exec ycode-backend black . --check --diff
+
+backend-format-fix:
+	docker compose exec ycode-backend black .
+
+backend-lint:
+	docker compose exec ycode-backend flake8 .
+
+backend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ycode backend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose exec ycode-backend pip install $(PKG)
+	docker compose exec ycode-backend pip freeze > yc-backend-api/requirements.txt
+
+# ============================================================================
+# Frontend
+# ============================================================================
+
+frontend-shell:
+	docker compose exec ycode-frontend sh
+
+frontend-test:
+	docker compose exec ycode-frontend npm test -- --run
+
+frontend-test-watch:
+	docker compose exec ycode-frontend npm test
+
+frontend-format:
+	docker compose exec ycode-frontend npm run format:check
+
+frontend-format-fix:
+	docker compose exec ycode-frontend npm run format
+
+frontend-lint:
+	docker compose exec ycode-frontend npm run lint
+
+frontend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ycode frontend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose exec ycode-frontend npm install $(PKG)

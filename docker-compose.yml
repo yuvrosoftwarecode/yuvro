@@ -1,10 +1,10 @@
 services:
-  db:
+  ycode-db:
     image: postgres:15
     env_file:
       - ./yc-backend-api/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ycode_postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -13,9 +13,9 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - app
+      - ycode
 
-  backend:
+  ycode-backend:
     build:
       context: ./yc-backend-api
       dockerfile: Dockerfile
@@ -24,40 +24,20 @@ services:
       - "9001:9001"  # Prometheus metrics
     env_file:
       - ./yc-backend-api/.env
-
     volumes:
       - ./yc-backend-api:/app
       - /app/venv
     depends_on:
-      db:
+      ycode-db:
         condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     networks:
-      - app
+      - ycode
+      - executor  # Connect to executor network
 
-  code-executor:
-    build:
-      context: ./yc-code-executor
-      dockerfile: Dockerfile
-    ports:
-      - "8002:8002"
-      - "9002:9002"  # Prometheus metrics
-    env_file:
-      - ./yc-code-executor/.env
-
-    volumes:
-      - ./yc-code-executor:/app
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - app
-
-  frontend:
+  ycode-frontend:
     build:
       context: ./yc-web
       dockerfile: Dockerfile
@@ -66,82 +46,23 @@ services:
       - "3000:3000"
     env_file:
       - ./yc-web/.env
-
     volumes:
       - ./yc-web:/app
       - /app/node_modules
     stdin_open: true
     tty: true
     depends_on:
-      - backend
-      - code-executor
+      - ycode-backend
     command: npm run dev -- --host 0.0.0.0
     networks:
-      - app
-
-  ycampus-db:
-    image: postgres:15
-    env_file:
-      - ./ycampus-backend-api/.env
-    volumes:
-      - ycampus_postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app
-
-  ycampus-backend:
-    build:
-      context: ./ycampus-backend-api
-      dockerfile: Dockerfile
-    ports:
-      - "8003:8000"  # Django API
-      - "9003:9001"  # Prometheus metrics
-    env_file:
-      - ./ycampus-backend-api/.env
-
-    volumes:
-      - ./ycampus-backend-api:/app
-    depends_on:
-      ycampus-db:
-        condition: service_healthy
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
-    networks:
-      - app
-
-  ycampus-frontend:
-    build:
-      context: ./ycampus-web
-      dockerfile: Dockerfile
-      target: development
-    ports:
-      - "3002:3000"
-    env_file:
-      - ./ycampus-web/.env
-
-    volumes:
-      - ./ycampus-web:/app
-      - /app/node_modules
-    stdin_open: true
-    tty: true
-    depends_on:
-      - ycampus-backend
-      - code-executor
-    command: npm run dev -- --host 0.0.0.0
-    networks:
-      - app
+      - ycode
+      - executor  # Connect to executor network
 
 volumes:
-  postgres_data:
-  ycampus_postgres_data:
+  ycode_postgres_data:
 
 networks:
-  app:
+  ycode:
     driver: bridge
+  executor:
+    external: true

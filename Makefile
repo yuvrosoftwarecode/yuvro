@@ -1,382 +1,260 @@
-.PHONY: help dev dev-detached stop restart logs setup clean rebuild
-.PHONY: db-shell db-migrate db-makemigrations db-reset
-.PHONY: ycampus-db-shell ycampus-db-migrate ycampus-db-makemigrations ycampus-db-reset
-.PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
-.PHONY: ycampus-backend-shell ycampus-backend-test ycampus-backend-format ycampus-backend-format-fix ycampus-backend-lint ycampus-backend-install
-.PHONY: frontend-shell frontend-test frontend-test-watch frontend-format frontend-format-fix frontend-lint frontend-install
-.PHONY: ycampus-frontend-shell ycampus-frontend-test ycampus-frontend-test-watch ycampus-frontend-format ycampus-frontend-format-fix ycampus-frontend-lint ycampus-frontend-install
+# YC Full-Stack Application - Main Makefile
+# This file provides a unified interface for managing YCode, YCampus, and Common services
+# 
+# Usage:
+#   make <command>              - Run command on both platforms
+#   make <command>-ycode        - Run command on YCode only
+#   make <command>-ycampus      - Run command on YCampus only
+#   make -f Makefile.ycode <command>    - Use YCode Makefile directly
+#   make -f Makefile.ycampus <command>  - Use YCampus Makefile directly
+#   make -f Makefile.common <command>   - Use Common Makefile directly
+
+.PHONY: help
+.PHONY: setup setup-ycode setup-ycampus setup-common
+.PHONY: dev dev-ycode dev-ycampus stop stop-ycode stop-ycampus
+.PHONY: logs logs-ycode logs-ycampus clean clean-ycode clean-ycampus
 .PHONY: test-all format-all lint-all check-all
-.PHONY: prod-build prod-up prod-down
-.PHONY: observability-setup observability-start observability-stop observability-logs observability-dashboards
+.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
+
+# ============================================================================
+# Help
+# ============================================================================
 
 help:
 	@echo "YC Full-Stack Application Commands"
 	@echo ""
-	@echo "Development (Standard):"
-	@echo "  dev                 Start all services"
-	@echo "  dev-detached        Start all services in background"
-	@echo "  stop                Stop all services"
-	@echo "  restart             Restart all services"
-	@echo "  logs [SERVICE]      View logs (optional service name)"
+	@echo "Quick Start:"
+	@echo "  make setup              Setup all platforms (YCode + YCampus + Common)"
+	@echo "  make dev                Start all services"
+	@echo "  make stop               Stop all services"
 	@echo ""
-	@echo "Development (Debug/Observability):"
-	@echo "  debug               Start all services with observability enabled"
-	@echo "  debug-detached      Start all services with observability in background"
-	@echo "  debug-stop          Stop all debug services"
-	@echo "  debug-build         Rebuild and start debug services"
+	@echo "Setup Commands:"
+	@echo "  make setup              Setup all platforms"
+	@echo "  make setup-ycode        Setup YCode platform only"
+	@echo "  make setup-ycampus      Setup YCampus platform only"
+	@echo "  make setup-common       Setup common services (code executor)"
 	@echo ""
-	@echo "Setup and cleanup:"
-	@echo "  setup               Initial project setup"
-	@echo "  reload-data          Reset and reload test data"
-	@echo "  clean               Clean up containers and volumes"
+	@echo "Development Commands:"
+	@echo "  make dev                Start all services"
+	@echo "  make dev-ycode          Start YCode services"
+	@echo "  make dev-ycampus        Start YCampus services"
+	@echo "  make stop               Stop all services"
+	@echo "  make stop-ycode         Stop YCode services"
+	@echo "  make stop-ycampus       Stop YCampus services"
+	@echo "  make logs               View all logs"
+	@echo "  make logs-ycode         View YCode logs"
+	@echo "  make logs-ycampus       View YCampus logs"
+	@echo "  make clean              Clean all containers/volumes"
+	@echo "  make clean-ycode        Clean YCode containers/volumes"
+	@echo "  make clean-ycampus      Clean YCampus containers/volumes"
 	@echo ""
-	@echo "Database operations:"
-	@echo "  db-shell            Access database shell"
-	@echo "  db-migrate          Run Django migrations"
-	@echo "  db-makemigrations   Create Django migrations"
-	@echo "  db-reset            Reset database"
+	@echo "Platform-Specific Commands:"
+	@echo "  make -f Makefile.ycode <command>     Run YCode command"
+	@echo "  make -f Makefile.ycampus <command>   Run YCampus command"
+	@echo "  make -f Makefile.common <command>    Run Common command"
 	@echo ""
-	@echo "YCampus Database operations:"
-	@echo "  ycampus-db-shell    Access ycampus database shell"
-	@echo "  ycampus-db-migrate  Run ycampus Django migrations"
-	@echo "  ycampus-db-makemigrations Create ycampus Django migrations"
-	@echo "  ycampus-db-reset    Reset ycampus database"
+	@echo "Available platform commands: setup, dev, stop, logs, clean,"
+	@echo "  db-shell, db-migrate, backend-shell, backend-test,"
+	@echo "  frontend-shell, frontend-test, and more..."
 	@echo ""
-	@echo "Backend commands:"
-	@echo "  backend-shell       Django shell"
-	@echo "  backend-test        Run backend tests"
-	@echo "  backend-format      Check backend code formatting"
-	@echo "  backend-format-fix  Fix backend code formatting"
-	@echo "  backend-lint        Lint backend code"
-	@echo "  backend-install PKG Install backend package"
+	@echo "Combined Operations:"
+	@echo "  make test-all           Run all tests"
+	@echo "  make format-all         Format all code"
+	@echo "  make lint-all           Lint all code"
+	@echo "  make check-all          Run all checks"
 	@echo ""
-	@echo "YCampus Backend commands:"
-	@echo "  ycampus-backend-shell Django shell"
-	@echo "  ycampus-backend-test  Run ycampus backend tests"
-	@echo "  ycampus-backend-format Check ycampus backend code formatting"
-	@echo "  ycampus-backend-format-fix Fix ycampus backend code formatting"
-	@echo "  ycampus-backend-lint  Lint ycampus backend code"
-	@echo "  ycampus-backend-install PKG Install ycampus backend package"
+	@echo "Code Executor:"
+	@echo "  make executor-shell     Access code executor shell"
+	@echo "  make executor-test      Test code executor"
+	@echo "  make executor-logs      View code executor logs"
 	@echo ""
-	@echo "Code Executor commands:"
-	@echo "  executor-shell      Code executor shell"
-	@echo "  executor-test       Test code executor service"
-	@echo "  executor-logs       View code executor logs"
+	@echo "Examples:"
+	@echo "  make setup-ycode                    # Setup YCode only"
+	@echo "  make -f Makefile.ycode dev          # Start YCode"
+	@echo "  make -f Makefile.ycode db-shell     # Access YCode database"
+	@echo "  make -f Makefile.ycampus backend-test  # Test YCampus backend"
 	@echo ""
-	@echo "Frontend commands:"
-	@echo "  frontend-shell      Node.js shell"
-	@echo "  frontend-test       Run frontend tests"
-	@echo "  frontend-test-watch Run frontend tests in watch mode"
-	@echo "  frontend-format     Check frontend code formatting"
-	@echo "  frontend-format-fix Fix frontend code formatting"
-	@echo "  frontend-lint       Lint frontend code"
-	@echo "  frontend-install PKG Install frontend package"
-	@echo ""
-	@echo "YCampus Frontend commands:"
-	@echo "  ycampus-frontend-shell Node.js shell"
-	@echo "  ycampus-frontend-test  Run ycampus frontend tests"
-	@echo "  ycampus-frontend-test-watch Run ycampus frontend tests in watch mode"
-	@echo "  ycampus-frontend-format Check ycampus frontend code formatting"
-	@echo "  ycampus-frontend-format-fix Fix ycampus frontend code formatting"
-	@echo "  ycampus-frontend-lint  Lint ycampus frontend code"
-	@echo "  ycampus-frontend-install PKG Install ycampus frontend package"
-	@echo ""
-	@echo "Combined operations:"
-	@echo "  test-all            Run all tests"
-	@echo "  format-all          Format all code"
-	@echo "  lint-all            Lint all code"
-	@echo "  check-all           Run all checks"
-	@echo ""
-	@echo "Observability Utilities:"
-	@echo "  observability-setup Setup observability stack"
-	@echo "  observability-logs  View observability logs"
-	@echo "  observability-dashboards Open dashboards in browser"
-	@echo ""
-	@echo "Production commands:"
-	@echo "  prod-build          Build production images"
-	@echo "  prod-up             Start production services"
-	@echo "  prod-down           Stop production services"
+	@echo "For detailed help on a specific platform:"
+	@echo "  cat Makefile.ycode"
+	@echo "  cat Makefile.ycampus"
+	@echo "  cat Makefile.common"
 
-build:
-	docker compose up --build
+# ============================================================================
+# Setup Commands
+# ============================================================================
+
+setup: setup-common setup-ycode setup-ycampus
+	@echo ""
+	@echo "✅ All platforms setup complete!"
+	@echo "🌐 YCode Frontend: http://localhost:3000"
+	@echo "🔧 YCode Backend: http://localhost:8001"
+	@echo "🌐 YCampus Frontend: http://localhost:3002"
+	@echo "🔧 YCampus Backend: http://localhost:8003"
+	@echo "⚙️  Code Executor: http://localhost:8002"
+
+setup-common:
+	@$(MAKE) -f Makefile.common setup
+
+setup-ycode:
+	@$(MAKE) -f Makefile.ycode setup
+
+setup-ycampus:
+	@$(MAKE) -f Makefile.ycampus setup
+
+makemigrations: makemigrations-ycode makemigrations-ycampus
+	@echo "✅ makemigrations completed for YCode and YCampus"
+
+makemigrations-ycode:
+	@$(MAKE) -f Makefile.ycode db-makemigrations
+
+makemigrations-ycampus:
+	@$(MAKE) -f Makefile.ycampus db-makemigrations
+
+# ============================================================================
+# Development Commands
+# ============================================================================
 
 dev:
-	docker compose up
+	@echo "Starting all services (YCode, YCampus, Executor) in foreground..."
+	docker compose -f docker-compose.common.yml -f docker-compose.yml -f docker-compose.ycampus.yml up
 
-dev-detached:
-	docker compose up --build -d
+dev-ycode:
+	@echo "Starting common services..."
+	@docker compose -f docker-compose.common.yml up -d
+	@$(MAKE) -f Makefile.ycode dev
+
+dev-ycampus:
+	@echo "Starting common services..."
+	@docker compose -f docker-compose.common.yml up -d
+	@$(MAKE) -f Makefile.ycampus dev
 
 stop:
-	docker compose down
+	@echo "Stopping all services..."
+	@docker compose down
+	@docker compose -f docker-compose.ycampus.yml down
+	@docker compose -f docker-compose.common.yml down
+	@echo "✅ All services stopped!"
 
-restart:
-	docker compose restart
+stop-ycode:
+	@$(MAKE) -f Makefile.ycode stop
 
-debug:
-	docker compose -f docker-compose.yml -f docker-compose.debug.yml up
-
-debug-detached:
-	docker compose -f docker-compose.yml -f docker-compose.debug.yml up --build -d
-
-debug-build:
-	docker compose -f docker-compose.yml -f docker-compose.debug.yml up --build
-
-debug-stop:
-	docker compose -f docker-compose.yml -f docker-compose.debug.yml down
+stop-ycampus:
+	@$(MAKE) -f Makefile.ycampus stop
 
 logs:
-	@if [ "$(SERVICE)" = "" ]; then \
-		docker compose logs -f; \
-	else \
-		docker compose logs -f $(SERVICE); \
-	fi
+	@echo "Viewing logs from all services (Ctrl+C to exit)..."
+	@docker compose logs -f & \
+	docker compose -f docker-compose.ycampus.yml logs -f & \
+	docker compose -f docker-compose.common.yml logs -f & \
+	wait
 
-setup:
-	@echo "Setting up YC Full-Stack Application..."
-	@echo "Checking dependencies..."
-	@command -v docker >/dev/null 2>&1 || { echo "Docker is required but not installed. Please install Docker first."; exit 1; }
-	@docker compose version >/dev/null 2>&1 || { echo "Docker Compose is required but not installed. Please install Docker Compose first."; exit 1; }
+logs-ycode:
+	@$(MAKE) -f Makefile.ycode logs
 
-	@echo "Creating environment files..."
-	@if [ ! -f yc-backend-api/.env ]; then cp yc-backend-api/.env.example yc-backend-api/.env; echo "Created backend .env"; fi
-	@if [ ! -f yc-web/.env ]; then cp yc-web/.env.example yc-web/.env; echo "Created frontend .env"; fi
-	@if [ ! -f yc-code-executor/.env ]; then cp yc-code-executor/.env.example yc-code-executor/.env; echo "Created code-executor .env"; fi
-	@if [ ! -f ycampus-backend-api/.env ]; then cp ycampus-backend-api/.env.example ycampus-backend-api/.env; echo "Created ycampus-backend .env"; fi
-	@if [ ! -f ycampus-web/.env ]; then cp ycampus-web/.env.example ycampus-web/.env; echo "Created ycampus-frontend .env"; fi
-
-
-	@echo "Building and starting services..."
-	docker compose down -v --remove-orphans
-	docker compose up -d --build --wait
-
-	@echo "Waiting for backend to be ready..."
-	@sleep 5
-
-	@echo "Running initial setup and migrations..."
-	docker compose exec backend python manage.py migrate
-	docker compose exec backend python manage.py setup_local_testing --clear
-	docker compose exec ycampus-backend python manage.py migrate
-	docker compose exec ycampus-backend python manage.py setup_local_testing --clear
-	
-	@echo "Setup complete! The application is running."
-	@echo "YC Frontend: http://localhost:3000"
-	@echo "YC Backend API: http://localhost:8001"
-	@echo "YCampus Frontend: http://localhost:3002"
-	@echo "YCampus Backend API: http://localhost:8003"
-	@echo "Run 'make build' if requirements or libraries are updated."
-	@echo "Run 'make logs' to monitor the services."
-	@echo "Run 'make reload-data' to reload test data."
-	@echo "Run 'make run' to start the services."
-
-reload-data:
-	@echo "Resetting and reloading test data..."
-	docker compose exec backend python manage.py setup_local_testing --clear
-	docker compose exec ycampus-backend python manage.py setup_local_testing --clear
+logs-ycampus:
+	@$(MAKE) -f Makefile.ycampus logs
 
 clean:
-	docker compose down -v --remove-orphans
-	docker system prune -f
+	@echo "🧹 Cleaning all containers and volumes..."
+	@docker compose down -v --remove-orphans
+	@docker compose -f docker-compose.ycampus.yml down -v --remove-orphans
+	@docker compose -f docker-compose.common.yml down -v --remove-orphans
+	@docker system prune -f
+	@echo "✅ Cleanup complete!"
 
+clean-ycode:
+	@$(MAKE) -f Makefile.ycode clean
 
-db-shell:
-	docker compose exec db psql -U postgres -d yc_app
+clean-ycampus:
+	@$(MAKE) -f Makefile.ycampus clean
 
-db-migrate:
-	docker compose exec backend python manage.py migrate
-
-db-makemigrations:
-	docker compose exec backend python manage.py makemigrations
-
-db-createsuperuser:
-	docker compose exec backend python manage.py createsuperuser
-
-db-reset:
-	@echo "Resetting database to initial state..."
-	docker compose down -v
-	docker compose up -d db
-
-# YCampus Database operations
-ycampus-db-shell:
-	docker compose exec ycampus-db psql -U postgres -d yc_app
-
-ycampus-db-migrate:
-	docker compose exec ycampus-backend python manage.py migrate
-
-ycampus-db-makemigrations:
-	docker compose exec ycampus-backend python manage.py makemigrations
-
-ycampus-db-createsuperuser:
-	docker compose exec ycampus-backend python manage.py createsuperuser
-
-ycampus-db-reset:
-	@echo "Resetting ycampus database to initial state..."
-	docker compose down ycampus-db -v
-	docker compose up -d ycampus-db
-
-backend-shell:
-	docker compose exec backend python manage.py shell
-
-backend-test:
-	docker compose exec backend python manage.py test
-
-backend-format:
-	docker compose exec backend black . --check --diff
-
-backend-format-fix:
-	docker compose exec backend black .
-
-backend-lint:
-	docker compose exec backend flake8 .
-
-backend-install:
-	@if [ "$(PKG)" = "" ]; then \
-		echo "Usage: make backend-install PKG=package-name"; \
-		exit 1; \
-	fi
-	docker compose exec backend pip install $(PKG)
-	docker compose exec backend pip freeze > requirements.txt
-
-# YCampus Backend commands
-ycampus-backend-shell:
-	docker compose exec ycampus-backend python manage.py shell
-
-ycampus-backend-test:
-	docker compose exec ycampus-backend python manage.py test
-
-ycampus-backend-format:
-	docker compose exec ycampus-backend black . --check --diff
-
-ycampus-backend-format-fix:
-	docker compose exec ycampus-backend black .
-
-ycampus-backend-lint:
-	docker compose exec ycampus-backend flake8 .
-
-ycampus-backend-install:
-	@if [ "$(PKG)" = "" ]; then \
-		echo "Usage: make ycampus-backend-install PKG=package-name"; \
-		exit 1; \
-	fi
-	docker compose exec ycampus-backend pip install $(PKG)
-	docker compose exec ycampus-backend pip freeze > requirements.txt
-
-frontend-shell:
-	docker compose exec frontend sh
-
-frontend-test:
-	docker compose exec frontend npm test -- --run
-
-frontend-test-watch:
-	docker compose exec frontend npm test
-
-frontend-format:
-	docker compose exec frontend npm run format:check
-
-frontend-format-fix:
-	docker compose exec frontend npm run format
-
-frontend-lint:
-	docker compose exec frontend npm run lint
-
-frontend-install:
-	@if [ "$(PKG)" = "" ]; then \
-		echo "Usage: make frontend-install PKG=package-name"; \
-		exit 1; \
-	fi
-	docker compose exec frontend npm install $(PKG)
-
-# YCampus Frontend commands
-ycampus-frontend-shell:
-	docker compose exec ycampus-frontend sh
-
-ycampus-frontend-test:
-	docker compose exec ycampus-frontend npm test -- --run
-
-ycampus-frontend-test-watch:
-	docker compose exec ycampus-frontend npm test
-
-ycampus-frontend-format:
-	docker compose exec ycampus-frontend npm run format:check
-
-ycampus-frontend-format-fix:
-	docker compose exec ycampus-frontend npm run format
-
-ycampus-frontend-lint:
-	docker compose exec ycampus-frontend npm run lint
-
-ycampus-frontend-install:
-	@if [ "$(PKG)" = "" ]; then \
-		echo "Usage: make ycampus-frontend-install PKG=package-name"; \
-		exit 1; \
-	fi
-	docker compose exec ycampus-frontend npm install $(PKG)
+# ============================================================================
+# Code Executor Commands
+# ============================================================================
 
 executor-shell:
-	docker compose exec code-executor sh
+	@$(MAKE) -f Makefile.common executor-shell
 
 executor-test:
-	docker compose exec code-executor python test_service.py
+	@$(MAKE) -f Makefile.common executor-test
 
 executor-logs:
-	docker compose logs -f code-executor
+	@$(MAKE) -f Makefile.common executor-logs
+
+# ============================================================================
+# Combined Operations
+# ============================================================================
 
 test-all:
-	@echo "Running backend tests..."
-	$(MAKE) backend-test
-	@echo "Running frontend tests..."
-	$(MAKE) frontend-test
+	@echo "Running all tests..."
+	@echo "Testing YCode backend..."
+	@$(MAKE) -f Makefile.ycode backend-test
+	@echo "Testing YCode frontend..."
+	@$(MAKE) -f Makefile.ycode frontend-test
+	@echo "Testing YCampus backend..."
+	@$(MAKE) -f Makefile.ycampus backend-test
+	@echo "Testing YCampus frontend..."
+	@$(MAKE) -f Makefile.ycampus frontend-test
+	@echo "Testing code executor..."
+	@$(MAKE) -f Makefile.common executor-test
+	@echo "✅ All tests complete!"
 
 format-all:
-	@echo "Formatting backend code..."
-	$(MAKE) backend-format-fix
-	@echo "Formatting frontend code..."
-	$(MAKE) frontend-format-fix
+	@echo "Formatting all code..."
+	@$(MAKE) -f Makefile.ycode backend-format-fix
+	@$(MAKE) -f Makefile.ycode frontend-format-fix
+	@$(MAKE) -f Makefile.ycampus backend-format-fix
+	@$(MAKE) -f Makefile.ycampus frontend-format-fix
+	@echo "✅ All code formatted!"
 
 lint-all:
-	@echo "Linting backend code..."
-	$(MAKE) backend-lint
-	@echo "Linting frontend code..."
-	$(MAKE) frontend-lint
+	@echo "Linting all code..."
+	@$(MAKE) -f Makefile.ycode backend-lint
+	@$(MAKE) -f Makefile.ycode frontend-lint
+	@$(MAKE) -f Makefile.ycampus backend-lint
+	@$(MAKE) -f Makefile.ycampus frontend-lint
+	@echo "✅ All code linted!"
 
 check-all:
 	@echo "Running all checks..."
-	$(MAKE) backend-format
-	$(MAKE) backend-lint
-	$(MAKE) frontend-format
-	$(MAKE) frontend-lint
-	$(MAKE) test-all
+	@$(MAKE) format-all
+	@$(MAKE) lint-all
+	@$(MAKE) test-all
+	@echo "✅ All checks complete!"
 
-observability-setup:
-	@echo "🚀 Setting up observability stack..."
-	./yc-observability/setup.sh
+# ============================================================================
+# Observability
+# ============================================================================
 
-observability-logs:
-	@echo "📋 Viewing observability logs..."
-	docker compose -f docker-compose.yml -f docker-compose.debug.yml logs -f jaeger otel-collector prometheus grafana
+observability-dev:
+	@echo "🔍 Starting all services with observability..."
+	docker compose -f docker-compose.common.yml -f docker-compose.yml -f docker-compose.ycampus.yml -f docker-compose.observability.yml up
+
+observability-stop:
+	docker compose -f docker-compose.observability.yml down
+
+observability-clean:
+	docker compose -f docker-compose.observability.yml down -v
 
 observability-dashboards:
-	@echo "🌐 Opening observability dashboards..."
+	@echo "🌐 Observability Dashboards:"
 	@echo "Grafana: http://localhost:3001 (admin/admin)"
 	@echo "Jaeger: http://localhost:16686"
 	@echo "Prometheus: http://localhost:9090"
-	@if command -v open >/dev/null 2>&1; then \
-		open http://localhost:3001 & \
-		open http://localhost:16686 & \
-		open http://localhost:9090 & \
-	elif command -v xdg-open >/dev/null 2>&1; then \
-		xdg-open http://localhost:3001 & \
-		xdg-open http://localhost:16686 & \
-		xdg-open http://localhost:9090 & \
-	else \
-		echo "Please open the URLs manually in your browser"; \
-	fi
+	@echo "Loki: http://localhost:3100"
 
+# ============================================================================
+# Production
+# ============================================================================
 
 prod-build:
 	docker compose -f docker-compose.prod.yml build
+	docker compose -f docker-compose.ycampus.prod.yml build
 
 prod-up:
 	docker compose -f docker-compose.prod.yml up -d
+	docker compose -f docker-compose.ycampus.prod.yml up -d
 
 prod-down:
 	docker compose -f docker-compose.prod.yml down
+	docker compose -f docker-compose.ycampus.prod.yml down
