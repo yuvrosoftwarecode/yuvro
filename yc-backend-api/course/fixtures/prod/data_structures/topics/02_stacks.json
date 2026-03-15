@@ -1,5 +1,6 @@
 {
     "name": "Stacks",
+    "course_short_code": "DSA100",
     "order_index": 2,
     "subtopics": [
         {
