@@ -640,7 +640,7 @@
             "content": "Which technique is commonly used to solve the 'Longest Substring Without Repeating Characters' problem efficiently?",
             "level": "subtopic",
             "topic_name": "Strings",
-            "subtopic_name": "Substring Problems",
+            "subtopic_name": "String Basics & Manipulation",
             "difficulty": "hard",
             "marks": 3,
             "categories": [
@@ -663,6 +663,36 @@
                 {
                     "text": "Stack",
                     "is_correct": false
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Longest Substring Without Repeating Characters - Python",
+                    "language": "python",
+                    "code": "s=input().strip()\nseen=set()\nl=0\nans=0\nfor r in range(len(s)):\n while s[r] in seen:\n  seen.remove(s[l])\n  l+=1\n seen.add(s[r])\n ans=max(ans,r-l+1)\nprint(ans)",
+                    "complexity_analysis": "Time: O(N) using sliding window. Space: O(N).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Longest Substring Without Repeating Characters - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  Set<Character> set=new HashSet<>();\n  int l=0,res=0;\n  for(int r=0;r<s.length();r++){\n   while(set.contains(s.charAt(r))){\n    set.remove(s.charAt(l++));\n   }\n   set.add(s.charAt(r));\n   res=Math.max(res,r-l+1);\n  }\n  System.out.print(res);\n }\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Substring Without Repeating Characters - C++",
+                    "language": "cpp",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; getline(cin,s);\n set<char> st;\n int l=0,res=0;\n for(int r=0;r<s.size();r++){\n  while(st.count(s[r])){\n   st.erase(s[l++]);\n  }\n  st.insert(s[r]);\n  res=max(res,r-l+1);\n }\n cout<<res;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(N).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Substring Without Repeating Characters - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int last[256];\n\n    // Initialize last seen indices\n    for (int i = 0; i < 256; i++) last[i] = -1;\n\n    // Read input string\n    fgets(s, sizeof(s), stdin);\n    int n = strlen(s);\n\n    // Remove trailing newline if present\n    if (s[n - 1] == '\\n') {\n        s[n - 1] = '\\0';\n        n--;\n    }\n\n    int start = 0, res = 0;\n\n    for (int i = 0; i < n; i++) {\n        if (last[(unsigned char)s[i]] >= start)\n            start = last[(unsigned char)s[i]] + 1;\n\n        last[(unsigned char)s[i]] = i;\n\n        if (i - start + 1 > res)\n            res = i - start + 1;\n    }\n\n    printf(\"%d\", res);\n\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -1239,6 +1269,36 @@
                 {
                     "text": "Hash Table Only",
                     "is_correct": false
+                }
+            ],
+            "solutions": [
+                {
+                    "title": "Longest Palindromic Substring - Python",
+                    "language": "python",
+                    "code": "s=input().strip()\nstart=0\nmax_len=1\n\ndef expand(l,r):\n global start,max_len\n while l>=0 and r<len(s) and s[l]==s[r]:\n  if r-l+1>max_len:\n   start=l\n   max_len=r-l+1\n  l-=1\n  r+=1\n\nfor i in range(len(s)):\n expand(i,i)\n expand(i,i+1)\n\nprint(s[start:start+max_len])",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": true
+                },
+                {
+                    "title": "Longest Palindromic Substring - Java",
+                    "language": "java",
+                    "code": "import java.util.*;\npublic class Solution{\n static int start=0,maxLen=1;\n static void expand(String s,int l,int r){\n  while(l>=0 && r<s.length() && s.charAt(l)==s.charAt(r)){\n   if(r-l+1>maxLen){\n    start=l;\n    maxLen=r-l+1;\n   }\n   l--; r++;\n  }\n }\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  for(int i=0;i<s.length();i++){\n   expand(s,i,i);\n   expand(s,i,i+1);\n  }\n  System.out.println(s.substring(start,start+maxLen));\n }\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Palindromic Substring - C++",
+                    "language": "cpp",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int start=0,maxLen=1;\n auto expand=[&](int l,int r){\n  while(l>=0 && r<s.size() && s[l]==s[r]){\n   if(r-l+1>maxLen){\n    start=l;\n    maxLen=r-l+1;\n   }\n   l--; r++;\n  }\n };\n for(int i=0;i<s.size();i++){\n  expand(i,i);\n  expand(i,i+1);\n }\n cout<<s.substr(start,maxLen);\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
+                },
+                {
+                    "title": "Longest Palindromic Substring - C",
+                    "language": "c",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nvoid expand(char *s, int l, int r, int *start, int *maxLen) {\n    int n = strlen(s);\n\n    while (l >= 0 && r < n && s[l] == s[r]) {\n        if (r - l + 1 > *maxLen) {\n            *start = l;\n            *maxLen = r - l + 1;\n        }\n        l--;\n        r++;\n    }\n}\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int start = 0, maxLen = 1;\n    int n = strlen(s);\n\n    for (int i = 0; i < n; i++) {\n        expand(s, i, i, &start, &maxLen);     \n        expand(s, i, i + 1, &start, &maxLen); \n    }\n\n    for (int i = start; i < start + maxLen; i++) {\n        printf(\"%c\", s[i]);\n    }\n\n    return 0;\n}",
+                    "complexity_analysis": "Time: O(N^2). Space: O(1).",
+                    "is_primary": false
                 }
             ]
         },
@@ -2746,7 +2806,7 @@
                 {
                     "title": "Reverse a String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}for(int i=n-1;i>=0;i--)printf(\"%c\",s[i]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    int n = strlen(s);\n    if (s[n - 1] == '\\n') {\n        s[n - 1] = '\\0';\n        n--;\n    }\n\n    for (int i = n - 1; i >= 0; i--)\n        printf(\"%c\", s[i]);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -2758,7 +2818,7 @@
             "content": "Write a program to check whether a given string is a palindrome or not.\n\nA palindrome reads the same forward and backward.\n\n**Example:**\nInput:\nmadam\nOutput:\nPalindrome",
             "level": "subtopic",
             "topic_name": "Strings",
-            "subtopic_name": "String Basics & Manipulation",
+            "subtopic_name": "Palindrome Problems",
             "difficulty": "easy",
             "marks": 5,
             "categories": [
@@ -2950,7 +3010,7 @@
                 {
                     "title": "Count Vowels and Consonants - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <ctype.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int v=0,c=0;for(int i=0;s[i];i++){char ch=tolower(s[i]);if(isalpha(ch)){if(ch=='a'||ch=='e'||ch=='i'||ch=='o'||ch=='u')v++;else c++;}}printf(\"Vowels: %d\\n\",v);printf(\"Consonants: %d\",c);}",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    int v = 0, c = 0;\n\n    for (int i = 0; s[i]; i++) {\n        char ch = tolower(s[i]);\n        if (isalpha(ch)) {\n            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u')\n                v++;\n            else\n                c++;\n        }\n    }\n\n    printf(\"Vowels: %d\\n\", v);\n    printf(\"Consonants: %d\", c);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3052,7 +3112,7 @@
                 {
                     "title": "Convert String to Uppercase Without Built-in - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);for(int i=0;s[i];i++){if(s[i]>='a' && s[i]<='z') s[i]-=32;}printf(\"%s\",s);}",
+                    "code": "#include <stdio.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i]; i++) {\n        if (s[i] >= 'a' && s[i] <= 'z')\n            s[i] -= 32;\n    }\n\n    printf(\"%s\", s);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3154,7 +3214,7 @@
                 {
                     "title": "Remove Spaces from String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);for(int i=0;s[i];i++){if(s[i]!=' ' && s[i]!='\\n')printf(\"%c\",s[i]);}}",
+                    "code": "#include <stdio.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i]; i++) {\n        if (s[i] != ' ' && s[i] != '\\n')\n            printf(\"%c\", s[i]);\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3256,7 +3316,7 @@
                 {
                     "title": "Reverse Each Word in a Sentence - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s),start=0;for(int i=0;i<=n;i++){if(s[i]==' '||s[i]=='\\n'||s[i]=='\\0'){for(int j=i-1;j>=start;j--)printf(\"%c\",s[j]);if(s[i]==' ')printf(\" \");start=i+1;}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    int n = strlen(s), start = 0;\n\n    for (int i = 0; i <= n; i++) {\n        if (s[i] == ' ' || s[i] == '\\n' || s[i] == '\\0') {\n            for (int j = i - 1; j >= start; j--)\n                printf(\"%c\", s[j]);\n            if (s[i] == ' ')\n                printf(\" \");\n            start = i + 1;\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3358,7 +3418,7 @@
                 {
                     "title": "Remove Duplicate Characters from String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\nint main(){char s[10005];int seen[256]={0};fgets(s,sizeof(s),stdin);for(int i=0;s[i] && s[i]!='\\n';i++){if(!seen[(unsigned char)s[i]]){seen[(unsigned char)s[i]]=1;printf(\"%c\",s[i]);}}}",
+                    "code": "#include <stdio.h>\n\nint main() {\n    char s[10005];\n    int seen[256] = {0};\n\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++) {\n        if (!seen[(unsigned char)s[i]]) {\n            seen[(unsigned char)s[i]] = 1;\n            printf(\"%c\", s[i]);\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3460,7 +3520,7 @@
                 {
                     "title": "First Non-Repeating Character - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int freq[256]={0};fgets(s,sizeof(s),stdin);for(int i=0;s[i] && s[i]!='\\n';i++)freq[(unsigned char)s[i]]++;for(int i=0;s[i] && s[i]!='\\n';i++){if(freq[(unsigned char)s[i]]==1){printf(\"%c\",s[i]);return 0;}}printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int freq[256] = {0};\n\n    fgets(s, sizeof(s), stdin);\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++)\n        freq[(unsigned char)s[i]]++;\n\n    for (int i = 0; s[i] && s[i] != '\\n'; i++) {\n        if (freq[(unsigned char)s[i]] == 1) {\n            printf(\"%c\", s[i]);\n            return 0;\n        }\n    }\n\n    printf(\"-1\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3562,7 +3622,7 @@
                 {
                     "title": "Check if Two Strings are Anagrams - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char a[10005],b[10005];int freq[256]={0};fgets(a,sizeof(a),stdin);fgets(b,sizeof(b),stdin);for(int i=0;a[i] && a[i]!='\\n';i++)freq[(unsigned char)a[i]]++;for(int i=0;b[i] && b[i]!='\\n';i++)freq[(unsigned char)b[i]]--;for(int i=0;i<256;i++){if(freq[i]!=0){printf(\"Not Anagram\");return 0;}}printf(\"Anagram\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char a[10005], b[10005];\n    int freq[256] = {0};\n\n    fgets(a, sizeof(a), stdin);\n    fgets(b, sizeof(b), stdin);\n\n    for (int i = 0; a[i] && a[i] != '\\n'; i++)\n        freq[(unsigned char)a[i]]++;\n\n    for (int i = 0; b[i] && b[i] != '\\n'; i++)\n        freq[(unsigned char)b[i]]--;\n\n    for (int i = 0; i < 256; i++) {\n        if (freq[i] != 0) {\n            printf(\"Not Anagram\");\n            return 0;\n        }\n    }\n\n    printf(\"Anagram\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -3664,7 +3724,7 @@
                 {
                     "title": "Replace All Occurrences of Substring - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],old[1005],rep[1005],res[20005];fgets(s,sizeof(s),stdin);fgets(old,sizeof(old),stdin);fgets(rep,sizeof(rep),stdin);old[strcspn(old,\"\\n\")]=0;rep[strcspn(rep,\"\\n\")]=0;int i=0,j=0,len=strlen(old);while(s[i]){if(strncmp(&s[i],old,len)==0){strcpy(&res[j],rep);j+=strlen(rep);i+=len;}else res[j++]=s[i++];}res[j]='\\0';printf(\"%s\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], old[1005], rep[1005], res[20005];\n    \n    fgets(s, sizeof(s), stdin);\n    fgets(old, sizeof(old), stdin);\n    fgets(rep, sizeof(rep), stdin);\n\n    old[strcspn(old, \"\\n\")] = 0;\n    rep[strcspn(rep, \"\\n\")] = 0;\n\n    int i = 0, j = 0;\n    int len = strlen(old);\n\n    while (s[i]) {\n        if (strncmp(&s[i], old, len) == 0) {\n            strcpy(&res[j], rep);\n            j += strlen(rep);\n            i += len;\n        } else {\n            res[j++] = s[i++];\n        }\n    }\n\n    res[j] = '\\0';\n    printf(\"%s\", res);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N).",
                     "is_primary": false
                 }
@@ -3766,7 +3826,7 @@
                 {
                     "title": "Implement strStr - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[1005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p);for(int i=0;i<=n-m;i++){int j=0;while(j<m && s[i+j]==p[j])j++;if(j==m){printf(\"%d\",i);return 0;}}printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[1005];\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    int n = strlen(s), m = strlen(p);\n\n    for (int i = 0; i <= n - m; i++) {\n        int j = 0;\n        while (j < m && s[i + j] == p[j])\n            j++;\n        if (j == m) {\n            printf(\"%d\", i);\n            return 0;\n        }\n    }\n\n    printf(\"-1\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -3868,7 +3928,7 @@
                 {
                     "title": "String Compression - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int n=strlen(s);if(s[n-1]=='\\n'){s[n-1]='\\0';n--;}int count=1;for(int i=1;i<=n;i++){if(i<n && s[i]==s[i-1])count++;else{printf(\"%c%d\",s[i-1],count);count=1;}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    int n = strlen(s);\n    if (s[n - 1] == '\\n') {\n        s[n - 1] = '\\0';\n        n--;\n    }\n\n    int count = 1;\n    for (int i = 1; i <= n; i++) {\n        if (i < n && s[i] == s[i - 1])\n            count++;\n        else {\n            printf(\"%c%d\", s[i - 1], count);\n            count = 1;\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -4072,7 +4132,7 @@
                 {
                     "title": "Check String Rotation - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char a[10005],b[10005];fgets(a,sizeof(a),stdin);fgets(b,sizeof(b),stdin);a[strcspn(a,\"\\n\")]=0;b[strcspn(b,\"\\n\")]=0;if(strlen(a)==strlen(b)&&strstr(strcat(a,a),b))printf(\"True\");else printf(\"False\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char a[10005], b[10005];\n    fgets(a, sizeof(a), stdin);\n    fgets(b, sizeof(b), stdin);\n\n    a[strcspn(a, \"\\n\")] = 0;\n    b[strcspn(b, \"\\n\")] = 0;\n\n    if (strlen(a) == strlen(b) && strstr(strcat(a, a), b))\n        printf(\"True\");\n    else\n        printf(\"False\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -4174,7 +4234,7 @@
                 {
                     "title": "String to Integer (atoi) - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <limits.h>\nint main(){char s[10005];fgets(s,sizeof(s),stdin);int i=0,sign=1;long res=0;while(s[i]==' ')i++;if(s[i]=='+'||s[i]=='-'){if(s[i]=='-')sign=-1;i++;}while(isdigit(s[i])){res=res*10+(s[i]-'0');if(sign*res>INT_MAX){printf(\"%d\",INT_MAX);return 0;}if(sign*res<INT_MIN){printf(\"%d\",INT_MIN);return 0;}i++;}printf(\"%ld\",sign*res);}",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <limits.h>\n\nint main() {\n    char s[10005];\n    fgets(s, sizeof(s), stdin);\n\n    int i = 0, sign = 1;\n    long res = 0;\n\n    while (s[i] == ' ') i++;\n\n    if (s[i] == '+' || s[i] == '-') {\n        if (s[i] == '-') sign = -1;\n        i++;\n    }\n\n    while (isdigit(s[i])) {\n        res = res * 10 + (s[i] - '0');\n\n        if (sign * res > INT_MAX) {\n            printf(\"%d\", INT_MAX);\n            return 0;\n        }\n        if (sign * res < INT_MIN) {\n            printf(\"%d\", INT_MIN);\n            return 0;\n        }\n\n        i++;\n    }\n\n    printf(\"%ld\", sign * res);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -4276,7 +4336,7 @@
                 {
                     "title": "Print All Substrings of a String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int i=0;i<n;i++){for(int j=i;j<n;j++){for(int k=i;k<=j;k++)printf(\"%c\",s[k]);printf(\" \");}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n\n    for (int i = 0; i < n; i++) {\n        for (int j = i; j < n; j++) {\n            for (int k = i; k <= j; k++)\n                printf(\"%c\", s[k]);\n            printf(\" \");\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^3). Space: O(1).",
                     "is_primary": false
                 }
@@ -4378,7 +4438,7 @@
                 {
                     "title": "Count Total Number of Substrings - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);long n=strlen(s);printf(\"%ld\",n*(n+1)/2);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    long n = strlen(s);\n    printf(\"%ld\", n * (n + 1) / 2);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(1). Space: O(1).",
                     "is_primary": false
                 }
@@ -4480,7 +4540,7 @@
                 {
                     "title": "Longest Substring with Unique Characters (Brute Force) - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),max=0;for(int i=0;i<n;i++){int vis[256]={0};for(int j=i;j<n;j++){if(vis[(unsigned char)s[j]])break;vis[(unsigned char)s[j]]=1;if(j-i+1>max)max=j-i+1;}}printf(\"%d\",max);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s), max = 0;\n\n    for (int i = 0; i < n; i++) {\n        int vis[256] = {0};\n\n        for (int j = i; j < n; j++) {\n            if (vis[(unsigned char)s[j]])\n                break;\n\n            vis[(unsigned char)s[j]] = 1;\n\n            if (j - i + 1 > max)\n                max = j - i + 1;\n        }\n    }\n\n    printf(\"%d\", max);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(256).",
                     "is_primary": false
                 }
@@ -4507,7 +4567,7 @@
                 },
                 {
                     "input": "apple",
-                    "expected_output": "4"
+                    "expected_output": "3"
                 },
                 {
                     "input": "dog",
@@ -4541,7 +4601,7 @@
                 },
                 {
                     "input": "hello",
-                    "expected_output": "1"
+                    "expected_output": "2"
                 },
                 {
                     "input": "algorithm",
@@ -4582,7 +4642,7 @@
                 {
                     "title": "Count Substrings Starting with Vowel and Ending with Consonant - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint vowel(char c){char v[]=\"aeiouAEIOU\";for(int i=0;i<10;i++)if(c==v[i])return 1;return 0;}int main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),count=0;for(int i=0;i<n;i++){if(vowel(s[i])){for(int j=i;j<n;j++){if(!vowel(s[j]))count++;}}}printf(\"%d\",count);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint vowel(char c){char v[]=\"aeiouAEIOU\";for(int i=0;i<10;i++)if(c==v[i])return 1;return 0;}\nint main(){\n char s[10005];scanf(\"%s\",s);\n int n=strlen(s),count=0;\n for(int i=0;i<n;i++){\n  if(vowel(s[i])){\n   for(int j=i;j<n;j++){\n    if(!vowel(s[j])) count++;\n   }\n  }\n }\n printf(\"%d\",count);\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -4684,7 +4744,7 @@
                 {
                     "title": "Find All Substrings of Length K - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int n=strlen(s);for(int i=0;i<=n-k;i++){for(int j=i;j<i+k;j++)printf(\"%c\",s[j]);printf(\" \");}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    int n = strlen(s);\n\n    for (int i = 0; i <= n - k; i++) {\n        for (int j = i; j < i + k; j++)\n            printf(\"%c\", s[j]);\n        printf(\" \");\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*K). Space: O(1).",
                     "is_primary": false
                 }
@@ -4786,7 +4846,7 @@
                 {
                     "title": "Longest Substring Without Repeating Characters (Optimized) - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int last[256];for(int i=0;i<256;i++)last[i]=-1;int n=strlen(s),start=0,max=0;for(int i=0;i<n;i++){if(last[(unsigned char)s[i]]>=start)start=last[(unsigned char)s[i]]+1;last[(unsigned char)s[i]]=i;if(i-start+1>max)max=i-start+1;}printf(\"%d\",max);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int last[256];\n    for (int i = 0; i < 256; i++)\n        last[i] = -1;\n\n    int n = strlen(s), start = 0, max = 0;\n\n    for (int i = 0; i < n; i++) {\n        if (last[(unsigned char)s[i]] >= start)\n            start = last[(unsigned char)s[i]] + 1;\n\n        last[(unsigned char)s[i]] = i;\n\n        if (i - start + 1 > max)\n            max = i - start + 1;\n    }\n\n    printf(\"%d\", max);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -4990,7 +5050,7 @@
                 {
                     "title": "Count Substrings with Exactly K Distinct Characters - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint atMost(char*s,int k){int freq[256]={0},left=0,res=0,distinct=0;for(int right=0;s[right];right++){if(freq[(unsigned char)s[right]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[left]]==0)distinct--;left++;}res+=right-left+1;}return res;}int main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);printf(\"%d\",atMost(s,k)-atMost(s,k-1));}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint atMost(char *s, int k) {\n    int freq[256] = {0}, left = 0, res = 0, distinct = 0;\n\n    for (int right = 0; s[right]; right++) {\n        if (freq[(unsigned char)s[right]]++ == 0)\n            distinct++;\n\n        while (distinct > k) {\n            if (--freq[(unsigned char)s[left]] == 0)\n                distinct--;\n            left++;\n        }\n\n        res += right - left + 1;\n    }\n\n    return res;\n}\n\nint main() {\n    char s[10005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    printf(\"%d\", atMost(s, k) - atMost(s, k - 1));\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -5092,7 +5152,7 @@
                 {
                     "title": "Smallest Substring Containing All Characters of Another String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\nint main(){char s[10005],t[1005];scanf(\"%s\",s);scanf(\"%s\",t);int need[256]={0},have[256]={0};for(int i=0;t[i];i++)need[(unsigned char)t[i]]++;int count=strlen(t),start=0,min=INT_MAX,l=0;for(int r=0;s[r];r++){have[(unsigned char)s[r]]++;if(need[(unsigned char)s[r]]&&have[(unsigned char)s[r]]<=need[(unsigned char)s[r]])count--;while(count==0){if(r-l+1<min){min=r-l+1;start=l;}have[(unsigned char)s[l]]--;if(need[(unsigned char)s[l]]&&have[(unsigned char)s[l]]<need[(unsigned char)s[l]])count++;l++;}}if(min==INT_MAX)printf(\"-1\");else for(int i=start;i<start+min;i++)printf(\"%c\",s[i]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\n\nint main() {\n    char s[10005], t[1005];\n    scanf(\"%s\", s);\n    scanf(\"%s\", t);\n\n    int need[256] = {0}, have[256] = {0};\n\n    for (int i = 0; t[i]; i++)\n        need[(unsigned char)t[i]]++;\n\n    int count = strlen(t), start = 0, min = INT_MAX, l = 0;\n\n    for (int r = 0; s[r]; r++) {\n        have[(unsigned char)s[r]]++;\n\n        if (need[(unsigned char)s[r]] && have[(unsigned char)s[r]] <= need[(unsigned char)s[r]])\n            count--;\n\n        while (count == 0) {\n            if (r - l + 1 < min) {\n                min = r - l + 1;\n                start = l;\n            }\n\n            have[(unsigned char)s[l]]--;\n\n            if (need[(unsigned char)s[l]] && have[(unsigned char)s[l]] < need[(unsigned char)s[l]])\n                count++;\n\n            l++;\n        }\n    }\n\n    if (min == INT_MAX)\n        printf(\"-1\");\n    else\n        for (int i = start; i < start + min; i++)\n            printf(\"%c\", s[i]);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -5194,7 +5254,7 @@
                 {
                     "title": "Longest Substring with At Most K Distinct Characters - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int freq[256]={0},distinct=0,l=0,max=0;for(int r=0;s[r];r++){if(freq[(unsigned char)s[r]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[l]]==0)distinct--;l++;}if(r-l+1>max)max=r-l+1;}printf(\"%d\",max);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    int freq[256] = {0}, distinct = 0, l = 0, max = 0;\n\n    for (int r = 0; s[r]; r++) {\n        if (freq[(unsigned char)s[r]]++ == 0)\n            distinct++;\n\n        while (distinct > k) {\n            if (--freq[(unsigned char)s[l]] == 0)\n                distinct--;\n            l++;\n        }\n\n        if (r - l + 1 > max)\n            max = r - l + 1;\n    }\n\n    printf(\"%d\", max);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -5296,7 +5356,7 @@
                 {
                     "title": "Minimum Window Substring - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\nint main(){char s[10005],t[1005];scanf(\"%s\",s);scanf(\"%s\",t);int need[256]={0},have[256]={0};for(int i=0;t[i];i++)need[(unsigned char)t[i]]++;int count=strlen(t),l=0,start=0,min=INT_MAX;for(int r=0;s[r];r++){have[(unsigned char)s[r]]++;if(need[(unsigned char)s[r]]&&have[(unsigned char)s[r]]<=need[(unsigned char)s[r]])count--;while(count==0){if(r-l+1<min){min=r-l+1;start=l;}have[(unsigned char)s[l]]--;if(need[(unsigned char)s[l]]&&have[(unsigned char)s[l]]<need[(unsigned char)s[l]])count++;l++;}}if(min==INT_MAX)printf(\"-1\");else for(int i=start;i<start+min;i++)printf(\"%c\",s[i]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <limits.h>\n\nint main() {\n    char s[10005], t[1005];\n\n    scanf(\"%s\", s);\n    scanf(\"%s\", t);\n\n    int need[256] = {0}, have[256] = {0};\n\n    for (int i = 0; t[i]; i++)\n        need[(unsigned char)t[i]]++;\n\n    int count = strlen(t);\n    int l = 0, start = 0, min = INT_MAX;\n\n    for (int r = 0; s[r]; r++) {\n        have[(unsigned char)s[r]]++;\n\n        if (need[(unsigned char)s[r]] &&\n            have[(unsigned char)s[r]] <= need[(unsigned char)s[r]])\n            count--;\n\n        while (count == 0) {\n            if (r - l + 1 < min) {\n                min = r - l + 1;\n                start = l;\n            }\n\n            have[(unsigned char)s[l]]--;\n\n            if (need[(unsigned char)s[l]] &&\n                have[(unsigned char)s[l]] < need[(unsigned char)s[l]])\n                count++;\n\n            l++;\n        }\n    }\n\n    if (min == INT_MAX)\n        printf(\"-1\");\n    else\n        for (int i = start; i < start + min; i++)\n            printf(\"%c\", s[i]);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -5305,7 +5365,7 @@
         {
             "type": "coding",
             "title": "Count Substrings with Equal Number of 0s and 1s",
-            "content": "Write a program to count the number of substrings that contain equal number of 0s and 1s in a binary string.\n\n**Example:**\nInput:\n0011\nOutput:\n4",
+            "content": "Write a program to count the number of substrings that contain equal number of 0s and 1s in a binary string.\n\n**Example:**\nInput:\n0011\nOutput:\n2",
             "level": "subtopic",
             "topic_name": "Strings",
             "subtopic_name": "Substring Problems",
@@ -5319,7 +5379,7 @@
             "test_cases_basic": [
                 {
                     "input": "0011",
-                    "expected_output": "4"
+                    "expected_output": "2"
                 },
                 {
                     "input": "01",
@@ -5333,7 +5393,7 @@
             "test_cases_advanced": [
                 {
                     "input": "000111",
-                    "expected_output": "9"
+                    "expected_output": "3"
                 },
                 {
                     "input": "1010",
@@ -5341,7 +5401,7 @@
                 },
                 {
                     "input": "1100",
-                    "expected_output": "4"
+                    "expected_output": "2"
                 },
                 {
                     "input": "1001",
@@ -5349,7 +5409,7 @@
                 },
                 {
                     "input": "111000",
-                    "expected_output": "9"
+                    "expected_output": "3"
                 },
                 {
                     "input": "010101",
@@ -5357,18 +5417,18 @@
                 },
                 {
                     "input": "001100",
-                    "expected_output": "8"
+                    "expected_output": "5"
                 },
                 {
                     "input": "1010101",
-                    "expected_output": "9"
+                    "expected_output": "12"
                 }
             ],
             "examples": [
                 {
                     "input": "0011",
-                    "expected_output": "4",
-                    "explanation": "Substrings with equal 0s and 1s include '01', '0011', '01', and '10'."
+                    "expected_output": "2",
+                    "explanation": "Substrings with equal number of 0s and 1s are '01' and '0011'."
                 }
             ],
             "inputFormat": "A single line containing a binary string.",
@@ -5398,7 +5458,7 @@
                 {
                     "title": "Equal 0s and 1s Substrings - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#define MAX 200005\nint main(){char s[MAX];scanf(\"%s\",s);int n=strlen(s);int freq[2*MAX]={0};int offset=MAX,sum=0,res=0;freq[offset]=1;for(int i=0;i<n;i++){sum+=s[i]=='1'?1:-1;res+=freq[sum+offset];freq[sum+offset]++;}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\n#define MAX 200005\n\nint main() {\n    char s[MAX];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    int freq[2 * MAX] = {0};\n    int offset = MAX, sum = 0, res = 0;\n\n    freq[offset] = 1; // Initialize frequency of sum 0\n\n    for (int i = 0; i < n; i++) {\n        sum += s[i] == '1' ? 1 : -1;\n        res += freq[sum + offset];\n        freq[sum + offset]++;\n    }\n\n    printf(\"%d\", res);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -5500,7 +5560,7 @@
                 {
                     "title": "Longest Substring with K Unique - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int freq[256]={0},distinct=0,l=0,res=0;for(int r=0;s[r];r++){if(freq[(unsigned char)s[r]]++==0)distinct++;while(distinct>k){if(--freq[(unsigned char)s[l]]==0)distinct--;l++;}if(distinct==k && r-l+1>res)res=r-l+1;}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    int freq[256] = {0};\n    int distinct = 0, l = 0, res = 0;\n\n    for (int r = 0; s[r]; r++) {\n        if (freq[(unsigned char)s[r]]++ == 0)\n            distinct++;\n\n        while (distinct > k) {\n            if (--freq[(unsigned char)s[l]] == 0)\n                distinct--;\n            l++;\n        }\n\n        if (distinct == k && r - l + 1 > res)\n            res = r - l + 1;\n    }\n\n    printf(\"%d\", res);\n}",
                     "complexity_analysis": "Time: O(N). Space: O(256).",
                     "is_primary": false
                 }
@@ -5602,7 +5662,7 @@
                 {
                     "title": "Substrings Divisible by K - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1005];int k;scanf(\"%s\",s);scanf(\"%d\",&k);int n=strlen(s),res=0;for(int i=0;i<n;i++){long long num=0;for(int j=i;j<n;j++){num=num*10+(s[j]-'0');if(num%k==0)res++;}}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1005];\n    int k;\n\n    scanf(\"%s\", s);\n    scanf(\"%d\", &k);\n\n    int n = strlen(s), res = 0;\n\n    for (int i = 0; i < n; i++) {\n        long long num = 0;\n\n        for (int j = i; j < n; j++) {\n            num = num * 10 + (s[j] - '0');\n\n            if (num % k == 0)\n                res++;\n        }\n    }\n\n    printf(\"%d\", res);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -5704,7 +5764,7 @@
                 {
                     "title": "Palindromic Substrings DP - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1005];scanf(\"%s\",s);int n=strlen(s),res=0;int dp[n][n];for(int g=0;g<n;g++){for(int i=0;i+g<n;i++){int j=i+g;if(g==0)dp[i][j]=1;else if(g==1)dp[i][j]=(s[i]==s[j]);else dp[i][j]=(s[i]==s[j]&&dp[i+1][j-1]);if(dp[i][j])res++;}}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s), res = 0;\n    int dp[n][n];\n\n    for (int g = 0; g < n; g++) {\n        for (int i = 0; i + g < n; i++) {\n            int j = i + g;\n\n            if (g == 0)\n                dp[i][j] = 1;\n            else if (g == 1)\n                dp[i][j] = (s[i] == s[j]);\n            else\n                dp[i][j] = (s[i] == s[j] && dp[i + 1][j - 1]);\n\n            if (dp[i][j])\n                res++;\n        }\n    }\n\n    printf(\"%d\", res);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
                 }
@@ -5785,14 +5845,14 @@
                 {
                     "title": "Check Pattern Exists - Python",
                     "language": "python",
-                    "code": "import sys\ns,p=sys.stdin.read().split('\\n')\nprint(str(p in s))",
+                    "code": "import sys\ns,p=sys.stdin.read().strip().split('\\n')\nprint(str(p in s))",
                     "complexity_analysis": "Time: O(N*M) worst case. Space: O(1).",
                     "is_primary": true
                 },
                 {
                     "title": "Check Pattern Exists - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  String p=sc.nextLine();\n  System.out.println(s.contains(p));\n }\n}",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s=sc.nextLine();\n  String p=sc.nextLine();\n  System.out.println(s.contains(p) ? \"True\" : \"False\");\n }\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 },
@@ -5806,7 +5866,7 @@
                 {
                     "title": "Check Pattern Exists - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;if(strstr(s,p))printf(\"True\");else printf(\"False\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[10005];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    if (strstr(s, p))\n        printf(\"True\");\n    else\n        printf(\"False\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -5887,7 +5947,7 @@
                 {
                     "title": "Count Pattern Occurrences - Python",
                     "language": "python",
-                    "code": "import sys\ns,p=sys.stdin.read().split('\\n')\ncount=0\nfor i in range(len(s)-len(p)+1):\n if s[i:i+len(p)]==p:\n  count+=1\nprint(count)",
+                    "code": "import sys\ns,p=sys.stdin.read().strip().split('\\n')\ncount=0\nfor i in range(len(s)-len(p)+1):\n if s[i:i+len(p)]==p:\n  count+=1\nprint(count)",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": true
                 },
@@ -5908,7 +5968,7 @@
                 {
                     "title": "Count Pattern Occurrences - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p),count=0;for(int i=0;i<=n-m;i++){if(strncmp(&s[i],p,m)==0)count++;}printf(\"%d\",count);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[10005];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    int n = strlen(s);\n    int m = strlen(p);\n    int count = 0;\n\n    for (int i = 0; i <= n - m; i++) {\n        if (strncmp(&s[i], p, m) == 0)\n            count++;\n    }\n\n    printf(\"%d\", count);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -5989,7 +6049,7 @@
                 {
                     "title": "Find First Pattern Index - Python",
                     "language": "python",
-                    "code": "import sys\ns,p=sys.stdin.read().split('\\n')\nprint(s.find(p))",
+                    "code": "import sys\ns,p=sys.stdin.read().strip().split('\\n')\nprint(s.find(p))",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": true
                 },
@@ -6010,7 +6070,7 @@
                 {
                     "title": "Find First Pattern Index - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;char *pos=strstr(s,p);if(pos)printf(\"%ld\",pos-s);else printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[10005];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    char *pos = strstr(s, p);\n\n    if (pos)\n        printf(\"%ld\", pos - s);\n    else\n        printf(\"-1\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6091,7 +6151,7 @@
                 {
                     "title": "Pattern Appears At Least Once - Python",
                     "language": "python",
-                    "code": "import sys\ns,p=sys.stdin.read().split('\\n')\nprint('Yes' if p in s else 'No')",
+                    "code": "import sys\ns,p=sys.stdin.read().strip().split('\\n')\nprint('Yes' if p in s else 'No')",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": true
                 },
@@ -6112,7 +6172,7 @@
                 {
                     "title": "Pattern Appears At Least Once - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;if(strstr(s,p))printf(\"Yes\");else printf(\"No\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[10005];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    if (strstr(s, p))\n        printf(\"Yes\");\n    else\n        printf(\"No\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6193,7 +6253,7 @@
                 {
                     "title": "Find All Pattern Indices - Python",
                     "language": "python",
-                    "code": "import sys\ns,p=sys.stdin.read().split('\\n')\nres=[]\nfor i in range(len(s)-len(p)+1):\n if s[i:i+len(p)]==p:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
+                    "code": "import sys\ns,p=sys.stdin.read().strip().split('\\n')\nres=[]\nfor i in range(len(s)-len(p)+1):\n if s[i:i+len(p)]==p:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
                     "complexity_analysis": "Time: O(N*M). Space: O(K).",
                     "is_primary": true
                 },
@@ -6214,7 +6274,7 @@
                 {
                     "title": "Find All Pattern Indices - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005],p[10005];fgets(s,sizeof(s),stdin);fgets(p,sizeof(p),stdin);s[strcspn(s,\"\\n\")]=0;p[strcspn(p,\"\\n\")]=0;int n=strlen(s),m=strlen(p),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&s[i],p,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005], p[10005];\n\n    fgets(s, sizeof(s), stdin);\n    fgets(p, sizeof(p), stdin);\n\n    s[strcspn(s, \"\\n\")] = 0;\n    p[strcspn(p, \"\\n\")] = 0;\n\n    int n = strlen(s);\n    int m = strlen(p);\n    int found = 0;\n\n    for (int i = 0; i <= n - m; i++) {\n        if (strncmp(&s[i], p, m) == 0) {\n            printf(\"%d \", i);\n            found = 1;\n        }\n    }\n\n    if (!found)\n        printf(\"-1\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6295,7 +6355,7 @@
                 {
                     "title": "Rabin-Karp Pattern Matching - Python",
                     "language": "python",
-                    "code": "import sys\ntext,pat=sys.stdin.read().split('\\n')\nn=len(text);m=len(pat)\nres=[]\nfor i in range(n-m+1):\n if text[i:i+m]==pat:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
+                    "code": "import sys\ntext,pat=sys.stdin.read().strip().split('\\n')\nn=len(text);m=len(pat)\nres=[]\nfor i in range(n-m+1):\n if text[i:i+m]==pat:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
                     "complexity_analysis": "Average Time: O(N+M). Worst: O(N*M). Space: O(1).",
                     "is_primary": true
                 },
@@ -6316,7 +6376,7 @@
                 {
                     "title": "Rabin-Karp Pattern Matching - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;int n=strlen(text),m=strlen(pat),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&text[i],pat,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char text[10005], pat[10005];\n\n    fgets(text, sizeof(text), stdin);\n    fgets(pat, sizeof(pat), stdin);\n\n    text[strcspn(text, \"\\n\")] = 0;\n    pat[strcspn(pat, \"\\n\")] = 0;\n\n    int n = strlen(text);\n    int m = strlen(pat);\n    int found = 0;\n\n    for (int i = 0; i <= n - m; i++) {\n        if (strncmp(&text[i], pat, m) == 0) {\n            printf(\"%d \", i);\n            found = 1;\n        }\n    }\n\n    if (!found)\n        printf(\"-1\");\n\n    return 0;\n}",
                     "complexity_analysis": "Average Time: O(N+M). Worst: O(N*M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6397,7 +6457,7 @@
                 {
                     "title": "KMP First Occurrence - Python",
                     "language": "python",
-                    "code": "import sys\ntext,pat=sys.stdin.read().split('\\n')\nprint(text.find(pat))",
+                    "code": "import sys\ntext,pat=sys.stdin.read().strip().split('\\n')\nprint(text.find(pat))",
                     "complexity_analysis": "Time: O(N+M). Space: O(M).",
                     "is_primary": true
                 },
@@ -6418,7 +6478,7 @@
                 {
                     "title": "KMP First Occurrence - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;char *pos=strstr(text,pat);if(pos)printf(\"%ld\",pos-text);else printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char text[10005], pat[10005];\n\n    fgets(text, sizeof(text), stdin);\n    fgets(pat, sizeof(pat), stdin);\n\n    text[strcspn(text, \"\\n\")] = 0;\n    pat[strcspn(pat, \"\\n\")] = 0;\n\n    char *pos = strstr(text, pat);\n\n    if (pos)\n        printf(\"%ld\", pos - text);\n    else\n        printf(\"-1\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N+M). Space: O(M).",
                     "is_primary": false
                 }
@@ -6499,7 +6559,7 @@
                 {
                     "title": "KMP All Occurrences - Python",
                     "language": "python",
-                    "code": "import sys\ntext,pat=sys.stdin.read().split('\\n')\nres=[]\nm=len(pat)\nfor i in range(len(text)-m+1):\n if text[i:i+m]==pat:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
+                    "code": "import sys\ntext,pat=sys.stdin.read().strip().split('\\n')\nres=[]\nm=len(pat)\nfor i in range(len(text)-m+1):\n if text[i:i+m]==pat:\n  res.append(str(i))\nprint(' '.join(res) if res else -1)",
                     "complexity_analysis": "Time: O(N+M). Space: O(K).",
                     "is_primary": true
                 },
@@ -6520,7 +6580,7 @@
                 {
                     "title": "KMP All Occurrences - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];fgets(text,sizeof(text),stdin);fgets(pat,sizeof(pat),stdin);text[strcspn(text,\"\\n\")]=0;pat[strcspn(pat,\"\\n\")]=0;int n=strlen(text),m=strlen(pat),found=0;for(int i=0;i<=n-m;i++){if(strncmp(&text[i],pat,m)==0){printf(\"%d \",i);found=1;}}if(!found)printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char text[10005], pat[10005];\n\n    fgets(text, sizeof(text), stdin);\n    fgets(pat, sizeof(pat), stdin);\n\n    text[strcspn(text, \"\\n\")] = 0;\n    pat[strcspn(pat, \"\\n\")] = 0;\n\n    int n = strlen(text);\n    int m = strlen(pat);\n    int found = 0;\n\n    for (int i = 0; i <= n - m; i++) {\n        if (strncmp(&text[i], pat, m) == 0) {\n            printf(\"%d \", i);\n            found = 1;\n        }\n    }\n\n    if (!found)\n        printf(\"-1\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N+M). Space: O(1).",
                     "is_primary": false
                 }
@@ -6601,7 +6661,7 @@
                 {
                     "title": "Repeated Substring Pattern - Python",
                     "language": "python",
-                    "code": "import sys\ns=sys.stdin.read().strip()\nprint(str((s+s)[1:-1].find(s)!=-1).lower())",
+                    "code": "import sys\ns=sys.stdin.read().strip().strip()\nprint(str((s+s)[1:-1].find(s)!=-1).lower())",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": true
                 },
@@ -6622,7 +6682,7 @@
                 {
                     "title": "Repeated Substring Pattern - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int len=1;len<=n/2;len++){if(n%len==0){int ok=1;for(int i=len;i<n;i++){if(s[i]!=s[i%len]){ok=0;break;}}if(ok){printf(\"true\");return 0;}}}printf(\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n\n    for (int len = 1; len <= n / 2; len++) {\n        if (n % len == 0) {\n            int ok = 1;\n\n            for (int i = len; i < n; i++) {\n                if (s[i] != s[i % len]) {\n                    ok = 0;\n                    break;\n                }\n            }\n\n            if (ok) {\n                printf(\"true\");\n                return 0;\n            }\n        }\n    }\n\n    printf(\"false\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -6631,7 +6691,7 @@
         {
             "type": "coding",
             "title": "Check String Pattern Mapping",
-            "content": "Write a program to check if a string follows a given pattern. Each character in the pattern should map to a unique word in the string.\n\n**Example:**\nInput:\nabba\ndog cat cat dog\nOutput:\ntrue",
+            "content": "Write a program to check if a string follows a given pattern. Each character in the pattern should map to a unique word in the string.\n\nExample:\nInput:\nabba\ndog cat cat dog\nOutput:\ntrue",
             "level": "subtopic",
             "topic_name": "Strings",
             "subtopic_name": "Pattern Matching",
@@ -6694,16 +6754,16 @@
                 {
                     "input": "abba\ndog cat cat dog",
                     "expected_output": "true",
-                    "explanation": "Pattern 'a' maps to 'dog' and 'b' maps to 'cat'. The structure is consistent."
+                    "explanation": "Character 'a' maps to 'dog' and 'b' maps to 'cat'. The mapping is consistent and bijective."
                 }
             ],
-            "inputFormat": "First line contains the pattern string.\nSecond line contains the space-separated words.",
+            "inputFormat": "First line contains the pattern string.\nSecond line contains space-separated words.",
             "outputFormat": "Print true if the string follows the pattern, otherwise print false.",
             "solutions": [
                 {
                     "title": "Pattern Mapping - Python",
                     "language": "python",
-                    "code": "import sys\np,words=sys.stdin.read().split('\\n')\nw=words.split()\nif len(p)!=len(w):\n print('false')\nelse:\n m1={};m2={}\n ok=True\n for a,b in zip(p,w):\n  if (a in m1 and m1[a]!=b) or (b in m2 and m2[b]!=a):\n   ok=False\n   break\n  m1[a]=b;m2[b]=a\n print(str(ok).lower())",
+                    "code": "import sys\n\np, words = sys.stdin.read().strip().split('\\n')\nw = words.split()\n\nif len(p) != len(w):\n    print('false')\nelse:\n    m1 = {}\n    m2 = {}\n    ok = True\n\n    for a, b in zip(p, w):\n        if (a in m1 and m1[a] != b) or (b in m2 and m2[b] != a):\n            ok = False\n            break\n\n        m1[a] = b\n        m2[b] = a\n\n    print(str(ok).lower())",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": true
                 },
@@ -6724,7 +6784,7 @@
                 {
                     "title": "Pattern Mapping - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char p[1005],line[10005];fgets(p,sizeof(p),stdin);fgets(line,sizeof(line),stdin);p[strcspn(p,\"\\n\")]=0;line[strcspn(line,\"\\n\")]=0;char *words[1000];int wc=0;char *t=strtok(line,\" \");while(t){words[wc++]=t;t=strtok(NULL,\" \");}if(strlen(p)!=wc){printf(\"false\");return 0;}char map[256][100],rev[1000];for(int i=0;i<256;i++) map[i][0]='\\0';for(int i=0;i<wc;i++) rev[i]=-1;for(int i=0;i<wc;i++){char c=p[i];if(map[(int)c][0]=='\\0') strcpy(map[(int)c],words[i]);else if(strcmp(map[(int)c],words[i])){printf(\"false\");return 0;}for(int j=0;j<i;j++) if(strcmp(words[i],words[j])==0 && p[j]!=c){printf(\"false\");return 0;}}printf(\"true\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char p[1005], line[10005];\n\n    fgets(p, sizeof(p), stdin);\n    fgets(line, sizeof(line), stdin);\n\n    p[strcspn(p, \"\\n\")] = 0;\n    line[strcspn(line, \"\\n\")] = 0;\n\n    char *words[1000];\n    int wc = 0;\n\n    char *t = strtok(line, \" \");\n    while (t) {\n        words[wc++] = t;\n        t = strtok(NULL, \" \");\n    }\n\n    if (strlen(p) != wc) {\n        printf(\"false\");\n        return 0;\n    }\n\n    char map[256][100], rev[1000];\n\n    for (int i = 0; i < 256; i++)\n        map[i][0] = '\\0';\n\n    for (int i = 0; i < wc; i++)\n        rev[i] = -1;\n\n    for (int i = 0; i < wc; i++) {\n        char c = p[i];\n\n        if (map[(int)c][0] == '\\0')\n            strcpy(map[(int)c], words[i]);\n        else if (strcmp(map[(int)c], words[i])) {\n            printf(\"false\");\n            return 0;\n        }\n\n        for (int j = 0; j < i; j++) {\n            if (strcmp(words[i], words[j]) == 0 && p[j] != c) {\n                printf(\"false\");\n                return 0;\n            }\n        }\n    }\n\n    printf(\"true\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N).",
                     "is_primary": false
                 }
@@ -6826,7 +6886,7 @@
                 {
                     "title": "Wildcard Pattern Matching - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nint main(){char s[1005],p[1005];scanf(\"%s\",s);scanf(\"%s\",p);int m=strlen(s),n=strlen(p);bool dp[m+1][n+1];memset(dp,0,sizeof(dp));dp[0][0]=1;for(int j=1;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-1];for(int i=1;i<=m;i++){for(int j=1;j<=n;j++){if(p[j-1]=='?'||s[i-1]==p[j-1]) dp[i][j]=dp[i-1][j-1];else if(p[j-1]=='*') dp[i][j]=dp[i][j-1]||dp[i-1][j];}}printf(dp[m][n]?\"true\":\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nint main() {\n    char s[1005], p[1005];\n\n    scanf(\"%s\", s);\n    scanf(\"%s\", p);\n\n    int m = strlen(s);\n    int n = strlen(p);\n\n    bool dp[m + 1][n + 1];\n    memset(dp, 0, sizeof(dp));\n\n    dp[0][0] = 1;\n\n    for (int j = 1; j <= n; j++)\n        if (p[j - 1] == '*')\n            dp[0][j] = dp[0][j - 1];\n\n    for (int i = 1; i <= m; i++) {\n        for (int j = 1; j <= n; j++) {\n\n            if (p[j - 1] == '?' || s[i - 1] == p[j - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            }\n\n            else if (p[j - 1] == '*') {\n                dp[i][j] = dp[i][j - 1] || dp[i - 1][j];\n            }\n        }\n    }\n\n    printf(dp[m][n] ? \"true\" : \"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
                     "is_primary": false
                 }
@@ -6921,14 +6981,14 @@
                 {
                     "title": "Regular Expression Matching - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s,p;getline(cin,s);getline(cin,p);\n int m=s.size(),n=p.size();\n vector<vector<bool>> dp(m+1,vector<bool>(n+1,false));\n dp[0][0]=true;\n for(int j=2;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];\n for(int i=1;i<=m;i++){\n  for(int j=1;j<=n;j++){\n   if(p[j-1]=='.'||p[j-1]==s[i-1]) dp[i][j]=dp[i-1][j-1];\n   else if(p[j-1]=='*'){\n    dp[i][j]=dp[i][j-2];\n    if(p[j-2]=='.'||p[j-2]==s[i-1]) dp[i][j]|=dp[i-1][j];\n   }\n  }\n }\n cout<<(dp[m][n]?\"true\":\"false\");\n}",
+                    "code": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    string s, p;\n    getline(cin, s);\n    getline(cin, p);\n\n    int m = s.size(), n = p.size();\n\n    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));\n    dp[0][0] = true;\n\n    for (int j = 2; j <= n; j++) {\n        if (p[j - 1] == '*')\n            dp[0][j] = dp[0][j - 2];\n    }\n\n    for (int i = 1; i <= m; i++) {\n        for (int j = 1; j <= n; j++) {\n\n            if (p[j - 1] == '.' || p[j - 1] == s[i - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            }\n\n            else if (p[j - 1] == '*' && j >= 2) {\n                dp[i][j] = dp[i][j - 2];\n\n                if (p[j - 2] == '.' || p[j - 2] == s[i - 1])\n                    dp[i][j] = dp[i][j] || dp[i - 1][j];\n            }\n        }\n    }\n\n    cout << (dp[m][n] ? \"true\" : \"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
                     "is_primary": false
                 },
                 {
                     "title": "Regular Expression Matching - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\nint main(){char s[1005],p[1005];scanf(\"%s\",s);scanf(\"%s\",p);int m=strlen(s),n=strlen(p);bool dp[m+1][n+1];memset(dp,0,sizeof(dp));dp[0][0]=1;for(int j=2;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];for(int i=1;i<=m;i++){for(int j=1;j<=n;j++){if(p[j-1]=='.'||p[j-1]==s[i-1]) dp[i][j]=dp[i-1][j-1];else if(p[j-1]=='*'){dp[i][j]=dp[i][j-2];if(p[j-2]=='.'||p[j-2]==s[i-1]) dp[i][j]|=dp[i-1][j];}}}printf(dp[m][n]?\"true\":\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdbool.h>\n\nint main() {\n    char s[1005], p[1005];\n\n    scanf(\"%s\", s);\n    scanf(\"%s\", p);\n\n    int m = strlen(s);\n    int n = strlen(p);\n\n    bool dp[m + 1][n + 1];\n    memset(dp, 0, sizeof(dp));\n\n    dp[0][0] = 1;\n\n    for (int j = 2; j <= n; j++)\n        if (p[j - 1] == '*')\n            dp[0][j] = dp[0][j - 2];\n\n    for (int i = 1; i <= m; i++) {\n        for (int j = 1; j <= n; j++) {\n            if (p[j - 1] == '.' || p[j - 1] == s[i - 1]) {\n                dp[i][j] = dp[i - 1][j - 1];\n            } \n            else if (p[j - 1] == '*') {\n                dp[i][j] = dp[i][j - 2];\n\n                if (p[j - 2] == '.' || p[j - 2] == s[i - 1])\n                    dp[i][j] |= dp[i - 1][j];\n            }\n        }\n    }\n\n    printf(dp[m][n] ? \"true\" : \"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(N*M).",
                     "is_primary": false
                 }
@@ -7030,7 +7090,7 @@
                 {
                     "title": "Longest Prefix Also Suffix - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s),lps[n];lps[0]=0;int j=0;for(int i=1;i<n;i++){while(j>0&&s[i]!=s[j]) j=lps[j-1];if(s[i]==s[j]) j++;lps[i]=j;}if(lps[n-1]>0){for(int i=0;i<lps[n-1];i++) printf(\"%c\",s[i]);}else printf(\"-1\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    int lps[n];\n\n    lps[0] = 0;\n    int j = 0;\n\n    for (int i = 1; i < n; i++) {\n        while (j > 0 && s[i] != s[j])\n            j = lps[j - 1];\n\n        if (s[i] == s[j])\n            j++;\n\n        lps[i] = j;\n    }\n\n    if (lps[n - 1] > 0) {\n        for (int i = 0; i < lps[n - 1]; i++)\n            printf(\"%c\", s[i]);\n    } else {\n        printf(\"-1\");\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -7132,7 +7192,7 @@
                 {
                     "title": "Z Algorithm Pattern Matching - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char text[10005],pat[10005];scanf(\"%s\",text);scanf(\"%s\",pat);char s[20010];sprintf(s,\"%s$%s\",pat,text);int n=strlen(s),z[n];memset(z,0,sizeof(z));int l=0,r=0;for(int i=1;i<n;i++){if(i<=r) z[i]=(r-i+1<z[i-l]?r-i+1:z[i-l]);while(i+z[i]<n && s[z[i]]==s[i+z[i]]) z[i]++;if(i+z[i]-1>r){l=i;r=i+z[i]-1;}}int res=-1,m=strlen(pat);for(int i=m+1;i<n;i++){if(z[i]==m){res=i-m-1;break;}}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char text[10005], pat[10005];\n\n    scanf(\"%s\", text);\n    scanf(\"%s\", pat);\n\n    char s[20010];\n    sprintf(s, \"%s$%s\", pat, text);\n\n    int n = strlen(s);\n    int z[n];\n    memset(z, 0, sizeof(z));\n\n    int l = 0, r = 0;\n\n    for (int i = 1; i < n; i++) {\n        if (i <= r)\n            z[i] = (r - i + 1 < z[i - l] ? r - i + 1 : z[i - l]);\n\n        while (i + z[i] < n && s[z[i]] == s[i + z[i]])\n            z[i]++;\n\n        if (i + z[i] - 1 > r) {\n            l = i;\n            r = i + z[i] - 1;\n        }\n    }\n\n    int res = -1;\n    int m = strlen(pat);\n\n    for (int i = m + 1; i < n; i++) {\n        if (z[i] == m) {\n            res = i - m - 1;\n            break;\n        }\n    }\n\n    printf(\"%d\", res);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N+M). Space: O(N+M).",
                     "is_primary": false
                 }
@@ -7234,7 +7294,7 @@
                 {
                     "title": "Repeated Substring Pattern - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[10005];scanf(\"%s\",s);int n=strlen(s);for(int len=1;len<=n/2;len++){if(n%len==0){int ok=1;for(int i=len;i<n;i++){if(s[i]!=s[i%len]){ok=0;break;}}if(ok){printf(\"true\");return 0;}}}printf(\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n\n    for (int len = 1; len <= n / 2; len++) {\n        if (n % len == 0) {\n            int ok = 1;\n\n            for (int i = len; i < n; i++) {\n                if (s[i] != s[i % len]) {\n                    ok = 0;\n                    break;\n                }\n            }\n\n            if (ok) {\n                printf(\"true\");\n                return 0;\n            }\n        }\n    }\n\n    printf(\"false\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -7438,7 +7498,7 @@
                 {
                     "title": "Palindrome After Removing One Character - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint check(char*s,int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[10005];scanf(\"%s\",s);int l=0,r=strlen(s)-1;while(l<r){if(s[l]!=s[r]){printf(check(s,l+1,r)||check(s,l,r-1)?\"true\":\"false\");return 0;}l++;r--;}printf(\"true\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint check(char *s, int l, int r) {\n    while (l < r) {\n        if (s[l++] != s[r--])\n            return 0;\n    }\n    return 1;\n}\n\nint main() {\n    char s[10005];\n    scanf(\"%s\", s);\n\n    int l = 0, r = strlen(s) - 1;\n\n    while (l < r) {\n        if (s[l] != s[r]) {\n            if (check(s, l + 1, r) || check(s, l, r - 1))\n                printf(\"true\");\n            else\n                printf(\"false\");\n            return 0;\n        }\n        l++;\n        r--;\n    }\n\n    printf(\"true\");\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -7540,110 +7600,8 @@
                 {
                     "title": "Count Palindromic Substrings (Brute Force) - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s,int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[1005];scanf(\"%s\",s);int n=strlen(s),c=0;for(int i=0;i<n;i++){for(int j=i;j<n;j++){if(isPal(s,i,j)) c++;}}printf(\"%d\",c);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint isPal(char *s, int l, int r) {\n    while (l < r) {\n        if (s[l++] != s[r--]) \n            return 0;\n    }\n    return 1;\n}\n\nint main() {\n    char s[1005];\n    scanf(\"%s\", s);\n\n    int n = strlen(s), c = 0;\n\n    for (int i = 0; i < n; i++) {\n        for (int j = i; j < n; j++) {\n            if (isPal(s, i, j)) \n                c++;\n        }\n    }\n\n    printf(\"%d\", c);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^3). Space: O(1).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Find Longest Palindrome Word in a Sentence",
-            "content": "Write a program to find the longest palindrome word in a given sentence.\n\n**Example:**\nInput:\nmadam anna civic level\nOutput:\ncivic",
-            "level": "subtopic",
-            "topic_name": "Strings",
-            "subtopic_name": "Palindrome Problems",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "madam anna civic level",
-                    "expected_output": "civic"
-                },
-                {
-                    "input": "hello level world",
-                    "expected_output": "level"
-                },
-                {
-                    "input": "abc def ghi",
-                    "expected_output": "-1"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "racecar anna noon",
-                    "expected_output": "racecar"
-                },
-                {
-                    "input": "wow mom dad",
-                    "expected_output": "wow"
-                },
-                {
-                    "input": "refer radar level",
-                    "expected_output": "refer"
-                },
-                {
-                    "input": "abc cba",
-                    "expected_output": "abc"
-                },
-                {
-                    "input": "a bb ccc dddd",
-                    "expected_output": "dddd"
-                },
-                {
-                    "input": "xyz",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "noon civic kayak",
-                    "expected_output": "kayak"
-                },
-                {
-                    "input": "madam sir",
-                    "expected_output": "madam"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "madam anna civic level",
-                    "expected_output": "civic",
-                    "explanation": "'civic' is the longest palindrome word in the sentence."
-                }
-            ],
-            "inputFormat": "A single line containing a sentence.",
-            "outputFormat": "Print the longest palindrome word. If none exists print -1.",
-            "solutions": [
-                {
-                    "title": "Find Longest Palindrome Word in Sentence - Python",
-                    "language": "python",
-                    "code": "import sys\nwords=sys.stdin.read().strip().split()\nans=\"\"\nfor w in words:\n if w==w[::-1] and len(w)>len(ans): ans=w\nprint(ans if ans else -1)",
-                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Find Longest Palindrome Word in Sentence - Java",
-                    "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n static boolean isPal(String s){\n  int l=0,r=s.length()-1;\n  while(l<r) if(s.charAt(l++)!=s.charAt(r--)) return false;\n  return true;\n }\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String[] w=sc.nextLine().split(\" \");\n  String ans=\"\";\n  for(String s:w) if(isPal(s) && s.length()>ans.length()) ans=s;\n  System.out.println(ans.equals(\"\")?-1:ans);\n }\n}",
-                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Find Longest Palindrome Word in Sentence - C++",
-                    "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nbool isPal(string s){\n int l=0,r=s.size()-1;\n while(l<r) if(s[l++]!=s[r--]) return false;\n return true;\n}\nint main(){\n string line;getline(cin,line);\n stringstream ss(line);\n string w,ans=\"\";\n while(ss>>w){\n  if(isPal(w)&&w.size()>ans.size()) ans=w;\n }\n if(ans==\"\") cout<<-1;\n else cout<<ans;\n}",
-                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Find Longest Palindrome Word in Sentence - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s){int l=0,r=strlen(s)-1;while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char line[10005];fgets(line,sizeof(line),stdin);line[strcspn(line,\"\\n\")]=0;char *w=strtok(line,\" \");char ans[1000]=\"\";while(w){if(isPal(w)&&strlen(w)>strlen(ans)) strcpy(ans,w);w=strtok(NULL,\" \");}if(strlen(ans)==0) printf(\"-1\");else printf(\"%s\",ans);}",
-                    "complexity_analysis": "Time: O(N*K). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -7744,7 +7702,7 @@
                 {
                     "title": "Reverse String and Compare - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);char r[1000];for(int i=0;i<n;i++) r[i]=s[n-i-1];r[n]='\\0';printf(strcmp(s,r)==0?\"true\":\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    char r[1000];\n\n    for (int i = 0; i < n; i++) {\n        r[i] = s[n - i - 1];\n    }\n\n    r[n] = '\\0';\n\n    if (strcmp(s, r) == 0) {\n        printf(\"true\");\n    } else {\n        printf(\"false\");\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
@@ -7948,7 +7906,7 @@
                 {
                     "title": "Count Palindromic Substrings Using Center Expansion - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint expand(char*s,int l,int r){int c=0,n=strlen(s);while(l>=0&&r<n&&s[l]==s[r]){c++;l--;r++;}return c;}int main(){char s[1000];scanf(\"%s\",s);int res=0,n=strlen(s);for(int i=0;i<n;i++){res+=expand(s,i,i);res+=expand(s,i,i+1);}printf(\"%d\",res);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint expand(char *s, int l, int r) {\n    int c = 0, n = strlen(s);\n\n    while (l >= 0 && r < n && s[l] == s[r]) {\n        c++;\n        l--;\n        r++;\n    }\n\n    return c;\n}\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int res = 0, n = strlen(s);\n\n    for (int i = 0; i < n; i++) {\n        res += expand(s, i, i);     // odd-length palindromes\n        res += expand(s, i, i + 1); // even-length palindromes\n    }\n\n    printf(\"%d\", res);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(1).",
                     "is_primary": false
                 }
@@ -8050,7 +8008,7 @@
                 {
                     "title": "Partition String into Palindromes - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nchar s[1000];int n;int isPal(int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int dfs(int i){if(i==n) return 1;int res=0;for(int j=i;j<n;j++) if(isPal(i,j)) res+=dfs(j+1);return res;}int main(){scanf(\"%s\",s);n=strlen(s);printf(\"%d\",dfs(0));}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nchar s[1000];\nint n;\n\nint isPal(int l, int r) {\n    while (l < r) {\n        if (s[l++] != s[r--])\n            return 0;\n    }\n    return 1;\n}\n\nint dfs(int i) {\n    if (i == n)\n        return 1;\n\n    int res = 0;\n\n    for (int j = i; j < n; j++) {\n        if (isPal(i, j))\n            res += dfs(j + 1);\n    }\n\n    return res;\n}\n\nint main() {\n    scanf(\"%s\", s);\n    n = strlen(s);\n\n    printf(\"%d\", dfs(0));\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^3). Space: O(N).",
                     "is_primary": false
                 }
@@ -8152,7 +8110,7 @@
                 {
                     "title": "Minimum Deletions to Make String Palindrome - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint min(int a,int b){return a<b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int dp[n][n];memset(dp,0,sizeof(dp));for(int len=2;len<=n;len++){for(int i=0;i<=n-len;i++){int j=i+len-1;if(s[i]==s[j]) dp[i][j]=dp[i+1][j-1];else dp[i][j]=1+min(dp[i+1][j],dp[i][j-1]);}}printf(\"%d\",dp[0][n-1]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint min(int a, int b) {\n    return a < b ? a : b;\n}\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    int dp[n][n];\n\n    memset(dp, 0, sizeof(dp));\n\n    for (int len = 2; len <= n; len++) {\n        for (int i = 0; i <= n - len; i++) {\n            int j = i + len - 1;\n\n            if (s[i] == s[j])\n                dp[i][j] = dp[i + 1][j - 1];\n            else\n                dp[i][j] = 1 + min(dp[i + 1][j], dp[i][j - 1]);\n        }\n    }\n\n    printf(\"%d\", dp[0][n - 1]);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
                 }
@@ -8254,7 +8212,7 @@
                 {
                     "title": "Check if Permutation of String Can Form Palindrome - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;i<strlen(s);i++) freq[s[i]]++;int odd=0;for(int i=0;i<256;i++) if(freq[i]%2) odd++;printf(odd<=1?\"true\":\"false\");}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int freq[256] = {0};\n\n    for (int i = 0; i < strlen(s); i++) {\n        freq[s[i]]++;\n    }\n\n    int odd = 0;\n\n    for (int i = 0; i < 256; i++) {\n        if (freq[i] % 2)\n            odd++;\n    }\n\n    if (odd <= 1)\n        printf(\"true\");\n    else\n        printf(\"false\");\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -8335,7 +8293,7 @@
                 {
                     "title": "Minimum Cuts for Palindrome Partitioning - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nn=len(s)\npal=[[False]*n for _ in range(n)]\ncut=[0]*n\nfor i in range(n):\n min_cut=i\n for j in range(i+1):\n if s[i]==s[j] and (i-j<2 or pal[j+1][i-1]):\n pal[j][i]=True\n min_cut=0 if j==0 else min(min_cut,cut[j-1]+1)\n cut[i]=min_cut\nprint(cut[n-1])",
+                    "code": "s = input().strip()\nn = len(s)\n\npal = [[False] * n for _ in range(n)]\ncut = [0] * n\n\nfor i in range(n):\n    min_cut = i\n    for j in range(i + 1):\n        if s[i] == s[j] and (i - j < 2 or pal[j + 1][i - 1]):\n            pal[j][i] = True\n            min_cut = 0 if j == 0 else min(min_cut, cut[j - 1] + 1)\n    cut[i] = min_cut\n\nprint(cut[n - 1])",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": true
                 },
@@ -8356,7 +8314,7 @@
                 {
                     "title": "Minimum Cuts for Palindrome Partitioning - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint min(int a,int b){return a<b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int cut[n];int pal[n][n];memset(pal,0,sizeof(pal));for(int i=0;i<n;i++){int m=i;for(int j=0;j<=i;j++){if(s[i]==s[j]&&(i-j<2||pal[j+1][i-1])){pal[j][i]=1;m=j==0?0:min(m,cut[j-1]+1);} }cut[i]=m;}printf(\"%d\",cut[n-1]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint min(int a, int b) {\n    return a < b ? a : b;\n}\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    int cut[n];\n    int pal[n][n];\n\n    memset(pal, 0, sizeof(pal));\n\n    for (int i = 0; i < n; i++) {\n        int m = i;\n\n        for (int j = 0; j <= i; j++) {\n            if (s[i] == s[j] && (i - j < 2 || pal[j + 1][i - 1])) {\n                pal[j][i] = 1;\n                m = j == 0 ? 0 : min(m, cut[j - 1] + 1);\n            }\n        }\n\n        cut[i] = m;\n    }\n\n    printf(\"%d\", cut[n - 1]);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
                 }
@@ -8437,7 +8395,7 @@
                 {
                     "title": "Longest Palindromic Subsequence - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nn=len(s)\ndp=[[0]*n for _ in range(n)]\nfor i in range(n-1,-1,-1):\n dp[i][i]=1\n for j in range(i+1,n):\n if s[i]==s[j]:\n dp[i][j]=2+dp[i+1][j-1]\n else:\n dp[i][j]=max(dp[i+1][j],dp[i][j-1])\nprint(dp[0][n-1])",
+                    "code": "s = input().strip()\nn = len(s)\n\ndp = [[0] * n for _ in range(n)]\n\nfor i in range(n - 1, -1, -1):\n    dp[i][i] = 1  # every single character is a palindrome\n    for j in range(i + 1, n):\n        if s[i] == s[j]:\n            dp[i][j] = 2 + dp[i + 1][j - 1]\n        else:\n            dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n\nprint(dp[0][n - 1])",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": true
                 },
@@ -8458,7 +8416,7 @@
                 {
                     "title": "Longest Palindromic Subsequence - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint max(int a,int b){return a>b?a:b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);int dp[n][n];for(int i=0;i<n;i++) dp[i][i]=1;for(int i=n-1;i>=0;i--){for(int j=i+1;j<n;j++){if(s[i]==s[j]) dp[i][j]=2+dp[i+1][j-1];else dp[i][j]=max(dp[i+1][j],dp[i][j-1]);}}printf(\"%d\",dp[0][n-1]);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint max(int a, int b) { return a > b ? a : b; }\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n    int n = strlen(s);\n\n    // Allocate dp dynamically\n    int **dp = malloc(n * sizeof(int *));\n    for (int i = 0; i < n; i++)\n        dp[i] = calloc(n, sizeof(int)); // initialize to 0\n\n    for (int i = 0; i < n; i++)\n        dp[i][i] = 1;\n\n    for (int i = n - 1; i >= 0; i--) {\n        for (int j = i + 1; j < n; j++) {\n            if (s[i] == s[j])\n                dp[i][j] = 2 + dp[i + 1][j - 1];\n            else\n                dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);\n        }\n    }\n\n    printf(\"%d\", dp[0][n - 1]);\n\n    // Free memory\n    for (int i = 0; i < n; i++)\n        free(dp[i]);\n    free(dp);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N^2).",
                     "is_primary": false
                 }
@@ -8539,7 +8497,7 @@
                 {
                     "title": "Count Distinct Palindromic Subsequences - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nsubs=set()\nn=len(s)\nfor mask in range(1,1<<n):\n t=\"\"\n for i in range(n):\n if mask&(1<<i): t+=s[i]\n if t==t[::-1]: subs.add(t)\nprint(len(subs))",
+                    "code": "s = input().strip()\nsubs = set()\nn = len(s)\n\nfor mask in range(1, 1 << n):\n    t = \"\"\n    for i in range(n):\n        if mask & (1 << i):\n            t += s[i]\n\n    if t == t[::-1]:\n        subs.add(t)\n\nprint(len(subs))",
                     "complexity_analysis": "Time: O(2^N * N). Space: O(2^N).",
                     "is_primary": true
                 },
@@ -8560,7 +8518,7 @@
                 {
                     "title": "Count Distinct Palindromic Subsequences - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint isPal(char*s){int l=0,r=strlen(s)-1;while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}int main(){char s[20];scanf(\"%s\",s);int n=strlen(s);char subs[1<<10][20];int count=0;for(int mask=1;mask<(1<<n);mask++){char t[20];int k=0;for(int i=0;i<n;i++) if(mask&(1<<i)) t[k++]=s[i];t[k]='\\0';if(isPal(t)){int unique=1;for(int j=0;j<count;j++) if(strcmp(subs[j],t)==0) unique=0;if(unique) strcpy(subs[count++],t);} }printf(\"%d\",count);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint isPal(char *s) {\n    int l = 0, r = strlen(s) - 1;\n\n    while (l < r) {\n        if (s[l++] != s[r--])\n            return 0;\n    }\n\n    return 1;\n}\n\nint main() {\n    char s[20];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n    char subs[1 << 10][20];\n    int count = 0;\n\n    for (int mask = 1; mask < (1 << n); mask++) {\n        char t[20];\n        int k = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (mask & (1 << i))\n                t[k++] = s[i];\n        }\n\n        t[k] = '\\0';\n\n        if (isPal(t)) {\n            int unique = 1;\n\n            for (int j = 0; j < count; j++) {\n                if (strcmp(subs[j], t) == 0)\n                    unique = 0;\n            }\n\n            if (unique)\n                strcpy(subs[count++], t);\n        }\n    }\n\n    printf(\"%d\", count);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(2^N * N). Space: O(2^N).",
                     "is_primary": false
                 }
@@ -8641,7 +8599,7 @@
                 {
                     "title": "Find All Palindrome Partitions of String - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nn=len(s)\ncount=0\n\ndef isPal(x):\n return x==x[::-1]\n\ndef dfs(start):\n global count\n if start==n:\n count+=1\n return\n for i in range(start,n):\n sub=s[start:i+1]\n if isPal(sub):\n dfs(i+1)\n\ndfs(0)\nprint(count)",
+                    "code": "s = input().strip()\nn = len(s)\n\ndef isPal(x):\n    return x == x[::-1]\n\ndef dfs(start):\n    if start == n:\n        return 1\n\n    res = 0\n    for i in range(start, n):\n        sub = s[start:i+1]\n        if isPal(sub):\n            res += dfs(i+1)\n\n    return res\n\nprint(dfs(0))",
                     "complexity_analysis": "Time: O(2^N * N) due to exploring all partitions and palindrome checks. Space: O(N) recursion depth.",
                     "is_primary": true
                 },
@@ -8662,7 +8620,7 @@
                 {
                     "title": "Find All Palindrome Partitions of String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nchar s[1000];int n,count=0;int isPal(int l,int r){while(l<r) if(s[l++]!=s[r--]) return 0;return 1;}void dfs(int start){if(start==n){count++;return;}for(int i=start;i<n;i++) if(isPal(start,i)) dfs(i+1);}int main(){scanf(\"%s\",s);n=strlen(s);dfs(0);printf(\"%d\",count);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nchar s[1000];\nint n, count = 0;\n\nint isPal(int l, int r) {\n    while (l < r) {\n        if (s[l++] != s[r--])\n            return 0;\n    }\n    return 1;\n}\n\nvoid dfs(int start) {\n    if (start == n) {\n        count++;\n        return;\n    }\n\n    for (int i = start; i < n; i++) {\n        if (isPal(start, i))\n            dfs(i + 1);\n    }\n}\n\nint main() {\n    scanf(\"%s\", s);\n    n = strlen(s);\n\n    dfs(0);\n\n    printf(\"%d\", count);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(2^N * N). Space: O(N).",
                     "is_primary": false
                 }
@@ -8743,7 +8701,7 @@
                 {
                     "title": "Shortest Palindrome by Adding Characters in Front - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nr=s[::-1]\nfor i in range(len(s)+1):\n if s.startswith(r[i:]):\n print(r[:i]+s)\n break",
+                    "code": "s = input().strip()\nr = s[::-1]\n\nfor i in range(len(s) + 1):\n    if s.startswith(r[i:]):\n        print(r[:i] + s)\n        break",
                     "complexity_analysis": "Time: O(N^2) worst case due to repeated prefix checks. Space: O(N).",
                     "is_primary": true
                 },
@@ -8764,7 +8722,7 @@
                 {
                     "title": "Shortest Palindrome by Adding Characters in Front - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);char r[1000];strcpy(r,s);int n=strlen(s);for(int i=0;i<n/2;i++){char t=r[i];r[i]=r[n-i-1];r[n-i-1]=t;}for(int i=0;i<=n;i++){if(strncmp(s,r+i,n-i)==0){for(int j=0;j<i;j++) printf(\"%c\",r[j]);printf(\"%s\",s);break;}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    char r[1000];\n    strcpy(r, s);\n\n    int n = strlen(s);\n\n    // Reverse the string into r\n    for (int i = 0; i < n / 2; i++) {\n        char t = r[i];\n        r[i] = r[n - i - 1];\n        r[n - i - 1] = t;\n    }\n\n    for (int i = 0; i <= n; i++) {\n        if (strncmp(s, r + i, n - i) == 0) {\n            for (int j = 0; j < i; j++)\n                printf(\"%c\", r[j]);\n\n            printf(\"%s\", s);\n            break;\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N^2). Space: O(N).",
                     "is_primary": false
                 }
@@ -8866,7 +8824,7 @@
                 {
                     "title": "Toggle Case of Characters in String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++){if(isupper(s[i])) s[i]=tolower(s[i]);else if(islower(s[i])) s[i]=toupper(s[i]);}printf(\"%s\",s);}",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    for (int i = 0; i < strlen(s); i++) {\n        if (isupper(s[i])) {\n            s[i] = tolower(s[i]);\n        } else if (islower(s[i])) {\n            s[i] = toupper(s[i]);\n        }\n    }\n\n    printf(\"%s\", s);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -8968,7 +8926,7 @@
                 {
                     "title": "Convert String to Character Array - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++){printf(\"%c\",s[i]);if(i!=strlen(s)-1) printf(\" \");}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    for (int i = 0; i < strlen(s); i++) {\n        printf(\"%c\", s[i]);\n        if (i != strlen(s) - 1) {\n            printf(\" \");\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -9070,7 +9028,7 @@
                 {
                     "title": "Remove Digits from String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i++) if(!isdigit(s[i])) printf(\"%c\",s[i]);}",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    for (int i = 0; i < strlen(s); i++) {\n        if (!isdigit(s[i])) {\n            printf(\"%c\", s[i]);\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -9165,14 +9123,14 @@
                 {
                     "title": "Count Frequency of Each Character - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n for(auto &entry:freq) cout<<entry.first<<':'<<entry.second<<' ';\n}",
+                    "code": "#include <iostream>\n#include <unordered_map>\n#include <vector>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s); // read full line with spaces\n\n    unordered_map<char, int> freq;\n    vector<char> order;\n\n    for (char c : s) {\n        if (freq[c] == 0) order.push_back(c); // track first appearance\n        freq[c]++;\n    }\n\n    for (char c : order) {\n        cout << c << ':' << freq[c] << ' ';\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(U).",
                     "is_primary": false
                 },
                 {
                     "title": "Count Frequency of Each Character - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;s[i];i++) freq[s[i]]++;for(int i=0;s[i];i++){if(freq[s[i]]!=0){printf(\"%c:%d \",s[i],freq[s[i]]);freq[s[i]]=0;}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int freq[256] = {0};  \n\n    for (int i = 0; s[i]; i++) {\n        freq[s[i]]++;\n    }\n\n    for (int i = 0; s[i]; i++) {\n        if (freq[s[i]] != 0) {\n            printf(\"%c:%d \", s[i], freq[s[i]]);\n            freq[s[i]] = 0;  \n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -9274,90 +9232,8 @@
                 {
                     "title": "Sort Characters in String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(char*)a-*(char*)b;}int main(){char s[1000];scanf(\"%s\",s);int n=strlen(s);qsort(s,n,sizeof(char),cmp);printf(\"%s\",s);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\nint cmp(const void *a, const void *b) {\n    return *(char *)a - *(char *)b;\n}\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n    int n = strlen(s);\n    qsort(s, n, sizeof(char), cmp);\n    printf(\"%s\", s);\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N log N). Space: O(1).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Group Anagrams from List of Strings",
-            "content": "Write a program to group anagrams from a list of strings. Two strings are anagrams if they contain the same characters in different order.\n\n**Example:**\nInput:\n6\neat tea tan ate nat bat\nOutput:\n[eat tea ate]\n[tan nat]\n[bat]",
-            "level": "subtopic",
-            "topic_name": "Strings",
-            "subtopic_name": "String Transformation & Encoding",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "6\neat tea tan ate nat bat",
-                    "expected_output": "[eat tea ate]\n[tan nat]\n[bat]"
-                },
-                {
-                    "input": "4\nabc bca cab xyz",
-                    "expected_output": "[abc bca cab]\n[xyz]"
-                },
-                {
-                    "input": "3\nlisten silent enlist",
-                    "expected_output": "[listen silent enlist]"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "5\nrat tar art car arc",
-                    "expected_output": "[rat tar art]\n[car arc]"
-                },
-                {
-                    "input": "4\nloop pool polo lopo",
-                    "expected_output": "[loop pool polo lopo]"
-                },
-                {
-                    "input": "3\nabc def ghi",
-                    "expected_output": "[abc]\n[def]\n[ghi]"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "6\neat tea tan ate nat bat",
-                    "expected_output": "[eat tea ate]\n[tan nat]\n[bat]",
-                    "explanation": "Strings with the same sorted characters are grouped together as anagrams."
-                }
-            ],
-            "inputFormat": "First line contains integer N.\nSecond line contains N space-separated strings.",
-            "outputFormat": "Print grouped anagrams in separate lines.",
-            "solutions": [
-                {
-                    "title": "Group Anagrams from List of Strings - Python",
-                    "language": "python",
-                    "code": "from collections import defaultdict\nn=int(input())\nstrings=input().strip().split()\nanagram_groups=defaultdict(list)\nfor s in strings:\n anagram_groups[''.join(sorted(s))].append(s)\nfor group in anagram_groups.values():\n print('['+' '.join(group)+']')",
-                    "complexity_analysis": "Time: O(N K log K) where N is number of strings and K is average length of strings. Space: O(N K) for storing groups.",
-                    "is_primary": true
-                },
-                {
-                    "title": "Group Anagrams from List of Strings - Java",
-                    "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n Scanner sc=new Scanner(System.in);\n int n=sc.nextInt(); sc.nextLine();\n String[] strings=sc.nextLine().split(\" \");\n Map<String,List<String>> anagramGroups=new HashMap<>();\n for(String s:strings){\n char[] chars=s.toCharArray(); Arrays.sort(chars);\n String key=new String(chars);\n anagramGroups.computeIfAbsent(key,k->new ArrayList<>()).add(s);\n }\n for(List<String> group:anagramGroups.values()){\n System.out.println(group);\n }\n }\n}",
-                    "complexity_analysis": "Time: O(N K log K). Space: O(N K).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Group Anagrams from List of Strings - C++",
-                    "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n int n; cin>>n;\n vector<string> strings(n);\n for(int i=0;i<n;i++) cin>>strings[i];\n unordered_map<string,vector<string>> anagramGroups;\n for(string s:strings){\n string key=s;\n sort(key.begin(),key.end());\n anagramGroups[key].push_back(s);\n }\n for(auto &entry:anagramGroups){\n cout<<'[';\n for(string s:entry.second) cout<<s<<' ';\n cout<<']'<<endl;\n }\n}",
-                    "complexity_analysis": "Time: O(N K log K). Space: O(N K).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Group Anagrams from List of Strings - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#define MAX 100\nint cmp(const void*a,const void*b){return *(char*)a-*(char*)b;}int main(){int n;scanf(\"%d\",&n);char arr[MAX][50],sorted[MAX][50];for(int i=0;i<n;i++){scanf(\"%s\",arr[i]);strcpy(sorted[i],arr[i]);qsort(sorted[i],strlen(sorted[i]),sizeof(char),cmp);}int used[MAX]={0};for(int i=0;i<n;i++){if(used[i])continue;printf(\"[\");for(int j=i;j<n;j++){if(strcmp(sorted[i],sorted[j])==0){printf(\"%s \",arr[j]);used[j]=1;}}printf(\"]\\n\");}}",
-                    "complexity_analysis": "Time: O(N*K log K). Space: O(N*K).",
                     "is_primary": false
                 }
             ]
@@ -9438,7 +9314,7 @@
                 {
                     "title": "Decode a Run-Length Encoded String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);for(int i=0;i<strlen(s);i+=2){char c=s[i];int freq=s[i+1]-'0';for(int j=0;j<freq;j++) printf(\"%c\",c);}return 0;}",
+                    "code": "#include <stdio.h>\n#include <ctype.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int n = strlen(s);\n\n    for (int i = 0; i < n; i += 2) {\n        char c = s[i];\n        int freq = s[i + 1] - '0';\n\n        for (int j = 0; j < freq; j++) {\n            printf(\"%c\", c);\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -9499,7 +9375,7 @@
                 {
                     "title": "Encode String Using Run-Length Encoding - Python",
                     "language": "python",
-                    "code": "s=input().strip()\nresult=[]\ncount=1\nfor i in range(1,len(s)):\n if s[i]==s[i-1]:\n count+=1\n else:\n result.append(s[i-1]+str(count))\n count=1\nresult.append(s[-1]+str(count))\nprint(''.join(result))",
+                    "code": "s = input().strip()\nresult = []\ncount = 1\n\nfor i in range(1, len(s)):\n    if s[i] == s[i - 1]:\n        count += 1\n    else:\n        result.append(s[i - 1] + str(count))\n        count = 1\n\n# Append the last character count\nresult.append(s[-1] + str(count))\n\nprint(''.join(result))",
                     "complexity_analysis": "Time: O(N) where N is length of input string. Space: O(M) where M is length of encoded string.",
                     "is_primary": true
                 },
@@ -9520,7 +9396,7 @@
                 {
                     "title": "Encode String Using Run-Length Encoding - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int count=1;for(int i=1;i<=strlen(s);i++){if(s[i]==s[i-1]) count++;else{printf(\"%c%d\",s[i-1],count);count=1;}}}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    int count = 1;\n    int n = strlen(s);\n\n    for (int i = 1; i <= n; i++) {\n        if (s[i] == s[i - 1]) {\n            count++;\n        } else {\n            printf(\"%c%d\", s[i - 1], count);\n            count = 1;\n        }\n    }\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
@@ -9581,7 +9457,7 @@
                 {
                     "title": "Find String with Highest Frequency Character - Python",
                     "language": "python",
-                    "code": "from collections import Counter\nn=int(input())\nstrings=[input().strip() for _ in range(n)]\nmax_freq=0\nresult=''\nfor s in strings:\n counter=Counter(s)\n freq=max(counter.values())\n if freq>max_freq:\n max_freq=freq\n result=s\nprint(result)",
+                    "code": "from collections import Counter\n\nn = int(input())\nstrings = [input().strip() for _ in range(n)]\n\nmax_freq = 0\nresult = ''\n\nfor s in strings:\n    counter = Counter(s)\n    freq = max(counter.values())\n    if freq > max_freq:\n        max_freq = freq\n        result = s\n\nprint(result)",
                     "complexity_analysis": "Time: O(N M) where N is number of strings and M is average length of strings. Space: O(U) where U is number of unique characters.",
                     "is_primary": true
                 },
@@ -9602,90 +9478,8 @@
                 {
                     "title": "Find String with Highest Frequency Character - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){int n;scanf(\"%d\",&n);char s[1000],result[1000];int maxFreq=0;for(int i=0;i<n;i++){scanf(\"%s\",s);int freq[256]={0},localMax=0;for(int j=0;s[j];j++){freq[s[j]]++;if(freq[s[j]]>localMax)localMax=freq[s[j]];}if(localMax>maxFreq){maxFreq=localMax;strcpy(result,s);}}printf(\"%s\",result);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n\n    char s[1000], result[1000];\n    int maxFreq = 0;\n\n    for (int i = 0; i < n; i++) {\n        scanf(\"%s\", s);\n\n        int freq[256] = {0};\n        int localMax = 0;\n\n        // Count frequency of each character in the current string\n        for (int j = 0; s[j]; j++) {\n            freq[s[j]]++;\n            if (freq[s[j]] > localMax) {\n                localMax = freq[s[j]];\n            }\n        }\n\n        // Update result if this string has a character with higher frequency\n        if (localMax > maxFreq) {\n            maxFreq = localMax;\n            strcpy(result, s);\n        }\n    }\n\n    printf(\"%s\", result);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N*M). Space: O(1).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Rearrange String So No Two Adjacent Characters Are Same",
-            "content": "Write a program to rearrange characters of a string such that no two adjacent characters are the same. If not possible print -1.\n\n**Example:**\nInput:\naabb\nOutput:\nabab",
-            "level": "subtopic",
-            "topic_name": "Strings",
-            "subtopic_name": "String Transformation & Encoding",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "aabb",
-                    "expected_output": "abab"
-                },
-                {
-                    "input": "aaab",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "aabc",
-                    "expected_output": "abac"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "aaabbc",
-                    "expected_output": "ababac"
-                },
-                {
-                    "input": "vvvlo",
-                    "expected_output": "vlvov"
-                },
-                {
-                    "input": "aaaa",
-                    "expected_output": "-1"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "aabb",
-                    "expected_output": "abab",
-                    "explanation": "Characters are rearranged so no two adjacent characters are the same."
-                }
-            ],
-            "inputFormat": "Single line containing the string.",
-            "outputFormat": "Print the rearranged string or -1 if not possible.",
-            "solutions": [
-                {
-                    "title": "Rearrange String So No Two Adjacent Characters Are Same - Python",
-                    "language": "python",
-                    "code": "from collections import Counter\nimport heapq\ns=input().strip()\ncounter=Counter(s)\nmax_heap=[(-freq,char) for char,freq in counter.items()]\nheapq.heapify(max_heap)\nprev_freq,prev_char=0,'#'\nresult=[]\nwhile max_heap:\n freq,char=heapq.heappop(max_heap)\n result.append(char)\n if prev_freq<0:\n heapq.heappush(max_heap,(prev_freq,prev_char))\n prev_freq=freq+1\n prev_char=char\nif len(result)!=len(s):\n print(-1)\nelse:\n print(''.join(result))",
-                    "complexity_analysis": "Time: O(N log U) where N is length of string and U is number of unique characters. Space: O(U).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Rearrange String So No Two Adjacent Characters Are Same - Java",
-                    "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n Scanner sc=new Scanner(System.in);\n String s=sc.nextLine();\n Map<Character,Integer> freqMap=new HashMap<>();\n for(char c:s.toCharArray()) freqMap.put(c,freqMap.getOrDefault(c,0)+1);\n PriorityQueue<Map.Entry<Character,Integer>> maxHeap=new PriorityQueue<>((a,b)->b.getValue()-a.getValue());\n maxHeap.addAll(freqMap.entrySet());\n Map.Entry<Character,Integer> prev=null;\n StringBuilder result=new StringBuilder();\n while(!maxHeap.isEmpty()){\n Map.Entry<Character,Integer> entry=maxHeap.poll();\n result.append(entry.getKey());\n if(prev!=null && prev.getValue()>0) maxHeap.offer(prev);\n entry.setValue(entry.getValue()-1);\n prev=entry;\n }\n if(result.length()!=s.length()) System.out.println(-1);\n else System.out.println(result.toString());\n }\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Rearrange String So No Two Adjacent Characters Are Same - C++",
-                    "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n pair<int,char> prev={0,'#'};\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n if(prev.first>0) maxHeap.push(prev);\n count--;\n prev={count,char};\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Rearrange String So No Two Adjacent Characters Are Same - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\ntypedef struct{char c;int freq;}Node;int cmp(const void*a,const void*b){return ((Node*)b)->freq-((Node*)a)->freq;}int main(){char s[1000];scanf(\"%s\",s);int freq[256]={0};for(int i=0;s[i];i++) freq[s[i]]++;Node arr[256];int n=0;for(int i=0;i<256;i++) if(freq[i]){arr[n].c=i;arr[n++].freq=freq[i];}qsort(arr,n,sizeof(Node),cmp);char res[1000];int k=0;while(1){int done=1;for(int i=0;i<n;i++){if(arr[i].freq>0){res[k++]=arr[i].c;arr[i].freq--;done=0;}}if(done)break;}res[k]='\\0';for(int i=1;i<k;i++) if(res[i]==res[i-1]){printf(\"-1\");return 0;}printf(\"%s\",res);}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
                     "is_primary": false
                 }
             ]
@@ -9765,7 +9559,7 @@
                 {
                     "title": "Decode Nested Encoded String - Python",
                     "language": "python",
-                    "code": "def decodeString(s):\n stack=[]\n current_string=''\n current_num=0\n for char in s:\n if char.isdigit():\n current_num=current_num*10+int(char)\n elif char=='[':\n stack.append((current_string,current_num))\n current_string='' \n current_num=0\n elif char==']':\n prev_string,num=stack.pop()\n current_string=prev_string+current_string*num\n else:\n current_string+=char\n return current_string\ns=input().strip()\nprint(decodeString(s))",
+                    "code": "def decodeString(s):\n    stack = []\n    current_string = ''\n    current_num = 0\n\n    for char in s:\n        if char.isdigit():\n            current_num = current_num * 10 + int(char)\n        elif char == '[':\n            stack.append((current_string, current_num))\n            current_string = ''\n            current_num = 0\n        elif char == ']':\n            prev_string, num = stack.pop()\n            current_string = prev_string + current_string * num\n        else:\n            current_string += char\n\n    return current_string\n\ns = input().strip()\nprint(decodeString(s))",
                     "complexity_analysis": "Time: O(N) where N is length of input string. Space: O(N) for stack and output string.",
                     "is_primary": true
                 },
@@ -9786,110 +9580,8 @@
                 {
                     "title": "Decode Nested Encoded String - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\nchar stackStr[100][1000];int stackNum[100];int top=-1;int main(){char s[1000];scanf(\"%s\",s);char curr[1000]=\"\";int num=0;for(int i=0;s[i];i++){if(isdigit(s[i])) num=num*10+(s[i]-'0');else if(s[i]=='['){top++;stackNum[top]=num;strcpy(stackStr[top],curr);num=0;curr[0]='\\0';}else if(s[i]==']'){char temp[1000];strcpy(temp,stackStr[top]);for(int j=0;j<stackNum[top];j++) strcat(temp,curr);strcpy(curr,temp);top--;}else{int len=strlen(curr);curr[len]=s[i];curr[len+1]='\\0';}}printf(\"%s\",curr);}",
+                    "code": "#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\n\nchar stackStr[100][1000];\nint stackNum[100];\nint top = -1;\n\nint main() {\n    char s[1000];\n    scanf(\"%s\", s);\n\n    char curr[1000] = \"\";\n    int num = 0;\n\n    for (int i = 0; s[i]; i++) {\n        if (isdigit(s[i])) {\n            num = num * 10 + (s[i] - '0');\n        } else if (s[i] == '[') {\n            top++;\n            stackNum[top] = num;\n            strcpy(stackStr[top], curr);\n            num = 0;\n            curr[0] = '\\0';\n        } else if (s[i] == ']') {\n            char temp[1000];\n            strcpy(temp, stackStr[top]);\n            for (int j = 0; j < stackNum[top]; j++) {\n                strcat(temp, curr);\n            }\n            strcpy(curr, temp);\n            top--;\n        } else {\n            int len = strlen(curr);\n            curr[len] = s[i];\n            curr[len + 1] = '\\0';\n        }\n    }\n\n    printf(\"%s\", curr);\n\n    return 0;\n}",
                     "complexity_analysis": "Time: O(N). Space: O(N).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Reorganize String So Adjacent Characters Are Different",
-            "content": "Given a string, rearrange the characters so that no two adjacent characters are the same. If it is not possible, print -1.\n\n**Example:**\nInput:\naab\nOutput:\naba",
-            "level": "subtopic",
-            "topic_name": "Strings",
-            "subtopic_name": "String Transformation & Encoding",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "aab",
-                    "expected_output": "aba"
-                },
-                {
-                    "input": "aaab",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "aabb",
-                    "expected_output": "abab"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "vvvlo",
-                    "expected_output": "vlvov"
-                },
-                {
-                    "input": "aaabc",
-                    "expected_output": "abaca"
-                },
-                {
-                    "input": "aaaaab",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "aabbcc",
-                    "expected_output": "abcabc"
-                },
-                {
-                    "input": "aaabbc",
-                    "expected_output": "ababac"
-                },
-                {
-                    "input": "zzzzxy",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "a",
-                    "expected_output": "a"
-                },
-                {
-                    "input": "abb",
-                    "expected_output": "bab"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "aab",
-                    "expected_output": "aba",
-                    "explanation": "Characters are rearranged so no two adjacent characters are the same."
-                }
-            ],
-            "inputFormat": "Single line containing the string.",
-            "outputFormat": "Print the rearranged string or -1 if not possible.",
-            "solutions": [
-                {
-                    "title": "Reorganize String So Adjacent Characters Are Different - Python",
-                    "language": "python",
-                    "code": "from collections import Counter\nimport heapq\ns=input().strip()\ncounter=Counter(s)\nmax_heap=[(-freq,char) for char,freq in counter.items()]\nheapq.heapify(max_heap)\nprev_freq,prev_char=0,'#'\nresult=[]\nwhile max_heap:\n freq,char=heapq.heappop(max_heap)\n result.append(char)\n if prev_freq<0:\n heapq.heappush(max_heap,(prev_freq,prev_char))\n prev_freq=freq+1\n prev_char=char\nif len(result)!=len(s):\n print(-1)\nelse:\n print(''.join(result))",
-                    "complexity_analysis": "Time: O(N log U) where N is length of string and U is number of unique characters. Space: O(U).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Reorganize String So Adjacent Characters Are Different - Java",
-                    "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n Scanner sc=new Scanner(System.in);\n String s=sc.nextLine();\n Map<Character,Integer> freqMap=new HashMap<>();\n for(char c:s.toCharArray()) freqMap.put(c,freqMap.getOrDefault(c,0)+1);\n PriorityQueue<Map.Entry<Character,Integer>> maxHeap=new PriorityQueue<>((a,b)->b.getValue()-a.getValue());\n maxHeap.addAll(freqMap.entrySet());\n Map.Entry<Character,Integer> prev=null;\n StringBuilder result=new StringBuilder();\n while(!maxHeap.isEmpty()){\n Map.Entry<Character,Integer> entry=maxHeap.poll();\n result.append(entry.getKey());\n if(prev!=null && prev.getValue()>0) maxHeap.offer(prev);\n entry.setValue(entry.getValue()-1);\n prev=entry;\n }\n if(result.length()!=s.length()) System.out.println(-1);\n else System.out.println(result.toString());\n }\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Reorganize String So Adjacent Characters Are Different - C++",
-                    "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n pair<int,char> prev={0,'#'};\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n if(prev.first>0) maxHeap.push(prev);\n count--;\n prev={count,char};\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Reorganize String So Adjacent Characters Are Different - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s[1000];scanf(\"%s\",s);int freq[26]={0};for(int i=0;s[i];i++) freq[s[i]-'a']++;int n=strlen(s),max=0;for(int i=0;i<26;i++) if(freq[i]>max) max=freq[i];if(max>(n+1)/2){printf(\"-1\");return 0;}char res[1000];int idx=0;for(int i=0;i<26;i++)while(freq[i]--){res[idx]=i+'a';idx+=2;if(idx>=n) idx=1;}printf(\"%s\",res);}",
-                    "complexity_analysis": "Time: O(N). Space: O(1).",
                     "is_primary": false
                 }
             ]
@@ -9998,110 +9690,8 @@
         },
         {
             "type": "coding",
-            "title": "Rearrange String With Distance K Between Same Characters",
-            "content": "Given a string and an integer K, rearrange the string so that the same characters are at least distance K apart. If it is not possible, print -1.\n\n**Example:**\nInput:\naabbcc\n3\nOutput:\nabcabc",
-            "level": "subtopic",
-            "topic_name": "Strings",
-            "subtopic_name": "String Transformation & Encoding",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "aabbcc\n3",
-                    "expected_output": "abcabc"
-                },
-                {
-                    "input": "aaabc\n3",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "aaadbbcc\n2",
-                    "expected_output": "abacabcd"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "aaabbcc\n2",
-                    "expected_output": "ababacc"
-                },
-                {
-                    "input": "aaabc\n2",
-                    "expected_output": "abaca"
-                },
-                {
-                    "input": "aaaaab\n2",
-                    "expected_output": "-1"
-                },
-                {
-                    "input": "abcabc\n3",
-                    "expected_output": "abcabc"
-                },
-                {
-                    "input": "aaabbb\n3",
-                    "expected_output": "ababab"
-                },
-                {
-                    "input": "zzzyyyxxx\n2",
-                    "expected_output": "zyxzyxzyx"
-                },
-                {
-                    "input": "aabb\n2",
-                    "expected_output": "abab"
-                },
-                {
-                    "input": "aaaa\n3",
-                    "expected_output": "-1"
-                }
-            ],
-            "examples": [
-                {
-                    "input": "aabbcc\n3",
-                    "expected_output": "abcabc",
-                    "explanation": "Each repeating character appears at least distance 3 apart."
-                }
-            ],
-            "inputFormat": "First line contains the string.\nSecond line contains integer K.",
-            "outputFormat": "Print rearranged string or -1 if not possible.",
-            "solutions": [
-                {
-                    "title": "Rearrange String With Distance K Between Same Characters - Python",
-                    "language": "python",
-                    "code": "from collections import Counter\nimport heapq\ns=input().strip()\nk=int(input())\ncounter=Counter(s)\nmax_heap=[(-freq,char) for char,freq in counter.items()]\nheapq.heapify(max_heap)\nqueue=[]\nresult=[]\nwhile max_heap:\n freq,char=heapq.heappop(max_heap)\n result.append(char)\n queue.append((char,freq+1))\n if len(queue)>=k:\n front_char,front_freq=queue.pop(0)\n if front_freq<0:\n heapq.heappush(max_heap,(front_freq,front_char))\nif len(result)!=len(s):\n print(-1)\nelse:\n print(''.join(result))",
-                    "complexity_analysis": "Time: O(N log U) where N is length of string and U is number of unique characters. Space: O(U).",
-                    "is_primary": true
-                },
-                {
-                    "title": "Rearrange String With Distance K Between Same Characters - Java",
-                    "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n Scanner sc=new Scanner(System.in);\n String s=sc.nextLine();\n int k=sc.nextInt();\n Map<Character,Integer> freqMap=new HashMap<>();\n for(char c:s.toCharArray()) freqMap.put(c,freqMap.getOrDefault(c,0)+1);\n PriorityQueue<Map.Entry<Character,Integer>> maxHeap=new PriorityQueue<>((a,b)->b.getValue()-a.getValue());\n maxHeap.addAll(freqMap.entrySet());\n Queue<Map.Entry<Character,Integer>> queue=new LinkedList<>();\n StringBuilder result=new StringBuilder();\n while(!maxHeap.isEmpty()){\n Map.Entry<Character,Integer> entry=maxHeap.poll();\n result.append(entry.getKey());\n entry.setValue(entry.getValue()-1);\n queue.offer(entry);\n if(queue.size()>=k){\n Map.Entry<Character,Integer> front=queue.poll();\n if(front.getValue()>0) maxHeap.offer(front);\n }\n }\n if(result.length()!=s.length()) System.out.println(-1);\n else System.out.println(result.toString());\n }\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Rearrange String With Distance K Between Same Characters - C++",
-                    "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s; cin>>s;\n int k; cin>>k;\n unordered_map<char,int> freq;\n for(char c:s) freq[c]++;\n priority_queue<pair<int,char>> maxHeap;\n for(auto &entry:freq) maxHeap.push({entry.second,entry.first});\n queue<pair<char,int>> q;\n string result;\n while(!maxHeap.empty()){\n auto [count,char]=maxHeap.top(); maxHeap.pop();\n result+=char;\n count--;\n q.push({char,count});\n if(q.size()>=k){\n auto [frontChar,frontCount]=q.front(); q.pop();\n if(frontCount>0) maxHeap.push({frontCount,frontChar});\n }\n }\n if(result.length()!=s.length()) cout<<-1;\n else cout<<result;\n}",
-                    "complexity_analysis": "Time: O(N log U). Space: O(U).",
-                    "is_primary": false
-                },
-                {
-                    "title": "Rearrange String With Distance K Between Same Characters - C",
-                    "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\nint main(){char s[1000];int k;scanf(\"%s%d\",s,&k);int freq[26]={0};for(int i=0;s[i];i++) freq[s[i]-'a']++;int n=strlen(s);char res[1000];int idx=0;for(int i=0;i<26;i++){while(freq[i]--){if(idx>=n) idx=(idx%n)+1;res[idx]=i+'a';idx+=k;}}printf(\"%s\",res);}",
-                    "complexity_analysis": "Time: O(N). Space: O(1).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
             "title": "Minimum Swaps to Make Two Strings Equal",
-            "content": "You are given two strings consisting only of characters 'x' and 'y'. In one swap, you can swap characters between the two strings. Find the minimum number of swaps required to make both strings equal.\n\n**Example:**\nInput:\nxx\nyy\nOutput:\n1",
+            "content": "You are given two strings consisting only of characters 'x' and 'y'. In one swap, you can swap characters between the two strings. Find the minimum number of swaps required to make both strings equal.",
             "level": "subtopic",
             "topic_name": "Strings",
             "subtopic_name": "String Transformation & Encoding",
@@ -10168,34 +9758,34 @@
                 }
             ],
             "inputFormat": "First line contains string s1.\nSecond line contains string s2.",
-            "outputFormat": "Print the minimum number of swaps required.",
+            "outputFormat": "Print the minimum number of swaps required, or -1 if impossible.",
             "solutions": [
                 {
                     "title": "Minimum Swaps to Make Two Strings Equal - Python",
                     "language": "python",
-                    "code": "s1=input().strip()\ns2=input().strip()\nx_count=0\ny_count=0\nfor a,b in zip(s1,s2):\n if a=='x' and b=='y':\n x_count+=1\n elif a=='y' and b=='x':\n y_count+=1\nif (x_count+y_count)%2!=0:\n print(-1)\nelse:\n print(x_count//2+y_count//2+x_count%2)",
-                    "complexity_analysis": "Time: O(N) where N is length of strings. Space: O(1).",
+                    "code": "s1=input().strip()\ns2=input().strip()\nx_count=0\ny_count=0\nfor a,b in zip(s1,s2):\n    if a=='x' and b=='y': x_count+=1\n    elif a=='y' and b=='x': y_count+=1\nif (x_count+y_count)%2!=0:\n    print(-1)\nelse:\n    swaps = x_count//2 + y_count//2\n    if x_count%2==1: swaps += 2\n    print(swaps)",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
                     "is_primary": true
                 },
                 {
                     "title": "Minimum Swaps to Make Two Strings Equal - Java",
                     "language": "java",
-                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n Scanner sc=new Scanner(System.in);\n String s1=sc.nextLine();\n String s2=sc.nextLine();\n int xCount=0,yCount=0;\n for(int i=0;i<s1.length();i++){\n char a=s1.charAt(i),b=s2.charAt(i);\n if(a=='x' && b=='y') xCount++;\n else if(a=='y' && b=='x') yCount++;\n }\n if((xCount+yCount)%2!=0) System.out.println(-1);\n else System.out.println(xCount/2+yCount/2+xCount%2);\n }\n}",
-                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "code": "import java.util.*;\npublic class Solution{\n public static void main(String[] args){\n  Scanner sc=new Scanner(System.in);\n  String s1=sc.nextLine();\n  String s2=sc.nextLine();\n  int xCount=0,yCount=0;\n  for(int i=0;i<s1.length();i++){\n   char a=s1.charAt(i),b=s2.charAt(i);\n   if(a=='x' && b=='y') xCount++;\n   else if(a=='y' && b=='x') yCount++;\n  }\n  if((xCount+yCount)%2!=0) System.out.println(-1);\n  else {\n   int swaps = xCount/2 + yCount/2;\n   if(xCount%2==1) swaps += 2;\n   System.out.println(swaps);\n  }\n }\n}",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
                     "is_primary": false
                 },
                 {
                     "title": "Minimum Swaps to Make Two Strings Equal - C++",
                     "language": "cpp",
-                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s1,s2; cin>>s1>>s2;\n int xCount=0,yCount=0;\n for(size_t i=0;i<s1.size();i++){\n char a=s1[i],b=s2[i];\n if(a=='x' && b=='y') xCount++;\n else if(a=='y' && b=='x') yCount++;\n }\n if((xCount+yCount)%2!=0) cout<<-1;\n else cout<<xCount/2+yCount/2+xCount%2;\n}",
-                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "code": "#include<bits/stdc++.h>\nusing namespace std;\nint main(){\n string s1,s2; cin>>s1>>s2;\n int xCount=0,yCount=0;\n for(size_t i=0;i<s1.size();i++){\n  char a=s1[i],b=s2[i];\n  if(a=='x' && b=='y') xCount++;\n  else if(a=='y' && b=='x') yCount++;\n }\n if((xCount+yCount)%2!=0) cout<<-1;\n else {\n  int swaps = xCount/2 + yCount/2;\n  if(xCount%2==1) swaps += 2;\n  cout<<swaps;\n }\n}",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
                     "is_primary": false
                 },
                 {
                     "title": "Minimum Swaps to Make Two Strings Equal - C",
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){char s1[1000],s2[1000];scanf(\"%s%s\",s1,s2);int x=0,y=0;for(int i=0;s1[i];i++){if(s1[i]=='x'&&s2[i]=='y')x++;else if(s1[i]=='y'&&s2[i]=='x')y++;}if((x+y)%2){printf(\"-1\");return 0;}printf(\"%d\",x/2+y/2+x%2);}",
-                    "complexity_analysis": "Time: O(N). Space: O(1).",
+                    "code": "#include <stdio.h>\n#include <string.h>\nint main(){\n char s1[1000],s2[1000];\n scanf(\"%s%s\",s1,s2);\n int x=0,y=0;\n for(int i=0;s1[i];i++){\n  if(s1[i]=='x'&&s2[i]=='y') x++;\n  else if(s1[i]=='y'&&s2[i]=='x') y++;\n }\n if((x+y)%2){printf(\"-1\");return 0;}\n int swaps = x/2 + y/2;\n if(x%2==1) swaps += 2;\n printf(\"%d\", swaps);\n}",
+                    "complexity_analysis": "Time: O(N), Space: O(1)",
                     "is_primary": false
                 }
             ]
