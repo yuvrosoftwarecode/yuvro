@@ -40,7 +40,7 @@
             "videos": []
         }
     ],
-    "quetions": [
+    "questions": [
         {
             "type": "coding",
             "title": "Recent Request Counter",
@@ -100,15 +100,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass RecentCounter:\n    def __init__(self):\n        self.q = deque()\n\n    def ping(self, t):\n        self.q.append(t)\n        while self.q[0] < t - 3000:\n            self.q.popleft()\n        return len(self.q)"
+                    "code": "from collections import deque\n\nclass RecentCounter:\n    def __init__(self):\n        self.q = deque()\n\n    def ping(self, t):\n        self.q.append(t)\n        while self.q[0] < t - 3000:\n            self.q.popleft()\n        return len(self.q)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\n\nclass RecentCounter {\n    Queue<Integer> q;\n\n    public RecentCounter() {\n        q = new LinkedList<>();\n    }\n\n    public int ping(int t) {\n        q.add(t);\n        while(q.peek() < t - 3000) q.poll();\n        return q.size();\n    }\n}"
+                    "code": "import java.util.*;\n\nclass RecentCounter {\n    Queue<Integer> q;\n\n    public RecentCounter() {\n        q = new LinkedList<>();\n    }\n\n    public int ping(int t) {\n        q.add(t);\n        while(q.peek() < t - 3000) q.poll();\n        return q.size();\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint queue[10000];\nint front=0,rear=0;\n\nint ping(int t){\n    queue[rear++]=t;\n\n    while(queue[front] < t-3000) front++;\n\n    return rear-front;\n}"
+                    "code": "#include <stdio.h>\n#include <stdlib.h>\n\nint queue[10000];\nint front=0,rear=0;\n\nint ping(int t){\n    queue[rear++]=t;\n\n    while(queue[front] < t-3000) front++;\n\n    return rear-front;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -117,6 +120,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Use a queue to store the timestamps of incoming requests in chronological order.",
+                "For every new request at time 't', remove timestamps from the front of the queue that are older than 't - 3000'.",
+                "The number of remaining elements in the queue is the count of requests in the last 3000ms."
             ]
         },
         {
@@ -178,15 +186,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass MovingAverage:\n    def __init__(self, size):\n        self.q=deque()\n        self.size=size\n        self.total=0\n\n    def next(self,val):\n        self.q.append(val)\n        self.total+=val\n\n        if len(self.q)>self.size:\n            self.total-=self.q.popleft()\n\n        return self.total/len(self.q)"
+                    "code": "from collections import deque\n\nclass MovingAverage:\n    def __init__(self, size):\n        self.q=deque()\n        self.size=size\n        self.total=0\n\n    def next(self,val):\n        self.q.append(val)\n        self.total+=val\n\n        if len(self.q)>self.size:\n            self.total-=self.q.popleft()\n\n        return self.total/len(self.q)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\n\nclass MovingAverage {\n    Queue<Integer> q=new LinkedList<>();\n    int size;\n    double sum=0;\n\n    public MovingAverage(int size){\n        this.size=size;\n    }\n\n    public double next(int val){\n        q.add(val);\n        sum+=val;\n\n        if(q.size()>size)\n            sum-=q.poll();\n\n        return sum/q.size();\n    }\n}"
+                    "code": "import java.util.*;\n\nclass MovingAverage {\n    Queue<Integer> q=new LinkedList<>();\n    int size;\n    double sum=0;\n\n    public MovingAverage(int size){\n        this.size=size;\n    }\n\n    public double next(int val){\n        q.add(val);\n        sum+=val;\n\n        if(q.size()>size)\n            sum-=q.poll();\n\n        return sum/q.size();\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "#include<stdio.h>\n\nint queue[10000];\nint front=0,rear=0,size;\ndouble sum=0;\n\ndouble next(int val){\n    queue[rear++]=val;\n    sum+=val;\n\n    if(rear-front>size){\n        sum-=queue[front++];\n    }\n\n    return sum/(rear-front);\n}"
+                    "code": "#include<stdio.h>\n\nint queue[10000];\nint front=0,rear=0,size;\ndouble sum=0;\n\ndouble next(int val){\n    queue[rear++]=val;\n    sum+=val;\n\n    if(rear-front>size){\n        sum-=queue[front++];\n    }\n\n    return sum/(rear-front);\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -195,6 +206,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue is perfect for keeping track of a sliding window of the last 'k' elements.",
+                "Maintain a running sum of the elements currently in the queue for O(1) average calculation.",
+                "When the queue exceeds size 'k', pop the oldest element and subtract it from the running sum."
             ]
         },
         {
@@ -256,15 +272,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def timeRequiredToBuy(tickets,k):\n    time=0\n\n    for i in range(len(tickets)):\n        if i<=k:\n            time+=min(tickets[i],tickets[k])\n        else:\n            time+=min(tickets[i],tickets[k]-1)\n\n    return time"
+                    "code": "def timeRequiredToBuy(tickets,k):\n    time=0\n\n    for i in range(len(tickets)):\n        if i<=k:\n            time+=min(tickets[i],tickets[k])\n        else:\n            time+=min(tickets[i],tickets[k]-1)\n\n    return time",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution {\n    public int timeRequiredToBuy(int[] tickets, int k) {\n        int time=0;\n\n        for(int i=0;i<tickets.length;i++){\n            if(i<=k)\n                time+=Math.min(tickets[i],tickets[k]);\n            else\n                time+=Math.min(tickets[i],tickets[k]-1);\n        }\n\n        return time;\n    }\n}"
+                    "code": "class Solution {\n    public int timeRequiredToBuy(int[] tickets, int k) {\n        int time=0;\n\n        for(int i=0;i<tickets.length;i++){\n            if(i<=k)\n                time+=Math.min(tickets[i],tickets[k]);\n            else\n                time+=Math.min(tickets[i],tickets[k]-1);\n        }\n\n        return time;\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int timeRequiredToBuy(int* tickets,int n,int k){\n    int time=0;\n\n    for(int i=0;i<n;i++){\n        if(i<=k)\n            time+= tickets[i]<tickets[k] ? tickets[i] : tickets[k];\n        else\n            time+= tickets[i]<(tickets[k]-1) ? tickets[i] : (tickets[k]-1);\n    }\n\n    return time;\n}"
+                    "code": "int timeRequiredToBuy(int* tickets,int n,int k){\n    int time=0;\n\n    for(int i=0;i<n;i++){\n        if(i<=k)\n            time+= tickets[i]<tickets[k] ? tickets[i] : tickets[k];\n        else\n            time+= tickets[i]<(tickets[k]-1) ? tickets[i] : (tickets[k]-1);\n    }\n\n    return time;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -273,6 +292,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Everyone can buy one ticket and then move to the end of the line if they still need more.",
+                "You can simulate this directly using a queue, or use a mathematical approach by iterating once.",
+                "Person 'k' finishes when they have bought all their tickets; calculate how many tickets others bought in the meantime."
             ]
         },
         {
@@ -334,15 +358,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def countStudents(students, sandwiches):\n    from collections import Counter\n\n    count = Counter(students)\n\n    for s in sandwiches:\n        if count[s] == 0:\n            break\n        count[s] -= 1\n\n    return count[0] + count[1]"
+                    "code": "def countStudents(students, sandwiches):\n    from collections import Counter\n\n    count = Counter(students)\n\n    for s in sandwiches:\n        if count[s] == 0:\n            break\n        count[s] -= 1\n\n    return count[0] + count[1]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution {\n    public int countStudents(int[] students, int[] sandwiches) {\n        int[] count = new int[2];\n\n        for(int s:students) count[s]++;\n\n        for(int s:sandwiches){\n            if(count[s]==0) break;\n            count[s]--;\n        }\n\n        return count[0]+count[1];\n    }\n}"
+                    "code": "class Solution {\n    public int countStudents(int[] students, int[] sandwiches) {\n        int[] count = new int[2];\n\n        for(int s:students) count[s]++;\n\n        for(int s:sandwiches){\n            if(count[s]==0) break;\n            count[s]--;\n        }\n\n        return count[0]+count[1];\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int countStudents(int* students,int n,int* sandwiches){\n    int count[2]={0,0};\n\n    for(int i=0;i<n;i++) count[students[i]]++;\n\n    for(int i=0;i<n;i++){\n        if(count[sandwiches[i]]==0) break;\n        count[sandwiches[i]]--;\n    }\n\n    return count[0]+count[1];\n}"
+                    "code": "int countStudents(int* students,int n,int* sandwiches){\n    int count[2]={0,0};\n\n    for(int i=0;i<n;i++) count[students[i]]++;\n\n    for(int i=0;i<n;i++){\n        if(count[sandwiches[i]]==0) break;\n        count[sandwiches[i]]--;\n    }\n\n    return count[0]+count[1];\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -351,6 +378,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Students are in a queue while sandwiches are in a stack.",
+                "If the front student likes the top sandwich, they take it; otherwise, they go to the back of the queue.",
+                "The process stops if the queue cycles completely without anyone taking the top sandwich."
             ]
         },
         {
@@ -412,15 +444,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef deckRevealedIncreasing(deck):\n    deck.sort()\n    q=deque(range(len(deck)))\n    res=[0]*len(deck)\n\n    for card in deck:\n        i=q.popleft()\n        res[i]=card\n        if q:\n            q.append(q.popleft())\n\n    return res"
+                    "code": "from collections import deque\n\ndef deckRevealedIncreasing(deck):\n    deck.sort()\n    q=deque(range(len(deck)))\n    res=[0]*len(deck)\n\n    for card in deck:\n        i=q.popleft()\n        res[i]=card\n        if q:\n            q.append(q.popleft())\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\n\nclass Solution {\n    public int[] deckRevealedIncreasing(int[] deck) {\n        Arrays.sort(deck);\n\n        Queue<Integer> q=new LinkedList<>();\n        int n=deck.length;\n\n        for(int i=0;i<n;i++) q.add(i);\n\n        int[] res=new int[n];\n\n        for(int card:deck){\n            int idx=q.poll();\n            res[idx]=card;\n\n            if(!q.isEmpty())\n                q.add(q.poll());\n        }\n\n        return res;\n    }\n}"
+                    "code": "import java.util.*;\n\nclass Solution {\n    public int[] deckRevealedIncreasing(int[] deck) {\n        Arrays.sort(deck);\n\n        Queue<Integer> q=new LinkedList<>();\n        int n=deck.length;\n\n        for(int i=0;i<n;i++) q.add(i);\n\n        int[] res=new int[n];\n\n        for(int card:deck){\n            int idx=q.poll();\n            res[idx]=card;\n\n            if(!q.isEmpty())\n                q.add(q.poll());\n        }\n\n        return res;\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Simplified conceptual implementation\n#include<stdio.h>\n#include<stdlib.h>\n"
+                    "code": "// Simplified conceptual implementation\n#include<stdio.h>\n#include<stdlib.h>\n",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -429,6 +464,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Think about the process in reverse: start with the last card and simulate the 'move to bottom' operation backwards.",
+                "Alternatively, use a queue of indices to track which positions in the result array will be filled next.",
+                "Sort the deck first, then place cards one by one into the indices provided by the simulated queue process."
             ]
         },
         {
@@ -490,15 +530,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef findTheWinner(n,k):\n    q=deque(range(1,n+1))\n\n    while len(q)>1:\n        q.rotate(-(k-1))\n        q.popleft()\n\n    return q[0]"
+                    "code": "from collections import deque\n\ndef findTheWinner(n,k):\n    q=deque(range(1,n+1))\n\n    while len(q)>1:\n        q.rotate(-(k-1))\n        q.popleft()\n\n    return q[0]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\n\nclass Solution {\n    public int findTheWinner(int n,int k){\n        Queue<Integer> q=new LinkedList<>();\n\n        for(int i=1;i<=n;i++) q.add(i);\n\n        while(q.size()>1){\n            for(int i=1;i<k;i++)\n                q.add(q.poll());\n\n            q.poll();\n        }\n\n        return q.peek();\n    }\n}"
+                    "code": "import java.util.*;\n\nclass Solution {\n    public int findTheWinner(int n,int k){\n        Queue<Integer> q=new LinkedList<>();\n\n        for(int i=1;i<=n;i++) q.add(i);\n\n        while(q.size()>1){\n            for(int i=1;i<k;i++)\n                q.add(q.poll());\n\n            q.poll();\n        }\n\n        return q.peek();\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int findTheWinner(int n,int k){\n    int res=0;\n\n    for(int i=1;i<=n;i++)\n        res=(res+k)%i;\n\n    return res+1;\n}"
+                    "code": "int findTheWinner(int n,int k){\n    int res=0;\n\n    for(int i=1;i<=n;i++)\n        res=(res+k)%i;\n\n    return res+1;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -507,6 +550,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This is a classic 'Josephus Problem'.",
+                "You can simulate it using a queue: rotate the queue 'k-1' times and then pop the front element.",
+                "Alternatively, there is a recursive mathematical formula to find the winner in O(N) time without simulation."
             ]
         },
         {
@@ -568,15 +616,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef predictPartyVictory(senate):\n    n=len(senate)\n    r=deque()\n    d=deque()\n\n    for i,c in enumerate(senate):\n        if c=='R':\n            r.append(i)\n        else:\n            d.append(i)\n\n    while r and d:\n        ri=r.popleft()\n        di=d.popleft()\n\n        if ri<di:\n            r.append(ri+n)\n        else:\n            d.append(di+n)\n\n    return \"Radiant\" if r else \"Dire\""
+                    "code": "from collections import deque\n\ndef predictPartyVictory(senate):\n    n=len(senate)\n    r=deque()\n    d=deque()\n\n    for i,c in enumerate(senate):\n        if c=='R':\n            r.append(i)\n        else:\n            d.append(i)\n\n    while r and d:\n        ri=r.popleft()\n        di=d.popleft()\n\n        if ri<di:\n            r.append(ri+n)\n        else:\n            d.append(di+n)\n\n    return \"Radiant\" if r else \"Dire\"",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\n\nclass Solution {\n    public String predictPartyVictory(String senate) {\n        Queue<Integer> r=new LinkedList<>();\n        Queue<Integer> d=new LinkedList<>();\n\n        int n=senate.length();\n\n        for(int i=0;i<n;i++){\n            if(senate.charAt(i)=='R') r.add(i);\n            else d.add(i);\n        }\n\n        while(!r.isEmpty() && !d.isEmpty()){\n            int ri=r.poll();\n            int di=d.poll();\n\n            if(ri<di) r.add(ri+n);\n            else d.add(di+n);\n        }\n\n        return r.isEmpty()?\"Dire\":\"Radiant\";\n    }\n}"
+                    "code": "import java.util.*;\n\nclass Solution {\n    public String predictPartyVictory(String senate) {\n        Queue<Integer> r=new LinkedList<>();\n        Queue<Integer> d=new LinkedList<>();\n\n        int n=senate.length();\n\n        for(int i=0;i<n;i++){\n            if(senate.charAt(i)=='R') r.add(i);\n            else d.add(i);\n        }\n\n        while(!r.isEmpty() && !d.isEmpty()){\n            int ri=r.poll();\n            int di=d.poll();\n\n            if(ri<di) r.add(ri+n);\n            else d.add(di+n);\n        }\n\n        return r.isEmpty()?\"Dire\":\"Radiant\";\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual queue simulation implementation\n#include <stdio.h>\n"
+                    "code": "// Conceptual queue simulation implementation\n#include <stdio.h>\n",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -585,6 +636,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Use two separate queues to store the indices of Radiant and Dire senators.",
+                "In each round, compare the front of both queues; the one with the smaller index bans the other.",
+                "The winning senator transitions to the next round by adding 'N' (total senators) to their index and re-entering their queue."
             ]
         },
         {
@@ -646,15 +702,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def truckTour(pumps):\n    start=0\n    tank=0\n    total=0\n\n    for i,(petrol,dist) in enumerate(pumps):\n        tank+=petrol-dist\n\n        if tank<0:\n            start=i+1\n            total+=tank\n            tank=0\n\n    if total+tank>=0:\n        return start\n\n    return -1"
+                    "code": "def truckTour(pumps):\n    start=0\n    tank=0\n    total=0\n\n    for i,(petrol,dist) in enumerate(pumps):\n        tank+=petrol-dist\n\n        if tank<0:\n            start=i+1\n            total+=tank\n            tank=0\n\n    if total+tank>=0:\n        return start\n\n    return -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution{\n    public int truckTour(int[][] pumps){\n        int start=0,tank=0,total=0;\n\n        for(int i=0;i<pumps.length;i++){\n            tank+=pumps[i][0]-pumps[i][1];\n\n            if(tank<0){\n                start=i+1;\n                total+=tank;\n                tank=0;\n            }\n        }\n\n        return (total+tank>=0)?start:-1;\n    }\n}"
+                    "code": "class Solution{\n    public int truckTour(int[][] pumps){\n        int start=0,tank=0,total=0;\n\n        for(int i=0;i<pumps.length;i++){\n            tank+=pumps[i][0]-pumps[i][1];\n\n            if(tank<0){\n                start=i+1;\n                total+=tank;\n                tank=0;\n            }\n        }\n\n        return (total+tank>=0)?start:-1;\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int truckTour(int pumps[][2],int n){\n    int start=0,tank=0,total=0;\n\n    for(int i=0;i<n;i++){\n        tank+=pumps[i][0]-pumps[i][1];\n\n        if(tank<0){\n            start=i+1;\n            total+=tank;\n            tank=0;\n        }\n    }\n\n    if(total+tank>=0) return start;\n\n    return -1;\n}"
+                    "code": "int truckTour(int pumps[][2],int n){\n    int start=0,tank=0,total=0;\n\n    for(int i=0;i<n;i++){\n        tank+=pumps[i][0]-pumps[i][1];\n\n        if(tank<0){\n            start=i+1;\n            total+=tank;\n            tank=0;\n        }\n    }\n\n    if(total+tank>=0) return start;\n\n    return -1;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -663,6 +722,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Calculate the net petrol (petrol - distance) at each pump and use a sliding window/queue concept.",
+                "If the current total petrol becomes negative, the current starting pump cannot be the solution.",
+                "Reset the starting point to the next pump and continue; you only need one or two passes through the array."
             ]
         },
         {
@@ -724,15 +788,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef minimumMoves(grid,startX,startY,goalX,goalY):\n    n=len(grid)\n    visited=[[False]*n for _ in range(n)]\n    q=deque([(startX,startY,0)])\n\n    visited[startX][startY]=True\n\n    while q:\n        x,y,d=q.popleft()\n\n        if (x,y)==(goalX,goalY):\n            return d\n\n        for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]:\n            nx,ny=x,y\n\n            while 0<=nx+dx<n and 0<=ny+dy<n and grid[nx+dx][ny+dy]!='X':\n                nx+=dx\n                ny+=dy\n\n                if not visited[nx][ny]:\n                    visited[nx][ny]=True\n                    q.append((nx,ny,d+1))"
+                    "code": "from collections import deque\n\ndef minimumMoves(grid,startX,startY,goalX,goalY):\n    n=len(grid)\n    visited=[[False]*n for _ in range(n)]\n    q=deque([(startX,startY,0)])\n\n    visited[startX][startY]=True\n\n    while q:\n        x,y,d=q.popleft()\n\n        if (x,y)==(goalX,goalY):\n            return d\n\n        for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]:\n            nx,ny=x,y\n\n            while 0<=nx+dx<n and 0<=ny+dy<n and grid[nx+dx][ny+dy]!='X':\n                nx+=dx\n                ny+=dy\n\n                if not visited[nx][ny]:\n                    visited[nx][ny]=True\n                    q.append((nx,ny,d+1))",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// BFS grid traversal implementation\nimport java.util.*;"
+                    "code": "// BFS grid traversal implementation\nimport java.util.*;",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// BFS implementation using queue\n#include<stdio.h>"
+                    "code": "// BFS implementation using queue\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -741,6 +808,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This is a shortest path problem on a grid, which suggests using Breadth-First Search (BFS).",
+                "In each BFS step, explore all possible cells in all four directions until you hit an 'X' or the grid boundary.",
+                "Keep track of visited cells and the minimum distance from the starting point."
             ]
         },
         {
@@ -802,15 +874,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "class MyQueue:\n    def __init__(self):\n        self.s1=[]\n        self.s2=[]\n\n    def push(self,x):\n        self.s1.append(x)\n\n    def pop(self):\n        self.peek()\n        return self.s2.pop()\n\n    def peek(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        return self.s2[-1]\n\n    def empty(self):\n        return not self.s1 and not self.s2"
+                    "code": "class MyQueue:\n    def __init__(self):\n        self.s1=[]\n        self.s2=[]\n\n    def push(self,x):\n        self.s1.append(x)\n\n    def pop(self):\n        self.peek()\n        return self.s2.pop()\n\n    def peek(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        return self.s2[-1]\n\n    def empty(self):\n        return not self.s1 and not self.s2",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass MyQueue {\n    Stack<Integer> s1=new Stack<>();\n    Stack<Integer> s2=new Stack<>();\n\n    public void push(int x){\n        s1.push(x);\n    }\n\n    public int pop(){\n        peek();\n        return s2.pop();\n    }\n\n    public int peek(){\n        if(s2.isEmpty()){\n            while(!s1.isEmpty())\n                s2.push(s1.pop());\n        }\n        return s2.peek();\n    }\n\n    public boolean empty(){\n        return s1.isEmpty() && s2.isEmpty();\n    }\n}"
+                    "code": "import java.util.*;\nclass MyQueue {\n    Stack<Integer> s1=new Stack<>();\n    Stack<Integer> s2=new Stack<>();\n\n    public void push(int x){\n        s1.push(x);\n    }\n\n    public int pop(){\n        peek();\n        return s2.pop();\n    }\n\n    public int peek(){\n        if(s2.isEmpty()){\n            while(!s1.isEmpty())\n                s2.push(s1.pop());\n        }\n        return s2.peek();\n    }\n\n    public boolean empty(){\n        return s1.isEmpty() && s2.isEmpty();\n    }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual implementation using two stacks\n#include<stdio.h>"
+                    "code": "// Conceptual implementation using two stacks\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -819,6 +894,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "To implement FIFO using LIFO, you'll need two stacks: 'inStack' and 'outStack'.",
+                "Push everything to 'inStack'. For pop operations, if 'outStack' is empty, move all elements from 'inStack' to 'outStack'.",
+                "The 'outStack' effectively reverses the elements back into the correct queue order."
             ]
         },
         {
@@ -880,15 +960,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "class Queue:\n    def __init__(self):\n        self.s1=[]\n        self.s2=[]\n\n    def enqueue(self,x):\n        self.s1.append(x)\n\n    def dequeue(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        self.s2.pop()\n\n    def front(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        return self.s2[-1]"
+                    "code": "class Queue:\n    def __init__(self):\n        self.s1=[]\n        self.s2=[]\n\n    def enqueue(self,x):\n        self.s1.append(x)\n\n    def dequeue(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        self.s2.pop()\n\n    def front(self):\n        if not self.s2:\n            while self.s1:\n                self.s2.append(self.s1.pop())\n        return self.s2[-1]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass QueueTwoStacks{\nStack<Integer> s1=new Stack<>();\nStack<Integer> s2=new Stack<>();\n\nvoid enqueue(int x){ s1.push(x); }\n\nvoid dequeue(){\nif(s2.isEmpty()) while(!s1.isEmpty()) s2.push(s1.pop());\ns2.pop();\n}\n\nint front(){\nif(s2.isEmpty()) while(!s1.isEmpty()) s2.push(s1.pop());\nreturn s2.peek();\n}\n}"
+                    "code": "import java.util.*;\nclass QueueTwoStacks{\nStack<Integer> s1=new Stack<>();\nStack<Integer> s2=new Stack<>();\n\nvoid enqueue(int x){ s1.push(x); }\n\nvoid dequeue(){\nif(s2.isEmpty()) while(!s1.isEmpty()) s2.push(s1.pop());\ns2.pop();\n}\n\nint front(){\nif(s2.isEmpty()) while(!s1.isEmpty()) s2.push(s1.pop());\nreturn s2.peek();\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Queue simulation using two stacks concept\n#include<stdio.h>"
+                    "code": "// Queue simulation using two stacks concept\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -897,6 +980,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "To implement FIFO using LIFO, you'll need two stacks: 'inStack' and 'outStack'.",
+                "Push everything to 'inStack'. For pop operations, if 'outStack' is empty, move all elements from 'inStack' to 'outStack'.",
+                "The 'outStack' effectively reverses the elements back into the correct queue order."
             ]
         },
         {
@@ -958,15 +1046,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q=deque()\n\n    def push(self,x):\n        self.q.append(x)\n        for _ in range(len(self.q)-1):\n            self.q.append(self.q.popleft())\n\n    def pop(self):\n        return self.q.popleft()\n\n    def top(self):\n        return self.q[0]\n\n    def empty(self):\n        return not self.q"
+                    "code": "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q=deque()\n\n    def push(self,x):\n        self.q.append(x)\n        for _ in range(len(self.q)-1):\n            self.q.append(self.q.popleft())\n\n    def pop(self):\n        return self.q.popleft()\n\n    def top(self):\n        return self.q[0]\n\n    def empty(self):\n        return not self.q",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass MyStack{\nQueue<Integer> q=new LinkedList<>();\n\npublic void push(int x){\nq.add(x);\nfor(int i=0;i<q.size()-1;i++)\nq.add(q.remove());\n}\n\npublic int pop(){ return q.remove(); }\n\npublic int top(){ return q.peek(); }\n\npublic boolean empty(){ return q.isEmpty(); }\n}"
+                    "code": "import java.util.*;\nclass MyStack{\nQueue<Integer> q=new LinkedList<>();\n\npublic void push(int x){\nq.add(x);\nfor(int i=0;i<q.size()-1;i++)\nq.add(q.remove());\n}\n\npublic int pop(){ return q.remove(); }\n\npublic int top(){ return q.peek(); }\n\npublic boolean empty(){ return q.isEmpty(); }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Stack using queue rotation technique\n#include<stdio.h>"
+                    "code": "// Stack using queue rotation technique\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -975,84 +1066,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Stack Using Queues",
-            "content": "Implement a stack using queues. The stack should support push, pop, top, and empty operations.\n\nImplement class MyStack:\n- push(x)\n- pop()\n- top()\n- empty()",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "easy",
-            "marks": 5,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
             ],
-            "test_cases_basic": [
-                {
-                    "input": "push(1), push(2), top(), pop()",
-                    "expected_output": "2,2"
-                },
-                {
-                    "input": "push(10), push(20), pop(), top()",
-                    "expected_output": "20,10"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "push(1),push(2),push(3),top()",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "push(5),push(6),pop()",
-                    "expected_output": "6"
-                },
-                {
-                    "input": "push(7),push(8),push(9),pop(),top()",
-                    "expected_output": "9,8"
-                },
-                {
-                    "input": "push(10),pop(),empty()",
-                    "expected_output": "10,true"
-                },
-                {
-                    "input": "push(2),push(4),push(6),pop()",
-                    "expected_output": "6"
-                },
-                {
-                    "input": "push(3),push(5),top()",
-                    "expected_output": "5"
-                },
-                {
-                    "input": "push(9),push(11),pop(),top()",
-                    "expected_output": "11,9"
-                }
-            ],
-            "inputFormat": "Sequence of stack operations.",
-            "outputFormat": "Return results of pop/top/empty operations.",
-            "solutions": [
-                {
-                    "language": "python",
-                    "code": "from collections import deque\n\nclass MyStack:\n    def __init__(self):\n        self.q=deque()\n\n    def push(self,x):\n        self.q.append(x)\n        for _ in range(len(self.q)-1):\n            self.q.append(self.q.popleft())\n\n    def pop(self):\n        return self.q.popleft()\n\n    def top(self):\n        return self.q[0]\n\n    def empty(self):\n        return not self.q"
-                },
-                {
-                    "language": "java",
-                    "code": "import java.util.*;\nclass MyStack{\nQueue<Integer> q=new LinkedList<>();\n\npublic void push(int x){\nq.add(x);\nfor(int i=0;i<q.size()-1;i++)\nq.add(q.remove());\n}\n\npublic int pop(){ return q.remove(); }\n\npublic int top(){ return q.peek(); }\n\npublic boolean empty(){ return q.isEmpty(); }\n}"
-                },
-                {
-                    "language": "c",
-                    "code": "// Stack using queue rotation technique\n#include<stdio.h>"
-                },
-                {
-                    "title": "Queue implementation - CPP",
-                    "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass MyStack {\n    queue<int> q;\npublic:\n    void push(int x) {\n        q.push(x);\n        for(int i = 0; i < q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int res = q.front(); q.pop(); return res; }\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};",
-                    "complexity_analysis": "Time: O(N). Space: O(N).",
-                    "is_primary": false
-                }
+            "hints": [
+                "In a 'Push efficient' approach, you can simply append to one queue.",
+                "For a 'Pop efficient' approach, you'll need to move elements between two queues during the push operation.",
+                "Remember that a stack is LIFO while a queue is FIFO; you need to reverse the order using two queues."
             ]
         },
         {
@@ -1114,15 +1132,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "class MyCircularQueue:\n    def __init__(self, k):\n        self.q=[0]*k\n        self.head=0\n        self.count=0\n        self.size=k\n\n    def enQueue(self,value):\n        if self.count==self.size:\n            return False\n        tail=(self.head+self.count)%self.size\n        self.q[tail]=value\n        self.count+=1\n        return True\n\n    def deQueue(self):\n        if self.count==0:\n            return False\n        self.head=(self.head+1)%self.size\n        self.count-=1\n        return True\n\n    def Front(self):\n        return -1 if self.count==0 else self.q[self.head]\n\n    def Rear(self):\n        if self.count==0: return -1\n        return self.q[(self.head+self.count-1)%self.size]\n\n    def isEmpty(self): return self.count==0\n\n    def isFull(self): return self.count==self.size"
+                    "code": "class MyCircularQueue:\n    def __init__(self, k):\n        self.q=[0]*k\n        self.head=0\n        self.count=0\n        self.size=k\n\n    def enQueue(self,value):\n        if self.count==self.size:\n            return False\n        tail=(self.head+self.count)%self.size\n        self.q[tail]=value\n        self.count+=1\n        return True\n\n    def deQueue(self):\n        if self.count==0:\n            return False\n        self.head=(self.head+1)%self.size\n        self.count-=1\n        return True\n\n    def Front(self):\n        return -1 if self.count==0 else self.q[self.head]\n\n    def Rear(self):\n        if self.count==0: return -1\n        return self.q[(self.head+self.count-1)%self.size]\n\n    def isEmpty(self): return self.count==0\n\n    def isFull(self): return self.count==self.size",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class MyCircularQueue {\nint[] q;\nint head=0,count=0,size;\n\npublic MyCircularQueue(int k){\nq=new int[k];\nsize=k;\n}\n\npublic boolean enQueue(int value){\nif(count==size) return false;\nint tail=(head+count)%size;\nq[tail]=value;\ncount++;\nreturn true;\n}\n\npublic boolean deQueue(){\nif(count==0) return false;\nhead=(head+1)%size;\ncount--;\nreturn true;\n}\n\npublic int Front(){ return count==0?-1:q[head]; }\n\npublic int Rear(){ return count==0?-1:q[(head+count-1)%size]; }\n\npublic boolean isEmpty(){ return count==0; }\n\npublic boolean isFull(){ return count==size; }\n}"
+                    "code": "class MyCircularQueue {\nint[] q;\nint head=0,count=0,size;\n\npublic MyCircularQueue(int k){\nq=new int[k];\nsize=k;\n}\n\npublic boolean enQueue(int value){\nif(count==size) return false;\nint tail=(head+count)%size;\nq[tail]=value;\ncount++;\nreturn true;\n}\n\npublic boolean deQueue(){\nif(count==0) return false;\nhead=(head+1)%size;\ncount--;\nreturn true;\n}\n\npublic int Front(){ return count==0?-1:q[head]; }\n\npublic int Rear(){ return count==0?-1:q[(head+count-1)%size]; }\n\npublic boolean isEmpty(){ return count==0; }\n\npublic boolean isFull(){ return count==size; }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Circular queue using array\n#include<stdio.h>"
+                    "code": "// Circular queue using array\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1131,6 +1152,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1192,15 +1218,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque,Counter\n\nclass FirstUnique:\n    def __init__(self,nums):\n        self.q=deque(nums)\n        self.count=Counter(nums)\n\n    def showFirstUnique(self):\n        while self.q and self.count[self.q[0]]>1:\n            self.q.popleft()\n        return self.q[0] if self.q else -1\n\n    def add(self,value):\n        self.count[value]+=1\n        self.q.append(value)"
+                    "code": "from collections import deque,Counter\n\nclass FirstUnique:\n    def __init__(self,nums):\n        self.q=deque(nums)\n        self.count=Counter(nums)\n\n    def showFirstUnique(self):\n        while self.q and self.count[self.q[0]]>1:\n            self.q.popleft()\n        return self.q[0] if self.q else -1\n\n    def add(self,value):\n        self.count[value]+=1\n        self.q.append(value)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass FirstUnique{\nQueue<Integer> q=new LinkedList<>();\nMap<Integer,Integer> count=new HashMap<>();\n\npublic FirstUnique(int[] nums){\nfor(int n:nums){ add(n); }\n}\n\npublic int showFirstUnique(){\nwhile(!q.isEmpty() && count.get(q.peek())>1)\nq.poll();\nreturn q.isEmpty()? -1:q.peek();\n}\n\npublic void add(int value){\ncount.put(value,count.getOrDefault(value,0)+1);\nq.add(value);\n}\n}"
+                    "code": "import java.util.*;\nclass FirstUnique{\nQueue<Integer> q=new LinkedList<>();\nMap<Integer,Integer> count=new HashMap<>();\n\npublic FirstUnique(int[] nums){\nfor(int n:nums){ add(n); }\n}\n\npublic int showFirstUnique(){\nwhile(!q.isEmpty() && count.get(q.peek())>1)\nq.poll();\nreturn q.isEmpty()? -1:q.peek();\n}\n\npublic void add(int value){\ncount.put(value,count.getOrDefault(value,0)+1);\nq.add(value);\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual implementation using queue + frequency map\n#include<stdio.h>"
+                    "code": "// Conceptual implementation using queue + frequency map\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1209,6 +1238,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1270,15 +1304,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass FrontMiddleBackQueue:\n    def __init__(self):\n        self.q=deque()\n\n    def pushFront(self,val):\n        self.q.appendleft(val)\n\n    def pushMiddle(self,val):\n        self.q.insert(len(self.q)//2,val)\n\n    def pushBack(self,val):\n        self.q.append(val)\n\n    def popFront(self):\n        return self.q.popleft() if self.q else -1\n\n    def popMiddle(self):\n        if not self.q: return -1\n        return self.q.pop((len(self.q)-1)//2)\n\n    def popBack(self):\n        return self.q.pop() if self.q else -1"
+                    "code": "from collections import deque\n\nclass FrontMiddleBackQueue:\n    def __init__(self):\n        self.q=deque()\n\n    def pushFront(self,val):\n        self.q.appendleft(val)\n\n    def pushMiddle(self,val):\n        self.q.insert(len(self.q)//2,val)\n\n    def pushBack(self,val):\n        self.q.append(val)\n\n    def popFront(self):\n        return self.q.popleft() if self.q else -1\n\n    def popMiddle(self):\n        if not self.q: return -1\n        return self.q.pop((len(self.q)-1)//2)\n\n    def popBack(self):\n        return self.q.pop() if self.q else -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass FrontMiddleBackQueue{\nLinkedList<Integer> q=new LinkedList<>();\n\npublic void pushFront(int val){ q.addFirst(val); }\n\npublic void pushMiddle(int val){ q.add(q.size()/2,val); }\n\npublic void pushBack(int val){ q.addLast(val); }\n\npublic int popFront(){ return q.isEmpty()? -1:q.removeFirst(); }\n\npublic int popMiddle(){\nif(q.isEmpty()) return -1;\nreturn q.remove((q.size()-1)/2);\n}\n\npublic int popBack(){ return q.isEmpty()? -1:q.removeLast(); }\n}"
+                    "code": "import java.util.*;\nclass FrontMiddleBackQueue{\nLinkedList<Integer> q=new LinkedList<>();\n\npublic void pushFront(int val){ q.addFirst(val); }\n\npublic void pushMiddle(int val){ q.add(q.size()/2,val); }\n\npublic void pushBack(int val){ q.addLast(val); }\n\npublic int popFront(){ return q.isEmpty()? -1:q.removeFirst(); }\n\npublic int popMiddle(){\nif(q.isEmpty()) return -1;\nreturn q.remove((q.size()-1)/2);\n}\n\npublic int popBack(){ return q.isEmpty()? -1:q.removeLast(); }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual implementation using deque\n#include<stdio.h>"
+                    "code": "// Conceptual implementation using deque\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1287,6 +1324,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1348,15 +1390,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass MKAverage:\n    def __init__(self,m,k):\n        self.m=m\n        self.k=k\n        self.q=deque()\n\n    def addElement(self,num):\n        self.q.append(num)\n        if len(self.q)>self.m:\n            self.q.popleft()\n\n    def calculateMKAverage(self):\n        if len(self.q)<self.m:\n            return -1\n        arr=sorted(self.q)\n        arr=arr[self.k:self.m-self.k]\n        return sum(arr)//len(arr)"
+                    "code": "from collections import deque\n\nclass MKAverage:\n    def __init__(self,m,k):\n        self.m=m\n        self.k=k\n        self.q=deque()\n\n    def addElement(self,num):\n        self.q.append(num)\n        if len(self.q)>self.m:\n            self.q.popleft()\n\n    def calculateMKAverage(self):\n        if len(self.q)<self.m:\n            return -1\n        arr=sorted(self.q)\n        arr=arr[self.k:self.m-self.k]\n        return sum(arr)//len(arr)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass MKAverage{\nint m,k;\nQueue<Integer> q=new LinkedList<>();\n\npublic MKAverage(int m,int k){ this.m=m; this.k=k; }\n\npublic void addElement(int num){\nq.add(num);\nif(q.size()>m) q.poll();\n}\n\npublic int calculateMKAverage(){\nif(q.size()<m) return -1;\nList<Integer> list=new ArrayList<>(q);\nCollections.sort(list);\nint sum=0;\nfor(int i=k;i<m-k;i++) sum+=list.get(i);\nreturn sum/(m-2*k);\n}\n}"
+                    "code": "import java.util.*;\nclass MKAverage{\nint m,k;\nQueue<Integer> q=new LinkedList<>();\n\npublic MKAverage(int m,int k){ this.m=m; this.k=k; }\n\npublic void addElement(int num){\nq.add(num);\nif(q.size()>m) q.poll();\n}\n\npublic int calculateMKAverage(){\nif(q.size()<m) return -1;\nList<Integer> list=new ArrayList<>(q);\nCollections.sort(list);\nint sum=0;\nfor(int i=k;i<m-k;i++) sum+=list.get(i);\nreturn sum/(m-2*k);\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Simplified conceptual implementation\n#include<stdio.h>"
+                    "code": "// Simplified conceptual implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1365,6 +1410,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1426,15 +1476,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef maximumRobots(chargeTimes,runningCosts,budget):\n    q=deque()\n    total=0\n    left=0\n    ans=0\n\n    for right in range(len(chargeTimes)):\n        while q and chargeTimes[q[-1]]<=chargeTimes[right]:\n            q.pop()\n        q.append(right)\n\n        total+=runningCosts[right]\n\n        while q and chargeTimes[q[0]]+(right-left+1)*total>budget:\n            if q[0]==left: q.popleft()\n            total-=runningCosts[left]\n            left+=1\n\n        ans=max(ans,right-left+1)\n\n    return ans"
+                    "code": "from collections import deque\n\ndef maximumRobots(chargeTimes,runningCosts,budget):\n    q=deque()\n    total=0\n    left=0\n    ans=0\n\n    for right in range(len(chargeTimes)):\n        while q and chargeTimes[q[-1]]<=chargeTimes[right]:\n            q.pop()\n        q.append(right)\n\n        total+=runningCosts[right]\n\n        while q and chargeTimes[q[0]]+(right-left+1)*total>budget:\n            if q[0]==left: q.popleft()\n            total-=runningCosts[left]\n            left+=1\n\n        ans=max(ans,right-left+1)\n\n    return ans",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window + monotonic deque implementation\nimport java.util.*;"
+                    "code": "// Sliding window + monotonic deque implementation\nimport java.util.*;",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual sliding window implementation\n#include<stdio.h>"
+                    "code": "// Conceptual sliding window implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1443,6 +1496,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1504,15 +1562,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef timeTaken(arrival,state):\n    n=len(arrival)\n    enter=deque()\n    exit=deque()\n    res=[0]*n\n\n    time=0\n    i=0\n    last=-1\n\n    while i<n or enter or exit:\n        while i<n and arrival[i]<=time:\n            (exit if state[i]==1 else enter).append(i)\n            i+=1\n\n        if exit or enter:\n            if exit and (last==1 or not enter):\n                idx=exit.popleft()\n                last=1\n            else:\n                idx=enter.popleft()\n                last=0\n\n            res[idx]=time\n            time+=1\n        else:\n            time=arrival[i]\n            last=-1\n\n    return res"
+                    "code": "from collections import deque\n\ndef timeTaken(arrival,state):\n    n=len(arrival)\n    enter=deque()\n    exit=deque()\n    res=[0]*n\n\n    time=0\n    i=0\n    last=-1\n\n    while i<n or enter or exit:\n        while i<n and arrival[i]<=time:\n            (exit if state[i]==1 else enter).append(i)\n            i+=1\n\n        if exit or enter:\n            if exit and (last==1 or not enter):\n                idx=exit.popleft()\n                last=1\n            else:\n                idx=enter.popleft()\n                last=0\n\n            res[idx]=time\n            time+=1\n        else:\n            time=arrival[i]\n            last=-1\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Queue simulation solution\nimport java.util.*;"
+                    "code": "// Queue simulation solution\nimport java.util.*;",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Simulation using queues\n#include<stdio.h>"
+                    "code": "// Simulation using queues\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1521,6 +1582,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1582,15 +1648,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "class MyCircularDeque:\n    def __init__(self,k):\n        self.q=[0]*k\n        self.head=0\n        self.count=0\n        self.size=k\n\n    def insertFront(self,val):\n        if self.count==self.size: return False\n        self.head=(self.head-1)%self.size\n        self.q[self.head]=val\n        self.count+=1\n        return True\n\n    def insertLast(self,val):\n        if self.count==self.size: return False\n        tail=(self.head+self.count)%self.size\n        self.q[tail]=val\n        self.count+=1\n        return True\n\n    def deleteFront(self):\n        if self.count==0: return False\n        self.head=(self.head+1)%self.size\n        self.count-=1\n        return True\n\n    def deleteLast(self):\n        if self.count==0: return False\n        self.count-=1\n        return True\n\n    def getFront(self): return -1 if self.count==0 else self.q[self.head]\n\n    def getRear(self): return -1 if self.count==0 else self.q[(self.head+self.count-1)%self.size]\n\n    def isEmpty(self): return self.count==0\n\n    def isFull(self): return self.count==self.size"
+                    "code": "class MyCircularDeque:\n    def __init__(self,k):\n        self.q=[0]*k\n        self.head=0\n        self.count=0\n        self.size=k\n\n    def insertFront(self,val):\n        if self.count==self.size: return False\n        self.head=(self.head-1)%self.size\n        self.q[self.head]=val\n        self.count+=1\n        return True\n\n    def insertLast(self,val):\n        if self.count==self.size: return False\n        tail=(self.head+self.count)%self.size\n        self.q[tail]=val\n        self.count+=1\n        return True\n\n    def deleteFront(self):\n        if self.count==0: return False\n        self.head=(self.head+1)%self.size\n        self.count-=1\n        return True\n\n    def deleteLast(self):\n        if self.count==0: return False\n        self.count-=1\n        return True\n\n    def getFront(self): return -1 if self.count==0 else self.q[self.head]\n\n    def getRear(self): return -1 if self.count==0 else self.q[(self.head+self.count-1)%self.size]\n\n    def isEmpty(self): return self.count==0\n\n    def isFull(self): return self.count==self.size",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Circular deque using array\nclass MyCircularDeque { }"
+                    "code": "// Circular deque using array\nclass MyCircularDeque { }",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Circular deque conceptual implementation\n#include<stdio.h>"
+                    "code": "// Circular deque conceptual implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1599,6 +1668,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A Circular Deque allows insertion and deletion from both ends using a fixed-size array.",
+                "Maintain two pointers 'front' and 'rear' and use modulo arithmetic for wrapping around.",
+                "Remember that deleting from the front is 'front = (front + 1) % size', and deleting from rear is 'rear = (rear - 1 + size) % size'."
             ]
         },
         {
@@ -1660,15 +1734,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass HitCounter:\n    def __init__(self):\n        self.q=deque()\n\n    def hit(self,timestamp):\n        self.q.append(timestamp)\n\n    def getHits(self,timestamp):\n        while self.q and self.q[0]<=timestamp-300:\n            self.q.popleft()\n        return len(self.q)"
+                    "code": "from collections import deque\n\nclass HitCounter:\n    def __init__(self):\n        self.q=deque()\n\n    def hit(self,timestamp):\n        self.q.append(timestamp)\n\n    def getHits(self,timestamp):\n        while self.q and self.q[0]<=timestamp-300:\n            self.q.popleft()\n        return len(self.q)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass HitCounter{\nQueue<Integer> q=new LinkedList<>();\n\npublic void hit(int timestamp){ q.add(timestamp); }\n\npublic int getHits(int timestamp){\nwhile(!q.isEmpty() && q.peek()<=timestamp-300)\nq.poll();\nreturn q.size();\n}\n}"
+                    "code": "import java.util.*;\nclass HitCounter{\nQueue<Integer> q=new LinkedList<>();\n\npublic void hit(int timestamp){ q.add(timestamp); }\n\npublic int getHits(int timestamp){\nwhile(!q.isEmpty() && q.peek()<=timestamp-300)\nq.poll();\nreturn q.size();\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Queue based hit counter\n#include<stdio.h>"
+                    "code": "// Queue based hit counter\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1677,6 +1754,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1738,15 +1820,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass PhoneDirectory:\n    def __init__(self,maxNumbers):\n        self.available=deque(range(maxNumbers))\n        self.used=set()\n\n    def get(self):\n        if not self.available:\n            return -1\n        num=self.available.popleft()\n        self.used.add(num)\n        return num\n\n    def check(self,number):\n        return number not in self.used\n\n    def release(self,number):\n        if number in self.used:\n            self.used.remove(number)\n            self.available.append(number)"
+                    "code": "from collections import deque\n\nclass PhoneDirectory:\n    def __init__(self,maxNumbers):\n        self.available=deque(range(maxNumbers))\n        self.used=set()\n\n    def get(self):\n        if not self.available:\n            return -1\n        num=self.available.popleft()\n        self.used.add(num)\n        return num\n\n    def check(self,number):\n        return number not in self.used\n\n    def release(self,number):\n        if number in self.used:\n            self.used.remove(number)\n            self.available.append(number)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass PhoneDirectory{\nQueue<Integer> q=new LinkedList<>();\nSet<Integer> used=new HashSet<>();\n\npublic PhoneDirectory(int maxNumbers){\nfor(int i=0;i<maxNumbers;i++) q.add(i);\n}\n\npublic int get(){\nif(q.isEmpty()) return -1;\nint num=q.poll();\nused.add(num);\nreturn num;\n}\n\npublic boolean check(int number){\nreturn !used.contains(number);\n}\n\npublic void release(int number){\nif(used.remove(number)) q.add(number);\n}\n}"
+                    "code": "import java.util.*;\nclass PhoneDirectory{\nQueue<Integer> q=new LinkedList<>();\nSet<Integer> used=new HashSet<>();\n\npublic PhoneDirectory(int maxNumbers){\nfor(int i=0;i<maxNumbers;i++) q.add(i);\n}\n\npublic int get(){\nif(q.isEmpty()) return -1;\nint num=q.poll();\nused.add(num);\nreturn num;\n}\n\npublic boolean check(int number){\nreturn !used.contains(number);\n}\n\npublic void release(int number){\nif(used.remove(number)) q.add(number);\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual implementation using queue and set\n#include<stdio.h>"
+                    "code": "// Conceptual implementation using queue and set\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1755,6 +1840,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1816,15 +1906,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def maxSubarraySumCircular(nums):\n    total=sum(nums)\n    curMax=curMin=0\n    maxSum=minSum=nums[0]\n\n    for n in nums:\n        curMax=max(curMax+n,n)\n        maxSum=max(maxSum,curMax)\n\n        curMin=min(curMin+n,n)\n        minSum=min(minSum,curMin)\n\n    return maxSum if maxSum<0 else max(maxSum,total-minSum)"
+                    "code": "def maxSubarraySumCircular(nums):\n    total=sum(nums)\n    curMax=curMin=0\n    maxSum=minSum=nums[0]\n\n    for n in nums:\n        curMax=max(curMax+n,n)\n        maxSum=max(maxSum,curMax)\n\n        curMin=min(curMin+n,n)\n        minSum=min(minSum,curMin)\n\n    return maxSum if maxSum<0 else max(maxSum,total-minSum)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution{\npublic int maxSubarraySumCircular(int[] nums){\nint total=0,curMax=0,curMin=0;\nint maxSum=nums[0],minSum=nums[0];\n\nfor(int n:nums){\ncurMax=Math.max(curMax+n,n);\nmaxSum=Math.max(maxSum,curMax);\n\ncurMin=Math.min(curMin+n,n);\nminSum=Math.min(minSum,curMin);\n\ntotal+=n;\n}\n\nreturn maxSum<0?maxSum:Math.max(maxSum,total-minSum);\n}\n}"
+                    "code": "class Solution{\npublic int maxSubarraySumCircular(int[] nums){\nint total=0,curMax=0,curMin=0;\nint maxSum=nums[0],minSum=nums[0];\n\nfor(int n:nums){\ncurMax=Math.max(curMax+n,n);\nmaxSum=Math.max(maxSum,curMax);\n\ncurMin=Math.min(curMin+n,n);\nminSum=Math.min(minSum,curMin);\n\ntotal+=n;\n}\n\nreturn maxSum<0?maxSum:Math.max(maxSum,total-minSum);\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Kadane's algorithm for circular array\n#include<stdio.h>"
+                    "code": "// Kadane's algorithm for circular array\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1833,6 +1926,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1894,15 +1992,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def kEmptySlots(bulbs,k):\n    n=len(bulbs)\n    days=[0]*n\n\n    for day,pos in enumerate(bulbs,1):\n        days[pos-1]=day\n\n    res=float('inf')\n    left,right=0,k+1\n\n    while right<n:\n        valid=True\n        for i in range(left+1,right):\n            if days[i]<max(days[left],days[right]):\n                left=i\n                right=i+k+1\n                valid=False\n                break\n        if valid:\n            res=min(res,max(days[left],days[right]))\n            left=right\n            right=left+k+1\n\n    return -1 if res==float('inf') else res"
+                    "code": "def kEmptySlots(bulbs,k):\n    n=len(bulbs)\n    days=[0]*n\n\n    for day,pos in enumerate(bulbs,1):\n        days[pos-1]=day\n\n    res=float('inf')\n    left,right=0,k+1\n\n    while right<n:\n        valid=True\n        for i in range(left+1,right):\n            if days[i]<max(days[left],days[right]):\n                left=i\n                right=i+k+1\n                valid=False\n                break\n        if valid:\n            res=min(res,max(days[left],days[right]))\n            left=right\n            right=left+k+1\n\n    return -1 if res==float('inf') else res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window solution\nclass Solution{}"
+                    "code": "// Sliding window solution\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual sliding window implementation\n#include<stdio.h>"
+                    "code": "// Conceptual sliding window implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1911,6 +2012,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -1972,15 +2078,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef orangesRotting(grid):\n    rows,cols=len(grid),len(grid[0])\n    q=deque()\n    fresh=0\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c]==2:\n                q.append((r,c,0))\n            elif grid[r][c]==1:\n                fresh+=1\n\n    dirs=[(1,0),(-1,0),(0,1),(0,-1)]\n    time=0\n\n    while q:\n        r,c,t=q.popleft()\n        time=max(time,t)\n\n        for dr,dc in dirs:\n            nr,nc=r+dr,c+dc\n            if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]==1:\n                grid[nr][nc]=2\n                fresh-=1\n                q.append((nr,nc,t+1))\n\n    return time if fresh==0 else -1"
+                    "code": "from collections import deque\n\ndef orangesRotting(grid):\n    rows,cols=len(grid),len(grid[0])\n    q=deque()\n    fresh=0\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c]==2:\n                q.append((r,c,0))\n            elif grid[r][c]==1:\n                fresh+=1\n\n    dirs=[(1,0),(-1,0),(0,1),(0,-1)]\n    time=0\n\n    while q:\n        r,c,t=q.popleft()\n        time=max(time,t)\n\n        for dr,dc in dirs:\n            nr,nc=r+dr,c+dc\n            if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]==1:\n                grid[nr][nc]=2\n                fresh-=1\n                q.append((nr,nc,t+1))\n\n    return time if fresh==0 else -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// BFS grid traversal\nimport java.util.*;\nclass Solution{}"
+                    "code": "// BFS grid traversal\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// BFS queue simulation\n#include<stdio.h>"
+                    "code": "// BFS queue simulation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -1989,6 +2098,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Use Breadth-First Search (BFS) to simulate the rotting process minute by minute.",
+                "Initially, add all rotten oranges coordinates to a queue. For each minute, process all oranges currently in the queue.",
+                "Count the total number of fresh oranges and decrement it as they rot; if it reaches 0, you've found the time."
             ]
         },
         {
@@ -2050,15 +2164,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef openLock(deadends,target):\n    dead=set(deadends)\n    if '0000' in dead:\n        return -1\n\n    q=deque([('0000',0)])\n    seen={'0000'}\n\n    while q:\n        node,steps=q.popleft()\n\n        if node==target:\n            return steps\n\n        for i in range(4):\n            digit=int(node[i])\n\n            for move in (-1,1):\n                nd=(digit+move)%10\n                nxt=node[:i]+str(nd)+node[i+1:]\n\n                if nxt not in seen and nxt not in dead:\n                    seen.add(nxt)\n                    q.append((nxt,steps+1))\n\n    return -1"
+                    "code": "from collections import deque\n\ndef openLock(deadends,target):\n    dead=set(deadends)\n    if '0000' in dead:\n        return -1\n\n    q=deque([('0000',0)])\n    seen={'0000'}\n\n    while q:\n        node,steps=q.popleft()\n\n        if node==target:\n            return steps\n\n        for i in range(4):\n            digit=int(node[i])\n\n            for move in (-1,1):\n                nd=(digit+move)%10\n                nxt=node[:i]+str(nd)+node[i+1:]\n\n                if nxt not in seen and nxt not in dead:\n                    seen.add(nxt)\n                    q.append((nxt,steps+1))\n\n    return -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// BFS shortest path solution\nimport java.util.*;\nclass Solution{}"
+                    "code": "// BFS shortest path solution\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// BFS state exploration\n#include<stdio.h>"
+                    "code": "// BFS state exploration\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2067,6 +2184,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This problem can be modeled as finding the shortest path between '0000' and the target code.",
+                "Use BFS with a queue to explore all possible 1-digit turn combinations (8 for each code).",
+                "Keep a 'visited' set that includes the 'deadends' to avoid invalid states during exploration."
             ]
         },
         {
@@ -2128,15 +2250,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef snakesAndLadders(board):\n    n=len(board)\n\n    def id2pos(id):\n        r=(id-1)//n\n        c=(id-1)%n\n        if r%2:\n            c=n-1-c\n        return n-1-r,c\n\n    q=deque([(1,0)])\n    visited={1}\n\n    while q:\n        s,steps=q.popleft()\n\n        if s==n*n:\n            return steps\n\n        for i in range(1,7):\n            ns=s+i\n            if ns>n*n: break\n\n            r,c=id2pos(ns)\n\n            if board[r][c]!=-1:\n                ns=board[r][c]\n\n            if ns not in visited:\n                visited.add(ns)\n                q.append((ns,steps+1))\n\n    return -1"
+                    "code": "from collections import deque\n\ndef snakesAndLadders(board):\n    n=len(board)\n\n    def id2pos(id):\n        r=(id-1)//n\n        c=(id-1)%n\n        if r%2:\n            c=n-1-c\n        return n-1-r,c\n\n    q=deque([(1,0)])\n    visited={1}\n\n    while q:\n        s,steps=q.popleft()\n\n        if s==n*n:\n            return steps\n\n        for i in range(1,7):\n            ns=s+i\n            if ns>n*n: break\n\n            r,c=id2pos(ns)\n\n            if board[r][c]!=-1:\n                ns=board[r][c]\n\n            if ns not in visited:\n                visited.add(ns)\n                q.append((ns,steps+1))\n\n    return -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// BFS shortest path on board\nimport java.util.*;\nclass Solution{}"
+                    "code": "// BFS shortest path on board\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// BFS board traversal\n#include<stdio.h>"
+                    "code": "// BFS board traversal\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2145,84 +2270,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Reveal Cards in Increasing Order",
-            "content": "You are given an integer array deck representing a deck of unique cards.\n\nYou must arrange the deck so that when the following process is applied, the revealed cards appear in increasing order:\n1. Reveal the top card.\n2. Move the next top card to the bottom of the deck.\n3. Repeat until all cards are revealed.\n\nReturn the ordering of the deck that achieves this result.",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Circular Queue",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
             ],
-            "test_cases_basic": [
-                {
-                    "input": "deck=[17,13,11,2,3,5,7]",
-                    "expected_output": "[2,13,3,11,5,17,7]"
-                },
-                {
-                    "input": "deck=[1,100]",
-                    "expected_output": "[1,100]"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "deck=[1,2,3,4]",
-                    "expected_output": "[1,3,2,4]"
-                },
-                {
-                    "input": "deck=[10,20,30]",
-                    "expected_output": "[10,30,20]"
-                },
-                {
-                    "input": "deck=[5,3,1,2,4]",
-                    "expected_output": "[1,5,2,4,3]"
-                },
-                {
-                    "input": "deck=[7,6,5,4,3,2,1]",
-                    "expected_output": "[1,6,2,5,3,7,4]"
-                },
-                {
-                    "input": "deck=[9]",
-                    "expected_output": "[9]"
-                },
-                {
-                    "input": "deck=[8,4,2,6]",
-                    "expected_output": "[2,6,4,8]"
-                },
-                {
-                    "input": "deck=[100,200,300,400]",
-                    "expected_output": "[100,300,200,400]"
-                }
-            ],
-            "inputFormat": "Array deck containing unique integers.",
-            "outputFormat": "Return arranged deck order.",
-            "solutions": [
-                {
-                    "language": "python",
-                    "code": "from collections import deque\n\ndef deckRevealedIncreasing(deck):\n    deck.sort()\n    q=deque(range(len(deck)))\n    res=[0]*len(deck)\n\n    for card in deck:\n        i=q.popleft()\n        res[i]=card\n        if q:\n            q.append(q.popleft())\n\n    return res"
-                },
-                {
-                    "language": "java",
-                    "code": "import java.util.*;\nclass Solution{\npublic int[] deckRevealedIncreasing(int[] deck){\nArrays.sort(deck);\nQueue<Integer> q=new LinkedList<>();\n\nfor(int i=0;i<deck.length;i++) q.add(i);\n\nint[] res=new int[deck.length];\n\nfor(int card:deck){\nint idx=q.poll();\nres[idx]=card;\n\nif(!q.isEmpty())\nq.add(q.poll());\n}\n\nreturn res;\n}\n}"
-                },
-                {
-                    "language": "c",
-                    "code": "// Queue simulation using indices\n#include<stdio.h>"
-                },
-                {
-                    "title": "Queue implementation - CPP",
-                    "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    vector<int> deckRevealedIncreasing(vector<int>& deck) {\n        sort(deck.begin(), deck.end());\n        queue<int> q;\n        for(int i = 0; i < deck.size(); i++) q.push(i);\n        vector<int> res(deck.size());\n        for(int card : deck) {\n            res[q.front()] = card;\n            q.pop();\n            if(!q.empty()) {\n                q.push(q.front());\n                q.pop();\n            }\n        }\n        return res;\n    }\n};",
-                    "complexity_analysis": "Time: O(N). Space: O(N).",
-                    "is_primary": false
-                }
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2284,15 +2336,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef findTheWinner(n,k):\n    q=deque(range(1,n+1))\n\n    while len(q)>1:\n        q.rotate(-(k-1))\n        q.popleft()\n\n    return q[0]"
+                    "code": "from collections import deque\n\ndef findTheWinner(n,k):\n    q=deque(range(1,n+1))\n\n    while len(q)>1:\n        q.rotate(-(k-1))\n        q.popleft()\n\n    return q[0]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass Solution{\npublic int findTheWinner(int n,int k){\nQueue<Integer> q=new LinkedList<>();\n\nfor(int i=1;i<=n;i++) q.add(i);\n\nwhile(q.size()>1){\nfor(int i=1;i<k;i++) q.add(q.poll());\nq.poll();\n}\n\nreturn q.peek();\n}\n}"
+                    "code": "import java.util.*;\nclass Solution{\npublic int findTheWinner(int n,int k){\nQueue<Integer> q=new LinkedList<>();\n\nfor(int i=1;i<=n;i++) q.add(i);\n\nwhile(q.size()>1){\nfor(int i=1;i<k;i++) q.add(q.poll());\nq.poll();\n}\n\nreturn q.peek();\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int findTheWinner(int n,int k){\nint res=0;\n\nfor(int i=1;i<=n;i++)\nres=(res+k)%i;\n\nreturn res+1;\n}"
+                    "code": "int findTheWinner(int n,int k){\nint res=0;\n\nfor(int i=1;i<=n;i++)\nres=(res+k)%i;\n\nreturn res+1;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2301,6 +2356,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2362,15 +2422,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef wallsAndGates(rooms):\n    rows=len(rooms)\n    cols=len(rooms[0])\n\n    q=deque()\n\n    for r in range(rows):\n        for c in range(cols):\n            if rooms[r][c]==0:\n                q.append((r,c))\n\n    dirs=[(1,0),(-1,0),(0,1),(0,-1)]\n\n    while q:\n        r,c=q.popleft()\n\n        for dr,dc in dirs:\n            nr,nc=r+dr,c+dc\n\n            if 0<=nr<rows and 0<=nc<cols and rooms[nr][nc]>rooms[r][c]+1:\n                rooms[nr][nc]=rooms[r][c]+1\n                q.append((nr,nc))"
+                    "code": "from collections import deque\n\ndef wallsAndGates(rooms):\n    rows=len(rooms)\n    cols=len(rooms[0])\n\n    q=deque()\n\n    for r in range(rows):\n        for c in range(cols):\n            if rooms[r][c]==0:\n                q.append((r,c))\n\n    dirs=[(1,0),(-1,0),(0,1),(0,-1)]\n\n    while q:\n        r,c=q.popleft()\n\n        for dr,dc in dirs:\n            nr,nc=r+dr,c+dc\n\n            if 0<=nr<rows and 0<=nc<cols and rooms[nr][nc]>rooms[r][c]+1:\n                rooms[nr][nc]=rooms[r][c]+1\n                q.append((nr,nc))",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// BFS multi-source approach\nimport java.util.*;\nclass Solution{}"
+                    "code": "// BFS multi-source approach\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// BFS grid traversal\n#include<stdio.h>"
+                    "code": "// BFS grid traversal\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2379,6 +2442,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2440,15 +2508,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import Counter\n\ndef firstUniqChar(s):\n    count=Counter(s)\n\n    for i,c in enumerate(s):\n        if count[c]==1:\n            return i\n\n    return -1"
+                    "code": "from collections import Counter\n\ndef firstUniqChar(s):\n    count=Counter(s)\n\n    for i,c in enumerate(s):\n        if count[c]==1:\n            return i\n\n    return -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution{\npublic int firstUniqChar(String s){\nint[] freq=new int[26];\n\nfor(char c:s.toCharArray())\nfreq[c-'a']++;\n\nfor(int i=0;i<s.length();i++){\nif(freq[s.charAt(i)-'a']==1)\nreturn i;\n}\n\nreturn -1;\n}\n}"
+                    "code": "class Solution{\npublic int firstUniqChar(String s){\nint[] freq=new int[26];\n\nfor(char c:s.toCharArray())\nfreq[c-'a']++;\n\nfor(int i=0;i<s.length();i++){\nif(freq[s.charAt(i)-'a']==1)\nreturn i;\n}\n\nreturn -1;\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "int firstUniqChar(char* s){\nint freq[26]={0};\n\nfor(int i=0;s[i];i++)\nfreq[s[i]-'a']++;\n\nfor(int i=0;s[i];i++)\nif(freq[s[i]-'a']==1)\nreturn i;\n\nreturn -1;\n}"
+                    "code": "int firstUniqChar(char* s){\nint freq[26]={0};\n\nfor(int i=0;s[i];i++)\nfreq[s[i]-'a']++;\n\nfor(int i=0;s[i];i++)\nif(freq[s[i]-'a']==1)\nreturn i;\n\nreturn -1;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2457,6 +2528,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Use a frequency map (or array) to count occurrences and a queue to store the order of characters.",
+                "When processing a character, update its frequency in the map.",
+                "To find the first unique, pop from the queue's front as long as the frequency of the front character is > 1."
             ]
         },
         {
@@ -2518,15 +2594,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass HitCounter:\n    def __init__(self):\n        self.q=deque()\n\n    def hit(self,timestamp):\n        self.q.append(timestamp)\n\n    def getHits(self,timestamp):\n        while self.q and self.q[0]<=timestamp-300:\n            self.q.popleft()\n        return len(self.q)"
+                    "code": "from collections import deque\n\nclass HitCounter:\n    def __init__(self):\n        self.q=deque()\n\n    def hit(self,timestamp):\n        self.q.append(timestamp)\n\n    def getHits(self,timestamp):\n        while self.q and self.q[0]<=timestamp-300:\n            self.q.popleft()\n        return len(self.q)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass HitCounter{\nQueue<Integer> q=new LinkedList<>();\n\npublic void hit(int timestamp){ q.add(timestamp); }\n\npublic int getHits(int timestamp){\nwhile(!q.isEmpty() && q.peek()<=timestamp-300)\nq.poll();\nreturn q.size();\n}\n}"
+                    "code": "import java.util.*;\nclass HitCounter{\nQueue<Integer> q=new LinkedList<>();\n\npublic void hit(int timestamp){ q.add(timestamp); }\n\npublic int getHits(int timestamp){\nwhile(!q.isEmpty() && q.peek()<=timestamp-300)\nq.poll();\nreturn q.size();\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Queue based hit counter simulation\n#include<stdio.h>"
+                    "code": "// Queue based hit counter simulation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2535,6 +2614,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2596,15 +2680,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass FrontMiddleBackQueue:\n    def __init__(self):\n        self.q=deque()\n\n    def pushFront(self,val):\n        self.q.appendleft(val)\n\n    def pushMiddle(self,val):\n        self.q.insert(len(self.q)//2,val)\n\n    def pushBack(self,val):\n        self.q.append(val)\n\n    def popFront(self):\n        return self.q.popleft() if self.q else -1\n\n    def popMiddle(self):\n        if not self.q: return -1\n        return self.q.pop((len(self.q)-1)//2)\n\n    def popBack(self):\n        return self.q.pop() if self.q else -1"
+                    "code": "from collections import deque\n\nclass FrontMiddleBackQueue:\n    def __init__(self):\n        self.q=deque()\n\n    def pushFront(self,val):\n        self.q.appendleft(val)\n\n    def pushMiddle(self,val):\n        self.q.insert(len(self.q)//2,val)\n\n    def pushBack(self,val):\n        self.q.append(val)\n\n    def popFront(self):\n        return self.q.popleft() if self.q else -1\n\n    def popMiddle(self):\n        if not self.q: return -1\n        return self.q.pop((len(self.q)-1)//2)\n\n    def popBack(self):\n        return self.q.pop() if self.q else -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass FrontMiddleBackQueue{\nLinkedList<Integer> q=new LinkedList<>();\n\npublic void pushFront(int val){ q.addFirst(val); }\n\npublic void pushMiddle(int val){ q.add(q.size()/2,val); }\n\npublic void pushBack(int val){ q.addLast(val); }\n\npublic int popFront(){ return q.isEmpty()? -1:q.removeFirst(); }\n\npublic int popMiddle(){ return q.isEmpty()? -1:q.remove((q.size()-1)/2); }\n\npublic int popBack(){ return q.isEmpty()? -1:q.removeLast(); }\n}"
+                    "code": "import java.util.*;\nclass FrontMiddleBackQueue{\nLinkedList<Integer> q=new LinkedList<>();\n\npublic void pushFront(int val){ q.addFirst(val); }\n\npublic void pushMiddle(int val){ q.add(q.size()/2,val); }\n\npublic void pushBack(int val){ q.addLast(val); }\n\npublic int popFront(){ return q.isEmpty()? -1:q.removeFirst(); }\n\npublic int popMiddle(){ return q.isEmpty()? -1:q.remove((q.size()-1)/2); }\n\npublic int popBack(){ return q.isEmpty()? -1:q.removeLast(); }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual deque implementation\n#include<stdio.h>"
+                    "code": "// Conceptual deque implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2613,6 +2700,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2674,15 +2766,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "class UndergroundSystem:\n    def __init__(self):\n        self.checkins={}\n        self.times={}\n\n    def checkIn(self,id,station,t):\n        self.checkins[id]=(station,t)\n\n    def checkOut(self,id,station,t):\n        start,start_t=self.checkins.pop(id)\n        key=(start,station)\n\n        total,count=self.times.get(key,(0,0))\n        self.times[key]=(total+(t-start_t),count+1)\n\n    def getAverageTime(self,start,end):\n        total,count=self.times[(start,end)]\n        return total/count"
+                    "code": "class UndergroundSystem:\n    def __init__(self):\n        self.checkins={}\n        self.times={}\n\n    def checkIn(self,id,station,t):\n        self.checkins[id]=(station,t)\n\n    def checkOut(self,id,station,t):\n        start,start_t=self.checkins.pop(id)\n        key=(start,station)\n\n        total,count=self.times.get(key,(0,0))\n        self.times[key]=(total+(t-start_t),count+1)\n\n    def getAverageTime(self,start,end):\n        total,count=self.times[(start,end)]\n        return total/count",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass UndergroundSystem{\nMap<Integer,String[]> checkins=new HashMap<>();\nMap<String,int[]> times=new HashMap<>();\n\npublic void checkIn(int id,String station,int t){\ncheckins.put(id,new String[]{station,String.valueOf(t)});\n}\n}"
+                    "code": "import java.util.*;\nclass UndergroundSystem{\nMap<Integer,String[]> checkins=new HashMap<>();\nMap<String,int[]> times=new HashMap<>();\n\npublic void checkIn(int id,String station,int t){\ncheckins.put(id,new String[]{station,String.valueOf(t)});\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Conceptual hashmap-based implementation\n#include<stdio.h>"
+                    "code": "// Conceptual hashmap-based implementation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2691,6 +2786,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2752,15 +2852,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass Router:\n    def __init__(self):\n        self.q=deque()\n\n    def addPacket(self,id):\n        self.q.append(id)\n\n    def processPacket(self):\n        return self.q.popleft() if self.q else -1\n\n    def pendingPackets(self):\n        return len(self.q)"
+                    "code": "from collections import deque\n\nclass Router:\n    def __init__(self):\n        self.q=deque()\n\n    def addPacket(self,id):\n        self.q.append(id)\n\n    def processPacket(self):\n        return self.q.popleft() if self.q else -1\n\n    def pendingPackets(self):\n        return len(self.q)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass Router{\nQueue<Integer> q=new LinkedList<>();\n\npublic void addPacket(int id){ q.add(id); }\n\npublic int processPacket(){ return q.isEmpty()? -1:q.poll(); }\n\npublic int pendingPackets(){ return q.size(); }\n}"
+                    "code": "import java.util.*;\nclass Router{\nQueue<Integer> q=new LinkedList<>();\n\npublic void addPacket(int id){ q.add(id); }\n\npublic int processPacket(){ return q.isEmpty()? -1:q.poll(); }\n\npublic int pendingPackets(){ return q.size(); }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Queue based router simulation\n#include<stdio.h>"
+                    "code": "// Queue based router simulation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2769,6 +2872,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2830,15 +2938,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\nclass StatsTracker:\n    def __init__(self):\n        self.q=deque()\n        self.total=0\n\n    def add(self,val):\n        self.q.append(val)\n        self.total+=val\n\n    def remove(self):\n        if self.q:\n            self.total-=self.q.popleft()\n\n    def getAverage(self):\n        return self.total/len(self.q) if self.q else 0"
+                    "code": "from collections import deque\n\nclass StatsTracker:\n    def __init__(self):\n        self.q=deque()\n        self.total=0\n\n    def add(self,val):\n        self.q.append(val)\n        self.total+=val\n\n    def remove(self):\n        if self.q:\n            self.total-=self.q.popleft()\n\n    def getAverage(self):\n        return self.total/len(self.q) if self.q else 0",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "import java.util.*;\nclass StatsTracker{\nQueue<Integer> q=new LinkedList<>();\ndouble sum=0;\n\npublic void add(int val){ q.add(val); sum+=val; }\n\npublic void remove(){ if(!q.isEmpty()) sum-=q.poll(); }\n\npublic double getAverage(){ return q.isEmpty()?0:sum/q.size(); }\n}"
+                    "code": "import java.util.*;\nclass StatsTracker{\nQueue<Integer> q=new LinkedList<>();\ndouble sum=0;\n\npublic void add(int val){ q.add(val); sum+=val; }\n\npublic void remove(){ if(!q.isEmpty()) sum-=q.poll(); }\n\npublic double getAverage(){ return q.isEmpty()?0:sum/q.size(); }\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Queue with running sum\n#include<stdio.h>"
+                    "code": "// Queue with running sum\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2847,6 +2958,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2855,7 +2971,7 @@
             "content": "Given an integer array nums and an integer limit, return the length of the longest continuous subarray such that the absolute difference between the maximum and minimum elements is less than or equal to limit.\n\nUse an efficient approach to maintain the max and min values in the sliding window.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 10,
             "categories": [
@@ -2908,15 +3024,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef longestSubarray(nums,limit):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]:\n            maxd.pop()\n        while mind and val<mind[-1]:\n            mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>limit:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res=max(res,right-left+1)\n\n    return res"
+                    "code": "from collections import deque\n\ndef longestSubarray(nums,limit):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]:\n            maxd.pop()\n        while mind and val<mind[-1]:\n            mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>limit:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res=max(res,right-left+1)\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window using monotonic deques\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Sliding window using monotonic deques\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window with monotonic queues\n#include<stdio.h>"
+                    "code": "// Sliding window with monotonic queues\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -2925,6 +3044,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -2933,7 +3057,7 @@
             "content": "Given an integer array nums, return the number of continuous subarrays where the difference between the maximum and minimum elements is less than or equal to 2.\n\nEfficient solutions use a sliding window with a monotonic deque.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 10,
             "categories": [
@@ -2986,15 +3110,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef continuousSubarrays(nums):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]: maxd.pop()\n        while mind and val<mind[-1]: mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>2:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res+=right-left+1\n\n    return res"
+                    "code": "from collections import deque\n\ndef continuousSubarrays(nums):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]: maxd.pop()\n        while mind and val<mind[-1]: mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>2:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res+=right-left+1\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window with monotonic deques\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Sliding window with monotonic deques\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window algorithm\n#include<stdio.h>"
+                    "code": "// Sliding window algorithm\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3003,6 +3130,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3011,7 +3143,7 @@
             "content": "Given an integer array nums and an integer k, return an array containing the maximum value in each sliding window of size k.\n\nUse an efficient deque-based approach with O(n) complexity.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 15,
             "categories": [
@@ -3064,15 +3196,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef maxSlidingWindow(nums,k):\n    dq=deque()\n    res=[]\n\n    for i,n in enumerate(nums):\n        while dq and nums[dq[-1]]<=n:\n            dq.pop()\n\n        dq.append(i)\n\n        if dq[0]==i-k:\n            dq.popleft()\n\n        if i>=k-1:\n            res.append(nums[dq[0]])\n\n    return res"
+                    "code": "from collections import deque\n\ndef maxSlidingWindow(nums,k):\n    dq=deque()\n    res=[]\n\n    for i,n in enumerate(nums):\n        while dq and nums[dq[-1]]<=n:\n            dq.pop()\n\n        dq.append(i)\n\n        if dq[0]==i-k:\n            dq.popleft()\n\n        if i>=k-1:\n            res.append(nums[dq[0]])\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic deque sliding window\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic deque sliding window\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window max using deque\n#include<stdio.h>"
+                    "code": "// Sliding window max using deque\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3081,6 +3216,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Use a Deque to maintain the indices of elements in the current window in strictly decreasing order of their values.",
+                "The front of the Deque will always contain the index of the maximum element for the current window.",
+                "Remove indices from the front that fall outside the current window and indices from the back whose values are <= current element."
             ]
         },
         {
@@ -3089,7 +3229,7 @@
             "content": "You are given a binary array nums and an integer k. In one operation, you can flip a subarray of length k (change 0 to 1 and 1 to 0).\n\nReturn the minimum number of flips required so that there are no 0s in the array. If it is impossible, return -1.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 15,
             "categories": [
@@ -3142,15 +3282,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef minKBitFlips(nums,k):\n    dq=deque()\n    flips=0\n\n    for i in range(len(nums)):\n        if dq and dq[0]==i:\n            dq.popleft()\n\n        if (nums[i]+len(dq))%2==0:\n            if i+k>len(nums):\n                return -1\n\n            flips+=1\n            dq.append(i+k)\n\n    return flips"
+                    "code": "from collections import deque\n\ndef minKBitFlips(nums,k):\n    dq=deque()\n    flips=0\n\n    for i in range(len(nums)):\n        if dq and dq[0]==i:\n            dq.popleft()\n\n        if (nums[i]+len(dq))%2==0:\n            if i+k>len(nums):\n                return -1\n\n            flips+=1\n            dq.append(i+k)\n\n    return flips",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window with deque\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Sliding window with deque\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window flip simulation\n#include<stdio.h>"
+                    "code": "// Sliding window flip simulation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3159,6 +3302,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3167,7 +3315,7 @@
             "content": "Given an integer array nums and an integer k, return the length of the shortest non-empty subarray with sum at least k.\n\nIf no such subarray exists, return -1.\n\nEfficient solutions use prefix sums and a monotonic deque.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 15,
             "categories": [
@@ -3220,15 +3368,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef shortestSubarray(nums,k):\n    n=len(nums)\n    prefix=[0]*(n+1)\n\n    for i in range(n):\n        prefix[i+1]=prefix[i]+nums[i]\n\n    dq=deque()\n    res=n+1\n\n    for i in range(n+1):\n        while dq and prefix[i]-prefix[dq[0]]>=k:\n            res=min(res,i-dq.popleft())\n\n        while dq and prefix[i]<=prefix[dq[-1]]:\n            dq.pop()\n\n        dq.append(i)\n\n    return res if res<=n else -1"
+                    "code": "from collections import deque\n\ndef shortestSubarray(nums,k):\n    n=len(nums)\n    prefix=[0]*(n+1)\n\n    for i in range(n):\n        prefix[i+1]=prefix[i]+nums[i]\n\n    dq=deque()\n    res=n+1\n\n    for i in range(n+1):\n        while dq and prefix[i]-prefix[dq[0]]>=k:\n            res=min(res,i-dq.popleft())\n\n        while dq and prefix[i]<=prefix[dq[-1]]:\n            dq.pop()\n\n        dq.append(i)\n\n    return res if res<=n else -1",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Prefix sum + monotonic deque\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Prefix sum + monotonic deque\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Prefix sum + deque technique\n#include<stdio.h>"
+                    "code": "// Prefix sum + deque technique\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3237,6 +3388,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3245,7 +3401,7 @@
             "content": "You are given an array of points where points[i] = [xi, yi] and an integer k.\n\nReturn the maximum value of yi + yj + |xi \u2212 xj| where |xi \u2212 xj| \u2264 k and i < j.\n\nEfficient solutions use a monotonic deque.",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 15,
             "categories": [
@@ -3298,15 +3454,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef findMaxValueOfEquation(points,k):\n    dq=deque()\n    res=float('-inf')\n\n    for x,y in points:\n        while dq and x-dq[0][0]>k:\n            dq.popleft()\n\n        if dq:\n            res=max(res,y+x+dq[0][1])\n\n        val=y-x\n\n        while dq and dq[-1][1]<=val:\n            dq.pop()\n\n        dq.append((x,val))\n\n    return res"
+                    "code": "from collections import deque\n\ndef findMaxValueOfEquation(points,k):\n    dq=deque()\n    res=float('-inf')\n\n    for x,y in points:\n        while dq and x-dq[0][0]>k:\n            dq.popleft()\n\n        if dq:\n            res=max(res,y+x+dq[0][1])\n\n        val=y-x\n\n        while dq and dq[-1][1]<=val:\n            dq.pop()\n\n        dq.append((x,val))\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic deque solution\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic deque solution\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window + deque\n#include<stdio.h>"
+                    "code": "// Sliding window + deque\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3315,6 +3474,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3376,15 +3540,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef maxResult(nums,k):\n    dq=deque([0])\n    dp=[0]*len(nums)\n    dp[0]=nums[0]\n\n    for i in range(1,len(nums)):\n        while dq and dq[0]<i-k:\n            dq.popleft()\n\n        dp[i]=nums[i]+dp[dq[0]]\n\n        while dq and dp[dq[-1]]<=dp[i]:\n            dq.pop()\n\n        dq.append(i)\n\n    return dp[-1]"
+                    "code": "from collections import deque\n\ndef maxResult(nums,k):\n    dq=deque([0])\n    dp=[0]*len(nums)\n    dp[0]=nums[0]\n\n    for i in range(1,len(nums)):\n        while dq and dq[0]<i-k:\n            dq.popleft()\n\n        dp[i]=nums[i]+dp[dq[0]]\n\n        while dq and dp[dq[-1]]<=dp[i]:\n            dq.pop()\n\n        dq.append(i)\n\n    return dp[-1]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// DP with monotonic deque\nimport java.util.*;\nclass Solution{}"
+                    "code": "// DP with monotonic deque\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// DP sliding window solution\n#include<stdio.h>"
+                    "code": "// DP sliding window solution\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3393,6 +3560,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3454,15 +3626,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef constrainedSubsetSum(nums,k):\n    dq=deque()\n    dp=nums[:]\n\n    for i in range(len(nums)):\n        if dq:\n            dp[i]=max(dp[i],nums[i]+dp[dq[0]])\n\n        while dq and dp[dq[-1]]<=dp[i]:\n            dq.pop()\n\n        dq.append(i)\n\n        if i-dq[0]>=k:\n            dq.popleft()\n\n    return max(dp)"
+                    "code": "from collections import deque\n\ndef constrainedSubsetSum(nums,k):\n    dq=deque()\n    dp=nums[:]\n\n    for i in range(len(nums)):\n        if dq:\n            dp[i]=max(dp[i],nums[i]+dp[dq[0]])\n\n        while dq and dp[dq[-1]]<=dp[i]:\n            dq.pop()\n\n        dq.append(i)\n\n        if i-dq[0]>=k:\n            dq.popleft()\n\n    return max(dp)",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// DP with monotonic deque\nimport java.util.*;\nclass Solution{}"
+                    "code": "// DP with monotonic deque\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window dynamic programming\n#include<stdio.h>"
+                    "code": "// Sliding window dynamic programming\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3471,6 +3646,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3532,15 +3712,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def findMaxAverage(nums,k):\n    window=sum(nums[:k])\n    max_sum=window\n\n    for i in range(k,len(nums)):\n        window+=nums[i]-nums[i-k]\n        max_sum=max(max_sum,window)\n\n    return max_sum/k"
+                    "code": "def findMaxAverage(nums,k):\n    window=sum(nums[:k])\n    max_sum=window\n\n    for i in range(k,len(nums)):\n        window+=nums[i]-nums[i-k]\n        max_sum=max(max_sum,window)\n\n    return max_sum/k",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution{\npublic double findMaxAverage(int[] nums,int k){\ndouble sum=0;\n\nfor(int i=0;i<k;i++) sum+=nums[i];\n\ndouble max=sum;\n\nfor(int i=k;i<nums.length;i++){\nsum+=nums[i]-nums[i-k];\nmax=Math.max(max,sum);\n}\n\nreturn max/k;\n}\n}"
+                    "code": "class Solution{\npublic double findMaxAverage(int[] nums,int k){\ndouble sum=0;\n\nfor(int i=0;i<k;i++) sum+=nums[i];\n\ndouble max=sum;\n\nfor(int i=k;i<nums.length;i++){\nsum+=nums[i]-nums[i-k];\nmax=Math.max(max,sum);\n}\n\nreturn max/k;\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "double findMaxAverage(int* nums,int n,int k){\ndouble sum=0;\n\nfor(int i=0;i<k;i++) sum+=nums[i];\n\ndouble max=sum;\n\nfor(int i=k;i<n;i++){\nsum+=nums[i]-nums[i-k];\nif(sum>max) max=sum;\n}\n\nreturn max/k;\n}"
+                    "code": "double findMaxAverage(int* nums,int n,int k){\ndouble sum=0;\n\nfor(int i=0;i<k;i++) sum+=nums[i];\n\ndouble max=sum;\n\nfor(int i=k;i<n;i++){\nsum+=nums[i]-nums[i-k];\nif(sum>max) max=sum;\n}\n\nreturn max/k;\n}",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3549,162 +3732,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Maximum Robots Within Budget",
-            "content": "You are given two integer arrays chargeTimes and runningCosts and an integer budget.\n\nThe cost of running k robots is:\nmax(chargeTimes in window) + k * sum(runningCosts in window)\n\nReturn the maximum number of robots that can run simultaneously without exceeding the budget.",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Monotonic Queue Pattern",
-            "difficulty": "hard",
-            "marks": 15,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
             ],
-            "test_cases_basic": [
-                {
-                    "input": "charge=[3,6,1], run=[2,1,3], budget=25",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "charge=[5,4,3], run=[1,1,1], budget=10",
-                    "expected_output": "2"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "charge=[1,2,3], run=[1,1,1], budget=10",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "charge=[10,20,30], run=[1,1,1], budget=25",
-                    "expected_output": "1"
-                },
-                {
-                    "input": "charge=[5,1,3], run=[2,2,2], budget=20",
-                    "expected_output": "2"
-                },
-                {
-                    "input": "charge=[8,6,4,2], run=[1,2,3,4], budget=30",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "charge=[7,7,7], run=[1,1,1], budget=15",
-                    "expected_output": "2"
-                },
-                {
-                    "input": "charge=[2,2,2,2], run=[1,1,1,1], budget=12",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "charge=[9,8,7,6], run=[1,1,1,1], budget=20",
-                    "expected_output": "2"
-                }
-            ],
-            "inputFormat": "Arrays chargeTimes, runningCosts and integer budget.",
-            "outputFormat": "Return maximum number of robots.",
-            "solutions": [
-                {
-                    "language": "python",
-                    "code": "from collections import deque\n\ndef maximumRobots(chargeTimes,runningCosts,budget):\n    dq=deque()\n    total=0\n    left=0\n    res=0\n\n    for right in range(len(chargeTimes)):\n        while dq and chargeTimes[dq[-1]]<=chargeTimes[right]:\n            dq.pop()\n        dq.append(right)\n\n        total+=runningCosts[right]\n\n        while dq and chargeTimes[dq[0]]+(right-left+1)*total>budget:\n            if dq[0]==left:\n                dq.popleft()\n            total-=runningCosts[left]\n            left+=1\n\n        res=max(res,right-left+1)\n\n    return res"
-                },
-                {
-                    "language": "java",
-                    "code": "// Sliding window with monotonic deque\nimport java.util.*;\nclass Solution{}"
-                },
-                {
-                    "language": "c",
-                    "code": "// Sliding window simulation\n#include<stdio.h>"
-                },
-                {
-                    "title": "Queue implementation - CPP",
-                    "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    int maximumRobots(vector<int>& chargeTimes, vector<int>& runningCosts, long long budget) {\n        int res = 0, n = chargeTimes.size(), l = 0;\n        long long sum = 0;\n        deque<int> d;\n        for(int r = 0; r < n; r++) {\n            sum += runningCosts[r];\n            while(!d.empty() && chargeTimes[d.back()] <= chargeTimes[r]) d.pop_back();\n            d.push_back(r);\n            while(l <= r && (d.empty() ? 0 : chargeTimes[d.front()]) + (r - l + 1) * sum > budget) {\n                sum -= runningCosts[l];\n                if(!d.empty() && d.front() == l) d.pop_front();\n                l++;\n            }\n            res = max(res, r - l + 1);\n        }\n        return res;\n    }\n};",
-                    "complexity_analysis": "Time: O(N). Space: O(N).",
-                    "is_primary": false
-                }
-            ]
-        },
-        {
-            "type": "coding",
-            "title": "Count Continuous Subarrays",
-            "content": "Given an integer array nums, return the number of continuous subarrays where the difference between the maximum and minimum elements in the subarray is at most 2.",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Monotonic Queue Pattern",
-            "difficulty": "medium",
-            "marks": 10,
-            "categories": [
-                "learn",
-                "practice",
-                "skill_test"
-            ],
-            "test_cases_basic": [
-                {
-                    "input": "nums=[5,4,2,4]",
-                    "expected_output": "8"
-                },
-                {
-                    "input": "nums=[1,2,3]",
-                    "expected_output": "6"
-                }
-            ],
-            "test_cases_advanced": [
-                {
-                    "input": "nums=[1,1,1]",
-                    "expected_output": "6"
-                },
-                {
-                    "input": "nums=[1,3,5]",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "nums=[2,2,2,2]",
-                    "expected_output": "10"
-                },
-                {
-                    "input": "nums=[1,2,1,2]",
-                    "expected_output": "10"
-                },
-                {
-                    "input": "nums=[3,4,5,6]",
-                    "expected_output": "7"
-                },
-                {
-                    "input": "nums=[1,4,7]",
-                    "expected_output": "3"
-                },
-                {
-                    "input": "nums=[10]",
-                    "expected_output": "1"
-                }
-            ],
-            "inputFormat": "Array nums.",
-            "outputFormat": "Return total number of valid subarrays.",
-            "solutions": [
-                {
-                    "language": "python",
-                    "code": "from collections import deque\n\ndef continuousSubarrays(nums):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]: maxd.pop()\n        while mind and val<mind[-1]: mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>2:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res+=right-left+1\n\n    return res"
-                },
-                {
-                    "language": "java",
-                    "code": "// Sliding window monotonic deque\nimport java.util.*;\nclass Solution{}"
-                },
-                {
-                    "language": "c",
-                    "code": "// Sliding window technique\n#include<stdio.h>"
-                },
-                {
-                    "title": "Queue implementation - CPP",
-                    "language": "cpp",
-                    "code": "#include <bits/stdc++.h>\nusing namespace std;\nclass Solution {\npublic:\n    long long continuousSubarrays(vector<int>& nums) {\n        map<int, int> count;\n        int l = 0;\n        long long res = 0;\n        for(int r = 0; r < nums.size(); r++) {\n            count[nums[r]]++;\n            while(count.rbegin()->first - count.begin()->first > 2) {\n                count[nums[l]]--;\n                if(count[nums[l]] == 0) count.erase(nums[l]);\n                l++;\n            }\n            res += r - l + 1;\n        }\n        return res;\n    }\n};",
-                    "complexity_analysis": "Time: O(N). Space: O(N).",
-                    "is_primary": false
-                }
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3766,15 +3798,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "from collections import deque\n\ndef longestSubarray(nums,limit):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]: maxd.pop()\n        while mind and val<mind[-1]: mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>limit:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res=max(res,right-left+1)\n\n    return res"
+                    "code": "from collections import deque\n\ndef longestSubarray(nums,limit):\n    maxd=deque()\n    mind=deque()\n    left=0\n    res=0\n\n    for right,val in enumerate(nums):\n        while maxd and val>maxd[-1]: maxd.pop()\n        while mind and val<mind[-1]: mind.pop()\n\n        maxd.append(val)\n        mind.append(val)\n\n        while maxd[0]-mind[0]>limit:\n            if nums[left]==maxd[0]: maxd.popleft()\n            if nums[left]==mind[0]: mind.popleft()\n            left+=1\n\n        res=max(res,right-left+1)\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Sliding window monotonic deque\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Sliding window monotonic deque\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Sliding window using deques\n#include<stdio.h>"
+                    "code": "// Sliding window using deques\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3783,6 +3818,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A queue (First-In-First-Out) is ideal for processing elements in the order they arrived.",
+                "Consider if the problem requires a Breadth-First Search (BFS) approach.",
+                "A Deque might be necessary if you need to add or remove elements from both the front and the rear."
             ]
         },
         {
@@ -3844,15 +3884,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def dailyTemperatures(temperatures):\n    stack=[]\n    res=[0]*len(temperatures)\n\n    for i,t in enumerate(temperatures):\n        while stack and temperatures[stack[-1]]<t:\n            idx=stack.pop()\n            res[idx]=i-idx\n        stack.append(i)\n\n    return res"
+                    "code": "def dailyTemperatures(temperatures):\n    stack=[]\n    res=[0]*len(temperatures)\n\n    for i,t in enumerate(temperatures):\n        while stack and temperatures[stack[-1]]<t:\n            idx=stack.pop()\n            res[idx]=i-idx\n        stack.append(i)\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "class Solution{\npublic int[] dailyTemperatures(int[] t){\nint n=t.length;\nint[] res=new int[n];\nStack<Integer> stack=new Stack<>();\n\nfor(int i=0;i<n;i++){\nwhile(!stack.isEmpty() && t[stack.peek()]<t[i]){\nint idx=stack.pop();\nres[idx]=i-idx;\n}\nstack.push(i);\n}\n\nreturn res;\n}\n}"
+                    "code": "class Solution{\npublic int[] dailyTemperatures(int[] t){\nint n=t.length;\nint[] res=new int[n];\nStack<Integer> stack=new Stack<>();\n\nfor(int i=0;i<n;i++){\nwhile(!stack.isEmpty() && t[stack.peek()]<t[i]){\nint idx=stack.pop();\nres[idx]=i-idx;\n}\nstack.push(i);\n}\n\nreturn res;\n}\n}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Monotonic stack solution\n#include<stdio.h>"
+                    "code": "// Monotonic stack solution\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3861,6 +3904,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This is exactly the 'Next Greater Element' problem applied to temperature data.",
+                "Use a monotonic stack to find the next day with a warmer temperature.",
+                "The result for each day is the difference between the current index and the index of the next warmer day."
             ]
         },
         {
@@ -3922,15 +3970,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def nextGreaterElements(nums):\n    n=len(nums)\n    res=[-1]*n\n    stack=[]\n\n    for i in range(2*n):\n        while stack and nums[stack[-1]]<nums[i%n]:\n            res[stack.pop()]=nums[i%n]\n        if i<n:\n            stack.append(i)\n\n    return res"
+                    "code": "def nextGreaterElements(nums):\n    n=len(nums)\n    res=[-1]*n\n    stack=[]\n\n    for i in range(2*n):\n        while stack and nums[stack[-1]]<nums[i%n]:\n            res[stack.pop()]=nums[i%n]\n        if i<n:\n            stack.append(i)\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Circular monotonic stack\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Circular monotonic stack\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Circular next greater element\n#include<stdio.h>"
+                    "code": "// Circular next greater element\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -3939,6 +3990,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
+                "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
+                "Store indices in the stack to easily map the result back to the original array position."
             ]
         },
         {
@@ -4000,15 +4056,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def finalPrices(prices):\n    stack=[]\n\n    for i in range(len(prices)):\n        while stack and prices[stack[-1]]>=prices[i]:\n            idx=stack.pop()\n            prices[idx]-=prices[i]\n\n        stack.append(i)\n\n    return prices"
+                    "code": "def finalPrices(prices):\n    stack=[]\n\n    for i in range(len(prices)):\n        while stack and prices[stack[-1]]>=prices[i]:\n            idx=stack.pop()\n            prices[idx]-=prices[i]\n\n        stack.append(i)\n\n    return prices",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic stack solution\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic stack solution\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Discount calculation using stack\n#include<stdio.h>"
+                    "code": "// Discount calculation using stack\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4017,6 +4076,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The discount for an item at index i is the value of the first item at index j > i such that price[j] <= price[i].",
+                "This is the 'Next Smaller Element' problem, solvable with a monotonic stack.",
+                "Maintain a stack of indices where prices are in increasing order."
             ]
         },
         {
@@ -4078,15 +4142,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def findBuildings(heights):\n    res=[]\n    max_h=0\n\n    for i in range(len(heights)-1,-1,-1):\n        if heights[i]>max_h:\n            res.append(i)\n            max_h=heights[i]\n\n    return res[::-1]"
+                    "code": "def findBuildings(heights):\n    res=[]\n    max_h=0\n\n    for i in range(len(heights)-1,-1,-1):\n        if heights[i]>max_h:\n            res.append(i)\n            max_h=heights[i]\n\n    return res[::-1]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Scan from right side\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Scan from right side\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Right-to-left scan\n#include<stdio.h>"
+                    "code": "// Right-to-left scan\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4095,6 +4162,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A building has an ocean view if all buildings to its right are shorter than it.",
+                "Traverse from right to left while keeping track of the maximum height seen so far.",
+                "Alternatively, use a monotonic stack to find buildings that aren't blocked by any taller buildings to their right."
             ]
         },
         {
@@ -4156,15 +4228,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def nextGreaterElement(nums1,nums2):\n    stack=[]\n    mp={}\n\n    for n in nums2:\n        while stack and stack[-1]<n:\n            mp[stack.pop()]=n\n        stack.append(n)\n\n    while stack:\n        mp[stack.pop()]=-1\n\n    return [mp[n] for n in nums1]"
+                    "code": "def nextGreaterElement(nums1,nums2):\n    stack=[]\n    mp={}\n\n    for n in nums2:\n        while stack and stack[-1]<n:\n            mp[stack.pop()]=n\n        stack.append(n)\n\n    while stack:\n        mp[stack.pop()]=-1\n\n    return [mp[n] for n in nums1]",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic stack mapping\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic stack mapping\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Next greater element using stack\n#include<stdio.h>"
+                    "code": "// Next greater element using stack\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4173,6 +4248,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A monotonic decreasing stack helps you find the next larger element for all elements in one pass.",
+                "Traverse the array; while current element > stack[top], the current element is the 'next greater' for stack[top].",
+                "Store indices in the stack to easily map the result back to the original array position."
             ]
         },
         {
@@ -4234,15 +4314,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def sumSubarrayMins(arr):\n    MOD=10**9+7\n    stack=[]\n    res=0\n\n    for i in range(len(arr)+1):\n        cur=arr[i] if i<len(arr) else 0\n\n        while stack and arr[stack[-1]]>cur:\n            mid=stack.pop()\n            left=stack[-1] if stack else -1\n            right=i\n            res+=arr[mid]*(mid-left)*(right-mid)\n\n        stack.append(i)\n\n    return res%MOD"
+                    "code": "def sumSubarrayMins(arr):\n    MOD=10**9+7\n    stack=[]\n    res=0\n\n    for i in range(len(arr)+1):\n        cur=arr[i] if i<len(arr) else 0\n\n        while stack and arr[stack[-1]]>cur:\n            mid=stack.pop()\n            left=stack[-1] if stack else -1\n            right=i\n            res+=arr[mid]*(mid-left)*(right-mid)\n\n        stack.append(i)\n\n    return res%MOD",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic stack solution\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic stack solution\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Contribution technique with stack\n#include<stdio.h>"
+                    "code": "// Contribution technique with stack\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4251,6 +4334,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "For each element, calculate how many subarrays it acts as the minimum value.",
+                "This depends on finding the distance to the 'nearest smaller' elements on BOTH left and right.",
+                "The total contribution of an element is: arr[i] * (distance_to_left_smaller) * (distance_to_right_smaller)."
             ]
         },
         {
@@ -4312,15 +4400,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def largestRectangleArea(heights):\n    stack=[]\n    res=0\n\n    for i in range(len(heights)+1):\n        cur=heights[i] if i<len(heights) else 0\n\n        while stack and heights[stack[-1]]>cur:\n            h=heights[stack.pop()]\n            w=i if not stack else i-stack[-1]-1\n            res=max(res,h*w)\n\n        stack.append(i)\n\n    return res"
+                    "code": "def largestRectangleArea(heights):\n    stack=[]\n    res=0\n\n    for i in range(len(heights)+1):\n        cur=heights[i] if i<len(heights) else 0\n\n        while stack and heights[stack[-1]]>cur:\n            h=heights[stack.pop()]\n            w=i if not stack else i-stack[-1]-1\n            res=max(res,h*w)\n\n        stack.append(i)\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Monotonic stack histogram\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Monotonic stack histogram\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Histogram stack solution\n#include<stdio.h>"
+                    "code": "// Histogram stack solution\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4329,6 +4420,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "For each bar, find the width of the rectangle by identifying the nearest smaller bars to its left and right.",
+                "Use a monotonic increasing stack to store indices; calculate area when a bar is popped.",
+                "The width is calculated as (current_index - new_stack_top - 1)."
             ]
         },
         {
@@ -4390,15 +4486,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def trap(height):\n    stack=[]\n    water=0\n\n    for i,h in enumerate(height):\n        while stack and h>height[stack[-1]]:\n            mid=stack.pop()\n\n            if not stack:\n                break\n\n            dist=i-stack[-1]-1\n            bounded=min(h,height[stack[-1]])-height[mid]\n\n            water+=dist*bounded\n\n        stack.append(i)\n\n    return water"
+                    "code": "def trap(height):\n    stack=[]\n    water=0\n\n    for i,h in enumerate(height):\n        while stack and h>height[stack[-1]]:\n            mid=stack.pop()\n\n            if not stack:\n                break\n\n            dist=i-stack[-1]-1\n            bounded=min(h,height[stack[-1]])-height[mid]\n\n            water+=dist*bounded\n\n        stack.append(i)\n\n    return water",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Stack water trapping\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Stack water trapping\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Stack based water calculation\n#include<stdio.h>"
+                    "code": "// Stack based water calculation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4407,6 +4506,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Water traps in 'valleys' between taller columns.",
+                "A stack approach involves keeping bars in decreasing order to identify these valleys.",
+                "When you find a bar taller than the stack top, water trapped is bounded by the current bar and the bar below the top."
             ]
         },
         {
@@ -4468,15 +4572,18 @@
             "solutions": [
                 {
                     "language": "python",
-                    "code": "def subArrayRanges(nums):\n    res=0\n    n=len(nums)\n\n    for i in range(n):\n        mn=mx=nums[i]\n        for j in range(i,n):\n            mn=min(mn,nums[j])\n            mx=max(mx,nums[j])\n            res+=mx-mn\n\n    return res"
+                    "code": "def subArrayRanges(nums):\n    res=0\n    n=len(nums)\n\n    for i in range(n):\n        mn=mx=nums[i]\n        for j in range(i,n):\n            mn=min(mn,nums[j])\n            mx=max(mx,nums[j])\n            res+=mx-mn\n\n    return res",
+                    "title": "Queue implementation - Python"
                 },
                 {
                     "language": "java",
-                    "code": "// Brute force demonstration\nimport java.util.*;\nclass Solution{}"
+                    "code": "// Brute force demonstration\nimport java.util.*;\nclass Solution{}",
+                    "title": "Queue implementation - Java"
                 },
                 {
                     "language": "c",
-                    "code": "// Nested loop range calculation\n#include<stdio.h>"
+                    "code": "// Nested loop range calculation\n#include<stdio.h>",
+                    "title": "Queue implementation - C"
                 },
                 {
                     "title": "Queue implementation - CPP",
@@ -4485,6 +4592,11 @@
                     "complexity_analysis": "Time: O(N). Space: O(N).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Range of a subarray is (max - min). Sum of ranges = Sum(max of all subarrays) - Sum(min of all subarrays).",
+                "Calculate 'Sum of Subarray Minimums' and 'Sum of Subarray Maximums' independently using monotonic stacks.",
+                "Remember that the result is the difference between these two sums."
             ]
         },
         {
@@ -4984,369 +5096,6 @@
         },
         {
             "type": "mcq_single",
-            "title": "Queue Using Two Stacks",
-            "content": "Which concept allows implementing a queue using two stacks?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Reversing order of elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Sorting elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Random access",
-                    "is_correct": false
-                },
-                {
-                    "text": "Heap property",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Linked List Queue Operations",
-            "content": "In a linked list queue implementation, which operation requires updating both front and rear pointers when the queue becomes empty?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Enqueue",
-                    "is_correct": false
-                },
-                {
-                    "text": "Peek",
-                    "is_correct": false
-                },
-                {
-                    "text": "Dequeue",
-                    "is_correct": true
-                },
-                {
-                    "text": "Search",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Overflow Scenario",
-            "content": "In an array-based queue of size N, when does overflow occur?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "When front equals rear",
-                    "is_correct": false
-                },
-                {
-                    "text": "When rear equals N-1 in a simple queue",
-                    "is_correct": true
-                },
-                {
-                    "text": "When front equals 0",
-                    "is_correct": false
-                },
-                {
-                    "text": "When queue becomes empty",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Circular Queue Full Condition",
-            "content": "In a circular queue implemented using an array of size N, which condition indicates that the queue is full?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "front == rear",
-                    "is_correct": false
-                },
-                {
-                    "text": "(rear + 1) % N == front",
-                    "is_correct": true
-                },
-                {
-                    "text": "rear == N",
-                    "is_correct": false
-                },
-                {
-                    "text": "front == 0",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Memory Usage in Queue Implementations",
-            "content": "Which queue implementation generally provides better memory efficiency when the queue size changes frequently?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Array-based queue",
-                    "is_correct": false
-                },
-                {
-                    "text": "Linked list-based queue",
-                    "is_correct": true
-                },
-                {
-                    "text": "Circular array queue",
-                    "is_correct": false
-                },
-                {
-                    "text": "Static queue",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Using Arrays",
-            "content": "In an array-based queue implementation, which pointer usually indicates the position where the next element will be inserted?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Front pointer",
-                    "is_correct": false
-                },
-                {
-                    "text": "Rear pointer",
-                    "is_correct": true
-                },
-                {
-                    "text": "Top pointer",
-                    "is_correct": false
-                },
-                {
-                    "text": "Head pointer",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Using Linked List",
-            "content": "In a linked list implementation of a queue, which node typically represents the start of the queue?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Tail node",
-                    "is_correct": false
-                },
-                {
-                    "text": "Front node",
-                    "is_correct": true
-                },
-                {
-                    "text": "Middle node",
-                    "is_correct": false
-                },
-                {
-                    "text": "Last node",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Implementation Advantage",
-            "content": "Which queue implementation avoids the problem of shifting elements during deletion?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Array queue with shifting",
-                    "is_correct": false
-                },
-                {
-                    "text": "Circular queue",
-                    "is_correct": true
-                },
-                {
-                    "text": "Stack implementation",
-                    "is_correct": false
-                },
-                {
-                    "text": "Priority queue",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Pointer Movement",
-            "content": "Which pointer is incremented during a dequeue operation in a simple array queue?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Rear",
-                    "is_correct": false
-                },
-                {
-                    "text": "Front",
-                    "is_correct": true
-                },
-                {
-                    "text": "Both front and rear",
-                    "is_correct": false
-                },
-                {
-                    "text": "None of them",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Circular Queue Advantage",
-            "content": "Why are circular queues preferred over simple array queues?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "They reduce time complexity to O(log n)",
-                    "is_correct": false
-                },
-                {
-                    "text": "They allow dynamic memory allocation",
-                    "is_correct": false
-                },
-                {
-                    "text": "They reuse empty spaces in the array",
-                    "is_correct": true
-                },
-                {
-                    "text": "They eliminate the need for pointers",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Queue Using Two Stacks",
-            "content": "Which concept allows implementing a queue using two stacks?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Implementations",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Reversing order of elements",
-                    "is_correct": true
-                },
-                {
-                    "text": "Sorting elements",
-                    "is_correct": false
-                },
-                {
-                    "text": "Random access",
-                    "is_correct": false
-                },
-                {
-                    "text": "Heap property",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
             "title": "Linked List Queue Operations",
             "content": "In a linked list queue implementation, which operation requires updating both front and rear pointers when the queue becomes empty?",
             "level": "subtopic",
@@ -5611,39 +5360,6 @@
         },
         {
             "type": "mcq_single",
-            "title": "Circular Queue Advantage",
-            "content": "What problem does a circular queue solve compared to a linear array queue?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Circular Queue",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It eliminates the need for dequeue",
-                    "is_correct": false
-                },
-                {
-                    "text": "It prevents memory wastage by reusing freed positions",
-                    "is_correct": true
-                },
-                {
-                    "text": "It increases the queue size automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "It sorts elements automatically",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
             "title": "Circular Queue Empty Condition",
             "content": "In a typical circular queue implementation, when is the queue considered empty?",
             "level": "subtopic",
@@ -5671,39 +5387,6 @@
                 },
                 {
                     "text": "rear == front + 1",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_single",
-            "title": "Circular Queue Full Condition",
-            "content": "In a circular queue of size N, which condition indicates that the queue is full?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Circular Queue",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "front == rear",
-                    "is_correct": false
-                },
-                {
-                    "text": "(rear + 1) % N == front",
-                    "is_correct": true
-                },
-                {
-                    "text": "rear == N",
-                    "is_correct": false
-                },
-                {
-                    "text": "front == N",
                     "is_correct": false
                 }
             ]
@@ -6140,10 +5823,10 @@
         {
             "type": "mcq_single",
             "title": "Deque Definition",
-            "content": "What is the primary feature of a Double Ended Queue (Deque)?",
+            "content": "What is the primary feature of a Double Ended Queue (Deque) (Deque)?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "easy",
             "marks": 1,
             "categories": [
@@ -6176,7 +5859,7 @@
             "content": "Which operation inserts an element at the front of a deque?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "easy",
             "marks": 1,
             "categories": [
@@ -6209,7 +5892,7 @@
             "content": "Which operation removes an element from the rear of a deque?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "easy",
             "marks": 1,
             "categories": [
@@ -6242,7 +5925,7 @@
             "content": "Which of the following data structures is most flexible in terms of insertion and deletion operations?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "easy",
             "marks": 1,
             "categories": [
@@ -6275,7 +5958,7 @@
             "content": "Which algorithmic technique commonly uses a deque for maintaining candidate elements?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -6308,7 +5991,7 @@
             "content": "What is the key difference between a queue and a deque?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -6341,7 +6024,7 @@
             "content": "Which data structure is commonly used internally to implement a deque efficiently?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -6374,7 +6057,7 @@
             "content": "What is the typical time complexity of insertion and deletion operations in a deque implemented using a doubly linked list?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 3,
             "categories": [
@@ -6407,7 +6090,7 @@
             "content": "Which scenario best fits the use of a deque instead of a simple queue?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 3,
             "categories": [
@@ -6440,7 +6123,7 @@
             "content": "Which problem-solving pattern heavily relies on deques to maintain candidate maximum or minimum values efficiently?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "hard",
             "marks": 3,
             "categories": [
@@ -6799,39 +6482,6 @@
         },
         {
             "type": "mcq_multiple",
-            "title": "Queue Applications",
-            "content": "Which of the following systems commonly use queue data structures?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Basics",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Printer job scheduling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Breadth First Search traversal",
-                    "is_correct": true
-                },
-                {
-                    "text": "Function call stack",
-                    "is_correct": false
-                },
-                {
-                    "text": "Task scheduling in operating systems",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
             "title": "Queue Operations",
             "content": "Which of the following are standard operations supported by a queue?",
             "level": "subtopic",
@@ -6899,10 +6549,10 @@
         {
             "type": "mcq_multiple",
             "title": "Deque Characteristics",
-            "content": "Which statements correctly describe a Double Ended Queue (Deque)?",
+            "content": "Which statements correctly describe a Double Ended Queue (Deque) (Deque)?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -7067,7 +6717,7 @@
             "content": "Which algorithms or systems commonly use a deque?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -7096,39 +6746,6 @@
         },
         {
             "type": "mcq_multiple",
-            "title": "Queue Based Algorithms",
-            "content": "Which graph algorithms commonly use queues for traversal?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Applications",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Breadth First Search (BFS)",
-                    "is_correct": true
-                },
-                {
-                    "text": "Level Order Traversal of Trees",
-                    "is_correct": true
-                },
-                {
-                    "text": "Depth First Search (DFS)",
-                    "is_correct": false
-                },
-                {
-                    "text": "Topological Sorting (Kahn\u2019s Algorithm)",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
             "title": "Sliding Window Technique",
             "content": "Which statements about the sliding window technique are correct?",
             "level": "subtopic",
@@ -7255,204 +6872,6 @@
                 },
                 {
                     "text": "Binary search tree traversal",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Deque Characteristics",
-            "content": "Which statements about deques are correct?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Deque supports insertion and deletion at both ends",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque can simulate both stacks and queues",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque operations typically run in O(1) time",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque must always be implemented using arrays",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Sliding Window Technique",
-            "content": "Which statements about the sliding window technique are correct?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Monotonic Queue Pattern",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "It processes elements in a fixed-size or dynamic window",
-                    "is_correct": true
-                },
-                {
-                    "text": "It often uses deques to track candidates efficiently",
-                    "is_correct": true
-                },
-                {
-                    "text": "It always requires sorting the entire array",
-                    "is_correct": false
-                },
-                {
-                    "text": "It can reduce time complexity from O(nk) to O(n)",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Monotonic Queue Properties",
-            "content": "Which properties define a monotonic queue?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Monotonic Queue Pattern",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Elements maintain increasing or decreasing order",
-                    "is_correct": true
-                },
-                {
-                    "text": "Elements violating monotonic order are removed",
-                    "is_correct": true
-                },
-                {
-                    "text": "It always stores sorted elements globally",
-                    "is_correct": false
-                },
-                {
-                    "text": "It supports efficient sliding window computations",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Queue vs Stack Behavior",
-            "content": "Which of the following statements correctly compare queues and stacks?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Basics",
-            "difficulty": "easy",
-            "marks": 1,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Queue follows FIFO ordering",
-                    "is_correct": true
-                },
-                {
-                    "text": "Stack follows LIFO ordering",
-                    "is_correct": true
-                },
-                {
-                    "text": "Queue always sorts elements automatically",
-                    "is_correct": false
-                },
-                {
-                    "text": "Stack can be implemented using queues",
-                    "is_correct": true
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Queue Based Scheduling",
-            "content": "Which systems commonly rely on queue-based scheduling?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Design Problems",
-            "difficulty": "medium",
-            "marks": 2,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "CPU task scheduling",
-                    "is_correct": true
-                },
-                {
-                    "text": "Network packet buffering",
-                    "is_correct": true
-                },
-                {
-                    "text": "Printer job management",
-                    "is_correct": true
-                },
-                {
-                    "text": "Binary search tree traversal",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Deque Characteristics",
-            "content": "Which statements about deques are correct?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Deque supports insertion and deletion at both ends",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque can simulate both stacks and queues",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque operations typically run in O(1) time",
-                    "is_correct": true
-                },
-                {
-                    "text": "Deque must always be implemented using arrays",
                     "is_correct": false
                 }
             ]
@@ -7496,7 +6915,7 @@
             "content": "Which situations must be handled carefully when implementing a deque?",
             "level": "subtopic",
             "topic_name": "Queues",
-            "subtopic_name": "Double Ended Queue",
+            "subtopic_name": "Double Ended Queue (Deque)",
             "difficulty": "medium",
             "marks": 2,
             "categories": [
@@ -7585,39 +7004,6 @@
                 },
                 {
                     "text": "Recomputing the maximum for every window",
-                    "is_correct": false
-                }
-            ]
-        },
-        {
-            "type": "mcq_multiple",
-            "title": "Queue Pattern Recognition",
-            "content": "Which types of problems often indicate that a queue or deque-based solution may be useful?",
-            "level": "subtopic",
-            "topic_name": "Queues",
-            "subtopic_name": "Queue Applications",
-            "difficulty": "hard",
-            "marks": 3,
-            "categories": [
-                "learn",
-                "skill_test",
-                "practice"
-            ],
-            "mcq_options": [
-                {
-                    "text": "Level-order traversal of trees",
-                    "is_correct": true
-                },
-                {
-                    "text": "Shortest path in unweighted graphs",
-                    "is_correct": true
-                },
-                {
-                    "text": "Sliding window maximum or minimum",
-                    "is_correct": true
-                },
-                {
-                    "text": "Binary search in sorted arrays",
                     "is_correct": false
                 }
             ]
