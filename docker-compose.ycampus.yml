@@ -1,5 +1,7 @@
+name: ycampus
+
 services:
-  ycampus-db:
+  db:
     image: postgres:15
     env_file:
       - ./ycampus-backend-api/.env
@@ -15,34 +17,41 @@ services:
     networks:
       - ycampus
 
-  ycampus-backend:
+  backend:
     build:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
     ports:
-      - "8003:8000"  # Django API
-      - "9003:9001"  # Prometheus metrics
+      - "8001:8000"  # Django API
+      - "9001:9001"  # Prometheus metrics
     env_file:
       - ./ycampus-backend-api/.env
     volumes:
       - ./ycampus-backend-api:/app
     depends_on:
-      ycampus-db:
+      db:
         condition: service_healthy
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
     networks:
       - ycampus
       - executor  # Connect to executor network
 
-  ycampus-frontend:
+  frontend:
     build:
       context: ./ycampus-web
       dockerfile: Dockerfile
       target: development
     ports:
-      - "3002:3000"
+      - "3001:3000"
     env_file:
       - ./ycampus-web/.env
     volumes:
@@ -51,7 +60,7 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - ycampus-backend
+      - backend
     command: npm run dev -- --host 0.0.0.0
     networks:
       - ycampus

@@ -87,9 +87,9 @@ setup: setup-common setup-ycode setup-ycampus
 	@echo ""
 	@echo "✅ All platforms setup complete!"
 	@echo "🌐 YCode Frontend: http://localhost:3000"
-	@echo "🔧 YCode Backend: http://localhost:8001"
-	@echo "🌐 YCampus Frontend: http://localhost:3002"
-	@echo "🔧 YCampus Backend: http://localhost:8003"
+	@echo "🔧 YCode Backend: http://localhost:8000"
+	@echo "🌐 YCampus Frontend: http://localhost:3001"
+	@echo "🔧 YCampus Backend: http://localhost:8001"
 	@echo "⚙️  Code Executor: http://localhost:8002"
 
 setup-common:

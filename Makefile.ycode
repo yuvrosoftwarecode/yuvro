@@ -16,8 +16,8 @@ setup:
 	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
 
 	@echo "Creating environment files..."
-	@if [ ! -f yc-backend-api/.env ]; then cp yc-backend-api/.env.example yc-backend-api/.env; echo "✅ Created backend .env"; fi
-	@if [ ! -f yc-web/.env ]; then cp yc-web/.env.example yc-web/.env; echo "✅ Created frontend .env"; fi
+	@if [ ! -f ycode-backend-api/.env ]; then cp ycode-backend-api/.env.example ycode-backend-api/.env; echo "✅ Created backend .env"; fi
+	@if [ ! -f ycode-web/.env ]; then cp ycode-web/.env.example ycode-web/.env; echo "✅ Created frontend .env"; fi
 
 	@echo "Creating executor network..."
 	@docker network create executor 2>/dev/null || true
@@ -29,15 +29,12 @@ setup:
 	@echo "Building and starting YCode services..."
 	docker compose up -d --build --wait
 
-	@echo "Waiting for database to be ready..."
-	@sleep 5
-
-	@echo "Loading test data (migrations already run in container command)..."
-	docker compose exec ycode-backend python manage.py setup_local_testing --clear
+	@echo "Loading test data..."
+	docker compose exec backend python manage.py setup_local_testing --clear
 	
 	@echo "✅ YCode setup complete!"
 	@echo "🌐 Frontend: http://localhost:3000"
-	@echo "🔧 Backend API: http://localhost:8001"
+	@echo "🔧 Backend API: http://localhost:8000"
 
 # ============================================================================
 # Development
@@ -69,7 +66,7 @@ clean:
 
 reload-data:
 	@echo "🔄 Reloading YCode test data..."
-	docker compose exec ycode-backend python manage.py setup_local_testing --clear
+	docker compose exec backend python manage.py setup_local_testing --clear
 	@echo "✅ Test data reloaded!"
 
 # ============================================================================
@@ -77,21 +74,21 @@ reload-data:
 # ============================================================================
 
 db-shell:
-	docker compose exec ycode-db psql -U postgres -d yc_app
+	docker compose exec db psql -U postgres -d yc_app
 
 db-migrate:
-	docker compose exec ycode-backend python manage.py migrate
+	docker compose exec backend python manage.py migrate
 
 db-makemigrations:
-	docker compose exec ycode-backend python manage.py makemigrations
+	docker compose exec backend python manage.py makemigrations
 
 db-createsuperuser:
-	docker compose exec ycode-backend python manage.py createsuperuser
+	docker compose exec backend python manage.py createsuperuser
 
 db-reset:
 	@echo "🔄 Resetting database..."
-	docker compose down ycode-db -v
-	docker compose up -d ycode-db
+	docker compose down db -v
+	docker compose up -d db
 	@echo "✅ Database reset complete!"
 
 # ============================================================================
@@ -99,53 +96,53 @@ db-reset:
 # ============================================================================
 
 backend-shell:
-	docker compose exec ycode-backend python manage.py shell
+	docker compose exec backend python manage.py shell
 
 backend-test:
-	docker compose exec ycode-backend python manage.py test
+	docker compose exec backend python manage.py test
 
 backend-format:
-	docker compose exec ycode-backend black . --check --diff
+	docker compose exec backend black . --check --diff
 
 backend-format-fix:
-	docker compose exec ycode-backend black .
+	docker compose exec backend black .
 
 backend-lint:
-	docker compose exec ycode-backend flake8 .
+	docker compose exec backend flake8 .
 
 backend-install:
 	@if [ "$(PKG)" = "" ]; then \
 		echo "Usage: make -f Makefile.ycode backend-install PKG=package-name"; \
 		exit 1; \
 	fi
-	docker compose exec ycode-backend pip install $(PKG)
-	docker compose exec ycode-backend pip freeze > yc-backend-api/requirements.txt
+	docker compose exec backend pip install $(PKG)
+	docker compose exec backend pip freeze > ycode-backend-api/requirements.txt
 
 # ============================================================================
 # Frontend
 # ============================================================================
 
 frontend-shell:
-	docker compose exec ycode-frontend sh
+	docker compose exec frontend sh
 
 frontend-test:
-	docker compose exec ycode-frontend npm test -- --run
+	docker compose exec frontend npm test -- --run
 
 frontend-test-watch:
-	docker compose exec ycode-frontend npm test
+	docker compose exec frontend npm test
 
 frontend-format:
-	docker compose exec ycode-frontend npm run format:check
+	docker compose exec frontend npm run format:check
 
 frontend-format-fix:
-	docker compose exec ycode-frontend npm run format
+	docker compose exec frontend npm run format
 
 frontend-lint:
-	docker compose exec ycode-frontend npm run lint
+	docker compose exec frontend npm run lint
 
 frontend-install:
 	@if [ "$(PKG)" = "" ]; then \
 		echo "Usage: make -f Makefile.ycode frontend-install PKG=package-name"; \
 		exit 1; \
 	fi
-	docker compose exec ycode-frontend npm install $(PKG)
+	docker compose exec frontend npm install $(PKG)
