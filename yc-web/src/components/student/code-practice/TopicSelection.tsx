@@ -10,7 +10,7 @@ import {
 import { fetchQuestions } from '@/services/questionService';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
-import TopicSidebar, { SidebarCourse, SidebarTopic } from '@/components/student/skill-test/TopicSidebar';
+import TopicSidebar, { SidebarCourse, SidebarTopic } from '@/components/common/CourseSidebar';
 
 interface TopicSelectionProps {
   course: Course;

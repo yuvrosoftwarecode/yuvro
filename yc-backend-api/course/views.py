@@ -1410,6 +1410,9 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                         else "",
                     }
                     submission.marks_obtained = question.marks if is_successful else 0
+                    
+                    if submission.used_hint or submission.viewed_solution or submission.ai_help_count > 0:
+                        submission.marks_obtained = 0
 
                     if course_id and not submission.course:
                         submission.course = course
@@ -1478,9 +1481,12 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                             if plagiarism_details
                             else "",
                         },
-                        answer_attempt_count=1,
                         marks_obtained=question.marks if is_successful else 0,
                     )
+                    
+                    if submission.used_hint or submission.viewed_solution or submission.ai_help_count > 0:
+                        submission.marks_obtained = 0
+                        submission.save(update_fields=['marks_obtained'])
 
                 basic_count = len(test_cases_basic)
                 custom_count = len(test_cases_custom)
@@ -1578,6 +1584,70 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @action(detail=False, methods=["post"], url_path="reveal-hint")
+    def reveal_hint(self, request, pk=None):
+        question_id = request.data.get("question_id")
+        if not question_id:
+            return Response({"error": "question_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, _ = StudentCodePractice.objects.get_or_create(
+            user=request.user, question=question,
+            defaults={"answer_latest": {}}
+        )
+
+        hint_index = request.data.get("hint_index", 0)
+        hints = question.hints
+
+        if not hints or hint_index >= len(hints):
+            return Response({"error": "Hint not available"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission.used_hint = True
+        submission.marks_obtained = 0
+        submission.save(update_fields=['used_hint', 'marks_obtained'])
+
+        return Response({"hint": hints[hint_index]})
+
+    @action(detail=False, methods=["post"], url_path="reveal-solution")
+    def reveal_solution(self, request, pk=None):
+        question_id = request.data.get("question_id")
+        if not question_id:
+            return Response({"error": "question_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, _ = StudentCodePractice.objects.get_or_create(
+            user=request.user, question=question,
+            defaults={"answer_latest": {}}
+        )
+
+        solutions = question.solutions.all()
+        if not solutions.exists():
+            return Response({"error": "No predefined solutions available for this question"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission.viewed_solution = True
+        submission.marks_obtained = 0
+        submission.save(update_fields=['viewed_solution', 'marks_obtained'])
+
+        from .serializers import QuestionSolutionSerializer
+        serializer = QuestionSolutionSerializer(solutions, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["post"], url_path="use-ai")
+    def increment_ai_count(self, request, pk=None):
+        submission = self.get_object()
+        submission.ai_help_count += 1
+        submission.marks_obtained = 0
+        submission.save(update_fields=['ai_help_count', 'marks_obtained'])
+        return Response({"message": "AI help count incremented"})
 
     @action(detail=False, methods=["get"])
     def generate_insights(self, request):

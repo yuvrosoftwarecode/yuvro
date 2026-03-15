@@ -391,12 +391,7 @@ class Command(BaseCommand):
                     "ai_generation_mode": mock_interview_data.get(
                         "ai_generation_mode", "full_ai"
                     ),
-                    "ai_verbal_question_count": mock_interview_data.get(
-                        "ai_verbal_question_count", 5
-                    ),
-                    "ai_coding_question_count": mock_interview_data.get(
-                        "ai_coding_question_count", 1
-                    ),
+                    "ai_context": mock_interview_data.get("ai_context", {}),
                     "ai_percentage": mock_interview_data.get("ai_percentage", 100),
                     # Voice configuration
                     "voice_type": mock_interview_data.get("voice_type", "junnu"),

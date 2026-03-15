@@ -4,7 +4,7 @@ import Navigation from "@/components/common/Navigation";
 import { Button } from "@/components/ui/button";
 
 import SkillTestDashboard from "@/components/student/skill-test/SkillTestDashboard";
-import TopicSidebar from "@/components/student/skill-test/TopicSidebar";
+import TopicSidebar from "@/components/common/CourseSidebar";
 import TestCards from "@/components/student/skill-test/TestCards";
 import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";

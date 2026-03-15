@@ -145,7 +145,9 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
       score: 100,
       description: question.content || '',
       test_cases_basic: question.test_cases_basic || [],
-      test_cases_advanced: []
+      test_cases_advanced: [],
+      hints: question.hints || [],
+      solutions: question.solutions || []
     };
   };
 
@@ -255,7 +257,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
                         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                            <BrainCircuit className="w-3 h-3" /> logic points: 100
+                            <BrainCircuit className="w-3 h-3" /> {question.marks ?? 100} pts
                           </span>
                           <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all transform group-hover:translate-x-1">
                             <ChevronRight className="w-4 h-4" />
