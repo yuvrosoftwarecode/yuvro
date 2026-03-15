@@ -1,73 +1,10 @@
 services:
-  # Observability Stack
-  jaeger:
-    image: jaegertracing/all-in-one:1.52
-    ports:
-      - "16686:16686"
-      - "14268:14268"
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-    restart: unless-stopped
-    networks:
-      - observability
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.91.0
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./yc-observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
-      - "8888:8888"   # Prometheus metrics
-    depends_on:
-      - jaeger
-      - prometheus
-    restart: unless-stopped
-    networks:
-      - observability
-
-  prometheus:
-    image: prom/prometheus:v2.48.1
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./yc-observability/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    restart: unless-stopped
-    networks:
-      - observability
-
-  grafana:
-    image: grafana/grafana:10.2.3
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./yc-observability/grafana/provisioning:/etc/grafana/provisioning
-      - ./yc-observability/grafana/dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-    networks:
-      - observability
-
-  db:
+  ycode-db:
     image: postgres:15
     env_file:
       - ./yc-backend-api/.env.prod
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ycode_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -75,144 +12,50 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - default
-      - observability
+      - ycode
 
-  backend:
+  ycode-backend:
     build:
       context: ./yc-backend-api
       dockerfile: Dockerfile
       target: production
     env_file:
       - ./yc-backend-api/.env.prod
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=yc-backend-api
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=yc-backend-api,service.version=1.0.0
     depends_on:
-      db:
+      ycode-db:
         condition: service_healthy
-      otel-collector:
-        condition: service_started
     restart: unless-stopped
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8000 yc-backend-api.wsgi:application"
     networks:
-      - default
-      - observability
+      - ycode
+      - executor  # Connect to executor network
 
-  code-executor:
-    build:
-      context: ./yc-code-executor
-      dockerfile: Dockerfile
-    env_file:
-      - ./yc-code-executor/.env
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=yc-code-executor
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=yc-code-executor,service.version=1.0.0
-    depends_on:
-      - otel-collector
-    restart: unless-stopped
-    networks:
-      - default
-      - observability
-
-  frontend:
+  ycode-frontend:
     build:
       context: ./yc-web
       dockerfile: Dockerfile
       target: production
       args:
         - BACKEND_API_BASE_URL=${BACKEND_API_BASE_URL}
-        - VITE_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-        - VITE_OTEL_SERVICE_NAME=yc-web
     env_file:
       - ./yc-web/.env.prod
     ports:
       - "80:80"
     depends_on:
-      - backend
-      - code-executor
-      - otel-collector
+      - ycode-backend
     restart: unless-stopped
     networks:
-      - default
-      - observability
-
-  ycampus-db:
-    image: postgres:15
-    env_file:
-      - ./ycampus-backend-api/.env.prod
-    volumes:
-      - ycampus_postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - default
-      - observability
-
-  ycampus-backend:
-    build:
-      context: ./ycampus-backend-api
-      dockerfile: Dockerfile
-      target: production
-    env_file:
-      - ./ycampus-backend-api/.env.prod
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=ycampus-backend-api
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=ycampus-backend-api,service.version=1.0.0
-    depends_on:
-      ycampus-db:
-        condition: service_healthy
-      otel-collector:
-        condition: service_started
-    restart: unless-stopped
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8000 yc-backend-api.wsgi:application"
-    networks:
-      - default
-      - observability
-
-  ycampus-frontend:
-    build:
-      context: ./ycampus-web
-      dockerfile: Dockerfile
-      target: production
-      args:
-        - BACKEND_API_BASE_URL=${YCAMPUS_BACKEND_API_BASE_URL}
-        - VITE_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-        - VITE_OTEL_SERVICE_NAME=ycampus-web
-    env_file:
-      - ./ycampus-web/.env.prod
-    ports:
-      - "81:80"
-    depends_on:
-      - ycampus-backend
-      - code-executor
-      - otel-collector
-    restart: unless-stopped
-    networks:
-      - default
-      - observability
+      - ycode
+      - executor  # Connect to executor network
 
 volumes:
-  postgres_data:
-  ycampus_postgres_data:
-  prometheus_data:
-  grafana_data:
+  ycode_postgres_data:
 
 networks:
-  default:
+  ycode:
     driver: bridge
-  observability:
-    driver: bridge
+  executor:
+    external: true
