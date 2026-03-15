@@ -1,5 +1,5 @@
 services:
-  jaeger:
+  yuvro-jaeger:
     image: jaegertracing/all-in-one:1.52
     ports:
       - "16686:16686"
@@ -11,7 +11,7 @@ services:
       - ycampus
       - observability
 
-  otel-collector:
+  yuvro-otel-collector:
     image: otel/opentelemetry-collector-contrib:0.91.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
@@ -23,15 +23,15 @@ services:
       - "4318:4318"   # OTLP HTTP receiver
       - "8889:8889"   # Prometheus metrics
     depends_on:
-      - jaeger
-      - prometheus
-      - loki
+      - yuvro-jaeger
+      - yuvro-prometheus
+      - yuvro-loki
     networks:
       - ycode
       - ycampus
       - observability
 
-  prometheus:
+  yuvro-prometheus:
     image: prom/prometheus:v2.48.1
     ports:
       - "9090:9090"
@@ -50,7 +50,7 @@ services:
       - ycampus
       - observability
 
-  loki:
+  yuvro-loki:
     image: grafana/loki:3.0.0
     ports:
       - "3100:3100"
@@ -59,8 +59,8 @@ services:
       - ./yuvro-observability/loki-config.yaml:/etc/loki/local-config.yaml
       - loki_data:/loki
     environment:
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+      - JAEGER_AGENT_HOST=yuvro-jaeger
+      - JAEGER_ENDPOINT=http://yuvro-jaeger:14268/api/traces
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
     networks:
@@ -68,7 +68,7 @@ services:
       - ycampus
       - observability
 
-  grafana:
+  yuvro-grafana:
     image: grafana/grafana:10.2.3
     ports:
       - "3001:3000"
@@ -80,8 +80,8 @@ services:
       - ./yuvro-observability/grafana/provisioning:/etc/grafana/provisioning
       - ./yuvro-observability/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
-      - prometheus
-      - loki
+      - yuvro-prometheus
+      - yuvro-loki
     networks:
       - ycode
       - ycampus
@@ -93,7 +93,7 @@ services:
       - ./ycode-backend-api/.env
       - ./ycode-backend-api/.env.observability
     depends_on:
-      - otel-collector
+      - yuvro-otel-collector
     networks:
       - ycode
       - observability
@@ -112,7 +112,7 @@ services:
       - ./ycampus-backend-api/.env
       - ./ycampus-backend-api/.env.observability
     depends_on:
-      - otel-collector
+      - yuvro-otel-collector
     networks:
       - ycampus
       - observability
@@ -131,7 +131,7 @@ services:
       - ./yuvro-code-executer/.env
       - ./yuvro-code-executer/.env.observability
     depends_on:
-      - otel-collector
+      - yuvro-otel-collector
     networks:
       - executor
       - observability

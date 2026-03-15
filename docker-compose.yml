@@ -1,7 +1,5 @@
-name: ycode
-
 services:
-  db:
+  ycode-db:
     image: postgres:15
     env_file:
       - ./ycode-backend-api/.env
@@ -17,7 +15,7 @@ services:
     networks:
       - ycode
 
-  backend:
+  ycode-backend:
     build:
       context: ./ycode-backend-api
       dockerfile: Dockerfile
@@ -30,7 +28,7 @@ services:
       - ./ycode-backend-api:/app
       - /app/venv
     depends_on:
-      db:
+      ycode-db:
         condition: service_healthy
     command: >
       sh -c "python manage.py makemigrations &&
@@ -46,7 +44,7 @@ services:
       - ycode
       - executor  # Connect to executor network
 
-  frontend:
+  ycode-frontend:
     build:
       context: ./ycode-web
       dockerfile: Dockerfile
@@ -61,7 +59,7 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - backend
+      - ycode-backend
     command: npm run dev -- --host 0.0.0.0
     networks:
       - ycode

@@ -1,7 +1,5 @@
-name: yuvro
-
 services:
-  code-executor:
+  yuvro-code-executor:
     build:
       context: ./yuvro-code-executer
       dockerfile: Dockerfile
