@@ -110,6 +110,9 @@ makemigrations-ycode:
 makemigrations-ycampus:
 	@$(MAKE) -f Makefile.ycampus db-makemigrations
 
+load-courses:
+	@$(MAKE) -f Makefile.ycode load-courses
+
 # ============================================================================
 # Development Commands
 # ============================================================================

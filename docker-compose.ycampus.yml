@@ -1,7 +1,5 @@
-name: ycampus
-
 services:
-  db:
+  ycampus-db:
     image: postgres:15
     env_file:
       - ./ycampus-backend-api/.env
@@ -17,7 +15,7 @@ services:
     networks:
       - ycampus
 
-  backend:
+  ycampus-backend:
     build:
       context: ./ycampus-backend-api
       dockerfile: Dockerfile
@@ -29,7 +27,7 @@ services:
     volumes:
       - ./ycampus-backend-api:/app
     depends_on:
-      db:
+      ycampus-db:
         condition: service_healthy
     command: >
       sh -c "python manage.py makemigrations &&
@@ -45,7 +43,7 @@ services:
       - ycampus
       - executor  # Connect to executor network
 
-  frontend:
+  ycampus-frontend:
     build:
       context: ./ycampus-web
       dockerfile: Dockerfile
@@ -60,7 +58,7 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - backend
+      - ycampus-backend
     command: npm run dev -- --host 0.0.0.0
     networks:
       - ycampus
