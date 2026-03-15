@@ -136,7 +136,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           const initialPrompt = "The interview is starting now. Please introduce yourself and ask the first question.";
           const aiResponse = await aiAssistantService.sendMessage(response.chat_session_id, initialPrompt);
 
-          const aiText = aiResponse.response;
+          const aiText = aiResponse.response || "Welcome to the interview.";
           setConversation([{
             type: 'ai',
             content: aiText,
@@ -294,7 +294,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
       setIsAITyping(true);
       try {
         const aiResp = await aiAssistantService.sendMessage(chatSessionId, combinedAnswer);
-        const aiText = aiResp.response;
+        const aiText = aiResp.response || "Could you provide more details?";
 
         const aiMessage: Message = {
           type: 'ai',

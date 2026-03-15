@@ -23,8 +23,8 @@ interface MockInterviewUI {
 
   // AI Params
   ai_generation_mode: string;
-  ai_verbal_question_count: number;
-  ai_coding_question_count: number;
+  ai_coding_range: string;
+  ai_context?: any;
 
   // Voice
   voice_type: string;
@@ -53,8 +53,19 @@ function mapMockInterviewFromBackend(c: any): MockInterviewUI {
     max_duration: c.max_duration ?? 60,
 
     ai_generation_mode: c.ai_generation_mode ?? 'full_ai',
-    ai_verbal_question_count: c.ai_verbal_question_count ?? 0,
-    ai_coding_question_count: c.ai_coding_question_count ?? 0,
+    ai_coding_range: (() => {
+      const ctx = c.ai_context;
+      if (typeof ctx === 'object' && ctx !== null && !Array.isArray(ctx)) {
+        const counts = Object.values(ctx)
+          .map((v: any) => v?.coding_questions_count)
+          .filter(v => typeof v === 'number');
+        if (counts.length === 0) return '0';
+        const min = Math.min(...counts);
+        const max = Math.max(...counts);
+        return min === max ? `${min}` : `${min}-${max}`;
+      }
+      return String(c.ai_coding_question_count ?? 1);
+    })(),
 
     voice_type: c.voice_type ?? 'junnu',
     voice_speed: c.voice_speed ?? 1.0,
@@ -215,8 +226,8 @@ export default function MockInterviewPage() {
       cell: (interview) => <StatusBadge status={interview.publish_status} />
     },
     {
-      header: 'Questions (V/C)',
-      cell: (interview) => `${interview.ai_verbal_question_count} / ${interview.ai_coding_question_count}`
+      header: 'Coding Questions',
+      cell: (interview) => interview.ai_coding_range
     },
     {
       header: 'Participants',
@@ -332,8 +343,7 @@ export default function MockInterviewPage() {
               stats={[
                 { label: 'Duration', value: `${selectedInterview.max_duration} mins`, icon: Clock, iconColorClass: 'text-blue-500' },
                 { label: 'Participants', value: selectedInterview.participants || 0, icon: Users, iconColorClass: 'text-green-500' },
-                { label: 'Verbal', value: selectedInterview.ai_verbal_question_count, icon: Brain, iconColorClass: 'text-purple-500' },
-                { label: 'Coding', value: selectedInterview.ai_coding_question_count, icon: BarChart2, iconColorClass: 'text-orange-500' }
+                { label: 'Coding Qs', value: selectedInterview.ai_coding_range, icon: BarChart2, iconColorClass: 'text-orange-500' }
               ]}
             />
 

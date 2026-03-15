@@ -10,8 +10,7 @@ export interface MockInterview {
   // AI Config
   ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
   ai_percentage: number;
-  ai_verbal_question_count: number;
-  ai_coding_question_count: number;
+  ai_context: any;
 
   // Voice Config
   voice_type: 'junnu' | 'munnu';
@@ -40,8 +39,7 @@ export interface CreateMockInterviewData {
   max_duration: number;
 
   ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
-  ai_verbal_question_count: number;
-  ai_coding_question_count: number;
+  ai_context: any;
 
   voice_type: 'junnu' | 'munnu';
   interviewer_name: string;

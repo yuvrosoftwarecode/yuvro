@@ -4,6 +4,7 @@ export interface QuestionSolution {
     id?: string;
     question?: string;
     title: string;
+    approach: string;
     language: string;
     code: string;
     complexity_analysis?: string;

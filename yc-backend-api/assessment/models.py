@@ -214,17 +214,11 @@ class MockInterview(BaseModel):
     ai_generation_mode = models.CharField(
         max_length=20, choices=AI_GEN_CHOICES, default=AI_GEN_FULL
     )
-    ai_verbal_question_count = models.IntegerField(
-        default=5, help_text="Number of verbal questions AI should ask"
-    )
-    ai_coding_question_count = models.IntegerField(
-        default=1, help_text="Number of coding questions AI should ask"
-    )
     ai_percentage = models.IntegerField(
         default=100, help_text="Percentage of AI generated questions (0-100)"
     )
     ai_context = models.JSONField(
-        default=list, blank=True, help_text="Context or roles for the AI interviewer"
+        default=dict, blank=True, help_text="Context or roles for the AI interviewer mapped by experience level. Ex: {'intern': ['Focus on basic algorithms'], 'beginner': ['Assess junior projects']}"
     )
 
     # Voice Configuration
@@ -545,6 +539,15 @@ class BaseQuestionActivity(BaseTimestampedModel):
     )
     answer_attempt_count = models.IntegerField(
         default=0, help_text="Number of times answer was modified"
+    )
+    ai_help_count = models.IntegerField(
+        default=0, help_text="Number of times AI help was used"
+    )
+    used_hint = models.BooleanField(
+        default=False, help_text="Whether the student used a predefined hint for this question"
+    )
+    viewed_solution = models.BooleanField(
+        default=False, help_text="Whether the student viewed the solution for this question"
     )
 
     plagiarism_data = models.JSONField(

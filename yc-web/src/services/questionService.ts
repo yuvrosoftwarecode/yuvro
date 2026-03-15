@@ -19,6 +19,8 @@ export interface Question {
   marks: number;
   duration: number;
   categories: string[];
+  hints?: string[];
+  solutions?: any[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
@@ -46,6 +48,7 @@ export interface CreateQuestionData {
   marks: number;
   duration: number;
   categories: string[];
+  hints?: string[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
