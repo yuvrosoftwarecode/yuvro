@@ -90,8 +90,8 @@ services:
   # Extend YCode services with observability
   ycode-backend:
     env_file:
-      - ./yc-backend-api/.env
-      - ./yc-backend-api/.env.observability
+      - ./ycode-backend-api/.env
+      - ./ycode-backend-api/.env.observability
     depends_on:
       - otel-collector
     networks:
@@ -100,8 +100,8 @@ services:
 
   ycode-frontend:
     env_file:
-      - ./yc-web/.env
-      - ./yc-web/.env.observability
+      - ./ycode-web/.env
+      - ./ycode-web/.env.observability
     networks:
       - ycode
       - observability

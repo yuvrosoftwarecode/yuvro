@@ -1,8 +1,10 @@
+name: ycode
+
 services:
-  ycode-db:
+  db:
     image: postgres:15
     env_file:
-      - ./yc-backend-api/.env
+      - ./ycode-backend-api/.env
     volumes:
       - ycode_postgres_data:/var/lib/postgresql/data
     ports:
@@ -15,44 +17,51 @@ services:
     networks:
       - ycode
 
-  ycode-backend:
+  backend:
     build:
-      context: ./yc-backend-api
+      context: ./ycode-backend-api
       dockerfile: Dockerfile
     ports:
-      - "8001:8000"  # Django API
-      - "9001:9001"  # Prometheus metrics
+      - "8000:8000"  # Django API
+      - "9000:9001"  # Prometheus metrics
     env_file:
-      - ./yc-backend-api/.env
+      - ./ycode-backend-api/.env
     volumes:
-      - ./yc-backend-api:/app
+      - ./ycode-backend-api:/app
       - /app/venv
     depends_on:
-      ycode-db:
+      db:
         condition: service_healthy
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
     networks:
       - ycode
       - executor  # Connect to executor network
 
-  ycode-frontend:
+  frontend:
     build:
-      context: ./yc-web
+      context: ./ycode-web
       dockerfile: Dockerfile
       target: development
     ports:
       - "3000:3000"
     env_file:
-      - ./yc-web/.env
+      - ./ycode-web/.env
     volumes:
-      - ./yc-web:/app
+      - ./ycode-web:/app
       - /app/node_modules
     stdin_open: true
     tty: true
     depends_on:
-      - ycode-backend
+      - backend
     command: npm run dev -- --host 0.0.0.0
     networks:
       - ycode

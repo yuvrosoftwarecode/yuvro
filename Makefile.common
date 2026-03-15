@@ -40,10 +40,10 @@ clean:
 # ============================================================================
 
 executor-shell:
-	docker compose -f docker-compose.common.yml exec yuvro-code-executor sh
+	docker compose -f docker-compose.common.yml exec code-executor sh
 
 executor-test:
-	docker compose -f docker-compose.common.yml exec yuvro-code-executor python test_service.py
+	docker compose -f docker-compose.common.yml exec code-executor python test_service.py
 
 executor-logs:
-	docker compose -f docker-compose.common.yml logs -f yuvro-code-executor
+	docker compose -f docker-compose.common.yml logs -f code-executor
