@@ -7,6 +7,7 @@ from .models import (
     Note,
     CourseInstructor,
     Question,
+    QuestionSolution,
     StudentCodePractice,
     UserCourseProgress,
 )
@@ -90,6 +91,12 @@ class VideoAdmin(admin.ModelAdmin):
     ordering = ["sub_topic", "created_at"]
 
 
+class QuestionSolutionInline(admin.TabularInline):
+    model = QuestionSolution
+    extra = 1
+    fields = ["title", "approach", "language", "code", "complexity_analysis", "is_primary"]
+
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = [
@@ -106,6 +113,7 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ["title", "content"]
     ordering = ["-created_at"]
     readonly_fields = ["id", "created_at", "updated_at"]
+    inlines = [QuestionSolutionInline]
 
     fieldsets = (
         (
@@ -144,6 +152,15 @@ class QuestionAdmin(admin.ModelAdmin):
         if not change:  # Only set created_by on creation
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+
+@admin.register(QuestionSolution)
+class QuestionSolutionAdmin(admin.ModelAdmin):
+    list_display = ["title", "approach", "language", "question", "is_primary", "created_at"]
+    list_filter = ["approach", "language", "is_primary"]
+    search_fields = ["title", "question__title"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    fields = ["question", "title", "approach", "language", "code", "complexity_analysis", "is_primary", "id", "created_at", "updated_at"]
 
 
 # ------------------ NOTE ADMIN ------------------

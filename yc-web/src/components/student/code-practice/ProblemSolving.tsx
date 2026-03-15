@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, Play, Send, Maximize2, Minimize2, Plus, Trash2, Clock, CheckCircle2, XCircle, Zap, MemoryStick, Activity, Shield, Sparkles, X, FlaskConical, Terminal, BookOpen } from 'lucide-react';
+import { ChevronLeft, Play, Send, Maximize2, Minimize2, Plus, Trash2, Clock, CheckCircle2, XCircle, Zap, MemoryStick, Activity, Shield, Sparkles, X, FlaskConical, Terminal, BookOpen, AlertTriangle, Lightbulb, Key } from 'lucide-react';
 import { CodeExecutionPanel } from '@/components/code-editor';
 import CodeEditor from '@/components/code-editor/CodeEditor';
 import codeEditorService from '@/services/codeEditorService';
@@ -14,9 +14,11 @@ import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/componen
 import { toast } from 'sonner';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import CustomTestCaseManager from '@/components/code-editor/CustomTestCaseManager';
+import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 interface CustomTestCase {
   id: string;
@@ -60,6 +62,11 @@ const ProblemSolving = forwardRef<ProblemSolvingHandle, ProblemSolvingProps>(({ 
   const [showOutput, setShowOutput] = useState(false);
   const [showAiChat, setShowAiChat] = useState(false);
   const [activeBottomTab, setActiveBottomTab] = useState<'output' | 'testcases'>('output');
+  const [leftTab, setLeftTab] = useState<'question' | 'hints' | 'solution'>('question');
+  const [revealedHints, setRevealedHints] = useState<number[]>([]);
+  const [revealedSolution, setRevealedSolution] = useState(false);
+  const [hintToReveal, setHintToReveal] = useState<number | null>(null);
+  const [showSolutionDialog, setShowSolutionDialog] = useState(false);
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
   const [languageCodes, setLanguageCodes] = useState<Record<string, string>>({});
   const [showExamples, setShowExamples] = useState(false);
@@ -447,8 +454,215 @@ ${code}
     `.trim();
   };
 
+  const handleRevealHint = async () => {
+    if (hintToReveal === null) return;
+    try {
+      await restApiAuthUtil.post(`/course/student-code-practices/${problem.id}/reveal_hint/`, {});
+      setRevealedHints(prev => [...prev, hintToReveal]);
+      setHintToReveal(null);
+      toast.success('Hint revealed');
+    } catch (err) {
+      console.error('Failed to reveal hint:', err);
+      toast.error('Failed to reveal hint. Are you logged in?');
+      setHintToReveal(null);
+    }
+  };
+
+  const handleRevealSolution = async () => {
+    try {
+      await restApiAuthUtil.post(`/course/student-code-practices/${problem.id}/reveal_solution/`, {});
+      setRevealedSolution(true);
+      setShowSolutionDialog(false);
+      toast.success('Solution revealed');
+    } catch (err) {
+      console.error('Failed to reveal solution:', err);
+      toast.error('Failed to reveal solution. Are you logged in?');
+      setShowSolutionDialog(false);
+    }
+  };
+
+  const renderLeftPanelContent = () => (
+    <Tabs value={leftTab} onValueChange={(v: any) => setLeftTab(v)} className="flex flex-col h-full w-full">
+      <div className="px-4 py-2 border-b border-gray-200 bg-gray-50/50 sticky top-0 z-10 w-full">
+        <TabsList className="w-full justify-start bg-transparent p-0 h-auto">
+          <TabsTrigger value="question" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none px-4 py-2 font-semibold tracking-wide">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Description
+          </TabsTrigger>
+
+          {(problem.hints && problem.hints.length > 0) ? (
+            <TabsTrigger value="hints" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-500 rounded-none px-4 py-2 font-semibold tracking-wide">
+              <Lightbulb className="w-4 h-4 mr-2 text-amber-500" />
+              Hints ({problem.hints.length})
+            </TabsTrigger>
+          ) : null}
+
+          <TabsTrigger value="solution" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none px-4 py-2 font-semibold tracking-wide">
+            <Key className="w-4 h-4 mr-2 text-emerald-600" />
+            Solution
+          </TabsTrigger>
+        </TabsList>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 w-full">
+        <TabsContent value="question" className="m-0 space-y-6 w-full">
+          <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {problem.description}
+            </ReactMarkdown>
+          </div>
+
+          {problem.examples && problem.examples.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Examples</h4>
+              <div className="space-y-3">
+                {problem.examples.map((ex: any, idx: number) => (
+                  <div key={idx} className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100">
+                    <p className="mb-2 text-sm"><strong>Input:</strong> <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-gray-200">{ex.input}</code></p>
+                    <p className="mb-2 text-sm"><strong>Output:</strong> <code className="font-mono bg-white px-1.5 py-0.5 rounded border border-gray-200">{ex.output}</code></p>
+                    {ex.explanation && (
+                      <div className="mt-3 pt-3 border-t border-gray-200 text-sm text-gray-600">
+                        <strong>Explanation:</strong> {ex.explanation}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-3">Test Cases</h4>
+            <div className="space-y-3">
+              {(problem.test_cases_basic || []).map((tc: any, i: number) => (
+                <div key={i} className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-200/60 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-medium text-gray-700">Test Case</span>
+                  </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Input</div>
+                  <pre className="bg-white/80 p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
+                    {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
+                  </pre>
+                  <div className="mt-4 text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Expected Output</div>
+                  <pre className="bg-white/80 p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
+                    {typeof tc.expected_output === 'string'
+                      ? tc.expected_output
+                      : JSON.stringify(tc.expected_output, null, 2)}
+                  </pre>
+                </div>
+              ))}
+              {(problem.test_cases_basic || []).length === 0 && (
+                <p className="text-xs text-gray-500 italic text-center py-4">No example test cases provided.</p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="hints" className="m-0 space-y-4 w-full">
+          {problem.hints && problem.hints.length > 0 ? (
+            problem.hints.map((hint: string, index: number) => {
+              const isRevealed = revealedHints.includes(index);
+              return (
+                <div key={index} className="border border-amber-200 bg-amber-50 rounded-lg p-5 w-full">
+                  <div className="flex items-center gap-2 font-semibold text-amber-800 mb-3">
+                    <Lightbulb className="w-5 h-5" />
+                    Hint {index + 1}
+                  </div>
+                  {isRevealed ? (
+                    <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{hint}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-amber-700/80 mb-3">Using hints will result in a score penalty for this problem.</p>
+                      <Button
+                        onClick={() => setHintToReveal(index)}
+                        className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
+                        size="sm"
+                      >
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Reveal Hint
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-12 text-gray-500 w-full">
+              <Lightbulb className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p>No predefined hints available for this problem.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="solution" className="m-0 w-full">
+          <div className="border border-emerald-200 bg-emerald-50/50 rounded-lg p-5 w-full">
+            <div className="flex items-center gap-2 font-semibold text-emerald-800 mb-4">
+              <Key className="w-5 h-5" />
+              Official Solution
+            </div>
+
+            {revealedSolution ? (
+              <div className="text-sm text-gray-700 w-full">
+                {problem.solutions && problem.solutions.length > 0 ? (
+                  <div className="space-y-6 w-full">
+                    {problem.solutions.map((sol: any, idx: number) => (
+                      <div key={idx} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm w-full">
+                        <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 font-semibold text-gray-700 flex items-center justify-between">
+                          <span>{sol.language.toUpperCase()}</span>
+                          {sol.title && <span className="text-xs font-normal text-gray-500">{sol.title}</span>}
+                        </div>
+                        <div className="bg-slate-900 p-4 overflow-x-auto w-full">
+                          <pre className="text-sm font-mono text-blue-300">
+                            <code>{sol.code}</code>
+                          </pre>
+                        </div>
+                        {sol.complexity_analysis && (
+                          <div className="p-4 bg-gray-50 border-t border-gray-200 text-sm w-full">
+                            <h5 className="font-semibold text-gray-700 mb-2 uppercase tracking-wide text-xs">Complexity Analysis</h5>
+                            <div className="prose prose-sm max-w-none text-gray-600">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sol.complexity_analysis}</ReactMarkdown>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-emerald-600/70">
+                    <p className="italic mb-2">The solution for this problem has not been published yet.</p>
+                    <p className="text-xs">Your instructor will add it soon.</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-6 w-full">
+                <Shield className="w-12 h-12 text-emerald-200 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-emerald-800 mb-2">Need the answer?</h4>
+                <p className="text-sm text-emerald-700/80 max-w-md mx-auto mb-6">
+                  Viewing the official solution will set your score for this problem to 0. You can still practice submitting code though!
+                </p>
+                <Button
+                  onClick={() => setShowSolutionDialog(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow"
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  Reveal Solution
+                </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
+
   return (
-    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative' : 'h-screen bg-white') : 'mx-auto px-[1px] py-6 max-w-[1500px]'}`}>
+    <div className={`${isEditorFullscreen ? (isEmbedded ? 'h-full w-full bg-white relative' : 'h-screen bg-white') : 'mx-auto px-4 md:px-6 py-6 max-w-[1500px]'}`}>
       {/* Breadcrumb */}
       {!isEditorFullscreen && (
         <div className="flex items-center gap-2 mb-3 text-sm text-gray-500">
@@ -485,96 +699,9 @@ ${code}
             </div>
           </CardHeader>
 
-          <CardContent className="p-4 space-y-6">
-            <div className="space-y-6">
-              {/* Description */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                <div className="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {problem.description}
-                  </ReactMarkdown>
-                </div>
-              </div>
-
-              {/* Input format */}
-              {problem.inputFormat && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Input Format</h3>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap">{problem.inputFormat}</p>
-                </div>
-              )}
-
-              {/* Output format */}
-              {problem.outputFormat && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Output Format</h3>
-                  <p className="text-gray-700 text-sm">{problem.outputFormat}</p>
-                </div>
-              )}
-
-              {/* Examples */}
-              {problem.examples && problem.examples.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Examples</h3>
-                  <div className="space-y-3">
-                    {problem.examples.map((ex: any, idx: number) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                        <div className="text-sm mb-1">
-                          <strong>Input:</strong> <code className="font-mono">{ex.input}</code>
-                        </div>
-                        <div className="text-sm">
-                          <strong>Output:</strong> <code className="font-mono">{ex.output}</code>
-                        </div>
-                        {ex.explanation && (
-                          <p className="text-gray-600 text-sm mt-2">
-                            <strong>Explanation:</strong> {ex.explanation}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Test Cases - Basic Only (Custom tests available in editor view) */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Test Cases</h3>
-                <div className="space-y-4">
-                  {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                    <div key={i} className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                          {i + 1}
-                        </span>
-                        <span className="text-sm font-medium text-gray-700">Test Case</span>
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Input</div>
-                        <pre className="bg-white/80 backdrop-blur-sm p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
-                          {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                        </pre>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Expected Output</div>
-                        <pre className="bg-white/80 backdrop-blur-sm p-3 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-gray-100 font-mono">
-                          {typeof tc.expected_output === 'string'
-                            ? tc.expected_output
-                            : JSON.stringify(tc.expected_output, null, 2)}
-                        </pre>
-                      </div>
-                    </div>
-                  ))}
-                  {(problem.test_cases_basic || []).length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      No basic test cases available
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
+          <div className="flex-1 overflow-hidden p-0 max-h-[800px] flex">
+            {renderLeftPanelContent()}
+          </div>
         </Card>
       )}
 
@@ -614,56 +741,9 @@ ${code}
                     </div>
                   </CardHeader>
 
-                  <CardContent className="flex-1 overflow-y-auto p-4">
-                    <div className="space-y-6">
-                      <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {problem.description}
-                        </ReactMarkdown>
-                      </div>
-
-                      {problem.examples && problem.examples.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-2">Examples</h4>
-                          <div className="space-y-3">
-                            {problem.examples.map((ex: any, idx: number) => (
-                              <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                                <p><strong>Input:</strong> <code>{ex.input}</code></p>
-                                <p><strong>Output:</strong> <code>{ex.output}</code></p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">Example Test Cases</h4>
-                        <div className="space-y-3">
-                          {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                            <div key={i} className="bg-gradient-to-br from-gray-50 to-slate-50 p-3 rounded-lg border border-gray-200/60 shadow-sm">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                                  {i + 1}
-                                </span>
-                              </div>
-                              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Input</div>
-                              <pre className="bg-white/80 p-2 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap border border-gray-100 font-mono">
-                                {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                              </pre>
-
-                              <div className="text-xs mt-2 font-medium text-gray-500 uppercase tracking-wide mb-1">Expected Output</div>
-                              <pre className="bg-white/80 p-2 rounded-lg text-xs overflow-x-auto whitespace-pre-wrap border border-gray-100 font-mono">
-                                {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
-                              </pre>
-                            </div>
-                          ))}
-                          {(problem.test_cases_basic || []).length === 0 && (
-                            <p className="text-xs text-gray-500 italic text-center py-4">No example test cases provided.</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
+                  <div className="flex-1 overflow-hidden p-0 flex">
+                    {renderLeftPanelContent()}
+                  </div>
                 </Card>
               </div>
             </ResizablePanel>
@@ -1406,6 +1486,45 @@ ${code}
           />
         )
       }
+
+      {/* Warning Dialogs */}
+      <Dialog open={hintToReveal !== null} onOpenChange={(open) => !open && setHintToReveal(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="w-5 h-5" />
+              Score Penalty Warning
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-700 py-4 text-base">
+            Are you sure you want to reveal this hint?<br /><br />
+            Viewing hints will result in a <strong>score of 0</strong> for this problem.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHintToReveal(null)}>Cancel</Button>
+            <Button className="bg-amber-600 hover:bg-amber-700" onClick={handleRevealHint}>Acknowledge & Reveal</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSolutionDialog} onOpenChange={setShowSolutionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-600">
+              <AlertTriangle className="w-5 h-5" />
+              Score Penalty Warning
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-700 py-4 text-base">
+            Are you sure you want to reveal the official solution?<br /><br />
+            Viewing the solution will permanently result in a <strong>score of 0</strong> for this problem.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSolutionDialog(false)}>Cancel</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleRevealSolution}>Acknowledge & Reveal</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div >
   );
 });

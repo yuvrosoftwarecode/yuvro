@@ -308,15 +308,22 @@ const CourseDetail: React.FC = () => {
                 <div
                     className={`bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200`}
                     style={{
-                        width: collapsed ? "70px" : "355px",
-                        minWidth: collapsed ? "70px" : "355px",
+                        width: collapsed ? "50px" : "300px",
+                        minWidth: collapsed ? "50px" : "300px",
                         overflow: "hidden",
                     }}
                 >
                     <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                         {collapsed ? (
-                            <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={course.name}>
+                            <div className="flex flex-col items-center h-full py-3 gap-6 animate-fade-in">
+                                <button
+                                    onClick={() => setCollapsed(false)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-all"
+                                    aria-label="Expand sidebar"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold bg-gray-50 rounded-xl" title={course.name}>
                                     🗂️
                                 </div>
                                 <div className="flex flex-col items-center gap-3 w-full px-2">
@@ -347,11 +354,20 @@ const CourseDetail: React.FC = () => {
                             </div>
                         ) : (
                             <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
-                                        🗂️
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
+                                            🗂️
+                                        </div>
+                                        <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
+                                    <button
+                                        onClick={() => setCollapsed(true)}
+                                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-all shrink-0"
+                                        aria-label="Collapse sidebar"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
                                 </div>
 
                                 <p className="text-sm text-gray-500 mb-5 ml-1">Track your learning progress</p>
@@ -462,23 +478,8 @@ const CourseDetail: React.FC = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
-                    style={{
-                        left: collapsed ? "58px" : "343px",
-                    }}
-                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                >
-                    {collapsed ? (
-                        <ChevronRight className="w-3 h-3" />
-                    ) : (
-                        <ChevronLeft className="w-3 h-3" />
-                    )}
-                </button>
-
                 <div className="flex-1 bg-white overflow-hidden flex flex-col">
-                    <div className="border-b border-gray-200 py-3 flex items-center justify-between relative min-h-[4.5rem]">
+                    <div className="border-b border-gray-200 py-1.5 flex items-center justify-between relative min-h-[3rem]">
                         <div className="ml-4 flex items-center gap-2 text-sm bg-white border border-gray-300 shadow-sm rounded-full px-4 py-1 font-medium text-gray-700 max-w-[30%] min-w-0">
                             {selectedSubtopic && (
                                 <>
@@ -507,7 +508,7 @@ const CourseDetail: React.FC = () => {
                                 <button
                                     key={tab.key}
                                     title={!collapsed ? tab.label : ""}
-                                    className={`relative px-4 py-2.5 rounded-full text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-300 ${rightTab === tab.key
+                                    className={`relative px-3 py-1.5 rounded-full text-xs font-medium flex items-center justify-center gap-2 transition-all duration-300 ${rightTab === tab.key
                                         ? "bg-slate-900 text-white shadow-md ring-2 ring-slate-100 ring-offset-2"
                                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-white border border-slate-200"
                                         }`}

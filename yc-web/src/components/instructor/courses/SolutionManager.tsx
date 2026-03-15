@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Edit3, Trash2, Code, Maximize2, CheckCircle, AlertCircle, Play, XCircle, Terminal, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import codeEditorService from '@/services/codeEditorService';
@@ -22,6 +23,7 @@ import codeEditorService from '@/services/codeEditorService';
 export interface Solution {
     id?: string;
     title: string;
+    approach: string;
     language: string;
     code: string;
     complexity_analysis?: string;
@@ -41,6 +43,7 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
 
     const [currentSolution, setCurrentSolution] = useState<Solution>({
         title: '',
+        approach: 'optimal',
         language: 'python',
         code: '',
         complexity_analysis: '',
@@ -59,10 +62,11 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
             setEditingIndex(null);
             setCurrentSolution({
                 title: '',
+                approach: 'optimal',
                 language: 'python',
                 code: '',
                 complexity_analysis: '',
-                is_primary: solutions.length === 0 // Make primary if it's the first one
+                is_primary: solutions.length === 0
             });
         }
         setExecutionResult(null);
@@ -192,6 +196,11 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
                                             <Badge variant="outline" className="uppercase text-[10px]">{solution.language}</Badge>
+                                            {solution.approach && (
+                                                <Badge variant="outline" className="text-[10px] capitalize text-indigo-600 border-indigo-200 bg-indigo-50">
+                                                    {{ brute_force: 'Brute Force', better: 'Better', optimal: 'Optimal' }[solution.approach] || solution.approach}
+                                                </Badge>
+                                            )}
                                             {solution.complexity_analysis && (
                                                 <span className="flex items-center gap-1">
                                                     <AlertCircle className="w-3 h-3" />
@@ -229,8 +238,8 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
 
             {/* Maximized Editor Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col p-0 gap-0 bg-slate-50 rounded-lg overflow-hidden">
-                    <DialogHeader className="px-6 py-4 bg-white border-b border-slate-200 shrink-0">
+                <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col p-0 gap-0 bg-slate-50 rounded-2xl overflow-visible">
+                    <DialogHeader className="px-6 py-4 bg-white border-b border-slate-200 shrink-0 rounded-t-2xl">
                         <DialogTitle className="flex items-center justify-between">
                             <span>{editingIndex !== null ? 'Edit Solution' : 'Add New Solution'}</span>
                             <div className="flex items-center gap-2 mr-8">
@@ -288,6 +297,23 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                                                 placeholder="e.g. Brute Force Approach"
                                                 className="mt-1.5"
                                             />
+                                        </div>
+
+                                        <div>
+                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approach</Label>
+                                            <Select
+                                                value={currentSolution.approach}
+                                                onValueChange={(val) => setCurrentSolution({ ...currentSolution, approach: val })}
+                                            >
+                                                <SelectTrigger className="mt-1.5">
+                                                    <SelectValue placeholder="Select approach" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="brute_force">Brute Force</SelectItem>
+                                                    <SelectItem value="better">Better</SelectItem>
+                                                    <SelectItem value="optimal">Optimal</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
 
                                         <div className="flex items-center space-x-2 pt-1">
@@ -471,7 +497,7 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                         </div>
                     </div>
 
-                    <DialogFooter className="px-6 py-4 bg-white border-t border-slate-200 shrink-0 flex items-center justify-between sm:justify-between">
+                    <DialogFooter className="px-6 py-4 bg-white border-t border-slate-200 shrink-0 flex items-center justify-between sm:justify-between rounded-b-2xl">
                         <div className="flex items-center gap-2">
                             <Button
                                 type="button"

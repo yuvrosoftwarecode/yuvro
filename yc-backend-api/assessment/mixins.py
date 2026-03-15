@@ -292,6 +292,125 @@ class ProctoringMixin:
             {"status": "logged", "scope": "question"}, status=status.HTTP_200_OK
         )
 
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="reveal-hint",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def reveal_hint(self, request, pk=None):
+        assessment_object = self.get_object()
+        user = request.user
+        question_id = request.data.get("question_id")
+        hint_index = request.data.get("hint_index", 0)
+
+        if not question_id:
+            return Response({"error": "question_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        lookup_kwargs = {"user": user, self.submission_lookup_field: assessment_object}
+        submission = self.submission_model.objects.filter(**lookup_kwargs).order_by("-created_at").first()
+
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission_field_name = self._get_submission_field_name()
+        qa_lookup = {submission_field_name: submission, "question_id": question_id}
+        
+        try:
+            qa_record, created = self.question_activity_model.objects.get_or_create(
+                defaults={"user": request.user}, **qa_lookup
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        question = qa_record.question
+        hints = question.hints
+
+        if not hints or hint_index >= len(hints):
+            return Response({"error": "Hint not available"}, status=status.HTTP_404_NOT_FOUND)
+
+        qa_record.used_hint = True
+        qa_record.save(update_fields=['used_hint'])
+
+        return Response({"hint": hints[hint_index]})
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="reveal-solution",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def reveal_solution(self, request, pk=None):
+        assessment_object = self.get_object()
+        user = request.user
+        question_id = request.data.get("question_id")
+
+        if not question_id:
+            return Response({"error": "question_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        lookup_kwargs = {"user": user, self.submission_lookup_field: assessment_object}
+        submission = self.submission_model.objects.filter(**lookup_kwargs).order_by("-created_at").first()
+
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission_field_name = self._get_submission_field_name()
+        qa_lookup = {submission_field_name: submission, "question_id": question_id}
+        
+        try:
+            qa_record, created = self.question_activity_model.objects.get_or_create(
+                defaults={"user": request.user}, **qa_lookup
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        question = qa_record.question
+        solutions = question.solutions.all()
+        
+        if not solutions.exists():
+            return Response({"error": "No predefined solutions available for this question"}, status=status.HTTP_404_NOT_FOUND)
+
+        qa_record.viewed_solution = True
+        qa_record.save(update_fields=['viewed_solution'])
+
+        from course.serializers import QuestionSolutionSerializer
+        serializer = QuestionSolutionSerializer(solutions, many=True)
+        return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="use-ai",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def increment_ai_count(self, request, pk=None):
+        assessment_object = self.get_object()
+        user = request.user
+        question_id = request.data.get("question_id")
+
+        if not question_id:
+            return Response({"error": "question_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        lookup_kwargs = {"user": user, self.submission_lookup_field: assessment_object}
+        submission = self.submission_model.objects.filter(**lookup_kwargs).order_by("-created_at").first()
+
+        if not submission:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission_field_name = self._get_submission_field_name()
+        qa_lookup = {submission_field_name: submission, "question_id": question_id}
+        
+        try:
+            qa_record, created = self.question_activity_model.objects.get_or_create(
+                defaults={"user": request.user}, **qa_lookup
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        qa_record.ai_help_count += 1
+        qa_record.save(update_fields=['ai_help_count'])
+        return Response({"message": "AI help count incremented"})
+
     def _check_plagiarism(self, qa_record, request):
         """
         Check for plagiarism against other submissions for the same question.

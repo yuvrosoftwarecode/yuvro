@@ -42,6 +42,8 @@ export interface CodingProblem {
   description: string;
   inputFormat?: string;
   outputFormat?: string;
+  hints?: string[];
+  solutions?: any[];
   examples?: Array<{
     input: string;
     output: string;
@@ -127,6 +129,8 @@ const CodePractice = () => {
           difficulty: q.difficulty === 'easy' ? 'Easy' : q.difficulty === 'medium' ? 'Medium' : 'Hard',
           score: q.marks,
           description: q.content,
+          hints: q.hints || [],
+          solutions: q.solutions || [],
           test_cases_basic: q.test_cases_basic?.map((tc: any) => ({
             input: tc.input || '',
             expected_output: tc.expected_output || '',
@@ -260,6 +264,7 @@ const CodePractice = () => {
                 onBack={handleBackToTopics}
                 onViewAnalytics={handleViewAnalytics}
                 codeSubmissionType="practice"
+                initialEditorOpen={true}
               />
             )}
 

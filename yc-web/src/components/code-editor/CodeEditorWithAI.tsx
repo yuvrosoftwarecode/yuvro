@@ -1,17 +1,21 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
 import codeEditorService from '@/services/codeEditorService';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import restApiAuthUtil from '@/utils/RestApiAuthUtil';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface CodeEditorWithAIProps {
   problem: CodingProblem;
@@ -72,6 +76,17 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Hint/Solution state
+  const [leftTab, setLeftTab] = useState<'question' | 'hints' | 'solution'>('question');
+  const [revealedHints, setRevealedHints] = useState<number[]>([]);
+  const [revealedSolution, setRevealedSolution] = useState(false);
+  const [hintToReveal, setHintToReveal] = useState<number | null>(null);
+  const [showSolutionDialog, setShowSolutionDialog] = useState(false);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>([]);
+  const [selectedApproach, setSelectedApproach] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedSolutionIdx, setSelectedSolutionIdx] = useState(0);
+
   // Code editor ref
   const codeEditorRef = useRef<CodeEditorHandle>(null);
 
@@ -106,6 +121,8 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const startAiChatDrag = () => setDragMode('ai-chat');
   const stopDrag = () => setDragMode(null);
 
+  const COLLAPSE_THRESHOLD = 5;
+
   const onDrag = (e: MouseEvent) => {
     if (!dragMode || !containerRef.current) return;
 
@@ -115,8 +132,18 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
 
     if (dragMode === 'problem') {
       const newWidth = (relativeX / containerWidth) * 100;
-      if (newWidth >= 15 && newWidth <= 60) {
-        setProblemPanelWidth(newWidth);
+      if (isSidebarCollapsed) {
+        if (relativeX > 40) {
+          setIsSidebarCollapsed(false);
+          setProblemPanelWidth(Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), 60));
+        }
+      } else {
+        if (newWidth < COLLAPSE_THRESHOLD) {
+          setIsSidebarCollapsed(true);
+          setDragMode(null);
+        } else if (newWidth <= 60) {
+          setProblemPanelWidth(newWidth);
+        }
       }
     } else if (dragMode === 'ai-chat') {
       // AI chat resize - calculate from right edge
@@ -199,50 +226,239 @@ ${codeEditorRef.current?.getCode() || ''}
   const containerClassName = isEditorFullscreen
     ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white')
     : (isEmbedded
-      ? 'h-full w-full flex flex-col box-border bg-slate-50/50 font-sans overflow-hidden'
-      : 'flex-1 flex flex-col p-6 box-border bg-slate-50/50 font-sans overflow-hidden');
+      ? 'h-full w-full flex flex-col box-border bg-slate-50/50 font-sans overflow-hidden p-1.5'
+      : 'flex-1 flex flex-col p-2 box-border bg-slate-50/50 font-sans overflow-hidden');
+
+  const handleRevealHint = async () => {
+    if (hintToReveal === null) return;
+    try {
+      await restApiAuthUtil.post(`/course/student-code-practices/reveal-hint/`, { question_id: problem.id, hint_index: hintToReveal });
+      setRevealedHints(prev => [...prev, hintToReveal]);
+      setHintToReveal(null);
+      toast.success('Hint revealed');
+    } catch (err) {
+      console.error('Failed to reveal hint:', err);
+      toast.error('Failed to reveal hint');
+      setHintToReveal(null);
+    }
+  };
+
+  const handleRevealSolution = async () => {
+    try {
+      const data = await restApiAuthUtil.post(`/course/student-code-practices/reveal-solution/`, { question_id: problem.id });
+      const sols = Array.isArray(data) ? data : (problem.solutions || []);
+      setFetchedSolutions(sols);
+      const firstApproach = sols.length > 0 ? (sols[0].approach || 'optimal') : '';
+      setSelectedApproach(firstApproach);
+      const firstLangForApproach = sols.find((s: any) => s.approach === firstApproach)?.language || '';
+      setSelectedLanguage(firstLangForApproach);
+      setSelectedSolutionIdx(0);
+      setRevealedSolution(true);
+      setShowSolutionDialog(false);
+      toast.success('Solution revealed');
+    } catch (err) {
+      console.error('Failed to reveal solution:', err);
+      toast.error('Failed to reveal solution');
+      setShowSolutionDialog(false);
+    }
+  };
+
+  const renderLeftPanelContent = () => (
+    <Tabs value={leftTab} onValueChange={(v: any) => setLeftTab(v)} className="flex flex-col h-full w-full">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar w-full">
+        <TabsContent value="question" className="m-0 w-full">
+          {/* Title + difficulty — TUF style */}
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-gray-900 leading-snug mb-2">{problem.title}</h2>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
+                problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
+                problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                'bg-red-50 text-red-700 border-red-200'
+              }`}>{problem.difficulty}</span>
+            </div>
+          </div>
+
+          {/* Description prose */}
+          <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded mb-5">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{problem.description}</ReactMarkdown>
+          </div>
+
+          {/* Sample test cases — 2 basic + 1 advanced */}
+          {(() => {
+            const basic = (problem.test_cases_basic || []).slice(0, 2);
+            const advanced = (problem.test_cases_advanced || []).slice(0, 1);
+            const all = [
+              ...basic.map((tc: any) => ({ ...tc, label: 'Basic' })),
+              ...advanced.map((tc: any) => ({ ...tc, label: 'Advanced' })),
+            ];
+            if (all.length === 0) return null;
+            return (
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold text-gray-900">Sample Test Cases</h4>
+                {all.map((tc: any, i: number) => (
+                  <div key={i}>
+                    <h5 className="text-xs font-semibold text-gray-500 mb-1.5">Case {i + 1} <span className="text-gray-400 font-normal">({tc.label})</span></h5>
+                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1.5 font-mono text-xs">
+                      <div><span className="font-bold text-gray-600">Input: </span><span className="text-gray-800">{typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input)}</span></div>
+                      <div><span className="font-bold text-gray-600">Output: </span><span className="text-emerald-700">{typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output)}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </TabsContent>
+
+        <TabsContent value="hints" className="m-0 space-y-4 w-full">
+          {problem.hints && problem.hints.length > 0 ? (
+            problem.hints.map((hint: string, index: number) => {
+              const isRevealed = revealedHints.includes(index);
+              return (
+                <div key={index} className="border border-amber-200 bg-amber-50 rounded-lg p-4 w-full">
+                  <div className="flex items-center gap-2 font-semibold text-amber-800 mb-2 text-sm">
+                    <Lightbulb className="w-4 h-4" />
+                    Hint {index + 1}
+                  </div>
+                  {isRevealed ? (
+                    <div className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{hint}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs text-amber-700/80 mb-2">Using hints will result in a score penalty.</p>
+                      <Button onClick={() => setHintToReveal(index)} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm" size="sm">
+                        <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
+                        Reveal Hint
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-12 text-gray-500 w-full">
+              <Lightbulb className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm">No hints available for this problem.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="solution" className="m-0 w-full">
+          {revealedSolution ? (
+            <div className="w-full space-y-3">
+              {/* Approach tabs — TUF style flat underline */}
+              {(() => {
+                const approaches = Array.from(new Set(fetchedSolutions.map((s: any) => s.approach || 'optimal')));
+                const approachLabels: Record<string, string> = { brute_force: 'Brute Force', better: 'Better', optimal: 'Optimal' };
+                return (
+                  <div className="flex border-b border-gray-200 gap-0">
+                    {approaches.map((ap: any) => (
+                      <button
+                        key={ap}
+                        onClick={() => {
+                          setSelectedApproach(ap);
+                          const firstLang = fetchedSolutions.find((s: any) => s.approach === ap)?.language || '';
+                          setSelectedLanguage(firstLang);
+                          setSelectedSolutionIdx(0);
+                        }}
+                        className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${
+                          selectedApproach === ap
+                            ? 'border-indigo-600 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
+                        }`}
+                      >
+                        {approachLabels[ap] || ap}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {/* Language pills for selected approach */}
+              {(() => {
+                const approachSols = fetchedSolutions.filter((s: any) => (s.approach || 'optimal') === selectedApproach);
+                const langs = Array.from(new Set(approachSols.map((s: any) => s.language)));
+                return (
+                  <div className="flex flex-wrap gap-1.5">
+                    {langs.map((lang: any) => (
+                      <button
+                        key={lang}
+                        onClick={() => { setSelectedLanguage(lang); setSelectedSolutionIdx(0); }}
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                          selectedLanguage === lang
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
+                        }`}
+                      >
+                        {String(lang).toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {/* Code view */}
+              {(() => {
+                const sol = fetchedSolutions.find(
+                  (s: any) => (s.approach || 'optimal') === selectedApproach && s.language === selectedLanguage
+                );
+                if (!sol) return null;
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-600">{sol.title}</span>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setCode(sol.code);
+                          setLanguage(sol.language || 'python');
+                          codeEditorRef.current?.setCode(sol.code);
+                          toast.success('Solution loaded into editor');
+                        }}
+                        className="h-6 px-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                        Load into Editor
+                      </Button>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 overflow-hidden">
+                      <div className="bg-gray-50 p-3 overflow-auto max-h-80">
+                        <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap"><code>{sol.code}</code></pre>
+                      </div>
+                    </div>
+                    {sol.complexity_analysis && (
+                      <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
+                        <p className="text-xs font-bold text-indigo-700 mb-1.5">Complexity Analysis</p>
+                        <p className="text-sm text-indigo-900 leading-relaxed">{sol.complexity_analysis}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          ) : (
+            <div className="text-center py-8 w-full">
+              <Shield className="w-10 h-10 text-emerald-200 mx-auto mb-3" />
+              <h4 className="text-sm font-medium text-emerald-800 mb-1">Need the answer?</h4>
+              <p className="text-xs text-emerald-700/80 max-w-sm mx-auto mb-4">
+                Viewing the solution will set your score to 0.
+              </p>
+              <Button onClick={() => setShowSolutionDialog(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow" size="sm">
+                <Key className="w-3.5 h-3.5 mr-1.5" />
+                Reveal Solution
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
 
   return (
     <div className={containerClassName}>
 
-      {/* Premium Header / Breadcrumb */}
-      {!isEditorFullscreen && (
-        <div className="flex items-center justify-between mb-6 shrink-0">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="h-9 w-9 p-0 rounded-xl hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all text-gray-500 hover:text-gray-900"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <div className="h-4 w-px bg-gray-300 hidden sm:block mx-1" />
-            <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">
-                {topic.name}
-              </p>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-gray-900 leading-none">{problem.title}</h2>
-                <Badge variant="outline" className={`text-[9px] font-black uppercase px-1.5 py-0 border rounded-[4px] ${getDifficultyStyles(problem.difficulty)}`}>
-                  {problem.difficulty}
-                </Badge>
-              </div>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-4 text-right pr-4 border-r border-gray-200">
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
-                  <Target className="w-3 h-3 text-indigo-500" /> goal
-                </div>
-                <p className="text-xs font-bold text-gray-900 leading-none">{problem.score} Points</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 1) Problem-only view (editor hidden) */}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
@@ -339,120 +555,85 @@ ${codeEditorRef.current?.getCode() || ''}
       {editorOpen && !isEditorFullscreen && (
         <div
           ref={containerRef}
-          className={`flex-1 min-h-0 overflow-hidden flex relative gap-3 ${dragMode ? 'select-none' : ''}`}
+          className={`flex-1 min-h-0 overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
         >
-          {/* Collapsed Sidebar */}
+          {/* Collapsed Sidebar — vertical tab buttons */}
           {showProblemDescription && isSidebarCollapsed && (
-            <div className="w-10 shrink-0 border border-gray-200 bg-white rounded-2xl flex flex-col items-center py-6 gap-6 transition-all shadow-sm">
+            <div className="w-9 shrink-0 border border-gray-200 bg-white rounded-xl flex flex-col items-center pt-2 pb-4 gap-1 transition-all shadow-sm overflow-hidden">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="w-8 h-8 p-0 rotate-180 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                title="Expand Overview"
+                className="w-7 h-7 p-0 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-all mb-1"
+                title="Expand"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4 rotate-180" />
               </Button>
-              <div className="[writing-mode:vertical-rl] text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] select-none py-2 cursor-pointer hover:text-indigo-600 transition-all" onClick={() => setIsSidebarCollapsed(false)}>
-                Task Overview
-              </div>
+              {[
+                { key: 'question', label: 'Description', icon: <BookOpen className="w-3 h-3" /> },
+                { key: 'hints', label: 'Hints', icon: <Lightbulb className="w-3 h-3" /> },
+                { key: 'solution', label: 'Solution', icon: <Key className="w-3 h-3" /> },
+              ].map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => { setLeftTab(t.key as any); setIsSidebarCollapsed(false); }}
+                  className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
+                    ${leftTab === t.key ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                  title={t.label}
+                >
+                  {t.icon}
+                  <span className="[writing-mode:vertical-rl] rotate-180 leading-none">{t.label}</span>
+                </button>
+              ))}
             </div>
           )}
 
-          {/* LEFT PANEL — Problem Description */}
+          {/* LEFT PANEL — Tabbed Problem Description */}
           {showProblemDescription && !isSidebarCollapsed && (
             <div
               className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
-              style={{ width: `calc(${problemPanelWidth}% - 6px)` }}
+              style={{ width: `calc(${problemPanelWidth}% - 4px)` }}
             >
-              <div className="h-full font-sans overflow-hidden">
-                <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-2xl overflow-hidden">
-                  <CardHeader className="p-4 bg-gray-50/50 border-b border-gray-100 flex-none">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center shrink-0">
-                          <Layout className="w-3.5 h-3.5 text-white" />
-                        </div>
-                        <CardTitle className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{problem.title}</CardTitle>
-                      </div>
+              <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-xl overflow-hidden">
+                {/* Tab bar with back chevron on the left */}
+                <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onBack}
+                    className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-gray-900 shrink-0"
+                    title="Back to problems"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  {[
+                    { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                    ...(problem.hints && problem.hints.length > 0 ? [{ key: 'hints', label: `Hints (${problem.hints.length})`, icon: <Lightbulb className="w-3.5 h-3.5" /> }] : []),
+                    { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setLeftTab(t.key as any)}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+                        ${leftTab === t.key
+                          ? 'border-indigo-600 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
+                    >
+                      {t.icon}
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsSidebarCollapsed(true)}
-                        className="h-8 w-8 p-0 rounded-lg text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-100"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-white">
-                    <div className="space-y-8">
-                      <div>
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Task</h4>
-                        <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {problem.description}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
-
-                      {problem.examples && problem.examples.length > 0 && (
-                        <div>
-                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Example</h4>
-                          <div className="space-y-3">
-                            {problem.examples.slice(0, 1).map((ex: any, idx: number) => (
-                              <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-gray-100">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Input</div>
-                                    <code className="text-[11px] font-mono text-indigo-600">{ex.input}</code>
-                                  </div>
-                                  <div>
-                                    <div className="text-[9px] font-bold text-gray-400 uppercase mb-1">Output</div>
-                                    <code className="text-[11px] font-mono text-emerald-600">{ex.output}</code>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="pt-4 border-t border-gray-50">
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Sample Scenarios</h4>
-                        <div className="space-y-4">
-                          {(problem.test_cases_basic || []).map((tc: any, i: number) => (
-                            <div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                              <div className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Scenario 0{i + 1}</div>
-                              <div className="space-y-3">
-                                <div className="flex flex-col gap-1">
-                                  <span className="text-[8px] font-bold text-gray-400 uppercase">Input</span>
-                                  <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-gray-700 leading-tight">
-                                    {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
-                                  </pre>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                  <span className="text-[8px] font-bold text-gray-400 uppercase">Expectation</span>
-                                  <pre className="bg-gray-50 p-2 rounded-lg text-[10px] overflow-x-auto font-mono text-emerald-600 leading-tight">
-                                    {typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output, null, 2)}
-                                  </pre>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                <div className="flex-1 overflow-hidden p-0 flex">
+                  {renderLeftPanelContent()}
+                </div>
+              </Card>
             </div>
           )}
 
-          {/* PROBLEM RESIZE HANDLE */}
-          {showProblemDescription && !isSidebarCollapsed && (
+          {/* PROBLEM RESIZE HANDLE — always visible when problem description is shown */}
+          {showProblemDescription && (
             <div
               onMouseDown={(e) => {
                 e.preventDefault();
@@ -468,9 +649,8 @@ ${codeEditorRef.current?.getCode() || ''}
           <div
             className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
           >
-            <div className="h-full flex flex-col overflow-hidden">
-              <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
-                <CodeEditor
+            <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
+              <CodeEditor
                   ref={codeEditorRef}
                   initialCode={code}
                   onCodeChange={setCode}
@@ -495,7 +675,6 @@ ${codeEditorRef.current?.getCode() || ''}
                   codeSubmissionType={codeSubmissionType}
                   onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
                 />
-              </div>
             </div>
           </div>
 
@@ -655,6 +834,45 @@ ${codeEditorRef.current?.getCode() || ''}
           </div>
         </div>
       )}
+
+      {/* Warning Dialogs */}
+      <Dialog open={hintToReveal !== null} onOpenChange={(open) => !open && setHintToReveal(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="w-5 h-5" />
+              Score Penalty Warning
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-700 py-4 text-base">
+            Are you sure you want to reveal this hint?<br /><br />
+            Viewing hints will result in a <strong>score of 0</strong> for this problem.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHintToReveal(null)}>Cancel</Button>
+            <Button className="bg-amber-600 hover:bg-amber-700" onClick={handleRevealHint}>Acknowledge & Reveal</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSolutionDialog} onOpenChange={setShowSolutionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-600">
+              <AlertTriangle className="w-5 h-5" />
+              Score Penalty Warning
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-700 py-4 text-base">
+            Are you sure you want to reveal the official solution?<br /><br />
+            Viewing the solution will permanently result in a <strong>score of 0</strong> for this problem.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSolutionDialog(false)}>Cancel</Button>
+            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleRevealSolution}>Acknowledge & Reveal</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

@@ -165,8 +165,8 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
             question = q_map[q_id]
             
             is_correct, marks_obtained = question.grade_answer(user_ans)
-            
-            CertificationQuestionActivity.objects.update_or_create(
+            # Check for hints/solutions/AI usage penalty
+            activity, created = CertificationQuestionActivity.objects.update_or_create(
                 certification_submission=submission,
                 question=question,
                 user=request.user,
@@ -177,6 +177,13 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'auto_graded': question.is_auto_gradable
                 }
             )
+            
+            # Apply 0-score penalty if any assistance was used
+            if activity.used_hint or activity.viewed_solution or activity.ai_help_count > 0:
+                marks_obtained = 0
+                activity.marks_obtained = 0
+                activity.save(update_fields=['marks_obtained'])
+
             total_score += marks_obtained
             
         submission.marks = total_score
@@ -494,11 +501,8 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                 continue
             question = q_map[q_id]
             is_correct, marks_obtained = question.grade_answer(user_ans)
-            if is_correct:
-                total_score += marks_obtained
-
-            # Create ContestQuestionActivity record for skill gap analysis
-            ContestQuestionActivity.objects.update_or_create(
+            # Check for hints/solutions/AI usage penalty
+            activity, created = ContestQuestionActivity.objects.update_or_create(
                 contest_submission=submission,
                 question=question,
                 defaults={
@@ -511,6 +515,15 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                     'total_question_time': time_spent.get(q_id, 0),
                 }
             )
+
+            # Apply 0-score penalty if any assistance was used
+            if activity.used_hint or activity.viewed_solution or activity.ai_help_count > 0:
+                marks_obtained = 0
+                activity.marks_obtained = 0
+                activity.save(update_fields=['marks_obtained'])
+
+            if is_correct:
+                total_score += marks_obtained
                 
         submission.marks = total_score
         submission.save()
@@ -1158,7 +1171,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             is_correct, marks_obtained = question.grade_answer(user_ans)
 
             # Create or update activity
-            SkillTestQuestionActivity.objects.update_or_create(
+            activity, created = SkillTestQuestionActivity.objects.update_or_create(
                 skill_test_submission=submission,
                 question=question,
                 user=request.user,
@@ -1173,6 +1186,13 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                     'auto_graded': question.is_auto_gradable
                 }
             )
+            
+            # Apply 0-score penalty if any assistance was used
+            if activity.used_hint or activity.viewed_solution or activity.ai_help_count > 0:
+                marks_obtained = 0
+                activity.marks_obtained = 0
+                activity.save(update_fields=['marks_obtained'])
+
             total_score += marks_obtained
         
         submission.marks = total_score
