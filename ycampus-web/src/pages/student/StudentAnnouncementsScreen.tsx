@@ -17,7 +17,9 @@ import {
   Paperclip,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Download,
+  Eye
 } from 'lucide-react';
 import { 
   Dialog, 
@@ -243,15 +245,27 @@ const StudentAnnouncementsScreen: React.FC = () => {
                 )}
              </div>
              {viewAnnouncement?.attachment && (
-                <a 
-                  href={viewAnnouncement.attachment}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-blue-100 bg-white shadow-sm shrink-0 w-fit"
-                >
-                  <Paperclip className="w-4 h-4" />
-                  <span>Download Attachment</span>
-                </a>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a 
+                    href={viewAnnouncement.attachment}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-blue-100 bg-white shadow-sm w-fit"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>View Attachment</span>
+                  </a>
+                  <a 
+                    href={viewAnnouncement.attachment}
+                    download={viewAnnouncement.attachment.split('/').pop() || 'attachment'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-orange-100 bg-white shadow-sm w-fit"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download</span>
+                  </a>
+                </div>
              )}
           </div>
         </DialogContent>
