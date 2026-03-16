@@ -213,6 +213,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "created_by_name",
             "priority",
             "is_active",
+            "attachment",
             "publish_date",
             "expiry_date",
             "created_at",
