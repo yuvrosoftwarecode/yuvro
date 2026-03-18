@@ -55,7 +55,8 @@ const FacultyTask: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
 
     // Screening/View State
-    const [view, setView] = useState<'taskList' | 'responses' | 'studentDetail'>('taskList');
+    const [view, setView] = useState<'cards' | 'taskList' | 'responses' | 'studentDetail'>('cards');
+    const [selectedAssignment, setSelectedAssignment] = useState<SectionSubjectFaculty | null>(null);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [selectedSubmission, setSelectedSubmission] = useState<TaskSubmission | null>(null);
 
@@ -601,7 +602,7 @@ const FacultyTask: React.FC = () => {
                 due_date: "",
                 unit: "",
                 sub_unit: "",
-                sections: [],
+                sections: selectedSections,
                 task_type: "descriptive",
                 question_source: "manual",
                 questions: []
@@ -658,6 +659,18 @@ const FacultyTask: React.FC = () => {
         setIsDeleteDialogOpen(true);
     };
 
+    // Card click handler – sets all filter state from assignment and goes to task list
+    const handleCardClick = (assignment: SectionSubjectFaculty) => {
+        setSelectedAssignment(assignment);
+        const deptId = String(assignment.semester_subject_details?.department_id || '');
+        const subjectId = String(assignment.semester_subject_details?.subject_details?.id || '');
+        const sectionId = String(assignment.section || '');
+        setSelectedDepartment(deptId);
+        setSelectedSubject(subjectId);
+        setSelectedSections([sectionId]);
+        setView('taskList');
+    };
+
     const confirmDelete = async () => {
         if (!taskToDelete) return;
         try {
@@ -669,6 +682,97 @@ const FacultyTask: React.FC = () => {
             toast.error("Failed to delete task");
         }
     };
+
+    // Render Components
+    const renderCards = () => (
+        <div className="space-y-6">
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <Loader2 className="h-10 w-10 text-orange-500 animate-spin mb-4" />
+                    <p className="text-gray-500 font-medium">Loading your assignments...</p>
+                </div>
+            ) : assignments.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {assignments.map((assignment) => (
+                        <Card
+                            key={assignment.id}
+                            className="border-gray-100 group overflow-hidden relative flex flex-col h-full bg-white cursor-pointer"
+                            onClick={() => handleCardClick(assignment)}
+                        >
+                            <CardContent className="p-6 flex flex-col flex-1">
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 border border-orange-100/50">
+                                        <BookOpen className="h-6 w-6" />
+                                    </div>
+                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
+                                        {assignment.section_name || 'Section'}
+                                    </Badge>
+                                </div>
+
+                                {/* Subject Info */}
+                                <div className="mb-6 flex-1">
+                                    <h3 className="font-bold text-gray-900 leading-tight text-lg line-clamp-2">
+                                        {assignment.semester_subject_details?.subject_details?.subject_name || 'Unknown Subject'}
+                                    </h3>
+                                    <div className="space-y-1 mt-3">
+                                        <p className="text-xs text-gray-500 flex items-center gap-1.5 capitalize">
+                                            <span className="font-semibold text-gray-700">Branch:</span>
+                                            {assignment.semester_subject_details?.department_name || 'N/A'}
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                                                <span className="font-semibold text-gray-700">Batch:</span>
+                                                {assignment.semester_subject_details?.batch_name || 'N/A'}
+                                            </p>
+                                            <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                                                <span className="font-semibold text-gray-700">Sem:</span>
+                                                {assignment.semester_subject_details?.semester_number || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-3 pt-2 flex items-center gap-1.5 border-t border-gray-50">
+                                            <Users className="h-4 w-4 text-orange-400" />
+                                            <span className="font-medium">{assignment.student_count || 0}</span>
+                                            <span>Students enrolled</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
+                                    <div className="text-xs text-gray-400 flex items-center gap-1">
+                                        <List className="h-3.5 w-3.5" />
+                                        <span>View Tasks</span>
+                                    </div>
+                                    <Button
+                                        className="bg-orange-500 text-white shadow-sm rounded-lg h-9 px-4 text-sm font-semibold group/btn border-none"
+                                        onClick={(e) => { e.stopPropagation(); handleCardClick(assignment); }}
+                                    >
+                                        Open Tasks
+                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </CardContent>
+
+                            {/* Bottom decorator */}
+                            <div className="h-1 w-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-0" />
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto">
+                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <BookOpen className="h-10 w-10 text-gray-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">No Assignments Found</h3>
+                    <p className="text-gray-500">
+                        You don't have any subjects or sections assigned to you yet.
+                        Please contact your HOD for assignments.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
 
     // Render Components
     const renderTaskList = () => (
@@ -1106,94 +1210,55 @@ const FacultyTask: React.FC = () => {
                 />
 
                 <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 space-y-6">
-                    {view === 'taskList' && selectedDepartment && selectedSubject && selectedSections.length > 0 && (
-                        <div className="flex justify-end">
-                            <Button
-                                onClick={() => openCreateDialog()}
-                                className="bg-orange-500 text-white w-full md:w-auto"
-                            >
-                                <Plus className="mr-2 h-4 w-4" /> Create New Task
-                            </Button>
-                        </div>
-                    )}
 
-                    {/* Header Selection Flow - Following the reference style */}
+                    {/* Cards view — default landing */}
+                    {view === 'cards' && renderCards()}
+
+                    {/* Task list view — shown after picking a card */}
                     {view === 'taskList' && (
-                        <Card className="border-gray-300">
-                            <CardHeader>
-                                <CardTitle className="text-xl">Select Subject & Sections</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-medium text-foreground">Department</Label>
-                                        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Choose Department" />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-2xl border-gray-300 shadow-2xl p-2">
-                                                {uniqueDepartments.map(d => (
-                                                    <SelectItem key={d.id} value={d.id} className="rounded-xl font-medium">{d.name}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-medium text-foreground">Subject</Label>
-                                        <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Subject" />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-2xl border-gray-300 shadow-2xl p-2">
-                                                {uniqueSubjects.map(s => (
-                                                    <SelectItem key={s.id} value={s.id} className="rounded-xl font-medium">{s.name}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-medium text-foreground">Sections</Label>
-                                        <div className="flex flex-wrap gap-2 pt-1">
-                                            {availableSections.length > 0 ? availableSections.map(a => (
-                                                <Badge
-                                                    key={a.section}
-                                                    onClick={() => {
-                                                        const id = String(a.section);
-                                                        setSelectedSections(prev =>
-                                                            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-                                                        );
-                                                    }}
-                                                    variant={selectedSections.includes(String(a.section)) ? "default" : "outline"}
-                                                    className={`cursor-pointer h-10 px-6 rounded-2xl font-bold transition-all border-none ${selectedSections.includes(String(a.section)) ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
-                                                >
-                                                    {a.section_name}
-                                                </Badge>
-                                            )) : <p className="text-xs font-bold text-gray-300 mt-2">Select a subject first</p>}
+                        <>
+                            {/* Top bar: back + section info + create button */}
+                            <div className="flex items-center gap-4 flex-wrap">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => { setView('cards'); setSelectedAssignment(null); }}
+                                    className="rounded-xl bg-white border-gray-200 h-10 px-4 text-gray-900 font-bold hover:bg-white gap-2"
+                                >
+                                    <ChevronLeft className="h-4 w-4" /> All Sections
+                                </Button>
+
+                                {selectedAssignment && (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-8 w-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                                            <BookOpen className="h-4 w-4 text-orange-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900 leading-none">
+                                                {selectedAssignment.semester_subject_details?.subject_details?.subject_name}
+                                            </p>
+                                            <p className="text-xs text-gray-400">
+                                                {selectedAssignment.semester_subject_details?.department_name} · {selectedAssignment.section_name}
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                )}
+
+                                <Button
+                                    onClick={() => openCreateDialog()}
+                                    className="bg-orange-500 text-white ml-auto border-none shadow-none"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" /> Create New Task
+                                </Button>
+                            </div>
+
+                            {/* Task list content */}
+                            {renderTaskList()}
+                        </>
                     )}
 
-                    {/* Main Content Area */}
-                    <div className="min-h-[400px]">
-                        {(!selectedDepartment || !selectedSubject || selectedSections.length === 0) ? (
-                            <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center flex flex-col items-center justify-center shadow-sm">
-                                <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                    <Filter className="h-8 w-8 text-gray-200" />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-900">Please complete selection</h3>
-                                <p className="text-gray-500 text-sm font-medium">Select department, subject, and at least one section to view tasks.</p>
-                            </div>
-                        ) : (
-                            <>
-                                {view === 'taskList' && renderTaskList()}
-                                {view === 'responses' && renderResponses()}
-                                {view === 'studentDetail' && renderStudentDetail()}
-                            </>
-                        )}
-                    </div>
+                    {/* Responses & student detail views */}
+                    {view === 'responses' && renderResponses()}
+                    {view === 'studentDetail' && renderStudentDetail()}
                 </div>
             </div>
 
@@ -1248,27 +1313,6 @@ const FacultyTask: React.FC = () => {
                                                     {subUnits.map(su => <SelectItem key={su.id} value={su.id}>{su.name}</SelectItem>)}
                                                 </SelectContent>
                                             </Select>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3 pt-2">
-                                        <Label className="text-sm font-medium text-foreground">Confirm Sections *</Label>
-                                        <div className="flex flex-wrap gap-2">
-                                            {availableSections.map(a => (
-                                                <Badge
-                                                    key={a.id}
-                                                    onClick={() => {
-                                                        const id = String(a.section);
-                                                        setFormState(prev => ({
-                                                            ...prev,
-                                                            sections: prev.sections.includes(id) ? prev.sections.filter(x => x !== id) : [...prev.sections, id]
-                                                        }));
-                                                    }}
-                                                    variant={formState.sections.includes(String(a.section)) ? "default" : "outline"}
-                                                    className="cursor-pointer"
-                                                >
-                                                    {a.section_name}
-                                                </Badge>
-                                            ))}
                                         </div>
                                     </div>
                                 </div>
