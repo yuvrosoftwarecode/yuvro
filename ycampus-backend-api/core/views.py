@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Count, Avg, Q, Sum
+from django.utils import timezone
 
 from .models import (
     College,
@@ -434,6 +436,77 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
     serializer_class = FacultyProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
     filterset_fields = ["college", "department"]
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def stats(self, request):
+        """
+        Get statistics for the faculty dashboard.
+        Optional filters: subject_id, department_id
+        """
+        user = request.user
+        if user.role != "faculty":
+            return Response({"error": "Only faculty can access these stats"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            faculty_profile = user.faculty_profile
+        except FacultyProfile.DoesNotExist:
+            return Response({"error": "Faculty profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        subject_id = request.query_params.get("subject_id")
+        department_id = request.query_params.get("department_id")
+        section_id = request.query_params.get("section_id")
+
+        from course.models import SectionSubjectFaculty
+        
+        # Base assignments queryset
+        assignments = SectionSubjectFaculty.objects.filter(faculty=faculty_profile)
+        
+        if department_id:
+            assignments = assignments.filter(semester_subject__semester__batch__department_id=department_id)
+        
+        if subject_id:
+            assignments = assignments.filter(semester_subject__subject_id=subject_id)
+            
+        if section_id:
+            assignments = assignments.filter(section_id=section_id)
+
+        # 1. Total Courses (Unique subjects currently assigned)
+        total_courses = assignments.values('semester_subject__subject').distinct().count()
+
+        # 2. Total Students (Sum of students in all assigned sections)
+        sections = assignments.values_list('section', flat=True)
+        total_students = StudentProfile.objects.filter(section__in=sections).count()
+
+        # 3. Total Assessments (Tasks created by faculty)
+        tasks = Task.objects.filter(faculty=faculty_profile)
+        if subject_id:
+            tasks = tasks.filter(subject_id=subject_id)
+        if department_id:
+            tasks = tasks.filter(department_id=department_id)
+        if section_id:
+            tasks = tasks.filter(sections__id=section_id)
+        total_assessments = tasks.count()
+
+        # 4. Average Attendance
+        # Get sessions for these assignments
+        from core.models import AttendanceSession, AttendanceRecord
+        sessions = AttendanceSession.objects.filter(section_subject_faculty__in=assignments)
+        
+        avg_attendance = 0
+        if sessions.exists():
+            # Calculate average attendance across these sessions
+            # Formula: (Present Records / Total Records) * 100
+            total_records = AttendanceRecord.objects.filter(session__in=sessions).count()
+            if total_records > 0:
+                present_records = AttendanceRecord.objects.filter(session__in=sessions, is_present=True).count()
+                avg_attendance = (present_records / total_records) * 100
+
+        return Response({
+            "total_courses": total_courses,
+            "total_students": total_students,
+            "total_assessments": total_assessments,
+            "average_attendance": round(avg_attendance, 1)
+        })
 
     def get_queryset(self):
         queryset = super().get_queryset()
