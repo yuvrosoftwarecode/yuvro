@@ -392,19 +392,19 @@ export interface Note {
 }
 
 export async function fetchNotesBySubUnit(subUnitId: string) {
-  return restApiAuthUtil.get<Note[]>('/course/notes/', { params: { sub_unit: subUnitId } });
+  return restApiAuthUtil.get<Note[]>('/core/notes/', { params: { sub_unit: subUnitId } });
 }
 
 export async function createNote(payload: any) {
-  return restApiAuthUtil.post('/course/notes/', payload);
+  return restApiAuthUtil.post('/core/notes/', payload);
 }
 
 export async function updateNote(id: string, payload: any) {
-  return restApiAuthUtil.patch(`/course/notes/${id}/`, payload);
+  return restApiAuthUtil.patch(`/core/notes/${id}/`, payload);
 }
 
 export async function deleteNote(id: string) {
-  await restApiAuthUtil.delete(`/course/notes/${id}/`);
+  await restApiAuthUtil.delete(`/core/notes/${id}/`);
   return true;
 }
 

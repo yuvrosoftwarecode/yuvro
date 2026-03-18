@@ -24,7 +24,6 @@ import {
   Plus,
   Search,
   Save,
-  Upload,
   Sparkles,
   Bold,
   List,
@@ -42,6 +41,8 @@ import {
   FileText,
   ChevronRight,
   Trash2,
+  Pencil,
+  Check,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import subjectService, {
@@ -56,6 +57,7 @@ interface Note {
   id: string;
   title: string;
   content: string;
+  subUnitId: string;
   updatedAt: Date;
   isUnsaved?: boolean;
 }
@@ -107,6 +109,8 @@ const Revise = () => {
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeNoteId, setActiveNoteId] = useState<string>('');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState<string>('');
   const [noteSearch, setNoteSearch] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -196,6 +200,7 @@ const Revise = () => {
               id: String(bn.id),
               title,
               content: contentBody,
+              subUnitId: String(bn.sub_unit),
               updatedAt: bn.updated_at ? new Date(bn.updated_at) : new Date(),
             };
           });
@@ -234,6 +239,7 @@ const Revise = () => {
       id: newNoteId,
       title: 'Untitled Note',
       content: '',
+      subUnitId: subUnit,
       updatedAt: new Date(),
       isUnsaved: true,
     };
@@ -242,30 +248,35 @@ const Revise = () => {
   };
 
   const saveActiveNote = async () => {
-    if (!activeNote || !subUnit) return;
+    if (!activeNote) return;
+    const saveSubUnitId = activeNote.subUnitId || subUnit;
+    if (!saveSubUnitId) {
+      toast({ title: 'Error', description: 'Subject/Unit info missing for this note.', variant: 'destructive' });
+      return;
+    }
     try {
       setSaving(true);
       const formattedContent = `# ${activeNote.title}\n\n${activeNote.content}`;
-      const payload = { content: formattedContent, sub_unit: subUnit };
+      const payload = { content: formattedContent, sub_unit: saveSubUnitId };
       if (activeNote.id.startsWith('temp-')) {
         const created: any = await subjectService.createNote(payload);
         setNotes((prev) =>
           prev.map((n) =>
-            n.id === activeNote.id ? { ...n, id: String(created.id), isUnsaved: false } : n
+            n.id === activeNote.id ? { ...n, id: String(created.id), subUnitId: String(created.sub_unit), isUnsaved: false } : n
           )
         );
         setActiveNoteId(String(created.id));
-        toast({ title: 'Saved', description: 'New note created successfully.' });
+        toast({ title: 'Saved', description: 'New note created in database.' });
       } else {
         await subjectService.updateNote(activeNote.id, payload);
         setNotes((prev) =>
           prev.map((n) => (n.id === activeNote.id ? { ...n, isUnsaved: false } : n))
         );
-        toast({ title: 'Saved', description: 'Note updated successfully.' });
+        toast({ title: 'Saved', description: 'Note changes saved to database.' });
       }
     } catch (err) {
       console.error('Save failed', err);
-      toast({ title: 'Error', description: 'Failed to save note.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to store note in database.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -324,11 +335,16 @@ const Revise = () => {
     }
   };
 
-  const handlePublish = () => {
-    toast({
-      title: 'Published',
-      description: 'Notes published to students.',
-    });
+  const commitTitleEdit = (noteId: string) => {
+    if (editingTitle.trim()) {
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === noteId ? { ...n, title: editingTitle.trim(), isUnsaved: true } : n
+        )
+      );
+    }
+    setEditingNoteId(null);
+    setEditingTitle('');
   };
 
   /* ─── Left Notes Panel ───────────────────────────────────────────── */
@@ -364,27 +380,64 @@ const Revise = () => {
           {filteredNotes.map((note) => (
             <button
               key={note.id}
-              onClick={() => setActiveNoteId(note.id)}
+              onClick={() => {
+                if (editingNoteId !== note.id) setActiveNoteId(note.id);
+              }}
               className={`group flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm ${
                 note.id === activeNoteId
                   ? 'bg-orange-50 font-medium text-orange-600'
                   : 'text-slate-500'
               }`}
             >
-              <div className="flex min-w-0 items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2 flex-1 mr-1">
                 <FileText className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{note.title}</span>
-                {note.isUnsaved && (
+                {editingNoteId === note.id ? (
+                  <input
+                    autoFocus
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onBlur={() => commitTitleEdit(note.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitTitleEdit(note.id);
+                      if (e.key === 'Escape') { setEditingNoteId(null); setEditingTitle(''); }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 min-w-0 bg-white border border-orange-300 rounded-md px-2 py-0.5 text-sm text-slate-900 outline-none focus:ring-1 focus:ring-orange-400"
+                  />
+                ) : (
+                  <span className="truncate flex-1">{note.title}</span>
+                )}
+                {note.isUnsaved && editingNoteId !== note.id && (
                   <span className="h-1.5 w-1.5 rounded-full bg-orange-500 ml-1 shrink-0" />
                 )}
               </div>
-              <Trash2
-                className="h-3.5 w-3.5 shrink-0 opacity-0 group-hover:opacity-60 text-red-400"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteNoteLocally(note.id);
-                }}
-              />
+
+              {/* Edit + Delete icons */}
+              <div className="flex items-center gap-1 shrink-0">
+                {editingNoteId === note.id ? (
+                  <Check
+                    className="h-3.5 w-3.5 text-orange-500"
+                    onClick={(e) => { e.stopPropagation(); commitTitleEdit(note.id); }}
+                  />
+                ) : (
+                  <Pencil
+                    className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 text-slate-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingNoteId(note.id);
+                      setEditingTitle(note.title);
+                      setActiveNoteId(note.id);
+                    }}
+                  />
+                )}
+                <Trash2
+                  className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 text-red-400"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteNoteLocally(note.id);
+                  }}
+                />
+              </div>
             </button>
           ))}
 
@@ -494,7 +547,7 @@ const Revise = () => {
 
           {/* Top toolbar */}
           <header className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-6 py-4">
-            <h1 className="whitespace-nowrap text-[30px] font-semibold text-slate-900 leading-none">
+            <h1 className="whitespace-nowrap text-[30px] font-bold text-slate-900 leading-none">
               Revise – AI Teaching Notebook
             </h1>
 
@@ -561,7 +614,7 @@ const Revise = () => {
                 variant="outline"
                 className="h-10 gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 hover:bg-white"
                 onClick={saveActiveNote}
-                disabled={saving || !subUnit || !activeNote}
+                disabled={saving || !activeNote}
               >
                 {saving ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
@@ -569,15 +622,6 @@ const Revise = () => {
                   <Save className="h-4 w-4" />
                 )}
                 Save
-              </Button>
-
-              {/* Publish button */}
-              <Button
-                className="h-10 gap-2 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white border-none shadow-none"
-                onClick={handlePublish}
-              >
-                <Upload className="h-4 w-4" />
-                Publish
               </Button>
 
               {/* Mobile AI sheet trigger */}
