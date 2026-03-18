@@ -24,7 +24,6 @@ from .models import (
     Unit,
     SubUnit,
     Video,
-    Note,
     Question,
     UserSubjectProgress,
     StudentCodePractice,
@@ -44,7 +43,6 @@ from .serializers import (
     UnitBasicSerializer,
     SubUnitSerializer,
     VideoSerializer,
-    NoteSerializer,
     QuestionSerializer,
     UserSubjectProgressSerializer,
     StudentCodePracticeSerializer,
@@ -602,71 +600,6 @@ class VideoViewSet(viewsets.ModelViewSet):
 
 
 
-class NoteViewSet(viewsets.ModelViewSet):
-    queryset = Note.objects.select_related("sub_unit", "user")
-    serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticatedUser]
-
-    def get_queryset(self):
-        from django.db.models import Q
-        
-        qs = Note.objects.select_related("sub_unit", "user")
-        user = self.request.user
-
-        if user.role == "faculty":
-            # Faculty can only see notes for subjects assigned to their college
-            if hasattr(user, 'college') and user.college:
-                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
-                    "subject_id", flat=True
-                )
-                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
-            else:
-                qs = qs.none()
-        if user.role == "student":
-            qs = qs.filter(
-                Q(user=user) | 
-                Q(user__role__in=["faculty", "admin"])
-            )
-
-        if sid := self.request.query_params.get("sub_unit"):
-            qs = qs.filter(sub_unit_id=sid)
-
-        return qs
-
-    def create(self, request, *a, **kw):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-
-        return Response(serializer.data, status=201)
-
-    def update(self, request, *a, **kw):
-        note = self.get_object()
-        user = request.user
-
-        is_owner = note.user == user
-        subject = note.sub_unit.unit.subject
-        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
-        is_admin = user.role == "admin"
-
-        if not (is_owner or is_faculty or is_admin):
-            return Response({"error": "Not allowed"}, status=403)
-
-        return super().update(request, *a, **kw)
-
-    def destroy(self, request, *a, **kw):
-        note = self.get_object()
-        user = request.user
-
-        is_owner = note.user == user
-        subject = note.sub_unit.unit.subject
-        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
-        is_admin = user.role == "admin"
-
-        if not (is_owner or is_faculty or is_admin):
-            return Response({"error": "Not allowed"}, status=403)
-
-        return super().destroy(request, *a, **kw)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):

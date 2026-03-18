@@ -145,29 +145,6 @@ class Video(models.Model):
         return f"{self.sub_unit.name} - {self.title}"
 
 
-class Note(models.Model):
-    """
-    Note model representing user-created notes for personal study.
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sub_unit = models.ForeignKey(
-        SubUnit,
-        on_delete=models.CASCADE,
-        related_name="notes",
-        null=True,
-        blank=True,
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
-    )
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["created_at"]
-
     def __str__(self):
         return f"{self.user.username} - {self.sub_unit.name} - {self.content[:30]}..."
 

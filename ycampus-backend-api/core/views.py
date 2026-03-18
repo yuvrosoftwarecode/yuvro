@@ -21,6 +21,7 @@ from .models import (
     Task,
     TaskSubmission,
     TaskComment,
+    Note,
 )
 from .serializers import (
     StudentProfileSerializer,
@@ -33,6 +34,7 @@ from .serializers import (
     TaskSerializer,
     TaskSubmissionSerializer,
     TaskCommentSerializer,
+    NoteSerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
@@ -1163,3 +1165,23 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
             {"message": f"Successfully deleted {deleted_count} comment(s)"},
             status=status.HTTP_200_OK
         )
+
+class NoteViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing personal notes.
+    """
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Only return notes owned by the current user.
+        """
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """
+        Set the user to the current user when creating a note.
+        """
+        serializer.save(user=self.request.user)

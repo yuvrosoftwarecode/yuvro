@@ -7,7 +7,6 @@ from .models import (
     Unit,
     SubUnit,
     Video,
-    Note,
     Question,
     UserSubjectProgress,
     StudentCodePractice,
@@ -423,12 +422,6 @@ class VideoSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
-
-class NoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Note
-        fields = ["id", "sub_unit", "user", "content", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at", "user"]
 
     def validate_content(self, value):
         if not value or not value.strip():

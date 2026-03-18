@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -427,3 +428,31 @@ class TaskComment(BaseTimestampedModel):
 
     def __str__(self):
         return f"Comment by {self.faculty.user.username} on {self.submission}"
+
+class Note(models.Model):
+    """
+    Note model representing user-created notes for personal study.
+    Stored in core app to better group user-generated content.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sub_unit = models.ForeignKey(
+        "course.SubUnit",
+        on_delete=models.CASCADE,
+        related_name="notes",
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        # Handle cases where sub_unit might be None if unlinked
+        subunit_name = self.sub_unit.name if self.sub_unit else "Unlinked"
+        return f"{self.user.username} - {subunit_name} - {self.content[:30]}..."

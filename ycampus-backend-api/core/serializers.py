@@ -16,6 +16,7 @@ from .models import (
     Task,
     TaskSubmission,
     TaskComment,
+    Note,
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
@@ -266,4 +267,15 @@ class TaskSerializer(serializers.ModelSerializer):
     def get_question_details(self, obj):
         from course.serializers import QuestionSerializer
         return QuestionSerializer(obj.questions.all(), many=True, context=self.context).data
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ["id", "sub_unit", "user", "content", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "user"]
+
+    def validate_content(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Content cannot be empty.")
+        return value
 
