@@ -7,7 +7,7 @@ import RoleHeader from '../../components/common/RoleHeader';
 import {
   BookOpen, Users, ClipboardCheck, CheckSquare, Plus, Calendar, MessageSquare, CheckCircle, Clock, Play, Loader2
 } from 'lucide-react';
-import { getFacultyAssignments, SectionSubjectFaculty } from '../../services/subjectService';
+import { getFacultyAssignments, SectionSubjectFaculty, fetchFacultyStats } from '../../services/subjectService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -64,8 +64,29 @@ const Dashboard: React.FC = () => {
   const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
+  const [statsData, setStatsData] = useState<any>({
+    total_courses: 0,
+    total_students: 0,
+    total_assessments: 0,
+    average_attendance: 0
+  });
 
   useEffect(() => { fetchAssignments(); }, [user]);
+  useEffect(() => { fetchStats(); }, [user, selectedDepartment, selectedSubject, selectedSection]);
+
+  const fetchStats = async () => {
+    try {
+      const data = await fetchFacultyStats({
+        subject_id: selectedSubject,
+        department_id: selectedDepartment,
+        section_id: selectedSection
+      });
+      setStatsData(data);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
 
   const fetchAssignments = async () => {
     try {
@@ -116,10 +137,10 @@ const Dashboard: React.FC = () => {
   const selectedSubjectName = uniqueSubjects.find(s => s.id === selectedSubject)?.name || courseData?.subjectName || '';
 
   const stats = [
-    { title: 'My Courses', value: '8', icon: BookOpen, change: 'Active' },
-    { title: 'Students', value: selectedSubject ? '45' : '156', icon: Users, change: 'Enrolled' },
-    { title: 'Assessments', value: selectedSubject ? '3' : '12', icon: ClipboardCheck, change: 'Pending' },
-    { title: 'Attendance', value: selectedSubject ? '92%' : '87%', icon: CheckSquare, change: 'Average' },
+    { title: 'My Courses', value: statsData.total_courses.toString(), icon: BookOpen, change: 'Active' },
+    { title: 'Students', value: statsData.total_students.toString(), icon: Users, change: 'Enrolled' },
+    { title: 'Assessments', value: statsData.total_assessments.toString(), icon: ClipboardCheck, change: 'Total' },
+    { title: 'Attendance', value: `${statsData.average_attendance}%`, icon: CheckSquare, change: 'Average' },
   ];
 
   const quickActions = [
@@ -155,7 +176,11 @@ const Dashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Department</label>
-              <Select value={selectedDepartment} onValueChange={v => { setSelectedDepartment(v); setSelectedSubject(''); }}>
+              <Select value={selectedDepartment} onValueChange={v => { 
+                setSelectedDepartment(v); 
+                setSelectedSubject(''); 
+                setSelectedSection('');
+              }}>
                 <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Department" />
                 </SelectTrigger>
@@ -166,7 +191,10 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Subject</label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject} disabled={!selectedDepartment}>
+              <Select value={selectedSubject} onValueChange={v => {
+                setSelectedSubject(v);
+                setSelectedSection('');
+              }} disabled={!selectedDepartment}>
                 <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Subject" />
                 </SelectTrigger>
@@ -177,7 +205,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Section</label>
-              <Select disabled={!selectedSubject}>
+              <Select value={selectedSection} onValueChange={setSelectedSection} disabled={!selectedSubject}>
                 <SelectTrigger className="border-0 shadow-sm bg-white">
                   <SelectValue placeholder="Select Section" />
                 </SelectTrigger>

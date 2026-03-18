@@ -530,6 +530,7 @@ const subjectService = {
   saveAttendance,
   getAttendanceSessions,
   getAssignmentDetails,
+  fetchFacultyStats,
 };
 
 export default subjectService;
@@ -720,4 +721,15 @@ export async function getAttendanceSessions(params: Record<string, any>) {
 
 export async function getAssignmentDetails(assignmentId: string | number): Promise<SectionSubjectFaculty> {
   return restApiAuthUtil.get<SectionSubjectFaculty>(`/course/section-subject-faculty/${assignmentId}/`);
+}
+
+export interface FacultyStats {
+  total_courses: number;
+  total_students: number;
+  total_assessments: number;
+  average_attendance: number;
+}
+
+export async function fetchFacultyStats(params?: { subject_id?: string; department_id?: string; section_id?: string }): Promise<FacultyStats> {
+  return restApiAuthUtil.get<FacultyStats>('/core/faculty/stats/', { params });
 }
