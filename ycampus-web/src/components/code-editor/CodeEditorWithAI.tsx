@@ -467,6 +467,11 @@ ${codeEditorRef.current?.getCode() || ''}
                       persistenceKey={chatSessionId}
                       chatTitle={`${problem.title} - AI Buddy`}
                       onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                      onInsertCode={(codeString) => {
+                        if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
+                          codeEditorRef.current.insertCodeAtCursor(codeString);
+                        }
+                      }}
                     />
                   </div>
                 </ResizablePanel>
@@ -569,6 +574,11 @@ ${codeEditorRef.current?.getCode() || ''}
                         persistenceKey={chatSessionId}
                         chatTitle={`${problem.title} - AI Buddy`}
                         onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                        onInsertCode={(codeString) => {
+                          if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
+                            codeEditorRef.current.insertCodeAtCursor(codeString);
+                          }
+                        }}
                       />
                     </div>
                   </ResizablePanel>

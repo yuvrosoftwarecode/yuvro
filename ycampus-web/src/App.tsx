@@ -11,13 +11,13 @@ import Learn from './pages/student/Learn';
 import NotFound from './pages/common/NotFound';
 import ResetPassword from './pages/common/ResetPassword';
 import ForgotPassword from './pages/common/ForgotPassword';
-import InstructorDashboard from './pages/instructor/Dashboard';
-import Subjects from './pages/instructor/Subjects';
-import SubjectEdit from './components/instructor/subjects/SubjectEdit';
+import InstructorDashboard from './pages/admin/Dashboard';
+import Subjects from './pages/admin/Subjects';
+import SubjectEdit from './components/admin/subjects/SubjectEdit';
 
-import Users from './pages/instructor/Users';
-import Colleges from './pages/instructor/Colleges';
-import CollegeDetails from './components/instructor/colleges/CollegeDetails';
+import Users from './pages/admin/Users';
+import Colleges from './pages/admin/Colleges';
+import CollegeDetails from './components/admin/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/SkillTest';
@@ -34,21 +34,21 @@ import CertificationExam from './pages/student/CertificationExam';
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from './components/ErrorBoundary';
 import DashboardRedirect from './components/DashboardRedirect';
-import OwnerContest from './pages/instructor/Contest';
-import ContestEdit from './components/instructor/contests/ContestEdit';
-import ContestForm from './components/instructor/contests/ContestForm';
-import InstructorSkillTest from './pages/instructor/SkillTest';
-import SkillTestForm from './components/instructor/skill-tests/SkillTestForm';
-import InstructorProfile from './pages/instructor/Profile';
-import InstructorMockInterview from './pages/instructor/MockInterview';
-import MockInterviewForm from './components/instructor/mock-interviews/MockInterviewForm';
-import SkillTestSubmissions from './pages/instructor/SkillTestSubmissions';
-import SubmissionAnalytics from './pages/instructor/SubmissionAnalytics';
-import InstructorCertifications from './pages/instructor/Certifications';
-import CertificationExamForm from './components/instructor/certifications/CertificationExamForm';
-import CertificationExamSubmissions from './pages/instructor/CertificationExamSubmissions';
-import CertificationSubmissionAnalytics from './pages/instructor/CertificationSubmissionAnalytics';
-import InstructorAnalytics from './pages/instructor/Analytics';
+import OwnerContest from './pages/admin/Contest';
+import ContestEdit from './components/admin/contests/ContestEdit';
+import ContestForm from './components/admin/contests/ContestForm';
+import InstructorSkillTest from './pages/admin/SkillTest';
+import SkillTestForm from './components/admin/skill-tests/SkillTestForm';
+import InstructorProfile from './pages/admin/Profile';
+import InstructorMockInterview from './pages/admin/MockInterview';
+import MockInterviewForm from './components/admin/mock-interviews/MockInterviewForm';
+import SkillTestSubmissions from './pages/admin/SkillTestSubmissions';
+import SubmissionAnalytics from './pages/admin/SubmissionAnalytics';
+import InstructorCertifications from './pages/admin/Certifications';
+import CertificationExamForm from './components/admin/certifications/CertificationExamForm';
+import CertificationExamSubmissions from './pages/admin/CertificationExamSubmissions';
+import CertificationSubmissionAnalytics from './pages/admin/CertificationSubmissionAnalytics';
+import InstructorAnalytics from './pages/admin/Analytics';
 import RecruiterJobs from "./pages/recruiter/Jobs";
 import RecruiterJobsApproval from "./pages/recruiter/JobsApproval";
 import RecruiterJobApplicants from "./pages/recruiter/JobApplicants";
@@ -60,8 +60,8 @@ import RecruiterCandidates from "./pages/recruiter/Candidates";
 import AddJob from "./components/student/AddJob";
 import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
-import Departments from './pages/instructor/Departments';
-import CollegeSubjects from './pages/instructor/CollegeSubjects';
+import Departments from './pages/admin/Departments';
+import CollegeSubjects from './pages/admin/CollegeSubjects';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/Dashboard';
@@ -69,11 +69,14 @@ import HODDashboard from './pages/hod/Dashboard';
 
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
+import TakeAttendance from './pages/faculty/TakeAttendance';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPOScreen from './pages/college-admin/TPOScreen';
+import FacultyReports from './pages/faculty/Reports';
+import AttendanceReport from './pages/faculty/AttendanceReport';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
@@ -264,7 +267,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/dashboard"
+                path="/admin/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorDashboard />
@@ -424,6 +427,14 @@ function App() {
                 }
               />
               <Route
+                path="/faculty/attendance/:assignmentId/take"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <TakeAttendance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/faculty/task"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
@@ -435,7 +446,15 @@ function App() {
                 path="/faculty/reports"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <FacultyReports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/attendance-report"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <AttendanceReport />
                   </ProtectedRoute>
                 }
               />
@@ -524,7 +543,7 @@ function App() {
 
               {/* College Subject Management Route */}
               <Route
-                path="/instructor/subjects/colleges/:collegeId"
+                path="/admin/subjects/colleges/:collegeId"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <CollegeSubjects />
@@ -658,11 +677,11 @@ function App() {
 
 
               <Route
-                path="/instructor/subjects"
-                element={<Navigate to="/instructor/subjects/global" replace />}
+                path="/admin/subjects"
+                element={<Navigate to="/admin/subjects/global" replace />}
               />
               <Route
-                path="/instructor/subjects/:tab"
+                path="/admin/subjects/:tab"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Subjects />
@@ -673,7 +692,7 @@ function App() {
 
 
               <Route
-                path="/instructor/subjects/:id/manage"
+                path="/admin/subjects/:id/manage"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <SubjectEdit />
@@ -683,7 +702,7 @@ function App() {
 
 
               <Route
-                path="/instructor/users"
+                path="/admin/users"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Users />
@@ -692,7 +711,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/colleges"
+                path="/admin/colleges"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Colleges />
@@ -702,7 +721,7 @@ function App() {
 
 
               <Route
-                path="/instructor/colleges/:collegeId"
+                path="/admin/colleges/:collegeId"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <CollegeDetails />
@@ -711,7 +730,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/colleges/:collegeId/management"
+                path="/admin/colleges/:collegeId/management"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <CollegeDetails />
@@ -720,7 +739,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/colleges/:collegeId/academic"
+                path="/admin/colleges/:collegeId/academic"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <CollegeDetails />
@@ -729,7 +748,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/departments"
+                path="/admin/departments"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Departments />
@@ -738,7 +757,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/batches"
+                path="/admin/batches"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <Colleges />
@@ -748,7 +767,7 @@ function App() {
 
 
               <Route
-                path="/instructor/students"
+                path="/admin/students"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <div>Students Management</div>
@@ -757,7 +776,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/settings"
+                path="/admin/settings"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <div>Settings</div>
@@ -766,7 +785,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/profile"
+                path="/admin/profile"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <InstructorProfile />
@@ -802,7 +821,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/contests"
+                path="/admin/contests"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <OwnerContest />
@@ -811,7 +830,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/contests/add"
+                path="/admin/contests/add"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestForm />
@@ -820,7 +839,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/contests/:contestId/edit"
+                path="/admin/contests/:contestId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestForm />
@@ -829,7 +848,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/contests/:contestId/manage"
+                path="/admin/contests/:contestId/manage"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <ContestEdit />
@@ -838,7 +857,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests"
+                path="/admin/skill-tests"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorSkillTest />
@@ -847,7 +866,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/subjects/:subjectId/manage"
+                path="/admin/skill-tests/subjects/:subjectId/manage"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorSkillTest />
@@ -856,7 +875,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/add"
+                path="/admin/skill-tests/add"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <SkillTestForm />
@@ -865,7 +884,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/:skillTestId/edit"
+                path="/admin/skill-tests/:skillTestId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <SkillTestForm />
@@ -874,7 +893,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/:skillTestId/analytics"
+                path="/admin/skill-tests/:skillTestId/analytics"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <SkillTestSubmissions />
@@ -883,7 +902,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/skill-tests/submissions/:submissionId"
+                path="/admin/skill-tests/submissions/:submissionId"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <SubmissionAnalytics />
@@ -892,7 +911,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/mock-interview"
+                path="/admin/mock-interview"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <InstructorMockInterview />
@@ -901,7 +920,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/certifications"
+                path="/admin/certifications"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorCertifications />
@@ -910,7 +929,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/certifications/create"
+                path="/admin/certifications/create"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <CertificationExamForm />
@@ -918,7 +937,7 @@ function App() {
                 }
               />
               <Route
-                path="/instructor/certifications/:examId/edit"
+                path="/admin/certifications/:examId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <CertificationExamForm />
@@ -927,7 +946,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/analytics"
+                path="/admin/analytics"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <InstructorAnalytics />
@@ -936,7 +955,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/certifications/:examId/analytics"
+                path="/admin/certifications/:examId/analytics"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <CertificationExamSubmissions />
@@ -945,7 +964,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/certifications/submissions/:submissionId"
+                path="/admin/certifications/submissions/:submissionId"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <CertificationSubmissionAnalytics />
@@ -954,7 +973,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/mock-interview/add"
+                path="/admin/mock-interview/add"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <MockInterviewForm />
@@ -963,7 +982,7 @@ function App() {
               />
 
               <Route
-                path="/instructor/mock-interview/:mockInterviewId/edit"
+                path="/admin/mock-interview/:mockInterviewId/edit"
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
                     <MockInterviewForm />

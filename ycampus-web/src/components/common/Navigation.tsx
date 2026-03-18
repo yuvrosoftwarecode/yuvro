@@ -27,27 +27,20 @@ const Navigation: React.FC = () => {
             { label: 'Certify', path: '/student/certifications' },
         ],
         admin: [
-            { label: 'Dashboard', path: '/instructor/dashboard' },
-            { label: 'User Management', path: '/instructor/users' },
-            { label: 'Subjects', path: '/instructor/subjects' },
-            { label: 'Skill Tests', path: '/instructor/skill-tests' },
-            { label: 'Mock Interview', path: '/instructor/mock-interview' },
-            { label: 'Jobs', path: '/instructor/jobs' },
-            { label: 'Contests', path: '/instructor/contests' },
-            { label: 'Certify', path: '/instructor/certifications' },
-        ],
-        instructor: [
-            { label: 'Dashboard', path: '/instructor/dashboard' },
-            { label: 'Subjects', path: '/instructor/subjects' },
-            { label: 'Skill Tests', path: '/instructor/skill-tests' },
-            { label: 'Mock Interview', path: '/instructor/mock-interview' },
-            { label: 'Contests', path: '/instructor/contests' },
+            { label: 'Dashboard', path: '/admin/dashboard' },
+            { label: 'User Management', path: '/admin/users' },
+            { label: 'Subjects', path: '/admin/subjects' },
+            { label: 'Skill Tests', path: '/admin/skill-tests' },
+            { label: 'Mock Interview', path: '/admin/mock-interview' },
+            { label: 'Jobs', path: '/admin/jobs' },
+            { label: 'Contests', path: '/admin/contests' },
+            { label: 'Certify', path: '/admin/certifications' },
         ],
         recruiter: [
             { label: 'Dashboard', path: '/recruiter/dashboard' },
             { label: 'Jobs', path: '/recruiter/jobs' },
             { label: 'Candidates', path: '/recruiter/candidates' },
-            { label: 'Contests', path: '/instructor/contests' },
+            { label: 'Contests', path: '/admin/contests' },
         ],
         faculty: [
             { label: 'Dashboard', path: '/faculty/dashboard' },
@@ -66,13 +59,9 @@ const Navigation: React.FC = () => {
             { label: 'Certifications', path: '/student/certifications', icon: 'certifications' },
         ],
         admin: [
-            { label: 'Profile', path: '/instructor/profile', icon: 'profile' },
-            { label: 'User Management', path: '/instructor/users', icon: 'users' },
-            { label: 'Settings', path: '/instructor/settings', icon: 'settings' },
-        ],
-        instructor: [
-            { label: 'Profile', path: '/instructor/profile', icon: 'profile' },
-            { label: 'Settings', path: '/instructor/settings', icon: 'settings' },
+            { label: 'Profile', path: '/admin/profile', icon: 'profile' },
+            { label: 'User Management', path: '/admin/users', icon: 'users' },
+            { label: 'Settings', path: '/admin/settings', icon: 'settings' },
         ],
         recruiter: [
             { label: 'Profile', path: '/recruiter/profile', icon: 'profile' },
@@ -122,7 +111,6 @@ const Navigation: React.FC = () => {
                             <span className="text-xl font-bold text-indigo-600">Yuvro Campus</span>
                             {role !== 'student' && (
                                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${role === 'admin' ? 'bg-red-100 text-red-700' :
-                                    role === 'instructor' ? 'bg-green-100 text-green-700' :
                                         role === 'recruiter' ? 'bg-purple-100 text-purple-700' :
                                             'bg-gray-100 text-gray-700'
                                     }`}>
@@ -207,7 +195,6 @@ const Navigation: React.FC = () => {
                                 className="flex items-center space-x-3 focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 ease-in-out transform hover:scale-105"
                             >
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg transition-all duration-300 ${role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
-                                    role === 'instructor' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
                                         role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :
                                             'bg-gradient-to-r from-indigo-600 to-blue-600'
                                     }`}>
@@ -220,14 +207,12 @@ const Navigation: React.FC = () => {
                                             : user?.username || 'User'}
                                     </div>
                                     <div className={`text-xs font-medium capitalize ${role === 'admin' ? 'text-red-600' :
-                                        role === 'instructor' ? 'text-green-600' :
                                             role === 'recruiter' ? 'text-purple-600' :
                                                 'text-indigo-600'
                                         }`}>{user?.role || 'Student'}</div>
                                 </div>
                                 <svg className={`w-4 h-4 hidden md:block transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''
                                     } ${role === 'admin' ? 'text-red-400' :
-                                        role === 'instructor' ? 'text-green-400' :
                                             role === 'recruiter' ? 'text-purple-400' :
                                                 'text-indigo-400'
                                     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,13 +232,11 @@ const Navigation: React.FC = () => {
 
                                     {/* User Info Header */}
                                     <div className={`px-6 py-4 border-b border-gray-100 ${role === 'admin' ? 'bg-gradient-to-br from-red-50 via-pink-50 to-red-100' :
-                                        role === 'instructor' ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-100' :
                                             role === 'recruiter' ? 'bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100' :
                                                 'bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100'
                                         }`}>
                                         <div className="flex items-center space-x-4">
                                             <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-white ${role === 'admin' ? 'bg-gradient-to-br from-red-600 to-pink-600' :
-                                                role === 'instructor' ? 'bg-gradient-to-br from-green-600 to-emerald-600' :
                                                     role === 'recruiter' ? 'bg-gradient-to-br from-purple-600 to-violet-600' :
                                                         'bg-gradient-to-br from-indigo-600 to-blue-600'
                                                 }`}>
@@ -267,12 +250,10 @@ const Navigation: React.FC = () => {
                                                 </div>
                                                 <div className="text-sm text-gray-600 truncate">{user?.email}</div>
                                                 <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold capitalize mt-1 ${role === 'admin' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                                    role === 'instructor' ? 'bg-green-100 text-green-700 border border-green-200' :
                                                         role === 'recruiter' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
                                                             'bg-indigo-100 text-indigo-700 border border-indigo-200'
                                                     }`}>
                                                     <div className={`w-2 h-2 rounded-full mr-1 ${role === 'admin' ? 'bg-red-500' :
-                                                        role === 'instructor' ? 'bg-green-500' :
                                                             role === 'recruiter' ? 'bg-purple-500' :
                                                                 'bg-indigo-500'
                                                         }`}></div>
@@ -286,7 +267,6 @@ const Navigation: React.FC = () => {
                                         {profileMenu.map((item, index) => {
                                             const getIcon = (iconType: string) => {
                                                 const iconClass = `w-5 h-5 mr-3 transition-colors duration-200 ${role === 'admin' ? 'text-red-400 group-hover:text-red-600' :
-                                                    role === 'instructor' ? 'text-green-400 group-hover:text-green-600' :
                                                         role === 'recruiter' ? 'text-purple-400 group-hover:text-purple-600' :
                                                             'text-indigo-400 group-hover:text-indigo-600'
                                                     }`;
@@ -343,7 +323,6 @@ const Navigation: React.FC = () => {
                                                     to={item.path}
                                                     onClick={() => setIsProfileMenuOpen(false)}
                                                     className={`group flex items-center px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r transition-all duration-200 transform hover:translate-x-1 ${role === 'admin' ? 'hover:from-red-50 hover:to-pink-50 hover:text-red-700' :
-                                                        role === 'instructor' ? 'hover:from-green-50 hover:to-emerald-50 hover:text-green-700' :
                                                             role === 'recruiter' ? 'hover:from-purple-50 hover:to-violet-50 hover:text-purple-700' :
                                                                 'hover:from-indigo-50 hover:to-blue-50 hover:text-indigo-700'
                                                         }`}

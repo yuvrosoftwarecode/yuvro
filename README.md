@@ -1,433 +1,816 @@
-# YC Full-Stack Application
+# Yuvro Code - Comprehensive Learning & Recruitment Platform
 
-A modern full-stack web application built with Django REST Framework backend, React frontend, PostgreSQL database, and Docker Compose orchestration.
+A full-stack learning management system (LMS) and coding education platform designed for technical education and recruitment. The platform runs two parallel instances: **YCode** (main learning platform) and **YCampus** (campus management system).
 
-## 📋 Prerequisites
+## 🎯 Core Features
 
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
-- Make (usually pre-installed on most systems)
+- **Learning Management**: Course creation, topic/subtopic organization, video content, quizzes, and coding exercises
+- **Code Practice**: Interactive coding environment with AI-powered assistance and problem-solving
+- **Assessments**: Skill tests, mock interviews, contests, and certification exams
+- **Job Platform**: Job postings, applications, candidate search, and company management
+- **Code Execution**: Secure, isolated code execution service supporting Python, JavaScript, Java, C++, and C
+- **AI Assistant**: Integrated AI chat for learning support and code help
+- **Gamification**: Points, streaks, and progress tracking for student engagement
 
-## 🛠️ Quick Start
+## 👥 User Roles
 
-1. **Clone and setup:**
-   ```bash
-   git clone <repository-url>
-   cd yuvro-code
-   make setup
-   ```
+- **Student**: Learn courses, practice coding, take assessments, apply for jobs
+- **Instructor/Admin**: Create and manage courses, assessments, view analytics
+- **Recruiter**: Post jobs, review candidates, manage companies
+- **College Admin**: Manage campus-specific settings and student batches (YCampus)
 
-2. **Start development environment:**
-   ```bash
-   make dev
-   ```
+## 🏗️ Architecture
 
-3. **Access the application:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8001
-   - **Code Executor Service**: http://localhost:8002
-   - **API Documentation (Swagger)**: http://localhost:8001/api/docs/
-   - **API Documentation (ReDoc)**: http://localhost:8001/api/redoc/
-   - **Code Executor API Docs**: http://localhost:8002/docs
-   - **OpenAPI Schema**: http://localhost:8001/api/schema/
+### Platform Instances
 
-4. **Access observability dashboards:**
-   - **Grafana**: http://localhost:3001 (admin/admin)
-   - **Jaeger Tracing**: http://localhost:16686
-   - **Prometheus**: http://localhost:9090
-   - **Loki Logs**: http://localhost:3100
+Two separate instances run in parallel with isolated databases and networks:
 
-## 📁 Project Structure
+| Platform | Frontend | Backend | Database | Purpose |
+|----------|----------|---------|----------|---------|
+| **YCode** | http://localhost:3000 | http://localhost:8000 | ycode_backend_db | Main learning & job platform |
+| **YCampus** | http://localhost:3001 | http://localhost:8001 | ycampus_backend_db | Campus management system |
+| **Executor** | - | http://localhost:8002 | - | Shared code execution service |
 
-```
-yuvro-code/
-├── yc-backend-api/          # Django REST Framework backend
-│   ├── authentication/      # Authentication app
-│   ├── code_executor/       # Code execution Django app
-│   ├── yc-backend-api/      # Django project settings
-│   ├── Dockerfile          # Backend container config
-│   └── requirements.txt    # Python dependencies
-├── yc-code-executor/        # FastAPI code execution service
-│   ├── main.py             # FastAPI application
-│   ├── test_service.py     # Service tests
-│   ├── Dockerfile          # Service container config
-│   └── requirements.txt    # Python dependencies
-├── yc-web/                 # React frontend
-│   ├── src/               # Source code
-│   ├── public/            # Static assets
-│   ├── Dockerfile         # Frontend container config
-│   └── package.json       # Node.js dependencies
-├── yc-observability/      # Monitoring and tracing stack
-│   ├── grafana/           # Grafana dashboards and config
-│   ├── otel-collector-config.yaml # OpenTelemetry collector config
-│   ├── prometheus.yml     # Prometheus configuration
-│   ├── setup.sh           # Observability setup script
-│   └── README.md          # Observability documentation
-├── .github/workflows/     # CI/CD pipelines
-├── docker-compose.yml     # Development orchestration
-├── docker-compose.prod.yml # Production orchestration
-├── Makefile               # Command shortcuts
-└── README.md              # This file
-```
+### Technology Stack
 
-## 🔧 Development Commands
+**Backend**
+- Framework: Django 4.2.7 + Django REST Framework 3.14.0
+- Language: Python 3.x
+- Database: PostgreSQL 15
+- Authentication: JWT (djangorestframework-simplejwt)
+- API Documentation: drf-spectacular (OpenAPI 3.0)
 
-### Using Make (Recommended)
+**Frontend**
+- Framework: React 19.2.0 with TypeScript
+- Build Tool: Vite 7.2.2
+- Router: React Router DOM 7.9.5
+- State Management: React Context API + TanStack Query 5.90.7
+- UI Library: Radix UI + Tailwind CSS 4.1.17
+- Code Editor: Monaco Editor
+
+**Code Executor**
+- Framework: FastAPI
+- Language: Python 3.x
+- Supported Languages: Python, JavaScript, Java, C++, C
+
+**Observability** (Optional)
+- Tracing: OpenTelemetry + Jaeger
+- Metrics: Prometheus
+- Logs: Loki
+- Dashboards: Grafana
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Make (for command shortcuts)
+- Git
+
+### Setup All Platforms
 
 ```bash
-# Show all available commands
-make help
+# Clone the repository
+git clone <repository-url>
+cd yuvro
 
-# Development
-make dev                   # Start all services
-make dev-detached          # Start in background
-make stop                  # Stop all services
-make restart               # Restart services
-make logs SERVICE=name     # View logs (optional service name)
+# Setup all platforms (YCode, YCampus, and Code Executor)
+make setup
 
-# Database operations
-make db-makemigrations     # Create migrations
-make db-migrate            # Run migrations
-make db-createsuperuser    # create super user 
-make db-shell              # Access database shell
-make db-reset              # Reset database
-
-# Testing
-make test-all              # Run all tests
-make backend-test          # Backend tests only
-make frontend-test         # Frontend tests only
-
-# Code quality
-make format-all            # Format all code
-make lint-all              # Lint all code
-make check-all             # Run all checks
-
-# Individual service commands
-make backend-shell         # Django shell
-make frontend-shell        # Node.js shell
-make executor-shell        # Code executor shell
-make executor-test         # Test code executor service
-make executor-logs         # View code executor logs
-
-# Package installation
-make backend-install PKG=package-name    # Install backend package
-make frontend-install PKG=package-name   # Install frontend package
+# This will:
+# 1. Create executor network
+# 2. Setup YCode (frontend, backend, database)
+# 3. Setup YCampus (frontend, backend, database)
+# 4. Load test data for both platforms
 ```
 
-
-## 📚 API Documentation
-
-The API is fully documented using OpenAPI 3.0 specification with interactive documentation available through Swagger UI and ReDoc.
-
-### Documentation URLs
-
-- **Swagger UI**: http://localhost:8001/api/docs/ - Interactive API explorer
-- **ReDoc**: http://localhost:8001/api/redoc/ - Clean, responsive documentation
-- **OpenAPI Schema**: http://localhost:8001/api/schema/ - Raw OpenAPI 3.0 schema
-
-### Authentication
-
-The API uses JWT (JSON Web Tokens) for authentication. Include the token in the Authorization header:
+### Setup Individual Platforms
 
 ```bash
-Authorization: Bearer <your-jwt-token>
+# Setup YCode only
+make setup-ycode
+
+# Setup YCampus only
+make setup-ycampus
+
+# Setup Code Executor only
+make setup-common
 ```
 
-### Key Endpoints
+## 📋 Available Commands
 
-#### Authentication
-- `POST /api/auth/register/` - User registration
-- `POST /api/auth/token/` - Login (get JWT tokens)
-- `POST /api/auth/token/refresh/` - Refresh JWT token
-- `POST /api/auth/logout/` - Logout (blacklist token)
-
-#### User Management
-- `GET /api/auth/user/` - Get current user profile
-- `PUT /api/auth/user/` - Update user profile
-- `GET /api/auth/profile/` - Get user profile details
-
-#### Courses
-- `GET /api/course/courses/` - List courses
-- `POST /api/course/courses/` - Create course
-- `GET /api/course/courses/{id}/` - Get course details
-
-#### AI Assistant
-- `POST /api/ai/chat/` - Chat with AI assistant
-- `GET /api/ai/conversations/` - List conversations
-
-### Example API Usage
+### Development
 
 ```bash
-# Register a new user
-curl -X POST http://localhost:8001/api/auth/register/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "newuser",
-    "email": "user@example.com",
-    "password": "secure_password123",
-    "first_name": "John",
-    "last_name": "Doe"
-  }'
+# Start all services
+make dev
 
-# Login to get tokens
-curl -X POST http://localhost:8001/api/auth/token/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "secure_password123"
-  }'
+# Start specific platform
+make dev-ycode
+make dev-ycampus
 
-# Use token to access protected endpoints
-curl -X GET http://localhost:8001/api/auth/user/ \
-  -H "Authorization: Bearer <your-access-token>"
+# Stop all services
+make stop
+
+# View logs
+make logs
+make logs-ycode
+make logs-ycampus
+
+# Clean up containers and volumes
+make clean
+make clean-ycode
+make clean-ycampus
 ```
+
+### Database Operations
+
+```bash
+# YCode database commands
+make -f Makefile.ycode db-shell              # Access database shell
+make -f Makefile.ycode db-migrate            # Run migrations
+make -f Makefile.ycode db-makemigrations     # Create migrations
+make -f Makefile.ycode db-reset              # Reset database
+
+# YCampus database commands
+make -f Makefile.ycampus db-shell
+make -f Makefile.ycampus db-migrate
+make -f Makefile.ycampus db-makemigrations
+make -f Makefile.ycampus db-reset
+```
+
+### Backend Operations
+
+```bash
+# YCode backend
+make -f Makefile.ycode backend-shell         # Django shell
+make -f Makefile.ycode backend-test          # Run tests
+make -f Makefile.ycode backend-format-fix    # Format with Black
+make -f Makefile.ycode backend-lint          # Lint with Flake8
+make -f Makefile.ycode backend-install PKG=<name>  # Install package
+
+# YCampus backend
+make -f Makefile.ycampus backend-shell
+make -f Makefile.ycampus backend-test
+make -f Makefile.ycampus backend-format-fix
+make -f Makefile.ycampus backend-lint
+make -f Makefile.ycampus backend-install PKG=<name>
+```
+
+### Frontend Operations
+
+```bash
+# YCode frontend
+make -f Makefile.ycode frontend-shell        # Node.js shell
+make -f Makefile.ycode frontend-test         # Run tests
+make -f Makefile.ycode frontend-format-fix   # Format with Prettier
+make -f Makefile.ycode frontend-lint         # Lint with ESLint
+make -f Makefile.ycode frontend-install PKG=<name>  # Install package
+
+# YCampus frontend
+make -f Makefile.ycampus frontend-shell
+make -f Makefile.ycampus frontend-test
+make -f Makefile.ycampus frontend-format-fix
+make -f Makefile.ycampus frontend-lint
+make -f Makefile.ycampus frontend-install PKG=<name>
+```
+
+### Code Executor
+
+```bash
+make executor-shell                          # Access executor shell
+make executor-test                           # Test code executor
+make executor-logs                           # View executor logs
+```
+
+### Combined Operations
+
+```bash
+make test-all                                # Run all tests
+make format-all                              # Format all code
+make lint-all                                # Lint all code
+make check-all                               # Run all checks
+```
+
+## 🔐 Test Credentials
+
+After setup, test accounts are automatically created:
+
+### YCode Platform
+
+**Admin**
+- Email: `admin@yuvro.com`
+- Password: (check setup output)
+
+**Instructors**
+- `instructor_ds@yuvro.com` (Data Structures)
+- `instructor_python@yuvro.com` (Python)
+- `instructor_java@yuvro.com` (Java)
+- `instructor_mysql@yuvro.com` (MySQL)
+- `instructor_mongodb@yuvro.com` (MongoDB)
+- `instructor_ai@yuvro.com` (AI/ML)
+
+**Recruiters**
+- `recruiter_admin@yuvro.com`
+- `recruiter@yuvro.com`
+
+**Students**
+- `shilpa@gmail.com`
+- `devendra@gmail.com`
+- `rohith@gmail.com`
+- `manikanta@gmail.com`
+- `harsha@gmail.com`
+- `vinod@gmail.com`
+
+### YCampus Platform
+
+**Admin**
+- Email: `admin@yuvro.com`
+
+**College Admins**
+- `college_admin1@yuvro.com`
+- `college_admin2@yuvro.com`
+- `college_admin3@yuvro.com`
+
+**Principals**
+- `principal1@yuvro.com`
+- `principal2@yuvro.com`
+- `principal3@yuvro.com`
+
+**HODs**
+- `hod1@yuvro.com`
+- `hod2@yuvro.com`
+- `hod3@yuvro.com`
+
+**Faculty**
+- `faculty1@yuvro.com`
+- `faculty2@yuvro.com`
+- `faculty3@yuvro.com`
+
+**Students** (Same as YCode)
+
+
+### Port Allocation
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| YCode Frontend | 3000 | React development server |
+| YCampus Frontend | 3001 | React development server |
+| YCode Backend | 8000 | Django REST API |
+| YCampus Backend | 8001 | Django REST API |
+| Code Executor | 8002 | FastAPI service |
+| YCode Database | 5432 | PostgreSQL |
+| YCampus Database | 5433 | PostgreSQL |
+| Grafana | 3001 | Monitoring dashboards |
+| Prometheus | 9090 | Metrics collection |
+| Jaeger | 16686 | Distributed tracing |
+| Loki | 3100 | Log aggregation |
 
 
 ## 🧪 Testing
 
-### Running Tests
+### Run All Tests
 
 ```bash
-# All tests
 make test-all
-
-# Backend only
-make backend-test
-
-# Frontend only  
-make frontend-test
-
-# With coverage
-docker compose exec backend coverage run --source='.' manage.py test
-docker compose exec backend coverage report
 ```
 
-### Test Structure
-
-- **Backend**: Django TestCase for models, views, and API endpoints
-- **Frontend**: React Testing Library for components and integration tests
-- **CI/CD**: Automated testing on pull requests
-
-## 📊 Observability & Monitoring
-
-The YC Platform includes a comprehensive observability stack with distributed tracing, metrics collection, and monitoring dashboards.
-
-### Features
-
-- **Distributed Tracing**: Track requests across all services (frontend → backend → code executor)
-- **Metrics Collection**: HTTP requests, response times, code execution metrics, database connections
-- **Centralized Logging**: Structured logs aggregation with Loki and log correlation with traces
-- **Real-time Dashboards**: Pre-configured Grafana dashboards for system monitoring
-- **Error Tracking**: Automatic error detection and alerting
-
-### Quick Setup
+### Platform-Specific Tests
 
 ```bash
-# Setup observability stack
-./yc-observability/setup.sh
+# YCode tests
+make -f Makefile.ycode backend-test
+make -f Makefile.ycode frontend-test
 
-# Or manually
-docker-compose up -d jaeger otel-collector prometheus grafana loki
+# YCampus tests
+make -f Makefile.ycampus backend-test
+make -f Makefile.ycampus frontend-test
+
+# Code Executor tests
+make executor-test
 ```
 
-### Access Dashboards
+## 📊 Observability (Optional)
 
-- **Grafana**: http://localhost:3001 (admin/admin)
-  - YC Platform Overview dashboard
-  - Detailed metrics and performance monitoring
-  - Centralized logs dashboard with filtering and search
-- **Jaeger**: http://localhost:16686
-  - Distributed trace visualization
-  - Service dependency mapping
-- **Prometheus**: http://localhost:9090
-  - Raw metrics and custom queries
-- **Loki**: http://localhost:3100
-  - Log aggregation and querying API
-
-### Key Observability Data
-
-- **HTTP Requests**: Rate, duration, error rate by service and endpoint
-- **Code Execution**: Execution count, duration, memory usage by language
-- **Database**: Active connections, query performance
-- **User Actions**: Frontend interactions, navigation patterns
-- **Structured Logs**: Application logs with correlation IDs, user context, and error details
-- **Container Logs**: Docker container logs with automatic service labeling
-
-For detailed observability documentation, see [yc-observability/README.md](yc-observability/README.md).
-
-## 🚀 Production Deployment
-
-### Production Build
+To enable monitoring with Grafana, Prometheus, Jaeger, and Loki:
 
 ```bash
-# Build and start production services (includes observability)
-make prod-build
-make prod-up
+# Start with observability stack
+make observability-dev
 
-# Or with Docker Compose
-docker compose -f docker-compose.prod.yml up --build -d
+# View dashboards
+make observability-dashboards
+
+# Stop observability
+make observability-stop
+
+# Clean observability data
+make observability-clean
 ```
 
-## 🔍 Troubleshooting
+**Dashboard URLs:**
+- Grafana: http://localhost:3001 (admin/admin)
+- Jaeger: http://localhost:16686
+- Prometheus: http://localhost:9090
+- Loki: http://localhost:3100
 
-### Common Issues
+## 🐛 Troubleshooting
 
-**Port conflicts:**
+### Services Not Starting
+
 ```bash
-# Check what's using the ports
-lsof -i :3000  # Frontend
-lsof -i :8001  # Backend
-lsof -i :5432  # Database
+# Check service status
+docker compose ps
+docker compose -f docker-compose.ycampus.yml ps
+
+# View logs
+make logs
+make logs-ycode
+make logs-ycampus
+
+# Restart services
+make stop
+make dev
 ```
 
-**Database connection issues:**
+### Database Connection Issues
+
 ```bash
 # Reset database
-make db-reset
+make -f Makefile.ycode db-reset
+make -f Makefile.ycampus db-reset
 
-# Check database logs
-make logs SERVICE=db
+# Check database status
+docker compose exec db psql -U postgres -d ycode_backend_db
+docker compose -f docker-compose.ycampus.yml exec db psql -U postgres -d ycampus_backend_db
 ```
 
-**Permission issues:**
+### Port Already in Use
+
+If ports are already in use, modify the port mappings in:
+- `docker-compose.yml` (YCode)
+- `docker-compose.ycampus.yml` (YCampus)
+- `docker-compose.common.yml` (Executor)
+
+### Migrations Not Applied
+
 ```bash
-# Fix file permissions
-sudo chown -R $USER:$USER .
+# Regenerate migrations
+make -f Makefile.ycode db-makemigrations
+make -f Makefile.ycampus db-makemigrations
+
+# Apply migrations
+make -f Makefile.ycode db-migrate
+make -f Makefile.ycampus db-migrate
 ```
 
-### Development Tips
+## 📚 API Documentation
 
-1. **Hot Reloading**: Code changes automatically reload in development
-2. **Database Persistence**: Data persists between container restarts
-3. **Logs**: Use `make logs SERVICE=name` to debug issues
-4. **Shell Access**: Use `make backend-shell` or `make frontend-shell`
+### YCode API
+
+- Swagger UI: http://localhost:8000/api/schema/swagger-ui/
+- ReDoc: http://localhost:8000/api/schema/redoc/
+- OpenAPI Schema: http://localhost:8000/api/schema/
+
+### YCampus API
+
+- Swagger UI: http://localhost:8001/api/schema/swagger-ui/
+- ReDoc: http://localhost:8001/api/schema/redoc/
+- OpenAPI Schema: http://localhost:8001/api/schema/
+
+## 🔄 Development Workflow
+
+### Making Changes
+
+1. **Backend Changes**
+   ```bash
+   # Edit files in ycode-backend-api/ or ycampus-backend-api/
+   # Changes auto-reload in development mode
+   make logs-ycode  # Monitor for errors
+   ```
+
+2. **Frontend Changes**
+   ```bash
+   # Edit files in ycode-web/ or ycampus-web/
+   # Vite hot-reload will update automatically
+   make logs-ycode  # Monitor for errors
+   ```
+
+3. **Database Schema Changes**
+   ```bash
+   # After model changes, create migrations
+   make -f Makefile.ycode db-makemigrations
+   make -f Makefile.ycode db-migrate
+   ```
+
+### Code Quality
+
+```bash
+# Format code
+make format-all
+
+# Lint code
+make lint-all
+
+# Run all checks
+make check-all
+```
+
+## 🚢 Production Deployment
+
+For production deployment, use the production docker-compose files:
+
+```bash
+# Build production images
+make prod-build
+
+# Start production services
+make prod-up
+
+# Stop production services
+make prod-down
+```
+
+## 📝 Common Tasks
+
+### Load Test Data
+
+```bash
+# Reload test data for YCode
+make -f Makefile.ycode reload-data
+
+# Reload test data for YCampus
+make -f Makefile.ycampus reload-data
+```
+
+### Access Database Shell
+
+```bash
+# YCode database
+make -f Makefile.ycode db-shell
+
+# YCampus database
+make -f Makefile.ycampus db-shell
+```
+
+### Access Django Shell
+
+```bash
+# YCode Django shell
+make -f Makefile.ycode backend-shell
+
+# YCampus Django shell
+make -f Makefile.ycampus backend-shell
+```
+
+### Install Dependencies
+
+```bash
+# Backend package
+make -f Makefile.ycode backend-install PKG=package-name
+
+# Frontend package
+make -f Makefile.ycode frontend-install PKG=package-name
+```
 
 ## 🤝 Contributing
 
-- Clone the repository with ssh url
-- git checkout main
-- git pull origin main
-- Create a feature branch: `git checkout -b feature-name`
-- git rebase main (optiona if main has new changes after creating feature branch)
-- make dev
-- Do code changes changes 
-- make backend-format-fix
-- Commit changes: `git commit -m "<feat>(<scope>): <short summary>"`
-- Push to branch: `git push origin feature-name`
-- Create a Pull Request
+We welcome contributions! Please follow these guidelines to ensure a smooth collaboration.
+
+### Getting Started
+
+1. **Clone the repository with SSH**
+   ```bash
+   git clone git@github.com:yuvrosoftwarecode/yuvro.git
+   cd yuvro
+   ```
+
+2. **Checkout main and pull latest changes**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+3. **Create a feature branch**
+   ```bash
+   git checkout -b feature-name
+   ```
+
+4. **Rebase if main has new changes** (optional but recommended)
+   ```bash
+   git rebase main
+   ```
+
+5. **Start development**
+   ```bash
+   make dev
+   ```
+
+6. **Make your code changes**
+
+7. **Format your code**
+   ```bash
+   make backend-format-fix    # For backend changes
+   make frontend-format-fix   # For frontend changes
+   make format-all            # For all changes
+   ```
+
+8. **Commit your changes** (see Conventional Commits section below)
+   ```bash
+   git commit -m "<type>(<scope>): <short summary>"
+   ```
+
+9. **Push to your branch**
+   ```bash
+   git push origin feature-name
+   ```
+
+10. **Create a Pull Request**
+    - Go to GitHub and create a PR from your feature branch to `main`
+    - Fill in the PR template with a clear description
+    - Link any related issues
 
 ### Code Standards
 
-- **Backend**: Black formatting, Flake8 linting, Django best practices
-- **Frontend**: Prettier formatting, ESLint linting, TypeScript strict mode
-- **Testing**: Maintain test coverage above 80%
-- **Commits**: See the "Conventional Commits" section below for guidelines and examples
-# Conventional Commits
+#### Backend (Python/Django)
 
-We follow the Conventional Commits specification: https://www.conventionalcommits.org/en/v1.0.0/
+- **Formatting**: Black 23.12.1
+  ```bash
+  make -f Makefile.ycode backend-format-fix
+  make -f Makefile.ycampus backend-format-fix
+  ```
 
-Summary:
+- **Linting**: Flake8 7.0.0
+  ```bash
+  make -f Makefile.ycode backend-lint
+  make -f Makefile.ycampus backend-lint
+  ```
 
-- Format: `<type>(<scope>): <short summary>`
-- Optional body and footer, separated by a blank line
-- Use `BREAKING CHANGE: <description>` in the footer or append `!` after the type/scope to indicate breaking changes
+- **Best Practices**:
+  - Follow PEP 8 style guide
+  - Use type hints where possible
+  - Write docstrings for functions and classes
+  - Keep functions small and focused
+  - Use Django ORM best practices (select_related, prefetch_related)
+  - Write tests for new features
 
-Common types and examples
+#### Frontend (React/TypeScript)
+
+- **Formatting**: Prettier 3.6.2
+  ```bash
+  make -f Makefile.ycode frontend-format-fix
+  make -f Makefile.ycampus frontend-format-fix
+  ```
+
+- **Linting**: ESLint 9.39.1
+  ```bash
+  make -f Makefile.ycode frontend-lint
+  make -f Makefile.ycampus frontend-lint
+  ```
+
+- **Best Practices**:
+  - Use TypeScript strict mode
+  - Use functional components with hooks
+  - Keep components small and reusable
+  - Use proper prop typing
+  - Avoid prop drilling (use Context API or TanStack Query)
+  - Write tests for components and utilities
+
+#### Testing
+
+- **Maintain test coverage above 80%**
+  ```bash
+  make test-all
+  ```
+
+- **Write tests for**:
+  - New features
+  - Bug fixes
+  - API endpoints
+  - React components
+  - Utility functions
+
+### Conventional Commits
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+#### Format
+
 ```
-feat(auth): add Google OAuth login
-   - Adds support for signing in with Google and links new users to existing accounts
+<type>(<scope>): <short summary>
 
-fix(api): correct user serialization in GET /api/auth/user/
-   - Fixes bug where is_active flag wasn't returned
+<optional body>
 
-docs(readme): update database setup instructions
-   - Clarifies steps for local Postgres credentials
-
-style(ui): adjust button padding
-   - Whitespace, formatting, and small UI tweaks with no logic changes
-
-refactor(auth): extract token helpers into utils/token.py
-   - Code restructuring without changing external behavior
-
-perf(api): reduce DB queries on dashboard endpoint
-   - Improves response time by introducing select_related
-
-test(auth): add tests for refresh token flow
-   - Adds unit & integration tests; no production behavior changed
-
-build(docker): update Node base image to 20
-   - Changes build system, affects CI and production images
-
-ci(github): add pipeline step for frontend linting
-   - Changes CI configuration only
-
-chore(deps): bump django from 4.2 to 4.2.3
-   - Routine tasks and maintenance (dependencies, scripts)
-
-revert: Revert "feat(auth): add Google OAuth login"
-   - Reverts a previous commit
-
-feat!: drop support for Python 3.8
-   - BREAKING CHANGE: minimum Python version is now 3.9
-
-feat(auth)!: change password hashing algorithm
-   - BREAKING CHANGE: existing passwords must be rehashed on next login
+<optional footer>
 ```
 
-Notes and tips
+#### Rules
 
-- Scope is optional but recommended (e.g., `feat(api): ...`, `fix(ui): ...`).
-- Keep the subject line short (<= 72 characters) and use the body for details.
-- Use the footer for metadata like `BREAKING CHANGE` or issue references (e.g., `Closes #123`).
-- Revert commits should reference the original commit being reverted.
+- **Type** (required): Describes the kind of change
+- **Scope** (optional but recommended): Specifies what part of the codebase is affected
+- **Summary** (required): Short description (≤ 72 characters), imperative mood
+- **Body** (optional): Detailed explanation separated by blank line
+- **Footer** (optional): Metadata like `BREAKING CHANGE:` or issue references
+- **Breaking Changes**: Use `BREAKING CHANGE:` in footer or append `!` after type/scope
 
-For full specification and more examples, see the official site: https://www.conventionalcommits.org/en/v1.0.0/
+#### Common Types
 
-# GitHub issues & projects
+| Type | Description | Example |
+|------|-------------|---------|
+| `feat` | New feature | `feat(auth): add Google OAuth login` |
+| `fix` | Bug fix | `fix(api): correct user serialization` |
+| `docs` | Documentation changes | `docs(readme): update setup instructions` |
+| `style` | Code style changes (no logic) | `style(ui): adjust button padding` |
+| `refactor` | Code restructuring | `refactor(auth): extract token helpers` |
+| `perf` | Performance improvements | `perf(api): reduce DB queries` |
+| `test` | Test additions/changes | `test(auth): add refresh token tests` |
+| `build` | Build system changes | `build(docker): update Node base image` |
+| `ci` | CI/CD changes | `ci(github): add frontend linting step` |
+| `chore` | Maintenance tasks | `chore(deps): bump django to 4.2.3` |
+| `revert` | Revert previous commit | `revert: Revert "feat(auth): add OAuth"` |
 
-You can reference GitHub issues and projects from your commit messages. Using the right keywords in the footer (for example `Closes`, `Fixes`) will let GitHub automatically close issues when the commit is merged. For cross-repository references use the full `owner/repo#issue-number` form.
+#### Examples
 
-Examples (issues)
+**Simple feature**
 ```
 feat(auth): add Google OAuth login
 
 Adds support for signing in with Google and links new users to existing accounts.
-
-Closes #42
 ```
 
+**Bug fix with issue reference**
 ```
 fix(api): correct user serialization in GET /api/auth/user/
 
 Fixes bug where is_active flag wasn't returned for some users.
 
-Fixes mentorxindia/yuvro-code#101
+Closes #42
 ```
 
+**Refactoring**
 ```
 refactor(db): split user model helpers
 
 Restructure helpers into `yc-backend-api/auth/utils.py`.
-
 ```
 
-# Show all commands
-make help
+**Breaking change**
+```
+feat!: drop support for Python 3.8
 
-# Development
-make dev
-make stop
-make logs SERVICE=backend
+BREAKING CHANGE: minimum Python version is now 3.9
+```
 
-# Package installation
-make backend-install PKG=requests
-make frontend-install PKG=axios
+**Breaking change with scope**
+```
+feat(auth)!: change password hashing algorithm
 
-# Testing and formatting
-make test-all
+BREAKING CHANGE: existing passwords must be rehashed on next login
+```
+
+#### Tips
+
+- Keep the subject line short and use imperative mood ("add" not "added")
+- Use the body for detailed explanations
+- Reference issues using `Closes #123` or `Fixes #123`
+- For cross-repository references: `Closes mentorxindia/yuvro-code#101`
+- Revert commits should reference the original commit being reverted
+- Use scope to indicate which part of the system is affected
+
+### Pull Request Process
+
+1. **Before submitting**:
+   ```bash
+   make check-all  # Runs format, lint, and tests
+   ```
+
+2. **PR Title**: Follow Conventional Commits format
+   ```
+   feat(auth): add Google OAuth login
+   fix(api): correct user serialization
+   ```
+
+3. **PR Description**: Include
+   - What changes were made
+   - Why the changes were made
+   - How to test the changes
+   - Any breaking changes
+   - Related issues (use `Closes #123`)
+
+4. **Code Review**:
+   - Address all review comments
+   - Push additional commits (don't force push during review)
+   - Request re-review after making changes
+
+5. **Merge**:
+   - Ensure all checks pass
+   - Squash commits if requested
+   - Delete feature branch after merge
+
+### Development Tips
+
+**Working on both platforms**
+```bash
+# If changes affect both YCode and YCampus
 make format-all
-make check-all
+make lint-all
+make test-all
+```
 
+**Database changes**
+```bash
+# After modifying models
+make -f Makefile.ycode db-makemigrations
+make -f Makefile.ycode db-migrate
 
-Grafana: http://localhost:3001 (admin/admin)
-Jaeger: http://localhost:16686
-Prometheus: http://localhost:9090
+make -f Makefile.ycampus db-makemigrations
+make -f Makefile.ycampus db-migrate
+```
+
+**Testing specific changes**
+```bash
+# Test only backend
+make -f Makefile.ycode backend-test
+
+# Test only frontend
+make -f Makefile.ycode frontend-test
+
+# Test code executor
+make executor-test
+```
+
+**Debugging**
+```bash
+# View logs in real-time
+make logs-ycode
+make logs-ycampus
+
+# Access Django shell
+make -f Makefile.ycode backend-shell
+
+# Access database
+make -f Makefile.ycode db-shell
+```
+
+### Common Issues
+
+**Merge conflicts**
+```bash
+# Rebase your branch on main
+git fetch origin
+git rebase origin/main
+
+# Resolve conflicts in your editor
+git add .
+git rebase --continue
+git push origin feature-name --force-with-lease
+```
+
+**Tests failing**
+```bash
+# Run tests locally before pushing
+make test-all
+
+# Run specific test
+make -f Makefile.ycode backend-test
+```
+
+**Code style issues**
+```bash
+# Auto-fix formatting
+make format-all
+
+# Check linting
+make lint-all
+```
+
+### Questions?
+
+- Check existing issues and PRs
+- Review the API documentation
+- Ask in the PR comments
+- Check the Troubleshooting section in README
+
+## 📄 License
+
+[Add your license information here]
+
+## 📞 Support
+
+For issues and questions:
+- Check the Troubleshooting section
+- Review API documentation
+- Check service logs with `make logs`
+
+## 🎓 Learning Resources
+
+- [Django Documentation](https://docs.djangoproject.com/)
+- [React Documentation](https://react.dev/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Docker Documentation](https://docs.docker.com/)
+
+---
+
+**Last Updated**: March 2026
+**Version**: 1.0.0

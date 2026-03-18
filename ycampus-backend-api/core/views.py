@@ -16,6 +16,8 @@ from .models import (
     CollegeAdminProfile,
     TPOProfile,
     Department,
+    AttendanceSession,
+    AttendanceRecord,
 )
 from .serializers import (
     StudentProfileSerializer,
@@ -24,6 +26,8 @@ from .serializers import (
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
     TPOProfileSerializer,
+    AttendanceSessionSerializer,
+    AttendanceRecordSerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin
 
@@ -41,6 +45,16 @@ class IsCollegeAdminOrPrincipal(permissions.BasePermission):
             "admin",
             "college_admin",
             "principal",
+        ]
+
+
+class IsCollegeManagementOrFaculty(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.role in [
+            "admin",
+            "college_admin",
+            "principal",
+            "faculty",
         ]
 
 
@@ -539,7 +553,7 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
 class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrFaculty]
     filterset_fields = ["college", "department", "batch", "semester", "section", "admission_type", "is_detained"]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
@@ -551,8 +565,8 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         
-        # If user is a College Admin or Principal, filter by their college
-        if user.role in ["college_admin", "principal"]:
+        # If user is a College Admin, Principal or Faculty, filter by their college
+        if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
             if college:
                 return queryset.filter(college=college)
@@ -1036,3 +1050,36 @@ class TPOProfileViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+class AttendanceSessionViewSet(viewsets.ModelViewSet):
+    queryset = AttendanceSession.objects.all()
+    serializer_class = AttendanceSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["section_subject_faculty", "date"]
+    search_fields = ["remarks", "section_subject_faculty__section__name"]
+    ordering_fields = ["date", "created_at"]
+
+    def get_queryset(self):
+        qs = AttendanceSession.objects.all().prefetch_related("records")
+        user = self.request.user
+        
+        if not user or user.is_anonymous:
+            return AttendanceSession.objects.none()
+            
+        role = getattr(user, 'role', None)
+        if role == "faculty":
+            # For faculty, only show sessions for their assigned subjects
+            qs = qs.filter(section_subject_faculty__faculty__user=user)
+        elif role in ["college_admin", "principal"]:
+            # For college management, only show sessions in their college
+            qs = qs.filter(section_subject_faculty__section__semester__batch__college=user.college)
+            
+        return qs
+
+
+class AttendanceRecordViewSet(viewsets.ModelViewSet):
+    queryset = AttendanceRecord.objects.all()
+    serializer_class = AttendanceRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["session", "student", "is_present"]

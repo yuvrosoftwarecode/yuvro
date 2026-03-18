@@ -2,7 +2,7 @@
 // For AI-enhanced coding with problem descriptions, use CodeEditorWithAI.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Send, X, FlaskConical, Terminal, CheckCircle2, XCircle, Zap, Activity } from 'lucide-react';
+import { Play, Send, X, FlaskConical, Terminal, CheckCircle2, XCircle, Zap, Activity, Sparkles } from 'lucide-react';
 import MonacoCodeEditor from './MonacoCodeEditor';
 import codeEditorService from '@/services/codeEditorService';
 import ExampleCodeGallery from '@/components/code-editor/ExampleCodeGallery';
@@ -65,6 +65,7 @@ export interface CodeEditorHandle {
   getLanguage: () => string;
   getCode: () => string;
   setCode: (code: string) => void;
+  insertCodeAtCursor: (codeToInsert: string) => void;
 }
 
 const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
@@ -136,6 +137,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Monaco Editor Reference for direct manipulation
+  const monacoEditorRef = useRef<any>(null);
+
   // UI state
   const [internalFullscreen, setInternalFullscreen] = useState(false);
   const isFullscreen = controlledFullscreen !== undefined ? controlledFullscreen : internalFullscreen;
@@ -166,7 +170,15 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
     openExampleGallery: () => setShowExamples(true),
     getLanguage: () => language,
     getCode: () => code,
-    setCode: (newCode: string) => setCode(newCode)
+    setCode: (newCode: string) => setCode(newCode),
+    insertCodeAtCursor: (codeToInsert: string) => {
+      if (monacoEditorRef.current && typeof monacoEditorRef.current.insertText === 'function') {
+        monacoEditorRef.current.insertText(codeToInsert);
+      } else {
+        // Fallback: simply append or replace if editor isn't available
+        setCode(prev => prev + '\n' + codeToInsert);
+      }
+    }
   }));
 
   const handleToggleFullscreen = () => {
@@ -474,6 +486,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                   onToggleFullscreen={showFullscreenButton ? handleToggleFullscreen : undefined}
                   isAiChatOpen={isAiChatOpen}
                   isFullscreen={isFullscreen}
+                  onMount={(editor, monaco) => {
+                    monacoEditorRef.current = editor;
+                    editor.monaco = monaco; // Store monaco reference for range creation
+                  }}
                 />
               </div>
             </ResizablePanel>
@@ -724,12 +740,54 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           {result.actual_output}
                                         </pre>
                                       </div>
+                                      {!result.passed && (
+                                        <div className="mt-4 flex justify-end col-span-1 md:col-span-2">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                            onClick={() => {
+                                              if (onToggleAiChat && !isAiChatOpen) {
+                                                onToggleAiChat();
+                                              }
+                                              // Dispatch a custom event that AIChatContainer will listen to
+                                              window.dispatchEvent(new CustomEvent('ai-buddy-ask', { 
+                                                detail: { 
+                                                  prompt: `Explain why this test case failed.\nInput:\n${result.input}\nExpected:\n${result.expected_output}\nActual Output:\n${result.actual_output}` 
+                                                } 
+                                              }));
+                                            }}
+                                          >
+                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                          </Button>
+                                        </div>
+                                      )}
                                       {result.error_message && result.error_message !== 'N/A' && (
                                         <div className="col-span-1 md:col-span-2">
                                           <div className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-2">Error Message</div>
                                           <pre className="bg-red-50 p-4 rounded-lg text-sm whitespace-pre-wrap overflow-x-auto border border-red-200 font-mono text-red-700 shadow-sm">
                                             {result.error_message}
                                           </pre>
+                                          <div className="mt-4 flex justify-end">
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                              onClick={() => {
+                                                if (onToggleAiChat && !isAiChatOpen) {
+                                                  onToggleAiChat();
+                                                }
+                                                // Dispatch a custom event that AIChatContainer will listen to
+                                                window.dispatchEvent(new CustomEvent('ai-buddy-ask', { 
+                                                  detail: { 
+                                                    prompt: `Explain this error message:\n${result.error_message}` 
+                                                  } 
+                                                }));
+                                              }}
+                                            >
+                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            </Button>
+                                          </div>
                                         </div>
                                       )}
                                     </div>

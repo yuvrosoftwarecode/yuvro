@@ -1,10 +1,12 @@
 from rest_framework import viewsets, permissions, status, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import os
+import re
 import requests
 from django.db.models import (
     Count, Q, F, Case, When, Value, IntegerField, FloatField, 
@@ -16,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
-from core.models import College, Batch, Department, Semester, Section
+from core.models import College, Batch, Department, Semester, Section, AttendanceSession, AttendanceRecord, StudentProfile
 from .models import (
     Subject,
     Unit,
@@ -57,14 +59,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def subject_assigned_to_college_instructor(user, subject):
+def subject_assigned_to_college_faculty(user, subject):
     """
-    Check if the user (instructor/faculty) is linked to a college that has this subject.
+    Check if the user (faculty) is linked to a college that has this subject.
     """
     if not hasattr(user, 'college') or not user.college:
         return False
     return CollegeSubject.objects.filter(college=user.college, subject=subject).exists()
-
 
 class CollegeViewSet(viewsets.ModelViewSet):
     """
@@ -403,8 +404,8 @@ class UnitViewSet(viewsets.ModelViewSet):
         qs = Unit.objects.select_related("subject")
         user = self.request.user
 
-        if user.role == "instructor":
-            # For instructors, they can only see units of subjects linked to their college
+        if user.role == "faculty":
+            # For faculty, they can only see units of subjects linked to their college
             if hasattr(user, 'college') and user.college:
                 assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
                     "subject_id", flat=True
@@ -462,9 +463,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject_id = request.data.get("subject")
         subject = get_object_or_404(Subject, id=subject_id)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -474,9 +473,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject = unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -486,9 +483,7 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject = unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -508,7 +503,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
             qs = qs.filter(unit_id=unit_id)
 
         user = self.request.user
-        if user.role == "instructor":
+        if user.role == "faculty":
             if hasattr(user, 'college') and user.college:
                 assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
                     "subject_id", flat=True
@@ -524,9 +519,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         unit = get_object_or_404(Unit, id=request.data.get("unit"))
         subject = unit.subject
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -536,9 +529,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         subject = sub.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -548,9 +539,7 @@ class SubUnitViewSet(viewsets.ModelViewSet):
         subject = sub.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -569,12 +558,15 @@ class VideoViewSet(viewsets.ModelViewSet):
             qs = qs.filter(sub_unit_id=sub)
 
         user = self.request.user
-        if user.role == "instructor":
-            qs = qs.filter(
-                sub_unit__unit__subject_id__in=SubjectInstructor.objects.filter(
-                    instructor=user
-                ).values_list("subject_id", flat=True)
-            )
+        if user.role == "faculty":
+            # Faculty can only see videos for subjects assigned to their college
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
         return qs
 
     def create(self, request, *a, **kw):
@@ -582,9 +574,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -594,9 +584,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = video.sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -606,9 +594,7 @@ class VideoViewSet(viewsets.ModelViewSet):
         subject = video.sub_unit.unit.subject
         user = request.user
 
-        if user.role == "admin" or (
-            user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *a, **kw)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -626,16 +612,19 @@ class NoteViewSet(viewsets.ModelViewSet):
         qs = Note.objects.select_related("sub_unit", "user")
         user = self.request.user
 
-        if user.role == "instructor":
-            qs = qs.filter(
-                sub_unit__unit__subject_id__in=SubjectInstructor.objects.filter(
-                    instructor=user
-                ).values_list("subject_id", flat=True)
-            )
+        if user.role == "faculty":
+            # Faculty can only see notes for subjects assigned to their college
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
         if user.role == "student":
             qs = qs.filter(
                 Q(user=user) | 
-                Q(user__role__in=["instructor", "admin"])
+                Q(user__role__in=["faculty", "admin"])
             )
 
         if sid := self.request.query_params.get("sub_unit"):
@@ -656,10 +645,10 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
         is_admin = user.role == "admin"
 
-        if not (is_owner or is_instructor or is_admin):
+        if not (is_owner or is_faculty or is_admin):
             return Response({"error": "Not allowed"}, status=403)
 
         return super().update(request, *a, **kw)
@@ -670,10 +659,10 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         is_owner = note.user == user
         subject = note.sub_unit.unit.subject
-        is_instructor = user.role == "instructor" and subject_assigned_to_college_instructor(user, subject)
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
         is_admin = user.role == "admin"
 
-        if not (is_owner or is_instructor or is_admin):
+        if not (is_owner or is_faculty or is_admin):
             return Response({"error": "Not allowed"}, status=403)
 
         return super().destroy(request, *a, **kw)
@@ -709,7 +698,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         )
         user = self.request.user
 
-        if user.role == "instructor":
+        if user.role == "faculty":
             assigned_subject_ids = self.get_assigned_subject_ids(user)
             qs = qs.filter(
                 models.Q(subject_id__in=assigned_subject_ids)
@@ -771,9 +760,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid subject/unit/subunit"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().create(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -793,9 +780,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid question association"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().update(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -816,9 +801,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if not subject:
             return Response({"error": "Invalid question association"}, status=400)
 
-        if user.role == "admin" or (
-            user.role == "instructor" and instructor_assigned(user, subject)
-        ):
+        if user.can_manage_content():
             return super().destroy(request, *args, **kwargs)
 
         return Response({"error": "Not allowed"}, status=403)
@@ -1177,17 +1160,31 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         Return user learning stats.
         """
         user = self.request.user
+        target_user_id = request.query_params.get("user_id")
+
+        if target_user_id:
+            if not user.can_manage_content():
+                return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            target_user = get_object_or_404(User, id=target_user_id)
+            
+            # Simple visibility check: if not superuser, must be same college
+            if not user.is_staff and user.college != target_user.college:
+                return Response({"error": "Permission denied (College mismatch)"}, status=status.HTTP_403_FORBIDDEN)
+            
+            user_to_query = target_user
+        else:
+            user_to_query = user
 
         # Calculate stats
         completed_count = UserSubjectProgress.objects.filter(
-            user=user, is_completed=True
+            user=user_to_query, is_completed=True
         ).count()
 
         # Calculate average progress
         avg_progress = 0
         total_minutes = 0
 
-        progress_records = UserSubjectProgress.objects.filter(user=user)
+        progress_records = UserSubjectProgress.objects.filter(user=user_to_query)
 
         if progress_records.exists():
             for p in progress_records:
@@ -1226,10 +1223,37 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             time_spent_str = f"{mins}m"
 
         # Gamification Data
-        gamification_profile = GamificationService.get_or_create_profile(user)
+        gamification_profile = GamificationService.get_or_create_profile(user_to_query)
         streak = gamification_profile.current_streak
+        longest_streak = gamification_profile.longest_streak
         xp = gamification_profile.total_xp
         level = gamification_profile.current_level
+
+        # Overall Attendance and Active Days
+        overall_attendance = 0
+        active_days = 0
+        
+        # Filter attendance by subjects assigned to this student
+        relevant_subject_ids = set()
+        student_profile = StudentProfile.objects.filter(user=user_to_query).first()
+        if student_profile:
+            if student_profile.semester:
+                relevant_subject_ids.update(SemesterSubject.objects.filter(semester=student_profile.semester).values_list('subject_id', flat=True))
+            if student_profile.section:
+                relevant_subject_ids.update(SectionSubjectFaculty.objects.filter(section=student_profile.section).values_list('semester_subject__subject_id', flat=True))
+
+        attendance_qs = AttendanceRecord.objects.filter(student__user=user_to_query)
+        if relevant_subject_ids:
+            attendance_qs = attendance_qs.filter(session__section_subject_faculty__semester_subject__subject_id__in=relevant_subject_ids)
+
+        total_sessions = attendance_qs.count()
+        if total_sessions > 0:
+            present_records = attendance_qs.filter(is_present=True)
+            present_sessions = present_records.count()
+            overall_attendance = round((present_sessions / total_sessions) * 100)
+            
+            # Count unique dates as active days (within relevant subjects)
+            active_days = present_records.values('session__date').distinct().count()
 
         return Response(
             {
@@ -1237,8 +1261,11 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 "time_spent": time_spent_str,
                 "avg_progress": avg_progress,
                 "streak": streak,
+                "longest_streak": longest_streak,
                 "xp": xp,
                 "level": level,
+                "overall_attendance": overall_attendance,
+                "active_days": active_days,
             }
         )
 
@@ -1302,33 +1329,103 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=["get"])
     def progress(self, request):
         """
-        Get overall progress percentage for all subjects the user has started.
-        Returns: [{'subject_id': 'uuid', 'percent': 45.5}, ...]
+        Get overall progress percentage for all subjects.
+        For students, includes all subjects assigned to their semester and section.
         """
         user = self.request.user
+        target_user_id = request.query_params.get("user_id")
 
-        # Get all progress records
-        progress_records = UserSubjectProgress.objects.filter(user=user).select_related(
-            "subject"
-        )
+        if target_user_id:
+            if not user.can_manage_content():
+                return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            target_user = get_object_or_404(User, id=target_user_id)
+            if not user.is_staff and user.college != target_user.college:
+                return Response({"error": "Permission denied (College mismatch)"}, status=status.HTTP_403_FORBIDDEN)
+            user_to_query = target_user
+        else:
+            user_to_query = user
 
-        # Group by Subject
-        course_stats = {}
+        # 1. Identify subjects to report on.
+        subject_ids = set()
+        student_profile = StudentProfile.objects.filter(user=user_to_query).first()
+        
+        if student_profile:
+            # Subjects from Semester assignment
+            if student_profile.semester:
+                semester_subs = SemesterSubject.objects.filter(semester=student_profile.semester)
+                for ss in semester_subs:
+                    subject_ids.add(ss.subject_id)
+            
+            # Subjects from Section/Faculty assignment
+            if student_profile.section:
+                section_subs = SectionSubjectFaculty.objects.filter(section=student_profile.section)
+                for ssf in section_subs:
+                    subject_ids.add(ssf.semester_subject.subject_id)
+        
+        # 2. Also include any subjects with existing progress records (e.g. electives not in core list)
+        progress_records = UserSubjectProgress.objects.filter(user=user_to_query).select_related("subject")
         for p in progress_records:
-            cid = str(p.subject.id)
-            if cid not in course_stats:
-                course_stats[cid] = {"sum": 0.0}
-            course_stats[cid]["sum"] += p.progress_percent
-
+            subject_ids.add(p.subject_id)
+            
         results = []
-        for cid, stats in course_stats.items():
-            # Count total subunits for this Subject
-            total_subs = SubUnit.objects.filter(unit__subject_id=cid).count()
+        subjects_map = {s.id: s for s in Subject.objects.filter(id__in=subject_ids)}
+
+        for sid in subject_ids:
+            subject = subjects_map.get(sid)
+            if not subject: continue
+            
+            sub_progress = progress_records.filter(subject_id=sid)
+            total_subs = SubUnit.objects.filter(unit__subject_id=sid).count()
+            
+            # Calculate metrics, default to 0 if no subunits or no progress
+            sum_progress = 0.0
+            percent = 0.0
+            video_pct = 0
+            avg_quiz = 0
+            avg_coding = 0
+            tasks_completed = 0
+            
             if total_subs > 0:
-                percent = round(stats["sum"] / total_subs, 1)
-                # Cap at 100% just in case
-                percent = min(percent, 100.0)
-                results.append({"subject_id": cid, "percent": percent})
+                sum_progress = sub_progress.aggregate(s=Sum('progress_percent'))['s'] or 0.0
+                percent = round(min(sum_progress / total_subs, 100.0), 1)
+                
+                video_count = sub_progress.filter(is_videos_watched=True).count()
+                video_pct = round((video_count / total_subs) * 100)
+                
+                avg_quiz_raw = sub_progress.aggregate(avg=Coalesce(Sum('quiz_score'), 0.0))['avg'] or 0.0
+                avg_quiz = round(avg_quiz_raw / total_subs)
+                
+                avg_coding_raw = sub_progress.aggregate(avg=Coalesce(Sum('coding_score'), 0.0))['avg'] or 0.0
+                avg_coding = round(avg_coding_raw / total_subs)
+                
+                tasks_completed = sub_progress.filter(is_completed=True).count()
+
+            # Attendance per subject
+            attendance_pct = 0
+            subject_sessions = AttendanceRecord.objects.filter(
+                student__user=user_to_query,
+                session__section_subject_faculty__semester_subject__subject_id=sid
+            ).count()
+            if subject_sessions > 0:
+                present_count = AttendanceRecord.objects.filter(
+                    student__user=user_to_query,
+                    is_present=True,
+                    session__section_subject_faculty__semester_subject__subject_id=sid
+                ).count()
+                attendance_pct = round((present_count / subject_sessions) * 100)
+
+            results.append({
+                "subject_id": str(sid),
+                "subject_name": subject.subject_name,
+                "subject_code": subject.short_code,
+                "percent": percent,
+                "video_pct": video_pct,
+                "avg_quiz_score": avg_quiz,
+                "avg_coding_score": avg_coding,
+                "attendance_pct": attendance_pct,
+                "tasks_completed": tasks_completed,
+                "tasks_total": total_subs
+            })
 
         return Response(results)
 
@@ -1359,13 +1456,24 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
         """
         user = self.request.user
         subject_id = request.query_params.get("subject_id")
+        target_user_id = request.query_params.get("user_id")
 
         if not subject_id:
             return Response({"error": "subject_id is required"}, status=400)
 
+        if target_user_id:
+            if not user.can_manage_content():
+                return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            target_user = get_object_or_404(User, id=target_user_id)
+            if not user.is_staff and user.college != target_user.college:
+                return Response({"error": "Permission denied (College mismatch)"}, status=status.HTTP_403_FORBIDDEN)
+            user_to_query = target_user
+        else:
+            user_to_query = user
+
         # Updated to use unit__subject_id or sub_unit queries
         progress_qs = (
-            UserSubjectProgress.objects.filter(user=user, subject_id=subject_id)
+            UserSubjectProgress.objects.filter(user=user_to_query, subject_id=subject_id)
             .select_related("sub_unit")
             .prefetch_related("sub_unit__questions")
         )
@@ -1900,4 +2008,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
              return Response({"error": f"AI Service Error: {str(e)}"}, status=503)
         except Exception as e:
              return Response({"error": f"Unexpected Error: {str(e)}"}, status=500)
+
+
+
 

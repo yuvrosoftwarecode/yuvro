@@ -31,7 +31,7 @@ class IsAuthenticatedUser(BasePermission):
 # ============================================================================
 
 
-class IsInstructorOrAdmin(BasePermission):
+class IsContentManagerOrAdmin(BasePermission):
     """
     Permission class that allows access to content managers and admins.
     """
@@ -159,7 +159,7 @@ class CanManageContent(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # Write permissions only for instructors and admins
+        # Write permissions only for content managers and admins
         return request.user.can_manage_content()
 
 
@@ -217,7 +217,7 @@ class IsHRorReadOnly(BasePermission):
 # ============================================================================
 
 
-class IsInstructorOrAdminOrReadOnly(BasePermission):
+class IsContentManagerOrAdminOrReadOnly(BasePermission):
     """
     Permission class that allows read access to everyone,
     but write access only to content managers and admins.
@@ -234,7 +234,7 @@ class IsInstructorOrAdminOrReadOnly(BasePermission):
         )
 
 
-class IsOwnerOrInstructorOrAdmin(BasePermission):
+class IsOwnerOrContentManagerOrAdmin(BasePermission):
     """
     Permission class that allows access to:
     - Object owners

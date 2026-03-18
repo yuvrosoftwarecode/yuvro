@@ -180,14 +180,11 @@ class MockInterview(BaseModel):
     ai_generation_mode = models.CharField(
         max_length=20, choices=AI_GEN_CHOICES, default=AI_GEN_FULL
     )
-    ai_verbal_question_count = models.IntegerField(
-        default=5, help_text="Number of verbal questions AI should ask"
-    )
-    ai_coding_question_count = models.IntegerField(
-        default=1, help_text="Number of coding questions AI should ask"
-    )
     ai_percentage = models.IntegerField(
         default=100, help_text="Percentage of AI generated questions (0-100)"
+    )
+    ai_context = models.JSONField(
+        default=dict, blank=True, help_text="Context or roles for the AI interviewer mapped by experience level. Ex: {'intern': ['Focus on basic algorithms'], 'beginner': ['Assess junior projects']}"
     )
 
     # Voice Configuration
@@ -440,6 +437,7 @@ class BaseQuestionActivity(BaseTimestampedModel):
         ("suspicious_activity", "Suspicious Activity"),
         ("device_change", "Device Change Detected"),
         ("external_monitor", "External Monitor Detected"),
+        ("forbidden_platform_detected", "Forbidden Platform Detected"),
     ]
 
     ALERT_PRIORITY_LEVELS = [

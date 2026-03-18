@@ -1,3 +1,4 @@
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
 import MonacoEditor, { loader } from '@monaco-editor/react';
 import { Sparkles, Maximize2, Minimize2, X } from 'lucide-react';
 
@@ -14,6 +15,7 @@ interface MonacoCodeEditorProps {
   onToggleFullscreen?: () => void;
   isAiChatOpen?: boolean;
   isFullscreen?: boolean;
+  onMount?: (editor: any, monaco: any) => void;
 }
 
 loader.init().then(monaco => {
@@ -28,7 +30,7 @@ loader.init().then(monaco => {
   });
 });
 
-const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
+const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
   value,
   onChange,
   language,
@@ -40,8 +42,27 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
   onToggleAiChat,
   onToggleFullscreen,
   isAiChatOpen = false,
-  isFullscreen = false
-}) => {
+  isFullscreen = false,
+  onMount
+}, ref) => {
+  const editorRef = useRef<any>(null);
+
+  useImperativeHandle(ref, () => ({
+    insertText: (text: string) => {
+      if (editorRef.current) {
+        const selection = editorRef.current.getSelection();
+        editorRef.current.executeEdits('ai-assistant', [
+          { range: selection, text, forceMoveMarkers: true }
+        ]);
+        editorRef.current.focus();
+      }
+    }
+  }));
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
+    editorRef.current = editor;
+    if (onMount) onMount(editor, monaco);
+  };
 
   return (
     <div className="relative rounded-lg overflow-hidden bg-white" style={{ height }}>
@@ -115,6 +136,7 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
         value={value}
         onChange={(val: string | undefined) => onChange(val ?? '')}
         theme="custom-light"
+        onMount={handleEditorDidMount}
         options={{
           readOnly,
           fontSize: 14,
@@ -126,6 +148,6 @@ const MonacoCodeEditor: React.FC<MonacoCodeEditorProps> = ({
       />
     </div>
   );
-};
+});
 
 export default MonacoCodeEditor;

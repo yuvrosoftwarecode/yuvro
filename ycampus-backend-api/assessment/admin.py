@@ -184,6 +184,7 @@ class MockInterviewAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "ai_generation_mode",
+                    "ai_context",
                     "ai_verbal_question_count",
                     "ai_coding_question_count",
                 ),

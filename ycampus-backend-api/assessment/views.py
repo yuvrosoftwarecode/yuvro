@@ -16,7 +16,7 @@ import logging
 
 from ai_assistant.models import AIAgent, ChatSession, ChatMessage
 from authentication.models import Profile
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
+from authentication.permissions import IsOwnerOrContentManagerOrAdmin
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import (
     Contest, MockInterview, JobTest, SkillTest,
@@ -40,7 +40,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
     submission_lookup_field = 'certification_exam'
     submission_related_field = 'certification_submission'
     
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'course__name']
@@ -243,7 +243,7 @@ class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
 class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CertificationSubmission.objects.all()
     serializer_class = CertificationSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     
     def get_queryset(self):
         qs = super().get_queryset()
@@ -253,7 +253,7 @@ class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
 from course.models import Question
-from authentication.permissions import IsOwnerOrInstructorOrAdmin
+from authentication.permissions import IsOwnerOrContentManagerOrAdmin
 from .mixins import ProctoringMixin
 from django.core.mail import send_mail
 from django.conf import settings
@@ -270,7 +270,7 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
     submission_lookup_field = 'contest'
     submission_related_field = 'contest_submission'
     
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'organizer', 'description']
@@ -448,7 +448,7 @@ class ContestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         contest.save(update_fields=['status'])
         return Response({'status': new_status}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=True, methods=['get'], permission_classes=[IsOwnerOrContentManagerOrAdmin])
     def leaderboard(self, request, pk=None):
         contest = self.get_object()
         
@@ -484,7 +484,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
     question_activity_model = SkillTestQuestionActivity
     submission_lookup_field = 'skill_test'
     submission_related_field = 'skill_test_submission'
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     
     search_fields = ['title', 'description']
@@ -694,7 +694,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
 class MockInterviewViewSet(viewsets.ModelViewSet):
     queryset = MockInterview.objects.all()
     serializer_class = MockInterviewSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
     search_fields = ['title', 'description']
@@ -803,13 +803,50 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         # Safe user name
                         user_first_name = user.first_name if user.first_name else "Candidate"
                         
+                        # Safe extraction of AI Context and Coding Count
+                        raw_ai_context = mock_interview.ai_context.get(
+                            experience_level.lower(), {}
+                        ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+
+                        # Backwards compatibility check
+                        if isinstance(raw_ai_context, dict):
+                            actual_ai_context = raw_ai_context.get('context', [])
+                            coding_count = raw_ai_context.get('coding_questions_count', 1)
+                        else:
+                            actual_ai_context = raw_ai_context
+                            coding_count = 1
+
                         chat_session = ChatSession.objects.create(
                             user=user,
                             ai_agent=ai_agent,
                             title=f"Mock Interview: {mock_interview.title}",
-                            page="mock_interview"
-                        )
+                            page="mock_interview",
+                            context={
+                                "role": mock_interview.title,
+                                "description": mock_interview.description,
+                                "instructions": mock_interview.instructions,
+                                "difficulty": experience_level,
+                                "level": experience_level,
+                                "max_duration": mock_interview.max_duration,
+                                "selected_duration": selected_duration,
+                                "required_skills": mock_interview.required_skills,
+                                "optional_skills": mock_interview.optional_skills,
+                                "interviewer_name": mock_interview.interviewer_name,
+                                "interviewer_voice_id": mock_interview.interviewer_voice_id,
+                                "voice_speed": mock_interview.voice_speed,
+                                "ai_context": actual_ai_context,
+                                "coding_questions_count": coding_count,
+                                "candidate_info": context_text
+                            }
+                        )                    
+                        # Extract AI Context based on experience level
+                        # This block is now redundant as actual_ai_context is already extracted and passed to chat_session.context
+                        # ai_context_val = mock_interview.ai_context.get(
+                        #     experience_level.lower(), []
+                        # ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
                         
+                        ai_context_str = "\n".join([f"- {item}" for item in actual_ai_context]) if isinstance(actual_ai_context, list) else str(actual_ai_context)
+
                         # Create System Prompt
                         system_prompt = f"""You are {mock_interview.interviewer_name}, an expert technical interviewer conducting a mock interview.
 ROLE & PERSONA:
@@ -821,6 +858,8 @@ INTERVIEW CONTEXT:
 - Title: {mock_interview.title}
 - Description: {mock_interview.description}
 - Instructions: {mock_interview.instructions}
+- AI Focus Context:
+{ai_context_str}
 
 CANDIDATE INFO:
 {context_text}
@@ -864,6 +903,12 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                  submission.save()
                  chat_session = submission.chat_session
 
+            # Extract coding count one more time for frontend response
+            raw_ai_context_resp = mock_interview.ai_context.get(
+                experience_level.lower(), {}
+            ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+            coding_count_resp = raw_ai_context_resp.get('coding_questions_count', 1) if isinstance(raw_ai_context_resp, dict) else 1
+
             # 5. Return Response
             return Response({
                 'submission_id': submission.id,
@@ -874,8 +919,7 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                 'chat_session_id': chat_session.id if chat_session else None,
                 'ai_config': {
                     'mode': mock_interview.ai_generation_mode,
-                    'verbal_count': mock_interview.ai_verbal_question_count,
-                    'coding_count': mock_interview.ai_coding_question_count,
+                    'coding_count': coding_count_resp,
                     'voice_type': mock_interview.voice_type,
                     'voice_speed': mock_interview.voice_speed,
                     'interviewer_name': mock_interview.interviewer_name,
@@ -892,7 +936,7 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
 class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SkillTestSubmission.objects.all()
     serializer_class = SkillTestSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'marks']
     
@@ -907,7 +951,7 @@ class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
 class CertificationSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CertificationSubmission.objects.all()
     serializer_class = CertificationSubmissionSerializer
-    permission_classes = [IsOwnerOrInstructorOrAdmin]
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'marks']
     

@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     switch (user.role) {
       case "admin":
       case "instructor": // Keep for legacy or admin access
-        return <Navigate to="/instructor/dashboard" replace />;
+        return <Navigate to="/admin/dashboard" replace />;
       case "college_admin":
         return <Navigate to="/college-admin/dashboard" replace />;
       case "principal":

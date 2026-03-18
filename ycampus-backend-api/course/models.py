@@ -644,3 +644,6 @@ class SectionSubjectFaculty(BaseTimestampedModel):
             if self.faculty.department != dept and not self.faculty.linked_departments.filter(id=dept.id).exists():
                 self.faculty.linked_departments.add(dept)
 
+
+
+

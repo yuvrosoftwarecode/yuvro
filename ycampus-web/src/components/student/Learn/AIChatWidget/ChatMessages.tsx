@@ -1,17 +1,35 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Bot, User, Loader2 } from 'lucide-react';
+import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export type ChatMessage = {
   id: string;
   message_type: 'user' | 'assistant' | 'system';
   content: string;
   created_at?: string;
+  feedback?: 'positive' | 'negative';
 };
 
-const ChatMessages: React.FC<{ messages: ChatMessage[]; isLoading?: boolean; welcomeMessage?: string }> = ({ messages, isLoading, welcomeMessage }) => {
+interface ChatMessagesProps {
+  messages: ChatMessage[];
+  isLoading?: boolean;
+  welcomeMessage?: string;
+  onInsertCode?: (code: string) => void;
+  onFeedback?: (messageId: string, isPositive: boolean) => void;
+}
+
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, onFeedback }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+
+  const handleCopyCode = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeId(id);
+    setTimeout(() => setCopiedCodeId(null), 2000);
+  };
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -53,10 +71,93 @@ const ChatMessages: React.FC<{ messages: ChatMessage[]; isLoading?: boolean; wel
               {isUser ? (
                 <div className="whitespace-pre-wrap font-medium">{m.content}</div>
               ) : (
-                <div className="prose prose-sm prose-blue max-w-none dark:prose-invert leading-relaxed">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <div className="prose prose-sm prose-blue max-w-none dark:prose-invert leading-relaxed relative flex flex-col">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      code({ node, inline, className, children, ...props }: any) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const codeString = String(children).replace(/\n$/, '');
+                        const codeId = Math.random().toString(36).substring(7); // simple unique ID for copy state
+                        
+                        // Don't render custom block if it's inline code
+                        if (inline) {
+                          return (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+                        
+                        return (
+                          <div className="relative group rounded-lg overflow-hidden my-3 border border-slate-700 w-[calc(100%+1.25rem)] -ml-5 sm:ml-0 sm:w-full">
+                            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
+                              <span className="text-xs font-mono text-slate-400 capitalize">{match?.[1] || 'Code'}</span>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => handleCopyCode(codeString, codeId)}
+                                  className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1.5"
+                                  title="Copy code"
+                                >
+                                  {copiedCodeId === codeId ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                                  {copiedCodeId === codeId ? <span className="text-[10px] font-medium text-emerald-400">Copied!</span> : <span className="text-[10px] font-medium hidden sm:inline-block">Copy</span>}
+                                </button>
+                                {onInsertCode && (
+                                  <>
+                                    <div className="w-px h-4 bg-slate-600 mx-0.5"></div>
+                                    <button
+                                      onClick={() => onInsertCode(codeString)}
+                                      className="p-1.5 rounded bg-blue-600/80 hover:bg-blue-600 text-white transition-colors flex items-center gap-1.5"
+                                      title="Insert code at cursor"
+                                    >
+                                      <Terminal size={14} />
+                                      <span className="text-[10px] font-medium hidden sm:inline-block">Insert</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-[13px] leading-relaxed relative">
+                              <SyntaxHighlighter
+                                language={match?.[1] || 'text'}
+                                style={vscDarkPlus}
+                                PreTag="div"
+                                customStyle={{ margin: 0, padding: '1rem', background: '#1e1e1e' }}
+                                {...props}
+                              >
+                                {codeString}
+                              </SyntaxHighlighter>
+                            </div>
+                          </div>
+                        );
+                      }
+                    }}
+                  >
                     {m.content}
                   </ReactMarkdown>
+                  {/* Blinking cursor for the actively streaming message */}
+                  {!isUser && isLoading && m.id === messages[messages.length - 1]?.id && (
+                    <span className="inline-block w-1.5 h-4 ml-1 mt-1 bg-slate-400 animate-pulse align-middle" style={{ animationDuration: '0.8s' }}></span>
+                  )}
+                  
+                  {!isUser && !isLoading && (
+                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100/60 justify-end">
+                      <button
+                        onClick={() => onFeedback?.(m.id, true)}
+                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'positive' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                        title="Helpful"
+                      >
+                        <ThumbsUp size={14} className={m.feedback === 'positive' ? 'fill-current' : ''} />
+                      </button>
+                      <button
+                        onClick={() => onFeedback?.(m.id, false)}
+                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'negative' ? 'bg-red-50 text-red-600' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                        title="Not helpful"
+                      >
+                        <ThumbsDown size={14} className={m.feedback === 'negative' ? 'fill-current' : ''} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
