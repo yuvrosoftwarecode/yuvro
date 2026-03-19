@@ -37,6 +37,10 @@ const StudentAnnouncementsScreen: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterLevel, setFilterLevel] = useState<string>('all');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterSort, setFilterSort] = useState<string>('-created_at');
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [viewAnnouncement, setViewAnnouncement] = useState<Announcement | null>(null);
 
   const studentCollegeId = (user as any)?.college_id;
@@ -52,7 +56,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
 
   useEffect(() => {
     loadAnnouncements(1);
-  }, []);
+  }, [filterLevel, filterPriority, filterSort]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,6 +73,16 @@ const StudentAnnouncementsScreen: React.FC = () => {
         page: page,
         search: searchQuery
       };
+      
+      if (filterLevel !== 'all') {
+        params.level = filterLevel;
+      }
+      if (filterPriority !== 'all') {
+        params.priority = filterPriority;
+      }
+      if (filterSort) {
+        params.ordering = filterSort;
+      }
       
       // The backend should handle filtering based on the student's role/context,
       // but if we need to filter on frontend:
@@ -123,15 +137,107 @@ const StudentAnnouncementsScreen: React.FC = () => {
         
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search announcements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white border-gray-200 focus:border-orange-300 focus:ring-orange-200"
+                  className="pl-10 pr-10 bg-white border-gray-200 focus:border-orange-300 focus:ring-orange-200"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-3 relative">
+                <button
+                  className={`flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md border ${
+                    (filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at')
+                      ? 'bg-orange-50 border-orange-200 text-orange-600'
+                      : 'text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  {(filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at') ? 'Filtered' : 'Filter'}
+                </button>
+
+                {isFilterMenuOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-72 bg-white border border-gray-100 rounded-lg shadow-xl z-50 p-4 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Level</label>
+                      <div className="flex flex-wrap gap-2">
+                        {(['all', 'college', 'department'] as const).map((level) => (
+                          <button
+                            key={level}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            onClick={() => setFilterLevel(level)}
+                          >
+                            {level.charAt(0).toUpperCase() + level.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Priority</label>
+                      <div className="flex flex-wrap gap-2">
+                        {(['all', 'normal', 'important', 'urgent'] as const).map((priority) => (
+                          <button
+                            key={priority}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            onClick={() => setFilterPriority(priority)}
+                          >
+                            {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">View / Sort</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: '-created_at', label: 'Latest First' },
+                          { value: 'created_at', label: 'Oldest First' }
+                        ].map((sortOption) => (
+                          <button
+                            key={sortOption.value}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            onClick={() => setFilterSort(sortOption.value)}
+                          >
+                            {sortOption.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-50 flex justify-between">
+                      <button
+                        className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1"
+                        onClick={() => {
+                          setFilterLevel('all');
+                          setFilterPriority('all');
+                          setFilterSort('-created_at');
+                        }}
+                      >
+                        Reset Filters
+                      </button>
+                      <button
+                        className="text-xs bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-1.5 rounded-md"
+                        onClick={() => setIsFilterMenuOpen(false)}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

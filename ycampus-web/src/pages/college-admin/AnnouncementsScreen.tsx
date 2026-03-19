@@ -62,6 +62,7 @@ const AnnouncementsScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterSort, setFilterSort] = useState<string>('-created_at');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
@@ -95,7 +96,7 @@ const AnnouncementsScreen: React.FC = () => {
     if (collegeId) {
       loadDepartments();
     }
-  }, [filterLevel, filterPriority, collegeId]);
+  }, [filterLevel, filterPriority, filterSort, collegeId]);
 
   const loadDepartments = async () => {
     try {
@@ -129,6 +130,9 @@ const AnnouncementsScreen: React.FC = () => {
       }
       if (filterPriority !== 'all') {
         params.priority = filterPriority;
+      }
+      if (filterSort) {
+        params.ordering = filterSort;
       }
       
       const data = await announcementService.getAnnouncements(params);
@@ -311,11 +315,11 @@ const AnnouncementsScreen: React.FC = () => {
               <div className="flex items-center gap-3 relative">
                 <Button
                   variant="outline"
-                  className={`text-gray-600 border-gray-200 ${(filterLevel !== 'all' || filterPriority !== 'all') ? 'bg-orange-50 border-orange-200 text-orange-600' : ''}`}
+                  className={`text-gray-600 border-gray-200 ${(filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at') ? 'bg-orange-50 border-orange-200 text-orange-600' : ''}`}
                   onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
                 >
                   <Search className="h-4 w-4 mr-2" />
-                  {(filterLevel !== 'all' || filterPriority !== 'all') ? 'Filtered' : 'Filter'}
+                  {(filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at') ? 'Filtered' : 'Filter'}
                 </Button>
 
                 {isFilterMenuOpen && (
@@ -350,6 +354,24 @@ const AnnouncementsScreen: React.FC = () => {
                       </div>
                     </div>
 
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">View / Sort</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { value: '-created_at', label: 'Latest First' },
+                          { value: 'created_at', label: 'Oldest First' }
+                        ].map((sortOption) => (
+                          <button
+                            key={sortOption.value}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            onClick={() => setFilterSort(sortOption.value)}
+                          >
+                            {sortOption.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="pt-2 border-t border-gray-50 flex justify-between">
                       <Button
                         variant="ghost"
@@ -358,6 +380,7 @@ const AnnouncementsScreen: React.FC = () => {
                         onClick={() => {
                           setFilterLevel('all');
                           setFilterPriority('all');
+                          setFilterSort('-created_at');
                         }}
                       >
                         Reset Filters

@@ -25,6 +25,7 @@ export interface AnnouncementFilters {
   department?: string;
   level?: string;
   priority?: string;
+  ordering?: string;
   is_active?: boolean;
   search?: string;
   page?: number;
