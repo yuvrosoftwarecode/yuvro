@@ -11,7 +11,10 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
     ? welcomeMessage.replace(/^Hi!/, `Hi ${user?.first_name || 'Student'}!`)
     : `Hi ${user?.first_name || 'Student'}! I'm here to help you. Ask me anything!`;
 
-  const { messages, sendMessage, isLoading, clearMessages, history, loadSession, suggestedPrompts, provideFeedback } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
+  const { 
+    messages, sendMessage, isLoading, clearMessages, 
+    history, loadSession, suggestedPrompts, provideFeedback, handleType, activeStream 
+  } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -98,11 +101,12 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
         )}
       </div>
 
-      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={personalizedWelcome} onInsertCode={onInsertCode} onFeedback={provideFeedback} />
+      <AIChatMessages messages={messages} isLoading={isLoading} activeStream={activeStream} welcomeMessage={personalizedWelcome} onInsertCode={onInsertCode} onFeedback={provideFeedback} />
 
       <div className="p-4 border-t border-slate-50 bg-white shrink-0">
         <AIChatInput 
           onSend={sendMessage} 
+          onType={handleType}
           disabled={isLoading} 
           suggestedPrompts={suggestedPrompts} 
         />

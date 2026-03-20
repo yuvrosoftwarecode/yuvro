@@ -22,8 +22,8 @@ def _apply_page_content_grounding(
         user_name = kwargs.pop("user_name", "Student")
 
     if page_content and page_content != "mock_interview":
-        # Truncate to a reasonable size to avoid token blowup
-        snippet = page_content if len(page_content) <= 4000 else page_content[:4000]
+        # Truncate aggressively to 2000 chars to minimize prompt size and latency
+        snippet = page_content if len(page_content) <= 2000 else page_content[:2000]
         
         greeting_instruction = f"Address the student as '{user_name}'." if user_name != "Student" else "Address the user as 'Student'."
 
@@ -187,6 +187,21 @@ class AnthropicService(BaseAIService):
                     anthropic_messages.append(
                         {"role": msg["role"], "content": msg["content"]}
                     )
+
+            if stream:
+                response = self.client.messages.create(
+                    model=self.model_name,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    system=system_message,
+                    messages=anthropic_messages,
+                    stream=True,
+                    **kwargs,
+                )
+                return {
+                    "stream": response,
+                    "metadata": {"model": self.model_name},
+                }
 
             response = self.client.messages.create(
                 model=self.model_name,

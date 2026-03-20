@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 // Use crypto.randomUUID() instead of uuid package
@@ -37,6 +37,9 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   const [activeKey, setActiveKey] = useState<string | null>(config?.persistenceKey || null);
   const [history, setHistory] = useState<{ key: string; title: string; date: string }[]>([]);
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+  const [prefetchData, setPrefetchData] = useState<{ prompt: string; response: string; sessionId: string } | null>(null);
+  const [activeStream, setActiveStream] = useState<{ id: string; content: string } | null>(null);
+  const lastUpdateTime = useRef<number>(0);
 
   const persistenceKey = config?.persistenceKey;
   const getContext = config?.getContext;
@@ -128,6 +131,18 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       }
     };
     loadAgents();
+
+    // Warmup Logic: Keep AI models ready
+    const triggerWarmup = async () => {
+        try {
+            await restApiAuthUtil.post('/agents/warmup/', {});
+        } catch (e) {
+            console.debug('Warmup silent fail', e);
+        }
+    };
+    triggerWarmup();
+    const warmupInterval = setInterval(triggerWarmup, 1000 * 60 * 5); // Every 5 mins
+    return () => clearInterval(warmupInterval);
   }, []);
 
   // Helper: capture a trimmed page excerpt to ground the chat
@@ -261,23 +276,46 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   }, [sessionId, selectedAgent, agents]);
 
   const sendMessage = useCallback(async (content: string) => {
+    // 0ms Perception: Immediate UI feedback
     const id = `local-${uuidv4()}`;
+    const assistantMsgId = `srv-${uuidv4()}`;
     const userMsg: ChatMessage = { id, message_type: 'user', content, created_at: new Date().toISOString() };
-    setMessages((m) => [...m, userMsg]);
+    
+    // UX Illusion: Immediate Starter Response
+    const starterResponse = "Let me look into this for you. Analyzing context...";
+    const placeholderMsg: ChatMessage = { 
+        id: assistantMsgId, 
+        message_type: 'assistant', 
+        content: starterResponse, 
+        created_at: new Date().toISOString() 
+    };
 
+    setMessages((m) => [...m, userMsg, placeholderMsg]);
+    setActiveStream({ id: assistantMsgId, content: starterResponse });
     setIsLoading(true);
+
     try {
+      // Check if we have prefetched data for this exact prompt
+      if (prefetchData && prefetchData.prompt === content) {
+        setSessionId(prefetchData.sessionId);
+        setMessages((m) => 
+            m.map((msg) => 
+                msg.id === assistantMsgId ? { ...msg, content: prefetchData.response } : msg
+            )
+        );
+        setIsLoading(false);
+        setPrefetchData(null);
+        return;
+      }
+
       const sid = await ensureSession();
 
       // If we have a real session id (not client-local), use session send_message action
       if (sid && !sid.startsWith('local-')) {
         try {
           const page_content = getPageContentSnippet();
-          const payload = { message: content, temperature: 0.7, max_tokens: 4096, page_content };
+          const payload = { message: content, temperature: 0.7, max_tokens: 4096, page_content, stream: true };
           
-          // Create a placeholder message for the assistant
-          const assistantMsgId = `srv-${uuidv4()}`;
-          // VITE_BACKEND_API_BASE_URL already includes '/api', so we construct the URL accordingly
           const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
           
           // Use fetch directly for streaming support
@@ -290,66 +328,61 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
             body: JSON.stringify(payload)
           });
           
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          if (!response.body) {
-            throw new Error('ReadableStream not yet supported in this browser.');
-          }
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.body) throw new Error('ReadableStream not supported.');
           
           const reader = response.body.getReader();
           const decoder = new TextDecoder('utf-8');
           let buffer = '';
+          let fullResponse = '';
+          let hasReceivedFirstToken = false;
           
-          while (!done) {
+          while (true) {
             const { value, done: readerDone } = await reader.read();
-            done = readerDone;
+            if (readerDone) break;
             
-            if (value) {
-              const chunk = decoder.decode(value, { stream: true });
-              buffer += chunk;
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            
+            let newlineIndex;
+            while ((newlineIndex = buffer.indexOf('\n\n')) >= 0) {
+              const rawMessage = buffer.slice(0, newlineIndex).trim();
+              buffer = buffer.slice(newlineIndex + 2);
               
-              // Process complete messages in the buffer
-              // SSE messages are separated by double newlines \n\n
-              let newlineIndex;
-              while ((newlineIndex = buffer.indexOf('\n\n')) >= 0) {
-                const message = buffer.slice(0, newlineIndex).trim();
-                buffer = buffer.slice(newlineIndex + 2); // Remove the processed chunk from buffer
-                
-                if (message.startsWith('data: ')) {
-                  try {
-                    const dataStr = message.substring(6).trim();
-                    if (dataStr === '[DONE]') continue; // Standard SSE finish signal, though we use our own {"done": true}
-                    
-                    const data = JSON.parse(dataStr);
-                    
-                    if (data.chunk) {
-                      fullResponse += data.chunk;
-                      // Update the message in state incrementally
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, content: fullResponse } : msg
-                        )
-                      );
-                    } else if (data.error) {
-                      console.error("Stream error:", data.error);
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, content: fullResponse + `\n\n[Error: ${data.error}]` } : msg
-                        )
-                      );
-                    } else if (data.done) {
-                      // Final message metadata received
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, id: data.message_id || msg.id } : msg
-                        )
-                      );
+              if (rawMessage.startsWith('data: ')) {
+                try {
+                  const dataStr = rawMessage.substring(6).trim();
+                  if (dataStr === '[DONE]') continue;
+                  
+                  const data = JSON.parse(dataStr);
+                  
+                  if (data.chunk) {
+                    // Remove starter response once real tokens arrive
+                    if (!hasReceivedFirstToken) {
+                        fullResponse = data.chunk;
+                        hasReceivedFirstToken = true;
+                    } else {
+                        fullResponse += data.chunk;
                     }
-                  } catch (e) {
-                    console.error("JSON parse error on SSE chunk:", e, message);
+
+                    // Granular update with throttling to prevent UI lockup
+                    const now = Date.now();
+                    if (!lastUpdateTime.current || now - lastUpdateTime.current > 50) {
+                        setActiveStream({ id: assistantMsgId, content: fullResponse });
+                        lastUpdateTime.current = now;
+                    }
+                  } else if (data.done) {
+                    // Update final ID and metadata
+                    setMessages((m) => 
+                      m.map((msg) => 
+                        msg.id === assistantMsgId ? { ...msg, id: data.message_id || msg.id, content: fullResponse } : msg
+                      )
+                    );
+                    setActiveStream(null);
+                    lastUpdateTime.current = 0;
                   }
+                } catch (e) {
+                  console.error("Parse error:", e);
                 }
               }
             }
@@ -401,7 +434,36 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     } finally {
       setIsLoading(false);
     }
+  }, [ensureSession, prefetchData]);
+  
+  const startPrefetch = useCallback(async (content: string) => {
+    if (!content || content.length < 10) return; // Only prefetch for meaningful prompts
+    
+    try {
+      const sid = await ensureSession();
+      if (sid && !sid.startsWith('local-')) {
+        const page_content = getPageContentSnippet();
+        const payload = { message: content, temperature: 0.7, max_tokens: 1024, page_content, stream: false };
+        const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
+        
+        // Background call - don't wait for response to block UI
+        const resp = await restApiAuthUtil.post<ChatResponse>(`/sessions/${sid}/send_message/`, payload);
+        if (resp && resp.response) {
+            setPrefetchData({ prompt: content, response: resp.response, sessionId: sid });
+        }
+      }
+    } catch (e) {
+      console.warn("Prefetch failed", e);
+    }
   }, [ensureSession]);
+
+  const handleType = useCallback((content: string) => {
+    // Debounce prefetch
+    const timer = setTimeout(() => {
+        startPrefetch(content);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [startPrefetch]);
 
   const clearMessages = useCallback(() => setMessages([]), []);
 
@@ -433,6 +495,8 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     loadSession,
     suggestedPrompts,
     provideFeedback,
+    handleType,
+    activeStream,
   } as const;
 };
 

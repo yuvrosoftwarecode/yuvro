@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -19,9 +19,10 @@ interface ChatMessagesProps {
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
   onFeedback?: (messageId: string, isPositive: boolean) => void;
+  activeStream?: { id: string; content: string } | null;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, onFeedback }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, activeStream, welcomeMessage, onInsertCode, onFeedback }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
@@ -58,6 +59,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
 
       {messages.map((m) => {
         const isUser = m.message_type === 'user';
+        const displayContent = (activeStream && activeStream.id === m.id) ? activeStream.content : m.content;
+        
         return (
           <div key={m.id} className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${isUser ? 'bg-blue-600' : 'bg-white border border-gray-100'}`}>
@@ -72,7 +75,18 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                 <div className="whitespace-pre-wrap font-medium">{m.content}</div>
               ) : (
                 <div className="prose prose-sm prose-blue max-w-none dark:prose-invert leading-relaxed relative flex flex-col">
-                  <ReactMarkdown
+                  {/* UX Illusion: Structured Response Skeleton for starter text */}
+                  {m.content === "Let me look into this for you. Analyzing context..." ? (
+                    <div className="flex flex-col gap-2 py-1 animate-pulse">
+                      <div className="text-slate-400 italic flex items-center gap-2">
+                        <Sparkles size={14} className="text-emerald-500" />
+                        <span>Buddy is thinking...</span>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full w-3/4"></div>
+                      <div className="h-2 bg-slate-50 rounded-full w-1/2"></div>
+                    </div>
+                  ) : (
+                    <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
                       code({ node, inline, className, children, ...props }: any) {
@@ -89,6 +103,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                           );
                         }
                         
+                        // If it's a streaming message, use a simplified code block to avoid lag
+                        const isStreaming = activeStream && activeStream.id === m.id;
+                        
+                        if (isStreaming) {
+                          return (
+                            <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg overflow-x-auto my-3 font-mono text-xs">
+                              <code>{codeString}</code>
+                            </pre>
+                          );
+                        }
+
                         return (
                           <div className="relative group rounded-lg overflow-hidden my-3 border border-slate-700 w-[calc(100%+1.25rem)] -ml-5 sm:ml-0 sm:w-full">
                             <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
@@ -133,11 +158,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                       }
                     }}
                   >
-                    {m.content}
+                    {displayContent}
                   </ReactMarkdown>
-                  {/* Blinking cursor for the actively streaming message */}
-                  {!isUser && isLoading && m.id === messages[messages.length - 1]?.id && (
-                    <span className="inline-block w-1.5 h-4 ml-1 mt-1 bg-slate-400 animate-pulse align-middle" style={{ animationDuration: '0.8s' }}></span>
+                )}
+                {/* Blinking cursor for the actively streaming message */}
+                  {!isUser && isLoading && m.id === messages[messages.length - 1]?.id && m.content !== "Let me look into this for you. Analyzing context..." && (
+                    <span className="inline-block w-2 h-4 ml-1 bg-emerald-500 animate-bounce align-middle" style={{ animationDuration: '0.6s' }}></span>
                   )}
                   
                   {!isUser && !isLoading && (
@@ -165,7 +191,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
         );
       })}
 
-      {isLoading && (
+      {/* Only show "Thinking..." if we don't have a placeholder message already */}
+      {isLoading && messages[messages.length - 1]?.message_type !== 'assistant' && (
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm">
             <Bot size={16} className="text-emerald-500 animate-pulse" />

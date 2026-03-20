@@ -4,6 +4,7 @@ import SuggestedPrompts from './SuggestedPrompts';
 
 interface AIChatInputProps {
   onSend: (text: string) => Promise<void>;
+  onType?: (text: string) => void;
   disabled?: boolean;
   suggestedPrompts?: string[];
   onSelectSuggestedPrompt?: (prompt: string) => void;
@@ -11,6 +12,7 @@ interface AIChatInputProps {
 
 const AIChatInput: React.FC<AIChatInputProps> = ({ 
   onSend, 
+  onType,
   disabled, 
   suggestedPrompts = [], 
   onSelectSuggestedPrompt 
@@ -52,7 +54,11 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         className="w-full pl-12 pr-14 py-4 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-200 transition-all placeholder:text-slate-400 placeholder:font-bold"
         placeholder="Ask Buddy..."
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          const val = e.target.value;
+          setText(val);
+          if (onType) onType(val);
+        }}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } }}
         disabled={disabled}
       />

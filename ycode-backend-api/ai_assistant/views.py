@@ -298,6 +298,10 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             asyncio.set_event_loop(loop)
             
             try:
+                # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
+                # Some proxies need 1KB or more before they start streaming
+                yield " " * 1024 + "\n"
+                
                 response_data = loop.run_until_complete(
                     ai_service.generate_response(
                         messages=messages,
@@ -313,21 +317,31 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 if "stream" in response_data:
                     stream = response_data["stream"]
                     for chunk in stream:
-                        print(f"DEBUG CHUNK: {chunk}", flush=True)
-                        try:
-                            if chunk.text:
-                                full_response_text += chunk.text
-                                # SSE format: data: {json_string}\n\n
-                                data = json.dumps({"chunk": chunk.text})
-                                logger.debug(f"Streaming chunk size: {len(chunk.text)}")
-                                yield f"data: {data}\n\n"
-                        except ValueError as ve:
-                            # Gemini raises ValueError if the chunk was blocked or has no text
-                            print(f"DEBUG VALUE ERROR: {ve}", flush=True)
-                            pass
+                        text = None
+                        # Gemini
+                        if hasattr(chunk, 'text'):
+                            try:
+                                text = chunk.text
+                            except ValueError: # Blocked or safety
+                                pass
+                        # Anthropic
+                        elif hasattr(chunk, 'type'):
+                            if chunk.type == 'content_block_delta':
+                                text = chunk.delta.text
+                        
+                        if text:
+                            full_response_text += text
+                            data = json.dumps({"chunk": text})
+                            yield f"data: {data}\n\n"
+                            # Artificial delay to ensure network/proxy doesn't batch chunks
+                            time.sleep(0.01)
                     
-                    # Update usage if available from stream
-                    if hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                    # Final usage update after loop
+                    if hasattr(stream, "get_final_metadata"):
+                        meta = stream.get_final_metadata()
+                        if hasattr(meta, 'usage'):
+                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
+                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
                         tokens_used = stream.usage_metadata.total_token_count
                 else:
                     # Fallback if streaming is not supported by the provider
@@ -378,6 +392,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         )
         response["Cache-Control"] = "no-cache"
         response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+        response["X-Content-Type-Options"] = "nosniff"
         return response
 
     def _prepare_messages(self, chat_session, user_config=None):
@@ -458,8 +473,11 @@ INTERVIEW CONTEXT:
         elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
-        # Add conversation history
-        chat_messages = chat_session.messages.order_by("created_at")
+        # Add conversation history - LIMIT TO LAST 5 MESSAGES for speed
+        chat_messages = chat_session.messages.order_by("-created_at")[:5]
+        # Re-order back to chronological for the AI
+        chat_messages = sorted(chat_messages, key=lambda x: x.created_at)
+        
         for msg in chat_messages:
             role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
             messages.append({"role": role, "content": msg.content})
@@ -565,6 +583,30 @@ class AIAgentUsageViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
+class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for AIAgent model - read-only.
+    """
+
+    serializer_class = AIAgentSerializer
+    permission_classes = [IsAuthenticatedUser]
+    queryset = AIAgent.objects.filter(is_active=True)
+
+    @action(detail=False, methods=["post"])
+    def warmup(self, request):
+        """Trigger background warmup for AI models to prevent cold starts."""
+        try:
+            # Just initialize the services which might trigger connection pool warmth
+            providers = AIAgent.objects.filter(is_active=True).values_list('provider', 'model_name')
+            for provider, model in providers:
+                # We don't need to await here, just creating the service and maybe a small dummy call
+                AIServiceFactory.create_service(provider, model)
+            
+            return Response({"status": "warmup initiated"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class AIAgentConfigurationViewSet(viewsets.ModelViewSet):
     """
     ViewSet for AIAgentConfiguration model.
@@ -607,7 +649,22 @@ class ChatViewSet(viewsets.ViewSet):
             page_content = validated_data.get("page_content")
 
             try:
-                ai_agent = get_object_or_404(AIAgent, id=ai_agent_id, is_active=True)
+                # SMART ROUTING: Select agent based on context if not explicitly provided
+                if not ai_agent_id:
+                    is_complex = len(message_content) > 300 or any(kw in message_content.lower() for kw in ["explain", "deep dive", "why", "how does"])
+                    if is_complex or page == "mock_interview":
+                        ai_agent = AIAgent.objects.filter(provider="anthropic", is_active=True).first()
+                    
+                    if not ai_agent:
+                        ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
+                    
+                    if not ai_agent:
+                        ai_agent = AIAgent.objects.first()
+                        
+                    if not ai_agent:
+                        return Response({"error": "No active AI agent available"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                else:
+                    ai_agent = get_object_or_404(AIAgent, id=ai_agent_id, is_active=True)
 
                 # Get user configuration if exists
                 user_config = AIAgentConfiguration.objects.filter(
