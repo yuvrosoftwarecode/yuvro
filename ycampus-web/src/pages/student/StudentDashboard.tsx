@@ -27,6 +27,7 @@ import {
   Calendar,
   Award,
   Flame,
+  Zap,
   Star,
   ListTodo,
 } from 'lucide-react';
@@ -209,7 +210,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }: { da
         <div className="flex items-center justify-between">
           <span className="text-sm" style={{ color: '#64748B' }}>Chapters Completed</span>
           <span className={`${badgeBase} w-12 justify-center border-transparent bg-slate-100 text-[#0F172A]`}>
-            {data.chaptersCompleted}%
+            {data.chaptersCompleted}
           </span>
         </div>
 
@@ -218,8 +219,8 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }: { da
           <span
             className={`${badgeBase} w-12 justify-center`}
             style={{
-              backgroundColor: '#22C55E20',
-              color: '#22C55E',
+              backgroundColor: '#16A24933',
+              color: '#16A249',
               borderColor: 'transparent',
             }}
           >
@@ -235,7 +236,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }: { da
         </div>
         <div className="grid grid-cols-2 gap-3 pb-3">
           <div className="text-center">
-            <div className="text-lg font-bold" style={{ color: '#F59E0B' }}>
+            <div className="text-lg font-bold" style={{ color: '#E7B008' }}>
               82%
             </div>
             <div className="text-xs" style={{ color: '#64748B' }}>Your Average</div>
@@ -271,7 +272,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
         <div className="space-y-1">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium text-[#0F172A]">Overall Progress</span>
-            <span className="font-bold" style={{ color: '#22C55E' }}>{data.overall}%</span>
+            <span className="font-bold" style={{ color: '#16A249' }}>{data.overall}%</span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-100">
             <div
@@ -283,7 +284,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
-            <CheckCircle2 className="h-6 w-6" style={{ color: '#22C55E' }} />
+            <CheckCircle2 className="h-6 w-6" style={{ color: '#16A249' }} />
             <div>
               <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.completed}</div>
               <div className="text-xs text-[#64748B]">Completed</div>
@@ -291,7 +292,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
           </div>
 
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
-            <Clock className="h-6 w-6" style={{ color: '#F59E0B' }} />
+            <Clock className="h-6 w-6" style={{ color: '#E7B008' }} />
             <div>
               <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.inProgress}</div>
               <div className="text-xs text-[#64748B]">In Progress</div>
@@ -330,11 +331,11 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }: { da
   >
     <CardHeader className="space-y-0 pb-3">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <FileCheck className="h-5 w-5" style={{ color: '#FF9933' }} />
+        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+          <FileCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
           Assessments Overview
         </h3>
-        <span className={`${badgeBase} border-border bg-background`}>
+        <span className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}>
           {data.completed}/{data.total}
         </span>
       </div>
@@ -342,68 +343,63 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }: { da
 
     <CardContent className="space-y-3">
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
-          <div className="text-xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-sm font-bold" style={{ color: '#16A249' }}>
             {data.completed}
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">Completed</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Completed</div>
         </div>
-        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
-          <div className="text-xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
             {data.inProgress}
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">In Progress</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>In Progress</div>
         </div>
-        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
-          <div className="text-xl font-bold text-destructive">{data.pending}</div>
-          <div className="mt-1 text-xs text-muted-foreground">Pending</div>
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-xl font-bold" style={{ color: '#ef4444' }}>{data.pending}</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Pending</div>
         </div>
       </div>
 
-      <div className="space-y-3 border-t pt-2">
+      <div className="space-y-3 border-t border-gray-100 pt-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Average Score</span>
-          <span className="text-lg font-bold" style={{ color: 'hsl(var(--success))' }}>
+          <span className="text-sm" style={{ color: '#64748B' }}>Average Score</span>
+          <span className="text-lg font-bold" style={{ color: '#16A249' }}>
             {data.avgScore}%
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Highest Score</span>
+          <span className="text-sm" style={{ color: '#64748B' }}>Highest Score</span>
           <div className="flex items-center gap-1">
-            <TrendingUp className="h-4 w-4" style={{ color: '#22c55e' }} />
-            <span className="font-semibold" style={{ color: 'hsl(var(--success))' }}>
+            <TrendingUp className="h-5 w-5" style={{ color: '#16A249' }} />
+            <span className="font-semibold" style={{ color: '#16A249' }}>
               {data.highestScore}%
             </span>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Lowest Score</span>
+          <span className="text-sm" style={{ color: '#64748B' }}>Lowest Score</span>
           <div className="flex items-center gap-1">
-            <TrendingDown className="h-4 w-4" style={{ color: '#FF9933' }} />
-            <span className="font-semibold" style={{ color: 'hsl(var(--saffron))' }}>
+            <TrendingDown className="h-5 w-5" style={{ color: '#E7B008' }} />
+            <span className="font-semibold" style={{ color: '#E7B008' }}>
               {data.lowestScore}%
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t pt-2">
-          <span className="text-sm text-muted-foreground">Recent Status</span>
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+          <span className="text-sm" style={{ color: '#64748B' }}>Recent Status</span>
           <span
-            className={badgeBase}
-            style={{
-              backgroundColor: 'hsl(var(--success) / 0.15)',
-              color: 'hsl(var(--success))',
-              borderColor: 'hsl(var(--success) / 0.3)',
-            }}
+            className={`${badgeBase} border-transparent bg-[#22C55E20] text-[#22C55E]`}
           >
             Completed - {data.recentStatus}%
           </span>
         </div>
       </div>
 
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs" style={{ color: '#64748B' }}>
         Click to view all assessments
       </div>
     </CardContent>
@@ -412,87 +408,77 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }: { da
 
 const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }: { data: ContestsData }) => (
   <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-    <CardHeader className="space-y-0 pb-2">
+    <CardHeader className="space-y-0 pb-3">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <Trophy className="h-5 w-5" style={{ color: '#FF9933' }} />
+        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+          <Trophy className="h-6 w-6" style={{ color: '#E7B008' }} />
           Contest Performance
         </h3>
-        <Medal className="h-5 w-5" style={{ color: '#FF9933' }} />
+        <Medal className="h-6 w-6" style={{ color: '#E7B008' }} />
       </div>
     </CardHeader>
 
     <CardContent className="space-y-3">
-      <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
-          <div className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: '#16A249' }}>
             {data.completed}
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">Completed</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Completed</div>
         </div>
-        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
-          <div className="text-2xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: '#E7B008' }}>
             #{data.bestRank}
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">Best Rank</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Best Rank</div>
         </div>
       </div>
 
-      <div className="space-y-2 border-t pt-2">
+      <div className="space-y-3 border-t border-gray-100 pt-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Average Score</span>
+          <span className="text-sm" style={{ color: '#64748B' }}>Average Score</span>
           <span
-            className={badgeBase}
-            style={{
-              backgroundColor: 'hsl(var(--saffron) / 0.15)',
-              color: 'hsl(var(--saffron))',
-              borderColor: 'hsl(var(--saffron) / 0.3)',
-            }}
+            className={`${badgeBase} border-transparent bg-[#F59E0B20] text-[#F59E0B]`}
           >
             {data.avgScore}%
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Success Rate</span>
+          <span className="text-sm" style={{ color: '#64748B' }}>Success Rate</span>
           <span
-            className={badgeBase}
-            style={{
-              backgroundColor: 'hsl(var(--success) / 0.15)',
-              color: 'hsl(var(--success))',
-              borderColor: 'hsl(var(--success) / 0.3)',
-            }}
+            className={`${badgeBase} border-transparent bg-[#22C55E20] text-[#22C55E]`}
           >
             {data.successRate}%
           </span>
         </div>
       </div>
 
-      <div className="border-t pt-2">
+      <div className="border-t border-gray-100 pt-3">
         <div className="mb-3 flex items-center gap-2">
-          <Flame className="h-4 w-4" style={{ color: '#FF9933' }} />
-          <span className="text-sm font-medium">Last Contest Performance</span>
+          <Zap className="h-5 w-5" style={{ color: '#F59E0B' }} />
+          <span className="text-sm font-semibold text-[#0F172A]">Last Contest Performance</span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 text-sm">
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="font-bold text-foreground">#{data.lastContest.rank}</div>
-            <div className="text-xs text-muted-foreground">Rank</div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+            <div className="text-base font-bold text-[#0F172A]">#{data.lastContest.rank}</div>
+            <div className="text-xs text-muted-foreground text-[#64748B]">Rank</div>
           </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="font-bold" style={{ color: 'hsl(var(--success))' }}>
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+            <div className="text-base font-bold" style={{ color: '#16A249' }}>
               {data.lastContest.accuracy}%
             </div>
-            <div className="text-xs text-muted-foreground">Accuracy</div>
+            <div className="text-xs text-muted-foreground text-[#64748B]">Accuracy</div>
           </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="font-bold text-foreground">{data.lastContest.time}</div>
-            <div className="text-xs text-muted-foreground">Time</div>
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+            <div className="text-base font-bold text-[#0F172A]">{data.lastContest.time}</div>
+            <div className="text-xs text-muted-foreground text-[#64748B]">Time</div>
           </div>
         </div>
       </div>
 
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs" style={{ color: '#64748B' }}>
         Keep participating to improve your ranking!
       </div>
     </CardContent>
