@@ -1,0 +1,220 @@
+{
+  "courses": [
+    {
+      "short_code": "PY101",
+      "name": "Python Programming",
+      "category": "programming",
+      "instructor_email": "instructor_ds@yuvro.com",
+      "topics": [
+        {
+          "name": "Python Basics",
+          "order_index": 0,
+          "subtopics": [
+            {
+              "name": "Variables and Data Types",
+              "content": "Understanding Python variables, primitive types, and type conversion",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Python Variables and Data Types",
+                  "video_link": "https://www.youtube.com/watch?v=Z1Yd7upQsXY",
+                  "ai_context": "Python variable declaration and basic data types"
+                },
+                {
+                  "title": "Type Conversion in Python",
+                  "video_link": "https://www.youtube.com/watch?v=p81yhT9N6nc",
+                  "ai_context": "Implicit and explicit type conversion in Python"
+                }
+              ]
+            },
+            {
+              "name": "Control Flow",
+              "content": "if/else, loops, and comprehensions in Python",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Python If Else and Loops",
+                  "video_link": "https://www.youtube.com/watch?v=PqFKRqpHrjw",
+                  "ai_context": "Conditional statements and loop constructs in Python"
+                },
+                {
+                  "title": "List Comprehensions",
+                  "video_link": "https://www.youtube.com/watch?v=3dt4OGnU5sM",
+                  "ai_context": "Python list comprehensions and generator expressions"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Functions and Modules",
+          "order_index": 1,
+          "subtopics": [
+            {
+              "name": "Defining Functions",
+              "content": "Function syntax, arguments, return values, and scope",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Python Functions Tutorial",
+                  "video_link": "https://www.youtube.com/watch?v=9Os0o3wzS_I",
+                  "ai_context": "Defining and calling functions in Python"
+                }
+              ]
+            },
+            {
+              "name": "Lambda and Higher-Order Functions",
+              "content": "Lambda expressions, map, filter, and reduce",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Lambda Functions in Python",
+                  "video_link": "https://www.youtube.com/watch?v=25ovCm9jKfA",
+                  "ai_context": "Anonymous functions and functional programming in Python"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Object-Oriented Python",
+          "order_index": 2,
+          "subtopics": [
+            {
+              "name": "Classes and Objects",
+              "content": "Defining classes, constructors, instance and class variables",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Python OOP - Classes and Objects",
+                  "video_link": "https://www.youtube.com/watch?v=JeznW_7DlB0",
+                  "ai_context": "Object-oriented programming fundamentals in Python"
+                }
+              ]
+            },
+            {
+              "name": "Inheritance and Polymorphism",
+              "content": "Single and multiple inheritance, method overriding, super()",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Python Inheritance Explained",
+                  "video_link": "https://www.youtube.com/watch?v=RSl87lqOXDE",
+                  "ai_context": "Inheritance, polymorphism, and method resolution order"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "type": "mcq_single",
+          "title": "Python Variable Naming",
+          "content": "Which of the following is a valid Python variable name?",
+          "level": "subtopic",
+          "topic_name": "Python Basics",
+          "subtopic_name": "Variables and Data Types",
+          "difficulty": "easy",
+          "marks": 2,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "my_var", "is_correct": true},
+            {"text": "2var", "is_correct": false},
+            {"text": "my-var", "is_correct": false},
+            {"text": "class", "is_correct": false}
+          ]
+        },
+        {
+          "type": "mcq_multiple",
+          "title": "Python Mutable Types",
+          "content": "Which of the following Python types are mutable?",
+          "level": "subtopic",
+          "topic_name": "Python Basics",
+          "subtopic_name": "Variables and Data Types",
+          "difficulty": "medium",
+          "marks": 3,
+          "categories": ["learn", "practice", "skill_test"],
+          "mcq_options": [
+            {"text": "list", "is_correct": true},
+            {"text": "dict", "is_correct": true},
+            {"text": "tuple", "is_correct": false},
+            {"text": "str", "is_correct": false}
+          ]
+        },
+        {
+          "type": "coding",
+          "title": "FizzBuzz",
+          "content": "Print numbers from 1 to n. For multiples of 3 print 'Fizz', for multiples of 5 print 'Buzz', for multiples of both print 'FizzBuzz'.",
+          "level": "subtopic",
+          "topic_name": "Python Basics",
+          "subtopic_name": "Control Flow",
+          "difficulty": "easy",
+          "marks": 5,
+          "categories": ["practice", "contest"],
+          "test_cases_basic": [
+            {"input": "5", "expected_output": "1\n2\nFizz\n4\nBuzz"},
+            {"input": "15", "expected_output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"}
+          ],
+          "test_cases_advanced": [
+            {"input": "1", "expected_output": "1"},
+            {"input": "3", "expected_output": "1\n2\nFizz"}
+          ]
+        },
+        {
+          "type": "coding",
+          "title": "Factorial Using Recursion",
+          "content": "Write a recursive Python function to compute the factorial of a non-negative integer n.",
+          "level": "subtopic",
+          "topic_name": "Functions and Modules",
+          "subtopic_name": "Defining Functions",
+          "difficulty": "easy",
+          "marks": 5,
+          "categories": ["learn", "practice"],
+          "test_cases_basic": [
+            {"input": "5", "expected_output": "120"},
+            {"input": "0", "expected_output": "1"}
+          ],
+          "test_cases_advanced": [
+            {"input": "1", "expected_output": "1"},
+            {"input": "10", "expected_output": "3628800"}
+          ]
+        },
+        {
+          "type": "mcq_single",
+          "title": "Python super() Usage",
+          "content": "What does super().__init__() do in a Python subclass?",
+          "level": "subtopic",
+          "topic_name": "Object-Oriented Python",
+          "subtopic_name": "Inheritance and Polymorphism",
+          "difficulty": "medium",
+          "marks": 3,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "Calls the parent class constructor", "is_correct": true},
+            {"text": "Creates a new instance of the parent class", "is_correct": false},
+            {"text": "Deletes the parent class", "is_correct": false},
+            {"text": "Overrides the parent class", "is_correct": false}
+          ]
+        }
+      ],
+      "assessments": {
+        "skill_tests": [
+          {
+            "title": "Python Fundamentals Skill Test",
+            "description": "Test your Python basics knowledge",
+            "instructions": "Answer all questions within the time limit.",
+            "difficulty": "easy",
+            "duration": 30,
+            "total_marks": 50,
+            "passing_marks": 30,
+            "course_short_code": "PY101",
+            "questions_random_config": {"mcq_single": 3, "mcq_multiple": 1, "coding": 1},
+            "publish_status": "published"
+          }
+        ],
+        "contests": []
+      }
+    }
+  ]
+}

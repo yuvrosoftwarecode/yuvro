@@ -122,7 +122,7 @@
                     "title": "DFS - Recursive Flood Fill",
                     "language": "python",
                     "code": "import sys, json\ninput_data = sys.stdin.read().strip()\ngrid = json.loads(input_data)\n\ndef numIslands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':\n            return\n        grid[r][c] = '0'\n        dfs(r+1, c)\n        dfs(r-1, c)\n        dfs(r, c+1)\n        dfs(r, c-1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count\n\nprint(numIslands(grid))",
-                    "complexity_analysis": "Time: O(M*N) — visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
+                    "complexity_analysis": "Time: O(M*N) \u2014 visits every cell once. Space: O(M*N) worst-case recursion stack for a grid full of land.",
                     "is_primary": true,
                     "approach": "optimal"
                 },
@@ -144,9 +144,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "How will you represent the graph? An adjacency list is usually an efficient choice.",
-                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+                "Imagine the grid as a graph where '1's are nodes and adjacent '1's have edges.",
+                "Use DFS or BFS to 'flood' an entire island once you find a '1', marking all its cells as visited (e.g., by flipping them to '0').",
+                "The number of times you need to start a new traversal from an unvisited '1' is the total number of islands."
             ]
         },
         {
@@ -272,8 +272,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+                "This is a standard traversal problem. Starting from (sr, sc), explore all 4-directional neighbors with the same original color.",
+                "Update each connected pixel to the new color. You can use either recursion (DFS) or a queue (BFS).",
+                "Edge case: If the new color is the same as the original color, return early to avoid an infinite recursion or loop."
             ]
         },
         {
@@ -345,9 +346,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "How will you represent the graph? An adjacency list is usually an efficient choice.",
-                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+                "This is a connectivity problem in an undirected graph. BFS, DFS, or Disjoint Set Union (DSU) are all valid approaches.",
+                "For a traversal approach, start from the source and use a visited set to keep track of reachable nodes. Check if the destination is reached.",
+                "DSU is particularly efficient here: 'union' nodes connected by edges and finally check if 'find(source) == find(destination)'."
             ]
         },
         {
@@ -418,8 +419,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+                "The problem boils down to detecting a cycle in a directed graph. If there's a cycle, you can't finish all courses.",
+                "Use Kahn's Algorithm (BFS) by tracking the in-degree of each node. Courses with zero in-degree can be taken immediately.",
+                "Alternatively, use DFS with a recursion stack to detect back-edges, which indicate a cycle."
             ]
         },
         {
@@ -490,8 +492,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+                "Finding the shortest path in an unweighted graph (word transformations) makes BFS the ideal candidate.",
+                "To find neighbors of a word, try changing each character 'a'-'z' and check if the new word exists in the dictionary.",
+                "For optimization, you can pre-process the dictionary into a map of patterns (e.g., 'h*t' -> ['hot', 'hit']) to find neighbors in O(L) time."
             ]
         },
         {
@@ -562,9 +565,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "How will you represent the graph? An adjacency list is usually an efficient choice.",
-                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+                "Instead of checking where water from each cell flows (which is O(M*N) per cell), think backwards: where can water from the oceans reach?",
+                "Start one DFS/BFS from all 'Pacific' boundary cells and another from all 'Atlantic' boundary cells, moving ONLY to cells with equal or greater height.",
+                "The cells that are marked as reachable in both traversals are the ones that can flow to both oceans."
             ]
         },
         {
@@ -609,11 +612,11 @@
                 },
                 {
                     "input": "[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\",\"t\"]",
-                    "expected_output": "wertft"
+                    "expected_output": "wertf"
                 },
                 {
                     "input": "[\"ab\",\"ac\",\"ad\",\"ae\"]",
-                    "expected_output": "bcde"
+                    "expected_output": "abcde"
                 }
             ],
             "solutions": [
@@ -627,9 +630,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "Would sorting the input array first simplify the problem?",
-                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+                "Compare adjacent words in the sorted dictionary to find the first differing characters. This defines a directed edge (e.g., 'abc' before 'abd' means 'c' -> 'd').",
+                "Build a directed graph of all unique characters and perform a Topological Sort (Kahn's or DFS).",
+                "Check for consistency: if there's a cycle (Topological Sort fails) or if a prefix comes AFTER a longer word (e.g., 'abc' after 'abcd'), return an empty string."
             ]
         },
         {
@@ -680,8 +683,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "Consider the time and space complexity constraints. Is there a way to optimize your brute-force approach using a hash map or two pointers?"
+                "This is a multi-source BFS problem. All initially rotten oranges start rotting their neighbors simultaneously.",
+                "Put all rotten oranges in a queue and track the count of fresh oranges. Perform BFS level by level, where each level is 1 minute.",
+                "If the queue becomes empty but fresh oranges still remain, it means some oranges are isolated; return -1."
             ]
         },
         {
@@ -719,10 +723,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "For tree problems, consider whether a Depth First Search (DFS) or Breadth First Search (BFS) approach is more appropriate.",
-                "How will you represent the graph? An adjacency list is usually an efficient choice.",
-                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+                "A tree with N nodes and N edges must have exactly one cycle. You need to find the edge that completes this cycle.",
+                "Use Disjoint Set Union (DSU) to add edges one by one. For each edge (u, v), check if u and v are already in the same component.",
+                "The first edge you encounter that connects two nodes already in the same component is the one that creates the cycle and should be removed."
             ]
         },
         {
@@ -770,9 +773,9 @@
                 }
             ],
             "hints": [
-                "Start by carefully reading the problem statement and understanding the input/output format.",
-                "How will you represent the graph? An adjacency list is usually an efficient choice.",
-                "Consider if you need to keep track of visited nodes to avoid infinite loops."
+                "This is similar to 'Number of Islands', but you need to return the size of the largest connected component of '1's.",
+                "Perform a DFS or BFS from every unvisited '1' and count the number of nodes reached during that specific traversal.",
+                "Maintain a global variable to track and update the maximum area found so far."
             ]
         }
     ]

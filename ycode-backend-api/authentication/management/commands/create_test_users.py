@@ -19,10 +19,17 @@ class Command(BaseCommand):
             help="Clear existing test users before creating new ones",
         )
         parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: dev or prod",
+        )
+        parser.add_argument(
             "--file",
             type=str,
-            default="fixtures/test_users_data.json",
-            help="Path to JSON file with user data (relative to authentication app)",
+            default="test_users_data.json",
+            help="Filename within fixtures/<deploy_env>/ to load",
         )
 
     def handle(self, *args, **options):
@@ -36,7 +43,8 @@ class Command(BaseCommand):
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             auth_app_dir = os.path.dirname(os.path.dirname(current_dir))
-            json_file_path = os.path.join(auth_app_dir, options["file"])
+            deploy_env = options["deploy_env"]
+            json_file_path = os.path.join(auth_app_dir, "fixtures", deploy_env, options["file"])
 
             if not os.path.exists(json_file_path):
                 self.stdout.write(

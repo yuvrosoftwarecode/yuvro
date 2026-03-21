@@ -22,6 +22,13 @@ class Command(BaseCommand):
             help="Clear existing assessment data before loading new data",
         )
         parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: dev or prod",
+        )
+        parser.add_argument(
             "--file",
             type=str,
             default="sample_assessment_skill_tests_data.json",
@@ -42,9 +49,9 @@ class Command(BaseCommand):
             SkillTest.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing assessment data cleared."))
 
-        # Determine fixtures directory (assessment/fixtures)
+        # Determine fixtures directory based on deploy_env
         here = Path(__file__).resolve()
-        fixtures_dir = here.parents[2] / "fixtures"
+        fixtures_dir = here.parents[2] / "fixtures" / options["deploy_env"]
 
         skill_file_name = options.get("file")
         primary_skill_file = fixtures_dir / skill_file_name

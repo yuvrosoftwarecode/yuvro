@@ -1,0 +1,33 @@
+{
+  "mock_interviews": [
+    {
+      "title": "DSA Technical Interview - Beginner",
+      "description": "Practice technical interview covering fundamental data structures and algorithms. Ideal for students preparing for entry-level software engineering interviews.",
+      "instructions": "This is a simulated technical interview. You will be asked a mix of conceptual and coding questions. Think aloud and explain your approach before coding. The AI interviewer will ask follow-up questions based on your responses.",
+      "duration": 30,
+      "max_duration": 30,
+      "required_skills": ["Arrays", "Strings", "Sorting", "Searching"],
+      "optional_skills": ["Stacks", "Queues", "Linked Lists"],
+      "ai_generation_mode": "full_ai",
+      "ai_context": {
+        "difficulty": "easy",
+        "role": "entry_level_sde",
+        "focus_areas": ["problem_solving", "code_quality", "time_complexity"]
+      },
+      "ai_percentage": 100,
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "course_short_code": "DSA",
+      "questions_random_config": {
+        "mcq_single": 0,
+        "mcq_multiple": 0,
+        "coding": 2,
+        "descriptive": 1
+      },
+      "publish_status": "published"
+    }
+  ]
+}
