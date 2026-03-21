@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
-import { Card, CardHeader, CardContent, CardFooter } from '../../components/ui/card';
+import { Card, CardHeader, CardContent } from '../../components/ui/card';
 import studentDashboardService, {
   NotesProgressData,
   TestPerformanceData,
@@ -12,15 +12,12 @@ import studentDashboardService, {
 } from '../../services/studentDashboardService';
 import {
   BookOpen,
-  Code,
   Trophy,
   BarChart3,
   Clock,
   Bell,
-  CheckCircle,
+  CheckCircle2,
   AlertCircle,
-  XCircle,
-  ChevronRight,
   TrendingUp,
   Target,
   Medal,
@@ -31,29 +28,11 @@ import {
   Award,
   Flame,
   Star,
-  MedalIcon,
-  List
+  ListTodo,
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const mockAttendance = { present: 85, absent: 15 };
-
-const mockAnnouncements = [
-  {
-    id: 1,
-    title: 'New Python Course Available',
-    description: 'Advanced Python programming course is now live',
-    time: '2 hours ago',
-    tag: 'course',
-  },
-  {
-    id: 2,
-    title: 'Contest Registration Open',
-    description: 'Register for the upcoming coding contest by March 15',
-    time: '1 day ago',
-    tag: 'system',
-  },
-];
 
 const mockStreaks = {
   days: 12,
@@ -74,358 +53,494 @@ const mockPerformance = {
   overall: 80,
 };
 
-// ─── Widget Components ─────────────────────────────────────────
+const mockAnnouncements = [
+  {
+    id: 1,
+    title: 'New Python Course Available',
+    type: 'course',
+    description: 'Advanced Python programming course is now live',
+    timestamp: '2 hours ago',
+    read: false,
+  },
+  {
+    id: 2,
+    title: 'Contest Registration Open',
+    type: 'event',
+    description: 'Register for the upcoming coding contest by March 15',
+    timestamp: '5 hours ago',
+    read: false,
+  },
+  {
+    id: 3,
+    title: 'System Maintenance Notice',
+    type: 'system',
+    description: 'Platform will be under maintenance on Sunday',
+    timestamp: '1 day ago',
+    read: true,
+  },
+  {
+    id: 4,
+    title: 'Assignment Deadline Reminder',
+    type: 'reminder',
+    description: 'Data Structures assignment due in 3 days',
+    timestamp: '1 day ago',
+    read: true,
+  },
+];
 
-const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
+const cardClass = 'h-full cursor-pointer border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg';
+
+const badgeBase =
+  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium';
+
+const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: NotesProgressData }) => {
+  const subjects = data.subjects || [];
+  const streak = data.streak || 0;
+  const overall = data.overall || 0;
+
+  return (
+    <Card
+      className={cardClass}
+      onClick={() => (window.location.href = '/student/learn')}
+    >
+      <CardHeader className="space-y-0 pb-3">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+            <BookOpen className="h-6 w-6" style={{ color: '#22C55E' }} />
+            Notes Progress
+          </h3>
+          <div className="flex items-center gap-1 text-sm">
+            <TrendingUp className="h-4 w-4" style={{ color: '#FF9933' }} />
+            <span className="font-semibold">{streak} day streak</span>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div className="space-y-1">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Overall Completion</span>
+            <span className="font-bold" style={{ color: '#22C55E' }}>
+              {overall}%
+            </span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-slate-100">
+            <div
+              className="h-1.5 rounded-full transition-all"
+              style={{
+                width: `${overall}%`,
+                backgroundColor: '#0F172A',
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {subjects.map((topic: { name: string; progress: number; total: number }, index: number) => {
+            const pct = topic.total > 0 ? Math.round((topic.progress / topic.total) * 100) : 0;
+            return (
+              <div key={index} className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-sm" style={{ color: '#64748B' }}>{topic.name}</span>
+                  <span className="text-xs font-semibold" style={{ color: '#000000' }}>
+                    {topic.progress}/{topic.total}
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-slate-100">
+                  <div
+                    className="h-2 rounded-full transition-all"
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: '#0F172A',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="pt-2 text-xs" style={{ color: '#64748B' }}>
+          Click to view all notes and continue learning
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }: { data: TestPerformanceData }) => (
+  <Card
+    className={cardClass}
+    onClick={() => (window.location.href = '/student/skill-test')}
+  >
+    <CardHeader className="space-y-0 pb-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-green-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Notes Progress</h3>
-        </div>
-        <div className="flex items-center gap-1 text-amber-500 text-xs font-semibold">
-          <TrendingUp className="w-4 h-4" />
-          {data.streak} day streak
-        </div>
+        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+          <ClipboardCheck className="h-6 w-6" style={{ color: '#F59E0B' }} />
+          Test Performance
+        </h3>
+        <Trophy className="h-5 w-5" style={{ color: '#64748B' }} />
       </div>
     </CardHeader>
 
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold text-gray-900">Overall Completion</span>
-        <span className="text-xs font-bold text-green-600">{data.overall}%</span>
-      </div>
-      <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
-        <div
-          className="bg-gray-900 h-2 rounded-full transition-all duration-500"
-          style={{ width: `${data.overall}%` }}
-        />
+    <CardContent className="space-y-4">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: '#22C55E' }}>
+            {data.completed}
+          </div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Completed</div>
+        </div>
+
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: '#F59E0B' }}>
+            {data.avgScore}%
+          </div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Avg Score</div>
+        </div>
+
+        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+          <div className="text-2xl font-bold text-[#0F172A]">{data.accuracy}%</div>
+          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Accuracy</div>
+        </div>
       </div>
 
       <div className="space-y-4">
-        {data.subjects.map((s, i) => {
-          const pct = s.total > 0 ? Math.round((s.progress / s.total) * 100) : 0;
-          return (
-            <div key={i}>
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-gray-500 font-medium truncate pr-2">{s.name}</span>
-                <span className="text-gray-700 font-bold whitespace-nowrap">{s.progress}/{s.total}</span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className="bg-gray-900 h-1.5 rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm" style={{ color: '#64748B' }}>Chapters Completed</span>
+          <span className={`${badgeBase} w-12 justify-center border-transparent bg-slate-100 text-[#0F172A]`}>
+            {data.chaptersCompleted}%
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm" style={{ color: '#64748B' }}>Last Test Score</span>
+          <span
+            className={`${badgeBase} w-12 justify-center`}
+            style={{
+              backgroundColor: '#22C55E20',
+              color: '#22C55E',
+              borderColor: 'transparent',
+            }}
+          >
+            {data.lastTestScore}%
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-3 border-t border-gray-300 pt-3">
+        <div className="flex items-center gap-2">
+          <Target className="h-4 w-4" style={{ color: '#94A3B8' }} />
+          <span className="text-sm font-semibold text-[#0F172A]">Leaderboard Comparison</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 pb-3">
+          <div className="text-center">
+            <div className="text-lg font-bold" style={{ color: '#F59E0B' }}>
+              82%
             </div>
-          );
-        })}
-      </div>
-    </CardContent>
-
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <a href="/student/learn" className="text-gray-400 text-[10px] font-bold hover:text-green-600 transition-colors uppercase">
-        Click to view all notes and continue learning
-      </a>
-    </CardFooter>
-  </Card>
-);
-
-const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ClipboardCheck className="w-5 h-5 text-amber-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Test Performance</h3>
-        </div>
-        <Trophy className="w-4 h-4 text-gray-300" />
-      </div>
-    </CardHeader>
-
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-lg font-bold text-green-500">{data.completed}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400">Completed</p>
-        </div>
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-lg font-bold text-amber-500">{data.avgScore}%</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400">Avg Score</p>
-        </div>
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white shadow-sm ring-1 ring-gray-100 flex flex-col justify-center">
-          <p className="text-xl font-black text-gray-900 leading-none">{data.accuracy}%</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400">Accuracy</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        <div className="flex justify-between items-center text-[11px]">
-          <span className="text-gray-500 font-bold uppercase">Chapters Completed</span>
-          <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{data.chaptersCompleted}</span>
-        </div>
-        <div className="flex justify-between items-center text-[11px]">
-          <span className="text-gray-500 font-bold uppercase">Last Test Score</span>
-          <span className="bg-green-50 text-green-600 px-2 py-0.5 rounded-full">{data.lastTestScore}%</span>
-        </div>
-      </div>
-
-      <div className="border-t border-gray-100 pt-3">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-900 mb-2 uppercase">
-          <BarChart3 className="w-3 h-3 text-gray-400" />
-          Leaderboard Comparison
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-amber-50 rounded-xl p-2 border border-amber-100">
-            <p className="text-lg font-bold text-amber-600 text-center">{data.leaderboard.you}%</p>
-            <p className="text-[8px] text-amber-700/70 font-bold text-center uppercase">Your Average</p>
+            <div className="text-xs" style={{ color: '#64748B' }}>Your Average</div>
           </div>
-          <div className="bg-gray-50 rounded-xl p-2 border border-gray-100">
-            <p className="text-lg font-bold text-gray-900 text-center">{data.leaderboard.global}%</p>
-            <p className="text-[8px] text-gray-400 font-bold text-center uppercase">Global Average</p>
+          <div className="text-center">
+            <div className="text-lg font-bold text-[#0F172A]">76%</div>
+            <div className="text-xs" style={{ color: '#64748B' }}>Global Average</div>
           </div>
         </div>
       </div>
-    </CardContent>
 
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <a href="/student/skill-test" className="text-gray-400 text-[10px] font-bold hover:text-amber-600 transition-colors uppercase">
+      <div className="text-xs" style={{ color: '#64748B' }}>
         Click to attempt practice tests
-      </a>
-    </CardFooter>
-  </Card>
-);
-
-const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-green-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Tasks Summary</h3>
-        </div>
-      </div>
-    </CardHeader>
-
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold text-gray-900">Overall Progress</span>
-        <span className="text-xs font-bold text-green-600">{data.overall}%</span>
-      </div>
-      <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
-        <div
-          className="bg-gray-900 h-2 rounded-full transition-all duration-500"
-          style={{ width: `${data.overall}%` }}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50/50 border border-gray-50">
-          <div className="p-1.5 bg-white rounded-lg shadow-sm">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-gray-900">{data.completed}</p>
-            <p className="text-[8px] uppercase font-bold text-gray-400">Completed</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50/50 border border-gray-50">
-          <div className="p-1.5 bg-white rounded-lg shadow-sm">
-            <Clock className="w-4 h-4 text-amber-500" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-gray-900">{data.inProgress}</p>
-            <p className="text-[8px] uppercase font-bold text-gray-400">In Progress</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50/50 border border-gray-50">
-          <div className="p-1.5 bg-white rounded-lg shadow-sm">
-            <AlertCircle className="w-4 h-4 text-red-500" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-gray-900">{data.pending}</p>
-            <p className="text-[8px] uppercase font-bold text-gray-400">Pending</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50/50 border border-gray-50">
-          <div className="p-1.5 bg-white rounded-lg shadow-sm">
-            <BarChart3 className="w-4 h-4 text-gray-500" />
-          </div>
-          <div>
-            <p className="text-lg font-bold text-gray-900">{data.total}</p>
-            <p className="text-[8px] uppercase font-bold text-gray-400">Total Tasks</p>
-          </div>
-        </div>
       </div>
     </CardContent>
-
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <a href="/student/code-practice" className="text-gray-400 text-[10px] font-bold hover:text-emerald-600 transition-colors uppercase">
-        Click to view all tasks and submissions
-      </a>
-    </CardFooter>
   </Card>
 );
+
+const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData }) => {
+  return (
+    <Card
+      className={cardClass}
+      onClick={() => (window.location.href = '/student/task')}
+    >
+      <CardHeader className="space-y-0 pb-3">
+        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+          <ListTodo className="h-6 w-6" style={{ color: '#22C55E' }} />
+          Tasks Summary
+        </h3>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium text-[#0F172A]">Overall Progress</span>
+            <span className="font-bold" style={{ color: '#22C55E' }}>{data.overall}%</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-slate-100">
+            <div
+              className="h-1.5 rounded-full transition-all"
+              style={{ width: `${data.overall}%`, backgroundColor: '#0F172A' }}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
+            <CheckCircle2 className="h-6 w-6" style={{ color: '#22C55E' }} />
+            <div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.completed}</div>
+              <div className="text-xs text-[#64748B]">Completed</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
+            <Clock className="h-6 w-6" style={{ color: '#F59E0B' }} />
+            <div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.inProgress}</div>
+              <div className="text-xs text-[#64748B]">In Progress</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
+            <AlertCircle className="h-6 w-6" style={{ color: '#ef4444' }} />
+            <div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.pending}</div>
+              <div className="text-xs text-[#64748B]">Pending</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
+            <ListTodo className="h-6 w-6" style={{ color: '#0F172A' }} />
+            <div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.total}</div>
+              <div className="text-xs text-[#64748B]">Total Tasks</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs" style={{ color: '#64748B' }}>
+          Click to view all tasks and submissions
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }: { data: AssessmentsData }) => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
+  <Card
+    className={cardClass}
+    onClick={() => (window.location.href = '/student/assessment')}
+  >
+    <CardHeader className="space-y-0 pb-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ClipboardCheck className="w-5 h-5 text-amber-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Assessments Overview</h3>
-        </div>
-        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{data.completed}/{data.total}</span>
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <FileCheck className="h-5 w-5" style={{ color: '#FF9933' }} />
+          Assessments Overview
+        </h3>
+        <span className={`${badgeBase} border-border bg-background`}>
+          {data.completed}/{data.total}
+        </span>
       </div>
     </CardHeader>
 
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-lg font-bold text-green-500">{data.completed}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">Completed</p>
+    <CardContent className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
+          <div className="text-xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+            {data.completed}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">Completed</div>
         </div>
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-lg font-bold text-amber-500">{data.inProgress}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">In Progress</p>
+        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
+          <div className="text-xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+            {data.inProgress}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">In Progress</div>
         </div>
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-lg font-bold text-red-500">{data.pending}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">Pending</p>
+        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
+          <div className="text-xl font-bold text-destructive">{data.pending}</div>
+          <div className="mt-1 text-xs text-muted-foreground">Pending</div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Average Score</span>
-          <span className="text-green-600 font-bold">{data.avgScore}%</span>
-        </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Highest Score</span>
-          <span className="text-green-600 font-bold flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> {data.highestScore}%
+      <div className="space-y-3 border-t pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Average Score</span>
+          <span className="text-lg font-bold" style={{ color: 'hsl(var(--success))' }}>
+            {data.avgScore}%
           </span>
         </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Lowest Score</span>
-          <span className="text-amber-500 font-bold flex items-center gap-1">
-            <TrendingDown className="w-3 h-3" /> {data.lowestScore}%
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Highest Score</span>
+          <div className="flex items-center gap-1">
+            <TrendingUp className="h-4 w-4" style={{ color: '#22c55e' }} />
+            <span className="font-semibold" style={{ color: 'hsl(var(--success))' }}>
+              {data.highestScore}%
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Lowest Score</span>
+          <div className="flex items-center gap-1">
+            <TrendingDown className="h-4 w-4" style={{ color: '#FF9933' }} />
+            <span className="font-semibold" style={{ color: 'hsl(var(--saffron))' }}>
+              {data.lowestScore}%
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between border-t pt-2">
+          <span className="text-sm text-muted-foreground">Recent Status</span>
+          <span
+            className={badgeBase}
+            style={{
+              backgroundColor: 'hsl(var(--success) / 0.15)',
+              color: 'hsl(var(--success))',
+              borderColor: 'hsl(var(--success) / 0.3)',
+            }}
+          >
+            Completed - {data.recentStatus}%
           </span>
         </div>
-        <div className="pt-3 border-t border-gray-50 flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Recent Status</span>
-          <span className="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{data.recentStatus}%</span>
-        </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground">
+        Click to view all assessments
       </div>
     </CardContent>
-
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <a href="/student/certifications" className="text-gray-400 text-[10px] font-bold hover:text-indigo-600 transition-colors uppercase">
-        Click to view all assessments
-      </a>
-    </CardFooter>
   </Card>
 );
 
 const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }: { data: ContestsData }) => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
+  <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+    <CardHeader className="space-y-0 pb-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-amber-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Contest Performance</h3>
-        </div>
-        <Award className="w-5 h-5 text-amber-400" />
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Trophy className="h-5 w-5" style={{ color: '#FF9933' }} />
+          Contest Performance
+        </h3>
+        <Medal className="h-5 w-5" style={{ color: '#FF9933' }} />
       </div>
     </CardHeader>
 
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-xl font-bold text-green-500">{data.completed}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">Completed</p>
+    <CardContent className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+            {data.completed}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">Completed</div>
         </div>
-        <div className="text-center rounded-lg py-3 border border-gray-100 bg-white">
-          <p className="text-xl font-bold text-amber-600">#{data.bestRank}</p>
-          <p className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">Best Rank</p>
+        <div className="rounded-lg bg-slate-50/50 p-2.5 text-center">
+          <div className="text-2xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+            #{data.bestRank}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">Best Rank</div>
         </div>
       </div>
 
-      <div className="space-y-2 mb-4">
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Average Score</span>
-          <span className="bg-amber-50 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{data.avgScore}%</span>
+      <div className="space-y-2 border-t pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Average Score</span>
+          <span
+            className={badgeBase}
+            style={{
+              backgroundColor: 'hsl(var(--saffron) / 0.15)',
+              color: 'hsl(var(--saffron))',
+              borderColor: 'hsl(var(--saffron) / 0.3)',
+            }}
+          >
+            {data.avgScore}%
+          </span>
         </div>
-        <div className="flex justify-between items-center text-xs">
-          <span className="text-gray-500 font-bold uppercase">Success Rate</span>
-          <span className="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{data.successRate}%</span>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Success Rate</span>
+          <span
+            className={badgeBase}
+            style={{
+              backgroundColor: 'hsl(var(--success) / 0.15)',
+              color: 'hsl(var(--success))',
+              borderColor: 'hsl(var(--success) / 0.3)',
+            }}
+          >
+            {data.successRate}%
+          </span>
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-3">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-900 mb-2 uppercase">
-          <Flame className="w-3 h-3 text-orange-400" />
-          Last Contest Performance
+      <div className="border-t pt-2">
+        <div className="mb-3 flex items-center gap-2">
+          <Flame className="h-4 w-4" style={{ color: '#FF9933' }} />
+          <span className="text-sm font-medium">Last Contest Performance</span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="text-center">
-            <p className="text-lg font-bold text-gray-900">#{data.lastContest.rank}</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Rank</p>
+
+        <div className="grid grid-cols-3 gap-2 text-sm">
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="font-bold text-foreground">#{data.lastContest.rank}</div>
+            <div className="text-xs text-muted-foreground">Rank</div>
           </div>
-          <div className="text-center">
-            <p className="text-lg font-bold text-gray-900">{data.lastContest.accuracy}%</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Accuracy</p>
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="font-bold" style={{ color: 'hsl(var(--success))' }}>
+              {data.lastContest.accuracy}%
+            </div>
+            <div className="text-xs text-muted-foreground">Accuracy</div>
           </div>
-          <div className="text-center">
-            <p className="text-lg font-bold text-gray-900">{data.lastContest.time}</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Time</p>
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="font-bold text-foreground">{data.lastContest.time}</div>
+            <div className="text-xs text-muted-foreground">Time</div>
           </div>
         </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground">
+        Keep participating to improve your ranking!
       </div>
     </CardContent>
-
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <p className="text-gray-400 text-[10px] font-bold uppercase">Keep participating to improve your ranking!</p>
-    </CardFooter>
   </Card>
 );
 
 const AttendanceOverview: React.FC = () => {
   const { present, absent } = mockAttendance;
-  const data = [
-    { name: 'Present', value: present, color: '#22c55e' },
-    { name: 'Absent', value: absent, color: '#eab308' },
+  const attendanceData = [
+    { name: 'Present', value: present, fill: 'hsl(var(--success))' },
+    { name: 'Absent', value: absent, fill: 'hsl(var(--saffron))' },
   ];
 
   return (
-    <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="p-4 pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-green-500" />
-            <h3 className="font-bold text-lg text-gray-900 leading-tight">Attendance Overview</h3>
-          </div>
-        </div>
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Calendar className="h-5 w-5" style={{ color: '#22c55e' }} />
+          Attendance Overview
+        </h3>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 flex-grow flex flex-col items-center justify-center">
-        <div className="relative w-40 h-40 mb-4">
-          <div className="absolute top-2 left-[-30px] text-[9px] font-bold text-green-500">Present: {present}%</div>
-          <div className="absolute bottom-8 right-[-30px] text-[9px] font-bold text-amber-500">Absent: {absent}%</div>
+      <CardContent className="space-y-3">
+        <div className="h-48 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data}
+                data={attendanceData}
                 cx="50%"
                 cy="50%"
-                innerRadius={50}
-                outerRadius={70}
+                labelLine={false}
+                label={({ name, value, x, y, fill }: { name: string; value: number; x: number; y: number; fill: string }) => (
+                  <text
+                    x={x}
+                    y={y}
+                    fill={fill}
+                    textAnchor={x > 200 ? 'start' : 'end'}
+                    dominantBaseline="central"
+                    className="text-[10px] font-bold"
+                  >
+                    {`${name}: ${value}%`}
+                  </text>
+                )}
+                outerRadius={60}
                 dataKey="value"
-                stroke="none"
               >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {attendanceData.map((entry, index) => (
+                  <Cell key={index} fill={entry.fill} />
                 ))}
               </Pie>
               <Tooltip formatter={(value: number) => `${value}%`} />
@@ -433,18 +548,22 @@ const AttendanceOverview: React.FC = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="grid grid-cols-3 gap-0 w-full border-t border-gray-100 mt-auto pt-4">
-          <div className="text-center border-r border-gray-100 px-1">
-            <p className="text-xl font-bold text-gray-900">100</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Total Days</p>
+        <div className="grid grid-cols-3 gap-3 border-t pt-2">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-foreground">100</div>
+            <div className="mt-1 text-xs text-muted-foreground">Total Days</div>
           </div>
-          <div className="text-center border-r border-gray-100 px-1">
-            <p className="text-xl font-bold text-green-500">{present}</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Present</p>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+              {present}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">Present</div>
           </div>
-          <div className="text-center px-1">
-            <p className="text-xl font-bold text-amber-500">{absent}</p>
-            <p className="text-[9px] uppercase font-bold text-gray-400">Absent</p>
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+              {absent}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">Absent</div>
           </div>
         </div>
       </CardContent>
@@ -452,49 +571,82 @@ const AttendanceOverview: React.FC = () => {
   );
 };
 
-const Announcements: React.FC = () => (
-  <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-    <CardHeader className="p-4 pb-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-amber-500" />
-          <h3 className="font-bold text-lg text-gray-900 leading-tight">Announcements</h3>
+const Announcements: React.FC = () => {
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'course':
+        return 'hsl(var(--success))';
+      case 'event':
+        return 'hsl(var(--saffron))';
+      case 'system':
+        return 'hsl(var(--muted-foreground))';
+      case 'reminder':
+        return 'hsl(var(--primary))';
+      default:
+        return 'hsl(var(--foreground))';
+    }
+  };
+
+  return (
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Bell className="h-5 w-5" style={{ color: '#FF9933' }} />
+            Announcements
+          </h3>
+          <span className={`${badgeBase} bg-secondary text-secondary-foreground`}>
+            {mockAnnouncements.filter((a) => !a.read).length} new
+          </span>
         </div>
-        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-          {mockAnnouncements.length} new
-        </span>
-      </div>
-    </CardHeader>
+      </CardHeader>
 
-    <CardContent className="p-4 pt-0 flex-grow">
-      <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1">
-        {mockAnnouncements.map((a) => (
-          <div key={a.id} className="relative border border-gray-100 rounded-lg p-3 bg-white shadow-sm overflow-hidden group hover:border-amber-100 transition-colors">
-            <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
-            <div className="flex justify-between items-start mb-1">
-              <p className="text-xs font-bold text-gray-900 pr-6">{a.title}</p>
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1" />
-            </div>
-            <p className="text-[10px] text-gray-500 leading-tight mb-2 line-clamp-2 uppercase font-bold">{a.description}</p>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1 uppercase">
-                <Clock className="h-2.5 w-2.5" />
-                {a.time}
-              </span>
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-400 font-bold border border-gray-100 uppercase">{a.tag}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </CardContent>
+      <CardContent>
+        <div className="max-h-[300px] space-y-3 overflow-y-auto pr-1">
+          {mockAnnouncements.map((announcement) => (
+            <div
+              key={announcement.id}
+              className={`cursor-pointer rounded-lg border p-3 transition-colors hover:bg-muted/50 ${
+                !announcement.read ? 'bg-muted/30 border-l-4' : 'border-l-4'
+              }`}
+              style={{ borderLeftColor: getTypeColor(announcement.type) }}
+            >
+              <div className="mb-1 flex items-start justify-between gap-2">
+                <h4 className="text-sm font-semibold">{announcement.title}</h4>
+                {!announcement.read && (
+                  <div
+                    className="mt-1 h-2 w-2 rounded-full"
+                    style={{ backgroundColor: 'hsl(var(--saffron))' }}
+                  />
+                )}
+              </div>
 
-    <CardFooter className="p-4 pt-3 border-t border-gray-100">
-      <a href="/student/announcements" className="text-gray-400 text-[10px] font-bold hover:text-amber-600 transition-colors uppercase">
-        View all announcements
-      </a>
-    </CardFooter>
-  </Card>
-);
+              <p className="mb-2 text-xs text-muted-foreground">
+                {announcement.description}
+              </p>
+
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {announcement.timestamp}
+                </span>
+                <span
+                  className={badgeBase}
+                  style={{
+                    color: getTypeColor(announcement.type),
+                    borderColor: `${getTypeColor(announcement.type)}30`,
+                  }}
+                >
+                  {announcement.type}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const StreaksBadges: React.FC = () => {
   const badges = [
@@ -503,71 +655,78 @@ const StreaksBadges: React.FC = () => {
     { name: 'Gold', earned: false, icon: '🥇' },
     { name: 'Platinum', earned: false, icon: '💎' },
   ];
+
   return (
-    <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="p-4 pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-amber-500" />
-            <h3 className="font-bold text-lg text-gray-900 leading-tight">Streaks & Badges</h3>
-          </div>
-        </div>
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Flame className="h-5 w-5" style={{ color: '#FF9933' }} />
+          Streaks & Badges
+        </h3>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 flex-grow">
-        <div className="flex flex-col items-center justify-center py-4 mb-4">
-          <Flame className="w-10 h-10 text-amber-500 mb-2" />
-          <span className="text-4xl font-black text-amber-500 leading-none">{mockStreaks.days}</span>
-          <span className="text-[9px] uppercase font-bold text-gray-400 mt-1">Day Streak</span>
+      <CardContent className="space-y-3">
+        <div className="rounded-lg bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-center">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <Flame className="h-8 w-8" style={{ color: '#FF9933' }} />
+            <span className="text-4xl font-bold" style={{ color: 'hsl(var(--saffron))' }}>
+              {mockStreaks.days}
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">Day Streak</p>
         </div>
 
-        <div className="border-t border-gray-100 pt-4 mb-4">
-          <div className="flex items-center justify-between text-[10px] font-bold mb-1.5">
-            <span className="text-gray-400 uppercase">Progress to {mockStreaks.badgeProgress.target}</span>
-            <span className="text-gray-900">{mockStreaks.badgeProgress.daysLeft} days left</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">
+              Progress to {mockStreaks.badgeProgress.target}
+            </span>
+            <span className="font-semibold">{mockStreaks.badgeProgress.daysLeft} days left</span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-2">
-            <div className="bg-gray-900 h-2 rounded-full" style={{ width: '70%' }} />
+          <div className="h-2 w-full rounded-full bg-muted">
+            <div
+              className="h-2 rounded-full"
+              style={{ width: '70%', backgroundColor: '#0F172A' }}
+            />
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Award className="w-3.5 h-3.5 text-green-500" />
-            <span className="text-[10px] font-bold text-gray-900 uppercase">Earned Badges</span>
+        <div className="border-t pt-2">
+          <div className="mb-3 flex items-center gap-2">
+            <Award className="h-4 w-4" style={{ color: '#22c55e' }} />
+            <span className="text-sm font-medium">Earned Badges</span>
           </div>
+
           <div className="grid grid-cols-4 gap-2">
             {badges.map((badge) => (
               <div
                 key={badge.name}
-                className={`text-center py-2 rounded-xl border ${badge.earned
-                  ? 'bg-amber-50/50 border-amber-100 shadow-sm ring-1 ring-amber-100'
-                  : 'bg-white border-gray-100'
-                  }`}
+                className={`rounded-lg border p-3 text-center transition-all ${
+                  badge.earned
+                    ? 'border-primary/30 bg-muted/50'
+                    : 'border-muted bg-muted/20 opacity-50'
+                }`}
               >
-                <span className="text-xl block mb-0.5">{badge.icon}</span>
-                <p className={`text-[8px] font-bold uppercase ${badge.earned ? 'text-gray-900' : 'text-gray-300'}`}>
-                  {badge.name}
-                </p>
+                <div className="mb-1 text-2xl">{badge.icon}</div>
+                <div className="text-xs font-medium">{badge.name}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Star className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[10px] font-bold text-gray-900 uppercase">Recent Achievements</span>
+        <div className="border-t pt-2">
+          <div className="mb-3 flex items-center gap-2">
+            <Star className="h-4 w-4" style={{ color: '#FF9933' }} />
+            <span className="text-sm font-medium">Recent Achievements</span>
           </div>
-          <div className="space-y-3">
-            {mockStreaks.recentAchievements.map((a, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <div className="mt-0.5">
-                  <TrendingUp className="w-3 h-3 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-900 leading-tight">{a.text}</p>
-                  <p className="text-[9px] font-bold text-gray-400 uppercase mt-0.5">{a.time}</p>
+
+          <div className="space-y-2">
+            {mockStreaks.recentAchievements.map((achievement, index) => (
+              <div key={index} className="flex items-start gap-2 text-sm">
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#22c55e' }} />
+                <div className="flex-1">
+                  <p className="text-foreground">{achievement.text}</p>
+                  <p className="text-xs text-muted-foreground">{achievement.time}</p>
                 </div>
               </div>
             ))}
@@ -580,53 +739,52 @@ const StreaksBadges: React.FC = () => {
 
 const PerformanceMetrics: React.FC = () => {
   const metrics = [
-    { label: 'Learning Progress', value: mockPerformance.learningProgress },
-    { label: 'Task Completion', value: mockPerformance.taskCompletion },
-    { label: 'Assessment Average', value: mockPerformance.assessmentAverage },
-    { label: 'Contest Participation', value: mockPerformance.contestParticipation },
-    { label: 'Attendance Rate', value: mockPerformance.attendanceRate },
+    { label: 'Learning Progress', value: mockPerformance.learningProgress, color: 'hsl(var(--success))' },
+    { label: 'Task Completion', value: mockPerformance.taskCompletion, color: 'hsl(var(--success))' },
+    { label: 'Assessment Average', value: mockPerformance.assessmentAverage, color: 'hsl(var(--success))' },
+    { label: 'Contest Participation', value: mockPerformance.contestParticipation, color: 'hsl(var(--success))' },
+    { label: 'Attendance Rate', value: mockPerformance.attendanceRate, color: 'hsl(var(--success))' },
   ];
 
   return (
-    <Card className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="p-4 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-green-500" />
-            <h3 className="font-bold text-lg text-gray-900 leading-tight">Performance Metrics Summary</h3>
-          </div>
-        </div>
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <BarChart3 className="h-5 w-5" style={{ color: '#22c55e' }} />
+          Performance Metrics Summary
+        </h3>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 flex-grow">
-        <div className="space-y-5">
-          {metrics.map((m, i) => (
-            <div key={i}>
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-xs font-bold text-gray-900">{m.label}</span>
-                <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{m.value}%</span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="bg-gray-900 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${m.value}%` }}
-                />
-              </div>
+      <CardContent className="space-y-3">
+        {metrics.map((metric, index) => (
+          <div key={index} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">{metric.label}</span>
+              <span className="text-sm font-bold" style={{ color: metric.color }}>
+                {metric.value}%
+              </span>
             </div>
-          ))}
-          <div className="pt-4 mt-6 flex flex-col items-center justify-center">
-            <div className="bg-green-50 rounded-2xl py-4 px-10 border border-green-100 shadow-sm inline-block">
-              <p className="text-3xl font-black text-green-600 mb-0.5">{mockPerformance.overall}%</p>
-              <p className="text-[9px] uppercase font-bold text-green-700/60">Overall Performance Score</p>
+            <div className="h-2 w-full rounded-full bg-muted">
+              <div
+                className="h-2 rounded-full transition-all"
+                style={{ width: `${metric.value}%`, backgroundColor: '#0F172A' }}
+              />
             </div>
+          </div>
+        ))}
+
+        <div className="mt-4 border-t pt-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold" style={{ color: 'hsl(var(--success))' }}>
+              {mockPerformance.overall}%
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Overall Performance Score</p>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 };
-
-// ─── Main Dashboard ────────────────────────────────────────────
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -666,15 +824,18 @@ const Dashboard: React.FC = () => {
 
   if (loading || !notesData || !testsData || !tasksData || !assessmentsData || !contestsData) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader title="Loading..." subtitle="Please wait while we load your dashboard." />
+            <RoleHeader
+              title="Loading..."
+              subtitle="Please wait while we load your dashboard."
+            />
             <div className="p-6">
-              <div className="animate-pulse grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(9)].map((_, i) => (
-                  <Card key={i} className="h-64 bg-gray-200 animate-pulse" />
+                  <Card key={i} className="h-64 animate-pulse border-border bg-muted/40" />
                 ))}
               </div>
             </div>
@@ -685,7 +846,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -693,28 +854,25 @@ const Dashboard: React.FC = () => {
             title="Dashboard Overview"
             subtitle="Monitor your academic progress and performance metrics"
           />
-          <div className="p-6 space-y-6">
-            {/* Row 1: 3 cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <div className="space-y-6 p-6">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <NotesProgress data={notesData} />
               <TestPerformance data={testsData} />
               <TasksSummary data={tasksData} />
             </div>
 
-            {/* Row 2: 2 cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <AssessmentsOverview data={assessmentsData} />
               <ContestPerformance data={contestsData} />
             </div>
 
-            {/* Row 3: 2 cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <AttendanceOverview />
               <Announcements />
             </div>
 
-            {/* Row 4: 2 cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <StreaksBadges />
               <PerformanceMetrics />
             </div>
