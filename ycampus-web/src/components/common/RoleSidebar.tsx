@@ -31,7 +31,11 @@ import {
   ClipboardCheck,
   ListChecks,
   Bell,
-  MessageCircle
+  MessageCircle,
+  Home,
+  MessageSquare,
+  BrainCircuit,
+  Megaphone
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -47,36 +51,43 @@ const sidebarItems: SidebarItem[] = [
   {
     id: 'student-dashboard',
     label: 'Dashboard',
-    icon: LayoutDashboard,
+    icon: Home,
     path: '/student/dashboard',
     roles: ['student']
   },
   {
     id: 'student-notes',
     label: 'Notes',
-    icon: StickyNote,
-    path: '/student/learn',
+    icon: FileText,
+    path: '/student/notes',
     roles: ['student']
   },
   {
     id: 'student-practice-test',
     label: 'Practice Test',
     icon: ClipboardCheck,
-    path: '/student/skill-test',
+    path: '/student/practice-test',
     roles: ['student']
   },
   {
     id: 'student-task',
     label: 'Task',
-    icon: ListChecks,
-    path: '/student/code-practice',
+    icon: MessageSquare,
+    path: '/student/task',
     roles: ['student']
   },
   {
     id: 'student-assessment',
     label: 'Assessment',
-    icon: FileText,
-    path: '/student/certifications',
+    icon: BookOpen,
+    path: '/student/assessment',
+    roles: ['student']
+  },
+  {
+    id: 'student-ai-interview',
+    label: 'AI Interview Planner',
+    icon: BrainCircuit,
+    path: '/student/ai-interview-planner',
     roles: ['student']
   },
   {
@@ -96,14 +107,14 @@ const sidebarItems: SidebarItem[] = [
   {
     id: 'student-announcements',
     label: 'Announcements',
-    icon: Bell,
+    icon: Megaphone,
     path: '/student/announcements',
     roles: ['student']
   },
   {
     id: 'student-community',
     label: 'Community',
-    icon: MessageCircle,
+    icon: Users,
     path: '/student/community',
     roles: ['student']
   },

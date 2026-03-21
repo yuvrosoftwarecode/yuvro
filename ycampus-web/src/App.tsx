@@ -192,7 +192,7 @@ function App() {
                 path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentJobs />
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />
@@ -210,7 +210,7 @@ function App() {
                 path="/student/contests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <Contest />
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />
@@ -232,6 +232,65 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Newly added Coming Soon Pages for Student Dashboard Links */}
+              <Route
+                path="/student/notes"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/practice-test"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/task"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/assessment"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/ai-interview-planner"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/community"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              
               <Route
                 path="/student/code-practice/subjects/:subjectId"
                 element={
