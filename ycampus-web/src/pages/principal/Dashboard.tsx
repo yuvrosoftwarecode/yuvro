@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -152,11 +151,7 @@ const PrincipalDashboard = () => {
     return (
       <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
         <RoleSidebar />
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <RoleHeader
-            title={'Principal Dashboard'}
-            subtitle={`Welcome back, ${user?.first_name || user?.username || 'Principal'}! 👋`}
-          />
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
           <main className="flex-1 p-6 flex items-center justify-center">
             <div className="text-muted-foreground animate-pulse">Loading dashboard...</div>
           </main>
@@ -177,10 +172,10 @@ const PrincipalDashboard = () => {
   const totalStudents = studentDistribution.excellent + studentDistribution.good + studentDistribution.moderate + studentDistribution.atRisk;
 
   const riskByType = {
-    academic: riskAlerts.filter(r => r.type === 'academic'),
-    engagement: riskAlerts.filter(r => r.type === 'engagement'),
-    placement: riskAlerts.filter(r => r.type === 'placement'),
-    operational: riskAlerts.filter(r => r.type === 'operational'),
+    academic: riskAlerts.filter((r: any) => r.type === 'academic'),
+    engagement: riskAlerts.filter((r: any) => r.type === 'engagement'),
+    placement: riskAlerts.filter((r: any) => r.type === 'placement'),
+    operational: riskAlerts.filter((r: any) => r.type === 'operational'),
   };
 
   const trendIcon = (t: string) => {
@@ -192,106 +187,89 @@ const PrincipalDashboard = () => {
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
       <RoleSidebar />
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <RoleHeader
-          title={'Principal Dashboard'}
-          subtitle={`Welcome back, ${user?.first_name || user?.username || 'Principal'}! 👋`}
-        />
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
 
-        <main className="flex-1 p-4 md:p-6 bg-slate-50 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-[1400px] mx-auto space-y-6">
+            
+            <h1 className="text-[22px] font-bold text-slate-900">Dashboard</h1>
 
             {/* GLOBAL FILTERS */}
-            <Card className="border border-gray-300 bg-white">
-              <CardContent className="pt-4 pb-3">
-                <div className="flex flex-wrap gap-3">
-                  <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
-                    <SelectTrigger className="w-[140px] h-9 text-xs border-gray-300"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2025-26">2025–26</SelectItem>
-                      <SelectItem value="2024-25">2024–25</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
-                    <SelectTrigger className="w-[160px] h-9 text-xs border-gray-300"><SelectValue placeholder="Department" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
-                      {departmentRanking.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.semester} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
-                    <SelectTrigger className="w-[130px] h-9 text-xs border-gray-300"><SelectValue placeholder="Semester" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Semesters</SelectItem>
-                      {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.batch} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
-                    <SelectTrigger className="w-[120px] h-9 text-xs border-gray-300"><SelectValue placeholder="Batch" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Batches</SelectItem>
-                      <SelectItem value="2022-26">2022–26</SelectItem>
-                      <SelectItem value="2023-27">2023–27</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={filters.dateRange} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
-                    <SelectTrigger className="w-[120px] h-9 text-xs border-gray-300"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full-year">Full Year</SelectItem>
-                      <SelectItem value="last-6m">Last 6 Months</SelectItem>
-                      <SelectItem value="last-3m">Last 3 Months</SelectItem>
-                      <SelectItem value="last-1m">Last Month</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex flex-wrap gap-3">
+              <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
+                <SelectTrigger className="w-[140px] h-9 text-xs border-gray-200 bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2025-26">2025–26</SelectItem>
+                  <SelectItem value="2024-25">2024–25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
+                <SelectTrigger className="w-[160px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Department" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {departmentRanking.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filters.semester} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
+                <SelectTrigger className="w-[130px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Semester" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Semesters</SelectItem>
+                  {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filters.batch} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
+                <SelectTrigger className="w-[120px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Batch" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Batches</SelectItem>
+                  <SelectItem value="2022-26">2022–26</SelectItem>
+                  <SelectItem value="2023-27">2023–27</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filters.dateRange} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
+                <SelectTrigger className="w-[120px] h-9 text-xs border-gray-200 bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full-year">Full Year</SelectItem>
+                  <SelectItem value="last-6m">Last 6 Months</SelectItem>
+                  <SelectItem value="last-3m">Last 3 Months</SelectItem>
+                  <SelectItem value="last-1m">Last Month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* 1. INSTITUTION SUMMARY */}
             <div>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Institution Summary</h2>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider text-[#64748B] mb-3">Institution Summary</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {[
-                  { label: 'Students', value: summary.totalStudents.toLocaleString(), icon: Users, accent: false },
-                  { label: 'Faculty', value: summary.totalFaculty.toString(), icon: UserCheck, accent: false },
-                  { label: 'Departments', value: summary.totalDepartments.toString(), icon: Building2, accent: false },
-                  { label: 'Avg PI', value: `${summary.avgPI}%`, icon: TrendingUp, accent: true, color: summary.avgPI >= 70 ? GREEN : SAFFRON },
-                  { label: 'Attendance', value: `${summary.overallAttendance}%`, icon: ClipboardCheck, accent: true, color: summary.overallAttendance >= 80 ? GREEN : SAFFRON },
-                  { label: 'Avg PRI', value: `${summary.avgPRI}%`, icon: Target, accent: true, color: summary.avgPRI >= 60 ? GREEN : SAFFRON },
+                  { label: 'Students', value: summary.totalStudents.toLocaleString(), icon: Users, iconColor: 'text-blue-500', valueColor: '' },
+                  { label: 'Faculty', value: summary.totalFaculty.toString(), icon: UserCheck, iconColor: 'text-purple-500', valueColor: '' },
+                  { label: 'Departments', value: summary.totalDepartments.toString(), icon: Building2, iconColor: 'text-slate-500', valueColor: '' },
+                  { label: 'Avg PI', value: `${summary.avgPI}%`, icon: TrendingUp, iconColor: 'text-emerald-500', valueColor: summary.avgPI >= 70 ? GREEN : SAFFRON },
+                  { label: 'Attendance', value: `${summary.overallAttendance}%`, icon: ClipboardCheck, iconColor: 'text-emerald-500', valueColor: summary.overallAttendance >= 80 ? GREEN : SAFFRON },
+                  { label: 'Avg PRI', value: `${summary.avgPRI}%`, icon: Target, iconColor: 'text-emerald-500', valueColor: summary.avgPRI >= 60 ? GREEN : SAFFRON },
+                  { label: 'Sections', value: summary.totalSections.toString(), icon: LayoutGrid, iconColor: 'text-purple-500', valueColor: '' },
+                  { label: 'Assessment Avg', value: `${summary.avgAssessmentScore}%`, icon: FileText, iconColor: 'text-cyan-500', valueColor: '' },
+                  { label: 'Task Completion', value: `${summary.taskCompletion}%`, icon: ClipboardCheck, iconColor: 'text-teal-500', valueColor: '' },
+                  { label: 'Notes Completion', value: `${summary.notesCompletion}%`, icon: BookOpen, iconColor: 'text-orange-500', valueColor: '' },
+                  { label: 'Active Students', value: `${summary.activeStudents}%`, icon: Users, iconColor: 'text-emerald-500', valueColor: '' },
+                  { label: 'Interview Ready', value: `${summary.interviewReady}%`, icon: GraduationCap, iconColor: 'text-red-500', valueColor: '' },
                 ].map((kpi, i) => (
-                  <Card key={i} className="border border-gray-300 bg-white shadow-sm">
-                    <CardContent className="p-4 flex flex-col items-center text-center gap-1">
-                      <kpi.icon className="h-4 w-4 text-slate-400" />
-                      <span className="text-xl font-bold text-slate-900" style={kpi.accent ? { color: kpi.color } : {}}>{kpi.value}</span>
+                  <Card key={i} className="border border-gray-200 bg-white shadow-none">
+                    <div className="p-4 flex flex-col items-center text-center gap-1">
+                      <kpi.icon className={`h-4 w-4 ${kpi.iconColor}`} />
+                      <span className="text-xl font-bold text-slate-900" style={kpi.valueColor ? { color: kpi.valueColor } : {}}>{kpi.value}</span>
                       <span className="text-[11px] text-slate-500 font-medium">{kpi.label}</span>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-3">
-                {[
-                  { label: 'Sections', value: summary.totalSections.toString() },
-                  { label: 'Assessment Avg', value: `${summary.avgAssessmentScore}%` },
-                  { label: 'Task Completion', value: `${summary.taskCompletion}%` },
-                  { label: 'Notes Completion', value: `${summary.notesCompletion}%` },
-                  { label: 'Active Students', value: `${summary.activeStudents}%` },
-                  { label: 'Interview Ready', value: `${summary.interviewReady}%` },
-                ].map((kpi, i) => (
-                  <Card key={i} className="border border-gray-300 bg-white shadow-sm">
-                    <CardContent className="p-3 text-center">
-                      <span className="text-lg font-bold text-slate-800">{kpi.value}</span>
-                      <p className="text-[11px] text-slate-500 font-medium mt-0.5">{kpi.label}</p>
-                    </CardContent>
+                    </div>
                   </Card>
                 ))}
               </div>
             </div>
 
             {/* 2. DEPARTMENT PERFORMANCE RANKING */}
-            <Card className="border border-gray-300 bg-white shadow-sm overflow-hidden">
+            <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
               <CardHeader className="pb-3 bg-white border-b border-slate-100">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-slate-400" /> Department Performance Ranking
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-slate-600" /> Department Performance Ranking
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -333,7 +311,7 @@ const PrincipalDashboard = () => {
             </Card>
 
             {/* 3. SEMESTER PERFORMANCE */}
-            <Card className="border border-gray-300 bg-white shadow-sm overflow-hidden">
+            <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
               <CardHeader className="pb-3 bg-white border-b border-slate-100">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-slate-400" /> Semester Performance
@@ -373,7 +351,7 @@ const PrincipalDashboard = () => {
 
             {/* 4. SECTION INTELLIGENCE */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="border border-gray-300 bg-white shadow-sm overflow-hidden">
+              <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
                 <CardHeader className="pb-3 bg-white border-b border-slate-100">
                   <CardTitle className="text-sm font-semibold text-emerald-600 flex items-center gap-2">
                     <ChevronUp className="h-4 w-4" /> Top 5 Sections
@@ -404,7 +382,7 @@ const PrincipalDashboard = () => {
                   </Table>
                 </CardContent>
               </Card>
-              <Card className="border border-gray-300 bg-white shadow-sm overflow-hidden">
+              <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
                 <CardHeader className="pb-3 bg-white border-b border-slate-100">
                   <CardTitle className="text-sm font-semibold text-red-500 flex items-center gap-2">
                     <ChevronDown className="h-4 w-4" /> Bottom 5 Sections
@@ -440,7 +418,7 @@ const PrincipalDashboard = () => {
             {/* 5. STUDENT DISTRIBUTION + 6. PRI INSIGHTS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Student Distribution */}
-              <Card className="border border-gray-300 bg-white shadow-sm">
+              <Card className="border border-gray-200 bg-white shadow-none">
                 <CardHeader className="pb-1">
                   <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-slate-400" /> Student Distribution
@@ -474,7 +452,7 @@ const PrincipalDashboard = () => {
               </Card>
 
               {/* PRI Insights */}
-              <Card className="border border-gray-300 bg-white shadow-sm">
+              <Card className="border border-gray-200 bg-white shadow-none">
                 <CardHeader className="pb-1">
                   <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                     <Target className="h-4 w-4 text-slate-400" /> PRI Insights
@@ -511,7 +489,7 @@ const PrincipalDashboard = () => {
             </div>
 
             {/* 7. RISK & ALERT PANEL */}
-            <Card className="border border-gray-300 bg-white shadow-sm pb-2">
+            <Card className="border border-gray-200 bg-white shadow-none pb-2">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" style={{ color: RED }} /> Risk & Alert Panel
@@ -542,7 +520,7 @@ const PrincipalDashboard = () => {
             </Card>
 
             {/* 8. PERFORMANCE TRENDS */}
-            <Card className="border border-gray-300 bg-white shadow-sm">
+            <Card className="border border-gray-200 bg-white shadow-none">
               <CardHeader className="pb-3">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-slate-400" /> Performance Trends
@@ -569,7 +547,7 @@ const PrincipalDashboard = () => {
 
             {/* 9. SUBJECT / SKILL ANALYTICS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="border border-gray-300 bg-white shadow-sm">
+              <Card className="border border-gray-200 bg-white shadow-none">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-sm font-semibold text-emerald-600 flex items-center gap-2">
                     <ChevronUp className="h-4 w-4" /> Strongest Subjects
@@ -592,7 +570,7 @@ const PrincipalDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border border-gray-300 bg-white shadow-sm">
+              <Card className="border border-gray-200 bg-white shadow-none">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-sm font-semibold text-red-500 flex items-center gap-2">
                     <ChevronDown className="h-4 w-4" /> Weakest Subjects
@@ -618,8 +596,8 @@ const PrincipalDashboard = () => {
             </div>
 
             {/* 10. FACULTY IMPACT OVERVIEW */}
-            <Card className="bg-white shadow-sm overflow-hidden">
-              <CardHeader className="pb-3 bg-white border-b border-slate-100">
+            <Card className="bg-white shadow-none overflow-hidden border border-gray-200">
+              <CardHeader className="pb-3 bg-white border-b border-gray-200">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <UserCheck className="h-4 w-4 text-slate-400" /> Faculty Impact Overview
                 </CardTitle>
@@ -656,7 +634,7 @@ const PrincipalDashboard = () => {
 
             {/* 11. ATTENDANCE OVERVIEW */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="bg-white shadow-sm">
+              <Card className="bg-white shadow-none border border-gray-200">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                     <ClipboardCheck className="h-4 w-4 text-slate-400" /> Attendance by Department
@@ -676,7 +654,7 @@ const PrincipalDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="bg-white shadow-sm">
+              <Card className="bg-white shadow-none border border-gray-200">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-sm font-semibold text-red-500 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" /> Low Attendance Alerts
@@ -699,7 +677,7 @@ const PrincipalDashboard = () => {
             </div>
 
             {/* 12. AI INSIGHTS & IMPROVEMENT SUGGESTIONS */}
-            <Card className="bg-white shadow-sm pb-2">
+            <Card className="bg-white shadow-none pb-2 border border-gray-200">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
                   <Brain className="h-4 w-4" /> AI Insights & Improvement Suggestions
@@ -732,7 +710,7 @@ const PrincipalDashboard = () => {
             </Card>
 
             {/* 13. DOWNLOAD & REPORTS */}
-            <Card className="border border-gray-300 bg-white shadow-sm mb-12">
+            <Card className="border border-gray-200 bg-white shadow-none mb-12">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <Download className="h-4 w-4 text-slate-400" /> Download Reports
