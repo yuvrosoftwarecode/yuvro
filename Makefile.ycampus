@@ -1,0 +1,148 @@
+# YCampus Platform Makefile
+
+.PHONY: setup dev dev-detached stop restart logs clean reload-data
+.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
+.PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
+.PHONY: frontend-shell frontend-test frontend-test-watch frontend-format frontend-format-fix frontend-lint frontend-install
+
+# ============================================================================
+# Setup
+# ============================================================================
+
+setup:
+	@echo "🚀 Setting up YCampus Platform..."
+	@echo "Checking dependencies..."
+	@command -v docker >/dev/null 2>&1 || { echo "❌ Docker is required but not installed."; exit 1; }
+	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
+
+	@echo "Creating environment files..."
+	@if [ ! -f ycampus-backend-api/.env ]; then cp ycampus-backend-api/.env.example ycampus-backend-api/.env; echo "✅ Created backend .env"; fi
+	@if [ ! -f ycampus-web/.env ]; then cp ycampus-web/.env.example ycampus-web/.env; echo "✅ Created frontend .env"; fi
+
+	@echo "Creating executor network..."
+	@docker network create executor 2>/dev/null || true
+
+	@echo "Stopping existing YCampus containers (preserving volumes)..."
+	docker compose -f docker-compose.ycampus.yml down
+	@sleep 2
+
+	@echo "Building and starting YCampus services..."
+	docker compose -f docker-compose.ycampus.yml up -d --build --wait
+
+	@echo "Loading test data..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_local_testing --clear
+	
+	@echo "✅ YCampus setup complete!"
+	@echo "🌐 Frontend: http://localhost:3001"
+	@echo "🔧 Backend API: http://localhost:8001"
+
+# ============================================================================
+# Development
+# ============================================================================
+
+dev:
+	docker compose -f docker-compose.ycampus.yml up --remove-orphans
+
+dev-detached:
+	docker compose -f docker-compose.ycampus.yml up -d --remove-orphans
+
+stop:
+	docker compose -f docker-compose.ycampus.yml down
+
+restart:
+	docker compose -f docker-compose.ycampus.yml restart
+
+logs:
+	@if [ "$(SERVICE)" = "" ]; then \
+		docker compose -f docker-compose.ycampus.yml logs -f; \
+	else \
+		docker compose -f docker-compose.ycampus.yml logs -f $(SERVICE); \
+	fi
+
+clean:
+	@echo "🧹 Cleaning YCampus containers and volumes..."
+	docker compose -f docker-compose.ycampus.yml down -v --remove-orphans
+	@echo "✅ Cleanup complete!"
+
+reload-data:
+	@echo "🔄 Reloading YCampus test data..."
+	docker compose -f docker-compose.ycampus.yml exec ycampus-backend python manage.py setup_local_testing --clear
+	@echo "✅ Test data reloaded!"
+
+# ============================================================================
+# Database
+# ============================================================================
+
+db-shell:
+	docker compose -f docker-compose.ycampus.yml exec db psql -U postgres -d yc_app
+
+db-migrate:
+	docker compose -f docker-compose.ycampus.yml exec backend python manage.py migrate
+
+db-makemigrations:
+	docker compose -f docker-compose.ycampus.yml run --rm backend python manage.py makemigrations
+
+db-createsuperuser:
+	docker compose -f docker-compose.ycampus.yml exec backend python manage.py createsuperuser
+
+db-reset:
+	@echo "🔄 Resetting database..."
+	docker compose -f docker-compose.ycampus.yml down db -v
+	docker compose -f docker-compose.ycampus.yml up -d db
+	@echo "✅ Database reset complete!"
+
+# ============================================================================
+# Backend
+# ============================================================================
+
+backend-shell:
+	docker compose -f docker-compose.ycampus.yml exec backend python manage.py shell
+
+backend-test:
+	docker compose -f docker-compose.ycampus.yml exec backend python manage.py test
+
+backend-format:
+	docker compose -f docker-compose.ycampus.yml exec backend black . --check --diff
+
+backend-format-fix:
+	docker compose -f docker-compose.ycampus.yml exec backend black .
+
+backend-lint:
+	docker compose -f docker-compose.ycampus.yml exec backend flake8 .
+
+backend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ycampus backend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ycampus.yml exec backend pip install $(PKG)
+	docker compose -f docker-compose.ycampus.yml exec backend pip freeze > ycampus-backend-api/requirements.txt
+
+# ============================================================================
+# Frontend
+# ============================================================================
+
+frontend-shell:
+	docker compose -f docker-compose.ycampus.yml exec frontend sh
+
+frontend-test:
+	docker compose -f docker-compose.ycampus.yml exec frontend npm test -- --run
+
+frontend-test-watch:
+	docker compose -f docker-compose.ycampus.yml exec frontend npm test
+
+frontend-format:
+	docker compose -f docker-compose.ycampus.yml exec frontend npm run format:check
+
+frontend-format-fix:
+	docker compose -f docker-compose.ycampus.yml exec frontend npm run format
+
+frontend-lint:
+	docker compose -f docker-compose.ycampus.yml exec frontend npm run lint
+
+frontend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ycampus frontend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ycampus.yml exec frontend npm install $(PKG)

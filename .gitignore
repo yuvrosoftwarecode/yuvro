@@ -21,12 +21,12 @@ staticfiles/
 
 # Node/React
 node_modules/
-yc-web/node_modules/
-yc-web/dist/
-yc-web/.next/
-yc-web/.cache/
-yc-web/.eslintcache
-yc-web/.tsbuildinfo
+ycode-web/node_modules/
+ycode-web/dist/
+ycode-web/.next/
+ycode-web/.cache/
+ycode-web/.eslintcache
+ycode-web/.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

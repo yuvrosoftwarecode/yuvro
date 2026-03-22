@@ -1,0 +1,49 @@
+# Common Services Makefile (Shared Code Executor)
+
+.PHONY: setup dev stop logs clean
+.PHONY: executor-shell executor-test executor-logs
+
+# ============================================================================
+# Setup
+# ============================================================================
+
+setup:
+	@echo "🚀 Setting up Common Services..."
+	@if [ ! -f yuvro-code-executer/.env ]; then cp yuvro-code-executer/.env.example yuvro-code-executer/.env; echo "✅ Created code-executor .env"; fi
+	@echo "Creating executor network..."
+	@docker network create executor 2>/dev/null || true
+	@echo "Starting code executor..."
+	docker compose -f docker-compose.common.yml up -d --build
+	@echo "✅ Common services setup complete!"
+	@echo "⚙️  Code Executor: http://localhost:8002"
+
+# ============================================================================
+# Development
+# ============================================================================
+
+dev:
+	docker compose -f docker-compose.common.yml up
+
+stop:
+	docker compose -f docker-compose.common.yml down
+
+logs:
+	docker compose -f docker-compose.common.yml logs -f
+
+clean:
+	@echo "🧹 Cleaning common services..."
+	docker compose -f docker-compose.common.yml down -v --remove-orphans
+	@echo "✅ Cleanup complete!"
+
+# ============================================================================
+# Code Executor
+# ============================================================================
+
+executor-shell:
+	docker compose -f docker-compose.common.yml exec code-executor sh
+
+executor-test:
+	docker compose -f docker-compose.common.yml exec code-executor python test_service.py
+
+executor-logs:
+	docker compose -f docker-compose.common.yml logs -f code-executor

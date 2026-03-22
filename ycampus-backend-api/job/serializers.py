@@ -19,6 +19,8 @@ from .models import (
 from authentication.models import Profile
 from authentication.serializers import UserSerializer
 import logging
+from decimal import Decimal
+
 
 User = get_user_model()
 
@@ -391,10 +393,10 @@ class CandidateSearchSerializer(serializers.Serializer):
     location = serializers.CharField(required=False, allow_blank=True)
 
     ctc_from = serializers.DecimalField(
-        required=False, max_digits=10, decimal_places=2, min_value=0, allow_null=True
+        required=False, max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True
     )
     ctc_to = serializers.DecimalField(
-        required=False, max_digits=10, decimal_places=2, min_value=0, allow_null=True
+        required=False, max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True
     )
 
     notice_period = serializers.ListField(

@@ -1,0 +1,394 @@
+{
+  "mock_interviews": [
+    {
+      "title": "Mock Interview — Data Structures & Algorithms (DSA) Specialist",
+      "description": "Master algorithmic thinking, problem-solving patterns, and optimization techniques. This interview challenges your ability to analyze time-space complexity and implement efficient solutions for complex computational problems.",
+      "instructions": "90 minutes. Includes algorithm analysis, problem-solving patterns, and 3 coding tasks with multiple test cases. Focus on optimization and edge cases.",
+      "max_duration": 90,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on Arrays, Strings, Linked Lists, basic recursion, and fundamental sorting/searching algorithms. Must understand Big O notation and basic time complexity analysis. Should be comfortable with basic STL/Collections usage."],
+          "coding_questions_count": 2
+        },
+        "beginner": {
+          "context": ["Focus on Trees, Graphs, Dynamic Programming basics, HashMap usage, and Two Pointer techniques. Should understand recursion depth, memoization, and basic graph traversals (BFS/DFS). Must handle edge cases in implementations."],
+          "coding_questions_count": 2
+        },
+        "1_3_years": {
+          "context": ["Focus on Advanced DP, Graph algorithms (Dijkstra, Bellman-Ford, Floyd-Warshall), Segment Trees, Tries, and Union-Find. Must optimize for both time and space. Should handle large input constraints (10^5+) efficiently. Understanding of NP-hard problem identification and approximation strategies."],
+          "coding_questions_count": 3
+        },
+        "3_plus_years": {
+          "context": ["Focus on Advanced problem-solving patterns, System design with algorithmic components, Multi-threaded algorithms, and Distributed algorithms (Consensus, Paxos, Raft). Must design algorithms for real-world scalability, handle concurrent modifications, and implement fault-tolerant solutions. Deep understanding of algorithm engineering and hardware-level optimizations."],
+          "coding_questions_count": 3
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Data Structures",
+        "Algorithms",
+        "Problem Solving",
+        "Complexity Analysis"
+      ],
+      "optional_skills": [
+        "Competitive Programming",
+        "System Design",
+        "Optimization"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 4,
+        "descriptive": 1
+      }
+    },
+    {
+      "title": "Mock Interview — Backend Engineering Expert",
+      "description": "Comprehensive assessment of backend development skills including API design, database optimization, caching strategies, and distributed systems architecture. Real-world scenario-based challenges.",
+      "instructions": "75 minutes. System design problems, API optimization scenarios, database query optimization, and one hands-on coding task implementing a backend service component.",
+      "max_duration": 75,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on RESTful API basics, CRUD operations, basic SQL queries, and understanding of HTTP protocols. Should know MVC architecture, basic authentication methods, and how to structure a simple backend service. Familiarity with at least one backend framework."],
+          "coding_questions_count": 1
+        },
+        "beginner": {
+          "context": ["Focus on Advanced API design (HATEOAS, versioning), database indexing strategies, connection pooling, caching basics (Redis/Memcached), and message queues (RabbitMQ/Kafka basics). Should understand ACID properties, transaction management, and N+1 query problem. Experience with authentication (JWT, OAuth) and basic security practices."],
+          "coding_questions_count": 2
+        },
+        "1_3_years": {
+          "context": ["Focus on Microservices architecture, service discovery, API gateways, circuit breakers, distributed tracing, and event-driven architecture. Deep understanding of database sharding, replication, and CAP theorem. Experience with containerization (Docker), orchestration (Kubernetes basics), and cloud services (AWS/Azure/GCP). Should handle concurrent request patterns and idempotency."],
+          "coding_questions_count": 2
+        },
+        "3_plus_years": {
+          "context": ["Focus on Large-scale distributed systems design, CQRS/Event Sourcing patterns, Saga patterns for distributed transactions, and advanced caching strategies (CDN, edge computing). Deep expertise in performance tuning, bottleneck identification, and system observability (metrics, logs, traces). Experience designing for high availability (99.99%+), disaster recovery, and multi-region deployment. Understanding of consensus algorithms, distributed consensus, and eventually consistent systems. Should architect systems handling millions of requests per day with sub-second latency."],
+          "coding_questions_count": 2
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "API Design",
+        "Databases",
+        "System Architecture",
+        "Distributed Systems"
+      ],
+      "optional_skills": [
+        "Cloud Computing",
+        "DevOps",
+        "Performance Optimization"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 4,
+        "mcq_multiple": 3,
+        "coding": 2,
+        "descriptive": 3
+      }
+    },
+    {
+      "title": "Mock Interview — Frontend Development Master",
+      "description": "Deep dive into modern frontend development with focus on component architecture, state management, performance optimization, and user experience. Tests your ability to build scalable, maintainable UI applications.",
+      "instructions": "60 minutes. Includes component design challenges, state management scenarios, performance debugging, and one hands-on coding task building an interactive UI component.",
+      "max_duration": 60,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on HTML5 semantics, CSS3 (Flexbox/Grid), JavaScript fundamentals (ES6+), and basic React/Vue concepts. Should understand DOM manipulation, event handling, and responsive design principles. Basic understanding of browser dev tools and simple debugging."],
+          "coding_questions_count": 2
+        },
+        "beginner": {
+          "context": ["Focus on Advanced React patterns (HOCs, Render Props, Hooks), state management (Redux/Zustand/Context), component lifecycle optimization, and CSS-in-JS solutions. Should understand virtual DOM, reconciliation, and code splitting. Experience with TypeScript, modern build tools (Webpack/Vite), and basic performance metrics (Core Web Vitals)."],
+          "coding_questions_count": 2
+        },
+        "1_3_years": {
+          "context": ["Focus on Micro-frontend architecture, module federation, advanced state management patterns, and custom renderers. Deep understanding of rendering performance, memory leaks prevention, and bundle optimization. Experience with server-side rendering (Next.js/Nuxt), static site generation, and progressive web apps. Should implement complex animations, handle real-time updates (WebSockets), and optimize for accessibility (WCAG)."],
+          "coding_questions_count": 2
+        },
+        "3_plus_years": {
+          "context": ["Focus on Frontend architecture at scale, design systems, monorepo management, and build pipeline optimization. Deep expertise in performance profiling, custom compiler/transpiler configurations, and advanced debugging techniques. Experience with WebAssembly, custom rendering engines, and offline-first architectures. Should architect frontend solutions for enterprise applications with multiple teams, ensure consistent developer experience, and implement advanced testing strategies (visual regression, E2E, integration). Understanding of browser internals, V8 optimizations, and memory profiling."],
+          "coding_questions_count": 2
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "HTML/CSS",
+        "JavaScript/TypeScript",
+        "React/Vue/Angular",
+        "Performance Optimization"
+      ],
+      "optional_skills": [
+        "Web Accessibility",
+        "Animation",
+        "Build Tools"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 2
+      }
+    },
+    {
+      "title": "Mock Interview — DevOps & Cloud Engineering",
+      "description": "Comprehensive assessment of modern DevOps practices including CI/CD pipelines, infrastructure as code, container orchestration, monitoring, and cloud architecture. Real-world operational scenarios.",
+      "instructions": "75 minutes. Includes infrastructure design, CI/CD pipeline optimization, incident response scenarios, and hands-on scripting tasks for automation.",
+      "max_duration": 75,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on Linux fundamentals, basic bash scripting, version control (Git), and understanding of CI/CD concepts. Should know basic Docker commands, containerization benefits, and simple YAML configurations. Familiarity with at least one cloud provider's basic services (EC2, S3)."],
+          "coding_questions_count": 1
+        },
+        "beginner": {
+          "context": ["Focus on Docker compose, Kubernetes basics (pods, deployments, services), infrastructure as code (Terraform/CloudFormation), and CI/CD pipeline creation (Jenkins/GitHub Actions). Should understand networking basics (DNS, load balancers, firewalls), monitoring fundamentals (Prometheus/Grafana), and logging stacks (ELK/EFK). Experience with configuration management (Ansible)."],
+          "coding_questions_count": 1
+        },
+        "1_3_years": {
+          "context": ["Focus on Advanced Kubernetes (operators, custom resources, service meshes like Istio), GitOps practices (ArgoCD), and comprehensive monitoring/alerting strategies. Deep understanding of cloud architecture patterns, cost optimization, and security best practices (IAM, secrets management). Experience with multi-cloud/hybrid cloud setups, disaster recovery planning, and performance testing. Should design highly available, scalable infrastructure and implement policy as code (OPA)."],
+          "coding_questions_count": 2
+        },
+        "3_plus_years": {
+          "context": ["Focus on Platform engineering, internal developer platforms, and large-scale infrastructure design. Deep expertise in chaos engineering, SRE practices, and reliability engineering. Experience designing for observability at scale (distributed tracing, custom metrics pipelines), implementing security automation (DevSecOps), and optimizing infrastructure costs for thousands of services. Should architect solutions for regulatory compliance (GDPR, HIPAA), implement advanced deployment strategies (canary, blue-green, progressive delivery), and design auto-scaling policies based on real-time metrics. Understanding of eBPF, kernel tuning, and network optimizations."],
+          "coding_questions_count": 2
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "CI/CD",
+        "Container Orchestration",
+        "Cloud Platforms",
+        "Infrastructure as Code"
+      ],
+      "optional_skills": [
+        "Monitoring",
+        "Security",
+        "SRE Practices"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 4,
+        "mcq_multiple": 2,
+        "coding": 2,
+        "descriptive": 4
+      }
+    },
+    {
+      "title": "Mock Interview — Full Stack Engineering",
+      "description": "End-to-end development assessment covering both frontend and backend expertise. Tests your ability to build complete, production-ready applications with seamless integration between layers.",
+      "instructions": "90 minutes. Includes full-stack design challenges, integration scenarios, database design, and a complete feature implementation task.",
+      "max_duration": 90,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on Basic full-stack CRUD applications, understanding of client-server communication, REST APIs, and basic database operations. Should know how to connect frontend to backend, handle forms, and display data. Familiarity with at least one full-stack framework (MERN, MEAN, Spring Boot + Angular)."],
+          "coding_questions_count": 2
+        },
+        "beginner": {
+          "context": ["Focus on Authentication/Authorization flows, state management across client and server, real-time features (WebSockets), and file handling. Should understand CORS, security best practices, session management, and API rate limiting. Experience with both SQL and NoSQL databases, data validation, and error handling across the stack."],
+          "coding_questions_count": 2
+        },
+        "1_3_years": {
+          "context": ["Focus on Complex application architectures, server-side rendering with client-side hydration, caching strategies across layers, and performance optimization from database to UI. Deep understanding of web security (XSS, CSRF, SQL injection), data consistency patterns, and handling high-traffic scenarios. Experience with GraphQL, microservices communication, and containerized development environments."],
+          "coding_questions_count": 2
+        },
+        "3_plus_years": {
+          "context": ["Focus on Enterprise full-stack architecture, polyglot persistence, event-driven architectures, and BFF (Backend for Frontend) patterns. Deep expertise in performance profiling across the entire stack, advanced caching strategies (HTTP caching, service workers, CDN), and building for global scale with multi-region deployment. Should architect solutions considering offline capabilities, progressive enhancement, and graceful degradation. Experience leading full-stack teams, establishing coding standards, and implementing comprehensive testing strategies (unit, integration, E2E, visual regression)."],
+          "coding_questions_count": 3
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Frontend Development",
+        "Backend Development",
+        "Database Design",
+        "API Integration"
+      ],
+      "optional_skills": [
+        "Cloud Deployment",
+        "Security",
+        "Performance"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 4,
+        "descriptive": 3
+      }
+    },
+    {
+      "title": "Mock Interview — Database Administration Expert",
+      "description": "Advanced assessment of database management skills including performance tuning, replication, backup strategies, and disaster recovery. Real-world DBA scenarios and optimization challenges.",
+      "instructions": "60 minutes. Includes query optimization, schema design, replication setup, performance troubleshooting, and hands-on database administration tasks.",
+      "max_duration": 60,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on SQL fundamentals, basic query writing, understanding of indexes, and normal forms. Should know database installation, basic configuration, user management, and simple backup/restore procedures. Familiarity with at least one RDBMS (MySQL/PostgreSQL)."],
+          "coding_questions_count": 2
+        },
+        "beginner": {
+          "context": ["Focus on Query optimization (EXPLAIN analysis), advanced indexing strategies (composite, partial, full-text), stored procedures, triggers, and views. Should understand transaction isolation levels, locking mechanisms, deadlock detection, and basic replication concepts. Experience with database monitoring tools and performance baseline establishment."],
+          "coding_questions_count": 2
+        },
+        "1_3_years": {
+          "context": ["Focus on High availability setups (master-slave, multi-master), advanced replication topologies, partitioning strategies, and sharding implementations. Deep understanding of backup strategies (hot/cold, incremental, point-in-time recovery), disaster recovery planning, and database migration strategies. Experience with both SQL and NoSQL databases, database clustering, and load balancing. Should handle performance troubleshooting under high concurrency."],
+          "coding_questions_count": 2
+        },
+        "3_plus_years": {
+          "context": ["Focus on Large-scale database architecture for petabyte-scale data, distributed database systems (CockroachDB, TiDB, Cassandra), and multi-model database implementations. Deep expertise in advanced performance tuning (query rewriting, materialized views, parallel query execution), custom replication solutions, and zero-downtime schema migrations. Should design disaster recovery solutions for regulatory compliance, implement data governance and lineage, and architect database solutions for global distribution with latency optimization. Experience with database internals, storage engine customization, and contributing to open-source database tools."],
+          "coding_questions_count": 2
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "SQL",
+        "Database Design",
+        "Performance Tuning",
+        "Backup & Recovery"
+      ],
+      "optional_skills": [
+        "NoSQL",
+        "Replication",
+        "Cloud Databases"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 4,
+        "mcq_multiple": 3,
+        "coding": 2,
+        "descriptive": 3
+      }
+    },
+    {
+      "title": "Mock Interview — Managerial Round",
+      "description": "Assessment of leadership skills, team management capabilities, project planning, and strategic thinking. Real-world management scenarios and people challenges.",
+      "instructions": "45 minutes. Includes team leadership scenarios, conflict resolution, project planning, and strategic decision-making discussions.",
+      "max_duration": 45,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["No applicable - Managerial round typically for experienced candidates"]
+        },
+        "beginner": {
+          "context": ["No applicable - Managerial round typically for experienced candidates"]
+        },
+        "1_3_years": {
+          "context": ["Focus on Technical leadership basics, mentoring junior developers, code review practices, and small team coordination. Should demonstrate ability to estimate tasks, communicate with stakeholders, and handle technical decision-making for features."],
+          "coding_questions_count": 0
+        },
+        "3_plus_years": {
+          "context": ["Focus on Advanced team leadership, conflict resolution, performance management, and strategic technical planning. Should demonstrate experience in hiring, onboarding, and building engineering culture. Deep understanding of project management methodologies (Agile/Scrum/Kanban), resource allocation, and risk management. Should handle complex stakeholder management, cross-team collaboration, and driving technical initiatives across organizations. Experience with budget planning, vendor management, and aligning technical strategy with business goals."],
+          "coding_questions_count": 0
+        }
+      },
+      "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Leadership",
+        "Team Management",
+        "Project Planning",
+        "Communication"
+      ],
+      "optional_skills": [
+        "Strategic Planning",
+        "Conflict Resolution",
+        "Mentoring"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 0,
+        "mcq_multiple": 0,
+        "coding": 0,
+        "descriptive": 5
+      }
+    },
+    {
+      "title": "Mock Interview — HR Round",
+      "description": "Behavioral assessment focusing on cultural fit, career aspirations, soft skills, and alignment with company values. Real-world HR scenarios and professional development discussions.",
+      "instructions": "30 minutes. Includes behavioral questions, situational scenarios, career discussions, and value alignment conversations.",
+      "max_duration": 30,
+      "ai_generation_mode": "mixed",
+      "ai_percentage": 100,
+      "ai_context": {
+        "intern": {
+          "context": ["Focus on Career aspirations, learning agility, basic professional etiquette, and understanding of workplace dynamics. Should demonstrate enthusiasm, willingness to learn, and basic communication skills. Questions about internships, academic projects, and team experiences."],
+          "coding_questions_count": 0
+        },
+        "beginner": {
+          "context": ["Focus on Professional growth, handling feedback, collaboration examples, and dealing with challenges in previous roles. Should demonstrate problem-solving attitude, adaptability, and clear communication. Questions about past projects, team contributions, and learning experiences."],
+          "coding_questions_count": 0
+        },
+        "1_3_years": {
+          "context": ["Focus on Career progression, handling conflicts, leadership examples, and decision-making scenarios. Should demonstrate ownership, initiative, and ability to influence without authority. Questions about mentoring others, handling pressure, and professional achievements."],
+          "coding_questions_count": 0
+        },
+        "3_plus_years": {
+          "context": ["Focus on Leadership philosophy, handling difficult situations, strategic thinking, and alignment with organizational values. Should demonstrate emotional intelligence, adaptability to change, and ability to drive culture. Deep discussion about career trajectory, handling failures, building teams, and navigating organizational politics. Questions about leadership style, conflict resolution at scale, and vision for the future."],
+          "coding_questions_count": 0
+        }
+      },
+      "voice_type": "riley",
+      "interviewer_name": "Riley",
+      "interviewer_voice_id": "riley-voice-8",
+      "voice_speed": 1.0,
+      "audio_settings": {},
+      "required_skills": [
+        "Communication",
+        "Cultural Fit",
+        "Professional Growth",
+        "Behavioral Competencies"
+      ],
+      "optional_skills": [
+        "Leadership",
+        "Conflict Resolution",
+        "Emotional Intelligence"
+      ],
+      "publish_status": "active",
+      "questions_random_config": {
+        "mcq_single": 0,
+        "mcq_multiple": 0,
+        "coding": 0,
+        "descriptive": 5
+      }
+    }
+  ]
+}
