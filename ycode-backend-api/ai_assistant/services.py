@@ -154,8 +154,7 @@ class AnthropicService(BaseAIService):
         super().__init__(api_key, model_name)
         try:
             import anthropic
-
-            self.client = anthropic.Anthropic(api_key=api_key)
+            self.client = anthropic.AsyncAnthropic(api_key=api_key)
         except ImportError:
             raise AIServiceError(
                 "Anthropic library not installed. Run: pip install anthropic"
@@ -189,7 +188,7 @@ class AnthropicService(BaseAIService):
                     )
 
             if stream:
-                response = self.client.messages.create(
+                response = await self.client.messages.create(
                     model=self.model_name,
                     max_tokens=max_tokens,
                     temperature=temperature,
@@ -203,7 +202,7 @@ class AnthropicService(BaseAIService):
                     "metadata": {"model": self.model_name},
                 }
 
-            response = self.client.messages.create(
+            response = await self.client.messages.create(
                 model=self.model_name,
                 max_tokens=max_tokens,
                 temperature=temperature,
@@ -280,7 +279,7 @@ class GeminiService(BaseAIService):
             }
 
             try:
-                response = self.model.generate_content(
+                response = await self.model.generate_content_async(
                     conversation_text, generation_config=generation_config, stream=stream
                 )
                   
@@ -298,7 +297,7 @@ class GeminiService(BaseAIService):
                     try:
                         import google.generativeai as genai
                         fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                        response = fallback_model.generate_content(
+                        response = await fallback_model.generate_content_async(
                             conversation_text, generation_config=generation_config, stream=stream
                         )
                         
