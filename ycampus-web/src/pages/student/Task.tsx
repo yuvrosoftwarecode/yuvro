@@ -561,6 +561,8 @@ const StudentTask: React.FC = () => {
             {/* Submission Modal */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-7xl max-h-[85vh] w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
+                    <DialogTitle className="sr-only">Task Submission</DialogTitle>
+                    <DialogDescription className="sr-only">View and submit your task details</DialogDescription>
                     {/* Custom close button */}
                     <button
                         onClick={() => setIsDialogOpen(false)}
