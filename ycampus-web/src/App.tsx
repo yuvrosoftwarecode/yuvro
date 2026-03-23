@@ -743,6 +743,14 @@ function App() {
                 }
               />
               <Route
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/college-admin/tpo"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
