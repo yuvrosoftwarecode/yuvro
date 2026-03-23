@@ -9,6 +9,7 @@ from .views import (
     TaskViewSet,
     TaskSubmissionViewSet,
     NoteViewSet,
+    AnnouncementViewSet
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ router.register(r"attendance-records", AttendanceRecordViewSet, basename="attend
 router.register(r"tasks", TaskViewSet, basename="task")
 router.register(r"task-submissions", TaskSubmissionViewSet, basename="task-submission")
 router.register(r"notes", NoteViewSet, basename="note")
+router.register(r"announcement", AnnouncementViewSet, basename="announcement")
 
 urlpatterns = [
     path("", include(router.urls)),

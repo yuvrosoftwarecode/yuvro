@@ -392,6 +392,13 @@ class Question(models.Model):
         default=list, blank=True, help_text="Advanced test cases for evaluation"
     )
 
+    # Hints
+    hints = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of hints for the question. Format: [{'level': 1, 'text': 'hint text'}]",
+    )
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -626,3 +633,47 @@ class SectionSubjectFaculty(BaseTimestampedModel):
                 self.faculty.linked_departments.add(dept)
 
 
+
+
+
+
+class QuestionSolution(models.Model):
+    """
+    Model for storing solutions to questions in the question bank.
+    Supports multiple solutions per question (e.g. different languages or approaches).
+    """
+
+    LANGUAGE_CHOICES = [
+        ("python", "Python"),
+        ("java", "Java"),
+        ("cpp", "C++"),
+        ("c", "C"),
+        ("javascript", "JavaScript"),
+        ("sql", "SQL"),
+        ("other", "Other"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="solutions"
+    )
+    title = models.CharField(max_length=255, blank=True, default="")
+    language = models.CharField(max_length=20, choices=LANGUAGE_CHOICES, default="python")
+    code = models.TextField(blank=True, default="")
+    complexity_analysis = models.TextField(
+        blank=True,
+        default="",
+        help_text="Time and space complexity analysis of the solution",
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Whether this is the primary/recommended solution",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_primary", "created_at"]
+
+    def __str__(self):
+        return f"{self.question.title[:40]} — {self.language} ({self.title})"

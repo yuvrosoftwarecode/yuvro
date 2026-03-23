@@ -31,6 +31,7 @@ import {
   FileText,
   CheckCircle,
   Search,
+  FlaskConical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -45,6 +46,7 @@ import {
   QUESTION_CATEGORIES,
   validateQuestion,
 } from '@/services/questionService';
+import TestCasesModal from './TestCasesModal';
 
 import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
 
@@ -96,6 +98,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   // Delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Test cases modal
+  const [testCasesTarget, setTestCasesTarget] = useState<Question | null>(null);
 
   const loadQuestions = async () => {
     if (!subject) {
@@ -589,6 +594,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                         )}
                       </div>
                       <div className="flex items-center gap-2 ml-4">
+                        {question.type === 'coding' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setTestCasesTarget(question)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            title="Edit Test Cases"
+                          >
+                            <FlaskConical className="w-4 h-4" />
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"
@@ -1025,6 +1041,25 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Test Cases Modal */}
+      {testCasesTarget && (
+        <TestCasesModal
+          open={!!testCasesTarget}
+          onOpenChange={(open) => { if (!open) setTestCasesTarget(null); }}
+          questionId={testCasesTarget.id}
+          questionTitle={testCasesTarget.title}
+          initialBasic={testCasesTarget.test_cases_basic || []}
+          initialAdvanced={testCasesTarget.test_cases_advanced || []}
+          onSaved={(basic, advanced) => {
+            setQuestions(prev => prev.map(q =>
+              q.id === testCasesTarget.id
+                ? { ...q, test_cases_basic: basic, test_cases_advanced: advanced }
+                : q
+            ));
+          }}
+        />
+      )}
     </div>
   );
 };

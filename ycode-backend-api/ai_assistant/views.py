@@ -7,6 +7,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import StreamingHttpResponse
+from asgiref.sync import sync_to_async, async_to_sync
 from authentication.permissions import IsAuthenticatedUser
 from authentication.permissions import IsOwnerOrReadOnly
 from .models import (
@@ -113,7 +114,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         serializer = ChatRequestSerializer(data=request.data)
 
         if serializer.is_valid():
-            return self._process_chat_message(chat_session, serializer.validated_data)
+            return async_to_sync(self._process_chat_message)(chat_session, serializer.validated_data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["post"], url_path=r"messages/(?P<message_id>[^/.]+)/feedback")
@@ -136,7 +137,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         message.save()
         return Response({"status": "feedback recorded"}, status=status.HTTP_200_OK)
 
-    def _process_chat_message(self, chat_session, validated_data):
+    async def _process_chat_message(self, chat_session, validated_data):
         """Process a chat message and generate AI response."""
         message_content = validated_data["message"]
         temperature = validated_data.get("temperature")
@@ -144,117 +145,115 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         page_content = validated_data.get("page_content")
 
         try:
-            with transaction.atomic():
-                # Check if this is the initial trigger message for mock interview
-                is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
-                
-                user_message = None
-                if not is_trigger:
-                    # Create user message
-                    user_message = ChatMessage.objects.create(
-                        chat_session=chat_session,
-                        message_type="user",
-                        content=message_content,
-                    )
-                else:
-                    logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
+            # We use sync_to_async for the atomic block if needed, 
+            # but simpler to just wrap ORM calls.
+            
+            # Check if this is the initial trigger message for mock interview
+            is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
+            
+            user_message = None
+            if not is_trigger:
+                # Create user message
+                user_message = await sync_to_async(ChatMessage.objects.create)(
+                    chat_session=chat_session,
+                    message_type="user",
+                    content=message_content,
+                )
+            else:
+                logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
 
-                # Get AI agent configuration
-                ai_agent = chat_session.ai_agent
-                user_config = AIAgentConfiguration.objects.filter(
-                    user=chat_session.user, ai_agent=ai_agent
+            # Get AI agent configuration - WRAP IN SYNC_TO_ASYNC
+            ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
+            session_user = await sync_to_async(lambda: chat_session.user)()
+            
+            user_config = await sync_to_async(
+                lambda: AIAgentConfiguration.objects.filter(
+                    user=session_user, ai_agent=ai_agent
                 ).first()
+            )()
 
-                # Use custom settings if available
-                if temperature is None:
-                    temperature = (
-                        user_config.custom_temperature
-                        if user_config and user_config.custom_temperature
-                        else ai_agent.temperature
-                    )
-                if max_tokens is None:
-                    max_tokens = (
-                        user_config.custom_max_tokens
-                        if user_config and user_config.custom_max_tokens
-                        else ai_agent.max_tokens
-                    )
+            # Use custom settings if available
+            if temperature is None:
+                temperature = (
+                    user_config.custom_temperature
+                    if user_config and user_config.custom_temperature
+                    else ai_agent.temperature
+                )
+            if max_tokens is None:
+                max_tokens = (
+                    user_config.custom_max_tokens
+                    if user_config and user_config.custom_max_tokens
+                    else ai_agent.max_tokens
+                )
 
-                # Prepare messages for AI service
-                messages = self._prepare_messages(chat_session, user_config)
-                
-                # IMPORTANT: If it's a trigger, it wasn't saved to the DB, so it's not in the 
-                # 'messages' list from _prepare_messages. We MUST add it manually for providers 
-                # like Anthropic that require at least one user message.
-                if is_trigger:
-                    messages.append({"role": "user", "content": message_content})
+            # Prepare messages for AI service - AWAIT ASYNC PREPARE
+            messages = await self._prepare_messages(chat_session, user_config)
+            
+            if is_trigger:
+                messages.append({"role": "user", "content": message_content})
 
-                # Generate AI response
+            # Check if stream is requested by user
+            is_streaming = validated_data.get("stream", False)
+            
+            if is_streaming:
+                return await self._handle_streaming_response(
+                    chat_session=chat_session,
+                    ai_agent=ai_agent,
+                    user_config=user_config,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    page_content=page_content,
+                    user=session_user,
+                )
+            else:    
                 ai_service = AIServiceFactory.create_service(
                     ai_agent.provider, ai_agent.model_name
                 )
-
-                # Run async function in sync context
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                # Check if stream is requested by user
-                is_streaming = validated_data.get("stream", False)
                 
-                if is_streaming:
-                    return self._handle_streaming_response(
-                        chat_session=chat_session,
-                        ai_agent=ai_agent,
-                        user_config=user_config,
-                        messages=messages,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        page_content=page_content,
-                    )
-                else:    
-                    try:
-                        response_data = loop.run_until_complete(
-                            ai_service.generate_response(
-                                messages=messages,
-                                temperature=temperature,
-                                max_tokens=max_tokens,
-                                page_content=page_content,
-                                user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
-                            )
-                        )
-                    finally:
-                        loop.close()
+                # Pre-fetch for service call
+                full_user_name = await sync_to_async(lambda: session_user.profile.full_name if hasattr(session_user, 'profile') and session_user.profile.full_name else (session_user.first_name or session_user.username))()
 
-                    # Create assistant message
-                    assistant_message = ChatMessage.objects.create(
-                        chat_session=chat_session,
-                        message_type="assistant",
-                        content=response_data["response"],
-                        tokens_used=response_data.get("tokens_used"),
-                        response_time_ms=response_data.get("response_time_ms"),
-                        metadata=response_data.get("metadata", {}),
-                    )
+                response_data = await ai_service.generate_response(
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    page_content=page_content,
+                    user_name=full_user_name,
+                )
 
-                    # Update usage statistics
-                    self._update_usage_stats(
-                        chat_session.user, ai_agent, response_data.get("tokens_used", 0)
-                    )
+                # Create assistant message
+                assistant_message = await sync_to_async(ChatMessage.objects.create)(
+                    chat_session=chat_session,
+                    message_type="assistant",
+                    content=response_data["response"],
+                    tokens_used=response_data.get("tokens_used"),
+                    response_time_ms=response_data.get("response_time_ms"),
+                    metadata=response_data.get("metadata", {}),
+                )
 
-                    # Update chat session timestamp
-                    chat_session.updated_at = timezone.now()
-                    chat_session.save()
+                # Update usage statistics
+                await sync_to_async(self._update_usage_stats)(
+                    chat_session.user, ai_agent, response_data.get("tokens_used", 0)
+                )
 
-                    # Return response
-                    response_serializer = ChatResponseSerializer(
-                        {
-                            "chat_session_id": chat_session.id,
-                            "message_id": assistant_message.id,
-                            "response": response_data["response"],
-                            "tokens_used": response_data.get("tokens_used"),
-                            "response_time_ms": response_data.get("response_time_ms"),
-                            "metadata": response_data.get("metadata", {}),
-                        }
-                    )
+                # Update chat session timestamp
+                chat_session.updated_at = timezone.now()
+                await sync_to_async(chat_session.save)()
 
-                    return Response(response_serializer.data, status=status.HTTP_200_OK)
+                # Return response
+                response_serializer = ChatResponseSerializer(
+                    {
+                        "chat_session_id": chat_session.id,
+                        "message_id": assistant_message.id,
+                        "response": response_data["response"],
+                        "tokens_used": response_data.get("tokens_used"),
+                        "response_time_ms": response_data.get("response_time_ms"),
+                        "metadata": response_data.get("metadata", {}),
+                    }
+                )
+
+                return Response(response_serializer.data, status=status.HTTP_200_OK)
 
         except AIServiceError as e:
             return Response(
@@ -267,7 +266,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
             
-    def _handle_streaming_response(
+    async def _handle_streaming_response(
         self,
         chat_session,
         ai_agent,
@@ -276,15 +275,15 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         temperature,
         max_tokens,
         page_content,
+        user=None,
     ):
         """Handle streaming response from AI service via SSE."""
         import json
         import time
-        from asgiref.sync import async_to_sync
         
         start_time = time.time()
         
-        def stream_generator():
+        async def stream_generator():
             full_response_text = ""
             tokens_used = 0
             
@@ -293,41 +292,54 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 ai_agent.provider, ai_agent.model_name
             )
             
-            # Since generate_response is an async function, we need to run it in a sync context
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            
             try:
-                response_data = loop.run_until_complete(
-                    ai_service.generate_response(
-                        messages=messages,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        page_content=page_content,
-                        user_name=chat_session.user.profile.full_name if hasattr(chat_session.user, 'profile') and chat_session.user.profile.full_name else (chat_session.user.first_name or chat_session.user.username),
-                        stream=True,
-                    )
+                # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
+                yield " " * 1024 + "\n"
+                
+                # Prepare messages - AWAIT ASYNC PREPARE
+                messages = await self._prepare_messages(chat_session, user_config)
+
+                # Resolve user name safely
+                target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
+
+                response_data = await ai_service.generate_response(
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    page_content=page_content,
+                    user_name=user_name,
+                    stream=True,
                 )
                 
                 # Check if the service actually returned a stream
                 if "stream" in response_data:
                     stream = response_data["stream"]
-                    for chunk in stream:
-                        print(f"DEBUG CHUNK: {chunk}", flush=True)
-                        try:
-                            if chunk.text:
-                                full_response_text += chunk.text
-                                # SSE format: data: {json_string}\n\n
-                                data = json.dumps({"chunk": chunk.text})
-                                logger.debug(f"Streaming chunk size: {len(chunk.text)}")
-                                yield f"data: {data}\n\n"
-                        except ValueError as ve:
-                            # Gemini raises ValueError if the chunk was blocked or has no text
-                            print(f"DEBUG VALUE ERROR: {ve}", flush=True)
-                            pass
+                    async for chunk in stream:
+                        text = None
+                        # Gemini
+                        if hasattr(chunk, 'text'):
+                            try:
+                                text = chunk.text
+                            except ValueError: # Blocked or safety
+                                pass
+                        # Anthropic
+                        elif hasattr(chunk, 'type'):
+                            if chunk.type == 'content_block_delta':
+                                text = chunk.delta.text
+                        
+                        if text:
+                            full_response_text += text
+                            data = json.dumps({"chunk": text})
+                            yield f"data: {data}\n\n"
+                            # Artificial delay removed for maximum performance
                     
-                    # Update usage if available from stream
-                    if hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                    # Final usage update after loop
+                    if hasattr(stream, "get_final_metadata"):
+                        meta = stream.get_final_metadata()
+                        if hasattr(meta, 'usage'):
+                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
+                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
                         tokens_used = stream.usage_metadata.total_token_count
                 else:
                     # Fallback if streaming is not supported by the provider
@@ -341,15 +353,14 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 error_data = json.dumps({"error": str(e)})
                 yield f"data: {error_data}\n\n"
             finally:
-                loop.close()
-                
                 # We need to save the final message to the DB after the stream completes
-                # But we're in a generator, so we just run DB ops synchronously here
-                if full_response_text:
+                final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                
+                if full_response_text and chat_session:
                     end_time = time.time()
                     response_time_ms = int((end_time - start_time) * 1000)
                     
-                    assistant_message = ChatMessage.objects.create(
+                    assistant_message = await sync_to_async(ChatMessage.objects.create)(
                         chat_session=chat_session,
                         message_type="assistant",
                         content=full_response_text,
@@ -358,12 +369,12 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                         metadata=response_data.get("metadata", {}),
                     )
                     
-                    self._update_usage_stats(
-                        chat_session.user, ai_agent, tokens_used
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, ai_agent, tokens_used
                     )
                     
                     chat_session.updated_at = timezone.now()
-                    chat_session.save()
+                    await sync_to_async(chat_session.save)()
                     
                     # Send a final 'done' event with the full message metadata
                     done_data = json.dumps({
@@ -372,22 +383,29 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                         "chat_session_id": str(chat_session.id)
                     })
                     yield f"data: {done_data}\n\n"
+                elif full_response_text and final_user:
+                    # Just update usage stats for quick_chat
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, ai_agent, tokens_used
+                    )
+                    yield f"data: {json.dumps({'done': True})}\n\n"
 
         response = StreamingHttpResponse(
             stream_generator(), content_type="text/event-stream"
         )
         response["Cache-Control"] = "no-cache"
         response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+        response["X-Content-Type-Options"] = "nosniff"
         return response
 
-    def _prepare_messages(self, chat_session, user_config=None):
+    async def _prepare_messages(self, chat_session, user_config=None):
         """Prepare messages for AI service."""
         messages = []
 
         # Check if this is a mock interview session and inject specialized persona
         if chat_session.page == "mock_interview":
-            # Determine if this is the very first AI message
-            is_start = not chat_session.messages.filter(message_type="assistant").exists()
+            # Determine if this is the very first AI message - ASYNC SAFE
+            is_start = not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())()
             
             context = chat_session.context or {}
             role = context.get("role", "Software Engineer")
@@ -403,7 +421,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             # Time Tracking Logic
             time_left_msg = ""
             try:
-                interview_session = chat_session.interview_session
+                interview_session = await sync_to_async(lambda: chat_session.interview_session)()
                 total_duration_mins = interview_session.duration_minutes
                 elapsed_time = timezone.now() - interview_session.created_at
                 remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
@@ -415,33 +433,14 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             except:
                 pass
             
-            # Strict Prompt Construction
-            interview_prompt = f"""You are {interviewer_name}, an expert technical interviewer conducting a mock interview for the "{role}" position.
-
-PERSONA & STYLE:
-- Professional, observant, and conversational human interviewer. 
-- **Brevity is Mandatory**: Every response/question from you MUST be exactly 1 line long. Short and sweet.
-
-CORE RULES:
-1. **Active Listening**: You MUST directly acknowledge the specific content of the candidate's last answer. If they say they lacks experience in X, do NOT immediately ask a complex scenario about X.
-2. **Scenario-Based & Contextual**: Questions must be practical scenarios or related to the candidate's background. Avoid "Define X" or "What is Y".
-3. **Resume-Driven Flow**: Prioritize questions about technologies, projects, and experiences listed in the candidate's resume/background, but only if they align with the candidate's current statements.
-4. **Adaptive Chaining**: Base your next 1-line question on the depth or gaps in the candidate's LAST answer. If they are beginner, stick to foundations. If advanced, push limits.
-5. **No Definitional Bloat**: Never explain technical concepts. Acknowledge briefly and move to the next 1-line challenge.
-6. **Coding**: To trigger the code editor, you MUST start with **"Please write code to..."** or **"Write a function that..."**.
-
-INTERVIEW CONTEXT:
-- **Role**: {role}
-- **Level**: {level}
-- **Coding Questions to Ask**: {context.get('coding_questions_count', 1)}
-- **Required Skills**: {required_skills}
-- **AI Focus Context**: 
-{ai_context_str}
-- **Instructions**: {instructions}
-- **Candidate Background/Resume**: {candidate_info}
-
-{time_left_msg}
-"""
+            # Optimized, shorter interview prompt
+            interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
+Rules:
+1. RESPONSE LENGTH: Exactly 1 line.
+2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
+3. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
+4. ADAPTIVE: Base depth on candidate background: {candidate_info[:200]}
+{time_left_msg}"""
             if is_start:
                 # Override everything for the very first message
                 interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
@@ -458,13 +457,18 @@ INTERVIEW CONTEXT:
         elif user_config and user_config.system_prompt:
             messages.append({"role": "system", "content": user_config.system_prompt})
 
-        # Add conversation history
-        chat_messages = chat_session.messages.order_by("created_at")
-        for msg in chat_messages:
+        # Add conversation history - LIMIT TO LAST 5 MESSAGES for speed - ASYNC SAFE
+        chat_messages_qs = chat_session.messages.order_by("-created_at")[:5]
+        chat_messages_list = await sync_to_async(list)(chat_messages_qs)
+        
+        # Re-order back to chronological for the AI
+        chat_messages_list = sorted(chat_messages_list, key=lambda x: x.created_at)
+        
+        for msg in chat_messages_list:
             role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
             messages.append({"role": role, "content": msg.content})
 
-        if chat_session.page == "mock_interview" and not is_start:
+        if chat_session.page == "mock_interview" and not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())():
             # Find the last user message
             last_user_msg = None
             for msg in reversed(messages):
@@ -473,14 +477,7 @@ INTERVIEW CONTEXT:
                     break
             
             if last_user_msg:
-                adaptive_instruction = (
-                    f"The candidate's last answer was: \"{last_user_msg}\".\n"
-                    "INSTRUCTION: \n"
-                    "1. First, briefly acknowledge or validate their specific answer (e.g., 'Got it', 'I see you have a backend background', etc.).\n"
-                    "2. Then, ask your next 1-LINE question. \n"
-                    "3. If they mentioned a specific technology or lack of experience, pivot your question to align with their statement while staying relevant to the Data Scientist role.\n"
-                    "STRICT: The entire response must be exactly 1 line."
-                )
+                adaptive_instruction = f"Candidate said: \"{last_user_msg[:100]}\". Briefly acknowledge and ask your next 1-LINE question. STAY ON TOPIC."
                 messages.append({"role": "system", "content": adaptive_instruction})
 
         return messages
@@ -565,6 +562,47 @@ class AIAgentUsageViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
+class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for AIAgent model - read-only.
+    """
+
+    serializer_class = AIAgentSerializer
+    permission_classes = [IsAuthenticatedUser]
+    queryset = AIAgent.objects.filter(is_active=True)
+
+    @action(detail=False, methods=["post"])
+    def warmup(self, request):
+        """Trigger active background warmup for AI models."""
+        try:
+            return async_to_sync(self._async_warmup)(request)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    async def _async_warmup(self, request):
+        providers = await sync_to_async(lambda: list(AIAgent.objects.filter(is_active=True).values_list('provider', 'model_name')))()
+        
+        async def warm_provider(p, m):
+            try:
+                svc = AIServiceFactory.create_service(p, m)
+                await svc.generate_response([{"role": "user", "content": "hi"}], max_tokens=1)
+            except: pass
+
+        import asyncio
+        async def fire_and_forget():
+            await asyncio.gather(*(warm_provider(p, m) for p, m in providers))
+        
+        # Fire background tasks safely
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(fire_and_forget())
+        except RuntimeError:
+            # Fallback if no loop is running (shouldn't happen in ASGI)
+            asyncio.create_task(fire_and_forget())
+            
+        return Response({"status": "active warmup initiated"}, status=status.HTTP_200_OK)
+
+
 class AIAgentConfigurationViewSet(viewsets.ModelViewSet):
     """
     ViewSet for AIAgentConfiguration model.
@@ -592,60 +630,79 @@ class ChatViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"])
     def quick_chat(self, request):
         """Send a quick message without creating a persistent session."""
+        return async_to_sync(self._async_quick_chat)(request)
+
+    async def _async_quick_chat(self, request):
         serializer = ChatRequestSerializer(data=request.data)
 
         if serializer.is_valid():
             validated_data = serializer.validated_data
             ai_agent_id = validated_data.get("ai_agent_id")
-            if not ai_agent_id:
-                return Response(
-                    {"ai_agent_id": ["This field is required for quick chat."]},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             message_content = validated_data["message"]
             page_content = validated_data.get("page_content")
+            
+            # Fetch user name safely
+            def get_user_name(u):
+                if hasattr(u, 'profile') and u.profile.full_name:
+                    return u.profile.full_name
+                return u.first_name or u.username
+            
+            full_user_name = await sync_to_async(get_user_name)(request.user)
 
             try:
-                ai_agent = get_object_or_404(AIAgent, id=ai_agent_id, is_active=True)
+                # OPTIMIZED ROUTING
+                if not ai_agent_id:
+                    # Logic: Gemini for coding/quick, Claude for deep/long
+                    is_deep = any(kw in message_content.lower() for kw in ["explain", "why", "deep", "how does"]) or len(message_content) > 500
+                    
+                    if is_deep:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
+                    
+                    if not is_deep or not ai_agent:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first())()
+                    
+                    if not ai_agent:
+                        ai_agent = await sync_to_async(AIAgent.objects.first)()
+                        
+                    if not ai_agent:
+                        return Response({"error": "No active AI agent available"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                else:
+                    ai_agent = await sync_to_async(get_object_or_404)(AIAgent, id=ai_agent_id, is_active=True)
 
                 # Get user configuration if exists
-                user_config = AIAgentConfiguration.objects.filter(
-                    user=request.user, ai_agent=ai_agent
-                ).first()
+                user_config = await sync_to_async(
+                    lambda: AIAgentConfiguration.objects.filter(user=request.user, ai_agent=ai_agent).first()
+                )()
 
-                # Prepare messages
+                # Prepare messages - SHORTER SYSTEM PROMPT
                 messages = []
                 if user_config and user_config.system_prompt:
-                    messages.append(
-                        {"role": "system", "content": user_config.system_prompt}
-                    )
+                    messages.append({"role": "system", "content": user_config.system_prompt})
 
                 messages.append({"role": "user", "content": message_content})
 
-                # Generate response
-                ai_service = AIServiceFactory.create_service(
-                    ai_agent.provider, ai_agent.model_name
-                )
+                # Check if stream is requested
+                is_streaming = validated_data.get("stream", False)
 
-                temperature = validated_data.get("temperature", ai_agent.temperature)
-                max_tokens = validated_data.get("max_tokens", ai_agent.max_tokens)
-
-                # Run async function in sync context
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    response_data = loop.run_until_complete(
-                        ai_service.generate_response(
-                            messages=messages,
-                            temperature=temperature,
-                            max_tokens=max_tokens,
-                            page_content=page_content,
-                            user_name=request.user.profile.full_name if hasattr(request.user, 'profile') and request.user.profile.full_name else (request.user.first_name or request.user.username),
-                        )
+                if is_streaming:
+                    return await self._handle_streaming_response(
+                        chat_session=None,
+                        ai_agent=ai_agent,
+                        user_config=user_config,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user=request.user,
                     )
-                finally:
-                    loop.close()
+                
+                response_data = await ai_service.generate_response(
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    page_content=page_content,
+                    user_name=full_user_name,
+                )
 
                 return Response(
                     {

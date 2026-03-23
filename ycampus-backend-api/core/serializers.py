@@ -17,6 +17,7 @@ from .models import (
     TaskSubmission,
     TaskComment,
     Note,
+    Announcement,
 )
 from authentication.serializers import UserSerializer
 from django.contrib.auth import get_user_model
@@ -279,3 +280,35 @@ class NoteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Content cannot be empty.")
         return value
 
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    college_name = serializers.CharField(source="college.name", read_only=True)
+    department_name = serializers.CharField(source="department.name", read_only=True, allow_null=True)
+    created_by_name = serializers.CharField(source="created_by.email", read_only=True)
+
+    class Meta:
+        model = Announcement
+        fields = [
+            "id",
+            "title",
+            "content",
+            "college",
+            "college_name",
+            "department",
+            "department_name",
+            "level",
+            "created_by",
+            "created_by_name",
+            "priority",
+            "is_active",
+            "attachment",
+            "publish_date",
+            "expiry_date",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)

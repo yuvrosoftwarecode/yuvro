@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Count, Avg, Q, Sum
 from django.utils import timezone
+from django.db import models
 
 from .models import (
     College,
@@ -24,6 +25,7 @@ from .models import (
     TaskSubmission,
     TaskComment,
     Note,
+    Announcement,
 )
 from .serializers import (
     StudentProfileSerializer,
@@ -37,6 +39,7 @@ from .serializers import (
     TaskSubmissionSerializer,
     TaskCommentSerializer,
     NoteSerializer,
+    AnnouncementSerializer,
 )
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
@@ -1258,3 +1261,140 @@ class NoteViewSet(viewsets.ModelViewSet):
         Set the user to the current user when creating a note.
         """
         serializer.save(user=self.request.user)
+
+class AnnouncementViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing announcements.
+    - College Admin can create, update, delete announcements for their college
+    - Students can view announcements for their college or department
+    """
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ["college", "department", "level", "priority", "is_active"]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["title", "content"]
+    ordering_fields = ["created_at", "priority"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # Filter by active status and publish date
+        from django.utils import timezone
+        now = timezone.now()
+        queryset = queryset.filter(
+            is_active=True,
+        ).filter(
+            models.Q(publish_date__isnull=True) | models.Q(publish_date__lte=now)
+        ).filter(
+            models.Q(expiry_date__isnull=True) | models.Q(expiry_date__gte=now)
+        )
+        
+        # If user is a College Admin or Principal, show all their college announcements
+        if user.role in ["college_admin", "principal", "admin"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+        
+        # If user is a student, show college-level + their department announcements
+        if user.role == "student":
+            try:
+                student_profile = user.student_profile
+                college = student_profile.college
+                department = student_profile.department
+                
+                # Get college-level announcements OR department-level announcements for their department
+                return queryset.filter(
+                    models.Q(college=college, level="college") |
+                    models.Q(college=college, level="department", department=department)
+                )
+            except StudentProfile.DoesNotExist:
+                return queryset.none()
+        
+        # For other roles (faculty, HOD, TPO), show college-level + their department announcements
+        if user.role in ["faculty", "hod", "tpo"]:
+            try:
+                if user.role == "hod":
+                    profile = user.hod_profile
+                    college = profile.college
+                    department = profile.department
+                elif user.role == "tpo":
+                    profile = user.tpo_profile
+                    college = profile.college
+                    department = None
+                else:
+                    profile = user.faculty_profile
+                    college = profile.college
+                    department = profile.department
+                
+                if college:
+                    if department:
+                        return queryset.filter(
+                            models.Q(college=college, level="college") |
+                            models.Q(college=college, level="department", department=department)
+                        )
+                    return queryset.filter(college=college, level="college")
+                return queryset.none()
+            except:
+                return queryset.none()
+        
+        return queryset.none()
+
+    def perform_create(self, serializer):
+        # Set created_by to current user
+        serializer.save(created_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Only college_admin and principal can create announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to create announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get college from the user profile OR from request data
+        college = request.user.college
+        
+        # If college not found in profile, try to get from request data
+        if not college and 'college' in request.data:
+            college_id = request.data.get('college')
+            if college_id:
+                try:
+                    college = College.objects.get(id=college_id)
+                except College.DoesNotExist:
+                    pass
+        
+        if not college:
+            return Response(
+                {"detail": "Could not determine your college."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        data = request.data.copy()
+        data['college'] = str(college.id)
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        # Only college_admin and principal can update announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to update announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Only college_admin and principal can delete announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to delete announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)

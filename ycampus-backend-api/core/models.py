@@ -456,3 +456,59 @@ class Note(models.Model):
         # Handle cases where sub_unit might be None if unlinked
         subunit_name = self.sub_unit.name if self.sub_unit else "Unlinked"
         return f"{self.user.username} - {subunit_name} - {self.content[:30]}..."
+
+class Announcement(BaseTimestampedModel):
+    """
+    Model representing college or department level announcements.
+    """
+    PRIORITY_CHOICES = [
+        ("normal", "Normal"),
+        ("important", "Important"),
+        ("urgent", "Urgent"),
+    ]
+
+    LEVEL_CHOICES = [
+        ("college", "College"),
+        ("department", "Department"),
+    ]
+
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    attachment = models.FileField(upload_to='announcements/attachments/', null=True, blank=True)
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="announcements"
+    )
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="announcements",
+        null=True,
+        blank=True,
+        help_text="If null, this is a college-level announcement"
+    )
+    level = models.CharField(
+        max_length=20,
+        choices=LEVEL_CHOICES,
+        default="college"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="announcements",
+        null=True,
+        blank=True
+    )
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY_CHOICES,
+        default="normal"
+    )
+    is_active = models.BooleanField(default=True)
+    publish_date = models.DateTimeField(null=True, blank=True)
+    expiry_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.college.name}"

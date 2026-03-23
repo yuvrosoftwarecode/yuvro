@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -31,6 +30,12 @@ import {
   FileText,
   CheckCircle,
   Search,
+  FlaskConical,
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  BookOpen,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -47,7 +52,7 @@ import {
 } from '@/services/questionService';
 import SolutionManager, { Solution } from './SolutionManager';
 import { createSolution, updateSolution, deleteSolution, fetchSolutions } from '@/services/solutionService';
-
+import TestCasesModal from './TestCasesModal';
 import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
 
 interface QuestionBankManagerProps {
@@ -103,6 +108,15 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   // Delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Test cases modal
+  const [testCasesTarget, setTestCasesTarget] = useState<Question | null>(null);
+  // Lifted state for the inline Test Cases modal inside SolutionManager (create form)
+  const [formTestCasesModalOpen, setFormTestCasesModalOpen] = useState(false);
+
+  // Collapsible sections
+  const [hintsOpen, setHintsOpen] = useState(false);
+  const [solutionsOpen, setSolutionsOpen] = useState(false);
 
   const loadQuestions = async () => {
     if (!course) {
@@ -249,6 +263,8 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     });
     setSolutions([]); // Reset solutions
     setOriginalSolutions([]);
+    setHintsOpen(false);
+    setSolutionsOpen(false);
     setActiveTab('create');
     setEditingQuestion(null);
   };
@@ -284,6 +300,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       const fetchedSolutions = Array.isArray(response) ? response : (response?.results || []);
       setSolutions(fetchedSolutions);
       setOriginalSolutions(fetchedSolutions);
+      setSolutionsOpen(fetchedSolutions.length > 0);
     } catch (error) {
       console.error('Error fetching solutions:', error);
       toast.error('Failed to load solutions');
@@ -291,6 +308,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       setOriginalSolutions([]);
     }
 
+    setHintsOpen((question.hints || []).length > 0);
     setActiveTab('create');
   };
 
@@ -359,6 +377,34 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   const handleCancel = () => {
     setActiveTab('questions');
     setEditingQuestion(null);
+  };
+
+  // Auto-save new question then open test cases modal
+  const handleTestCasesClick = async () => {
+    if (editingQuestion) {
+      // Already saved — just open the modal
+      setFormTestCasesModalOpen(true);
+      return;
+    }
+    // New question — validate and auto-save first
+    const errors = validateQuestion(formData);
+    if (errors.length > 0) {
+      toast.error(errors[0]);
+      return;
+    }
+    setSaving(true);
+    try {
+      const created = await createQuestion(formData);
+      toast.success('Question saved');
+      setEditingQuestion(created);
+      setQuestions(prev => [created, ...prev]);
+      setFormTestCasesModalOpen(true);
+    } catch (error) {
+      console.error('Error auto-saving question:', error);
+      toast.error('Failed to save question');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -664,6 +710,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                             </div>
                           </div>
                           <div className="flex sm:flex-col items-center gap-2 self-end sm:self-start mt-2 sm:mt-0">
+                            {question.type === 'coding' && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setTestCasesTarget(question)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                title="Manage Test Cases"
+                              >
+                                <FlaskConical className="w-4 h-4" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"
@@ -692,395 +749,358 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         </Card>
       )}
 
-      {/* Create New Question Tab */}
+      {/* Create / Edit Question Tab */}
       {activeTab === 'create' && (
         <Card className="border-2 border-amber-200 bg-amber-50/30">
           <CardContent className="p-6">
             <div className="space-y-6">
               {/* Form Header */}
-              <div className="border-b border-amber-200 pb-4">
-                <div className="flex items-center gap-3">
-                  {editingQuestion ? (
-                    <>
-                      <Edit3 className="w-5 h-5 text-amber-600" />
-                      <h4 className="text-lg font-semibold text-slate-900">Edit Question</h4>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5 text-amber-600" />
-                      <h4 className="text-lg font-semibold text-slate-900">Create New Question</h4>
-                    </>
-                  )}
-                </div>
+              <div className="border-b border-amber-200 pb-4 flex items-center gap-3">
+                {editingQuestion ? <Edit3 className="w-5 h-5 text-amber-600" /> : <Plus className="w-5 h-5 text-amber-600" />}
+                <h4 className="text-lg font-semibold text-slate-900">{editingQuestion ? 'Edit Question' : 'Create New Question'}</h4>
               </div>
 
-              {/* Basic Information */}
+              {/* Row 1: Type + Difficulty + Marks/Duration */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Question Type</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={(value) => setFormData(prev => ({
-                      ...prev,
-                      type: value as 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive'
-                    }))}
-                  >
+                  <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as any }))}>
                     <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {QUESTION_TYPES.map(type => (
-                        <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
-                          {type.label}
-                        </SelectItem>
+                        <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{type.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">Question Level</Label>
-                  <Select
-                    value={formData.level}
-                    onValueChange={(value) => handleLevelChange(value as 'course' | 'topic' | 'subtopic')}
-                  >
-                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
-                      {getAvailableLevels().map(level => (
-                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-
-                  {/* Topic Selection - Show if level is topic/subtopic and no topic pre-selected */}
-                  {(formData.level === 'topic' || formData.level === 'subtopic') && !selectedTopic && (
-                    <div className="mt-3">
-                      <Label className="text-sm font-medium text-slate-700">Select Topic</Label>
-                      <Select
-                        value={formData.topic}
-                        onValueChange={(value) => {
-                          setFormData(prev => ({
-                            ...prev,
-                            topic: value,
-                            subtopic: undefined // Reset subtopic when topic changes
-                          }));
-                        }}
-                      >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
-                          <SelectValue placeholder="Select a topic" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
-                          {topics.map((topic: any) => (
-                            <SelectItem key={topic.id} value={topic.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
-                              {topic.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Subtopic Selection - Show if level is subtopic and no subtopic pre-selected */}
-                  {formData.level === 'subtopic' && !selectedSubtopic && (
-                    <div className="mt-3">
-                      <Label className="text-sm font-medium text-slate-700">Select Subtopic</Label>
-                      <Select
-                        disabled={!formData.topic && !selectedTopic}
-                        value={formData.subtopic}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, subtopic: value }))}
-                      >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
-                          <SelectValue placeholder="Select a subtopic" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
-                          {(() => {
-                            // Find the active topic to get its subtopics
-                            const activeTopicId = selectedTopic?.id || formData.topic;
-                            const activeTopic = topics.find((t: any) => t.id === activeTopicId);
-
-                            return activeTopic?.subtopics?.map((sub: any) => (
-                              <SelectItem key={sub.id} value={sub.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
-                                {sub.name}
-                              </SelectItem>
-                            )) || <SelectItem value="none" disabled>No subtopics found</SelectItem>;
-                          })()}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Difficulty</Label>
-                  <Select
-                    value={formData.difficulty}
-                    onValueChange={(value) => setFormData(prev => ({
-                      ...prev,
-                      difficulty: value as 'easy' | 'medium' | 'hard'
-                    }))}
-                  >
+                  <Select value={formData.difficulty} onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty: value as any }))}>
                     <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select difficulty" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {DIFFICULTY_LEVELS.map(level => (
-                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
-                          {level.label}
-                        </SelectItem>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{level.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">Marks</Label>
-                  <Input
-                    type="number"
-                    value={formData.marks}
-                    readOnly
-                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">Duration (mins)</Label>
-                  <Input
-                    type="number"
-                    value={formData.duration}
-                    readOnly
-                    className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">Marks</Label>
+                    <Input type="number" value={formData.marks} readOnly className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">Duration (mins)</Label>
+                    <Input type="number" value={formData.duration} readOnly className="bg-slate-100 border-slate-300 mt-1.5 h-10 rounded-lg cursor-not-allowed opacity-75" />
+                  </div>
                 </div>
               </div>
 
-              {/* Categories */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium text-slate-700">Question Categories</Label>
-                <div className="flex flex-wrap gap-3 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border border-amber-200">
-                  {QUESTION_CATEGORIES.map(category => (
-                    <div key={category.value} className="flex items-center space-x-2 p-2 bg-white rounded-md border border-slate-200 hover:border-amber-300 transition-colors">
-                      <Checkbox
-                        id={`category-${category.value}`}
-                        checked={formData.categories.includes(category.value)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setFormData(prev => ({ ...prev, categories: [...prev.categories, category.value] }));
-                          } else {
-                            // Prevent removing 'learn' if level is subtopic
-                            if (category.value === 'learn' && formData.level === 'subtopic') {
-                              toast.error("Subtopic questions must have the 'learn' category");
-                              return;
-                            }
-                            setFormData(prev => ({ ...prev, categories: prev.categories.filter(c => c !== category.value) }));
-                          }
-                        }}
-                        className="border-slate-400"
-                      />
-                      <Label htmlFor={`category-${category.value}`} className="text-xs font-medium text-slate-700 cursor-pointer leading-tight whitespace-nowrap">
-                        {category.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+              {/* Title */}
               <div>
                 <Label className="text-sm font-medium text-slate-700">Title</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter a clear, descriptive question title"
-                  className="bg-white border-slate-300"
+                  className="bg-white border-slate-300 mt-1.5"
                 />
               </div>
 
+              {/* Content */}
               <div>
-                <Label className="text-sm font-medium text-slate-700">Content</Label>
+                <Label className="text-sm font-medium text-slate-700">Content / Problem Statement</Label>
                 <Textarea
                   value={formData.content}
                   onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                   placeholder="Enter the detailed question content"
                   rows={4}
-                  className="bg-white border-slate-300"
+                  className="bg-white border-slate-300 mt-1.5"
                 />
               </div>
 
-              {/* Hints Section */}
-              <div className="space-y-4 pt-2 border-t border-slate-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-amber-600" />
-                      Predefined Hints
-                    </Label>
-                    <p className="text-sm text-slate-500">Provide hints to help students when they are stuck. Using a hint will result in a 0 score for the question.</p>
+              {/* Level */}
+              <div>
+                <Label className="text-sm font-medium text-slate-700">Question Level</Label>
+                <Select value={formData.level} onValueChange={(value) => handleLevelChange(value as any)}>
+                  <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    {getAvailableLevels().map(level => (
+                      <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{level.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(formData.level === 'topic' || formData.level === 'subtopic') && !selectedTopic && (
+                  <div className="mt-3">
+                    <Label className="text-sm font-medium text-slate-700">Select Topic</Label>
+                    <Select value={formData.topic} onValueChange={(value) => setFormData(prev => ({ ...prev, topic: value, subtopic: undefined }))}>
+                      <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                        <SelectValue placeholder="Select a topic" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                        {topics.map((topic: any) => (
+                          <SelectItem key={topic.id} value={topic.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{topic.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={addHint}
-                    variant="outline"
-                    className="text-amber-600 border-amber-200 hover:bg-amber-50"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Hint
-                  </Button>
-                </div>
-                
-                <div className="space-y-3">
-                  {formData.hints && formData.hints.length > 0 ? (
-                    formData.hints.map((hint, index) => (
-                      <div key={index} className="flex gap-3 items-start">
-                        <div className="bg-amber-100 text-amber-800 w-8 h-8 rounded-full flex items-center justify-center font-medium shrink-0 mt-1">
-                          {index + 1}
-                        </div>
-                        <Textarea
-                          value={hint}
-                          onChange={(e) => updateHint(index, e.target.value)}
-                          placeholder={`Hint ${index + 1} content...`}
-                          className="bg-white border-slate-300 min-h-[60px]"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => removeHint(index)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0 mt-1 h-8 w-8 p-0"
-                          title="Remove Hint"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                      <p className="text-sm text-slate-500">No hints added yet.</p>
-                    </div>
-                  )}
+                )}
+                {formData.level === 'subtopic' && !selectedSubtopic && (
+                  <div className="mt-3">
+                    <Label className="text-sm font-medium text-slate-700">Select Subtopic</Label>
+                    <Select disabled={!formData.topic && !selectedTopic} value={formData.subtopic} onValueChange={(value) => setFormData(prev => ({ ...prev, subtopic: value }))}>
+                      <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                        <SelectValue placeholder="Select a subtopic" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                        {(() => {
+                          const activeTopicId = selectedTopic?.id || formData.topic;
+                          const activeTopic = topics.find((t: any) => t.id === activeTopicId);
+                          return activeTopic?.subtopics?.map((sub: any) => (
+                            <SelectItem key={sub.id} value={sub.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{sub.name}</SelectItem>
+                          )) || <SelectItem value="none" disabled>No subtopics found</SelectItem>;
+                        })()}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              {/* Categories — pill style */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Categories</Label>
+                <div className="flex flex-wrap gap-2 p-3 bg-white rounded-lg border border-slate-200">
+                  {QUESTION_CATEGORIES.map(category => {
+                    const active = formData.categories.includes(category.value);
+                    return (
+                      <button
+                        key={category.value}
+                        type="button"
+                        onClick={() => {
+                          if (active) {
+                            if (category.value === 'learn' && formData.level === 'subtopic') {
+                              toast.error("Subtopic questions must have the 'learn' category");
+                              return;
+                            }
+                            setFormData(prev => ({ ...prev, categories: prev.categories.filter(c => c !== category.value) }));
+                          } else {
+                            setFormData(prev => ({ ...prev, categories: [...prev.categories, category.value] }));
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${active ? 'bg-amber-100 border-amber-400 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-amber-300'}`}
+                      >
+                        {active && <CheckCircle className="w-3 h-3" />}
+                        {category.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Reference Solution Manager (Multi-solution) & Code - Only for coding/descriptive */}
-              {(formData.type === 'coding' || formData.type === 'descriptive') && (
-                <div className="space-y-6 pt-2 border-t border-slate-200">
-                  <SolutionManager
-                    solutions={solutions}
-                    onChange={setSolutions}
-                    testCases={formData.test_cases_basic}
-                    onTestCasesChange={(tc) => setFormData(prev => ({ ...prev, test_cases_basic: tc }))}
-                  />
-
-                </div>
-              )}
-
               {/* MCQ Options */}
               {(formData.type === 'mcq_single' || formData.type === 'mcq_multiple') && (
-                <div className="space-y-4">
+                <div className="space-y-3 pt-2 border-t border-slate-200">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium text-slate-700">Answer Options</Label>
-                    <div className="flex items-center gap-2 text-xs text-slate-500 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                      {formData.type === 'mcq_single' ? (
-                        <>
-                          <CheckCircle className="w-3 h-3 text-amber-600" />
-                          Select one correct answer
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-3 h-3 text-amber-600" />
-                          Select multiple correct answers
-                        </>
-                      )}
-                    </div>
+                    <span className="text-xs text-slate-500 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                      {formData.type === 'mcq_single' ? 'Select one correct answer' : 'Select multiple correct answers'}
+                    </span>
                   </div>
-                  <div className="space-y-3 p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                  <div className="space-y-2">
                     {formData.mcq_options?.map((option, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all duration-200 ${option.is_correct
-                          ? 'bg-green-50 border-green-300 shadow-sm'
-                          : 'bg-white border-slate-200 hover:border-slate-300'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`relative ${option.is_correct ? 'scale-110' : ''} transition-transform duration-200`}>
-                            <Checkbox
-                              checked={option.is_correct}
-                              onCheckedChange={() => toggleMCQCorrect(index)}
-                              className={`border-2 ${option.is_correct ? 'data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500 text-white' : 'border-slate-400'}`}
-                            />
-
-                          </div>
-                          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${option.is_correct
-                            ? 'bg-green-600 text-white'
-                            : 'bg-slate-200 text-slate-600'
-                            }`}>
-                            {String.fromCharCode(65 + index)}
-                          </div>
+                      <div key={index} className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${option.is_correct ? 'bg-green-50 border-green-300' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                        <Checkbox
+                          checked={option.is_correct}
+                          onCheckedChange={() => toggleMCQCorrect(index)}
+                          className={`border-2 shrink-0 ${option.is_correct ? 'data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500' : 'border-slate-400'}`}
+                        />
+                        <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0 ${option.is_correct ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                          {String.fromCharCode(65 + index)}
                         </div>
                         <Input
                           value={option.text}
                           onChange={(e) => updateMCQOption(index, e.target.value)}
-                          placeholder={`Enter option ${String.fromCharCode(65 + index)} text`}
-                          className={`flex-1 border-0 bg-transparent focus:bg-white focus:border focus:border-blue-300 focus:ring-1 focus:ring-blue-200 ${option.is_correct ? 'font-medium text-green-900' : 'text-slate-700'
-                            }`}
+                          placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                          className={`flex-1 border-0 bg-transparent focus:bg-white focus:border focus:border-blue-300 ${option.is_correct ? 'font-medium text-green-900' : ''}`}
                         />
                         {(formData.mcq_options?.length || 0) > 2 && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeMCQOption(index)}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 opacity-70 hover:opacity-100 transition-opacity"
-                          >
-                            <Trash2 className="w-4 h-4" />
+                          <Button type="button" size="sm" variant="ghost" onClick={() => removeMCQOption(index)} className="text-red-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 p-0 shrink-0">
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         )}
                       </div>
                     ))}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={addMCQOption}
-                      className="w-full border-2 border-dashed border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400 py-3"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Another Option
+                    <Button type="button" size="sm" variant="outline" onClick={addMCQOption} className="w-full border-dashed border-amber-300 text-amber-600 hover:bg-amber-50">
+                      <Plus className="w-4 h-4 mr-2" /> Add Option
                     </Button>
                   </div>
                 </div>
               )}
 
+              {/* Test Cases — coding only, dedicated section */}
+              {formData.type === 'coding' && (
+                <div className="pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FlaskConical className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-semibold text-slate-800">Test Cases</span>
+                      {((formData.test_cases_basic?.length || 0) + (formData.test_cases_advanced?.length || 0)) > 0 && (
+                        <Badge className="bg-blue-100 text-blue-700 text-[10px] px-2 hover:bg-blue-100">
+                          {formData.test_cases_basic?.length || 0} basic · {formData.test_cases_advanced?.length || 0} advanced
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleTestCasesClick}
+                      disabled={saving}
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
+                    >
+                      {saving ? (
+                        <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Saving...</>
+                      ) : editingQuestion ? (
+                        <><FlaskConical className="w-3.5 h-3.5 mr-1.5" />Manage Test Cases</>
+                      ) : (
+                        <><FlaskConical className="w-3.5 h-3.5 mr-1.5" />Save & Add Test Cases</>
+                      )}
+                    </Button>
+                  </div>
+                  {!editingQuestion && (
+                    <p className="text-xs text-slate-400 mt-1.5">The question will be saved first, then you can add test cases.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Hints — collapsible */}
+              <div className="pt-2 border-t border-slate-200">
+                <button type="button" onClick={() => setHintsOpen(o => !o)} className="flex items-center justify-between w-full py-1">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-semibold text-slate-800">Hints</span>
+                    {(formData.hints?.length || 0) > 0 && (
+                      <Badge className="bg-amber-100 text-amber-700 text-[10px] px-2 hover:bg-amber-100">{formData.hints?.length}</Badge>
+                    )}
+                    <span className="text-xs text-slate-400">optional · students lose marks when used</span>
+                  </div>
+                  {hintsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                </button>
+                {hintsOpen && (
+                  <div className="mt-3 space-y-3">
+                    {formData.hints && formData.hints.length > 0 ? (
+                      formData.hints.map((hint, index) => (
+                        <div key={index} className="flex gap-3 items-start">
+                          <div className="bg-amber-100 text-amber-800 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1">{index + 1}</div>
+                          <Textarea value={hint} onChange={(e) => updateHint(index, e.target.value)} placeholder={`Hint ${index + 1}...`} className="bg-white border-slate-300 min-h-[60px]" />
+                          <Button type="button" variant="ghost" onClick={() => removeHint(index)} className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0 mt-1 h-8 w-8 p-0">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-slate-400 text-center py-3">No hints yet.</p>
+                    )}
+                    <Button type="button" variant="outline" onClick={addHint} className="text-amber-600 border-amber-200 hover:bg-amber-50 w-full border-dashed">
+                      <Plus className="w-4 h-4 mr-2" /> Add Hint
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Reference Solutions — collapsible, coding/descriptive only */}
+              {(formData.type === 'coding' || formData.type === 'descriptive') && (
+                <div className="pt-2 border-t border-slate-200">
+                  <button type="button" onClick={() => setSolutionsOpen(o => !o)} className="flex items-center justify-between w-full py-1">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-amber-600" />
+                      <span className="text-sm font-semibold text-slate-800">Reference Solutions</span>
+                      {solutions.length > 0 && (
+                        <Badge className="bg-amber-100 text-amber-700 text-[10px] px-2 hover:bg-amber-100">{solutions.length}</Badge>
+                      )}
+                      <span className="text-xs text-slate-400">optional · for instructor reference</span>
+                    </div>
+                    {solutionsOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  {solutionsOpen && (
+                    <div className="mt-4">
+                      <SolutionManager
+                        solutions={solutions}
+                        onChange={setSolutions}
+                        testCases={[
+                          ...(formData.test_cases_basic || []),
+                          ...(formData.test_cases_advanced || []),
+                        ]}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Save Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
-                <Button onClick={handleCancel} variant="secondary">
-                  Cancel
-                </Button>
+                <Button onClick={handleCancel} variant="secondary">Cancel</Button>
                 <Button onClick={handleSave} disabled={saving} className="min-w-24 bg-amber-600 hover:bg-amber-700 text-white">
                   {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Saving...
-                    </>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
                   ) : editingQuestion ? (
-                    <>
-                      <Edit3 className="w-4 h-4 mr-2" />
-                      Update Question
-                    </>
+                    <><Edit3 className="w-4 h-4 mr-2" />Update Question</>
                   ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Question
-                    </>
+                    <><Plus className="w-4 h-4 mr-2" />Create Question</>
                   )}
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
 
+      {/* Test Cases Modal — from questions list */}
+      {testCasesTarget && (
+        <TestCasesModal
+          open={!!testCasesTarget}
+          onOpenChange={(open) => { if (!open) setTestCasesTarget(null); }}
+          questionId={testCasesTarget.id}
+          questionTitle={testCasesTarget.title}
+          initialBasic={testCasesTarget.test_cases_basic || []}
+          initialAdvanced={testCasesTarget.test_cases_advanced || []}
+          onSaved={(basic, advanced) => {
+            setQuestions(prev =>
+              prev.map(q =>
+                q.id === testCasesTarget.id
+                  ? { ...q, test_cases_basic: basic, test_cases_advanced: advanced }
+                  : q
+              )
+            );
+          }}
+        />
+      )}
+
+      {/* Test Cases Modal — from create/edit form */}
+      {formTestCasesModalOpen && editingQuestion && (
+        <TestCasesModal
+          open={formTestCasesModalOpen}
+          onOpenChange={setFormTestCasesModalOpen}
+          questionId={editingQuestion.id}
+          questionTitle={editingQuestion.title}
+          initialBasic={formData.test_cases_basic || []}
+          initialAdvanced={formData.test_cases_advanced || []}
+          onSaved={(basic, advanced) => {
+            setFormData(prev => ({ ...prev, test_cases_basic: basic, test_cases_advanced: advanced }));
+            setQuestions(prev =>
+              prev.map(q =>
+                q.id === editingQuestion.id
+                  ? { ...q, test_cases_basic: basic, test_cases_advanced: advanced }
+                  : q
+              )
+            );
+          }}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
@@ -1106,29 +1126,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setConfirmDelete(null)}
-              className="border-slate-300 text-slate-700 hover:bg-slate-100"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <Button variant="outline" onClick={() => setConfirmDelete(null)} className="border-slate-300 text-slate-700 hover:bg-slate-100">Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
               {deleting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Deleting...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Deleting...</>
               ) : (
-                <>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Question
-                </>
+                <><Trash2 className="w-4 h-4 mr-2" />Delete Question</>
               )}
             </Button>
           </DialogFooter>

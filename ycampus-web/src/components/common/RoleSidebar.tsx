@@ -96,7 +96,7 @@ const sidebarItems: SidebarItem[] = [
   {
     id: 'student-announcements',
     label: 'Announcements',
-    icon: Bell,
+    icon: Activity,
     path: '/student/announcements',
     roles: ['student']
   },
@@ -163,6 +163,13 @@ const sidebarItems: SidebarItem[] = [
     label: 'Students',
     icon: GraduationCap,
     path: '/college-admin/students',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-announcements',
+    label: 'Announcements',
+    icon: Activity,
+    path: '/college-admin/announcements',
     roles: ['college_admin']
   },
   {
