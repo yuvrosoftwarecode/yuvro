@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.line-highlight {
+  background: rgba(255, 191, 0, 0.2) !important;
+  border-left: 3px solid #ffbf00 !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+.line-highlight-margin {
+  background: rgba(255, 191, 0, 0.3) !important;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   pointer-events: none;

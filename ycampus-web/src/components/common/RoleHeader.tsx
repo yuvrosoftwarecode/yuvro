@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { Bell, ChevronDown } from 'lucide-react';
 
 interface RoleHeaderProps {
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }
@@ -69,12 +69,10 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
     <div className={`bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          {(title || subtitle) && (
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              {subtitle && <p className="text-gray-600">{subtitle}</p>}
-            </div>
-          )}
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{title}</h1>
+            {subtitle && <p className="text-gray-500">{subtitle}</p>}
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
