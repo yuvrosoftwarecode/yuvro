@@ -5,7 +5,8 @@ from .views import (
     FacultyProfileViewSet, 
     StudentProfileViewSet,
     AttendanceSessionViewSet,
-    AttendanceRecordViewSet
+    AttendanceRecordViewSet,
+    AnnouncementViewSet
 )
 
 router = DefaultRouter()
@@ -15,6 +16,7 @@ router.register(r"faculty", FacultyProfileViewSet, basename="faculty")
 router.register(r"student", StudentProfileViewSet, basename="student")
 router.register(r"attendance-sessions", AttendanceSessionViewSet, basename="attendance-sessions")
 router.register(r"attendance-records", AttendanceRecordViewSet, basename="attendance-records")
+router.register(r"announcement", AnnouncementViewSet, basename="announcement")
 
 urlpatterns = [
     path("", include(router.urls)),

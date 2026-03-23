@@ -11,35 +11,25 @@ export default function ContestAttempt() {
     const [questions, setQuestions] = useState<any[]>([]);
     const [submissionId, setSubmissionId] = useState<string | null>(null);
     const [duration, setDuration] = useState(60);
+    const [enableProctoring, setEnableProctoring] = useState(false);
 
     useEffect(() => {
         const start = async () => {
             try {
                 if (!contestId) return;
-                const contestDetails = await contestService.getContest(contestId);
                 const data = await contestService.startContest(contestId);
                 setQuestions(data.questions);
                 setSubmissionId(String(data.submission_id));
+                setEnableProctoring(data.enable_proctoring ?? false);
 
-                const baseDuration = data.duration || contestDetails.duration || 60;
-                const contestEnd = contestDetails.end_datetime
-                    ? new Date(contestDetails.end_datetime)
-                    : contestDetails.end_date
-                        ? new Date(contestDetails.end_date)
-                        : null;
-                if (contestEnd) {
-                    const remainingMs = contestEnd.getTime() - Date.now();
-                    const remainingMinutes = Math.max(0, Math.ceil(remainingMs / 60000));
-                    const effectiveDuration = Math.min(baseDuration, remainingMinutes);
-                    if (effectiveDuration <= 0) {
-                        toast.error("Contest has ended.");
-                        navigate('/student/contests');
-                        return;
-                    }
-                    setDuration(effectiveDuration);
-                } else {
-                    setDuration(baseDuration);
+                // Trust the backend-calculated duration (already adjusted for late entry)
+                const duration = data.duration || 60;
+                if (duration <= 0) {
+                    toast.error("Contest has ended.");
+                    navigate('/student/contests');
+                    return;
                 }
+                setDuration(duration);
             } catch (err: any) {
                 toast.error(err.response?.data?.error || "Failed to start contest");
                 navigate('/student/contests');
@@ -83,7 +73,8 @@ export default function ContestAttempt() {
                 course: "Contest",
                 duration: duration,
                 totalQuestions: questions.length,
-                topicId: "contest"
+                topicId: "contest",
+                proctoring_enabled: enableProctoring,
             }}
             questions={questions}
             submissionId={submissionId || ""}

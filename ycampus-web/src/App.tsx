@@ -77,8 +77,11 @@ import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import FacultyReports from './pages/faculty/Reports';
 import AttendanceReport from './pages/faculty/AttendanceReport';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 
+
+import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
 
 function App() {
   return (
@@ -87,6 +90,14 @@ function App() {
         <Router>
           <div className="App">
             <Routes>
+              <Route
+                path="/student/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -433,6 +444,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <StudentsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />

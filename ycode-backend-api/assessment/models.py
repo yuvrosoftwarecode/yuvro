@@ -116,7 +116,15 @@ class Contest(BaseAssessmentModel):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     prize = models.CharField(max_length=255, blank=True, null=True)
-    
+
+    # Contests allow only one attempt per user (enforced by ContestSubmission.unique_together)
+    # Override the inherited max_attempts to always be 1 and make it non-editable
+    max_attempts = models.PositiveIntegerField(
+        default=1,
+        editable=False,
+        help_text="Contests allow exactly one attempt per user."
+    )
+
     # Registration Window
     registration_start_datetime = models.DateTimeField(null=True, blank=True)
     registration_end_datetime = models.DateTimeField(null=True, blank=True)
@@ -157,6 +165,7 @@ class ContestRegistration(BaseModel):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="registrations")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contest_registrations")
     registered_at = models.DateTimeField(auto_now_add=True)
+    is_late_entry = models.BooleanField(default=False, help_text="Whether the user registered after the registration window closed")
 
     class Meta:
         unique_together = ('contest', 'user')

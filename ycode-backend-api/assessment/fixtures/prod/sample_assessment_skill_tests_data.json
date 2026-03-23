@@ -1,0 +1,42 @@
+{
+  "skill_tests": [
+    {
+      "title": "DSA Fundamentals - Arrays & Strings",
+      "description": "Test your understanding of fundamental array and string operations, including traversal, manipulation, and common algorithmic patterns.",
+      "instructions": "Answer all questions within the allotted time. Each question carries equal marks unless stated otherwise. You may use any programming language for coding questions.",
+      "difficulty": "easy",
+      "duration": 45,
+      "total_marks": 50,
+      "passing_marks": 30,
+      "enable_proctoring": false,
+      "course_short_code": "DSA",
+      "topic_name": "Arrays",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 1,
+        "descriptive": 0
+      },
+      "publish_status": "published"
+    },
+    {
+      "title": "DSA Intermediate - Trees & Graphs",
+      "description": "Assess your knowledge of tree and graph data structures, including traversals, shortest path algorithms, and tree balancing concepts.",
+      "instructions": "Attempt all questions. Partial credit is available for coding questions that pass some test cases. Show your approach clearly.",
+      "difficulty": "medium",
+      "duration": 60,
+      "total_marks": 80,
+      "passing_marks": 48,
+      "enable_proctoring": true,
+      "course_short_code": "DSA",
+      "topic_name": "Trees",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 2,
+        "descriptive": 0
+      },
+      "publish_status": "published"
+    }
+  ]
+}

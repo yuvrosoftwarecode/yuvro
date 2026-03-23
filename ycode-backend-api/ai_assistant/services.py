@@ -22,8 +22,8 @@ def _apply_page_content_grounding(
         user_name = kwargs.pop("user_name", "Student")
 
     if page_content and page_content != "mock_interview":
-        # Truncate to a reasonable size to avoid token blowup
-        snippet = page_content if len(page_content) <= 4000 else page_content[:4000]
+        # Truncate aggressively to 2000 chars to minimize prompt size and latency
+        snippet = page_content if len(page_content) <= 2000 else page_content[:2000]
         
         greeting_instruction = f"Address the student as '{user_name}'." if user_name != "Student" else "Address the user as 'Student'."
 
@@ -154,8 +154,7 @@ class AnthropicService(BaseAIService):
         super().__init__(api_key, model_name)
         try:
             import anthropic
-
-            self.client = anthropic.Anthropic(api_key=api_key)
+            self.client = anthropic.AsyncAnthropic(api_key=api_key)
         except ImportError:
             raise AIServiceError(
                 "Anthropic library not installed. Run: pip install anthropic"
@@ -188,7 +187,22 @@ class AnthropicService(BaseAIService):
                         {"role": msg["role"], "content": msg["content"]}
                     )
 
-            response = self.client.messages.create(
+            if stream:
+                response = await self.client.messages.create(
+                    model=self.model_name,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    system=system_message,
+                    messages=anthropic_messages,
+                    stream=True,
+                    **kwargs,
+                )
+                return {
+                    "stream": response,
+                    "metadata": {"model": self.model_name},
+                }
+
+            response = await self.client.messages.create(
                 model=self.model_name,
                 max_tokens=max_tokens,
                 temperature=temperature,
@@ -265,7 +279,7 @@ class GeminiService(BaseAIService):
             }
 
             try:
-                response = self.model.generate_content(
+                response = await self.model.generate_content_async(
                     conversation_text, generation_config=generation_config, stream=stream
                 )
                   
@@ -283,7 +297,7 @@ class GeminiService(BaseAIService):
                     try:
                         import google.generativeai as genai
                         fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                        response = fallback_model.generate_content(
+                        response = await fallback_model.generate_content_async(
                             conversation_text, generation_config=generation_config, stream=stream
                         )
                         

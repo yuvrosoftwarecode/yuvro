@@ -210,6 +210,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['college_admin']
   },
   {
+    id: 'college-announcements',
+    label: 'Announcements',
+    icon: Activity,
+    path: '/college-admin/announcements',
+    roles: ['college_admin']
+  },
+  {
     id: 'college-subjects',
     label: 'Subjects',
     icon: BookOpen,

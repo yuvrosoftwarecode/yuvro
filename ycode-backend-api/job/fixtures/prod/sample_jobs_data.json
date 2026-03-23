@@ -1,0 +1,105 @@
+{
+  "companies": [
+    {
+      "name": "Tech Innovations Inc",
+      "description": "Leading technology company specializing in AI and machine learning solutions",
+      "benefits": "Health insurance, flexible work hours, remote work options, learning stipend",
+      "domain": "technology",
+      "website": "https://techinnovations.com",
+      "size": "201-500",
+      "location": "Bangalore"
+    },
+    {
+      "name": "Enterprise Solutions",
+      "description": "Enterprise software company providing business automation tools",
+      "benefits": "Comprehensive health coverage, retirement plans, professional development",
+      "domain": "enterprise_software",
+      "website": "https://enterprisesolutions.com",
+      "size": "501-1000",
+      "location": "Pune"
+    },
+    {
+      "name": "CloudTech Systems",
+      "description": "Cloud infrastructure and DevOps solutions provider",
+      "benefits": "Remote work, health insurance, stock options, conference attendance",
+      "domain": "cloud_computing",
+      "website": "https://cloudtech.com",
+      "size": "301-500",
+      "location": "Chennai"
+    }
+  ],
+  "jobs": [
+    {
+      "company_name": "Tech Innovations Inc",
+      "title": "Software Engineer",
+      "description": "We are looking for a skilled Software Engineer to join our dynamic team. You will be responsible for designing, developing, and maintaining scalable software solutions. The ideal candidate should have experience with modern frameworks and best practices.",
+      "employment_type": "full-time",
+      "experience_min_years": 0,
+      "experience_max_years": 3,
+      "locations": ["Bangalore"],
+      "is_remote": false,
+      "min_salary": 600000,
+      "max_salary": 1200000,
+      "currency": "INR",
+      "skills": ["Python", "Java", "Data Structures", "Algorithms", "REST APIs", "Git"],
+      "notice_period": 30,
+      "education_level": "bachelor",
+      "status": "active",
+      "days_ago": 2
+    },
+    {
+      "company_name": "Enterprise Solutions",
+      "title": "Backend Developer",
+      "description": "We are seeking a Backend Developer to design and implement server-side logic for our enterprise applications. You will work with Java, Spring Boot, and MySQL to build robust and scalable backend systems.",
+      "employment_type": "full-time",
+      "experience_min_years": 1,
+      "experience_max_years": 4,
+      "locations": ["Pune"],
+      "is_remote": false,
+      "min_salary": 700000,
+      "max_salary": 1100000,
+      "currency": "INR",
+      "skills": ["Java", "Spring Boot", "MySQL", "Microservices", "REST APIs", "Docker"],
+      "notice_period": 60,
+      "education_level": "bachelor",
+      "status": "active",
+      "days_ago": 3
+    },
+    {
+      "company_name": "CloudTech Systems",
+      "title": "DevOps Engineer",
+      "description": "Join our DevOps team to help build and maintain our cloud infrastructure. You will work with AWS, Docker, Kubernetes, and CI/CD pipelines.",
+      "employment_type": "full-time",
+      "experience_min_years": 2,
+      "experience_max_years": 5,
+      "locations": ["Chennai"],
+      "is_remote": true,
+      "min_salary": 900000,
+      "max_salary": 1500000,
+      "currency": "INR",
+      "skills": ["AWS", "Docker", "Kubernetes", "Jenkins", "Terraform", "Linux"],
+      "notice_period": 45,
+      "education_level": "bachelor",
+      "status": "active",
+      "days_ago": 5
+    },
+    {
+      "company_name": "Tech Innovations Inc",
+      "title": "Data Scientist",
+      "description": "Join our AI team to build and deploy machine learning models. You will work on cutting-edge projects involving NLP, computer vision, and predictive analytics.",
+      "employment_type": "full-time",
+      "experience_min_years": 1,
+      "experience_max_years": 4,
+      "locations": ["Bangalore"],
+      "is_remote": true,
+      "min_salary": 1000000,
+      "max_salary": 1800000,
+      "currency": "INR",
+      "skills": ["Python", "TensorFlow", "Machine Learning", "Deep Learning", "SQL", "Statistics"],
+      "notice_period": 30,
+      "education_level": "master",
+      "status": "active",
+      "days_ago": 1
+    }
+  ]
+}
