@@ -97,7 +97,7 @@ const ICON_MAPPINGS: IconRule[] = [
     },
     {
         keywords: ["python"],
-        config: { Icon: FaPython, bg: "bg-blue-500", text: "text-white", gradient: "from-blue-500 to-yellow-500" }
+        config: { Icon: FaPython, bg: "bg-blue-500", text: "text-white", gradient: "from-blue-500 to-indigo-500" }
     },
     {
         keywords: ["java"],
