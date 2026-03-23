@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLocation, Link } from 'react-router-dom';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   Menu,
   X,
@@ -36,6 +37,8 @@ import {
   LogOut,
   User,
   PanelLeft,
+  PanelLeftClose,
+  PanelLeftOpen,
   ChevronsUpDown,
   Home,
   MessageSquare,
@@ -497,14 +500,21 @@ const sidebarItems: SidebarItem[] = [
   },
 ];
 
-interface RoleSidebarProps {
+interface SidebarContentProps {
+  collapsed?: boolean;
+  onItemClick?: () => void;
+  onToggle?: () => void;
   className?: string;
 }
 
-const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
+export const SidebarContent = ({ 
+  collapsed: sidebarCollapsed = false, 
+  onItemClick,
+  onToggle,
+  className = '' 
+}: SidebarContentProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -537,94 +547,47 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
     return item.roles.includes(userRole);
   });
 
-  const getPortalTitle = () => {
-    switch (userRole) {
-      case 'admin':
-        return 'Yuvro Admin';
-      case 'recruiter':
-        return 'Yuvro Recruiter';
-      case 'college_admin':
-        return 'College Admin';
-      case 'principal':
-        return 'Principal';
-      case 'hod':
-        return 'HOD';
-      case 'faculty':
-        return 'Faculty';
-      case 'tpo':
-        return 'TPO Portal';
-      default:
-        return 'Yuvro Campus';
-    }
-  };
-
-  const getToolsSection = () => {
-    switch (userRole) {
-      case 'admin':
-        return {
-          title: 'Admin Tools',
-          description: 'Access administrative features for system management'
-        };
-      case 'recruiter':
-        return {
-          title: 'Recruiter Tools',
-          description: 'Access specialized features for recruitment'
-        };
-      default:
-        return {
-          title: 'Tools',
-          description: 'Access specialized features'
-        };
-    }
-  };
-
   const isActiveItem = (item: SidebarItem) => {
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const toolsSection = getToolsSection();
-
   return (
-    <div className={`${sidebarCollapsed ? 'w-12' : 'w-64 md:flex hidden'} bg-[#FBFBFB] shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
+    <div className={`flex flex-col h-full bg-[#FBFBFB] ${className}`}>
       <div className={`flex-1 overflow-y-auto overflow-x-hidden ${sidebarCollapsed ? 'py-2' : 'py-0'}`}>
-        <div className={`flex items-center h-14 border-b border-[#e5e7eb] transition-all duration-300 ${sidebarCollapsed ? 'justify-center px-1' : 'justify-between px-4'}`}>
+        <div className={`flex items-center h-14 border-b border-[#e5e7eb] transition-all duration-300 ${sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
           {!sidebarCollapsed && (
-            <div 
-              className="flex items-center cursor-pointer transition-transform hover:scale-[1.02]"
-              onClick={() => setSidebarCollapsed(true)}
-              title="Collapse Sidebar"
-            >
+            <div className="flex items-center cursor-pointer transition-transform hover:scale-[1.02]">
               <img src={yuvroLogo} alt="Yuvro Campus" className="h-[28px] w-auto mix-blend-multiply" />
             </div>
           )}
           
           {sidebarCollapsed && (
-            <div 
-              className="flex items-center justify-center w-full cursor-pointer transition-transform duration-300 hover:scale-[1.1]"
-              onClick={() => setSidebarCollapsed(false)}
-              title="Expand Sidebar"
-            >
-              <img src={knowledgeTree} alt="Tree Logo" className="h-[24px] w-[24px] object-contain mix-blend-multiply" />
+            <div className="flex items-center justify-center w-full">
+              <button 
+                onClick={onToggle}
+                className="p-1 px-2 rounded-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                title="Expand Sidebar"
+              >
+                <img src={knowledgeTree} alt="Expand" className="h-[24px] w-[24px] object-contain mix-blend-multiply" />
+              </button>
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            {!sidebarCollapsed && (
-              <>
-                <button className="p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200 relative">
-                  <Bell className="h-[18px] w-[18px] text-[#3B3D47] stroke-[1.5]" />
-                  <span className="absolute top-[2px] right-[2px] h-[14px] w-[14px] rounded-full bg-[#ef4444] ring-[2px] ring-[#FBFBFB] text-[10px] font-semibold text-white flex items-center justify-center leading-none">3</span>
-                </button>
-                <button
-                  onClick={() => setSidebarCollapsed(true)}
-                  className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-[#3B3D47]"
-                  title="Collapse Sidebar"
-                >
-                  <PanelLeft className="h-[18px] w-[18px] stroke-[1.5]" />
-                </button>
-              </>
-            )}
-          </div>
+          {!sidebarCollapsed && (
+            <div className="flex items-center gap-1.5">
+              <button className="p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200 relative group/bell">
+                <Bell className="h-[18px] w-[18px] text-[#3B3D47] stroke-[1.5] transition-colors group-hover/bell:text-indigo-600" />
+                <span className="absolute top-[2px] right-[2px] h-[14px] w-[14px] rounded-full bg-[#ef4444] ring-[2px] ring-[#FBFBFB] text-[10px] font-semibold text-white flex items-center justify-center leading-none">3</span>
+              </button>
+              <button 
+                onClick={onToggle}
+                className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-[#3B3D47] hover:text-indigo-600"
+                title="Collapse Sidebar"
+              >
+                <PanelLeftClose className="h-[18px] w-[18px] stroke-[1.5]" />
+              </button>
+            </div>
+          )}
         </div>
 
         <nav className="space-y-1 px-3 mt-2">
@@ -643,6 +606,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                 <Link
                   key={item.id}
                   to={item.path}
+                  onClick={onItemClick}
                   className={`flex items-center ${
                     sidebarCollapsed 
                       ? 'justify-center p-2 rounded-lg mx-auto w-9 h-9' 
@@ -653,7 +617,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                     }`}
                   title={sidebarCollapsed ? item.label : ''}
                 >
-                  {/* Left Active Indicator */}
                   {isActive && (
                     <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#0f172a]" />
                   )}
@@ -692,6 +655,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                     <Link
                       key={item.id}
                       to={item.path}
+                      onClick={onItemClick}
                       className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
                         ? 'bg-orange-50 text-orange-600'
                         : 'text-gray-600 hover:bg-gray-50'
@@ -715,6 +679,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
                 <Link
                   key={item.id}
                   to={item.path}
+                  onClick={onItemClick}
                   className={`flex items-center justify-center p-2 rounded-lg cursor-pointer group relative transition-colors ${isActive
                     ? 'bg-orange-50 text-orange-600'
                     : 'text-gray-600 hover:bg-gray-50'
@@ -731,7 +696,6 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         </nav>
       </div>
 
-      {/* Footer Profile Section */}
       <div className={`mt-auto border-t border-[#e5e7eb] w-full transition-all duration-300 ${sidebarCollapsed ? 'p-2 flex flex-col items-center' : 'p-3 flex flex-col w-full'}`}>
         <div 
           className={`flex items-center justify-between w-full cursor-pointer group rounded-md px-2 py-2 hover:bg-[#f4f4f5] transition-all duration-200 ${sidebarCollapsed ? 'justify-center px-0' : ''}`}
@@ -774,7 +738,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
 
         {(!sidebarCollapsed && profileOpen) && (
           <div className="mt-2 space-y-1 px-1 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Link to={`/${userRole}/profile`} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
+            <Link to={`/${userRole}/profile`} onClick={onItemClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
               <User className="h-[16px] w-[16px] stroke-[2]" />
               Profile
             </Link>
@@ -793,6 +757,54 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         )}
       </div>
     </div>
+  );
+};
+
+interface RoleSidebarProps {
+  className?: string;
+}
+
+const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
+  const { user } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const firstName = user?.first_name || user?.username || 'User';
+  const initial = firstName.charAt(0).toUpperCase();
+
+  return (
+    <>
+      {/* Mobile Top Bar - Improved Aesthetics */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#e5e7eb] flex items-center justify-between px-4 z-[50] shadow-sm">
+        <div className="flex items-center">
+          {/* User Initial Circle as Toggle (Left Top) */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <button className="h-9 w-9 rounded-full bg-[#f1f5f9] flex items-center justify-center text-[#3B3D47] font-semibold text-sm border border-[#e5e7eb] shadow-sm transform transition-all hover:scale-105 active:scale-95">
+                {initial}
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-[280px] border-none shadow-2xl">
+              <SidebarContent onItemClick={() => setMobileOpen(false)} />
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Yuvro Campus Logo (Right Top) */}
+        <div className="flex items-center transition-opacity hover:opacity-80">
+          <img src={yuvroLogo} alt="Yuvro Campus" className="h-7 w-auto mix-blend-multiply" />
+        </div>
+      </div>
+
+      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-[#FBFBFB] shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
+        <SidebarContent 
+          collapsed={sidebarCollapsed} 
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+        
+
+      </div>
+    </>
   );
 };
 
