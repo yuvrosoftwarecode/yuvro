@@ -1,5 +1,344 @@
 @import "tailwindcss";
 
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-saffron: hsl(var(--saffron));
+  --color-saffron-light: hsl(var(--saffron-light));
+  --color-saffron-dark: hsl(var(--saffron-dark));
+  --color-saffron-foreground: hsl(var(--saffron-foreground));
+
+  --color-chakra: hsl(var(--chakra));
+  --color-chakra-light: hsl(var(--chakra-light));
+  --color-chakra-dark: hsl(var(--chakra-dark));
+  --color-chakra-foreground: hsl(var(--chakra-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-success-light: hsl(var(--success-light));
+  --color-success-dark: hsl(var(--success-dark));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+
+    to {
+      height: 0;
+    }
+  }
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Subject card colors - HackerRank style */
+    --notes-card-bg: 228 59% 98%;
+    --notes-card-fg: 215 25% 27%;
+    --notes-card-hover: 228 50% 96%;
+
+    /* Subject specific accent colors */
+    --subject-math: 200 80% 45%;
+    --subject-physics: 142 50% 45%;
+    --subject-programming: 25 90% 50%;
+    --subject-electrical: 45 95% 50%;
+    --subject-drawing: 280 60% 50%;
+
+    /* Dashboard accent colors - India tri-color theme */
+    --saffron: 45 93% 47%;
+    --saffron-light: 45 93% 65%;
+    --saffron-dark: 30 95% 40%;
+    --saffron-foreground: 0 0% 100%;
+
+    /* Saffron gradient for buttons */
+    --gradient-saffron: linear-gradient(135deg, hsl(25 100% 50%), hsl(35 100% 55%));
+
+    --chakra: 220 70% 25%;
+    --chakra-light: 220 70% 35%;
+    --chakra-dark: 220 70% 20%;
+    --chakra-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-light: 142 76% 50%;
+    --success-dark: 142 76% 28%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Subject card colors - dark mode HackerRank style */
+    --notes-card-bg: 228 20% 15%;
+    --notes-card-fg: 210 20% 90%;
+    --notes-card-hover: 228 20% 18%;
+
+    /* Subject specific accent colors - dark mode */
+    --subject-math: 200 80% 55%;
+    --subject-physics: 142 50% 55%;
+    --subject-programming: 25 90% 60%;
+    --subject-electrical: 45 95% 60%;
+    --subject-drawing: 280 60% 60%;
+
+    /* Dashboard accent colors - dark mode - India tri-color theme */
+    --saffron: 45 93% 40%;
+    --saffron-light: 45 93% 55%;
+    --saffron-dark: 30 95% 35%;
+    --saffron-foreground: 0 0% 100%;
+
+    --chakra: 220 70% 35%;
+    --chakra-light: 220 70% 45%;
+    --chakra-dark: 220 70% 25%;
+    --chakra-foreground: 0 0% 100%;
+
+    --success: 142 76% 28%;
+    --success-light: 142 76% 40%;
+    --success-dark: 142 76% 20%;
+    --success-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border) / 1);
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+
+  /* Custom vertical scrollbar for question container */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #fbfbfb rgba(118, 118, 118, 0.16);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 200px;
+    border: 1px solid;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 1rem;
+    background-clip: padding-box;
+    background-color: #fbfbfb;
+    border: 0.25rem solid rgba(118, 118, 118, 0);
+    background: initial;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    border-radius: 1rem;
+    background-color: rgba(118, 118, 118, 0.16);
+    background: initial;
+  }
+
+  /* Hide WebKit scrollbar arrow buttons (top/bottom) */
+  .custom-scrollbar::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+    background: transparent;
+  }
+
+  /* Custom scrollbar styles for horizontal and vertical scrolling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-track-transparent {
+    scrollbar-color: transparent transparent;
+  }
+
+  .scrollbar-thumb-transparent {
+    scrollbar-color: transparent transparent;
+  }
+
+  /* Webkit scrollbar styles for horizontal scrolling */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Scrollbar for sidebar - matches image styling */
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .sidebar-scrollbar:hover {
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+
+  .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  /* Remove scrollbar arrows */
+  .sidebar-scrollbar::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   pointer-events: none;

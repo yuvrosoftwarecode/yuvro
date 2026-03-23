@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import RoleHeader from '../../components/common/RoleHeader';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 import {
   Users,
   Layers,
@@ -11,7 +13,13 @@ import {
   BookOpen
 } from 'lucide-react';
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  sidebarComponent?: React.ReactNode;
+  title?: string;
+  headerExtra?: React.ReactNode;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ sidebarComponent, title, headerExtra }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -68,15 +76,16 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          <RoleSidebar />
-          <div className="flex-1">
+      <SidebarProvider>
+        {sidebarComponent || <RoleSidebar />}
+        <SidebarInset>
+          <div className="min-h-screen bg-gray-50 flex flex-col">
             <RoleHeader
-              title="Loading..."
-              subtitle="Please wait while we load your dashboard."
+              title={title || "Loading..."}
+              subtitle={!title ? "Please wait while we load your dashboard." : ""}
+              actions={headerExtra}
             />
-            <div className="p-6">
+            <div className="p-6 flex-1">
               <div className="animate-pulse">
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   {[...Array(4)].map((_, i) => (
@@ -86,21 +95,22 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
+    <SidebarProvider>
+      {sidebarComponent || <RoleSidebar />}
+      <SidebarInset>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
           <RoleHeader
-            title={`Welcome back, ${user?.first_name || user?.username || 'HOD'}! 👋`}
-            subtitle="Department overview and academic management."
+            title={title || `Welcome back, ${user?.first_name || user?.username || 'HOD'}! 👋`}
+            subtitle={!title ? "Department overview and academic management." : ""}
+            actions={headerExtra}
           />
-          <div className="p-6">
+          <div className="p-6 flex-1">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {stats.map((stat, index) => (
                 <div
@@ -134,8 +144,8 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 
