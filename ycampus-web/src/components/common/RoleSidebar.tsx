@@ -54,6 +54,12 @@ import {
   FileBarChart,
   CalendarDays
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import knowledgeTree from '@/assets/knowledge-tree.png';
 import yuvroLogo from '@/assets/yuvro-campus-combined.png';
@@ -552,7 +558,8 @@ export const SidebarContent = ({
   };
 
   return (
-    <div className={`flex flex-col h-full bg-[#FBFBFB] ${className}`}>
+    <TooltipProvider delayDuration={400}>
+      <div className={`flex flex-col h-full bg-[#FBFBFB] ${className}`}>
       <div className={`flex-1 overflow-y-auto overflow-x-hidden ${sidebarCollapsed ? 'py-2' : 'py-0'}`}>
         <div className={`flex items-center h-14 border-b border-[#e5e7eb] transition-all duration-300 ${sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
           {!sidebarCollapsed && (
@@ -563,29 +570,49 @@ export const SidebarContent = ({
           
           {sidebarCollapsed && (
             <div className="flex items-center justify-center w-full">
-              <button 
-                onClick={onToggle}
-                className="p-1 px-2 rounded-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 active:scale-95"
-                title="Expand Sidebar"
-              >
-                <img src={knowledgeTree} alt="Expand" className="h-[24px] w-[24px] object-contain mix-blend-multiply" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={onToggle}
+                    className="p-1 px-2 rounded-md hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                  >
+                    <img src={knowledgeTree} alt="Expand" className="h-[24px] w-[24px] object-contain mix-blend-multiply" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-[#3B3D47] text-white border-none shadow-md">
+                  Expand Sidebar
+                </TooltipContent>
+              </Tooltip>
             </div>
           )}
 
           {!sidebarCollapsed && (
             <div className="flex items-center gap-1.5">
-              <button className="p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200 relative group/bell">
-                <Bell className="h-[18px] w-[18px] text-[#3B3D47] stroke-[1.5] transition-colors group-hover/bell:text-indigo-600" />
-                <span className="absolute top-[2px] right-[2px] h-[14px] w-[14px] rounded-full bg-[#ef4444] ring-[2px] ring-[#FBFBFB] text-[10px] font-semibold text-white flex items-center justify-center leading-none">3</span>
-              </button>
-              <button 
-                onClick={onToggle}
-                className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-[#3B3D47] hover:text-indigo-600"
-                title="Collapse Sidebar"
-              >
-                <PanelLeftClose className="h-[18px] w-[18px] stroke-[1.5]" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200 relative group/bell">
+                    <Bell className="h-[18px] w-[18px] text-[#3B3D47] stroke-[1.5] transition-colors group-hover/bell:text-indigo-600" />
+                    <span className="absolute top-[2px] right-[2px] h-[14px] w-[14px] rounded-full bg-[#ef4444] ring-[2px] ring-[#FBFBFB] text-[10px] font-semibold text-white flex items-center justify-center leading-none">3</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-[#3B3D47] text-white border-none shadow-md">
+                  Notifications
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={onToggle}
+                    className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-[#3B3D47] hover:text-indigo-600"
+                  >
+                    <PanelLeftClose className="h-[18px] w-[18px] stroke-[1.5]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-[#3B3D47] text-white border-none shadow-md">
+                  Collapse Sidebar
+                </TooltipContent>
+              </Tooltip>
             </div>
           )}
         </div>
@@ -757,6 +784,7 @@ export const SidebarContent = ({
         )}
       </div>
     </div>
+    </TooltipProvider>
   );
 };
 
