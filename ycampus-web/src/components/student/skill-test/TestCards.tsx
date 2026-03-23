@@ -81,7 +81,7 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
 
       {/* Header */}
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+        <h1 className="text-3xl font-semibold text-foreground mb-2">
           {topicName} Tests
         </h1>
         <p className="text-muted-foreground">
@@ -117,7 +117,7 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
                   return (
                     <Card
                       key={test.id}
-                      className="group relative bg-gradient-to-br from-white to-slate-50/50 border-0 shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden rounded-xl"
+                      className="group relative bg-gradient-to-br from-white to-slate-50/50 border border-gray-200 shadow-none transition-all duration-500 hover:-translate-y-1 overflow-hidden rounded-xl"
                     >
                       {/* Hover Glow */}
                       <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -127,7 +127,7 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
                           <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {test.title}
                           </h3>
-                          <Badge variant="secondary" className="font-bold">
+                          <Badge variant="secondary" className="font-semibold">
                             {attemptCount}/{test.maxAttempts} Attempts
                           </Badge>
                         </div>
@@ -175,10 +175,10 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
                                 <div className="p-1.5 bg-blue-50 rounded-lg group-hover/res:bg-blue-100 transition-colors">
                                   <Trophy className="h-3.5 w-3.5 text-blue-600" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">Results</span>
+                                <span className="text-sm font-semibold text-slate-700">Results</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Badge variant="secondary" className="bg-slate-100 text-[10px] font-black group-hover/res:bg-blue-100 group-hover/res:text-blue-700 transition-colors">
+                                <Badge variant="secondary" className="bg-slate-100 text-[10px] font-semibold group-hover/res:bg-blue-100 group-hover/res:text-blue-700 transition-colors">
                                   {completedSubmissions.length} Attempts
                                 </Badge>
                                 <ChevronRight className="h-4 w-4 text-slate-400 group-hover/res:translate-x-1 transition-transform" />
@@ -199,7 +199,7 @@ const TestCards = ({ tests, courseName, topicName, onBack, onStartTest, onViewRe
           <Card className="p-12 text-center rounded-xl border-dashed">
             <div className="text-muted-foreground">
               <FileQuestion className="h-12 w-12 mx-auto mb-4 opacity-40" />
-              <p className="text-lg font-medium mb-2">No tests available</p>
+              <p className="text-lg font-semibold mb-2">No tests available</p>
               <p className="text-sm">Tests for this topic will be available soon.</p>
             </div>
           </Card>

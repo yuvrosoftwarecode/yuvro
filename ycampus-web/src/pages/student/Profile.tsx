@@ -377,7 +377,7 @@ const Profile = () => {
           {/* ========== LEFT MAIN CONTENT ========== */}
           <div className="lg:col-span-3 space-y-8">
             {/* ========= HEADER CARD ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5 overflow-hidden">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5 overflow-hidden">
               <div className="relative">
                 {/* COVER */}
                 <div className="h-56 bg-gradient-to-r from-orange-400/80 via-rose-400/80 to-purple-500/80 backdrop-blur-md relative group">
@@ -405,11 +405,11 @@ const Profile = () => {
 
                 {/* PROFILE PIC */}
                 <div className="absolute -bottom-16 left-8">
-                  <Avatar className="h-36 w-36 border-4 border-background shadow-xl">
+                  <Avatar className="h-36 w-36 border-4 border-background shadow-none">
                     {profilePic ? (
                       <AvatarImage src={profilePic} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="text-4xl font-bold bg-primary/10 text-primary">
+                      <AvatarFallback className="text-4xl font-semibold bg-primary/10 text-primary">
                         {profile.full_name
                           ?.split(" ")
                           .map((n) => n[0])
@@ -423,7 +423,7 @@ const Profile = () => {
               <CardContent className="pt-20 pb-8 px-8">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight">
+                    <h1 className="text-3xl font-semibold tracking-tight">
                       {profile.full_name || "Student User"}
                     </h1>
                     <p className="text-lg text-muted-foreground font-medium">
@@ -446,7 +446,7 @@ const Profile = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-6 mt-2">
-                    <Button onClick={() => setEditDialogOpen(true)} className="shadow-sm rounded-xl px-6">
+                    <Button onClick={() => setEditDialogOpen(true)} className="shadow-none rounded-xl px-6">
                       <Edit className="h-4 w-4 mr-2" /> Edit Profile
                     </Button>
 
@@ -480,9 +480,9 @@ const Profile = () => {
             </Card>
 
             {/* ========= ABOUT ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5">
               <CardContent className="p-8">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground/90">
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground/90">
                   About Me
                 </h2>
                 <p className="text-muted-foreground leading-loose text-base">
@@ -492,10 +492,10 @@ const Profile = () => {
             </Card>
 
             {/* ========= PROJECTS (MOVED UP) ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-card">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5 bg-card">
               <CardContent className="p-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Code className="h-6 w-6 text-blue-600" />
                     Projects
                   </h2>
@@ -503,7 +503,7 @@ const Profile = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
+                    className="border border-gray-200 shadow-none bg-background/50 backdrop-blur"
                     onClick={() => {
                       setEditingProject(null);
                       setProjectDialogOpen(true);
@@ -520,11 +520,11 @@ const Profile = () => {
                     </div>
                   )}
                   {profile.projects.map((project) => (
-                    <Card key={project.id} className="border-0 shadow-md ring-1 ring-black/5 hover:shadow-lg transition-all duration-300">
+                    <Card key={project.id} className="border border-gray-200 shadow-none ring-1 ring-black/5 hover:shadow-md transition-all duration-300">
                       <CardContent className="p-6">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <h3 className="font-bold text-lg text-primary">
+                            <h3 className="font-semibold text-lg text-primary">
                               {project.title}
                             </h3>
                             <p className="text-sm font-medium text-foreground/80 mt-1">
@@ -577,7 +577,7 @@ const Profile = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <Button variant="outline" size="sm" className="h-8 gap-2 bg-white border-slate-200 hover:bg-slate-50 text-slate-700">
+                              <Button variant="outline" size="sm" className="h-8 gap-2 bg-white border-gray-200 hover:bg-slate-50 text-slate-700 shadow-none">
                                 <Github className="h-3.5 w-3.5" /> Code
                               </Button>
                             </a>
@@ -588,7 +588,7 @@ const Profile = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <Button size="sm" className="h-8 gap-2 bg-slate-900 text-white hover:bg-slate-800 shadow-sm">
+                              <Button size="sm" className="h-8 gap-2 bg-slate-900 text-white hover:bg-slate-800 shadow-none">
                                 <ExternalLink className="h-3.5 w-3.5" /> Live Demo
                               </Button>
                             </a>
@@ -602,10 +602,10 @@ const Profile = () => {
             </Card>
 
             {/* ========= EXPERIENCE ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5">
               <CardContent className="p-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Briefcase className="h-6 w-6 text-orange-600" />
                     Experience
                   </h2>
@@ -613,7 +613,7 @@ const Profile = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
+                    className="border border-gray-200 shadow-none bg-background/50 backdrop-blur"
                     onClick={() => {
                       setExperienceEditData(null);
                       setExperienceDialogOpen(true);
@@ -627,11 +627,11 @@ const Profile = () => {
                   {profile.experiences.map((exp) => (
                     <div
                       key={exp.id}
-                      className="p-6 rounded-xl bg-card border-0 shadow-sm ring-1 ring-black/5 hover:shadow-md transition-shadow group border-l-4 border-l-orange-500"
+                      className="p-6 rounded-xl bg-card border border-gray-200 shadow-none ring-1 ring-black/5 hover:shadow-md transition-shadow group border-l-4 border-l-orange-500"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-bold text-lg text-primary">{exp.role}</h3>
+                          <h3 className="font-semibold text-lg text-primary">{exp.role}</h3>
                           <div className="flex items-center gap-2 text-base font-medium text-muted-foreground mt-1">
                             <Building2 className="h-4 w-4 text-orange-500" />
                             <span>{exp.company}</span>
@@ -679,7 +679,7 @@ const Profile = () => {
                           <Badge
                             key={`${tech}-${idx}`}
                             variant="outline"
-                            className="bg-slate-50 text-slate-700 border-slate-200 px-3 py-1 font-medium hover:bg-slate-100 transition-colors"
+                            className="bg-slate-50 text-slate-700 border-gray-200 px-3 py-1 font-semibold hover:bg-slate-100 transition-colors"
                           >
                             {tech}
                           </Badge>
@@ -692,10 +692,10 @@ const Profile = () => {
             </Card>
 
             {/* ========= EDUCATION ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5">
               <CardContent className="p-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <GraduationCap className="h-6 w-6 text-green-600" />
                     Education
                   </h2>
@@ -703,7 +703,7 @@ const Profile = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
+                    className="border border-gray-200 shadow-none bg-background/50 backdrop-blur"
                     onClick={() => {
                       setEditingEducation(null);
                       setEducationDialogOpen(true);
@@ -717,10 +717,10 @@ const Profile = () => {
                   {profile.education.map((edu) => (
                     <div
                       key={edu.id}
-                      className="p-6 rounded-xl bg-card border-0 shadow-sm ring-1 ring-black/5 flex justify-between items-start hover:shadow-md transition-shadow border-l-4 border-l-green-500"
+                      className="p-6 rounded-xl bg-card border border-gray-200 shadow-none ring-1 ring-black/5 flex justify-between items-start hover:shadow-md transition-shadow border-l-4 border-l-green-500"
                     >
                       <div>
-                        <h3 className="font-bold text-lg text-primary">
+                        <h3 className="font-semibold text-lg text-primary">
                           {edu.institution}
                         </h3>
                         <p className="text-muted-foreground font-medium mt-1">
@@ -764,10 +764,10 @@ const Profile = () => {
             </Card>
 
             {/* ========= CERTIFICATIONS ========= */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5">
               <CardContent className="p-8">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Award className="h-6 w-6 text-yellow-600" />
                     Certifications
                   </h2>
@@ -775,7 +775,7 @@ const Profile = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-0 shadow-sm bg-background/50 backdrop-blur"
+                    className="border border-gray-200 shadow-none bg-background/50 backdrop-blur"
                     onClick={() => {
                       setEditingCertification(null);
                       setCertificationDialogOpen(true);
@@ -787,11 +787,11 @@ const Profile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {profile.certifications.map((cert) => (
-                    <Card key={cert.id} className="border-0 shadow-sm ring-1 ring-black/5 hover:shadow-md transition-all group border-t-4 border-t-yellow-500">
+                    <Card key={cert.id} className="border border-gray-200 shadow-none ring-1 ring-black/5 hover:shadow-md transition-all group border-t-4 border-t-yellow-500">
                       <CardContent className="p-5">
                         <div className="flex items-start justify-between">
                           <div className="flex-1 space-y-1">
-                            <h3 className="font-bold text-base leading-tight group-hover:text-primary transition-colors">{cert.name}</h3>
+                            <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">{cert.name}</h3>
 
                             <p className="text-sm text-muted-foreground font-medium">
                               {cert.issuer}
@@ -866,14 +866,14 @@ const Profile = () => {
 
 
             {/* Skills Matrix */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5">
               <CardContent className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Skills</h2>
+                  <h2 className="text-xl font-semibold">Skills</h2>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-0 shadow-sm"
+                    className="border border-gray-200 shadow-none"
                     onClick={() => {
                       setEditingSkill(null);
                       setSkillDialogOpen(true);
@@ -932,13 +932,13 @@ const Profile = () => {
 
 
             {/* AI Insight */}
-            <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-card">
+            <Card className="border border-gray-200 shadow-none ring-1 ring-black/5 bg-card">
               <CardContent className="p-6">
                 <div className="flex items-start gap-2 mb-3">
                   <div className="p-1.5 rounded-md bg-[hsl(var(--saffron))]/20 text-[hsl(var(--saffron))]">
                     <Star className="h-4 w-4" />
                   </div>
-                  <h3 className="font-bold text-lg">AI Insight</h3>
+                  <h3 className="font-semibold text-lg">AI Insight</h3>
                 </div>
                 <ul className="space-y-3 text-sm text-foreground/80">
                   <li className="flex items-start gap-3">

@@ -65,7 +65,7 @@ import CollegeSubjects from './pages/admin/CollegeSubjects';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/PrincipalDashboard';
-import HODDashboard from './pages/hod/Dashboard';
+import HODDashboard from './pages/hod/HODDashboard';
 import HODs from './pages/principal/HODs';
 
 import PrincipalDepartments from './pages/principal/Departments';

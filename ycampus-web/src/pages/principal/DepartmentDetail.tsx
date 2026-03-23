@@ -3,7 +3,7 @@ import RoleSidebar from '@/components/common/RoleSidebar';
 import { useDepartments } from '@/hooks/useDepartments';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import HODDashboard from '@/pages/hod/Dashboard';
+import HODDashboard from '@/pages/hod/HODDashboard';
 
 const DepartmentDetail = () => {
   const { departmentId } = useParams();

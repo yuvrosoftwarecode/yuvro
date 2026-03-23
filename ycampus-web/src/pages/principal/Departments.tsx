@@ -27,13 +27,13 @@ const DepartmentCard = ({ id, name, code, description, semesters, index }) => {
     <Card
       key={id}
       onClick={() => navigate(`/principal/departments/${id}`)}
-      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-none`}
     >
       <CardContent className="p-6 flex flex-col items-center gap-3">
         <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
           <Icon className="h-8 w-8" />
         </div>
-        <h3 className="text-xl font-bold text-center">{name}</h3>
+        <h3 className="text-xl font-semibold text-center">{name}</h3>
         <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{code}</span>
         {description && (
           <p className="text-sm text-white/80 text-center mt-1">{description}</p>
@@ -57,7 +57,7 @@ const PrincipalDepartments = () => {
       <SidebarInset className="p-4 md:p-6 bg-background">
         <div className="max-w-[1400px] mx-auto space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Departments</h1>
+            <h1 className="text-2xl font-semibold">Departments</h1>
           </div>
             {isLoading ? (
               <p className="text-muted-foreground">Loading departments...</p>
@@ -66,23 +66,25 @@ const PrincipalDepartments = () => {
                 {departments.map((dept, index) => {
                   const Icon = cardIcons[index % cardIcons.length];
                   const gradient = cardGradients[index % cardGradients.length];
+                  const hodName = dept.hod_details
+                    ? `${dept.hod_details.user_details.first_name} ${dept.hod_details.user_details.last_name}`.trim()
+                    : null;
                   return (
                     <Card
                       key={dept.id}
                       onClick={() => navigate(`/principal/departments/${dept.id}`)}
-                      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+                      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-none`}
                     >
                       <CardContent className="p-6 flex flex-col items-center gap-3">
                         <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
                           <Icon className="h-8 w-8" />
                         </div>
-                        <h3 className="text-xl font-bold text-center">{dept.name}</h3>
-                        <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{dept.code}</span>
-                        {dept.description && (
-                          <p className="text-sm text-white/80 text-center mt-1">{dept.description}</p>
+                        <h3 className="text-xl font-semibold text-center">{dept.name}</h3>
+                        {dept.short_form && (
+                          <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{dept.short_form}</span>
                         )}
                         <p className="text-xs text-white/60 mt-2">
-                          {dept.semesters?.length || 0} Semesters
+                          {dept.semesterCount} Semester{dept.semesterCount !== 1 ? 's' : ''}
                         </p>
                       </CardContent>
                     </Card>

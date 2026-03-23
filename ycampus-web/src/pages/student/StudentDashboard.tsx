@@ -84,7 +84,7 @@ const getColorClass = (value: number) => {
 // ─── Widget Components ─────────────────────────────────────────
 
 const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => (
     <CardContent className="flex-grow">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-gray-800">Overall Progress</span>
-        <span className={`text-sm font-bold ${getColorClass(data.overall)}`}>{data.overall}%</span>
+        <span className={`text-sm font-semibold ${getColorClass(data.overall)}`}>{data.overall}%</span>
       </div>
       <div className="w-full bg-gray-100 rounded-full h-2 mb-5">
         <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${data.overall}%` }} />
@@ -134,7 +134,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => (
 );
 
 const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -148,15 +148,15 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
     <CardContent className="flex-grow">
       <div className="grid grid-cols-3 gap-3 mb-5">
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-blue-600">{data.completed}</p>
+          <p className="text-2xl font-semibold text-blue-600">{data.completed}</p>
           <p className="text-xs text-gray-500 mt-1">Completed</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className={`text-2xl font-bold ${getColorClass(data.avgScore)}`}>{data.avgScore}%</p>
+          <p className={`text-2xl font-semibold ${getColorClass(data.avgScore)}`}>{data.avgScore}%</p>
           <p className="text-xs text-gray-500 mt-1">Avg Score</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className={`text-2xl font-bold ${getColorClass(data.accuracy)}`}>{data.accuracy}%</p>
+          <p className={`text-2xl font-semibold ${getColorClass(data.accuracy)}`}>{data.accuracy}%</p>
           <p className="text-xs text-gray-500 mt-1">Accuracy</p>
         </div>
       </div>
@@ -179,11 +179,11 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className={`text-lg font-bold ${getColorClass(data.leaderboard.you)}`}>{data.leaderboard.you}%</p>
+            <p className={`text-lg font-semibold ${getColorClass(data.you)}`}>{data.leaderboard.you}%</p>
             <p className="text-xs text-gray-500">Your Average</p>
           </div>
           <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className={`text-lg font-bold ${getColorClass(data.leaderboard.global)}`}>{data.leaderboard.global}%</p>
+            <p className={`text-lg font-semibold ${getColorClass(data.leaderboard.global)}`}>{data.leaderboard.global}%</p>
             <p className="text-xs text-gray-500">Global Average</p>
           </div>
         </div>
@@ -199,7 +199,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => (
 );
 
 const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -212,7 +212,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
     <CardContent className="flex-grow">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-gray-600">Overall Progress</span>
-        <span className={`text-sm font-bold ${getColorClass(data.overall)}`}>{data.overall}%</span>
+        <span className={`text-sm font-semibold ${getColorClass(data.overall)}`}>{data.overall}%</span>
       </div>
       <div className="w-full bg-gray-100 rounded-full h-2 mb-5">
         <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${data.overall}%` }} />
@@ -220,19 +220,19 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
 
       <div className="grid grid-cols-2 gap-3">
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-green-600">{data.completed}</p>
+          <p className="text-2xl font-semibold text-green-600">{data.completed}</p>
           <p className="text-xs text-gray-500 mt-1">Completed</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-amber-500">{data.inProgress}</p>
+          <p className="text-2xl font-semibold text-amber-500">{data.inProgress}</p>
           <p className="text-xs text-gray-500 mt-1">In Progress</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-red-500">{data.pending}</p>
+          <p className="text-2xl font-semibold text-red-500">{data.pending}</p>
           <p className="text-xs text-gray-500 mt-1">Pending</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-gray-700">{data.total}</p>
+          <p className="text-2xl font-semibold text-gray-700">{data.total}</p>
           <p className="text-xs text-gray-500 mt-1">Total Tasks</p>
         </div>
       </div>
@@ -247,29 +247,29 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => (
 );
 
 const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileCheck className="w-5 h-5 text-indigo-600" />
           <h3 className="font-semibold text-gray-900">Assessments Overview</h3>
         </div>
-        <span className="text-sm text-gray-500 font-small bg-gray-100 px-2 py-1 rounded-full">{data.completed} / {data.total}</span>
+        <span className="text-sm text-gray-500 font-semibold bg-gray-100 px-2 py-1 rounded-full">{data.completed} / {data.total}</span>
       </div>
     </CardHeader>
 
     <CardContent className="flex-grow">
       <div className="grid grid-cols-3 gap-4 mb-5">
         <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-green-600">{data.completed}</p>
+          <p className="text-2xl font-semibold text-green-600">{data.completed}</p>
           <p className="text-xs text-gray-500">Completed</p>
         </div>
         <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-amber-500">{data.inProgress}</p>
+          <p className="text-2xl font-semibold text-amber-500">{data.inProgress}</p>
           <p className="text-xs text-gray-500">In Progress</p>
         </div>
         <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-red-500">{data.pending}</p>
+          <p className="text-2xl font-semibold text-red-500">{data.pending}</p>
           <p className="text-xs text-gray-500">Pending</p>
         </div>
       </div>
@@ -278,7 +278,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => (
         <div className="space-y-4 mb-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-600 font-medium text-base">Average Score</span>
-            <span className={`font-bold ${getColorClass(data.avgScore)} text-xl`}>{data.avgScore}%</span>
+            <span className={`font-semibold ${getColorClass(data.avgScore)} text-xl`}>{data.avgScore}%</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Highest Score</span>
@@ -315,7 +315,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => (
 );
 
 const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -329,11 +329,11 @@ const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => (
     <CardContent className="flex-grow">
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-blue-600">{data.completed}</p>
+          <p className="text-2xl font-semibold text-blue-600">{data.completed}</p>
           <p className="text-xs text-gray-500 mt-1">Completed</p>
         </div>
         <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-2xl font-bold text-amber-600">#{data.bestRank}</p>
+          <p className="text-2xl font-semibold text-amber-600">#{data.bestRank}</p>
           <p className="text-xs text-gray-500 mt-1">Best Rank</p>
         </div>
       </div>
@@ -358,15 +358,15 @@ const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => (
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className="text-lg font-bold text-gray-900">#{data.lastContest.rank}</p>
+            <p className="text-lg font-semibold text-gray-900">#{data.lastContest.rank}</p>
             <p className="text-xs text-gray-500">Rank</p>
           </div>
           <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className={`text-lg font-bold ${getColorClass(data.lastContest.accuracy)}`}>{data.lastContest.accuracy}%</p>
+            <p className={`text-lg font-semibold ${getColorClass(data.lastContest.accuracy)}`}>{data.lastContest.accuracy}%</p>
             <p className="text-xs text-gray-500">Accuracy</p>
           </div>
           <div className="rounded-lg py-2 px-1" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className="text-lg font-bold text-gray-900">{data.lastContest.time}</p>
+            <p className="text-lg font-semibold text-gray-900">{data.lastContest.time}</p>
             <p className="text-xs text-gray-500">Time</p>
           </div>
         </div>
@@ -387,7 +387,7 @@ const AttendanceOverview: React.FC = () => {
   ];
 
   return (
-    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -419,18 +419,18 @@ const AttendanceOverview: React.FC = () => {
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center flex-col">
-            <span className="text-3xl font-bold text-gray-900">{present}%</span>
+            <span className="text-3xl font-semibold text-gray-900">{present}%</span>
             <span className="text-xs text-gray-500 font-medium">Present</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 w-full mt-2">
           <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className="text-2xl font-bold text-green-600">{present}%</p>
+            <p className="text-2xl font-semibold text-green-600">{present}%</p>
             <p className="text-xs text-gray-500 mt-1">Present</p>
           </div>
           <div className="text-center rounded-lg py-3 px-2" style={{ backgroundColor: '#f3f4f6' }}>
-            <p className="text-2xl font-bold text-red-500">{absent}%</p>
+            <p className="text-2xl font-semibold text-red-500">{absent}%</p>
             <p className="text-xs text-gray-500 mt-1">Absent</p>
           </div>
         </div>
@@ -453,7 +453,7 @@ const AttendanceOverview: React.FC = () => {
 };
 
 const Announcements: React.FC = () => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+  <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -503,7 +503,7 @@ const StreaksBadges: React.FC = () => {
     { name: 'Platinum', earned: false, icon: '💎' },
   ];
   return (
-    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -517,7 +517,7 @@ const StreaksBadges: React.FC = () => {
         {/* Streak count */}
         <div className="flex items-center justify-center gap-2 mb-4 rounded-lg py-4" style={{ backgroundColor: '#f3f4f6' }}>
           <Flame className="w-8 h-8 text-orange-500" />
-          <span className="text-4xl font-bold text-orange-600">{mockStreaks.days}</span>
+          <span className="text-4xl font-semibold text-orange-600">{mockStreaks.days}</span>
           <span className="text-sm text-gray-500 self-end mb-1">Day Streak</span>
         </div>
 
@@ -525,7 +525,7 @@ const StreaksBadges: React.FC = () => {
         <div className="border-t border-gray-200 pt-3">
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-gray-600 font-medium">Progress to {mockStreaks.badgeProgress.target}</span>
-            <span className="text-black-500">{mockStreaks.badgeProgress.daysLeft} days left</span>
+            <span className="text-slate-500">{mockStreaks.badgeProgress.daysLeft} days left</span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
             <div className="bg-orange-500 h-2 rounded-full" style={{ width: '70%' }} />
@@ -599,7 +599,7 @@ const PerformanceMetrics: React.FC = () => {
   ];
 
   return (
-    <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
+    <Card className="h-full flex flex-col border border-gray-200 shadow-none transition-shadow">
       <CardHeader className="pb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -615,7 +615,7 @@ const PerformanceMetrics: React.FC = () => {
             <div key={i}>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-700">{m.label}</span>
-                <span className={`font-bold ${getColorClass(m.value)}`}>{m.value}%</span>
+                <span className={`font-semibold ${getColorClass(m.value)}`}>{m.value}%</span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
                 <div className="bg-orange-500 h-2 rounded-full transition-all" style={{ width: `${m.value}%` }} />
@@ -627,7 +627,7 @@ const PerformanceMetrics: React.FC = () => {
 
       <CardFooter className="justify-center border-t border-gray-200 pt-6">
         <div className="text-center w-full rounded-lg py-3" style={{ backgroundColor: '#f3f4f6' }}>
-          <p className="text-4xl font-bold text-green-600">{mockPerformance.overall}%</p>
+          <p className="text-4xl font-semibold text-green-600">{mockPerformance.overall}%</p>
           <p className="text-sm text-gray-500 mt-1">Overall Performance Score</p>
         </div>
       </CardFooter>

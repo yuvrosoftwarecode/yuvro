@@ -133,7 +133,7 @@ const Faculty = () => {
       <RoleSidebar />
       <SidebarInset className="p-4 md:p-6 bg-background">
         <div className="max-w-[1400px] mx-auto space-y-6">
-          <h1 className="text-2xl font-bold mb-6">Faculty Performance</h1>
+          <h1 className="text-2xl font-semibold mb-6 text-slate-800">Faculty Performance</h1>
           {/* Summary KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {[
@@ -145,10 +145,10 @@ const Faculty = () => {
               { label: 'Avg Assessment', value: `${summary.avgAssessment}%`, icon: BarChart3, color: 'text-purple-600' },
               { label: 'At Risk', value: summary.riskFaculty, icon: AlertTriangle, color: 'text-red-600' },
             ].map((item, i) => (
-              <Card key={i} className="">
+              <Card key={i} className="border-gray-200 shadow-none">
                 <CardContent className="p-3 flex flex-col items-center text-center gap-1">
                   <item.icon className={`h-5 w-5 ${item.color}`} />
-                  <div className="text-lg font-bold text-foreground">{item.value}</div>
+                  <div className="text-lg font-semibold text-slate-700">{item.value}</div>
                   <div className="text-[10px] text-muted-foreground">{item.label}</div>
                 </CardContent>
               </Card>
@@ -157,9 +157,9 @@ const Faculty = () => {
 
           {/* Department Comparison Chart (shown when All Departments selected) */}
           {selectedDept === 'all' && (
-            <Card className="min-w-0">
+            <Card className="min-w-0 border-gray-200 shadow-none">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-indigo-600" />
                   Department-wise Average FPI
                 </CardTitle>
@@ -181,9 +181,9 @@ const Faculty = () => {
           )}
 
           {/* Faculty Ranking Table */}
-          <Card className="min-w-0">
+          <Card className="min-w-0 border-gray-200 shadow-none">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                 <UserCheck className="h-4 w-4 text-indigo-600" />
                 Faculty Ranking — {selectedDeptName}
                 <Badge variant="outline" className="text-[10px] ml-auto">{filteredFaculty.length} Faculty</Badge>
@@ -215,10 +215,10 @@ const Faculty = () => {
                       >
                         <TableCell className="text-xs font-bold text-muted-foreground">
                           {idx < 3 ? (
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">{idx + 1}</span>
+                          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold">{idx + 1}</span>
                           ) : idx + 1}
                         </TableCell>
-                        <TableCell className="text-xs font-medium">{f.name}</TableCell>
+                        <TableCell className="text-xs font-semibold text-slate-700">{f.name}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{f.department}</TableCell>
                         <TableCell className="text-xs text-center">{f.sections.join(', ')}</TableCell>
                         <TableCell className="text-xs text-center truncate max-w-[140px]" title={f.subjects.join(', ')}>{f.subjects.join(', ')}</TableCell>
@@ -228,7 +228,7 @@ const Faculty = () => {
                         <TableCell className="text-xs text-center">{f.avgAttendance}%</TableCell>
                         <TableCell className="text-xs text-center">{f.avgAssessmentScore}%</TableCell>
                         <TableCell className="text-center">
-                          <span className={`text-xs font-bold ${fpiColor(f.fpiScore)}`}>{f.fpiScore}%</span>
+                          <span className={`text-xs font-semibold ${fpiColor(f.fpiScore)}`}>{f.fpiScore}%</span>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge className={`border-0 text-[10px] ${fpiRankColor(f.fpiScore)}`}>{fpiRank(f.fpiScore)}</Badge>
@@ -244,19 +244,19 @@ const Faculty = () => {
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 <div className="text-center p-2 bg-background rounded-md border">
                                   <div className="text-xs text-muted-foreground">Students Handled</div>
-                                  <div className="text-lg font-bold">{f.studentsHandled}</div>
+                                  <div className="text-lg font-semibold">{f.studentsHandled}</div>
                                 </div>
                                 <div className="text-center p-2 bg-background rounded-md border">
                                   <div className="text-xs text-muted-foreground">Subjects</div>
-                                  <div className="text-lg font-bold">{f.subjects.length}</div>
+                                  <div className="text-lg font-semibold">{f.subjects.length}</div>
                                 </div>
                                 <div className="text-center p-2 bg-background rounded-md border">
                                   <div className="text-xs text-muted-foreground">Sections</div>
-                                  <div className="text-lg font-bold">{f.sections.length}</div>
+                                  <div className="text-lg font-semibold">{f.sections.length}</div>
                                 </div>
                                 <div className="text-center p-2 bg-background rounded-md shadow-sm">
                                   <div className="text-xs text-muted-foreground">FPI Score</div>
-                                  <div className={`text-lg font-bold ${fpiColor(f.fpiScore)}`}>{f.fpiScore}%</div>
+                                  <div className={`text-lg font-semibold ${fpiColor(f.fpiScore)}`}>{f.fpiScore}%</div>
                                 </div>
                               </div>
                               <div>
@@ -287,9 +287,9 @@ const Faculty = () => {
 
           {/* Risk Panel */}
           {summary.riskFaculty > 0 && (
-            <Card className="border-l-4 border-l-red-400">
+            <Card className="border-gray-200 shadow-none border-l-4 border-l-red-400">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                   <Shield className="h-4 w-4 text-red-500" />
                   Faculty Risk Panel
                 </CardTitle>
@@ -315,9 +315,9 @@ const Faculty = () => {
           )}
 
           {/* AI Insights */}
-          <Card className="border-l-4" style={{ borderLeftColor: '#f59e0b' }}>
+          <Card className="border-gray-200 shadow-none border-l-4" style={{ borderLeftColor: '#f59e0b' }}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" />
                 {selectedDept === 'all' ? 'Cross-Department Insights' : `Insights — ${selectedDeptName}`}
               </CardTitle>

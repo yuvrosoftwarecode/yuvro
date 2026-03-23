@@ -225,7 +225,7 @@ const TestResults: React.FC<TestResultsProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black text-slate-800 tracking-tight">{test.title}</h1>
+              <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">{test.title}</h1>
               {allSubmissions.length > 1 && (
                 <div className="flex items-center gap-2 ml-4">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Attempts</span>
@@ -247,14 +247,14 @@ const TestResults: React.FC<TestResultsProps> = ({
                 </div>
               )}
             </div>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{test.course}</p>
+            <p className="text-slate-400 font-semibold uppercase tracking-widest text-[10px]">{test.course}</p>
           </div>
           <div className="flex gap-2">
             {onTryAgain && (
               <Button
                 variant="outline"
                 onClick={onTryAgain}
-                className="flex items-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-bold h-11 transition-all active:scale-95"
+                className="flex items-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-semibold h-11 transition-all active:scale-95 shadow-none border"
               >
                 <RotateCcw className="h-4 w-4" />
                 Try Again
@@ -262,7 +262,7 @@ const TestResults: React.FC<TestResultsProps> = ({
             )}
             <Button
               onClick={onBackToList}
-              className="flex items-center gap-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 shadow-lg px-6 h-11 transition-all active:scale-95"
+              className="flex items-center gap-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 shadow-none border border-gray-200 px-6 h-11 transition-all active:scale-95"
             >
               Close
             </Button>
@@ -275,10 +275,10 @@ const TestResults: React.FC<TestResultsProps> = ({
 
 
             {/* Performance Analysis Card */}
-            <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden">
+            <Card className="border border-gray-200 shadow-none bg-white overflow-hidden">
               <CardHeader className="pb-4 border-b border-slate-50 bg-white">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <CardTitle className="text-base font-black flex items-center gap-3 text-slate-800">
+                  <CardTitle className="text-base font-semibold flex items-center gap-3 text-slate-800">
                     <div className="p-2 bg-amber-50 rounded-xl">
                       <Trophy className="h-5 w-5 text-amber-500" />
                     </div>
@@ -290,7 +290,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                         size="sm"
                         variant={activeTab === 'mcq' ? 'secondary' : 'ghost'}
                         onClick={() => setActiveTab('mcq')}
-                        className={`rounded-xl font-bold gap-2 px-4 ${activeTab === 'mcq' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'mcq' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
                       >
                         <ListFilter className="h-4 w-4" />
                         MCQ ({mcqQuestions.length})
@@ -301,7 +301,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                         size="sm"
                         variant={activeTab === 'coding' ? 'secondary' : 'ghost'}
                         onClick={() => setActiveTab('coding')}
-                        className={`rounded-xl font-bold gap-2 px-4 ${activeTab === 'coding' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'coding' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
                       >
                         <Code className="h-4 w-4" />
                         Coding ({codingQuestions.length})
@@ -312,7 +312,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                         size="sm"
                         variant={activeTab === 'descriptive' ? 'secondary' : 'ghost'}
                         onClick={() => setActiveTab('descriptive')}
-                        className={`rounded-xl font-bold gap-2 px-4 ${activeTab === 'descriptive' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
+                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'descriptive' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
                       >
                         <FileText className="h-4 w-4" />
                         Descriptive ({descriptiveQuestions.length})
@@ -348,7 +348,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                 {!currentQuestionData ? (
                   <div className="flex flex-col items-center justify-center py-20 bg-slate-50 m-6 rounded-3xl border border-dashed border-slate-200">
                     <AlertCircle className="h-10 w-10 text-slate-300 mb-4" />
-                    <p className="font-bold text-slate-400">No questions found in this category</p>
+                    <p className="font-semibold text-slate-400">No questions found in this category</p>
                   </div>
                 ) : (
                   <div className="p-6 space-y-6 animate-in fade-in duration-500">
@@ -384,12 +384,12 @@ const TestResults: React.FC<TestResultsProps> = ({
                               {currentQuestionData.question_type?.replace('_', ' ')}
                             </Badge>
                           </div>
-                          <p className="text-lg font-black text-slate-800 leading-tight">
+                          <p className="text-lg font-semibold text-slate-800 leading-tight">
                             {currentQuestionData.question_content || currentQuestionData.question_title}
                           </p>
                         </div>
                         <div className={`shrink-0 p-5 rounded-[2rem] flex flex-col items-center justify-center min-w-[120px] relative z-10 transition-all duration-500 ${currentQuestionData.is_correct ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-slate-200 text-slate-400'}`}>
-                          <div className="text-2xl font-black leading-none">{currentQuestionData.marks_obtained || 0}</div>
+                          <div className="text-2xl font-semibold leading-none">{currentQuestionData.marks_obtained || 0}</div>
                           <div className="text-[10px] font-black uppercase tracking-widest mt-2 opacity-70">Marks /{currentQuestionData.marks}</div>
                         </div>
                       </div>
@@ -414,7 +414,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                                   <div className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-[10px] transition-transform duration-300 group-hover/opt:scale-110 ${isCorrect ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : isSelected ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-100 text-slate-500'}`}>
                                     {String.fromCharCode(65 + idx)}
                                   </div>
-                                  <span className={`text-xs font-bold transition-colors ${isCorrect ? 'text-emerald-700' : isSelected ? 'text-rose-700' : 'text-slate-600'}`}>
+                                  <span className={`text-xs font-semibold transition-colors ${isCorrect ? 'text-emerald-700' : isSelected ? 'text-rose-700' : 'text-slate-600'}`}>
                                     {option.text}
                                   </span>
                                 </div>
@@ -436,7 +436,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                               </h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {currentQuestionData.test_cases_basic.map((tc: any, idx: number) => (
-                                  <div key={idx} className="p-5 bg-white border border-slate-100 rounded-3xl space-y-3 shadow-sm">
+                                  <div key={idx} className="p-5 bg-white border border-gray-200 rounded-3xl space-y-3 shadow-none">
                                     <div className="flex items-center justify-between">
                                       <Badge variant="outline" className="text-[9px] uppercase font-black tracking-widest text-slate-400 border-slate-100">
                                         Case #{idx + 1}
@@ -456,7 +456,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                             </div>
                           )}
 
-                          <div className="p-8 bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden relative group">
+                          <div className="p-8 bg-slate-900 rounded-[2.5rem] shadow-none border border-gray-200 overflow-hidden relative group">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -mr-32 -mt-32" />
                             <div className="flex items-center justify-between mb-6 relative z-10">
                               <div className="space-y-1">
@@ -475,7 +475,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                       )}
 
                       {currentQuestionData.answer_data?.explanation && (
-                        <div className="p-8 bg-blue-50/50 border border-blue-100/50 rounded-[2.5rem] shadow-sm relative overflow-hidden group mt-4">
+                        <div className="p-8 bg-blue-50/50 border border-blue-100/50 rounded-[2.5rem] shadow-none relative overflow-hidden group mt-4">
                           <div className="absolute top-0 left-0 w-32 h-32 bg-blue-200/20 rounded-full blur-3xl -ml-16 -mt-16" />
                           <div className="flex items-center gap-3 mb-4 text-blue-900 relative z-10">
                             <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
@@ -483,7 +483,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                             </div>
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Knowledge Base Explanation</p>
                           </div>
-                          <p className="text-sm font-bold text-blue-900/80 leading-relaxed relative z-10 ml-1">
+                          <p className="text-sm font-semibold text-blue-900/80 leading-relaxed relative z-10 ml-1">
                             {currentQuestionData.answer_data.explanation}
                           </p>
                         </div>
@@ -498,12 +498,12 @@ const TestResults: React.FC<TestResultsProps> = ({
           {/* Right Column - Summary & AI Assistant (25%) */}
           <div className="hidden lg:flex lg:flex-col lg:w-1/4 sticky top-8 h-[calc(100vh-120px)] gap-6">
             {/* Compact Vertical Score Card */}
-            <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white overflow-hidden shrink-0">
+            <Card className="border border-gray-200 shadow-none bg-white overflow-hidden shrink-0">
               <CardContent className="p-5 space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="relative w-20 h-20 rounded-full border-4 border-slate-100 flex items-center justify-center bg-gradient-to-br from-slate-50 to-white shadow-inner">
                     <div className="text-center">
-                      <div className="text-xl font-black text-slate-900 leading-none">{totalScore}</div>
+                      <div className="text-xl font-semibold text-slate-900 leading-none">{totalScore}</div>
                       <div className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">/ {maxScore}</div>
                     </div>
                   </div>
@@ -511,11 +511,11 @@ const TestResults: React.FC<TestResultsProps> = ({
                     <Badge className={`${performance.bg} ${performance.color} border-0 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider mb-1`}>
                       {performance.text}
                     </Badge>
-                    <div className="text-[10px] text-slate-500 font-bold flex items-center justify-end gap-1">
+                    <div className="text-[10px] text-slate-500 font-semibold flex items-center justify-end gap-1">
                       <Clock className="h-3 w-3" />
                       {percentage}% Accuracy
                     </div>
-                    <div className="text-[9px] text-slate-400 font-bold mt-0.5">
+                    <div className="text-[9px] text-slate-400 font-semibold mt-0.5">
                       {submissionData.submitted_at && new Date(submissionData.submitted_at).toLocaleDateString()}
                     </div>
                   </div>
@@ -538,16 +538,16 @@ const TestResults: React.FC<TestResultsProps> = ({
 
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-widest text-slate-400">
                       <span>Accuracy</span>
-                      <span className="text-slate-900 font-black">{performanceMetrics.accuracy}%</span>
+                      <span className="text-slate-900 font-semibold">{performanceMetrics.accuracy}%</span>
                     </div>
                     <Progress value={performanceMetrics.accuracy} className="h-1.5 bg-slate-100 [&>div]:bg-emerald-500 rounded-full" />
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-widest text-slate-400">
                       <span>Progression</span>
-                      <span className="text-slate-900 font-black">{performanceMetrics.completionRate}%</span>
+                      <span className="text-slate-900 font-semibold">{performanceMetrics.completionRate}%</span>
                     </div>
                     <Progress value={performanceMetrics.completionRate} className="h-1.5 bg-slate-100 [&>div]:bg-blue-500 rounded-full" />
                   </div>
@@ -556,7 +556,7 @@ const TestResults: React.FC<TestResultsProps> = ({
             </Card>
 
             <AIChatContainer
-              className="flex-1 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-none overflow-hidden"
+              className="flex-1 border border-gray-200 shadow-none rounded-none overflow-hidden"
               welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${test.title}". Ask me anything!`}
               persistenceKey={`test-review-${currentSubId}`}
               chatTitle={`${test.title} Review - AI Buddy`}

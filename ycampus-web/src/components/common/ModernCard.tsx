@@ -44,7 +44,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
 }) => {
     return (
         <Card
-            className={`group relative h-full min-h-[280px] overflow-hidden border border-gray-200 bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${className}`}
+            className={`group relative h-full min-h-[280px] overflow-hidden border border-gray-200 bg-card shadow-none transition-all duration-300 hover:-translate-y-1 ${className}`}
         >
             {/* Card Decoration (Hover Gradient) */}
             <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${gradientColor.split(' ')[0]} to-transparent`} />
@@ -74,7 +74,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
 
                 {/* Content (Grows to push bottom section down) */}
                 <div className="flex-grow space-y-2">
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
                         {title}
                     </h3>
                     <p className="text-sm text-muted-foreground/80 line-clamp-3 leading-relaxed">
