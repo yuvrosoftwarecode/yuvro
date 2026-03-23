@@ -10,6 +10,7 @@ export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode
     icon?: React.ComponentType
+    labelColor?: string
   } & (
     | { color?: string; theme?: never }
     | { color?: never; theme: Record<keyof typeof THEMES, string> }
@@ -156,7 +157,11 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-medium", labelClassName)}>{value}</div>
+      return (
+        <div className={cn("text-sm font-bold text-gray-900", labelClassName)}>
+          {value}
+        </div>
+      )
     }, [
       label,
       labelFormatter,
@@ -177,7 +182,7 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+          "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-gray-100 bg-white px-2.5 py-1.5 text-xs shadow-xl",
           className
         )}
       >
@@ -188,14 +193,13 @@ const ChartTooltipContent = React.forwardRef<
             .map((item, index) => {
               const key = `${nameKey || item.name || item.dataKey || "value"}`
               const itemConfig = getPayloadConfigFromPayload(config, item, key)
-              const indicatorColor = color || item.payload.fill || item.color
+              const indicatorColor = color || itemConfig?.color || item.payload.fill || item.color
 
               return (
                 <div
                   key={item.dataKey}
                   className={cn(
-                    "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
-                    indicator === "dot" && "items-center"
+                    "flex w-full items-center gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground"
                   )}
                 >
                   {formatter && item?.value !== undefined && item.name ? (
@@ -208,9 +212,9 @@ const ChartTooltipContent = React.forwardRef<
                         !hideIndicator && (
                           <div
                             className={cn(
-                              "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
+                              "shrink-0 rounded-[3px]",
                               {
-                                "h-2.5 w-2.5": indicator === "dot",
+                                "h-3 w-3": indicator === "dot" || !indicator,
                                 "w-1": indicator === "line",
                                 "w-0 border-[1.5px] border-dashed bg-transparent":
                                   indicator === "dashed",
@@ -219,6 +223,9 @@ const ChartTooltipContent = React.forwardRef<
                             )}
                             style={
                               {
+                                backgroundColor: indicatorColor,
+                                borderColor: indicatorColor,
+                                border: indicatorColor ? "1px solid" : undefined,
                                 "--color-bg": indicatorColor,
                                 "--color-border": indicatorColor,
                               } as React.CSSProperties
@@ -234,12 +241,19 @@ const ChartTooltipContent = React.forwardRef<
                       >
                         <div className="grid gap-1.5">
                           {nestLabel ? tooltipLabel : null}
-                          <span className="text-muted-foreground">
+                          <span
+                            className={cn(itemConfig?.labelColor ? "" : "text-muted-foreground")}
+                            style={
+                              itemConfig?.labelColor
+                                ? { color: itemConfig.labelColor }
+                                : undefined
+                            }
+                          >
                             {itemConfig?.label || item.name}
                           </span>
                         </div>
                         {item.value && (
-                          <span className="font-mono font-medium tabular-nums text-foreground">
+                          <span className="font-bold tabular-nums text-gray-900">
                             {item.value.toLocaleString()}
                           </span>
                         )}
