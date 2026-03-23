@@ -13,6 +13,10 @@ from .models import (
     Section,
     AttendanceSession,
     AttendanceRecord,
+    Task,
+    TaskSubmission,
+    TaskComment,
+    Note,
     Announcement,
 )
 from authentication.serializers import UserSerializer
@@ -191,6 +195,90 @@ class AttendanceSessionSerializer(serializers.ModelSerializer):
             AttendanceRecord.objects.create(session=session, **record_data)
         
         return session
+
+class TaskCommentSerializer(serializers.ModelSerializer):
+    faculty_details = FacultyProfileSerializer(source="faculty", read_only=True)
+    student_details = StudentProfileSerializer(source="student", read_only=True)
+
+    class Meta:
+        model = TaskComment
+        fields = ["id", "submission", "faculty", "faculty_details", "student", "student_details", "comment", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+class TaskSubmissionSerializer(serializers.ModelSerializer):
+    student_details = StudentProfileSerializer(source="student", read_only=True)
+    comments = TaskCommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TaskSubmission
+        fields = ["id", "task", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
+        read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at"]
+
+class TaskSerializer(serializers.ModelSerializer):
+    faculty_details = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    subject_details = serializers.SerializerMethodField()
+    unit_name = serializers.CharField(source="unit.name", read_only=True)
+    sub_unit_name = serializers.CharField(source="sub_unit.name", read_only=True)
+    section_details = serializers.SerializerMethodField()
+    question_details = serializers.SerializerMethodField()
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    task_type = serializers.ChoiceField(choices=[("descriptive", "Descriptive"), ("coding", "Coding")], required=False)
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "faculty",
+            "faculty_details",
+            "department",
+            "department_name",
+            "subject",
+            "subject_details",
+            "unit",
+            "unit_name",
+            "sub_unit",
+            "sub_unit_name",
+            "sections",
+            "section_details",
+            "title",
+            "description",
+            "task_type",
+            "question_source",
+            "questions",
+            "question_details",
+            "is_sent",
+            "due_date",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "faculty", "created_at", "updated_at"]
+
+    def get_faculty_details(self, obj):
+        return FacultyProfileSerializer(obj.faculty, context=self.context).data
+
+    def get_subject_details(self, obj):
+        from course.serializers import SubjectBasicSerializer
+        return SubjectBasicSerializer(obj.subject).data
+
+    def get_section_details(self, obj):
+        from course.serializers import SectionBasicSerializer
+        return SectionBasicSerializer(obj.sections.all(), many=True).data
+
+    def get_question_details(self, obj):
+        from course.serializers import QuestionSerializer
+        return QuestionSerializer(obj.questions.all(), many=True, context=self.context).data
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ["id", "sub_unit", "user", "content", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "user"]
+
+    def validate_content(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Content cannot be empty.")
+        return value
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

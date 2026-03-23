@@ -10,7 +10,6 @@ from .views import (
     UnitViewSet,
     SubUnitViewSet,
     VideoViewSet,
-    NoteViewSet,
     QuestionViewSet,
     StudentSubjectProgressViewSet,
     StudentCodePracticeViewSet,
@@ -32,10 +31,10 @@ router.register(r"section-subject-faculty", SectionSubjectFacultyViewSet)
 router.register(r"units", UnitViewSet)
 router.register(r"subunits", SubUnitViewSet)
 router.register(r"videos", VideoViewSet)
-router.register(r"notes", NoteViewSet)
 router.register(r"questions", QuestionViewSet)
 router.register(r"student-subject-progress", StudentSubjectProgressViewSet)
 router.register(r"student-code-practices", StudentCodePracticeViewSet)
+
 
 urlpatterns = [
     path("", include(router.urls)),

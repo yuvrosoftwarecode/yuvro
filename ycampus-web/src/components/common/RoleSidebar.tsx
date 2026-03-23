@@ -69,7 +69,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'student-task',
     label: 'Task',
     icon: ListChecks,
-    path: '/student/code-practice',
+    path: '/student/task',
     roles: ['student']
   },
   {

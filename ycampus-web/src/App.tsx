@@ -70,6 +70,10 @@ import HODDashboard from './pages/hod/Dashboard';
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
 import TakeAttendance from './pages/faculty/TakeAttendance';
+import FacultyTask from './pages/faculty/Task';
+import Revise from './pages/faculty/Revise';
+import Syllabus from './pages/faculty/Syllabus';
+import StudentTask from './pages/student/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
@@ -336,7 +340,7 @@ function App() {
                 path="/faculty/syllabus"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <Syllabus />
                   </ProtectedRoute>
                 }
               />
@@ -344,7 +348,7 @@ function App() {
                 path="/faculty/revise"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <Revise />
                   </ProtectedRoute>
                 }
               />
@@ -376,7 +380,7 @@ function App() {
                 path="/faculty/task"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <FacultyTask />
                   </ProtectedRoute>
                 }
               />
@@ -745,6 +749,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CertificationExam />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/task"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentTask />
                   </ProtectedRoute>
                 }
               />
