@@ -109,6 +109,7 @@ import TPOSettings from './pages/tpo/Settings';
 
 import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
 import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
+import Community from './pages/student/Community/Community';
 
 function App() {
   return (
@@ -142,6 +143,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/community"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <Community />
                   </ProtectedRoute>
                 }
               />
