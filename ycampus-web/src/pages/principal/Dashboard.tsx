@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import RoleSidebar from '../../components/common/RoleSidebar';
-
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { SidebarProvider, SidebarInset } from '../../components/ui/sidebar';
+import { PrincipalSidebar } from '../../components/common/PrincipalSidebar';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
@@ -12,7 +12,7 @@ import {
   Users, UserCheck, Building2, LayoutGrid, TrendingUp, TrendingDown,
   BookOpen, AlertTriangle, Download, Lightbulb, Target, Brain,
   ChevronUp, ChevronDown, Shield, GraduationCap, FileText,
-  ClipboardCheck, Minus, BarChart3,
+  ClipboardCheck, Minus, BarChart3, ListChecks, StickyNote, Activity
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -64,12 +64,16 @@ const mockData = {
   topSections: [
     { name: 'CSE-6A', department: 'Computer Science', semester: 6, pi: 88, attendance: 92 },
     { name: 'CSE-8A', department: 'Computer Science', semester: 8, pi: 86, attendance: 91 },
-    { name: 'ECE-6A', department: 'Electronics & Comm.', semester: 6, pi: 84, attendance: 89 }
+    { name: 'ECE-6A', department: 'Electronics & Comm.', semester: 6, pi: 84, attendance: 89 },
+    { name: 'IT-5A', department: 'Information Technology', semester: 5, pi: 82, attendance: 88 },
+    { name: 'CSE-5B', department: 'Computer Science', semester: 5, pi: 81, attendance: 87 }
   ],
   bottomSections: [
     { name: 'EE-3B', department: 'Electrical', semester: 3, pi: 54, attendance: 68 },
     { name: 'CE-3A', department: 'Civil', semester: 3, pi: 56, attendance: 70 },
-    { name: 'ME-3B', department: 'Mechanical', semester: 3, pi: 58, attendance: 71 }
+    { name: 'ME-3B', department: 'Mechanical', semester: 3, pi: 58, attendance: 71 },
+    { name: 'EE-1B', department: 'Electrical', semester: 1, pi: 60, attendance: 72 },
+    { name: 'CE-1A', department: 'Civil', semester: 1, pi: 61, attendance: 73 }
   ],
   studentDistribution: { excellent: 412, good: 834, moderate: 728, atRisk: 476 },
   priInsights: { interviewReady: 34, almostReady: 28, coreSubjects: 68, mockInterview: 55, aptitude: 62, logicalReasoning: 59, communication: 52 },
@@ -88,33 +92,33 @@ const mockData = {
     { month: 'Dec', pi: 73, attendance: 81, assessment: 70, pri: 61 }
   ],
   strongSubjects: [
-     { name: 'Data Structures', avgScore: 82, passRate: 94, trend: 'up' },
-     { name: 'Computer Networks', avgScore: 78, passRate: 91, trend: 'up' }
+    { name: 'Data Structures', avgScore: 82, passRate: 94, trend: 'up' },
+    { name: 'Computer Networks', avgScore: 78, passRate: 91, trend: 'up' }
   ],
   weakSubjects: [
-     { name: 'Operating Systems', avgScore: 54, passRate: 62, trend: 'down' },
-     { name: 'Thermodynamics', avgScore: 52, passRate: 58, trend: 'down' }
+    { name: 'Operating Systems', avgScore: 54, passRate: 62, trend: 'down' },
+    { name: 'Thermodynamics', avgScore: 52, passRate: 58, trend: 'down' }
   ],
   facultyImpact: [
-     { name: 'Dr. John Doe', sections: ['CSE-6A', 'CSE-8A'], avgStudentPI: 85, subjectAvg: 82, fpiScore: 88 },
-     { name: 'Prof. Jane Smith', sections: ['ECE-6A', 'ECE-4B'], avgStudentPI: 79, subjectAvg: 76, fpiScore: 81 }
+    { name: 'Dr. John Doe', sections: ['CSE-6A', 'CSE-8A'], avgStudentPI: 85, subjectAvg: 82, fpiScore: 88 },
+    { name: 'Prof. Jane Smith', sections: ['ECE-6A', 'ECE-4B'], avgStudentPI: 79, subjectAvg: 76, fpiScore: 81 }
   ],
   attendanceOverview: {
-     departmentWise: [
-        { name: 'Computer Science', attendance: 87 },
-        { name: 'Electronics & Comm.', attendance: 83 },
-        { name: 'Information Technology', attendance: 80 },
-        { name: 'Mechanical', attendance: 78 }
-     ],
-     lowAlerts: [
-        { student: 'Alex Johnson', section: 'EE-3B', attendance: 52 },
-        { student: 'Maria Garcia', section: 'ME-3B', attendance: 58 }
-     ]
+    departmentWise: [
+      { name: 'Computer Science', attendance: 87 },
+      { name: 'Electronics & Comm.', attendance: 83 },
+      { name: 'Information Technology', attendance: 80 },
+      { name: 'Mechanical', attendance: 78 }
+    ],
+    lowAlerts: [
+      { student: 'Alex Johnson', section: 'EE-3B', attendance: 52 },
+      { student: 'Maria Garcia', section: 'ME-3B', attendance: 58 }
+    ]
   },
   aiInsights: [
-     { title: 'Attention Required', description: 'Mechanical department shows declining attendance for 3 consecutive weeks.', type: 'warning' },
-     { title: 'Optimization Suggestion', description: 'Consider scheduling extra tutorials for Thermodynamics, pass rate is below threshold.', type: 'suggestion' },
-     { title: 'Positive Trend', description: 'Computer Science PI improved by 4% compared to last month.', type: 'info' }
+    { title: 'Attention Required', description: 'Mechanical department shows declining attendance for 3 consecutive weeks.', type: 'warning' },
+    { title: 'Optimization Suggestion', description: 'Consider scheduling extra tutorials for Thermodynamics, pass rate is below threshold.', type: 'suggestion' },
+    { title: 'Positive Trend', description: 'Computer Science PI improved by 4% compared to last month.', type: 'info' }
   ]
 };
 
@@ -149,14 +153,16 @@ const PrincipalDashboard = () => {
 
   if (isLoading || !data) {
     return (
-      <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
-        <RoleSidebar />
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
-          <main className="flex-1 p-6 flex items-center justify-center">
-            <div className="text-muted-foreground animate-pulse">Loading dashboard...</div>
-          </main>
+      <SidebarProvider>
+        <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-800">
+          <PrincipalSidebar />
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
+            <main className="flex-1 p-6 flex items-center justify-center">
+              <div className="text-muted-foreground animate-pulse">Loading dashboard...</div>
+            </main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
@@ -164,8 +170,8 @@ const PrincipalDashboard = () => {
 
   const pieData = [
     { name: 'Excellent (85+)', value: studentDistribution.excellent },
-    { name: 'Good (70–84)', value: studentDistribution.good },
-    { name: 'Moderate (55–69)', value: studentDistribution.moderate },
+    { name: 'Good (70-84)', value: studentDistribution.good },
+    { name: 'Moderate (55-69)', value: studentDistribution.moderate },
     { name: 'At Risk (<55)', value: studentDistribution.atRisk },
   ];
 
@@ -184,82 +190,122 @@ const PrincipalDashboard = () => {
     return <Minus className="h-3 w-3 text-muted-foreground" />;
   };
 
-  return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
-      <RoleSidebar />
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
+    <SidebarProvider>
+      <PrincipalSidebar />
+      <SidebarInset className="bg-slate-50/50">
+        <div className="flex flex-col min-h-screen overflow-hidden">
 
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-[1400px] mx-auto space-y-6">
+        <main className="flex-1 p-8 overflow-y-auto bg-slate-50/50">
+          <div className="max-w-[1440px] mx-auto space-y-8">
             
-            <h1 className="text-[22px] font-bold text-slate-900">Dashboard</h1>
+            <div className="flex flex-col gap-1 mb-2">
+              <h1 className="text-3xl font-extrabold tracking-tight text-[#020817]">Dashboard</h1>
+              <p className="text-sm text-slate-500">Welcome back, Principal Mucharla</p>
+            </div>
 
             {/* GLOBAL FILTERS */}
-            <div className="flex flex-wrap gap-3">
-              <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
-                <SelectTrigger className="w-[140px] h-9 text-xs border-gray-200 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2025-26">2025–26</SelectItem>
-                  <SelectItem value="2024-25">2024–25</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
-                <SelectTrigger className="w-[160px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Department" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departmentRanking.map(d => <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filters.semester} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
-                <SelectTrigger className="w-[130px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Semester" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Semesters</SelectItem>
-                  {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={s.toString()}>Semester {s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={filters.batch} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
-                <SelectTrigger className="w-[120px] h-9 text-xs border-gray-200 bg-white"><SelectValue placeholder="Batch" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Batches</SelectItem>
-                  <SelectItem value="2022-26">2022–26</SelectItem>
-                  <SelectItem value="2023-27">2023–27</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filters.dateRange} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
-                <SelectTrigger className="w-[120px] h-9 text-xs border-gray-200 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full-year">Full Year</SelectItem>
-                  <SelectItem value="last-6m">Last 6 Months</SelectItem>
-                  <SelectItem value="last-3m">Last 3 Months</SelectItem>
-                  <SelectItem value="last-1m">Last Month</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Card className="border border-gray-200 bg-white shadow-none rounded-lg">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex flex-wrap gap-3">
+
+                  {/* Academic Year */}
+                  <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
+                    <SelectTrigger className="w-[160px] h-[36px] px-3 py-2 text-sm bg-white border border-gray-200 rounded-md !shadow-none focus:outline-none focus:!ring-0">
+                      <SelectValue placeholder="Academic Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2025-26">2025–26</SelectItem>
+                      <SelectItem value="2024-25">2024–25</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Department */}
+                  <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v }))}>
+                    <SelectTrigger className="w-[160px] h-[36px] px-3 py-2 text-sm bg-white border border-gray-200 rounded-md !shadow-none focus:outline-none focus:!ring-0">
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {departmentRanking.map(d => (
+                        <SelectItem key={d.name} value={d.name}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Semester */}
+                  <Select value={filters.semester} onValueChange={v => setFilters(f => ({ ...f, semester: v }))}>
+                    <SelectTrigger className="w-[160px] h-[36px] px-3 py-2 text-sm bg-white border border-gray-200 rounded-md !shadow-none focus:outline-none focus:!ring-0">
+                      <SelectValue placeholder="All Semesters" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Semesters</SelectItem>
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                        <SelectItem key={s} value={s.toString()}>
+                          Semester {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Batch */}
+                  <Select value={filters.batch} onValueChange={v => setFilters(f => ({ ...f, batch: v }))}>
+                    <SelectTrigger className="w-[160px] h-[36px] px-3 py-2 text-sm bg-white border border-gray-200 rounded-md !shadow-none focus:outline-none focus:!ring-0">
+                      <SelectValue placeholder="All Batches" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Batches</SelectItem>
+                      <SelectItem value="2022-26">2022–26</SelectItem>
+                      <SelectItem value="2023-27">2023–27</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Date Range */}
+                  <Select value={filters.dateRange} onValueChange={v => setFilters(f => ({ ...f, dateRange: v }))}>
+                    <SelectTrigger className="w-[140px] h-[36px] px-3 py-2 text-sm bg-white border border-gray-200 rounded-md !shadow-none focus:outline-none focus:!ring-0">
+                      <SelectValue placeholder="Full Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="full-year">Full Year</SelectItem>
+                      <SelectItem value="last-6m">Last 6 Months</SelectItem>
+                      <SelectItem value="last-3m">Last 3 Months</SelectItem>
+                      <SelectItem value="last-1m">Last Month</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                </div>
+              </CardContent>
+            </Card>
 
             {/* 1. INSTITUTION SUMMARY */}
             <div>
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider text-[#64748B] mb-3">Institution Summary</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
                 {[
-                  { label: 'Students', value: summary.totalStudents.toLocaleString(), icon: Users, iconColor: 'text-blue-500', valueColor: '' },
-                  { label: 'Faculty', value: summary.totalFaculty.toString(), icon: UserCheck, iconColor: 'text-purple-500', valueColor: '' },
-                  { label: 'Departments', value: summary.totalDepartments.toString(), icon: Building2, iconColor: 'text-slate-500', valueColor: '' },
-                  { label: 'Avg PI', value: `${summary.avgPI}%`, icon: TrendingUp, iconColor: 'text-emerald-500', valueColor: summary.avgPI >= 70 ? GREEN : SAFFRON },
-                  { label: 'Attendance', value: `${summary.overallAttendance}%`, icon: ClipboardCheck, iconColor: 'text-emerald-500', valueColor: summary.overallAttendance >= 80 ? GREEN : SAFFRON },
-                  { label: 'Avg PRI', value: `${summary.avgPRI}%`, icon: Target, iconColor: 'text-emerald-500', valueColor: summary.avgPRI >= 60 ? GREEN : SAFFRON },
-                  { label: 'Sections', value: summary.totalSections.toString(), icon: LayoutGrid, iconColor: 'text-purple-500', valueColor: '' },
-                  { label: 'Assessment Avg', value: `${summary.avgAssessmentScore}%`, icon: FileText, iconColor: 'text-cyan-500', valueColor: '' },
-                  { label: 'Task Completion', value: `${summary.taskCompletion}%`, icon: ClipboardCheck, iconColor: 'text-teal-500', valueColor: '' },
-                  { label: 'Notes Completion', value: `${summary.notesCompletion}%`, icon: BookOpen, iconColor: 'text-orange-500', valueColor: '' },
-                  { label: 'Active Students', value: `${summary.activeStudents}%`, icon: Users, iconColor: 'text-emerald-500', valueColor: '' },
-                  { label: 'Interview Ready', value: `${summary.interviewReady}%`, icon: GraduationCap, iconColor: 'text-red-500', valueColor: '' },
-                ].map((kpi, i) => (
-                  <Card key={i} className="border border-gray-200 bg-white shadow-none">
-                    <div className="p-4 flex flex-col items-center text-center gap-1">
-                      <kpi.icon className={`h-4 w-4 ${kpi.iconColor}`} />
-                      <span className="text-xl font-bold text-slate-900" style={kpi.valueColor ? { color: kpi.valueColor } : {}}>{kpi.value}</span>
-                      <span className="text-[11px] text-slate-500 font-medium">{kpi.label}</span>
-                    </div>
+                  { label: 'Students', value: summary.totalStudents, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+                  { label: 'Faculty', value: summary.totalFaculty, icon: UserCheck, color: 'text-purple-600', bg: 'bg-purple-50' },
+                  { label: 'Departments', value: summary.totalDepartments, icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                  { label: 'Avg PI', value: `${summary.avgPI}%`, icon: TrendingUp, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                  { label: 'Attendance', value: `${summary.overallAttendance}%`, icon: ClipboardCheck, color: 'text-orange-600', bg: 'bg-orange-50' },
+                  { label: 'Avg PRI', value: `${summary.avgPRI}%`, icon: Target, color: 'text-rose-600', bg: 'bg-rose-50' },
+                  { label: 'Sections', value: summary.totalSections, icon: LayoutGrid, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+                  { label: 'Assessment Avg', value: `${summary.avgAssessmentScore}%`, icon: BookOpen, color: 'text-teal-600', bg: 'bg-teal-50' },
+                  { label: 'Task Completion', value: `${summary.taskCompletion}%`, icon: ListChecks, color: 'text-amber-600', bg: 'bg-amber-50' },
+                  { label: 'Notes Completion', value: `${summary.notesCompletion}%`, icon: StickyNote, color: 'text-lime-600', bg: 'bg-lime-50' },
+                  { label: 'Active Students', value: `${summary.activeStudents}%`, icon: Activity, color: 'text-sky-600', bg: 'bg-sky-50' },
+                  { label: 'Interview Ready', value: `${summary.interviewReady}%`, icon: GraduationCap, color: 'text-pink-600', bg: 'bg-pink-50' },
+                ].map((stat, i) => (
+                  <Card key={i} className="border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all duration-300 group cursor-default">
+                    <CardContent className="p-5">
+                      <div className="flex flex-col items-center text-center gap-3">
+                        <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color} transition-transform group-hover:scale-110 duration-300`}>
+                          <stat.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-[22px] font-bold text-slate-900 leading-none mb-1">{stat.value}</p>
+                          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">{stat.label}</p>
+                        </div>
+                      </div>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
@@ -267,41 +313,44 @@ const PrincipalDashboard = () => {
 
             {/* 2. DEPARTMENT PERFORMANCE RANKING */}
             <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
-              <CardHeader className="pb-3 bg-white border-b border-slate-100">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-slate-600" /> Department Performance Ranking
+              <CardHeader className="flex flex-col space-y-1.5 p-6 pb-3 bg-white border-b border-gray-100">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-[#020817] flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-[#020817]" /> DEPARTMENT PERFORMANCE RANKING
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
-                    <TableRow>
-                      <TableHead className="text-xs font-semibold text-slate-600">#</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600">Department</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Students</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Avg PI</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Attendance</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Assessment</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Avg PRI</TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 text-center">Risk</TableHead>
+                    <TableRow className="hover:bg-transparent border-b border-gray-100">
+                      <TableHead className="w-12 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">#</TableHead>
+                      <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Department</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Students</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Avg PI</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Attendance</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Assessment</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Avg PRI</TableHead>
+                      <TableHead className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">Risk</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {departmentRanking.map((d, i) => (
-                      <TableRow key={d.name} className="hover:bg-slate-50">
-                        <TableCell className="text-xs font-medium text-slate-900">{i + 1}</TableCell>
-                        <TableCell className="text-xs font-medium text-slate-800">{d.name}</TableCell>
-                        <TableCell className="text-xs text-center text-slate-600">{d.totalStudents}</TableCell>
+                      <TableRow key={d.name} className="hover:bg-slate-50/80 transition-colors border-b border-gray-50/50 last:border-0 group">
+                        <TableCell className="text-xs font-medium text-center text-slate-400 group-hover:text-slate-900 transition-colors">{i + 1}</TableCell>
+                        <TableCell className="text-xs font-semibold text-slate-900">{d.name}</TableCell>
+                        <TableCell className="text-xs text-center text-slate-600 font-medium">{d.totalStudents}</TableCell>
                         <TableCell className="text-xs text-center font-bold">
-                          <span style={{ color: d.avgPI >= 75 ? GREEN : d.avgPI >= 65 ? SAFFRON : RED }}>{d.avgPI}%</span>
+                          <span style={{ color: d.avgPI >= 75 ? GREEN : d.avgPI >= 65 ? SAFFRON : RED }} data-tip="Performance Index">
+                            {d.avgPI}%
+                          </span>
                         </TableCell>
-                        <TableCell className="text-xs text-center text-slate-600">{d.attendance}%</TableCell>
-                        <TableCell className="text-xs text-center text-slate-600">{d.assessmentAvg}%</TableCell>
-                        <TableCell className="text-xs text-center text-slate-600">{d.avgPRI}%</TableCell>
+                        <TableCell className="text-xs text-center text-slate-600 font-medium">{d.attendance}%</TableCell>
+                        <TableCell className="text-xs text-center text-slate-600 font-medium">{d.assessmentAvg}%</TableCell>
+                        <TableCell className="text-xs text-center text-slate-600 font-medium">{d.avgPRI}%</TableCell>
                         <TableCell className="text-xs text-center">
-                          <Badge variant={d.riskLevel === 'low' ? 'default' : d.riskLevel === 'medium' ? 'secondary' : 'destructive'} className="text-[10px] shadow-none">
+                          <span className={`inline-flex items-center justify-center min-w-[64px] px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter text-white shadow-sm
+                            ${d.riskLevel === 'low' ? 'bg-emerald-500' : d.riskLevel === 'medium' ? 'bg-amber-500' : 'bg-red-500'}`}>
                             {d.riskLevel}
-                          </Badge>
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -352,29 +401,29 @@ const PrincipalDashboard = () => {
             {/* 4. SECTION INTELLIGENCE */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
-                <CardHeader className="pb-3 bg-white border-b border-slate-100">
-                  <CardTitle className="text-sm font-semibold text-emerald-600 flex items-center gap-2">
-                    <ChevronUp className="h-4 w-4" /> Top 5 Sections
+                <CardHeader className="flex flex-col space-y-1.5 p-6 pb-3 bg-white border-b border-gray-100">
+                  <CardTitle className="text-sm font-bold text-[#020817] flex items-center gap-2">
+                    <ChevronUp className="h-4 w-4 text-[#10B981]" /> Top 5 Sections
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader className="bg-slate-50/50">
-                      <TableRow>
-                        <TableHead className="text-xs font-semibold text-slate-600">Section</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600">Dept</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">Sem</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">PI</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">Att.</TableHead>
+                      <TableRow className="hover:bg-transparent border-b border-gray-100">
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3">Section</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3">Dept</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">Sem</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">PI</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">Att.</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {topSections.map(s => (
-                        <TableRow key={s.name} className="hover:bg-slate-50">
-                          <TableCell className="text-xs font-medium text-slate-800">{s.name}</TableCell>
-                          <TableCell className="text-[11px] text-slate-500">{s.department}</TableCell>
-                          <TableCell className="text-xs text-center text-slate-600 font-medium">{s.semester}</TableCell>
-                          <TableCell className="text-xs text-center font-semibold" style={{ color: GREEN }}>{s.pi}%</TableCell>
+                        <TableRow key={s.name} className="hover:bg-slate-50 transition-colors border-b border-gray-50/50 last:border-0 group">
+                          <TableCell className="text-xs font-semibold text-slate-900">{s.name}</TableCell>
+                          <TableCell className="text-[11px] text-slate-500 italic">{s.department}</TableCell>
+                          <TableCell className="text-xs text-center font-medium text-slate-700">{s.semester}</TableCell>
+                          <TableCell className="text-xs text-center font-bold" style={{ color: GREEN }}>{s.pi}%</TableCell>
                           <TableCell className="text-xs text-center text-slate-600">{s.attendance}%</TableCell>
                         </TableRow>
                       ))}
@@ -383,29 +432,29 @@ const PrincipalDashboard = () => {
                 </CardContent>
               </Card>
               <Card className="border border-gray-200 bg-white shadow-none overflow-hidden">
-                <CardHeader className="pb-3 bg-white border-b border-slate-100">
-                  <CardTitle className="text-sm font-semibold text-red-500 flex items-center gap-2">
-                    <ChevronDown className="h-4 w-4" /> Bottom 5 Sections
+                <CardHeader className="flex flex-col space-y-1.5 p-6 pb-3 bg-white border-b border-gray-100">
+                  <CardTitle className="text-sm font-bold text-[#020817] flex items-center gap-2">
+                    <ChevronDown className="h-4 w-4 text-[#ef4444]" /> Bottom 5 Sections
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader className="bg-slate-50/50">
-                      <TableRow>
-                        <TableHead className="text-xs font-semibold text-slate-600">Section</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600">Dept</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">Sem</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">PI</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 text-center">Att.</TableHead>
+                      <TableRow className="hover:bg-transparent border-b border-gray-100">
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3">Section</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3">Dept</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">Sem</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">PI</TableHead>
+                        <TableHead className="text-[10px] font-bold uppercase tracking-wider text-slate-500 py-3 text-center">Att.</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {bottomSections.map(s => (
-                        <TableRow key={s.name} className="hover:bg-slate-50">
-                          <TableCell className="text-xs font-medium text-slate-800">{s.name}</TableCell>
-                          <TableCell className="text-[11px] text-slate-500">{s.department}</TableCell>
-                          <TableCell className="text-xs text-center text-slate-600 font-medium">{s.semester}</TableCell>
-                          <TableCell className="text-xs text-center font-semibold" style={{ color: RED }}>{s.pi}%</TableCell>
+                        <TableRow key={s.name} className="hover:bg-slate-50 transition-colors border-b border-gray-50/50 last:border-0 group">
+                          <TableCell className="text-xs font-semibold text-slate-900">{s.name}</TableCell>
+                          <TableCell className="text-[11px] text-slate-500 italic">{s.department}</TableCell>
+                          <TableCell className="text-xs text-center font-medium text-slate-700">{s.semester}</TableCell>
+                          <TableCell className="text-xs text-center font-bold" style={{ color: RED }}>{s.pi}%</TableCell>
                           <TableCell className="text-xs text-center text-slate-600">{s.attendance}%</TableCell>
                         </TableRow>
                       ))}
@@ -419,20 +468,20 @@ const PrincipalDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Student Distribution */}
               <Card className="border border-gray-200 bg-white shadow-none">
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-slate-400" /> Student Distribution
+                <CardHeader className="p-6 pb-2">
+                  <CardTitle className="text-sm font-bold text-[#020817] flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4 text-[#020817]" /> Student Distribution
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6 pt-0">
                   <div className="flex items-center gap-6 h-40">
-                    <div className="w-1/2 h-full relative">
+                    <div className="w-1/2 h-full min-h-[160px] relative">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                          <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value" stroke="none">
+                          <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" stroke="none">
                             {pieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx]} />)}
                           </Pie>
-                          <Tooltip formatter={(v: number) => `${v} (${Math.round(v/totalStudents*100)}%)`} />
+                          <Tooltip formatter={(v: number) => `${v} (${Math.round(v / totalStudents * 100)}%)`} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -441,9 +490,9 @@ const PrincipalDashboard = () => {
                         <div key={i} className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
-                            <span className="text-slate-600">{entry.name}</span>
+                            <span className="text-muted-foreground">{entry.name}</span>
                           </div>
-                          <span className="font-semibold text-slate-900">{entry.value}</span>
+                          <span className="font-semibold text-[#020817]">{entry.value}</span>
                         </div>
                       ))}
                     </div>
@@ -453,23 +502,23 @@ const PrincipalDashboard = () => {
 
               {/* PRI Insights */}
               <Card className="border border-gray-200 bg-white shadow-none">
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-                    <Target className="h-4 w-4 text-slate-400" /> PRI Insights
+                <CardHeader className="p-6 pb-2">
+                  <CardTitle className="text-sm font-bold text-[#020817] flex items-center gap-2">
+                    <Target className="h-4 w-4 text-[#020817]" /> PRI Insights
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3 mb-4 mt-2">
-                    <div className="text-center py-3 rounded-lg border border-emerald-100" style={{ backgroundColor: GREEN_LIGHT }}>
+                <CardContent className="p-6 pt-0">
+                  <div className="grid grid-cols-2 gap-3 mb-6 mt-2">
+                    <div className="text-center py-4 rounded-md" style={{ backgroundColor: GREEN_LIGHT }}>
                       <span className="text-2xl font-bold" style={{ color: GREEN }}>{priInsights.interviewReady}%</span>
-                      <p className="text-[10px] text-emerald-700 font-medium">Interview Ready</p>
+                      <p className="text-xs text-emerald-700 font-medium tracking-tight">Interview Ready</p>
                     </div>
-                    <div className="text-center py-3 rounded-lg border border-amber-100" style={{ backgroundColor: SAFFRON_LIGHT }}>
+                    <div className="text-center py-4 rounded-md" style={{ backgroundColor: SAFFRON_LIGHT }}>
                       <span className="text-2xl font-bold" style={{ color: SAFFRON }}>{priInsights.almostReady}%</span>
-                      <p className="text-[10px] text-amber-700 font-medium">Almost Ready</p>
+                      <p className="text-xs text-amber-700 font-medium tracking-tight">Almost Ready</p>
                     </div>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {[
                       { label: 'Core Subjects', value: priInsights.coreSubjects },
                       { label: 'Mock Interview', value: priInsights.mockInterview },
@@ -478,9 +527,9 @@ const PrincipalDashboard = () => {
                       { label: 'Communication', value: priInsights.communication },
                     ].map(item => (
                       <div key={item.label} className="flex items-center gap-3">
-                        <span className="text-[11px] text-slate-500 w-28 shrink-0">{item.label}</span>
-                        <Progress value={item.value} className="h-2 flex-1 bg-slate-100" style={{'--tw-progress-fill': 'bg-slate-800'} as any} />
-                        <span className="text-[11px] font-medium w-8 text-right text-slate-700">{item.value}%</span>
+                        <span className="text-xs text-muted-foreground w-36 shrink-0">{item.label}</span>
+                        <Progress value={item.value} className="h-2 flex-1 bg-slate-100" style={{ '--tw-progress-fill': '#020817' } as any} />
+                        <span className="text-xs font-semibold w-8 text-right text-[#020817]">{item.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -578,7 +627,7 @@ const PrincipalDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {weakSubjects.map(s => (
+                    {weakSubjects.map((s: any) => (
                       <div key={s.name} className="flex items-center justify-between group">
                         <div className="flex items-center gap-2.5">
                           {trendIcon(s.trend)}
@@ -745,8 +794,9 @@ const PrincipalDashboard = () => {
           </div>
         </main>
       </div>
-    </div>
-  );
+    </SidebarInset>
+  </SidebarProvider>
+);
 };
 
 export default PrincipalDashboard;

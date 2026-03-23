@@ -31,8 +31,11 @@ import {
   ClipboardCheck,
   ListChecks,
   Bell,
-  MessageCircle
+  MessageCircle,
+  Sidebar,
+  ChevronsUpDown
 } from 'lucide-react';
+import logoUrl from '../../assets/Yuvro Campus Logo.png';
 
 interface SidebarItem {
   id: string;
@@ -129,13 +132,7 @@ const sidebarItems: SidebarItem[] = [
     path: '/college-admin/dashboard',
     roles: ['college_admin']
   },
-  {
-    id: 'principal-dashboard',
-    label: 'Dashboard',
-    icon: BarChart3,
-    path: '/principal/dashboard',
-    roles: ['principal']
-  },
+
   // College Admin Items
   {
     id: 'college-departments',
@@ -196,52 +193,38 @@ const sidebarItems: SidebarItem[] = [
 
   // Principal Items
   {
+    id: 'principal-dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/principal/dashboard',
+    roles: ['principal']
+  },
+  {
     id: 'principal-departments',
-    label: 'Departments',
+    label: 'Department',
     icon: Building2,
     path: '/principal/departments',
     roles: ['principal']
   },
   {
-    id: 'principal-hods',
-    label: 'HODs',
-    icon: Users,
-    path: '/principal/hods',
-    roles: ['principal']
-  },
-  {
     id: 'principal-faculty',
     label: 'Faculty',
-    icon: Users,
+    icon: UserCheck,
     path: '/principal/faculty',
     roles: ['principal']
   },
   {
     id: 'principal-students',
     label: 'Students',
-    icon: GraduationCap,
+    icon: Users,
     path: '/principal/students',
     roles: ['principal']
   },
   {
-    id: 'principal-courses',
-    label: 'Courses',
-    icon: BookOpen,
-    path: '/principal/courses',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-reports',
-    label: 'Reports',
+    id: 'principal-pri-report',
+    label: 'PRI Report',
     icon: FileText,
     path: '/principal/reports',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-settings',
-    label: 'Settings',
-    icon: Settings,
-    path: '/principal/settings',
     roles: ['principal']
   },
 
@@ -458,113 +441,96 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const toolsSection = getToolsSection();
 
   return (
-    <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out ${className}`}>
-      <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
-        <div className={`flex items-center h-9 mb-6 ${sidebarCollapsed ? 'justify-center' : 'justify-between relative'}`}>
-          {!sidebarCollapsed && (
-            <h2 className="text-lg font-semibold text-gray-800 w-full text-center pr-8">{getPortalTitle()}</h2>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${!sidebarCollapsed ? 'absolute right-0' : ''}`}
-          >
-            {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
-          </button>
-        </div>
-
-        <nav className="space-y-2">
-          {userRole === 'faculty' && !sidebarCollapsed && (
-            <div className="px-3 mb-2">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Navigation</span>
-            </div>
-          )}
-          {filteredItems
-            .filter(item => userRole !== 'faculty' || (!item.id.includes('report')))
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = isActiveItem(item);
-
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  title={sidebarCollapsed ? item.label : ''}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {!sidebarCollapsed && <span>{item.label}</span>}
-                  {sidebarCollapsed && (
-                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                      {item.label}
-                    </div>
-                  )}
-                </Link>
-              );
-            })}
-
-          {userRole === 'faculty' && !sidebarCollapsed && (
-            <div className="pt-4 space-y-1">
-              <div
-                className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
-                onClick={() => setReportsOpen(!reportsOpen)}
+    <div className={`${sidebarCollapsed ? 'w-[72px]' : 'w-64'} bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0 transition-all duration-300 ease-in-out ${className}`}>
+      
+      {/* HEADER: Logo + Actions (Row-based to match reference) */}
+      <div className={`flex items-center p-5 border-b border-gray-50 ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+        {!sidebarCollapsed && (
+          <>
+            <img src={logoUrl} alt="Yuvro Campus" className="h-[48px] object-contain" />
+            
+            <div className="flex items-center gap-2 pr-1">
+              <button className="relative p-1.5 hover:bg-slate-50 rounded-md transition-colors group">
+                <Bell className="h-[22px] w-[22px] text-slate-600 group-hover:text-[#020817]" />
+                <span className="absolute -top-0.5 -right-0.5 bg-[#EF4444] text-white text-[9px] font-bold h-[15px] w-[15px] flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                  3
+                </span>
+              </button>
+              <button 
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-1.5 hover:bg-slate-50 rounded-md transition-colors group"
+                title="Collapse sidebar"
               >
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
-                <div className="p-1">
-                  {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />}
-                </div>
-              </div>
-
-              {reportsOpen && filteredItems
-                .filter(item => item.id.includes('report'))
-                .map((item) => {
-                  const Icon = item.icon;
-                  const isActive = isActiveItem(item);
-
-                  return (
-                    <Link
-                      key={item.id}
-                      to={item.path}
-                      className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
-                        ? 'bg-orange-50 text-orange-600'
-                        : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                      <Icon className="h-5 w-5 flex-shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
+                <Sidebar className="h-[22px] w-[22px] text-slate-600 group-hover:text-[#020817]" />
+              </button>
             </div>
-          )}
+          </>
+        )}
+        {sidebarCollapsed && (
+          <button 
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-2 hover:bg-slate-50 rounded-md transition-colors group"
+            title="Expand sidebar"
+          >
+            <Sidebar className="h-[22px] w-[22px] text-slate-600 group-hover:text-[#020817]" />
+          </button>
+        )}
+      </div>
 
-          {userRole === 'faculty' && sidebarCollapsed && filteredItems
-            .filter(item => item.id.includes('report'))
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = isActiveItem(item);
+      {/* NAV SECTION */}
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        {userRole === 'principal' && !sidebarCollapsed && (
+          <div className="px-3 pb-2 pt-2">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Principal Portal</span>
+          </div>
+        )}
 
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`flex items-center justify-center p-2 rounded-lg cursor-pointer group relative transition-colors ${isActive
-                    ? 'bg-orange-50 text-orange-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  title={item.label}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+        {filteredItems
+          .filter(item => userRole !== 'faculty' || (!item.id.includes('report')))
+          .map((item) => {
+            const Icon = item.icon;
+            const isActive = isActiveItem(item);
+
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-3' : 'px-3 py-2.5 gap-3'} rounded-lg cursor-pointer group relative transition-colors ${isActive
+                  ? 'bg-slate-100/70 text-[#020817] font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-[#020817] font-medium'
+                  }`}
+                title={sidebarCollapsed ? item.label : ''}
+              >
+                <Icon className={`${isActive ? 'text-[#020817]' : 'text-slate-600 group-hover:text-[#020817]'} h-5 w-5 flex-shrink-0 transition-colors`} />
+                {!sidebarCollapsed && <span className="text-[14px]">{item.label}</span>}
+                {sidebarCollapsed && (
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                     {item.label}
                   </div>
-                </Link>
-              );
-            })}
-        </nav>
+                )}
+              </Link>
+            );
+          })}
+      </nav>
+
+      {/* FOOTER: User Profile */}
+      <div className={`p-4 border-t border-gray-50 flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-[#020817] font-semibold text-sm shrink-0">
+            {userRole.charAt(0).toUpperCase()}
+          </div>
+          {!sidebarCollapsed && (
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-[#020817] capitalize">{userRole}</span>
+              <span className="text-[10px] bg-slate-100 text-[#020817] px-2 py-0.5 rounded-full w-fit mt-0.5 capitalize">{userRole}</span>
+            </div>
+          )}
+        </div>
+        {!sidebarCollapsed && (
+          <ChevronsUpDown className="h-4 w-4 text-slate-400 shrink-0" />
+        )}
       </div>
+
     </div>
   );
 };
