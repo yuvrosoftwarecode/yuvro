@@ -17,6 +17,13 @@ class Command(BaseCommand):
             action="store_true",
             help="Skip running migrations",
         )
+        parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: dev or prod",
+        )
 
     def handle(self, *args, **options):
         self.stdout.write(
@@ -33,30 +40,30 @@ class Command(BaseCommand):
 
             self.stdout.write("👥 Setting up test users...")
             if options["clear"]:
-                call_command("create_test_users", "--clear", verbosity=1)
+                call_command("create_test_users", "--clear", deploy_env=options["deploy_env"], verbosity=1)
             else:
-                call_command("create_test_users", verbosity=1)
+                call_command("create_test_users", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
             self.stdout.write("📚 Loading sample course data...")
             if options["clear"]:
-                call_command("load_sample_courses", "--clear", "--file", "sample_courses_data.json", verbosity=1)
+                call_command("load_courses", "--clear", deploy_env=options["deploy_env"], verbosity=1)
             else:
-                call_command("load_sample_courses", "--file", "sample_courses_data.json", verbosity=1)
+                call_command("load_courses", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
             self.stdout.write("💼 Loading sample companies and jobs...")
             if options["clear"]:
-                call_command("load_sample_companies_and_jobs", "--clear", verbosity=1)
+                call_command("load_sample_companies_and_jobs", "--clear", deploy_env=options["deploy_env"], verbosity=1)
             else:
-                call_command("load_sample_companies_and_jobs", verbosity=1)
+                call_command("load_sample_companies_and_jobs", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
             self.stdout.write("📝 Loading sample assessment tests...")
             if options["clear"]:
-                call_command("load_sample_assessment_tests", "--clear", "--file", "sample_assessment_skill_tests_data.json", verbosity=1)
+                call_command("load_sample_assessment_tests", "--clear", deploy_env=options["deploy_env"], verbosity=1)
             else:
-                call_command("load_sample_assessment_tests", "--file", "sample_assessment_skill_tests_data.json", verbosity=1)
+                call_command("load_sample_assessment_tests", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
             self.stdout.write(

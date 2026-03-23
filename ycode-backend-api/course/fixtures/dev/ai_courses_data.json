@@ -1,0 +1,223 @@
+{
+  "courses": [
+    {
+      "short_code": "AI101",
+      "name": "Artificial Intelligence and Machine Learning",
+      "category": "ai_ml",
+      "instructor_email": "instructor_ds@yuvro.com",
+      "topics": [
+        {
+          "name": "ML Fundamentals",
+          "order_index": 0,
+          "subtopics": [
+            {
+              "name": "Supervised vs Unsupervised Learning",
+              "content": "Types of machine learning, labeled vs unlabeled data, and use cases",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Supervised vs Unsupervised Learning",
+                  "video_link": "https://www.youtube.com/watch?v=W01tIRP_Rqs",
+                  "ai_context": "Core ML paradigms and when to use each"
+                },
+                {
+                  "title": "Introduction to Machine Learning",
+                  "video_link": "https://www.youtube.com/watch?v=ukzFI9rgwfU",
+                  "ai_context": "Overview of machine learning concepts and applications"
+                }
+              ]
+            },
+            {
+              "name": "Bias-Variance Tradeoff",
+              "content": "Overfitting, underfitting, and model generalization",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Bias Variance Tradeoff Explained",
+                  "video_link": "https://www.youtube.com/watch?v=EuBBz3bI-aA",
+                  "ai_context": "Understanding model complexity and generalization"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Core Algorithms",
+          "order_index": 1,
+          "subtopics": [
+            {
+              "name": "Linear and Logistic Regression",
+              "content": "Linear regression for prediction, logistic regression for classification",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Linear Regression Tutorial",
+                  "video_link": "https://www.youtube.com/watch?v=nk2CQITm_eo",
+                  "ai_context": "Linear regression math and implementation"
+                },
+                {
+                  "title": "Logistic Regression Explained",
+                  "video_link": "https://www.youtube.com/watch?v=yIYKR4sgzI8",
+                  "ai_context": "Logistic regression for binary classification"
+                }
+              ]
+            },
+            {
+              "name": "Decision Trees and Random Forests",
+              "content": "Tree-based models, splitting criteria, and ensemble methods",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Decision Trees in Machine Learning",
+                  "video_link": "https://www.youtube.com/watch?v=7VeUPuFGJHk",
+                  "ai_context": "Decision tree construction and pruning"
+                },
+                {
+                  "title": "Random Forest Algorithm",
+                  "video_link": "https://www.youtube.com/watch?v=J4Wdy0Wc_xQ",
+                  "ai_context": "Ensemble learning with random forests"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Neural Networks",
+          "order_index": 2,
+          "subtopics": [
+            {
+              "name": "Perceptron and Activation Functions",
+              "content": "Single neuron model, sigmoid, ReLU, and tanh activations",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Neural Networks and Perceptrons",
+                  "video_link": "https://www.youtube.com/watch?v=aircAruvnKk",
+                  "ai_context": "Fundamentals of neural network architecture"
+                }
+              ]
+            },
+            {
+              "name": "Backpropagation and Gradient Descent",
+              "content": "Training neural networks with backprop and gradient descent variants",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Backpropagation Explained",
+                  "video_link": "https://www.youtube.com/watch?v=Ilg3gGewQ5U",
+                  "ai_context": "How neural networks learn via backpropagation"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "type": "mcq_single",
+          "title": "Supervised Learning Definition",
+          "content": "Which of the following best describes supervised learning?",
+          "level": "subtopic",
+          "topic_name": "ML Fundamentals",
+          "subtopic_name": "Supervised vs Unsupervised Learning",
+          "difficulty": "easy",
+          "marks": 2,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "Learning from labeled training data to predict outputs", "is_correct": true},
+            {"text": "Learning without any data", "is_correct": false},
+            {"text": "Finding hidden patterns in unlabeled data", "is_correct": false},
+            {"text": "Learning through trial and error with rewards", "is_correct": false}
+          ]
+        },
+        {
+          "type": "mcq_multiple",
+          "title": "Signs of Overfitting",
+          "content": "Which of the following are signs that a model is overfitting?",
+          "level": "subtopic",
+          "topic_name": "ML Fundamentals",
+          "subtopic_name": "Bias-Variance Tradeoff",
+          "difficulty": "medium",
+          "marks": 3,
+          "categories": ["learn", "practice", "skill_test"],
+          "mcq_options": [
+            {"text": "High training accuracy, low validation accuracy", "is_correct": true},
+            {"text": "Model memorizes training data", "is_correct": true},
+            {"text": "High bias", "is_correct": false},
+            {"text": "Poor performance on unseen data", "is_correct": true}
+          ]
+        },
+        {
+          "type": "mcq_single",
+          "title": "Logistic Regression Output",
+          "content": "What does logistic regression output?",
+          "level": "subtopic",
+          "topic_name": "Core Algorithms",
+          "subtopic_name": "Linear and Logistic Regression",
+          "difficulty": "easy",
+          "marks": 2,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "A probability between 0 and 1", "is_correct": true},
+            {"text": "A continuous real number", "is_correct": false},
+            {"text": "A cluster label", "is_correct": false},
+            {"text": "A decision tree", "is_correct": false}
+          ]
+        },
+        {
+          "type": "mcq_single",
+          "title": "ReLU Activation Function",
+          "content": "What is the output of the ReLU activation function for input x = -3?",
+          "level": "subtopic",
+          "topic_name": "Neural Networks",
+          "subtopic_name": "Perceptron and Activation Functions",
+          "difficulty": "easy",
+          "marks": 2,
+          "categories": ["learn", "practice"],
+          "mcq_options": [
+            {"text": "0", "is_correct": true},
+            {"text": "-3", "is_correct": false},
+            {"text": "3", "is_correct": false},
+            {"text": "0.5", "is_correct": false}
+          ]
+        },
+        {
+          "type": "coding",
+          "title": "Implement Linear Regression Prediction",
+          "content": "Given weights w and bias b, and a list of input values x, compute the predicted output y = w*x + b for each input.",
+          "level": "subtopic",
+          "topic_name": "Core Algorithms",
+          "subtopic_name": "Linear and Logistic Regression",
+          "difficulty": "easy",
+          "marks": 5,
+          "categories": ["practice", "skill_test"],
+          "test_cases_basic": [
+            {"input": "2.0\n1.0\n[1, 2, 3]", "expected_output": "[3.0, 5.0, 7.0]"},
+            {"input": "0.5\n0.0\n[4, 8]", "expected_output": "[2.0, 4.0]"}
+          ],
+          "test_cases_advanced": [
+            {"input": "1.0\n0.0\n[0]", "expected_output": "[0.0]"},
+            {"input": "-1.0\n5.0\n[1, 2, 3]", "expected_output": "[4.0, 3.0, 2.0]"}
+          ]
+        }
+      ],
+      "assessments": {
+        "skill_tests": [
+          {
+            "title": "AI/ML Fundamentals Skill Test",
+            "description": "Test your AI and machine learning knowledge",
+            "instructions": "Answer all questions within the time limit.",
+            "difficulty": "medium",
+            "duration": 45,
+            "total_marks": 50,
+            "passing_marks": 30,
+            "course_short_code": "AI101",
+            "questions_random_config": {"mcq_single": 3, "mcq_multiple": 1, "coding": 1},
+            "publish_status": "published"
+          }
+        ],
+        "contests": []
+      }
+    }
+  ]
+}

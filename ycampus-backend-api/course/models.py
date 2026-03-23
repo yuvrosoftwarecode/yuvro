@@ -145,29 +145,6 @@ class Video(models.Model):
         return f"{self.sub_unit.name} - {self.title}"
 
 
-class Note(models.Model):
-    """
-    Note model representing user-created notes for personal study.
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sub_unit = models.ForeignKey(
-        SubUnit,
-        on_delete=models.CASCADE,
-        related_name="notes",
-        null=True,
-        blank=True,
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
-    )
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["created_at"]
-
     def __str__(self):
         return f"{self.user.username} - {self.sub_unit.name} - {self.content[:30]}..."
 
@@ -357,6 +334,7 @@ class Question(models.Model):
         ("skill_test", "Skill Test"),
         ("contest", "Contest"),
         ("mock_interview", "Mock Interview"),
+        ("task", "Task"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -391,6 +369,9 @@ class Question(models.Model):
         max_length=10, choices=DIFFICULTY_LEVELS, default="easy"
     )
     marks = models.PositiveIntegerField(default=1)
+    duration = models.PositiveIntegerField(
+        default=1, help_text="Duration in minutes"
+    )
     categories = models.JSONField(
         default=list,
         help_text="List of categories this question belongs to (learn, practice, skill_test, contest)",
@@ -409,6 +390,13 @@ class Question(models.Model):
     )
     test_cases_advanced = models.JSONField(
         default=list, blank=True, help_text="Advanced test cases for evaluation"
+    )
+
+    # Hints
+    hints = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of hints for the question. Format: [{'level': 1, 'text': 'hint text'}]",
     )
 
     # Metadata
@@ -647,3 +635,45 @@ class SectionSubjectFaculty(BaseTimestampedModel):
 
 
 
+
+
+class QuestionSolution(models.Model):
+    """
+    Model for storing solutions to questions in the question bank.
+    Supports multiple solutions per question (e.g. different languages or approaches).
+    """
+
+    LANGUAGE_CHOICES = [
+        ("python", "Python"),
+        ("java", "Java"),
+        ("cpp", "C++"),
+        ("c", "C"),
+        ("javascript", "JavaScript"),
+        ("sql", "SQL"),
+        ("other", "Other"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="solutions"
+    )
+    title = models.CharField(max_length=255, blank=True, default="")
+    language = models.CharField(max_length=20, choices=LANGUAGE_CHOICES, default="python")
+    code = models.TextField(blank=True, default="")
+    complexity_analysis = models.TextField(
+        blank=True,
+        default="",
+        help_text="Time and space complexity analysis of the solution",
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        help_text="Whether this is the primary/recommended solution",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_primary", "created_at"]
+
+    def __str__(self):
+        return f"{self.question.title[:40]} — {self.language} ({self.title})"

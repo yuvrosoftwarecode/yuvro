@@ -4,6 +4,7 @@ import SuggestedPrompts from './SuggestedPrompts';
 
 interface AIChatInputProps {
   onSend: (text: string) => Promise<void>;
+  onType?: (text: string) => void;
   disabled?: boolean;
   suggestedPrompts?: string[];
   onSelectSuggestedPrompt?: (prompt: string) => void;
@@ -11,6 +12,7 @@ interface AIChatInputProps {
 
 const AIChatInput: React.FC<AIChatInputProps> = ({ 
   onSend, 
+  onType,
   disabled, 
   suggestedPrompts = [], 
   onSelectSuggestedPrompt 
@@ -44,28 +46,32 @@ const AIChatInput: React.FC<AIChatInputProps> = ({
         />
       )}
       
-      <div className="relative group">
+      <div className="relative input-focus-area rounded-xl transition-all border border-slate-200 bg-white">
         <div className="absolute left-4 top-1/2 -translate-y-1/2">
-          <Sparkles size={18} className="text-emerald-500 stroke-[2.5px]" />
+          <Sparkles size={16} className="text-slate-400" />
         </div>
         <input
-        className="w-full pl-12 pr-14 py-4 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-200 transition-all placeholder:text-slate-400 placeholder:font-bold"
+        className="w-full pl-11 pr-12 py-3 bg-transparent text-sm font-medium text-slate-700 focus:outline-none placeholder:text-slate-300 placeholder:font-medium transition-all"
         placeholder="Ask Buddy..."
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          const val = e.target.value;
+          setText(val);
+          if (onType) onType(val);
+        }}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } }}
         disabled={disabled}
       />
-      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+      <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
         <button
-          className={`p-2.5 rounded-full transition-all active:scale-90 ${text.trim() === '' || disabled
-            ? 'text-slate-300 bg-slate-100/50'
-            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200'
+          className={`p-2 rounded-lg transition-all ${text.trim() === '' || disabled
+            ? 'text-slate-200'
+            : 'text-indigo-600 hover:bg-indigo-50 active:scale-90'
             }`}
           onClick={handleSend}
           disabled={disabled || text.trim() === ''}
         >
-          <Send size={18} className="stroke-[2.5px]" />
+          <Send size={18} strokeWidth={2.5} />
         </button>
         </div>
       </div>

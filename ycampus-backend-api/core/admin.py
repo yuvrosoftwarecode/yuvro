@@ -3,7 +3,7 @@ from .models import (
     College, Batch, Department, Semester, Section,
     StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile,
     AttendanceSession, AttendanceRecord,
-    TPOProfile
+    TPOProfile, Note
 )
 
 
@@ -127,3 +127,14 @@ class TPOProfileAdmin(admin.ModelAdmin):
     list_filter = ["college"]
     search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
     readonly_fields = ["id", "created_at", "updated_at"]
+
+@admin.register(Note)
+class NoteAdmin(admin.ModelAdmin):
+    list_display = ["content_preview", "user", "created_at"]
+    list_filter = ["user", "created_at"]
+    search_fields = ["content", "user__username", "user__email"]
+    readonly_fields = ["id", "created_at", "updated_at"]
+    
+    def content_preview(self, obj):
+        return obj.content[:30] + "..." if len(obj.content) > 30 else obj.content
+    content_preview.short_description = "Content"

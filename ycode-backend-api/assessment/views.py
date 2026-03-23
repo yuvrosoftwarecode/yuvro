@@ -380,7 +380,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             is_late_entry = True
 
         # 4. Create registration record
-        ContestRegistration.objects.create(contest=contest, user=user, created_by=user)
+        ContestRegistration.objects.create(contest=contest, user=user, created_by=user, is_late_entry=is_late_entry)
 
         # 5. Send confirmation email
         try:
@@ -435,7 +435,8 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         now = timezone.now()
 
         # Enforce registration before starting
-        if not ContestRegistration.objects.filter(contest=contest, user=user).exists():
+        registration = ContestRegistration.objects.filter(contest=contest, user=user).first()
+        if not registration:
             return Response(
                 {'error': 'You must register for this contest before starting it.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -449,7 +450,10 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         submission, created = ContestSubmission.objects.get_or_create(
             contest=contest, 
             user=user,
-            defaults={'status': ContestSubmission.STATUS_STARTED}
+            defaults={
+                'status': ContestSubmission.STATUS_STARTED,
+                'is_late_entry': registration.is_late_entry,
+            }
         )
 
         # Block re-entry after submission
@@ -471,7 +475,8 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             'submission_id': submission.id, 
             'duration': actual_duration,
             'questions': questions_to_send,
-            'is_late_entry': submission.is_late_entry
+            'is_late_entry': submission.is_late_entry,
+            'enable_proctoring': contest.enable_proctoring,
         })
 
     @action(detail=True, methods=['post'], permission_classes= [permissions.IsAuthenticated])
@@ -487,16 +492,30 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         if submission.status in [ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_EVALUATED]:
             return Response({'error': 'Submission already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Build the set of valid question IDs for this contest
+        valid_question_ids = set()
+        if contest.questions_config:
+            for ids in contest.questions_config.values():
+                if isinstance(ids, list):
+                    valid_question_ids.update(str(i) for i in ids)
+        # Also include any questions that were served via random config (already in ContestQuestionActivity)
+        existing_activity_ids = set(
+            ContestQuestionActivity.objects.filter(contest_submission=submission)
+            .values_list('question_id', flat=True)
+        )
+        valid_question_ids.update(str(i) for i in existing_activity_ids)
+
         submission.answer_data = answers
         submission.status = ContestSubmission.STATUS_SUBMITTED
         submission.submitted_at = timezone.now()
         
         total_score = 0
-        question_ids = answers.keys()
-        db_questions = Question.objects.filter(id__in=question_ids)
+        # Only process answers for questions that belong to this contest
+        filtered_answers = {q_id: ans for q_id, ans in answers.items() if q_id in valid_question_ids}
+        db_questions = Question.objects.filter(id__in=filtered_answers.keys())
         q_map = {str(q.id): q for q in db_questions}
         
-        for q_id, user_ans in answers.items():
+        for q_id, user_ans in filtered_answers.items():
             if q_id not in q_map:
                 continue
             question = q_map[q_id]
@@ -648,60 +667,55 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
                 'submitted_at': sub.submitted_at,
             })
 
-        # --- 3. College Breakdown ---
-        college_stats = {}
-        for sub in submissions:
-            profile = getattr(sub.user, 'profile', None)
-            college_name = profile.college.name if profile and profile.college else 'Unknown'
-            college_id = profile.college.id if profile and profile.college else None
-            
-            if college_name not in college_stats:
-                college_stats[college_name] = {
-                    'participants': 0, 
-                    'marks_list': [], 
-                    'completed': 0,
-                    'college_id': college_id
-                }
-            
-            college_stats[college_name]['participants'] += 1
-            college_stats[college_name]['marks_list'].append(sub.marks or 0)
-            if sub.status in [ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_EVALUATED]:
-                college_stats[college_name]['completed'] += 1
+        # --- 3. College Breakdown (DB aggregation) ---
+        college_agg = submissions.exclude(
+            user__profile__college__isnull=True
+        ).values(
+            'user__profile__college__id',
+            'user__profile__college__name',
+        ).annotate(
+            participants=Count('id'),
+            avg_marks=Avg('marks'),
+            max_marks=Max('marks'),
+            min_marks=Min('marks'),
+            completed=Count('id', filter=Q(
+                status__in=[ContestSubmission.STATUS_COMPLETED, ContestSubmission.STATUS_SUBMITTED, ContestSubmission.STATUS_EVALUATED]
+            ))
+        ).order_by('-avg_marks')
 
-        college_breakdown = []
-        for name, stats in sorted(college_stats.items(), key=lambda x: -(sum(x[1]['marks_list']) / len(x[1]['marks_list']) if x[1]['marks_list'] else 0)):
-            marks = stats['marks_list']
-            college_breakdown.append({
-                'college': name,
-                'college_id': str(stats['college_id']) if stats.get('college_id') else None,
-                'participants': stats['participants'],
-                'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
-                'max_marks': max(marks) if marks else 0,
-                'min_marks': min(marks) if marks else 0,
-                'completion_rate': round(stats['completed'] / stats['participants'] * 100, 1) if stats['participants'] > 0 else 0,
-            })
+        college_breakdown = [
+            {
+                'college': row['user__profile__college__name'] or 'Unknown',
+                'college_id': str(row['user__profile__college__id']) if row['user__profile__college__id'] else None,
+                'participants': row['participants'],
+                'avg_marks': round(row['avg_marks'] or 0, 1),
+                'max_marks': row['max_marks'] or 0,
+                'min_marks': row['min_marks'] or 0,
+                'completion_rate': round(row['completed'] / row['participants'] * 100, 1) if row['participants'] > 0 else 0,
+            }
+            for row in college_agg
+        ]
 
-        # --- 4. Department Comparison ---
-        dept_stats = {}
-        for sub in submissions:
-            profile = getattr(sub.user, 'profile', None)
-            dept_name = profile.department.name if profile and profile.department else 'Unknown'
-            
-            if dept_name not in dept_stats:
-                dept_stats[dept_name] = {'participants': 0, 'marks_list': []}
-            
-            dept_stats[dept_name]['participants'] += 1
-            dept_stats[dept_name]['marks_list'].append(sub.marks or 0)
+        # --- 4. Department Comparison (DB aggregation) ---
+        dept_agg = submissions.exclude(
+            user__profile__department__isnull=True
+        ).values(
+            'user__profile__department__name',
+        ).annotate(
+            participants=Count('id'),
+            avg_marks=Avg('marks'),
+            max_marks=Max('marks'),
+        ).order_by('-avg_marks')
 
-        department_comparison = []
-        for name, stats in sorted(dept_stats.items(), key=lambda x: -(sum(x[1]['marks_list']) / len(x[1]['marks_list']) if x[1]['marks_list'] else 0)):
-            marks = stats['marks_list']
-            department_comparison.append({
-                'department': name,
-                'participants': stats['participants'],
-                'avg_marks': round(sum(marks) / len(marks), 1) if marks else 0,
-                'max_marks': max(marks) if marks else 0,
-            })
+        department_comparison = [
+            {
+                'department': row['user__profile__department__name'] or 'Unknown',
+                'participants': row['participants'],
+                'avg_marks': round(row['avg_marks'] or 0, 1),
+                'max_marks': row['max_marks'] or 0,
+            }
+            for row in dept_agg
+        ]
 
         # --- 5. Question Performance (Skill Gap Analysis) ---
         question_activities = ContestQuestionActivity.objects.filter(
@@ -751,20 +765,23 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
         # Sort by correct_percentage ascending (weakest first = skill gaps)
         question_performance.sort(key=lambda x: x['correct_percentage'])
 
-        # --- 6. Integrity Summary ---
-        total_violations = 0
-        clean_submissions = 0
-        for sub in submissions:
-            violations = len(sub.proctoring_events) if sub.proctoring_events else 0
-            total_violations += violations
-            if violations == 0:
-                clean_submissions += 1
+        # --- 6. Integrity Summary (use ContestQuestionActivity.violation_count — consistent with analytics_service) ---
+        submission_ids = submissions.values_list('id', flat=True)
+        all_qa = ContestQuestionActivity.objects.filter(
+            contest_submission_id__in=submission_ids,
+            is_final_answer=True
+        )
+        total_violations = sum(qa.violation_count for qa in all_qa)
+        submissions_with_violations = set(
+            all_qa.filter(has_violations=True).values_list('contest_submission_id', flat=True)
+        )
+        clean_submissions_count = attempted_count - len(submissions_with_violations)
 
         integrity = {
             'total_violations': total_violations,
-            'clean_submissions': clean_submissions,
+            'clean_submissions': clean_submissions_count,
             'total_submissions': attempted_count,
-            'clean_percentage': round(clean_submissions / attempted_count * 100, 1) if attempted_count > 0 else 100,
+            'clean_percentage': round(clean_submissions_count / attempted_count * 100, 1) if attempted_count > 0 else 100,
             'proctoring_enabled': contest.enable_proctoring,
             'proctoring_techniques': contest.proctoring_techniques or [],
         }
@@ -778,7 +795,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
             'integrity': integrity,
         }
 
-        # Check if AI insights should be included
+                # Check if AI insights should be included
         include_ai = request.query_params.get('include_ai_insights', 'false').lower() == 'true'
         
         if include_ai:
@@ -829,7 +846,7 @@ class ContestViewSet(AssessmentMixin, ProctoringMixin, viewsets.ModelViewSet):
 
         # Check if student has participated in this contest
         try:
-            submission = ContestSubmission.objects.get(contest=contest, user__id=target_user_id)
+            ContestSubmission.objects.get(contest=contest, user__id=target_user_id)
         except ContestSubmission.DoesNotExist:
             return Response(
                 {"error": "This user has not participated in this contest"},
