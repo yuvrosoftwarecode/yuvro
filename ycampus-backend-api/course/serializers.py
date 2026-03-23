@@ -1,13 +1,12 @@
 from rest_framework import serializers
 from django.db import transaction
 
-from core.models import College, Batch, Department, Semester, Section
+from core.models import College, Batch, Department, Semester, Section, Task
 from .models import (
     Subject,
     Unit,
     SubUnit,
     Video,
-    Note,
     Question,
     UserSubjectProgress,
     StudentCodePractice,
@@ -301,7 +300,9 @@ class SectionSubjectFacultySerializer(serializers.ModelSerializer):
             "is_lab": obj.semester_subject.is_lab,
             "semester_number": obj.semester_subject.semester.number,
             "batch_name": obj.semester_subject.semester.batch.name,
+            "department_id": obj.semester_subject.semester.batch.department.id,
             "department_name": obj.semester_subject.semester.batch.department.name,
+            "department_short_form": obj.semester_subject.semester.batch.department.short_form,
         }
 
 
@@ -422,12 +423,6 @@ class VideoSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
-class NoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Note
-        fields = ["id", "sub_unit", "user", "content", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at", "user"]
-
     def validate_content(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Content cannot be empty.")
@@ -454,6 +449,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "sub_unit",
             "difficulty",
             "marks",
+            "duration",
             "categories",
             "mcq_options",
             "test_cases_basic",
@@ -685,7 +681,5 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
                 f"Status must be one of: {', '.join(valid_statuses)}"
             )
         return value
-
-
 
 

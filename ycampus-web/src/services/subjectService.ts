@@ -105,7 +105,9 @@ export interface SectionSubjectFaculty {
     is_lab: boolean;
     semester_number: number;
     batch_name: string;
+    department_id: string | number;
     department_name: string;
+    department_short_form: string;
   };
   section: string | number;
   section_name?: string;
@@ -390,19 +392,19 @@ export interface Note {
 }
 
 export async function fetchNotesBySubUnit(subUnitId: string) {
-  return restApiAuthUtil.get<Note[]>('/course/notes/', { params: { sub_unit: subUnitId } });
+  return restApiAuthUtil.get<Note[]>('/core/notes/', { params: { sub_unit: subUnitId } });
 }
 
 export async function createNote(payload: any) {
-  return restApiAuthUtil.post('/course/notes/', payload);
+  return restApiAuthUtil.post('/core/notes/', payload);
 }
 
 export async function updateNote(id: string, payload: any) {
-  return restApiAuthUtil.patch(`/course/notes/${id}/`, payload);
+  return restApiAuthUtil.patch(`/core/notes/${id}/`, payload);
 }
 
 export async function deleteNote(id: string) {
-  await restApiAuthUtil.delete(`/course/notes/${id}/`);
+  await restApiAuthUtil.delete(`/core/notes/${id}/`);
   return true;
 }
 
@@ -528,6 +530,7 @@ const subjectService = {
   saveAttendance,
   getAttendanceSessions,
   getAssignmentDetails,
+  fetchFacultyStats,
 };
 
 export default subjectService;
@@ -718,4 +721,15 @@ export async function getAttendanceSessions(params: Record<string, any>) {
 
 export async function getAssignmentDetails(assignmentId: string | number): Promise<SectionSubjectFaculty> {
   return restApiAuthUtil.get<SectionSubjectFaculty>(`/course/section-subject-faculty/${assignmentId}/`);
+}
+
+export interface FacultyStats {
+  total_courses: number;
+  total_students: number;
+  total_assessments: number;
+  average_attendance: number;
+}
+
+export async function fetchFacultyStats(params?: { subject_id?: string; department_id?: string; section_id?: string }): Promise<FacultyStats> {
+  return restApiAuthUtil.get<FacultyStats>('/core/faculty/stats/', { params });
 }
