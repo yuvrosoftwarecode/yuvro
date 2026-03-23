@@ -4,19 +4,16 @@ import { useLocation, Link } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   Menu,
-  X,
-  Search,
+  ChevronLeft,
+  ChevronRight,
   Briefcase,
   Users,
-  Calendar,
-  TrendingUp,
   BookOpen,
   Settings,
   Trophy,
   UserCheck,
   BarChart3,
   FileText,
-  HelpCircle,
   CheckCircle,
   School,
   Code,
@@ -90,7 +87,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'student-practice-test',
-    label: 'Practice Test',
+    label: 'Practice Tests by Yuvro',
     icon: ClipboardCheck,
     path: '/student/test',
     roles: ['student']
@@ -466,7 +463,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'skill-tests',
-    label: 'Skill Tests',
+    label: 'Tests',
     icon: CheckCircle,
     path: '/admin/skill-tests',
     roles: ['admin']
@@ -527,6 +524,7 @@ interface SidebarContentProps {
   onItemClick?: () => void;
   onToggle?: () => void;
   className?: string;
+  collapsed?: boolean;
 }
 
 export const SidebarContent = ({ 
@@ -639,6 +637,7 @@ export const SidebarContent = ({
               <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Navigation</span>
             </div>
           )}
+
           {filteredItems
             .filter(item => userRole !== 'faculty' || (!item.id.includes('report')))
             .map((item) => {
@@ -676,14 +675,15 @@ export const SidebarContent = ({
               );
             })}
 
+          {/* Faculty Reports Section */}
           {userRole === 'faculty' && !sidebarCollapsed && (
-            <div className="pt-4 space-y-1">
+            <div className="pt-3">
               <div
-                className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
+                className="px-2 mb-1 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg py-1 transition-colors group"
                 onClick={() => setReportsOpen(!reportsOpen)}
               >
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
-                <div className="p-1">
+                <div className="p-0.5">
                   {reportsOpen ? <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />}
                 </div>
               </div>
@@ -730,7 +730,7 @@ export const SidebarContent = ({
                   title={item.label}
                 >
                   <Icon className="h-5 w-5 flex-shrink-0" />
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                     {item.label}
                   </div>
                 </Link>

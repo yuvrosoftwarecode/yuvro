@@ -68,6 +68,11 @@ class BaseAssessmentModel(BaseModel):
 
 
 class SkillTest(BaseAssessmentModel):
+    TEST_TYPE_CHOICES = [
+        ('practice', 'Practice Test'),
+        ('assessment', 'Assessment'),
+    ]
+    test_type = models.CharField(max_length=20, choices=TEST_TYPE_CHOICES, default='practice')
     subject = models.ForeignKey(
         "course.Subject",
         on_delete=models.CASCADE,

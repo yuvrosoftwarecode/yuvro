@@ -496,24 +496,33 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
     def get_queryset(self):
         qs = super().get_queryset()
-        
-        course_param = self.request.query_params.get('course')
-        topic_param = self.request.query_params.get('topic')
+
+        # For students, only expose active tests
+        user = self.request.user
+        if hasattr(user, 'role') and user.role == 'student':
+            qs = qs.filter(publish_status='active')
+
+        subject_param = self.request.query_params.get('subject')
+        unit_param = self.request.query_params.get('unit')
         difficulty_param = self.request.query_params.get('difficulty')
-        
+        test_type_param = self.request.query_params.get('test_type')
+
         q = Q()
-        if course_param:
-            q &= Q(course=course_param)
-            
-        if topic_param:
-            q &= Q(topic=topic_param)
-        
+        if subject_param:
+            q &= Q(subject=subject_param)
+
+        if unit_param:
+            q &= Q(unit=unit_param)
+
         if difficulty_param:
             q &= Q(difficulty=difficulty_param)
 
+        if test_type_param:
+            q &= Q(test_type=test_type_param)
+
         if q:
             qs = qs.filter(q)
-            
+
         return qs
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -567,31 +576,27 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            # Expected format: {'mcq_single': 10, 'coding': 2}
-            
-            # Get IDs already selected to avoid duplicates
             existing_ids = [q['id'] for q in questions_to_send]
-            
+
             for q_type, count in skill_test.questions_random_config.items():
                 if count > 0:
                     q_filter = Q(type=q_type)
-                    
-                    if skill_test.topic:
-                        # Include questions linked to subtopics of this topic OR directly to the topic
-                        q_filter &= (Q(subtopic__topic=skill_test.topic) | Q(topic=skill_test.topic))
-                    elif skill_test.course:
-                        q_filter &= Q(course=skill_test.course)
-                        
-                    # Fetch candidate questions excluding already selected ones
+
+                    if skill_test.unit:
+                        # Scope to questions linked to this unit's sub-units or directly to the unit
+                        q_filter &= (Q(sub_unit__unit=skill_test.unit) | Q(unit=skill_test.unit))
+                    elif skill_test.subject:
+                        q_filter &= Q(subject=skill_test.subject)
+
                     candidates = list(Question.objects.filter(
                         q_filter
                     ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
-                    
+
                     if len(candidates) >= count:
                         selected = random.sample(candidates, count)
                     else:
-                        selected = candidates # Take all if not enough
-                    
+                        selected = candidates
+
                     questions_to_send.extend(selected)
                     
         # Shuffle final list
@@ -1026,9 +1031,15 @@ class SkillTestSubmissionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['created_at', 'marks']
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
+        user = self.request.user
+
+        # Students can only see their own submissions
+        if hasattr(user, 'role') and user.role == 'student':
+            qs = qs.filter(user=user)
+
         skill_test_id = self.request.query_params.get('skill_test')
         if skill_test_id:
             qs = qs.filter(skill_test_id=skill_test_id)

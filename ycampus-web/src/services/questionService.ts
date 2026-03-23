@@ -156,10 +156,10 @@ export const getQuestionsByType = async (
 };
 
 export const getQuestionsByCategory = async (
-  category: string,
+  categoryStr: string,
   filters?: Omit<QuestionFilters, 'categories'>
 ): Promise<Question[]> => {
-  return fetchQuestions({ ...filters, categories: category });
+  return fetchQuestions({ ...filters, categories: categoryStr });
 };
 
 export const getQuestionsByDifficulty = async (

@@ -20,7 +20,7 @@ import Colleges from './pages/admin/Colleges';
 import CollegeDetails from './components/admin/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
 import SubjectDetail from './components/student/SubjectDetail';
-import SkillTest from './pages/student/SkillTest';
+import SkillTest from './pages/student/PracticeTest';
 import MockInterview from './pages/student/MockInterview';
 import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
@@ -39,12 +39,13 @@ import DashboardRedirect from './components/DashboardRedirect';
 import OwnerContest from './pages/admin/Contest';
 import ContestEdit from './components/admin/contests/ContestEdit';
 import ContestForm from './components/admin/contests/ContestForm';
-import InstructorSkillTest from './pages/admin/SkillTest';
-import SkillTestForm from './components/admin/skill-tests/SkillTestForm';
+import StudentAssessments from './pages/student/StudentAssessments';
+import InstructorSkillTest from './pages/admin/TestManager';
+import SkillTestForm from './components/admin/skill-tests/TestForm';
 import InstructorProfile from './pages/admin/Profile';
 import InstructorMockInterview from './pages/admin/MockInterview';
 import MockInterviewForm from './components/admin/mock-interviews/MockInterviewForm';
-import SkillTestSubmissions from './pages/admin/SkillTestSubmissions';
+import SkillTestSubmissions from './pages/admin/TestSubmissions';
 import SubmissionAnalytics from './pages/admin/SubmissionAnalytics';
 import InstructorCertifications from './pages/admin/Certifications';
 import CertificationExamForm from './components/admin/certifications/CertificationExamForm';
@@ -184,37 +185,73 @@ function App() {
               />
 
               <Route
-                path="/student/skill-test"
+                path="/student/practice-tests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests"
+                path="/student/practice-tests/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests/:testId"
+                path="/student/practice-tests/:subjectId/:testId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests/:testId/results"
+                path="/student/practice-tests/:subjectId/:testId/results"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId/:testId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId/:testId/results"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
                   </ProtectedRoute>
                 }
               />
@@ -652,7 +689,39 @@ function App() {
                 path="/faculty/assessment"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <InstructorSkillTest basePath="/faculty/assessment" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/subjects/:subjectId/manage"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <InstructorSkillTest basePath="/faculty/assessment" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/add"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/:skillTestId/edit"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/:skillTestId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestSubmissions />
                   </ProtectedRoute>
                 }
               />

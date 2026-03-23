@@ -22,12 +22,16 @@ import { cn } from '@/lib/utils';
 interface Test {
   id: string;
   title: string;
-  course: string;
+  subjectName: string;
   duration: number;
   totalQuestions: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   description: string;
   marks: number;
+  // practice tests skip proctoring; assessments require it
+  testType?: 'practice' | 'assessment';
+  maxAttempts?: number;
+  attemptsUsed?: number;
 }
 
 interface TestInstructionsProps {
@@ -36,12 +40,14 @@ interface TestInstructionsProps {
   onBack: () => void;
 }
 
-const TestInstructions: React.FC<TestInstructionsProps> = ({
-  test,
-  onStart,
-  onBack
-}) => {
+const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBack }) => {
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+
+  const isPractice = !test.testType || test.testType === 'practice';
+  const attemptsLeft =
+    test.maxAttempts != null && test.attemptsUsed != null
+      ? test.maxAttempts - test.attemptsUsed
+      : null;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -52,8 +58,13 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
     }
   };
 
+  // Practice tests start immediately; assessments need camera/mic permission first
   const handleStartTest = () => {
-    setShowPermissionDialog(true);
+    if (isPractice) {
+      onStart();
+    } else {
+      setShowPermissionDialog(true);
+    }
   };
 
   const handlePermissionGranted = () => {
@@ -77,7 +88,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
           <span>Back to Tests</span>
         </button>
         <span className="text-muted-foreground/50">/</span>
-        <span className="text-foreground">{test.course}</span>
+        <span className="text-foreground">{test.subjectName}</span>
         <span className="text-muted-foreground/50">/</span>
         <span className="text-foreground font-medium">{test.title}</span>
       </div>
@@ -93,7 +104,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
                 </div>
                 <div>
                   <CardTitle className="text-2xl font-bold">{test.title}</CardTitle>
-                  <p className="text-muted-foreground text-sm">{test.course}</p>
+                  <p className="text-muted-foreground text-sm">{test.subjectName}</p>
                 </div>
               </div>
             </div>
@@ -136,6 +147,27 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
                 <p className="font-semibold text-lg text-foreground">{test.marks}</p>
               </div>
             </div>
+          </div>
+
+          {/* Type badge + attempt info */}
+          <div className="flex flex-wrap items-center gap-3 pt-4">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+              isPractice ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+            }`}>
+              {isPractice ? 'Practice Test' : 'Assessment'}
+            </span>
+            {attemptsLeft !== null && (
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                attemptsLeft <= 1 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'
+              }`}>
+                {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining of {test.maxAttempts}
+              </span>
+            )}
+            {isPractice && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                Answers shown after completion
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -193,71 +225,72 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Security Guidelines */}
+      {/* Security Guidelines — only shown for assessments */}
+      {!isPractice && (
+        <Card className="rounded-2xl border border-gray-200 shadow-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <Shield className="h-5 w-5 text-amber-500" />
+              <span>Security Guidelines</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-sm">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <p className="font-semibold text-yellow-900 mb-1">Proctoring Requirements</p>
+                  <p className="text-yellow-800">This assessment uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100">
+                  <Camera className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Camera</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Keep your face visible</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100">
+                  <Mic className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Microphone</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Audio monitoring active</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100">
+                  <Monitor className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-foreground">Screen</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">No tab switching</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+              <h4 className="font-semibold text-red-900 mb-2 text-sm">Prohibited Actions</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs text-red-800">
+                <span>• Switching tabs or apps</span>
+                <span>• Using external resources</span>
+                <span>• Communicating with others</span>
+                <span>• Taking screenshots</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Before You Begin */}
       <Card className="rounded-2xl border border-gray-200 shadow-none">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center space-x-2 text-lg">
-            <Shield className="h-5 w-5 text-amber-500" />
-            <span>Security Guidelines</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-none">
-            <div className="flex items-start space-x-3">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <p className="font-semibold text-yellow-900 mb-1">Proctoring Requirements</p>
-                <p className="text-yellow-800">This test uses automated proctoring to ensure academic integrity. Please ensure compliance with all monitoring requirements.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Camera className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Camera</p>
-                <p className="text-muted-foreground text-xs mt-0.5">Keep your face visible</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                <Mic className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Microphone</p>
-                <p className="text-muted-foreground text-xs mt-0.5">Audio monitoring active</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Monitor className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div className="text-sm">
-                <p className="font-semibold text-foreground">Screen</p>
-                <p className="text-muted-foreground text-xs mt-0.5">No tab switching</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-none">
-            <h4 className="font-semibold text-red-900 mb-2 text-sm">Prohibited Actions</h4>
-            <div className="grid grid-cols-2 gap-2 text-xs text-red-800">
-              <span>• Switching tabs or apps</span>
-              <span>• Using external resources</span>
-              <span>• Communicating with others</span>
-              <span>• Taking screenshots</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Before You Begin - Compact Checklist */}
-      <Card className="rounded-2xl border border-gray-200 shadow-none">
+>>>>>>> 588c09d (Recovered lost work)
         <CardContent className="py-5">
           <h4 className="font-semibold mb-4 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -267,9 +300,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
             {[
               'Stable internet connection',
               'Close unnecessary apps',
-              'Camera & mic ready',
-              'Quiet environment',
-              'Valid ID if required',
+              ...(isPractice ? [] : ['Camera & mic ready', 'Quiet environment', 'Valid ID if required']),
               'Sufficient battery'
             ].map((item, i) => (
               <div key={i} className="flex items-center space-x-2 text-sm">
@@ -283,11 +314,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between pt-4">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
@@ -301,12 +328,14 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
         </Button>
       </div>
 
-      {/* Permission Dialog */}
-      <PermissionDialog
-        open={showPermissionDialog}
-        onConfirm={handlePermissionGranted}
-        onCancel={handlePermissionCanceled}
-      />
+      {/* Permission Dialog — only for assessments */}
+      {!isPractice && (
+        <PermissionDialog
+          open={showPermissionDialog}
+          onConfirm={handlePermissionGranted}
+          onCancel={handlePermissionCanceled}
+        />
+      )}
     </div>
   );
 };

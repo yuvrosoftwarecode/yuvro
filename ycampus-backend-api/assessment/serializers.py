@@ -238,7 +238,6 @@ class ContestSerializer(serializers.ModelSerializer):
 class SkillTestSerializer(serializers.ModelSerializer):
     participants_count = serializers.SerializerMethodField()
     total_questions = serializers.SerializerMethodField()
-
     my_submissions = serializers.SerializerMethodField()
 
     class Meta:
@@ -253,9 +252,11 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "total_marks",
             "passing_marks",
             "enable_proctoring",
+            "max_attempts",
             "questions_config",
             "questions_random_config",
             "publish_status",
+            "test_type",
             "subject",
             "unit",
             "participants_count",
@@ -266,6 +267,15 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_by", "created_at", "updated_at"]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        # Strip raw question IDs from student-facing responses
+        if request and hasattr(request.user, 'role') and request.user.role == 'student':
+            data.pop("questions_config", None)
+            data.pop("questions_random_config", None)
+        return data
 
     def get_participants_count(self, obj):
         return obj.skill_test_submissions.count()
