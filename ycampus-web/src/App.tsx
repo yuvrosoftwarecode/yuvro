@@ -96,6 +96,7 @@ import TPOLiveJobs from './pages/tpo/LiveJobs';
 import TPOStudentsTracking from './pages/tpo/StudentsTracking';
 import TPOAIAnalytics from './pages/tpo/AIAnalytics';
 import TPORecruiterInsights from './pages/tpo/RecruiterInsights';
+import TPOOfferTracking from './pages/tpo/OfferTracking';
 import TPODriveCalendar from './pages/tpo/DriveCalendar';
 import TPONotifications from './pages/tpo/Notifications';
 import TPOSettings from './pages/tpo/Settings';
@@ -499,6 +500,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["tpo"]}>
                     <TPOStudentsTracking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tpo/offer-tracking"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOOfferTracking />
                   </ProtectedRoute>
                 }
               />

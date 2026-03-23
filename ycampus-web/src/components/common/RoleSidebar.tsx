@@ -314,6 +314,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['tpo']
   },
   {
+    id: 'tpo-offer-tracking',
+    label: 'Offer Tracking',
+    icon: LayoutDashboard,
+    path: '/tpo/offer-tracking',
+    roles: ['tpo']
+  },
+  {
     id: 'tpo-analytics',
     label: 'Analytics',
     icon: BarChart3,
@@ -693,150 +700,107 @@ export const SidebarContent = ({
         </div>
 
         <nav className="space-y-1">
+  {!sidebarCollapsed && (
+    <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">
+      Navigation
+    </p>
+  )}
+
+  {filteredItems
+    .filter(item => userRole !== 'faculty' || !item.id.includes('report'))
+    .map((item) => {
+      const Icon = item.icon;
+      const isActive = isActiveItem(item);
+      const isTPO = userRole === 'tpo';
+
+      return (
+        <Link
+          key={item.id}
+          to={item.path}
+          className={`flex items-center ${
+            sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'
+          } rounded-lg cursor-pointer group relative transition-all duration-200 ${
+            isActive
+              ? (isTPO
+                  ? 'bg-purple-50 text-purple-600'
+                  : 'bg-orange-50 text-orange-600')
+              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium'
+          }`}
+          title={sidebarCollapsed ? item.label : ''}
+        >
+          <Icon
+            className={`h-4 w-4 flex-shrink-0 ${
+              isActive ? '' : 'text-gray-400 group-hover:text-gray-600'
+            }`}
+          />
+
           {!sidebarCollapsed && (
-            <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4">Navigation</p>
+            <span className="text-xs font-semibold">{item.label}</span>
           )}
-          {filteredItems.map((item) => {
+
+          {sidebarCollapsed && (
+            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
+              {item.label}
+            </div>
+          )}
+
+          {isActive && !sidebarCollapsed && (
+            <div
+              className={`absolute right-3 w-1.5 h-1.5 rounded-full ${
+                isTPO ? 'bg-purple-600' : 'bg-orange-600'
+              }`}
+            />
+          )}
+        </Link>
+      );
+    })}
+
+  {/* Faculty Reports Section */}
+  {userRole === 'faculty' && !sidebarCollapsed && (
+    <div className="pt-4 space-y-1">
+      <div
+        className="px-3 mb-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
+        onClick={() => setReportsOpen(!reportsOpen)}
+      >
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600">
+          Reports
+        </span>
+        <div className="p-1">
+          {reportsOpen ? (
+            <ChevronUp className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />
+          ) : (
+            <ChevronDown className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />
+          )}
+        </div>
+      </div>
+
+      {reportsOpen &&
+        filteredItems
+          .filter(item => item.id.includes('report'))
+          .map((item) => {
             const Icon = item.icon;
             const isActive = isActiveItem(item);
-            const isTPO = userRole === 'tpo';
 
             return (
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex items-center ${sidebarCollapsed ? 'justify-center p-2' : 'space-x-3 p-3'} rounded-lg cursor-pointer group relative transition-all duration-200 ${isActive
-                  ? (isTPO ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600')
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium'
-                  }`}
-                title={sidebarCollapsed ? item.label : ''}
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${
+                  isActive
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
               >
-                <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'text-gray-400 group-hover:text-gray-600'}`} />
-                {!sidebarCollapsed && <span className="text-xs font-semibold">{item.label}</span>}
-                {sidebarCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
-                    {item.label}
-                  </div>
-                )}
-                {isActive && !sidebarCollapsed && (
-                  <div className={`absolute right-3 w-1.5 h-1.5 rounded-full ${isTPO ? 'bg-purple-600' : 'bg-orange-600'}`} />
-                )}
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                <span>{item.label}</span>
               </Link>
             );
           })}
-        </nav>
-      </div>
-
-      <div className={`mt-auto border-t border-[#e5e7eb] w-full transition-all duration-300 ${sidebarCollapsed ? 'p-2 flex flex-col items-center' : 'p-3 flex flex-col w-full'}`}>
-        <div 
-          className={`flex items-center justify-between w-full cursor-pointer group rounded-md px-2 py-2 hover:bg-[#f4f4f5] transition-all duration-200 ${sidebarCollapsed ? 'justify-center px-0' : ''}`}
-          onClick={() => {
-            if (!sidebarCollapsed) setProfileOpen(!profileOpen);
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className={`h-[36px] w-[36px] rounded-full bg-[#f1f5f9] flex items-center justify-center text-[#3B3D47] font-semibold flex-shrink-0 text-sm`}>
-              {initial}
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-[#3B3D47] leading-tight">{firstName}</span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {userRole === 'student' ? (
-                    <>
-                      <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-[#f1f5f9] text-[#0f172a] rounded uppercase tracking-wide">
-                        {(user as any)?.branch || 'CSE'}
-                      </span>
-                      <span className="text-xs text-[#64748b] truncate max-w-[100px]">
-                        Sem {(user as any)?.semester || 'I'} &middot; Sec {(user as any)?.section || 'B'}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-[#f1f5f9] text-[#475569] rounded tracking-wide">
-                      {formatRole(userRole)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          {!sidebarCollapsed && (
-            <div className={`text-[#64748b] p-1 rounded-md transition-all duration-200 ${profileOpen ? 'rotate-180' : ''}`}>
-              <ChevronsUpDown className="h-4 w-4 stroke-[1.5]" />
-            </div>
-          )}
-        </div>
-
-        {(!sidebarCollapsed && profileOpen) && (
-          <div className="mt-2 space-y-1 px-1 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Link to={`/${userRole}/profile`} onClick={onItemClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
-              <User className="h-[16px] w-[16px] stroke-[2]" />
-              Profile
-            </Link>
-            <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
-              <Moon className="h-[16px] w-[16px] stroke-[2]" />
-              Dark Mode
-            </button>
-            <button 
-              onClick={logout}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#ef4444] hover:text-[#dc2626] hover:bg-[#fef2f2] rounded-md transition-all duration-200 mt-1"
-            >
-              <LogOut className="h-[16px] w-[16px] stroke-[2]" />
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
     </div>
-    </TooltipProvider>
-  );
-};
-
-interface RoleSidebarProps {
-  className?: string;
-}
-
-const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
-  const { user } = useAuth();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const firstName = user?.first_name || user?.username || 'User';
-  const initial = firstName.charAt(0).toUpperCase();
-
-  return (
-    <>
-      {/* Mobile Top Bar - Improved Aesthetics */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#e5e7eb] flex items-center justify-between px-4 z-[50] shadow-sm">
-        <div className="flex items-center">
-          {/* User Initial Circle as Toggle (Left Top) */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <button className="h-9 w-9 rounded-full bg-[#f1f5f9] flex items-center justify-center text-[#3B3D47] font-semibold text-sm border border-[#e5e7eb] shadow-sm transform transition-all hover:scale-105 active:scale-95">
-                {initial}
-              </button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[280px] border-none shadow-2xl">
-              <SidebarContent onItemClick={() => setMobileOpen(false)} />
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        {/* Yuvro Campus Logo (Right Top) */}
-        <div className="flex items-center transition-opacity hover:opacity-80">
-          <img src={yuvroLogo} alt="Yuvro Campus" className="h-7 w-auto mix-blend-multiply" />
-        </div>
+  )}
+</nav>
       </div>
-
-      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-[#FBFBFB] shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
-        <SidebarContent 
-          collapsed={sidebarCollapsed} 
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        />
-        
-
-      </div>
-    </>
+    </div >
   );
 };
 
