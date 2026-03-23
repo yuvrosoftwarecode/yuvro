@@ -1,10 +1,11 @@
 import json
 import os
+from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from Subject.models import Subject, Unit, SubUnit, Video, Question
+from course.models import Course, Topic, Subtopic, Video, Question, QuestionSolution
 from assessment.models import SkillTest, Contest
 
 User = get_user_model()
@@ -19,56 +20,164 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing data before loading new data",
         )
+        parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: 'dev' reads fixtures/dev/, 'prod' scans fixtures/prod/*/course.json",
+        )
+        parser.add_argument(
+            "--file",
+            type=str,
+            default="sample_courses_data.json",
+            help="(dev only) Name of the specific JSON file to load from fixtures/dev/",
+        )
+        parser.add_argument(
+            "--dir",
+            type=str,
+            help="(dev only) Directory name within fixtures/dev/ to load multiple JSON files from",
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
             self.stdout.write("Clearing existing data...")
             Question.objects.all().delete()
             Video.objects.all().delete()
-            SubUnit.objects.all().delete()
-            Unit.objects.all().delete()
-            Subject.objects.all().delete()
+            Subtopic.objects.all().delete()
+            Topic.objects.all().delete()
+            Course.objects.all().delete()
             SkillTest.objects.all().delete()
             Contest.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing data cleared."))
 
-        # Load instructors from test users data
-        self.load_instructors()
+        deploy_env = options["deploy_env"]
+        fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures"
+        has_errors = False
 
-        # Load data from JSON file
-        json_file_path = os.path.join(
-            os.path.dirname(__file__), "../../fixtures/sample_courses_data.json"
-        )
+        # Load instructors from the correct env subdir
+        self.load_instructors(deploy_env)
 
+        if deploy_env == "prod":
+            # Scan fixtures/prod/*/course.json, stitching topic files if present
+            prod_dir = fixtures_dir / "prod"
+            if not prod_dir.exists():
+                self.stdout.write(self.style.ERROR(f"Production fixtures directory not found: {prod_dir}"))
+                return
+
+            for entry in sorted(prod_dir.iterdir()):
+                if not entry.is_dir():
+                    continue
+                course_file = entry / "course.json"
+                if not course_file.exists():
+                    continue
+
+                self.stdout.write(f"\nProcessing prod course: {entry.name}/course.json")
+                data = self._try_load_json(course_file)
+                if not data:
+                    has_errors = True
+                    continue
+
+                # Stitch topic files if topics/ subdir exists
+                topics_dir = entry / "topics"
+                if topics_dir.exists() and topics_dir.is_dir():
+                    raw_topics = []
+                    for topic_file in sorted(topics_dir.glob("*.json")):
+                        t_data = self._try_load_json(topic_file)
+                        if t_data:
+                            raw_topics.append(t_data)
+
+                    for course_config in data.get("courses", []):
+                        course_code = course_config.get("short_code")
+                        topics_for_course = []
+                        questions_for_course = []
+
+                        for t_data in raw_topics:
+                            t_copy = t_data.copy()
+                            target_code = t_copy.get("course_short_code")
+                            if target_code:
+                                if target_code != course_code:
+                                    continue
+                            elif data.get("courses").index(course_config) != 0:
+                                continue
+
+                            if "questions" in t_copy:
+                                questions_for_course.extend(t_copy.pop("questions"))
+                            topics_for_course.append(t_copy)
+
+                        course_config["topics"] = topics_for_course
+                        course_config.setdefault("questions", [])
+                        course_config["questions"].extend(questions_for_course)
+
+                try:
+                    self.load_courses_from_json(data)
+                    self.load_assessments_from_json(data)
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f"Failed loading {course_file}: {e}"))
+                    has_errors = True
+
+        else:
+            # dev: load from fixtures/dev/
+            dev_dir = fixtures_dir / "dev"
+
+            if options.get("dir"):
+                scan_dir = dev_dir / options["dir"]
+                if not scan_dir.exists() or not scan_dir.is_dir():
+                    self.stdout.write(self.style.ERROR(f"Directory not found: {scan_dir}"))
+                    return
+                json_files = sorted(scan_dir.glob("*.json"))
+                if not json_files:
+                    self.stdout.write(self.style.WARNING(f"No JSON files found in {scan_dir}"))
+                    return
+                for filepath in json_files:
+                    self.stdout.write(f"\nProcessing file: {filepath.name}")
+                    data = self._try_load_json(filepath)
+                    if data:
+                        self.load_courses_from_json(data)
+                        self.load_assessments_from_json(data)
+                    else:
+                        has_errors = True
+            else:
+                filepath = dev_dir / options["file"]
+                self.stdout.write(f"\nLoading from {filepath}...")
+                data = self._try_load_json(filepath)
+                if data:
+                    try:
+                        self.load_courses_from_json(data)
+                        self.load_assessments_from_json(data)
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"Failed while loading: {str(e)}"))
+                        has_errors = True
+                else:
+                    has_errors = True
+
+        if not has_errors:
+            self.stdout.write(self.style.SUCCESS("\nSuccessfully loaded courses and assessments!"))
+
+    def _try_load_json(self, filepath):
+        """Helper to load JSON data from a given filepath, handling errors."""
         try:
-            with open(json_file_path, "r", encoding="utf-8") as file:
+            with open(filepath, "r", encoding="utf-8") as file:
                 data = json.load(file)
+            return data
         except FileNotFoundError:
             self.stdout.write(
-                self.style.ERROR(f"JSON file not found at: {json_file_path}")
+                self.style.ERROR(f"JSON file not found at: {filepath}")
             )
-            return
+            return None
         except json.JSONDecodeError as e:
-            self.stdout.write(self.style.ERROR(f"Invalid JSON format: {e}"))
-            return
+            self.stdout.write(self.style.ERROR(f"Invalid JSON format in {filepath}: {e}"))
+            return None
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Error reading JSON from {filepath}: {e}"))
+            return None
 
-        self.stdout.write("Loading sample courses from JSON...")
-
-        # Load courses and their content
-        self.load_courses_from_json(data)
-
-        # Load assessments
-        self.load_assessments_from_json(data)
-
-        self.stdout.write(
-            self.style.SUCCESS("Successfully loaded all sample courses from JSON!")
-        )
-
-    def load_instructors(self):
+    def load_instructors(self, deploy_env="dev"):
         """Load instructors from test users data"""
+        subdir = "dev" if deploy_env == "dev" else "prod"
         users_json_path = os.path.join(
             os.path.dirname(__file__),
-            "../../../authentication/fixtures/test_users_data.json",
+            f"../../../../authentication/fixtures/{subdir}/test_users_data.json",
         )
 
         try:
@@ -109,9 +218,9 @@ class Command(BaseCommand):
         """Load courses, topics, subtopics, videos, and questions from JSON data"""
 
         for course_data in data.get("courses", []):
-            self.stdout.write(f'Loading Subject: {course_data["name"]}')
+            self.stdout.write(f'Loading course: {course_data["name"]}')
 
-            # Get the instructor for this Subject
+            # Get the instructor for this course
             instructor_email = course_data.get("instructor_email")
             instructor = None
             if instructor_email:
@@ -120,12 +229,12 @@ class Command(BaseCommand):
                 except User.DoesNotExist:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Instructor {instructor_email} not found, skipping Subject assignment"
+                            f"Instructor {instructor_email} not found, skipping course assignment"
                         )
                     )
 
-            # Get or create Subject
-            Subject, created = Subject.objects.get_or_create(
+            # Get or create course
+            course, created = Course.objects.get_or_create(
                 short_code=course_data["short_code"],
                 defaults={
                     "name": course_data["name"],
@@ -134,36 +243,51 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.stdout.write(f"✓ Created new Subject: {Subject.name}")
+                self.stdout.write(f"✓ Created new course: {course.name}")
             else:
-                self.stdout.write(f"→ Subject already exists: {Subject.name}")
+                self.stdout.write(f"→ Course already exists: {course.name}")
 
             # Add instructor if found and not already assigned
-            if instructor and instructor not in Subject.instructors.all():
-                Subject.instructors.add(instructor)
+            if instructor and instructor not in course.instructors.all():
+                course.instructors.add(instructor)
                 self.stdout.write(
-                    f"✓ Added instructor {instructor.email} to Subject {Subject.short_code}"
+                    f"✓ Added instructor {instructor.email} to course {course.short_code}"
                 )
 
             # Create topics and subtopics
-            topic_map = {}  # To store Unit references for questions
-            subtopic_map = {}  # To store SubUnit references for questions
+            topic_map = {}  # To store topic references for questions
+            subtopic_map = {}  # To store subtopic references for questions
 
             for topic_data in course_data.get("topics", []):
-                Unit, topic_created = Unit.objects.get_or_create(
-                    Subject=Subject,
+                topic_defaults = {}
+                if "order_index" in topic_data:
+                    topic_defaults["order_index"] = topic_data["order_index"]
+
+                topic, topic_created = Topic.objects.update_or_create(
+                    course=course,
                     name=topic_data["name"],
-                    defaults={"order_index": topic_data["order_index"]},
+                    defaults=topic_defaults,
                 )
-                topic_map[topic_data["name"]] = Unit
+
+                # Force the correct order_index via QuerySet.update() to bypass
+                # Topic.save()'s conflict-shifting logic which can scramble indexes
+                if "order_index" in topic_data:
+                    Topic.objects.filter(pk=topic.pk).update(
+                        order_index=topic_data["order_index"]
+                    )
+                    topic.refresh_from_db()
+
+                topic_map[topic_data["name"]] = topic
 
                 if topic_created:
-                    self.stdout.write(f"  ✓ Created Unit: {Unit.name}")
+                    self.stdout.write(f"  ✓ Created topic: {topic.name}")
+                else:
+                    self.stdout.write(f"  → Topic exists (synced): {topic.name}")
 
                 # Create subtopics
                 for subtopic_data in topic_data.get("subtopics", []):
-                    SubUnit, subtopic_created = SubUnit.objects.get_or_create(
-                        Unit=Unit,
+                    subtopic, subtopic_created = Subtopic.objects.update_or_create(
+                        topic=topic,
                         name=subtopic_data["name"],
                         defaults={
                             "content": subtopic_data["content"],
@@ -171,17 +295,24 @@ class Command(BaseCommand):
                         },
                     )
 
-                    # Store SubUnit reference with Unit name for lookup
+                    # Force correct order_index via QuerySet.update() to bypass save() conflicts
+                    Subtopic.objects.filter(pk=subtopic.pk).update(
+                        order_index=subtopic_data["order_index"]
+                    )
+
+                    # Store subtopic reference with topic name for lookup
                     subtopic_key = f"{topic_data['name']}::{subtopic_data['name']}"
-                    subtopic_map[subtopic_key] = SubUnit
+                    subtopic_map[subtopic_key] = subtopic
 
                     if subtopic_created:
-                        self.stdout.write(f"    ✓ Created SubUnit: {SubUnit.name}")
+                        self.stdout.write(f"    ✓ Created subtopic: {subtopic.name}")
+                    else:
+                        self.stdout.write(f"    → Subtopic exists (synced): {subtopic.name}")
 
-                    # Create videos for SubUnit
+                    # Create videos for subtopic
                     for video_data in subtopic_data.get("videos", []):
                         video, video_created = Video.objects.get_or_create(
-                            sub_topic=SubUnit,
+                            sub_topic=subtopic,
                             title=video_data["title"],
                             defaults={
                                 "video_link": video_data["video_link"],
@@ -192,23 +323,23 @@ class Command(BaseCommand):
                         if video_created:
                             self.stdout.write(f"      ✓ Created video: {video.title}")
 
-            # Create questions for the Subject
+            # Create questions for the course
             if instructor:  # Only create questions if instructor exists
                 for question_data in course_data.get("questions", []):
                     self.create_question(
-                        question_data, Subject, topic_map, subtopic_map, instructor
+                        question_data, course, topic_map, subtopic_map, instructor
                     )
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"No instructor found for Subject {Subject.short_code}, skipping questions"
+                        f"No instructor found for course {course.short_code}, skipping questions"
                     )
                 )
 
-            self.stdout.write(f"✓ Loaded Subject: {Subject.name}")
+            self.stdout.write(f"✓ Loaded course: {course.name}")
 
     def create_question(
-        self, question_data, Subject, topic_map, subtopic_map, instructor
+        self, question_data, course, topic_map, subtopic_map, instructor
     ):
         """Create a question with proper associations"""
 
@@ -231,58 +362,59 @@ class Command(BaseCommand):
             "content": question_data["content"],
             "level": question_data["level"],
             "difficulty": question_data["difficulty"],
+            "hints": question_data.get("hints", []),
             "marks": question_data["marks"],
             "categories": question_data["categories"],
             "created_by": instructor,
         }
 
-        # Set Subject/Unit/SubUnit associations
-        if question_data["level"] == "Subject":
-            question_kwargs["Subject"] = Subject
-        elif question_data["level"] == "Unit":
+        # Set course/topic/subtopic associations
+        if question_data["level"] == "course":
+            question_kwargs["course"] = course
+        elif question_data["level"] == "topic":
             topic_name = question_data.get("topic_name")
             if topic_name and topic_name in topic_map:
-                question_kwargs["Unit"] = topic_map[topic_name]
-                question_kwargs["Subject"] = Subject
-        elif question_data["level"] == "SubUnit":
+                question_kwargs["topic"] = topic_map[topic_name]
+                question_kwargs["course"] = course
+        elif question_data["level"] == "subtopic":
             topic_name = question_data.get("topic_name")
             subtopic_name = question_data.get("subtopic_name")
 
             if topic_name and subtopic_name:
-                # Find Unit first
+                # Find topic first
                 if topic_name in topic_map:
-                    Unit = topic_map[topic_name]
-                    # Find SubUnit within the Unit
-                    SubUnit = SubUnit.objects.filter(
-                        Unit=Unit, name=subtopic_name
+                    topic = topic_map[topic_name]
+                    # Find subtopic within the topic
+                    subtopic = Subtopic.objects.filter(
+                        topic=topic, name=subtopic_name
                     ).first()
 
-                    if SubUnit:
-                        question_kwargs["SubUnit"] = SubUnit
-                        question_kwargs["Unit"] = Unit
-                        question_kwargs["Subject"] = Subject
+                    if subtopic:
+                        question_kwargs["subtopic"] = subtopic
+                        question_kwargs["topic"] = topic
+                        question_kwargs["course"] = course
                     else:
                         self.stdout.write(
                             self.style.WARNING(
-                                f'SubUnit "{subtopic_name}" not found in Unit "{topic_name}" for question "{question_data["title"]}"'
+                                f'Subtopic "{subtopic_name}" not found in topic "{topic_name}" for question "{question_data["title"]}"'
                             )
                         )
-                        # Fallback to Unit level if SubUnit not found, but keep level as SubUnit causing validation error?
+                        # Fallback to topic level if subtopic not found, but keep level as subtopic causing validation error?
                         # Better to just link what we can or fail.
-                        # For now, let's link Unit and Subject so it doesn't crash, but it might fail model validation if SubUnit is required.
-                        question_kwargs["Unit"] = Unit
-                        question_kwargs["Subject"] = Subject
+                        # For now, let's link topic and course so it doesn't crash, but it might fail model validation if subtopic is required.
+                        question_kwargs["topic"] = topic
+                        question_kwargs["course"] = course
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"Unit not found: {topic_name}, skipping question"
+                            f"Topic not found: {topic_name}, skipping question"
                         )
                     )
                     return
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        f'Missing topic_name or subtopic_name for SubUnit-level question: {question_data["title"][:50]}...'
+                        f'Missing topic_name or subtopic_name for subtopic-level question: {question_data["title"][:50]}...'
                     )
                 )
                 return
@@ -298,54 +430,72 @@ class Command(BaseCommand):
                 "test_cases_advanced", []
             )
 
-        # Check if question already exists to avoid duplicates
-        existing_question = Question.objects.filter(
+        # Sync question (update if exists, create if not)
+        q_obj, q_created = Question.objects.update_or_create(
             title=question_kwargs["title"],
-            Subject=question_kwargs.get("Subject"),
-            Unit=question_kwargs.get("Unit"),
-        ).first()
+            course=question_kwargs.get("course"),
+            topic=question_kwargs.get("topic"),
+            defaults=question_kwargs,
+        )
 
-        if not existing_question:
-            Question.objects.create(**question_kwargs)
+        if q_created:
             self.stdout.write(
                 f'    ✓ Created question: {question_data["title"][:50]}...'
             )
         else:
             self.stdout.write(
-                f'    → Question already exists: {question_data["title"][:50]}...'
+                f'    → Question exists (synced): {question_data["title"][:50]}...'
             )
+
+        # Sync solutions if they exist
+        if "solutions" in question_data:
+            for sol_data in question_data["solutions"]:
+                sol_obj, sol_created = QuestionSolution.objects.update_or_create(
+                    question=q_obj,
+                    title=sol_data.get("title", ""),
+                    defaults={
+                        "language": sol_data.get("language", "python"),
+                        "code": sol_data.get("code", ""),
+                        "complexity_analysis": sol_data.get("complexity_analysis", ""),
+                        "is_primary": sol_data.get("is_primary", False),
+                    },
+                )
+                status = "✓ Created" if sol_created else "→ Synced"
+                self.stdout.write(
+                    f'      {status} solution: {sol_data.get("title", "Untitled")}'
+                )
 
     def load_assessments_from_json(self, data):
         """Load skill tests and contests from JSON data"""
 
         assessments_data = data.get("assessments", {})
 
-        # Create Subject mapping for quick lookup
-        course_map = {Subject.short_code: Subject for Subject in Subject.objects.all()}
+        # Create course mapping for quick lookup
+        course_map = {course.short_code: course for course in Course.objects.all()}
 
         # Load skill tests
         for skill_test_data in assessments_data.get("skill_tests", []):
             course_short_code = skill_test_data.get("course_short_code")
-            Subject = course_map.get(course_short_code)
+            course = course_map.get(course_short_code)
 
-            if Subject:
-                # Get the Subject instructor as creator
-                course_instructor = Subject.instructors.first()
+            if course:
+                # Get the course instructor as creator
+                course_instructor = course.instructors.first()
                 if not course_instructor:
                     # Fallback to admin user if no instructor found
                     course_instructor = User.objects.filter(role="admin").first()
 
                 if course_instructor:
-                    # Get questions for this Subject
+                    # Get questions for this course
                     course_questions = list(
-                        Question.objects.filter(Subject=Subject).values_list(
+                        Question.objects.filter(course=course).values_list(
                             "id", flat=True
                         )[:5]
                     )
 
                     skill_test, skill_test_created = SkillTest.objects.get_or_create(
                         title=skill_test_data["title"],
-                        Subject=Subject,
+                        course=course,
                         defaults={
                             "description": skill_test_data["description"],
                             "instructions": skill_test_data["instructions"],
@@ -381,27 +531,27 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"No instructor found for Subject {course_short_code}, skipping skill test"
+                            f"No instructor found for course {course_short_code}, skipping skill test"
                         )
                     )
 
         # Load contests
         for contest_data in assessments_data.get("contests", []):
             course_short_code = contest_data.get("course_short_code")
-            Subject = course_map.get(course_short_code)
+            course = course_map.get(course_short_code)
 
-            if Subject:
-                # Get the Subject instructor as creator
-                course_instructor = Subject.instructors.first()
+            if course:
+                # Get the course instructor as creator
+                course_instructor = course.instructors.first()
                 if not course_instructor:
                     # Fallback to admin user if no instructor found
                     course_instructor = User.objects.filter(role="admin").first()
 
                 if course_instructor:
-                    # Get coding questions for this Subject
+                    # Get coding questions for this course
                     coding_questions = list(
                         Question.objects.filter(
-                            Subject=Subject, type="coding"
+                            course=course, type="coding"
                         ).values_list("id", flat=True)[:3]
                     )
 
@@ -451,7 +601,6 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write(
                         self.style.WARNING(
-                            f"No instructor found for Subject {course_short_code}, skipping contest"
+                            f"No instructor found for course {course_short_code}, skipping contest"
                         )
                     )
-

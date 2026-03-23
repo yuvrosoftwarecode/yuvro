@@ -1,0 +1,26 @@
+{
+  "contests": [
+    {
+      "title": "DSA Challenge - Weekly Contest #1",
+      "description": "Weekly coding contest focusing on Data Structures and Algorithms. Test your problem-solving skills against other participants in a timed environment.",
+      "instructions": "Solve as many problems as possible within the time limit. Questions are arranged in increasing difficulty. Partial scores are awarded for coding questions that pass some test cases.",
+      "difficulty": "medium",
+      "duration": 120,
+      "total_marks": 100,
+      "passing_marks": 40,
+      "enable_proctoring": true,
+      "course_short_code": "DSA",
+      "organizer": "Yuvro",
+      "type": "platform",
+      "start_days_from_now": 7,
+      "prize": "Top 3 participants receive certificates and badges",
+      "questions_random_config": {
+        "mcq_single": 3,
+        "mcq_multiple": 2,
+        "coding": 3,
+        "descriptive": 0
+      },
+      "publish_status": "published"
+    }
+  ]
+}

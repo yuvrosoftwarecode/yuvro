@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { TestCase } from '@/services/questionService';
 import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit3, Trash2, Code, Maximize2, CheckCircle, AlertCircle, Play, XCircle, Terminal, Loader2 } from 'lucide-react';
+import { Plus, Edit3, Trash2, Code, Maximize2, AlertCircle, XCircle, Terminal, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import codeEditorService from '@/services/codeEditorService';
 
@@ -33,11 +32,14 @@ export interface Solution {
 interface SolutionManagerProps {
     solutions: Solution[];
     onChange: (solutions: Solution[]) => void;
-    testCases?: TestCase[];
-    onTestCasesChange?: (testCases: TestCase[]) => void;
+    testCases?: { input: string; expected_output: string }[];
 }
 
-const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, testCases = [], onTestCasesChange }) => {
+const SolutionManager: React.FC<SolutionManagerProps> = ({
+    solutions,
+    onChange,
+    testCases = [],
+}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -52,7 +54,6 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
 
     const [isRunning, setIsRunning] = useState(false);
     const [executionResult, setExecutionResult] = useState<any>(null);
-    const [sidebarTab, setSidebarTab] = useState<'solution' | 'testcases'>('solution');
 
     const handleOpenModal = (index?: number) => {
         if (index !== undefined) {
@@ -85,7 +86,6 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
 
         const newSolutions = solutions.map(s => ({ ...s }));
 
-        // If setting as primary, unset others
         if (currentSolution.is_primary) {
             newSolutions.forEach(s => s.is_primary = false);
         }
@@ -104,7 +104,6 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
 
     const handleDelete = (index: number) => {
         const newSolutions = solutions.filter((_, i) => i !== index);
-        // If deleted was primary, make the first remaining one primary (optional logic)
         if (solutions[index].is_primary && newSolutions.length > 0) {
             newSolutions[0].is_primary = true;
         }
@@ -122,16 +121,14 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
         setExecutionResult(null);
 
         try {
-            const formattedTestCases = testCases.map(tc => ({
-                input: tc.input || '',
-                expected_output: tc.expected_output || '',
-                weight: 1
-            }));
-
             const result = await codeEditorService.runCode({
                 code: currentSolution.code,
                 language: currentSolution.language,
-                test_cases: formattedTestCases,
+                test_cases: testCases.map(tc => ({
+                    input: tc.input || '',
+                    expected_output: tc.expected_output || '',
+                    weight: 1
+                })),
                 problem_title: "Solution Test Run"
             });
 
@@ -141,7 +138,6 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
             } else {
                 toast.warning("Code execution finished with errors");
             }
-
         } catch (error) {
             console.error("Run code error:", error);
             toast.error("Failed to execute code");
@@ -158,16 +154,18 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-slate-700">Reference Solutions</Label>
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleOpenModal()}
-                    className="border-dashed border-amber-300 text-amber-600 hover:bg-amber-50"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Solution
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenModal()}
+                        className="border-dashed border-amber-300 text-amber-600 hover:bg-amber-50"
+                    >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Solution
+                    </Button>
+                </div>
             </div>
 
             {solutions.length === 0 ? (
@@ -236,8 +234,7 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                 </div>
             )}
 
-            {/* Maximized Editor Modal */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            {/* Solution Editor Modal */}            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="max-w-[90vw] h-[90vh] flex flex-col p-0 gap-0 bg-slate-50 rounded-2xl overflow-visible">
                     <DialogHeader className="px-6 py-4 bg-white border-b border-slate-200 shrink-0 rounded-t-2xl">
                         <DialogTitle className="flex items-center justify-between">
@@ -252,169 +249,56 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                     </DialogHeader>
 
                     <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
-                        {/* Tabbed Sidebar */}
+                        {/* Sidebar */}
                         <div className="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col shrink-0">
-                            {/* Tab Buttons */}
-                            <div className="flex border-b border-slate-200 shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={() => setSidebarTab('solution')}
-                                    className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${sidebarTab === 'solution'
-                                            ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50/50'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                        }`}
-                                >
-                                    <Code className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
-                                    Solution
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setSidebarTab('testcases')}
-                                    className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${sidebarTab === 'testcases'
-                                            ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50/50'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                        }`}
-                                >
-                                    <CheckCircle className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
-                                    Test Cases
-                                    {testCases.length > 0 && (
-                                        <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 bg-slate-200 text-slate-600">
-                                            {testCases.length}
-                                        </Badge>
-                                    )}
-                                </button>
-                            </div>
+                            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                                <div>
+                                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Solution Title</Label>
+                                    <Input
+                                        value={currentSolution.title}
+                                        onChange={(e) => setCurrentSolution({ ...currentSolution, title: e.target.value })}
+                                        placeholder="e.g. Brute Force Approach"
+                                        className="mt-1.5"
+                                    />
+                                </div>
 
-                            {/* Tab Content */}
-                            <div className="flex-1 overflow-y-auto p-5">
-                                {sidebarTab === 'solution' ? (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Solution Title</Label>
-                                            <Input
-                                                value={currentSolution.title}
-                                                onChange={(e) => setCurrentSolution({ ...currentSolution, title: e.target.value })}
-                                                placeholder="e.g. Brute Force Approach"
-                                                className="mt-1.5"
-                                            />
-                                        </div>
+                                <div>
+                                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approach</Label>
+                                    <Select
+                                        value={currentSolution.approach}
+                                        onValueChange={(val) => setCurrentSolution({ ...currentSolution, approach: val })}
+                                    >
+                                        <SelectTrigger className="mt-1.5">
+                                            <SelectValue placeholder="Select approach" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="brute_force">Brute Force</SelectItem>
+                                            <SelectItem value="better">Better</SelectItem>
+                                            <SelectItem value="optimal">Optimal</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                                        <div>
-                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approach</Label>
-                                            <Select
-                                                value={currentSolution.approach}
-                                                onValueChange={(val) => setCurrentSolution({ ...currentSolution, approach: val })}
-                                            >
-                                                <SelectTrigger className="mt-1.5">
-                                                    <SelectValue placeholder="Select approach" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="brute_force">Brute Force</SelectItem>
-                                                    <SelectItem value="better">Better</SelectItem>
-                                                    <SelectItem value="optimal">Optimal</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                <div className="flex items-center space-x-2 pt-1">
+                                    <Checkbox
+                                        id="is_primary"
+                                        checked={currentSolution.is_primary}
+                                        onCheckedChange={(checked) => setCurrentSolution({ ...currentSolution, is_primary: checked === true })}
+                                    />
+                                    <Label htmlFor="is_primary" className="text-sm font-medium leading-none cursor-pointer">
+                                        Set as Primary Solution
+                                    </Label>
+                                </div>
 
-                                        <div className="flex items-center space-x-2 pt-1">
-                                            <Checkbox
-                                                id="is_primary"
-                                                checked={currentSolution.is_primary}
-                                                onCheckedChange={(checked) => setCurrentSolution({ ...currentSolution, is_primary: checked === true })}
-                                            />
-                                            <Label htmlFor="is_primary" className="text-sm font-medium leading-none cursor-pointer">
-                                                Set as Primary Solution
-                                            </Label>
-                                        </div>
-
-                                        <div>
-                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Complexity Analysis / Notes</Label>
-                                            <Textarea
-                                                value={currentSolution.complexity_analysis || ''}
-                                                onChange={(e) => setCurrentSolution({ ...currentSolution, complexity_analysis: e.target.value })}
-                                                placeholder="Explain time and space complexity..."
-                                                className="mt-1.5 min-h-[150px]"
-                                            />
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Test Cases</Label>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    const updated = [...testCases, { input: '', expected_output: '', description: '' }];
-                                                    onTestCasesChange?.(updated);
-                                                }}
-                                                className="h-7 text-xs border-dashed border-amber-300 text-amber-600 hover:bg-amber-50"
-                                            >
-                                                <Plus className="w-3 h-3 mr-1" />
-                                                Add
-                                            </Button>
-                                        </div>
-
-                                        {testCases.length === 0 ? (
-                                            <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                                                <AlertCircle className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-                                                <p className="text-xs text-slate-500">No test cases defined yet.</p>
-                                                <p className="text-[10px] text-slate-400 mt-1">Add test cases to verify your solution.</p>
-                                            </div>
-                                        ) : (
-                                            testCases.map((tc, idx) => (
-                                                <div key={idx} className="bg-slate-50 rounded-lg border border-slate-200 p-3 space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs font-semibold text-slate-600">Case {idx + 1}</span>
-                                                        {testCases.length > 1 && (
-                                                            <Button
-                                                                type="button"
-                                                                size="sm"
-                                                                variant="ghost"
-                                                                onClick={() => {
-                                                                    const updated = testCases.filter((_, i) => i !== idx);
-                                                                    onTestCasesChange?.(updated);
-                                                                }}
-                                                                className="h-6 w-6 p-0 text-slate-400 hover:text-red-500"
-                                                            >
-                                                                <Trash2 className="w-3 h-3" />
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-[10px] text-slate-500">Input</Label>
-                                                        <Textarea
-                                                            value={tc.input}
-                                                            onChange={(e) => {
-                                                                const updated = [...testCases];
-                                                                updated[idx] = { ...updated[idx], input: e.target.value };
-                                                                onTestCasesChange?.(updated);
-                                                            }}
-                                                            placeholder="Enter input"
-                                                            rows={2}
-                                                            className="text-xs font-mono mt-0.5"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-[10px] text-slate-500">Expected Output</Label>
-                                                        <Textarea
-                                                            value={tc.expected_output}
-                                                            onChange={(e) => {
-                                                                const updated = [...testCases];
-                                                                updated[idx] = { ...updated[idx], expected_output: e.target.value };
-                                                                onTestCasesChange?.(updated);
-                                                            }}
-                                                            placeholder="Enter expected output"
-                                                            rows={2}
-                                                            className="text-xs font-mono mt-0.5"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
+                                <div>
+                                    <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Complexity Analysis / Notes</Label>
+                                    <Textarea
+                                        value={currentSolution.complexity_analysis || ''}
+                                        onChange={(e) => setCurrentSolution({ ...currentSolution, complexity_analysis: e.target.value })}
+                                        placeholder="Explain time and space complexity..."
+                                        className="mt-1.5 min-h-[150px]"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -473,16 +357,16 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                                                 <div className="space-y-2">
                                                     <div className="text-emerald-400">Output:</div>
                                                     <div className="whitespace-pre-wrap text-slate-400 pl-2 border-l-2 border-slate-700">{executionResult.output}</div>
-
-                                                    {executionResult.test_results?.results && (
-                                                        <div className="mt-4 pt-4 border-t border-slate-700">
-                                                            <div className="text-blue-400 mb-2">Test Cases ({executionResult.test_results.passed}/{executionResult.test_results.total}):</div>
+                                                    {executionResult.test_results?.results?.length > 0 && (
+                                                        <div className="mt-3 pt-3 border-t border-slate-700">
+                                                            <div className="text-blue-400 mb-2">
+                                                                Test Cases ({executionResult.test_results.passed}/{executionResult.test_results.total}):
+                                                            </div>
                                                             <div className="space-y-1">
                                                                 {executionResult.test_results.results.map((res: any, i: number) => (
                                                                     <div key={i} className={`flex items-center gap-2 ${res.passed ? 'text-green-400' : 'text-red-400'}`}>
-                                                                        {res.passed ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                                                                        <span>Case {i + 1}: {res.passed ? 'Passed' : 'Failed'}</span>
-                                                                        {!res.passed && <span className="text-slate-500">- Expected: {res.expected_output}, Got: {res.actual_output}</span>}
+                                                                        {res.passed ? <CheckCircle className="w-3 h-3 shrink-0" /> : <XCircle className="w-3 h-3 shrink-0" />}
+                                                                        <span>Case {i + 1}: {res.passed ? 'Passed' : `Failed — expected: ${res.expected_output}, got: ${res.actual_output}`}</span>
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -497,30 +381,29 @@ const SolutionManager: React.FC<SolutionManagerProps> = ({ solutions, onChange, 
                         </div>
                     </div>
 
-                    <DialogFooter className="px-6 py-4 bg-white border-t border-slate-200 shrink-0 flex items-center justify-between sm:justify-between rounded-b-2xl">
-                        <div className="flex items-center gap-2">
+                    <DialogFooter className="px-6 py-4 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl">
+                        <div className="flex items-center justify-between w-full">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={handleRunCode}
                                 disabled={isRunning}
-                                className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800"
+                                className="border-slate-300 text-slate-600 hover:bg-slate-50"
                             >
-                                {isRunning ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}
-                                {isRunning ? 'Running...' : 'Run Code'}
+                                {isRunning ? (
+                                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Running...</>
+                                ) : (
+                                    <><CheckCircle className="w-4 h-4 mr-2" />Run Code</>
+                                )}
                             </Button>
-                            {testCases.length === 0 && (
-                                <span className="text-xs text-amber-600 flex items-center gap-1">
-                                    <AlertCircle className="w-3 h-3" />
-                                    No test cases defined
-                                </span>
-                            )}
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSave} className="bg-amber-600 hover:bg-amber-700 text-white">
-                                {editingIndex !== null ? 'Update Solution' : 'Add Solution'}
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="button" onClick={handleSave} className="bg-amber-600 hover:bg-amber-700 text-white">
+                                    {editingIndex !== null ? 'Update Solution' : 'Add Solution'}
+                                </Button>
+                            </div>
                         </div>
                     </DialogFooter>
                 </DialogContent>

@@ -24,6 +24,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     college_name = serializers.CharField(source="college.name", read_only=True)
     college_id = serializers.UUIDField(source="college.id", read_only=True)
+    department_id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -39,8 +40,25 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "college_name",
             "college_id",
+            "department_id",
         ]
-        read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id"]
+        read_only_fields = ["id", "date_joined", "last_login", "college_name", "college_id", "department_id"]
+
+    def get_department_id(self, obj):
+        if not hasattr(obj, "role") or not obj.role:
+            return None
+
+        # Fetch the department ID dynamically based on the user's role profile
+        try:
+            if obj.role == "student" and hasattr(obj, "student_profile"):
+                return obj.student_profile.department_id
+            elif obj.role == "faculty" and hasattr(obj, "faculty_profile"):
+                return obj.faculty_profile.department_id
+            elif obj.role == "hod" and hasattr(obj, "hod_profile"):
+                return obj.hod_profile.department_id
+        except Exception:
+            return None
+        return None
 
 
 class UserLoginSerializer(serializers.Serializer):

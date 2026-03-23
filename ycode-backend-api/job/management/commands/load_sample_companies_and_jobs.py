@@ -18,6 +18,13 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing data before loading new data",
         )
+        parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: dev or prod",
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -28,7 +35,7 @@ class Command(BaseCommand):
 
         # Load data from JSON file
         json_file_path = os.path.join(
-            os.path.dirname(__file__), "../../fixtures/sample_jobs_data.json"
+            os.path.dirname(__file__), f"../../fixtures/{options['deploy_env']}/sample_jobs_data.json"
         )
 
         try:

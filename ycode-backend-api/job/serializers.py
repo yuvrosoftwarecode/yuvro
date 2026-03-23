@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.cache import cache
+from decimal import Decimal
 from .models import (
     Job,
     Company,
@@ -391,10 +392,10 @@ class CandidateSearchSerializer(serializers.Serializer):
     location = serializers.CharField(required=False, allow_blank=True)
 
     ctc_from = serializers.DecimalField(
-        required=False, max_digits=10, decimal_places=2, min_value=0, allow_null=True
+        required=False, max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True
     )
     ctc_to = serializers.DecimalField(
-        required=False, max_digits=10, decimal_places=2, min_value=0, allow_null=True
+        required=False, max_digits=10, decimal_places=2, min_value=Decimal("0"), allow_null=True
     )
 
     notice_period = serializers.ListField(
