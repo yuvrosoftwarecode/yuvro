@@ -100,10 +100,10 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 className="flex items-center space-x-3 focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 ease-in-out transform hover:scale-105"
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg transition-all duration-300 ${user?.role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-sm transition-all duration-300 ${user?.role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
                   user?.role === 'instructor' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
                     user?.role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :
-                      user?.role === 'tpo' ? 'bg-gradient-to-r from-teal-600 to-cyan-600' :
+                      user?.role === 'tpo' ? 'bg-purple-600' :
                         'bg-gradient-to-r from-indigo-600 to-blue-600'
                   }`}>
                   {(user?.first_name || user?.username || user?.email || 'U').charAt(0).toUpperCase()}
@@ -117,15 +117,15 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
                   <p className={`text-xs font-medium capitalize ${user?.role === 'admin' ? 'text-red-600' :
                     user?.role === 'instructor' ? 'text-green-600' :
                       user?.role === 'recruiter' ? 'text-purple-600' :
-                        user?.role === 'tpo' ? 'text-teal-600' :
+                        user?.role === 'tpo' ? 'text-purple-600' :
                           'text-indigo-600'
-                    }`}>{user?.role || 'User'}</p>
+                    }`}>{user?.role === 'tpo' ? 'Placement Officer' : user?.role || 'User'}</p>
                 </div>
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''
                   } ${user?.role === 'admin' ? 'text-red-400' :
                     user?.role === 'instructor' ? 'text-green-400' :
                       user?.role === 'recruiter' ? 'text-purple-400' :
-                        user?.role === 'tpo' ? 'text-teal-400' :
+                        user?.role === 'tpo' ? 'text-purple-400' :
                           'text-indigo-400'
                   }`} />
               </button>

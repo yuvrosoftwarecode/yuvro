@@ -6,6 +6,7 @@ from .models import (
     HODProfile,
     PrincipalProfile,
     CollegeAdminProfile,
+    TPOProfile,
     College,
     Department,
     Batch,
@@ -146,6 +147,22 @@ class CollegeAdminProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+class TPOProfileSerializer(serializers.ModelSerializer):
+    user_details = UserSerializer(source="user", read_only=True)
+    college_name = serializers.CharField(source="college.name", read_only=True)
+
+    class Meta:
+        model = TPOProfile
+        fields = [
+            "id",
+            "user",
+            "user_details",
+            "college",
+            "college_name",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
 class AttendanceRecordSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source="student.user.get_full_name", read_only=True)
     roll_number = serializers.CharField(source="student.roll_number", read_only=True)
