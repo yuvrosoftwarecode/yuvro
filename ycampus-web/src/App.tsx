@@ -31,6 +31,7 @@ import StudentQuiz from './components/student/StudentQuiz';
 import StudentCoding from './components/student/StudentCoding';
 import Certify from './pages/student/Certify';
 import CertificationExam from './pages/student/CertificationExam';
+import AIInterviewPlanner from './pages/student/AIInterviewPlanner';
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from './components/ErrorBoundary';
 import DashboardRedirect from './components/DashboardRedirect';
@@ -253,6 +254,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <CodePractice />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/ai-interview-planner"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <AIInterviewPlanner />
                   </ProtectedRoute>
                 }
               />
