@@ -264,7 +264,7 @@ export default function ContestForm() {
       publish_status: formData.publishStatus,
       start_datetime: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
       end_datetime: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
-      duration: formData.duration ? parseInt(formData.duration) * 60 : undefined,
+      duration: formData.duration ? parseInt(formData.duration) : undefined,
       prize: formData.prize,
       difficulty: formData.difficulty.toLowerCase(),
       description: formData.description,

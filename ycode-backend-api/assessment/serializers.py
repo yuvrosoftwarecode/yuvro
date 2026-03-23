@@ -184,6 +184,7 @@ class CertificationSubmissionSerializer(serializers.ModelSerializer):
 class ContestSerializer(serializers.ModelSerializer):
     participants_count = serializers.SerializerMethodField()
     is_registered = serializers.SerializerMethodField()
+    my_submission_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Contest
@@ -209,7 +210,6 @@ class ContestSerializer(serializers.ModelSerializer):
             "registration_end_datetime",
             "allow_late_entry",
             "participants_count",
-            "max_attempts",
             "questions_config",
             "questions_random_config",
             "instructions",
@@ -221,6 +221,7 @@ class ContestSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "is_registered",
+            "my_submission_status",
         ]
 
         read_only_fields = [
@@ -229,12 +230,12 @@ class ContestSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "is_registered",
+            "my_submission_status",
         ]
 
     def get_participants_count(self, obj):
-        # Deprecated: usage of 'participants' was ambiguous. 
-        # For backward compatibility, this returns total attempts for now.
-        return obj.contest_submissions.count()
+        # Returns the number of registered participants (registrations, not attempts)
+        return obj.registrations.count()
 
     def get_unique_candidates_count(self, obj):
         return obj.contest_submissions.values('user').distinct().count()
@@ -252,6 +253,16 @@ class ContestSerializer(serializers.ModelSerializer):
             return ContestRegistration.objects.filter(contest=obj, user=user).exists()
         return False
 
+    def get_my_submission_status(self, obj):
+        """Returns the current user's submission status for this contest, or None if not attempted."""
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated:
+            submission = ContestSubmission.objects.filter(contest=obj, user=user).first()
+            if submission:
+                return submission.status
+        return None
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         computed_status = getattr(instance, "computed_status", None)
@@ -263,17 +274,23 @@ class ContestSerializer(serializers.ModelSerializer):
         data['completed_count'] = self.get_completed_count(instance)
         data['attempted_count'] = self.get_attempted_count(instance)
 
-        # Inject allowed college/department names for the student-facing detail page
+        # Replace raw M2M IDs with name+id details for college/department restrictions
+        # This avoids exposing bare IDs while still giving the frontend what it needs
         if not instance.open_for_all_colleges:
-            data['allowed_colleges_details'] = [
-                {'id': str(c.id), 'name': c.name}
-                for c in instance.allowed_colleges.all()
-            ]
+            details = [{'id': str(c.id), 'name': c.name} for c in instance.allowed_colleges.all()]
+            data['allowed_colleges'] = [d['id'] for d in details]  # keep IDs for write compatibility
+            data['allowed_colleges_details'] = details
+        else:
+            data['allowed_colleges'] = []
+            data['allowed_colleges_details'] = []
+
         if not instance.open_for_all_departments:
-            data['allowed_departments_details'] = [
-                {'id': str(d.id), 'name': d.name}
-                for d in instance.allowed_departments.all()
-            ]
+            details = [{'id': str(d.id), 'name': d.name} for d in instance.allowed_departments.all()]
+            data['allowed_departments'] = [d['id'] for d in details]
+            data['allowed_departments_details'] = details
+        else:
+            data['allowed_departments'] = []
+            data['allowed_departments_details'] = []
         
         return data
 
