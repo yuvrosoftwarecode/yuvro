@@ -1,60 +1,58 @@
-import { Subject } from '@/pages/student/SkillTest';
-import ModernCard from '@/components/common/ModernCard';
+import { Subject } from '@/pages/student/PracticeTest';
+import { cn } from '@/lib/utils';
+import RoleHeader from '@/components/common/RoleHeader';
 
 interface SubjectSelectionProps {
   subjects: Subject[];
   onSubjectSelect: (subject: Subject) => void;
+  title?: string;
+  subtitle?: string;
 }
 
-const getSubjectStyle = (id: string | number) => {
-  const styles = [
-    { bg: "bg-blue-50", text: "text-blue-600", gradient: "from-blue-500 to-indigo-600" },
-    { bg: "bg-purple-50", text: "text-purple-600", gradient: "from-purple-500 to-violet-600" },
-    { bg: "bg-emerald-50", text: "text-emerald-600", gradient: "from-emerald-500 to-teal-600" },
-    { bg: "bg-amber-50", text: "text-amber-600", gradient: "from-amber-500 to-orange-600" },
-    { bg: "bg-rose-50", text: "text-rose-600", gradient: "from-rose-500 to-pink-600" },
-    { bg: "bg-indigo-50", text: "text-indigo-600", gradient: "from-indigo-500 to-blue-600" },
-    { bg: "bg-cyan-50", text: "text-cyan-600", gradient: "from-cyan-500 to-sky-600" },
-  ];
-
-  // Simple hash to ensuring consistent color for the same subject ID
-  const index = String(id).charCodeAt(0) % styles.length;
-  return styles[index];
+const COLOR_MAP: Record<string, string> = {
+  blue: 'bg-blue-600',
+  green: 'bg-emerald-600',
+  orange: 'bg-orange-600',
+  yellow: 'bg-amber-500',
+  purple: 'bg-purple-600',
+  cyan: 'bg-cyan-600',
+  pink: 'bg-pink-600',
+  indigo: 'bg-indigo-600',
 };
 
-const SubjectSelection = ({ subjects, onSubjectSelect }: SubjectSelectionProps) => {
+const SubjectSelection = ({ subjects, onSubjectSelect, title = "Skill Test", subtitle = "Choose a subject to start testing your knowledge" }: SubjectSelectionProps) => {
   return (
-    <div className="p-8 animate-fade-in max-w-[1600px] mx-auto">
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-foreground mb-2">
-          Skill Test
-        </h1>
-        <p className="text-muted-foreground">
-          Choose a subject to start testing your knowledge
-        </p>
-      </div>
+    <div className="p-0 animate-fade-in px-6 lg:px-8 py-6">
+      <RoleHeader
+        title={title}
+        subtitle={subtitle}
+        noPadding
+        className="py-0 pb-8"
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {subjects.map((subject) => {
-          const style = getSubjectStyle(subject.id);
-
           return (
-            <ModernCard
+            <button
               key={subject.id}
-              title={subject.name}
-              description={subject.description}
-              icon={<span className="text-3xl">{subject.icon}</span>}
-              iconClassName={`${style.bg} ${style.text}`}
-              gradientColor={style.gradient}
-              actionLabel="Select Subject"
-              onAction={() => onSubjectSelect(subject)}
-              tags={[
-                { text: subject.category || "General", variant: "secondary" }
-              ]}
-              footerItems={[
-                { icon: <span className="text-lg">📚</span>, text: `${subject.unitCount || 0} Units` }
-              ]}
-            />
+              onClick={() => onSubjectSelect(subject)}
+              className="flex items-center gap-4 px-5 py-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
+            >
+              <div className={cn(
+                "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200 flex-shrink-0 text-white",
+                COLOR_MAP[subject.color as keyof typeof COLOR_MAP] || 'bg-slate-600'
+              )}>
+                {(() => {
+                  const Icon = subject.icon as any;
+                  return <Icon className="w-6 h-6 text-white" />;
+                })()}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-slate-800 group-hover:text-slate-900 leading-snug">
+                  {subject.name}
+                </span>
+              </div>
+            </button>
           );
         })}
       </div>
