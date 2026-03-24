@@ -170,13 +170,8 @@ class Command(BaseCommand):
                         if v_created:
                             self.stdout.write(f"        ✓ Created video: {video.title}")
 
-            if instructor:
-                for question_data in course_data.get("questions", []):
-                    self._create_question(question_data, subject, unit_map, subunit_map, instructor)
-            else:
-                self.stdout.write(self.style.WARNING(
-                    f"No instructor for {subject.short_code}, skipping questions"
-                ))
+            for question_data in course_data.get("questions", []):
+                self._create_question(question_data, subject, unit_map, subunit_map, instructor)
 
             self.stdout.write(f"✓ Loaded subject: {subject.subject_name}")
 

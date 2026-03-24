@@ -68,6 +68,11 @@ class BaseAssessmentModel(BaseModel):
 
 
 class SkillTest(BaseAssessmentModel):
+    TEST_TYPE_CHOICES = [
+        ('practice', 'Practice Test'),
+        ('assessment', 'Assessment'),
+    ]
+    test_type = models.CharField(max_length=20, choices=TEST_TYPE_CHOICES, default='practice')
     subject = models.ForeignKey(
         "course.Subject",
         on_delete=models.CASCADE,
@@ -367,7 +372,6 @@ class MockInterviewSubmission(BaseUserSubmission):
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = ["user", "mock_interview"]
 
     def __str__(self):
         return f"{self.user.username} - {self.mock_interview.title} ({self.get_experience_level_display()})"
@@ -503,6 +507,15 @@ class BaseQuestionActivity(BaseTimestampedModel):
     )
     answer_attempt_count = models.IntegerField(
         default=0, help_text="Number of times answer was modified"
+    )
+    ai_help_count = models.IntegerField(
+        default=0, help_text="Number of times AI help was used"
+    )
+    used_hint = models.BooleanField(
+        default=False, help_text="Whether the student used a predefined hint for this question"
+    )
+    viewed_solution = models.BooleanField(
+        default=False, help_text="Whether the student viewed the solution for this question"
     )
 
     plagiarism_data = models.JSONField(

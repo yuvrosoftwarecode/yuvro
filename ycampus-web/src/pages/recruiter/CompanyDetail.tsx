@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from "../../components/common/PageHeader";
 import { Building2, ArrowLeft, Globe, Users, MapPin, Calendar, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { companyService, Company } from '@/services/companyService';
@@ -23,7 +23,12 @@ const CompanyDetail: React.FC = () => {
   const loadCompany = async () => {
     try {
       setLoading(true);
-      const data = await companyService.getCompany(parseInt(companyId!));
+      if (!companyId || isNaN(parseInt(companyId))) {
+        toast.error('Invalid company ID');
+        navigate('/recruiter/jobs/companies');
+        return;
+      }
+      const data = await companyService.getCompany(parseInt(companyId));
       setCompany(data);
     } catch (error) {
       console.error('Error loading company:', error);
@@ -73,20 +78,20 @@ const CompanyDetail: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
-              title="Edit Company"
-              subtitle="Update company information"
-              actions={
-                <button 
-                  onClick={() => setShowEditForm(false)}
-                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back to Details</span>
-                </button>
-              }
-            />
-            <div className="p-6">
+             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <PageHeader 
+                title="Edit Company"
+                subtitle="Update company information"
+                actions={
+                  <button 
+                    onClick={() => setShowEditForm(false)}
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Back to Details</span>
+                  </button>
+                }
+              />
               <CompanyForm
                 onClose={() => setShowEditForm(false)}
                 onCompanyCreated={handleCompanyUpdated}
@@ -105,13 +110,12 @@ const CompanyDetail: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title={company ? company.name : 'Company Details'}
-            subtitle="View and manage company information"
-            actions={headerActions}
-          />
-
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader 
+              title={company ? company.name : 'Company Details'}
+              subtitle="View and manage company information"
+              actions={headerActions}
+            />
             {loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -127,7 +131,6 @@ const CompanyDetail: React.FC = () => {
                       </div>
                     </div>
                     <div className="ml-6">
-                      <h1 className="text-3xl font-bold text-white">{company.name}</h1>
                       {company.domain && (
                         <p className="text-blue-100 text-lg">{company.domain}</p>
                       )}
@@ -184,7 +187,7 @@ const CompanyDetail: React.FC = () => {
                         <div>
                           <p className="text-sm text-gray-500">Added</p>
                           <p className="text-gray-900">
-                            {new Date(company.created_at).toLocaleDateString()}
+                            {company.created_at ? new Date(company.created_at).toLocaleDateString() : 'N/A'}
                           </p>
                         </div>
                       </div>

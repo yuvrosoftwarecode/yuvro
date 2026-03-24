@@ -24,6 +24,7 @@ export interface SkillTest {
     descriptive: number;
   };
   publish_status: 'draft' | 'active' | 'inactive' | 'archived';
+  test_type?: 'practice' | 'assessment';
   total_questions?: number;
   subject: string;
   unit?: string;
@@ -56,6 +57,7 @@ export interface CreateSkillTestData {
     descriptive: number;
   };
   publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
+  test_type?: 'practice' | 'assessment';
   subject: string;
   unit?: string;
 }
@@ -67,6 +69,7 @@ export interface SkillTestFilters {
   unit?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   search?: string;
+  test_type?: string;
 }
 
 
@@ -175,12 +178,12 @@ export const submitSkillTest = async (testId: string, submissionId: string, answ
 
 
 // Utility functions
-export const getSkillTestsBySubject = async (subjectId: string): Promise<SkillTest[]> => {
-  return fetchSkillTests({ subject: subjectId });
+export const getSkillTestsBySubject = async (subjectId: string, testType?: string): Promise<SkillTest[]> => {
+  return fetchSkillTests({ subject: subjectId, test_type: testType });
 };
 
-export const getSkillTestsByUnit = async (unitId: string): Promise<SkillTest[]> => {
-  return fetchSkillTests({ unit: unitId });
+export const getSkillTestsByUnit = async (unitId: string, testType?: string): Promise<SkillTest[]> => {
+  return fetchSkillTests({ unit: unitId, test_type: testType });
 };
 
 export const getSkillTestSubmissions = async (skillTestId: string): Promise<any[]> => {

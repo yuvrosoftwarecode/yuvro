@@ -1,5 +1,5 @@
 import React from 'react';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,14 +67,13 @@ const Dashboard: React.FC = () => {
     <div className="flex h-screen bg-gray-50">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader
-          title=""
-          subtitle=""
-        />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto space-y-8">
+            <PageHeader
+              title="Dashboard"
+              subtitle="Overview of placement activities and statistics"
+            />
             <div className="flex justify-between items-center bg-transparent">
-              <h1 className="text-[20px] font-bold text-gray-900">Dashboard</h1>
               <div className="relative group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
                 <input

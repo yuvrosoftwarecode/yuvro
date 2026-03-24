@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import announcementService, { Announcement, AnnouncementFilters } from '@/services/announcementService';
 import departmentService, { Department } from '@/services/departmentService';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,14 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AnnouncementsList } from '@/components/college-admin/announcements/AnnouncementsList';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import { 
   Plus, 
   Search, 
@@ -280,7 +288,6 @@ const AnnouncementsScreen: React.FC = () => {
   };
 
 
-
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -288,12 +295,11 @@ const AnnouncementsScreen: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title="Announcements"
-            subtitle="Manage college and department level announcements"
-          />
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <PageHeader
+              title="Announcements"
+              subtitle="Manage college and department level announcements"
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />

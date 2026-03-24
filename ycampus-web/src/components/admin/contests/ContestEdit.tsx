@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Plus, Trash2, Search, Code, FileText, Brain, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { contestService, Contest, Question } from '@/services/contestService';
 import subjectService, { Subject } from '@/services/subjectService';
 
@@ -292,11 +292,11 @@ export default function ContestEdit() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={`Manage Contest: ${contest.title}`}
-            subtitle="Add questions and manage contest content"
-          />
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={`Manage Contest: ${contest.title}`}
+              subtitle="Add questions and manage contest content"
+            />
             <div className="mb-6 flex items-center gap-4">
               <Button
                 variant="outline"

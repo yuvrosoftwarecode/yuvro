@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { batchService, Batch } from '@/services/batchService';
 import BatchList from '@/components/college-admin/batches/BatchList';
 import BatchDetail from '@/components/college-admin/batches/BatchDetail';
@@ -37,12 +37,11 @@ const BatchesScreen: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title="Batch IDs"
-                        subtitle="Overview of all student batches across departments"
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="Batch IDs"
+                            subtitle="Overview of all student batches across departments"
+                        />
                         {loading ? (
                             <div className="flex justify-center py-12">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

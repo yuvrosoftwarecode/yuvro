@@ -15,238 +15,156 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="Note",
-            fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
+        # SeparateDatabaseAndState: state operations keep Django ORM in sync
+        # (no makemigrations regeneration), database operations use IF NOT EXISTS
+        # so they're idempotent against a persistent postgres volume.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Note",
+                    fields=[
+                        ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ("content", models.TextField()),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        ("sub_unit", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name="notes", to="course.subunit")),
+                        ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="notes", to=settings.AUTH_USER_MODEL)),
+                    ],
+                    options={"ordering": ["created_at"]},
                 ),
-                ("content", models.TextField()),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "sub_unit",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="notes",
-                        to="course.subunit",
-                    ),
+                migrations.CreateModel(
+                    name="Task",
+                    fields=[
+                        ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ("task_type", models.CharField(choices=[("descriptive", "Descriptive"), ("coding", "Coding")], default="descriptive", max_length=20)),
+                        ("question_source", models.CharField(choices=[("manual", "Manual Entry"), ("bank", "Question Bank")], default="manual", max_length=20)),
+                        ("title", models.CharField(max_length=255)),
+                        ("description", models.TextField(blank=True, null=True)),
+                        ("is_sent", models.BooleanField(default=False)),
+                        ("due_date", models.DateTimeField(blank=True, null=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        ("department", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name="tasks", to="core.department")),
+                        ("faculty", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="assigned_tasks", to="core.facultyprofile")),
+                        ("questions", models.ManyToManyField(blank=True, related_name="tasks", to="course.question")),
+                        ("sections", models.ManyToManyField(related_name="tasks", to="core.section")),
+                        ("sub_unit", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name="tasks", to="course.subunit")),
+                        ("subject", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="tasks", to="course.subject")),
+                        ("unit", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name="tasks", to="course.unit")),
+                    ],
+                    options={"ordering": ["-created_at"]},
                 ),
-                (
-                    "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="notes",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
+                migrations.CreateModel(
+                    name="TaskSubmission",
+                    fields=[
+                        ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        ("answer", models.TextField(blank=True, null=True)),
+                        ("answers_data", models.JSONField(blank=True, default=dict, help_text="Stores answers for multiple questions")),
+                        ("is_submitted", models.BooleanField(default=False)),
+                        ("submitted_at", models.DateTimeField(blank=True, null=True)),
+                        ("file", models.FileField(blank=True, null=True, upload_to="task_submissions/")),
+                        ("student", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="task_submissions", to="core.studentprofile")),
+                        ("task", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="submissions", to="core.task")),
+                    ],
+                    options={"ordering": ["-submitted_at"], "unique_together": {("task", "student")}},
                 ),
-            ],
-            options={
-                "ordering": ["created_at"],
-            },
-        ),
-        migrations.CreateModel(
-            name="Task",
-            fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "task_type",
-                    models.CharField(
-                        choices=[("descriptive", "Descriptive"), ("coding", "Coding")],
-                        default="descriptive",
-                        max_length=20,
-                    ),
-                ),
-                (
-                    "question_source",
-                    models.CharField(
-                        choices=[("manual", "Manual Entry"), ("bank", "Question Bank")],
-                        default="manual",
-                        max_length=20,
-                    ),
-                ),
-                ("title", models.CharField(max_length=255)),
-                ("description", models.TextField(blank=True, null=True)),
-                ("is_sent", models.BooleanField(default=False)),
-                ("due_date", models.DateTimeField(blank=True, null=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "department",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="tasks",
-                        to="core.department",
-                    ),
-                ),
-                (
-                    "faculty",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="assigned_tasks",
-                        to="core.facultyprofile",
-                    ),
-                ),
-                (
-                    "questions",
-                    models.ManyToManyField(
-                        blank=True, related_name="tasks", to="course.question"
-                    ),
-                ),
-                (
-                    "sections",
-                    models.ManyToManyField(related_name="tasks", to="core.section"),
-                ),
-                (
-                    "sub_unit",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="tasks",
-                        to="course.subunit",
-                    ),
-                ),
-                (
-                    "subject",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="tasks",
-                        to="course.subject",
-                    ),
-                ),
-                (
-                    "unit",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="tasks",
-                        to="course.unit",
-                    ),
+                migrations.CreateModel(
+                    name="TaskComment",
+                    fields=[
+                        ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        ("comment", models.TextField()),
+                        ("faculty", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name="task_comments", to="core.facultyprofile")),
+                        ("student", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name="task_comments", to="core.studentprofile")),
+                        ("submission", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="comments", to="core.tasksubmission")),
+                    ],
+                    options={"ordering": ["created_at"]},
                 ),
             ],
-            options={
-                "ordering": ["-created_at"],
-            },
-        ),
-        migrations.CreateModel(
-            name="TaskSubmission",
-            fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
+            database_operations=[
+                migrations.RunSQL(
+                    sql="""
+                        CREATE TABLE IF NOT EXISTS core_note (
+                            id uuid NOT NULL PRIMARY KEY,
+                            content text NOT NULL,
+                            created_at timestamptz NOT NULL,
+                            updated_at timestamptz NOT NULL,
+                            sub_unit_id uuid REFERENCES course_subunit(id) ON DELETE CASCADE,
+                            user_id uuid NOT NULL REFERENCES authentication_user(id) ON DELETE CASCADE
+                        );
+                    """,
+                    reverse_sql="DROP TABLE IF EXISTS core_note;",
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("answer", models.TextField(blank=True, null=True)),
-                (
-                    "answers_data",
-                    models.JSONField(
-                        blank=True,
-                        default=dict,
-                        help_text="Stores answers for multiple questions",
-                    ),
+                migrations.RunSQL(
+                    sql="""
+                        CREATE TABLE IF NOT EXISTS core_task (
+                            id uuid NOT NULL PRIMARY KEY,
+                            task_type varchar(20) NOT NULL DEFAULT 'descriptive',
+                            question_source varchar(20) NOT NULL DEFAULT 'manual',
+                            title varchar(255) NOT NULL,
+                            description text,
+                            is_sent boolean NOT NULL DEFAULT false,
+                            due_date timestamptz,
+                            created_at timestamptz NOT NULL,
+                            updated_at timestamptz NOT NULL,
+                            department_id uuid REFERENCES core_department(id) ON DELETE CASCADE,
+                            faculty_id uuid NOT NULL REFERENCES core_facultyprofile(id) ON DELETE CASCADE,
+                            sub_unit_id uuid REFERENCES course_subunit(id) ON DELETE SET NULL,
+                            subject_id uuid NOT NULL REFERENCES course_subject(id) ON DELETE CASCADE,
+                            unit_id uuid REFERENCES course_unit(id) ON DELETE SET NULL
+                        );
+                        CREATE TABLE IF NOT EXISTS core_task_questions (
+                            id serial NOT NULL PRIMARY KEY,
+                            task_id uuid NOT NULL REFERENCES core_task(id) ON DELETE CASCADE,
+                            question_id uuid NOT NULL REFERENCES course_question(id) ON DELETE CASCADE
+                        );
+                        CREATE TABLE IF NOT EXISTS core_task_sections (
+                            id serial NOT NULL PRIMARY KEY,
+                            task_id uuid NOT NULL REFERENCES core_task(id) ON DELETE CASCADE,
+                            section_id uuid NOT NULL REFERENCES core_section(id) ON DELETE CASCADE
+                        );
+                    """,
+                    reverse_sql="""
+                        DROP TABLE IF EXISTS core_task_sections;
+                        DROP TABLE IF EXISTS core_task_questions;
+                        DROP TABLE IF EXISTS core_task;
+                    """,
                 ),
-                ("is_submitted", models.BooleanField(default=False)),
-                ("submitted_at", models.DateTimeField(blank=True, null=True)),
-                (
-                    "file",
-                    models.FileField(
-                        blank=True, null=True, upload_to="task_submissions/"
-                    ),
+                migrations.RunSQL(
+                    sql="""
+                        CREATE TABLE IF NOT EXISTS core_tasksubmission (
+                            id uuid NOT NULL PRIMARY KEY,
+                            created_at timestamptz NOT NULL,
+                            updated_at timestamptz NOT NULL,
+                            answer text,
+                            answers_data jsonb NOT NULL DEFAULT '{}',
+                            is_submitted boolean NOT NULL DEFAULT false,
+                            submitted_at timestamptz,
+                            file varchar(100),
+                            student_id uuid NOT NULL REFERENCES core_studentprofile(id) ON DELETE CASCADE,
+                            task_id uuid NOT NULL REFERENCES core_task(id) ON DELETE CASCADE,
+                            UNIQUE (task_id, student_id)
+                        );
+                    """,
+                    reverse_sql="DROP TABLE IF EXISTS core_tasksubmission;",
                 ),
-                (
-                    "student",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="task_submissions",
-                        to="core.studentprofile",
-                    ),
-                ),
-                (
-                    "task",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="submissions",
-                        to="core.task",
-                    ),
-                ),
-            ],
-            options={
-                "ordering": ["-submitted_at"],
-                "unique_together": {("task", "student")},
-            },
-        ),
-        migrations.CreateModel(
-            name="TaskComment",
-            fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("comment", models.TextField()),
-                (
-                    "faculty",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="task_comments",
-                        to="core.facultyprofile",
-                    ),
-                ),
-                (
-                    "student",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="task_comments",
-                        to="core.studentprofile",
-                    ),
-                ),
-                (
-                    "submission",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
-                        to="core.tasksubmission",
-                    ),
+                migrations.RunSQL(
+                    sql="""
+                        CREATE TABLE IF NOT EXISTS core_taskcomment (
+                            id uuid NOT NULL PRIMARY KEY,
+                            created_at timestamptz NOT NULL,
+                            updated_at timestamptz NOT NULL,
+                            comment text NOT NULL,
+                            faculty_id uuid REFERENCES core_facultyprofile(id) ON DELETE CASCADE,
+                            student_id uuid REFERENCES core_studentprofile(id) ON DELETE CASCADE,
+                            submission_id uuid NOT NULL REFERENCES core_tasksubmission(id) ON DELETE CASCADE
+                        );
+                    """,
+                    reverse_sql="DROP TABLE IF EXISTS core_taskcomment;",
                 ),
             ],
-            options={
-                "ordering": ["created_at"],
-            },
         ),
     ]

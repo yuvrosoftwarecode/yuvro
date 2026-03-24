@@ -155,51 +155,11 @@ const StudentVideos = ({
   // --- Components for Panes ---
 
   const PaneWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <div className={`w-full h-full bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 ${className}`}>
+    <div className={`w-full h-full bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 ${className}`}>
       {children}
     </div>
   );
 
-  const LayoutSelector = () => (
-    <div className="flex flex-col gap-3">
-      {(['video', 'video-chat', 'video-code', 'code-chat', 'video-chat-code'] as LayoutMode[]).map((mode) => (
-        <button
-          key={mode}
-          onClick={() => onLayoutChange(mode)}
-          title={mode.replace(/-/g, ' + ')}
-          className={`p-2 rounded-xl transition-all flex items-center justify-center group relative ${layout === mode
-            ? "bg-indigo-600 text-white shadow-md ring-2 ring-indigo-100 ring-offset-1"
-            : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-900 border border-transparent hover:border-gray-200"
-            }`}
-        >
-          {mode === 'video' && <VideoIcon className="w-5 h-5" />}
-          {mode === 'video-chat' && (
-            <div className="flex gap-0.5"><VideoIcon className="w-3.5 h-3.5" /><Sparkles className="w-3.5 h-3.5" /></div>
-          )}
-          {mode === 'video-code' && (
-            <div className="flex gap-0.5"><VideoIcon className="w-3.5 h-3.5" /><Code className="w-3.5 h-3.5" /></div>
-          )}
-          {mode === 'code-chat' && (
-            <div className="flex gap-0.5"><Code className="w-3.5 h-3.5" /><Sparkles className="w-3.5 h-3.5" /></div>
-          )}
-          {mode === 'video-chat-code' && (
-            <div className="flex flex-col gap-0.5 items-center">
-              <div className="flex gap-0.5">
-                <VideoIcon className="w-2.5 h-2.5" />
-                <Sparkles className="w-2.5 h-2.5" />
-              </div>
-              <Code className="w-2.5 h-2.5" />
-            </div>
-          )}
-
-          {/* Tooltip on Left */}
-          <span className="absolute right-full mr-3 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-50 shadow-xl">
-            {mode.replace(/-/g, ' + ').replace(/\b\w/g, l => l.toUpperCase())}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
 
   const VideoComponent = () => (
     <PaneWrapper>
@@ -252,7 +212,7 @@ const StudentVideos = ({
 
   const isSplit = layout !== "video";
 
-  const gapSize = 16; // 1rem
+  const gapSize = 12;
   const halfGap = gapSize / 2;
 
   const styles = {
@@ -266,15 +226,13 @@ const StudentVideos = ({
   };
 
   return (
-    <div className="flex flex-col h-full relative select-none bg-gray-50/50">
-
-      {/* HEADER REMOVED - Controlled by Parent */}
+    <div className="flex flex-col h-full relative select-none bg-white">
 
       {/* MAIN CONTENT AREA WRAPPER */}
       <div className="flex-1 flex overflow-hidden">
 
         {/* PANES AREA */}
-        <div className="flex-1 flex overflow-hidden p-4 gap-4 box-border relative">
+        <div className="flex-1 flex overflow-hidden p-3 gap-3 box-border relative">
 
           {/* LEFT PANE */}
           <div
@@ -288,9 +246,9 @@ const StudentVideos = ({
 
             {/* 3-Pane Vertical Split Mode (Left Side: Video Top, Chat Bottom) */}
             {(layout === 'video-chat-code') && (
-              <div className="flex flex-col h-full w-full relative gap-4">
+              <div className="flex flex-col h-full w-full relative gap-3">
                 {/* TOP: VIDEO */}
-                <div style={{ height: `calc(${videoChatSplitRatio}% - 8px)` }} className="w-full">
+                <div style={{ height: `calc(${videoChatSplitRatio}% - 6px)` }} className="w-full">
                   <VideoComponent />
                 </div>
 
@@ -307,7 +265,7 @@ const StudentVideos = ({
                 </div>
 
                 {/* BOTTOM: CHAT */}
-                <div style={{ height: `calc(${100 - videoChatSplitRatio}% - 8px)` }} className="w-full">
+                <div style={{ height: `calc(${100 - videoChatSplitRatio}% - 6px)` }} className="w-full">
                   <ChatComponent />
                 </div>
               </div>
@@ -335,33 +293,25 @@ const StudentVideos = ({
               {(layout === 'video-chat' || layout === 'code-chat') && <ChatComponent />}
               {(layout === 'video-code' || layout === 'video-chat-code') && <CodeEditorComponent />}
 
-              {/* 3-Pane Vertical Split Mode - Using GAP separation instead of border */}
-              {/* REMOVED OLD RIGHT PANE LOGIC FOR video-chat-code */}
             </div>
           )}
 
         </div>
 
-        {/* Right Sidebar Control */}
-        <div className="w-16 bg-white border-l border-gray-200 flex flex-col items-center py-6 gap-4 shrink-0 z-30 shadow-[ -4px_0_15px_-3px_rgba(0,0,0,0.05) ]">
-          <LayoutSelector />
-        </div>
       </div>
 
-      {showExamples && (
-        <ExampleCodeGallery
-          currentLanguage="python"
-          onClose={() => setShowExamples(false)}
-          onApplyCode={(_exampleCode) => {
-            // Code will be applied directly by CodeEditorWithAI
-            setShowExamples(false);
-          }}
-        />
-      )}
+      {
+        showExamples && (
+          <ExampleCodeGallery
+            currentLanguage="python"
+            onClose={() => setShowExamples(false)}
+            onApplyCode={(_exampleCode) => {
+              setShowExamples(false);
+            }}
+          />
+        )
+      }
     </div>
   );
 };
 export default StudentVideos;
-
-
-

@@ -56,14 +56,14 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
         const transformedSubjects: Subject[] = fetchedSubjects.map(subject => ({
           id: subject.id.toString(),
           name: subject.name || subject.title || 'Untitled Subject',
-          icon: subject.category,
+          icon: (subject as any).category || 'programming_languages',
           progress: Math.round(subject.progress_percentage || 0),
           totalProblems: subject.total_problems || 0,
           solvedProblems: subject.solved_problems || 0,
           totalScore: subject.total_score || 0,
           aiHelpUsed: subject.ai_help_used || 0,
           iconColor: '', // Will be handled dynamically by getSubjectStyle
-          category: subject.category,
+          category: (subject as any).category || 'programming_languages',
         }));
 
         setSubjects(transformedSubjects);
@@ -81,7 +81,7 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
   if (loading) {
     return (
       <div className="min-h-screen bg-white px-6 py-8">
-        <div className="max-w-[1600px] mx-auto animate-pulse space-y-8">
+        <div className="animate-pulse space-y-8">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
@@ -95,7 +95,7 @@ const SubjectDashboard = ({ onSubjectSelect, onViewAnalytics }: SubjectDashboard
 
   return (
     <div className="min-h-screen bg-white px-6 py-8">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Code Practice</h1>
