@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import subjectService, { SectionSubjectFaculty, getFacultyAssignments, AttendanceSession } from '../../services/subjectService';
 import studentService from '../../services/studentService';
 import { facultyService, FacultyProfile } from '../../services/facultyService';
@@ -339,26 +339,23 @@ const AttendanceReport: React.FC = () => {
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <RoleHeader title="" subtitle="" />
 
                 <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8 bg-white">
                     {/* Page Header */}
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Attendance Report</h1>
-                            <p className="text-sm font-medium text-gray-500">
-                                Analyze attendance department-wise, section-wise, and student-wise
-                            </p>
-                        </div>
-                        <Button
-                            onClick={handleExportExcel}
-                            disabled={!reportData || exporting}
-                            className="bg-green-600 hover:bg-green-700 text-white shadow-sm flex items-center gap-2 rounded-xl h-11 px-6 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                            Excel
-                        </Button>
-                    </div>
+                    <PageHeader 
+                        title="Attendance Report" 
+                        subtitle="Analyze attendance department-wise, section-wise, and student-wise"
+                        actions={
+                            <Button
+                                onClick={handleExportExcel}
+                                disabled={!reportData || exporting}
+                                className="bg-green-600 hover:bg-green-700 text-white shadow-sm flex items-center gap-2 rounded-xl h-11 px-6 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                                Excel
+                            </Button>
+                        }
+                    />
 
                     {/* Filter Section */}
                     <Card className="border border-gray-100 shadow-sm bg-white rounded-xl">

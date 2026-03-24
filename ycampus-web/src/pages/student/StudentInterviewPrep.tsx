@@ -1,6 +1,6 @@
 import React from 'react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 
 // FILE-2 IMPORTS (UNCHANGED)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -166,11 +166,11 @@ const StudentInterviewPrep: React.FC = () => {
       <div className="flex h-screen overflow-hidden">
         <RoleSidebar />
         <div className="flex-1 h-screen overflow-y-auto">
-          <RoleHeader
-            title="Interview Preparation"
-            subtitle="Track your preparation, practice skills, and stay ahead."
-          />
-          <div className="p-6 space-y-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <PageHeader
+              title="Interview Preparation"
+              subtitle="Track your preparation, practice skills, and stay ahead."
+            />
 
 
             {/* ===== HERO SECTION ===== */}
@@ -313,8 +313,22 @@ const StudentInterviewPrep: React.FC = () => {
                         </div>
 
                         <div className="pt-2">
-                          <Button variant="outline" className="w-full justify-center bg-gray-900 border-gray-200 hover:bg-gray-800 text-white font-medium py-5">
-                            {mod.cta} <ArrowRight className="h-3.5 w-3.5 ml-2" />
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-center bg-gray-900 border-gray-200 hover:bg-gray-800 text-white font-medium py-5"
+                            onClick={() => {
+                              if (mod.title === 'Mock Interviews') {
+                                navigate('/student/mock-interview');
+                              } else if (mod.cta === 'Start Practice') {
+                                navigate('/student/dsa');
+                              } else if (mod.cta === 'Take Test') {
+                                navigate('/student/aptitude');
+                              } else if (mod.cta === 'Continue Learning') {
+                                navigate('/student/python');
+                              }
+                            }}
+                          >
+                            {mod.cta} <ArrowRight className="h-4 w-4 ml-2" />
                           </Button>
                         </div>
                       </CardContent>

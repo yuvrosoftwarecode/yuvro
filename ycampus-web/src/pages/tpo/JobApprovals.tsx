@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from '../../components/common/PageHeader';
 import RoleSidebar from "../../components/common/RoleSidebar";
 import { Building2, MapPin, Search, AlertTriangle, Star, CheckCircle2, XCircle, ExternalLink, Globe, Layout, Clock, User, Phone, Mail, CheckCircle, Pause } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -83,16 +83,15 @@ const JobApprovals: React.FC = () => {
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="" subtitle="" />
 
                 <main className="flex-1 overflow-y-auto p-6 md:p-8">
                     <div className="max-w-7xl mx-auto space-y-6">
-
+                        <PageHeader
+                            title="Job Approvals"
+                            subtitle="Review and manage job postings and student applications"
+                        />
                         {/* Header */}
                         <div className="flex items-center justify-between">
-                            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                                Job Approvals
-                            </h1>
 
                             <div className="relative w-[280px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

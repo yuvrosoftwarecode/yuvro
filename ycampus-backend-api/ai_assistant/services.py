@@ -16,22 +16,26 @@ def _apply_page_content_grounding(
     that instructs the model to only use the provided SOURCE. This modifies
     messages in-place (and removes page_content from kwargs).
     """
-    page_content = None
+    user_name = None
     if isinstance(kwargs, dict):
         page_content = kwargs.pop("page_content", None)
+        user_name = kwargs.pop("user_name", "Student")
 
-    if page_content:
-        # Truncate to a reasonable size to avoid token blowup
-        snippet = page_content if len(page_content) <= 4000 else page_content[:4000]
+    if page_content and page_content != "mock_interview":
+        # Truncate aggressively to 2000 chars to minimize prompt size and latency
+        snippet = page_content if len(page_content) <= 2000 else page_content[:2000]
+        
+        greeting_instruction = f"Address the student as '{user_name}'." if user_name != "Student" else "Address the user as 'Student'."
+
         strict_prompt = (
-            "You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). \n"
+            f"You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). {greeting_instruction}\n"
             "Your goal is to help the student understand this specific topic and GUIDE them to the solution.\n"
             "1. You MAY use your general knowledge to explain concepts related to this topic.\n"
             "2. MISSION: While you should generally be Socratic and guide the student with hints, you MUST provide a full, correct code solution if the student explicitly asks for it or is stuck.\n"
             "3. If providing code, ALWAYS wrap it in markdown code blocks: ```language [code] ```. This is critical as it enables the 'Insert' button in the UI.\n"
             "4. If identifying errors, explain WHY they are wrong and provide the corrected lines in a code block.\n"
             "5. If the user asks about a completely DIFFERENT topic, politely refuse.\n"
-            "6. Keep your tone encouraging, educational, and concise. Use markdown for better readability.\n\n"
+            "6. Keep your responses SHORT and CONCISE. Use markdown for better readability.\n\n"
             "SOURCE:\n" + snippet
         )
 
@@ -150,8 +154,7 @@ class AnthropicService(BaseAIService):
         super().__init__(api_key, model_name)
         try:
             import anthropic
-
-            self.client = anthropic.Anthropic(api_key=api_key)
+            self.client = anthropic.AsyncAnthropic(api_key=api_key)
         except ImportError:
             raise AIServiceError(
                 "Anthropic library not installed. Run: pip install anthropic"
@@ -184,7 +187,22 @@ class AnthropicService(BaseAIService):
                         {"role": msg["role"], "content": msg["content"]}
                     )
 
-            response = self.client.messages.create(
+            if stream:
+                response = await self.client.messages.create(
+                    model=self.model_name,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    system=system_message,
+                    messages=anthropic_messages,
+                    stream=True,
+                    **kwargs,
+                )
+                return {
+                    "stream": response,
+                    "metadata": {"model": self.model_name},
+                }
+
+            response = await self.client.messages.create(
                 model=self.model_name,
                 max_tokens=max_tokens,
                 temperature=temperature,
@@ -261,7 +279,7 @@ class GeminiService(BaseAIService):
             }
 
             try:
-                response = self.model.generate_content(
+                response = await self.model.generate_content_async(
                     conversation_text, generation_config=generation_config, stream=stream
                 )
                   
@@ -279,7 +297,7 @@ class GeminiService(BaseAIService):
                     try:
                         import google.generativeai as genai
                         fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                        response = fallback_model.generate_content(
+                        response = await fallback_model.generate_content_async(
                             conversation_text, generation_config=generation_config, stream=stream
                         )
                         
@@ -344,7 +362,6 @@ class CohereService(BaseAIService):
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 4096,
-        stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
         """Generate response using Cohere API."""
@@ -408,6 +425,7 @@ class AIServiceFactory:
         # The other providers are kept in the file for future re-enablement.
         # To re-enable a provider, add it back to this mapping.
         "gemini": GeminiService,
+        "anthropic": AnthropicService,
     }
 
     @classmethod
@@ -444,3 +462,88 @@ class AIServiceFactory:
     def get_supported_providers(cls) -> List[str]:
         """Get list of supported AI providers."""
         return list(cls._services.keys())
+
+
+class InterviewReportGenerator:
+    """
+    Service to generate detailed interview reports using AI.
+    """
+
+    def __init__(self):
+        # We'll use Gemini for report generation as it handles large contexts well
+        self.api_key = config("GEMINI_API_KEY", default=None)
+        if not self.api_key:
+            raise AIServiceError("GEMINI_API_KEY not found needed for report generation.")
+        self.service = GeminiService(self.api_key, model_name="gemini-flash-latest")
+
+    async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
+        """
+        Generate a comprehensive interview report based on the chat session.
+        """
+
+        prompt = f"""
+        You are an expert technical interviewer and career coach. 
+        Analyze the following mock interview transcript and generate a detailed performance report.
+        
+        RETURN ONLY RAW JSON. DO NOT USE MARKDOWN BLOCK.
+
+        TRANSCRIPT:
+        {conversation_text}
+
+        RESUME CONTEXT:
+        {resume_content if resume_content else "No resume provided."}
+
+        OUTPUT FORMAT (JSON):
+        {{
+            "overall_score": <float 0-100>,
+            "feedback_summary": "<string: executive summary of performance>",
+            "performance_metrics": {{
+                "Communication": <int 0-100>,
+                "Technical Proficiency": <int 0-100>,
+                "Problem Solving": <int 0-100>,
+                "Adaptability": <int 0-100>
+            }},
+            "skill_analysis": {{
+                "Skill Name 1": {{ "score": <int 0-10>, "feedback": "<string>" }},
+                "Skill Name 2": {{ "score": <int 0-10>, "feedback": "<string>" }}
+            }},
+            "question_analysis": [
+                {{
+                    "question": "<string: Identify the main question asked>",
+                    "type": "<string: behavioral|technical|coding>",
+                    "user_answer": "<string: summary of candidate answer>",
+                    "ai_score": <int 0-100>,
+                    "what_went_well": ["<string>", ...],
+                    "what_could_be_better": ["<string>", ...],
+                    "missing_terminologies": ["<string>", ...],
+                    "recommended_response": "<string: an ideal golden sample response>"
+                }}
+            ],
+            "key_takeaways": {{
+                "strengths": ["<string>", ...],
+                "improvements": ["<string>", ...]
+            }}
+        }}
+        """
+
+        try:
+            # We use a slightly higher temperature for creative feedback but constrained by JSON format
+            response = await self.service.generate_response(
+                [{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=4000
+            )
+
+            response_text = response["response"]
+            
+            # clean up potential markdown formatting if model ignores instruction
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+            
+            return json.loads(response_text)
+
+        except json.JSONDecodeError:
+            logger.error("Failed to parse AI report JSON")
+            raise AIServiceError("Failed to generate valid report format")
+        except Exception as e:
+            logger.error(f"Report generation error: {str(e)}")
+            raise e

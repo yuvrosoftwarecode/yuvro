@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import {
   BookOpen,
   Users,
@@ -196,12 +196,12 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         <div className="flex">
           <RoleSidebar />
-          <div className="flex-1">
-            <RoleHeader
-              title="Loading..."
-              subtitle="Please wait while we load your dashboard."
-            />
+          <div className="flex-1 overflow-y-auto">
             <div className="p-6">
+              <PageHeader
+                title="Loading..."
+                subtitle="Please wait while we load your dashboard."
+              />
               <div className="animate-pulse">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   {[...Array(4)].map((_, i) => (
@@ -220,12 +220,12 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={`Welcome back, ${user?.first_name || user?.username || 'Instructor'}! 👋`}
-            subtitle="Manage your subjects, track student progress, and create engaging content."
-          />
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6">
+            <PageHeader
+              title={`Welcome back, ${user?.first_name || user?.username || 'Instructor'}! 👋`}
+              subtitle="Manage your subjects, track student progress, and create engaging content."
+            />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

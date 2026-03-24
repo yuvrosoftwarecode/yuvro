@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import SearchBar from '@/components/common/SearchBar';
 import { useAuth } from "@/contexts/AuthContext";
 import { contestService } from '@/services/contestService';
@@ -246,7 +246,7 @@ export default function OwnerContest() {
   const headerActions = currentView === 'list' ? (
     <button
       onClick={() => navigate('/admin/contests/add')}
-      className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+      className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors text-sm font-medium"
     >
       + Add Contest
     </button>
@@ -256,7 +256,7 @@ export default function OwnerContest() {
         setCurrentView('list');
         setSelectedContest(null);
       }}
-      className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+      className="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors text-sm font-medium"
     >
       ← Back to List
     </button>
@@ -267,12 +267,12 @@ export default function OwnerContest() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={headerActions}
-          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={headerActions}
+            />
 
             {currentView === 'list' && (
               <>

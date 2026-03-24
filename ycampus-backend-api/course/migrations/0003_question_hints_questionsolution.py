@@ -12,73 +12,102 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="question",
-            name="hints",
-            field=models.JSONField(
-                blank=True,
-                default=list,
-                help_text="List of hints for the question. Format: [{'level': 1, 'text': 'hint text'}]",
-            ),
-        ),
-        migrations.CreateModel(
-            name="QuestionSolution",
-            fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                ("title", models.CharField(blank=True, default="", max_length=255)),
-                (
-                    "language",
-                    models.CharField(
-                        choices=[
-                            ("python", "Python"),
-                            ("java", "Java"),
-                            ("cpp", "C++"),
-                            ("c", "C"),
-                            ("javascript", "JavaScript"),
-                            ("sql", "SQL"),
-                            ("other", "Other"),
-                        ],
-                        default="python",
-                        max_length=20,
-                    ),
-                ),
-                ("code", models.TextField(blank=True, default="")),
-                (
-                    "complexity_analysis",
-                    models.TextField(
+        # SeparateDatabaseAndState: state operations update Django's ORM tracking
+        # (preventing makemigrations from regenerating), while database operations
+        # use IF NOT EXISTS so they're safe against an already-populated DB.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name="question",
+                    name="hints",
+                    field=models.JSONField(
                         blank=True,
-                        default="",
-                        help_text="Time and space complexity analysis of the solution",
+                        default=list,
+                        help_text="List of hints for the question. Format: [{'level': 1, 'text': 'hint text'}]",
                     ),
                 ),
-                (
-                    "is_primary",
-                    models.BooleanField(
-                        default=False,
-                        help_text="Whether this is the primary/recommended solution",
-                    ),
-                ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "question",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="solutions",
-                        to="course.question",
-                    ),
+                migrations.CreateModel(
+                    name="QuestionSolution",
+                    fields=[
+                        (
+                            "id",
+                            models.UUIDField(
+                                default=uuid.uuid4,
+                                editable=False,
+                                primary_key=True,
+                                serialize=False,
+                            ),
+                        ),
+                        ("title", models.CharField(blank=True, default="", max_length=255)),
+                        (
+                            "language",
+                            models.CharField(
+                                choices=[
+                                    ("python", "Python"),
+                                    ("java", "Java"),
+                                    ("cpp", "C++"),
+                                    ("c", "C"),
+                                    ("javascript", "JavaScript"),
+                                    ("sql", "SQL"),
+                                    ("other", "Other"),
+                                ],
+                                default="python",
+                                max_length=20,
+                            ),
+                        ),
+                        ("code", models.TextField(blank=True, default="")),
+                        (
+                            "complexity_analysis",
+                            models.TextField(
+                                blank=True,
+                                default="",
+                                help_text="Time and space complexity analysis of the solution",
+                            ),
+                        ),
+                        (
+                            "is_primary",
+                            models.BooleanField(
+                                default=False,
+                                help_text="Whether this is the primary/recommended solution",
+                            ),
+                        ),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "question",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="solutions",
+                                to="course.question",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "ordering": ["-is_primary", "created_at"],
+                    },
                 ),
             ],
-            options={
-                "ordering": ["-is_primary", "created_at"],
-            },
+            database_operations=[
+                migrations.RunSQL(
+                    sql="ALTER TABLE course_question ADD COLUMN IF NOT EXISTS hints jsonb NOT NULL DEFAULT '[]'::jsonb;",
+                    reverse_sql="ALTER TABLE course_question DROP COLUMN IF EXISTS hints;",
+                ),
+                migrations.RunSQL(
+                    sql="""
+                        CREATE TABLE IF NOT EXISTS course_questionsolution (
+                            id uuid NOT NULL PRIMARY KEY,
+                            title varchar(255) NOT NULL DEFAULT '',
+                            language varchar(20) NOT NULL DEFAULT 'python',
+                            code text NOT NULL DEFAULT '',
+                            complexity_analysis text NOT NULL DEFAULT '',
+                            is_primary boolean NOT NULL DEFAULT false,
+                            created_at timestamptz NOT NULL,
+                            updated_at timestamptz NOT NULL,
+                            question_id uuid NOT NULL REFERENCES course_question(id) ON DELETE CASCADE
+                        );
+                    """,
+                    reverse_sql="DROP TABLE IF EXISTS course_questionsolution;",
+                ),
+            ],
         ),
     ]

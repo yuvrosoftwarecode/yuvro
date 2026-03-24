@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import QuestionBank from '@/components/common/QuestionBank';
 import { contestService } from '@/services/contestService';
 import { fetchQuestionById, Question } from '@/services/questionService';
@@ -275,12 +275,12 @@ export default function ContestForm() {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader
-              title="Loading..."
-              subtitle="Please wait while we load the contest details"
-              actions={null}
-            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <PageHeader
+                title="Loading..."
+                subtitle="Please wait while we load the contest details"
+                actions={null}
+              />
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
@@ -296,19 +296,21 @@ export default function ContestForm() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={
-              <button
-                onClick={() => navigate('/admin/contests')}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                ← Back to List
-              </button>
-            }
-          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={
+                <Button
+                  onClick={() => navigate('/admin/contests')}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to List
+                </Button>
+              }
+            />
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
@@ -575,8 +577,8 @@ export default function ContestForm() {
               </Tabs>
             </div>
           </div>
+          </div>
         </div>
-      </div>
     </div>
   );
 }

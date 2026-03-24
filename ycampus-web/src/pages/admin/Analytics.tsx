@@ -1,7 +1,7 @@
 // src/pages/admin/Analytics.tsx
 import React from 'react';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -28,13 +28,12 @@ export default function InstructorAnalytics() {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <RoleSidebar />
-            <div className="flex-1 flex flex-col">
-                <RoleHeader
-                    title="Analytics Dashboard"
-                    subtitle="Comprehensive insights into subjects, students, and assessments"
-                />
-
-                <div className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+            <div className="flex-1 overflow-y-auto">
+                <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
+                    <PageHeader
+                        title="Analytics Dashboard"
+                        subtitle="Comprehensive insights into subjects, students, and assessments"
+                    />
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {overviewStats.map((stat, i) => (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { facultyService, FacultyProfile } from '@/services/facultyService';
 import FacultyList from '@/components/college-admin/faculty/FacultyList';
 import FacultyForm from '@/components/college-admin/faculty/FacultyForm';
@@ -93,14 +93,13 @@ const FacultyScreen: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                    <RoleHeader
-                        title="Faculty Management"
-                        subtitle="Maintain records and directory of all academic staff"
-                        actions={headerActions}
-                    />
-
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <PageHeader
+                                title="Faculty Management"
+                                subtitle="Maintain records and directory of all academic staff"
+                                actions={headerActions}
+                            />
                             <FacultyList 
                                 faculties={faculties} 
                                 onEdit={handleEdit} 

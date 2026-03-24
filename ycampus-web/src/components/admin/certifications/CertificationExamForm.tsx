@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import QuestionBank from '@/components/common/QuestionBank';
 import { getCertificationExam, createCertificationExam, updateCertificationExam, CertificationExam } from '@/services/certificationService';
 import subjectService, { Subject } from '@/services/subjectService';
@@ -245,9 +247,11 @@ export default function CertificationExamForm() {
             <div className="min-h-screen bg-gray-50 flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader title="Loading..." actions={null} />
-                    <div className="flex justify-center items-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader title="Loading..." actions={null} />
+                        <div className="flex justify-center items-center h-full">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -258,20 +262,21 @@ export default function CertificationExamForm() {
         <div className="min-h-screen bg-gray-50 flex">
             <RoleSidebar />
             <div className="flex-1 flex flex-col">
-                <RoleHeader
-                    title={getHeaderTitle()}
-                    subtitle="Configure certification exam details, schedule and questions"
-                    actions={
-                        <button
-                            onClick={() => navigate('/admin/certifications')}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-                        >
-                            ← Back to List
-                        </button>
-                    }
-                />
-
-                <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+                    <PageHeader
+                        title={getHeaderTitle()}
+                        subtitle="Configure certification exam details, schedule and questions"
+                        actions={
+                            <Button
+                                onClick={() => navigate('/admin/certifications')}
+                                variant="outline"
+                                className="gap-2"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Back to List
+                            </Button>
+                        }
+                    />
                     <div className="bg-white shadow rounded-lg mb-6 p-6">
                         <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">

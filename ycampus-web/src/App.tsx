@@ -19,13 +19,15 @@ import Users from './pages/admin/Users';
 import Colleges from './pages/admin/Colleges';
 import CollegeDetails from './components/admin/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
+import StudentLearn from './pages/student/StudentLearn';
 import SubjectDetail from './components/student/SubjectDetail';
-import SkillTest from './pages/student/SkillTest';
+import SkillTest from './pages/student/PracticeTest';
 import MockInterview from './pages/student/MockInterview';
 import Jobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
 import ContestAttempt from './pages/student/ContestAttempt';
+import ContestAnalyticsList from './pages/student/ContestAnalyticsList';
 import CodePractice from './pages/student/CodePractice';
 import StudentQuiz from './components/student/StudentQuiz';
 import StudentCoding from './components/student/StudentCoding';
@@ -39,12 +41,13 @@ import DashboardRedirect from './components/DashboardRedirect';
 import OwnerContest from './pages/admin/Contest';
 import ContestEdit from './components/admin/contests/ContestEdit';
 import ContestForm from './components/admin/contests/ContestForm';
-import InstructorSkillTest from './pages/admin/SkillTest';
-import SkillTestForm from './components/admin/skill-tests/SkillTestForm';
+import StudentAssessments from './pages/student/StudentAssessments';
+import InstructorSkillTest from './pages/admin/TestManager';
+import SkillTestForm from './components/admin/skill-tests/TestForm';
 import InstructorProfile from './pages/admin/Profile';
 import InstructorMockInterview from './pages/admin/MockInterview';
 import MockInterviewForm from './components/admin/mock-interviews/MockInterviewForm';
-import SkillTestSubmissions from './pages/admin/SkillTestSubmissions';
+import SkillTestSubmissions from './pages/admin/TestSubmissions';
 import SubmissionAnalytics from './pages/admin/SubmissionAnalytics';
 import InstructorCertifications from './pages/admin/Certifications';
 import CertificationExamForm from './components/admin/certifications/CertificationExamForm';
@@ -64,6 +67,10 @@ import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
 import Departments from './pages/admin/Departments';
 import CollegeSubjects from './pages/admin/CollegeSubjects';
+import MockInterviewAnalytics from './pages/admin/MockInterviewAnalytics';
+import MockInterviewReports from './pages/admin/MockInterviewReports';
+import MockInterviewReportView from './pages/admin/MockInterviewReportView';
+
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/PrincipalDashboard';
@@ -99,6 +106,7 @@ import TPOLiveJobs from './pages/tpo/LiveJobs';
 import TPOStudentsTracking from './pages/tpo/StudentsTracking';
 import TPOAIAnalytics from './pages/tpo/AIAnalytics';
 import TPORecruiterInsights from './pages/tpo/RecruiterInsights';
+import TPORecruiterDetail from './pages/tpo/RecruiterDetail';
 import TPOOfferTracking from './pages/tpo/OfferTracking';
 import TPODriveCalendar from './pages/tpo/DriveCalendar';
 import TPONotifications from './pages/tpo/Notifications';
@@ -190,37 +198,72 @@ function App() {
               />
 
               <Route
-                path="/student/skill-test"
+                path="/student/practice-tests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests"
+                path="/student/practice-tests/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests/:testId"
+                path="/student/practice-tests/:subjectId/:testId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
                   </ProtectedRoute>
                 }
               />
 
               <Route
-                path="/student/subjects/:subjectId/skill-tests/:testId/results"
+                path="/student/practice-tests/:subjectId/:testId/results"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SkillTest />
+                    <SkillTest testType="practice" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/assessments"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId/:testId"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/assessments/:subjectId/:testId/results"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAssessments />
                   </ProtectedRoute>
                 }
               />
@@ -265,7 +308,7 @@ function App() {
                 path="/student/contests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <Contest />
                   </ProtectedRoute>
                 }
               />
@@ -275,6 +318,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <ContestAttempt />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contest-analytics-list"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ContestAnalyticsList />
                   </ProtectedRoute>
                 }
               />
@@ -293,23 +345,15 @@ function App() {
                 path="/student/notes"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentLearn />
                   </ProtectedRoute>
                 }
               />
               <Route
-                path="/student/practice-test"
+                path="/student/notes/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/task"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentLearn />
                   </ProtectedRoute>
                 }
               />
@@ -614,6 +658,14 @@ function App() {
                 }
               />
               <Route
+                path="/placement/recruiters/:id"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPORecruiterDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/placement/drives"
                 element={
                   <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
@@ -657,7 +709,39 @@ function App() {
                 path="/faculty/assessment"
                 element={
                   <ProtectedRoute allowedRoles={["faculty"]}>
-                    <ComingSoon />
+                    <InstructorSkillTest basePath="/faculty/assessment" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/subjects/:subjectId/manage"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <InstructorSkillTest basePath="/faculty/assessment" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/add"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/:skillTestId/edit"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/faculty/assessment/:skillTestId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["faculty"]}>
+                    <SkillTestSubmissions />
                   </ProtectedRoute>
                 }
               />
@@ -756,6 +840,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <TPOScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
@@ -1237,6 +1329,34 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/admin/mock-interview/:mockInterviewId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/mock-interview/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReports />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/mock-interview/reports/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReportView />
+                  </ProtectedRoute>
+                }
+              />
+
 
               <Route
                 path="/tools/code-editor"

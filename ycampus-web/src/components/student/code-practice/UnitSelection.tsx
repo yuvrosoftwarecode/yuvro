@@ -169,7 +169,7 @@ const UnitSelection = ({
 
             {/* Main Content Area */}
             <div className="flex-1 overflow-auto">
-                <div className="p-6 max-w-7xl mx-auto min-h-full">
+                <div className="p-6 min-h-full">
                     {/* Breadcrumb */}
                     <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
                         <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">

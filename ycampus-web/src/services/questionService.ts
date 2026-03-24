@@ -19,6 +19,8 @@ export interface Question {
   marks: number;
   duration: number;
   categories: string[];
+  hints?: string[];
+  solutions?: any[];
   mcq_options?: MCQOption[];
   test_cases_basic?: TestCase[];
   test_cases_advanced?: TestCase[];
@@ -156,10 +158,10 @@ export const getQuestionsByType = async (
 };
 
 export const getQuestionsByCategory = async (
-  category: string,
+  categoryStr: string,
   filters?: Omit<QuestionFilters, 'categories'>
 ): Promise<Question[]> => {
-  return fetchQuestions({ ...filters, categories: category });
+  return fetchQuestions({ ...filters, categories: categoryStr });
 };
 
 export const getQuestionsByDifficulty = async (
