@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
+import axios from 'axios';
 
 import { CodeEditorWithAI } from '@/components/code-editor';
 import type { Subject as EditorSubject, Unit as EditorUnit, CodingProblem } from './CodePractice';
@@ -252,6 +253,18 @@ const StudentTask: React.FC = () => {
         return textExtensions.includes(ext) || filename.toLowerCase().includes('makefile') || filename.toLowerCase().includes('dockerfile');
     };
 
+    const getAccessibleUrl = (url: string | null | undefined) => {
+        if (!url) return '';
+        let accessibleUrl = url;
+        if (accessibleUrl.includes('://ycampus-backend') || accessibleUrl.includes('://localhost:8001')) {
+            try {
+                const urlObj = new URL(accessibleUrl);
+                return `http://localhost:8001${urlObj.pathname}${urlObj.search}`;
+            } catch (e) {}
+        }
+        return accessibleUrl;
+    };
+
     const isImageFile = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
         return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '');
@@ -277,36 +290,36 @@ const StudentTask: React.FC = () => {
 
             setFileViewerLoading(true);
             try {
-                setFileViewerLoading(true);
                 // Use relative URL to leverage Vite proxy and avoid CORS issues
                 const relativeUrl = fileViewerUrl.includes('://') 
                     ? new URL(fileViewerUrl).pathname + new URL(fileViewerUrl).search 
                     : fileViewerUrl;
-                
-                console.log("Attempting to preview file (via proxy):", relativeUrl);
-                const response = await fetch(relativeUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status} ${response.statusText}`);
-                }
-
-                const blob = await response.blob();
                 const filename = fileViewerUrl.split('/').pop()?.split('?')[0] || '';
 
                 if (filename.toLowerCase().endsWith('.zip')) {
-                    const fileSize = blob.size;
-                    const fiftyMB = 50 * 1024 * 1024;
-
-                    if (fileSize > fiftyMB) {
-                        toast.info("ZIP file is too large for in-browser preview (>50MB). Please download to review.");
-                        setFileViewerContent("");
-                        setZipFiles([]);
-                        return;
+                    try {
+                        const headResp = await axios.head(relativeUrl);
+                        const contentLength = headResp.headers['content-length'];
+                        if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
+                            toast.info(`ZIP file is too large (${(parseInt(contentLength, 10) / 1024 / 1024).toFixed(1)}MB) for in-browser preview. Please download to review.`);
+                            setFileViewerContent("");
+                            setZipFiles([]);
+                            setFileViewerLoading(false);
+                            return;
+                        }
+                    } catch (e) {
+                         // Silently ignore HEAD errors, will try to fetch anyway
                     }
+                }
+                
+                console.log("Attempting to preview file (via proxy):", relativeUrl);
+                const axiosResp = await axios.get(relativeUrl, { responseType: 'blob' });
+                const blob = axiosResp.data;
 
-                    const jszipModule = await import(/* @vite-ignore */ 'https://esm.run/jszip');
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const JSZip = (jszipModule as any).default || jszipModule;
+                if (filename.toLowerCase().endsWith('.zip')) {
+                    // @ts-expect-error Types for remote CDN are not locally configured
+                    const jszipModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+                    const JSZip = jszipModule.default || jszipModule;
                     const zip = new JSZip();
                     const contents = await zip.loadAsync(blob);
                     const files: { name: string; content: string; type: 'text' | 'image' | 'other' }[] = [];
@@ -325,12 +338,16 @@ const StudentTask: React.FC = () => {
                             }
                         }
                     }
+                    
                     setZipFiles(files);
                     if (files.length > 0) {
                         const firstPreviewable = files[0];
                         setSelectedZipFile(firstPreviewable.name);
                         setFileViewerContent(firstPreviewable.content);
                         setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                    } else {
+                        toast.info("ZIP is empty or contains no previewable files.");
+                        setFileViewerContent("");
                     }
                 } else if (isTextFile(filename)) {
                     const text = await blob.text();
@@ -976,7 +993,7 @@ const StudentTask: React.FC = () => {
                                         </p>
                                         <div className="flex items-center gap-3 mt-6">
                                             <Button
-                                                onClick={() => fileViewerUrl && window.open(fileViewerUrl)}
+                                                onClick={() => fileViewerUrl && window.open(getAccessibleUrl(fileViewerUrl))}
                                                 className="bg-orange-500 text-white font-bold h-10 px-6 rounded-xl shadow-lg shadow-orange-100"
                                             >
                                                 <Download className="h-4 w-4 mr-2" /> Download

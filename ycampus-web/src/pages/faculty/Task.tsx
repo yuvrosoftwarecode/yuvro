@@ -43,6 +43,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
 import { useRef } from 'react';
+import axios from 'axios';
 
 const FacultyTask: React.FC = () => {
     const { user } = useAuth();
@@ -111,7 +112,7 @@ const FacultyTask: React.FC = () => {
         }
     }, [selectedSubmission?.comments, view]);
     const [previewContent, setPreviewContent] = useState<string>("");
-    const [previewType, setPreviewType] = useState<'text' | 'image' | 'other' | null>(null);
+    const [previewType, setPreviewType] = useState<'text' | 'image' | 'pdf' | 'other' | null>(null);
     const [previewLanguage, setPreviewLanguage] = useState<string>("plaintext");
     const [loadingFile, setLoadingFile] = useState(false);
     const [selectedLineNumber, setSelectedLineNumber] = useState<number | null>(null);
@@ -137,6 +138,18 @@ const FacultyTask: React.FC = () => {
         const ext = filename.split('.').pop()?.toLowerCase();
         const map: Record<string, string> = { 'js': 'javascript', 'ts': 'typescript', 'tsx': 'typescript', 'jsx': 'javascript', 'py': 'python', 'java': 'java', 'c': 'c', 'cpp': 'cpp', 'cs': 'csharp', 'html': 'html', 'css': 'css', 'json': 'json', 'md': 'markdown', 'txt': 'plaintext', 'sql': 'sql', 'sh': 'shell' };
         return map[ext || ''] || 'plaintext';
+    };
+
+    const getAccessibleUrl = (url: string | null | undefined) => {
+        if (!url) return '';
+        let accessibleUrl = url;
+        if (accessibleUrl.includes('://ycampus-backend') || accessibleUrl.includes('://localhost:8001')) {
+            try {
+                const urlObj = new URL(accessibleUrl);
+                return `http://localhost:8001${urlObj.pathname}${urlObj.search}`;
+            } catch (e) {}
+        }
+        return accessibleUrl;
     };
 
     const isTextFile = (filename: string) => {
@@ -170,45 +183,48 @@ const FacultyTask: React.FC = () => {
                 const relativeUrl = reviewingFile.includes('://') 
                     ? new URL(reviewingFile).pathname + new URL(reviewingFile).search 
                     : reviewingFile;
-
-                console.log("Attempting to preview file (via proxy):", relativeUrl);
-                const response = await fetch(relativeUrl);
-
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status} ${response.statusText}`);
-                }
-
-                const blob = await response.blob();
                 const filename = reviewingFile.split('/').pop()?.split('?')[0] || '';
 
                 if (filename.toLowerCase().endsWith('.zip')) {
-                    const fileSize = blob.size;
-                    const fiftyMB = 50 * 1024 * 1024;
-                    
-                    if (fileSize > fiftyMB) {
-                        toast.info("ZIP file is too large for in-browser preview (>50MB). Please download to review.");
-                        setPreviewContent("");
-                        setPreviewType(null);
-                        setZipFiles([]);
-                        return;
+                    try {
+                        const headResp = await axios.head(relativeUrl);
+                        const contentLength = headResp.headers['content-length'];
+                        if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
+                            toast.info(`ZIP file is too large (${(parseInt(contentLength, 10) / 1024 / 1024).toFixed(1)}MB) for in-browser preview. Please download to review.`);
+                            setPreviewContent("");
+                            setPreviewType('other');
+                            setZipFiles([]);
+                            setLoadingFile(false);
+                            return;
+                        }
+                    } catch (e) {
+                         // Silently ignore HEAD errors, will try to fetch anyway
                     }
+                }
 
-                    const jszipModule = await import(/* @vite-ignore */ 'https://esm.run/jszip');
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const JSZip = (jszipModule as any).default || jszipModule;
+                console.log("Attempting to preview file (via proxy):", relativeUrl);
+                const axiosResp = await axios.get(relativeUrl, { responseType: 'blob' });
+                const blob = axiosResp.data;
+
+                if (filename.toLowerCase().endsWith('.zip')) {
+                    // @ts-expect-error Types for remote CDN are not locally configured
+                    const jszipModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+                    const JSZip = jszipModule.default || jszipModule;
+
                     const zip = new JSZip();
                     const contents = await zip.loadAsync(blob);
                     const files: { name: string; content: string; type: 'text' | 'image' | 'other' }[] = [];
 
                     for (const [name, file] of Object.entries(contents.files)) {
-                        if (!file.dir) {
+                        const anyFile = file as any;
+                        if (!anyFile.dir) {
                             if (isImageFile(name)) {
-                                const base64 = await file.async('base64');
+                                const base64 = await anyFile.async('base64');
                                 const ext = name.split('.').pop()?.toLowerCase();
                                 files.push({ name, content: `data:image/${ext};base64,${base64}`, type: 'image' });
                             } else {
                                 // Default all other files to text preview
-                                const content = await file.async('string');
+                                const content = await anyFile.async('string');
                                 files.push({ name, content, type: 'text' });
                             }
                         }
@@ -220,6 +236,10 @@ const FacultyTask: React.FC = () => {
                         setPreviewContent(firstPreviewable.content);
                         setPreviewType(firstPreviewable.type);
                         setPreviewLanguage(getLanguageFromExtension(firstPreviewable.name));
+                    } else {
+                        toast.info("ZIP is empty or contains no previewable files.");
+                        setPreviewContent("");
+                        setPreviewType(null);
                     }
                 } else if (isTextFile(filename)) {
                     const text = await blob.text();
@@ -1127,8 +1147,13 @@ const FacultyTask: React.FC = () => {
                                         <div className="flex justify-end pt-4">
                                             <Button
                                                 onClick={() => {
-                                                    setReviewingFile(selectedSubmission.file || null);
-                                                    setIsFileViewerOpen(true);
+                                                    const url = getAccessibleUrl(selectedSubmission.file);
+                                                    if(url.toLowerCase().endsWith('.zip')) {
+                                                        setReviewingFile(selectedSubmission.file || null);
+                                                        setIsFileViewerOpen(true);
+                                                    } else {
+                                                        window.open(url, '_blank');
+                                                    }
                                                 }}
                                                 size="sm"
                                                 className="bg-orange-500  text-white"
@@ -1647,7 +1672,7 @@ const FacultyTask: React.FC = () => {
                                                     </p>
                                                     <div className="flex items-center gap-4 mt-8">
                                                         <Button
-                                                            onClick={() => window.open(reviewingFile)}
+                                                            onClick={() => window.open(getAccessibleUrl(reviewingFile))}
                                                             className="bg-orange-500 text-white font-bold h-12 px-8 rounded-2xl shadow-xl shadow-orange-100 transition-all flex items-center gap-2"
                                                         >
                                                             <Download className="h-4 w-4" /> Download File
