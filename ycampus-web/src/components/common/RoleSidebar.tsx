@@ -117,13 +117,6 @@ const sidebarItems: SidebarItem[] = [
     roles: ['student']
   },
   {
-    id: 'student-interview-prep',
-    label: 'Interview Preparation',
-    icon: Users,
-    path: '/student/interview-prep',
-    roles: ['student']
-  },
-  {
     id: 'student-contest',
     label: 'Contest',
     icon: Trophy,
@@ -635,7 +628,7 @@ export const SidebarContent = ({
     if (item.id === 'recruiter-jobs-approval') {
       return hasJobsApprovalAccess;
     }
-    return item.roles.includes(userRole);
+    return item.roles?.includes(userRole);
   });
 
   const isActiveItem = (item: SidebarItem) => {
