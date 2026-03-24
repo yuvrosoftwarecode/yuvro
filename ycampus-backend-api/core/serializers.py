@@ -7,7 +7,6 @@ from .models import (
     PrincipalProfile,
     CollegeAdminProfile,
     TPOProfile,
-    TPOProfile,
     College,
     Department,
     Batch,

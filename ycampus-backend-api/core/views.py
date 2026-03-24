@@ -18,7 +18,6 @@ from .models import (
     PrincipalProfile,
     CollegeAdminProfile,
     TPOProfile,
-    TPOProfile,
     Department,
     AttendanceSession,
     AttendanceRecord,
