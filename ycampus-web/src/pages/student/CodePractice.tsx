@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navigation from '@/components/common/Navigation';
+import RoleSidebar from '@/components/common/RoleSidebar';
+import PageHeader from '@/components/common/PageHeader';
 import SubjectDashboard from '@/components/student/code-practice/CourseDashboard';
 import UnitSelection from '@/components/student/code-practice/UnitSelection';
 import { CodeEditorWithAI } from '@/components/code-editor';
@@ -89,10 +91,10 @@ const CodePractice = () => {
     try {
       // 1. Fetch Subject
       if (!selectedSubject || selectedSubject.id !== subjectId) {
-        const subject = await fetchSubjectById(subjectId);
+        const subject: any = await fetchSubjectById(subjectId);
         const transformedSubject: Subject = {
           id: subject.id.toString(),
-          name: subject.name || 'Untitled Subject',
+          name: subject.subject_name || subject.name || subject.title || 'Untitled Subject',
           icon: subject.category,
           progress: Math.round(subject.progress_percentage || 0),
           totalProblems: subject.total_problems || 0,
@@ -229,58 +231,69 @@ const CodePractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="transition-all duration-300 ease-in-out">
-        {isHydrating ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
-            <p className="text-gray-500 font-medium">Loading your practice session...</p>
+    <div className="min-h-screen bg-white">
+      <div className="flex h-screen overflow-hidden">
+        <RoleSidebar />
+        <div className="flex-1 h-screen overflow-hidden bg-gray-50/30 flex flex-col">
+          <div className="flex-1 overflow-hidden px-4 md:px-6 lg:px-8 py-8 space-y-6 flex flex-col">
+            <PageHeader
+              title={currentView === 'dashboard' ? "Code Practice" : selectedSubject?.name || "Code Practice"}
+              subtitle={currentView === 'dashboard' ? "Sharpen your coding skills with hands-on practice" : `Practice modules for ${selectedSubject?.name}`}
+            />
+
+            <div className="flex-1 transition-all duration-300 ease-in-out flex flex-col min-h-0">
+              {isHydrating ? (
+                <div className="flex flex-col items-center justify-center min-h-[40vh]">
+                  <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
+                  <p className="text-gray-500 font-medium">Loading your practice session...</p>
+                </div>
+              ) : (
+                <>
+                  {currentView === 'dashboard' && (
+                    <SubjectDashboard
+                      onSubjectSelect={handleSubjectSelect}
+                      onViewAnalytics={handleViewAnalytics}
+                    />
+                  )}
+
+                  {currentView === 'units' && selectedSubject && (
+                    <UnitSelection
+                      subject={selectedSubject}
+                      selectedUnit={selectedUnit}
+                      onUnitSelect={handleUnitSelect}
+                      onProblemSelect={handleProblemSelect}
+                      onBack={handleBackToDashboard}
+                    />
+                  )}
+
+                  {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
+                    <CodeEditorWithAI
+                      problem={selectedProblem}
+                      subject={selectedSubject}
+                      unit={selectedUnit}
+                      onBack={handleBackToUnits}
+                      onViewAnalytics={handleViewAnalytics}
+                      codeSubmissionType="practice"
+                    />
+                  )}
+
+                  {currentView === 'analytics' && (
+                    <ScoreAnalytics
+                      onBack={handleBackToDashboard}
+                      onViewInsights={handleViewInsights}
+                    />
+                  )}
+
+                  {currentView === 'insights' && (
+                    <AIInsights
+                      onBack={() => setCurrentView('analytics')}
+                    />
+                  )}
+                </>
+              )}
+            </div>
           </div>
-        ) : (
-          <>
-            {currentView === 'dashboard' && (
-              <SubjectDashboard
-                onSubjectSelect={handleSubjectSelect}
-                onViewAnalytics={handleViewAnalytics}
-              />
-            )}
-
-            {currentView === 'units' && selectedSubject && (
-              <UnitSelection
-                subject={selectedSubject}
-                selectedUnit={selectedUnit}
-                onUnitSelect={handleUnitSelect}
-                onProblemSelect={handleProblemSelect}
-                onBack={handleBackToDashboard}
-              />
-            )}
-
-            {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
-              <CodeEditorWithAI
-                problem={selectedProblem}
-                subject={selectedSubject}
-                unit={selectedUnit}
-                onBack={handleBackToUnits}
-                onViewAnalytics={handleViewAnalytics}
-                codeSubmissionType="practice"
-              />
-            )}
-
-            {currentView === 'analytics' && (
-              <ScoreAnalytics
-                onBack={handleBackToDashboard}
-                onViewInsights={handleViewInsights}
-              />
-            )}
-
-            {currentView === 'insights' && (
-              <AIInsights
-                onBack={() => setCurrentView('analytics')}
-              />
-            )}
-          </>
-        )}
+        </div>
       </div>
     </div>
   );

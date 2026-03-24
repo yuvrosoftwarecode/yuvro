@@ -61,6 +61,14 @@ const UnitSidebar = ({
                 minWidth: isOpen ? "320px" : "64px",
             }}
         >
+            {/* Toggle Button */}
+            <button
+                onClick={onToggle}
+                className="absolute -right-3 top-10 z-30 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200"
+            >
+                {isOpen ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
+            </button>
+
             {/* Scrollable content container */}
             <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {/* CONTENT AREA */}

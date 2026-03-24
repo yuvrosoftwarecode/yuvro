@@ -819,6 +819,14 @@ function App() {
                 }
               />
               <Route
+                path="/college-admin/subjects"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <CollegeSubjects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/college-admin/announcements"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -991,6 +999,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Subjects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/subjects/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
+                    <CollegeSubjects />
                   </ProtectedRoute>
                 }
               />
