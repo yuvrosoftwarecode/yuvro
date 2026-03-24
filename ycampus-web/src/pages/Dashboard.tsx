@@ -1,7 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import Navigation from '../components/common/Navigation';
 import RoleSidebar from '../components/common/RoleSidebar';
-import RoleHeader from '../components/common/RoleHeader';
+import PageHeader from '../components/common/PageHeader';
 
 const Dashboard: React.FC = () => {
 
@@ -76,8 +76,11 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {/* Student Dashboard Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <PageHeader 
+            title="Dashboard"
+            subtitle="Overview of your activities and progress"
+          />
           {renderDashboardContent()}
         </div>
       </div>
@@ -90,11 +93,11 @@ const Dashboard: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title="Dashboard"
-            subtitle="Overview of your activities and progress"
-          />
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader 
+              title="Dashboard"
+              subtitle="Overview of your activities and progress"
+            />
             {renderDashboardContent()}
           </div>
         </div>

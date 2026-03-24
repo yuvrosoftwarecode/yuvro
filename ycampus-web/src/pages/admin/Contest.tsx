@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Trophy, Users, Calendar, Clock, Building2, GraduationCap, Pencil, Trash2, Eye, FileText, Code, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import SearchBar from '@/components/common/SearchBar';
 import { useAuth } from "@/contexts/AuthContext";
 import { contestService } from '@/services/contestService';
@@ -267,12 +267,12 @@ export default function OwnerContest() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={headerActions}
-          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={headerActions}
+            />
 
             {currentView === 'list' && (
               <>

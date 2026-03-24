@@ -5,7 +5,7 @@ import { jobService, Job, Company } from "../../services/jobService";
 import { jobApplicationService } from "../../services/jobApplicationService";
 
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import QuestionBank from "../../components/common/QuestionBank";
 import SearchBar from "../../components/common/SearchBar";
 import { fetchQuestionById } from "../../services/questionService";
@@ -458,13 +458,13 @@ const Jobs: React.FC = () => {
         <RoleSidebar />
 
         <div className="flex-1">
-          <RoleHeader
-            title="Job Management Dashboard"
-            subtitle="Manage your job recruitment pipeline"
-            actions={headerActions}
-          />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title="Job Management Dashboard"
+              subtitle="Manage your job recruitment pipeline"
+              actions={headerActions}
+            />
             {!showJobForm && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

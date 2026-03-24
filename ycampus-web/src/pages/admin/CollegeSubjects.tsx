@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 
 const CollegeSubjects: React.FC = () => {
@@ -198,13 +198,12 @@ const CollegeSubjects: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title="College Subjects"
-                        subtitle="Manage subjects assigned to this college"
-                        actions={headerActions}
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="College Subjects"
+                            subtitle="Manage subjects assigned to this college"
+                            actions={headerActions}
+                        />
                         {/* Search Bar */}
                         <div className="mb-6">
                             <div className="relative">

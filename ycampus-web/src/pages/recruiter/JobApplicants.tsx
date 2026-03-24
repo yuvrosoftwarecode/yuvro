@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, Calendar, DollarSign, FileText, ExternalLink, User, Ma
 import { jobService, Job } from '../../services/jobService';
 import { jobApplicationService, JobApplication } from '../../services/jobApplicationService';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from 'sonner';
 
 // Error Boundary Component
@@ -167,12 +167,12 @@ const JobApplicantsContent: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader
-              title="Job Applicants"
-              subtitle="Loading..."
-              actions={headerActions}
-            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <PageHeader
+                title="Job Applicants"
+                subtitle="Loading..."
+                actions={headerActions}
+              />
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Loading applications...</p>
@@ -189,13 +189,12 @@ const JobApplicantsContent: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={`Applicants for ${job?.title || 'Job'}`}
-            subtitle={`${job?.company?.name || 'Company'} • ${filteredApplications.length} applications`}
-            actions={headerActions}
-          />
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={`Applicants for ${job?.title || 'Job'}`}
+              subtitle={`${job?.company?.name || 'Company'} • ${filteredApplications.length} applications`}
+              actions={headerActions}
+            />
             {/* Job Summary Card */}
             {job && (
               <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

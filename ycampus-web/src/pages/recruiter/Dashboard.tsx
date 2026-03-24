@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { 
   Building2, 
   Users, 
@@ -160,12 +160,12 @@ const RecruiterDashboard: React.FC = () => {
       <RoleSidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader 
-          title="Recruiter Dashboard" 
-          subtitle={`Welcome back, ${user?.username || 'Recruiter'}`}
-        />
         
         <main className="flex-1 overflow-y-auto p-6">
+          <PageHeader 
+            title="Recruiter Dashboard" 
+            subtitle={`Welcome back, ${user?.username || 'Recruiter'}`}
+          />
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {statsCards.map((card, index) => (

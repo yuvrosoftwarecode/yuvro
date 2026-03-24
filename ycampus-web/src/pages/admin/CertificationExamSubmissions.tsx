@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { Eye, Clock, Calendar, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -63,20 +63,19 @@ export default function CertificationExamSubmissions() {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title={exam?.title || 'Certification Analytics'}
-                        subtitle="View participant submissions and performance"
-                        actions={
-                            <button
-                                onClick={() => navigate('/admin/certifications')}
-                                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                ← Back to Exams
-                            </button>
-                        }
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title={exam?.title || 'Certification Analytics'}
+                            subtitle="View participant submissions and performance"
+                            actions={
+                                <button
+                                    onClick={() => navigate('/admin/certifications')}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                                >
+                                    ← Back to Exams
+                                </button>
+                            }
+                        />
                         <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Card>
                                 <CardContent className="p-6 flex items-center gap-4">

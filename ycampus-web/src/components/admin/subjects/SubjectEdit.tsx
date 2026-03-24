@@ -6,7 +6,7 @@ import VideosPanel from "./VideosPanel";
 import NotesManager from "./NotesManager";
 import QuestionBankManager from "./QuestionBankManager";
 import RoleSidebar from "../../common/RoleSidebar";
-import RoleHeader from "../../common/RoleHeader";
+import PageHeader from "../../common/PageHeader";
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -374,29 +374,43 @@ const SubjectEdit: React.FC = () => {
   };
 
   if (!subjectId) return <div className="min-h-screen flex items-center justify-center">No subject selected</div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading subject...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50 uppercase-none flex">
+      <RoleSidebar />
+      <div className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <PageHeader title="Loading Subject..." actions={null} />
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 uppercase-none">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={subject?.subject_name || 'Loading Subject...'}
-            subtitle={subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
-            actions={
-              <Button
-                variant="outline"
-                onClick={() => navigate("/admin/subjects/global")}
-                className="cursor-pointer"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Subjects
-              </Button>
-            }
-          />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-0">
+            <PageHeader
+              title={subject?.subject_name || 'Loading Subject...'}
+              subtitle={subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
+              actions={
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/admin/subjects/global")}
+                  className="cursor-pointer"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Subjects
+                </Button>
+              }
+            />
+          </div>
 
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-0">
             <div className="h-full w-full px-4 py-6 flex gap-6">
               {/* Left Sidebar */}
               <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">

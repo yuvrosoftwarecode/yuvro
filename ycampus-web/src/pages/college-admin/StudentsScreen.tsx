@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { studentService, Student } from '@/services/studentService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,13 +114,12 @@ const StudentsScreen: React.FC = () => {
         <div className="min-h-screen bg-gray-50/50">
             <div className="flex">
                 <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader
-                        title="Student Management"
-                        subtitle="View and manage all students in your college"
-                    />
-
+                <div className="flex-1 overflow-y-auto">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+                        <PageHeader
+                            title="Student Management"
+                            subtitle="View and manage all students in your college"
+                        />
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                             <div className="relative flex-1 max-w-md">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />

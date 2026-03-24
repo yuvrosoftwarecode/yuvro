@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleSidebar from "@/components/common/RoleSidebar";
-import RoleHeader from "@/components/common/RoleHeader";
+import PageHeader from "@/components/common/PageHeader";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -285,11 +285,12 @@ const InstructorProfile = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
-              title="Loading Profile..." 
-              subtitle="Please wait while we load your profile information." 
-            />
-            <div className="p-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <PageHeader 
+                title="Loading Profile..." 
+                subtitle="Please wait while we load your profile information." 
+              />
+              <div className="p-6">
               <div className="animate-pulse space-y-6">
                 <div className="bg-gray-300 rounded-lg h-64"></div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -309,6 +310,7 @@ const InstructorProfile = () => {
           </div>
         </div>
       </div>
+    </div>
     );
   }
 
@@ -339,13 +341,12 @@ const InstructorProfile = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title="Instructor Profile" 
-            subtitle="Manage your professional profile and teaching credentials"
-          />
-          
-          <div className="p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader 
+              title="Instructor Profile" 
+              subtitle="Manage your professional profile and teaching credentials"
+            />
+            <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">

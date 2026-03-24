@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Pencil, Trash, X, Building2, Users, Globe, MapPin, ExternalLink, Search, Filter } from "lucide-react";
 import { jobService, Company } from "../../services/jobService";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
 
@@ -185,13 +185,13 @@ const RecruiterCompanies: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1">
           {/* Header */}
-          <RoleHeader
-            title="Company Management"
-            subtitle="Manage your company database"
-            actions={headerActions}
-          />
 
           <div className="p-6">
+            <PageHeader
+              title="Company Management"
+              subtitle="Manage your company database"
+              actions={headerActions}
+            />
             {/* Stats Cards and Search - Only show when form is not open */}
             {!showCompanyForm && (
               <>

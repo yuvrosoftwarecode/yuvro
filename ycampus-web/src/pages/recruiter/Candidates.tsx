@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, DollarSign, Clock, GraduationCap, Building, Briefcase, RotateCcw, Sparkles, Eye, Mail, Download, Github, ExternalLink, User, Award, Calendar, ChevronDown, Code } from 'lucide-react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from "../../components/common/PageHeader";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -258,13 +258,13 @@ const Candidates = () => {
        <RoleSidebar />
 
         <div className="flex-1">
-          <RoleHeader
-            title="Candidate Search Dashboard"
-            subtitle="Find and connect with the best candidates for your positions"
-            actions={headerActions}
-          />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title="Candidate Search Dashboard"
+              subtitle="Find and connect with the best candidates for your positions"
+              actions={headerActions}
+            />
           {isLoading && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-center">

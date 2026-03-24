@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { CheckCircle, XCircle, Eye, Briefcase, MapPin, Clock } from "lucide-react";
 import { jobService, Job } from "../../services/jobService";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import SearchBar from "../../components/common/SearchBar";
 import { toast } from "sonner";
 import { useAuth } from "../../contexts/AuthContext";
@@ -32,7 +32,7 @@ const JobsApproval: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
+            <PageHeader 
               title="Jobs Approval" 
               subtitle="Review and approve job postings"
             />
@@ -305,7 +305,7 @@ const JobsApproval: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
+            <PageHeader 
               title="Jobs Approval" 
               subtitle="Review and approve job postings"
             />
@@ -349,12 +349,12 @@ const JobsApproval: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title="Jobs Approval" 
-            subtitle="Review and approve job postings before they go live"
-          />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader 
+              title="Jobs Approval" 
+              subtitle="Review and approve job postings before they go live"
+            />
             {/* Tab Navigation */}
             <div className="mb-6">
               <div className="border-b border-gray-200">

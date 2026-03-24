@@ -629,7 +629,8 @@ export const SidebarContent = ({
     if (item.id === 'recruiter-jobs-approval') {
       return hasJobsApprovalAccess;
     }
-    return item.roles?.includes(userRole);  });
+    return item.roles?.includes(userRole);
+  });
 
   const isActiveItem = (item: SidebarItem) => {
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');

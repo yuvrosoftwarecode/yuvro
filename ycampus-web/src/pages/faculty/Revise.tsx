@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -541,15 +541,17 @@ const Revise = () => {
       <RoleSidebar />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        <RoleHeader title="Revise" />
+        <div className="px-6 py-4">
+          <PageHeader 
+            title="Revise" 
+            subtitle="AI Teaching Notebook" 
+          />
+        </div>
 
         <div className="flex flex-1 flex-col min-h-0">
 
           {/* Top toolbar */}
           <header className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-white px-6 py-4">
-            <h1 className="whitespace-nowrap text-[30px] font-bold text-slate-900 leading-none">
-              Revise – AI Teaching Notebook
-            </h1>
 
             <div className="ml-auto flex flex-wrap items-center gap-2">
               {/* Subject select */}

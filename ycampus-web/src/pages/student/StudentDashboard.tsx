@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { Card, CardHeader, CardContent } from '../../components/ui/card';
 import studentDashboardService, {
   NotesProgressData,
@@ -1023,7 +1023,7 @@ const Dashboard: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader
+            <PageHeader
               title="Loading..."
               subtitle="Please wait while we load your dashboard."
             />
@@ -1048,12 +1048,12 @@ const Dashboard: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title="Dashboard Overview"
-            subtitle="Monitor your academic progress and performance metrics"
-          />
 
-          <div className="space-y-6 p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <PageHeader
+              title="Dashboard Overview"
+              subtitle="Monitor your academic progress and performance metrics"
+            />
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <NotesProgress data={notesData} />
               <TestPerformance data={testsData} />

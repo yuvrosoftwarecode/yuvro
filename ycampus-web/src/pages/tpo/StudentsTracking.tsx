@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import { Search, Download, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,13 @@ const StudentsTracking: React.FC = () => {
         <div className="flex h-screen bg-gray-50">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="" subtitle="" />
                 <main className="flex-1 overflow-y-auto p-6">
                     <div className="max-w-7xl mx-auto space-y-6">
+                        <PageHeader
+                            title="Students Tracking"
+                            subtitle="Track student placement status and performance"
+                        />
                         <div className="flex justify-between items-center">
-                            <h1 className="text-[20px] font-bold text-gray-900">Students Tracking</h1>
                             <div className="relative group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
                                 <input

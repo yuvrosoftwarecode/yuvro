@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -155,15 +155,9 @@ const Syllabus: React.FC = () => {
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <RoleSidebar />
       <div className="flex flex-1 flex-col h-screen overflow-hidden min-w-0">
-        <RoleHeader title="Syllabus" />
         <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar min-h-0 bg-[#F8FAFC]">
           <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-6 w-6 text-foreground" />
-                <h1 className="text-2xl font-bold text-foreground">Syllabus Management</h1>
-              </div>
-            </div>
+            <PageHeader title="Syllabus Management" subtitle="Take and manage attendance for your assigned sections" />
 
             <div className="bg-white rounded-xl border border-gray-300 p-6 flex flex-col space-y-8 min-h-[500px]">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

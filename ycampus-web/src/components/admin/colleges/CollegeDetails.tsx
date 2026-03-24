@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import Academics from "./Academics";
 import Management from "./Management";
 import RoleSidebar from "../../common/RoleSidebar";
-import RoleHeader from "../../common/RoleHeader";
+import PageHeader from "../../common/PageHeader";
 
 const CollegeDetails: React.FC = () => {
     const { collegeId } = useParams<{ collegeId: string }>();
@@ -63,10 +63,16 @@ const CollegeDetails: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-                    <p className="text-gray-500 font-medium">Loading college details...</p>
+            <div className="flex h-screen bg-gray-50 flex">
+                <RoleSidebar />
+                <div className="flex-1">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader title="Loading..." actions={null} />
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+                            <p className="text-gray-500 font-medium">Loading college details...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -79,22 +85,24 @@ const CollegeDetails: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title={college.name}
-                        subtitle="Institutional Management & Academics"
-                        actions={
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate("/admin/colleges")}
-                                className="h-10 px-4 border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 rounded-lg hover:bg-slate-50"
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                Back to Colleges
-                            </Button>
-                        }
-                    />
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-0">
+                        <PageHeader
+                            title={college.name}
+                            subtitle="Institutional Management & Academics"
+                            actions={
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/admin/colleges")}
+                                    className="h-10 px-4 border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 rounded-lg hover:bg-slate-50"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back to Colleges
+                                </Button>
+                            }
+                        />
+                    </div>
 
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-0">
                         {/* Sleek Nav Bar */}
                         <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-slate-200/60 shadow-sm w-fit mb-8">
                             <button

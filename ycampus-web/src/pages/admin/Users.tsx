@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { userService, User, PaginatedUsersResponse, UsersFilters } from '../../services/userService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
@@ -321,13 +321,12 @@ const Users: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <main className="flex-1 overflow-auto">
-                    <RoleHeader
-                        title="User Management"
-                        subtitle="Centralized management for system users, roles, and access"
-                        actions={headerActions}
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+                        <PageHeader
+                            title="User Management"
+                            subtitle="Centralized management for system users, roles, and access"
+                            actions={headerActions}
+                        />
                         <Card className="border-none shadow-none bg-transparent">
                             <CardHeader className="pb-2 px-0">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

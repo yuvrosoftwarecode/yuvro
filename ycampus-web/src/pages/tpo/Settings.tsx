@@ -1,5 +1,5 @@
 import React from 'react';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -10,12 +10,11 @@ const Settings: React.FC = () => {
         <div className="flex h-screen bg-gray-50">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="" subtitle="" />
-                <main className="flex-1 overflow-y-auto p-6">
-                    <div className="max-w-7xl mx-auto space-y-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-y-auto">
+                    <PageHeader title="Settings" subtitle="Manage your account preferences and application settings." />
+                    <div className="space-y-8">
                         <div className="flex justify-between items-center">
-                            <h1 className="text-[20px] font-bold text-gray-900">Settings</h1>
-                            <div className="relative group">
+                            <div className="relative group ml-auto">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
                                 <input
                                     type="text"
@@ -77,7 +76,7 @@ const Settings: React.FC = () => {
                             </Card>
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
         </div>
     );

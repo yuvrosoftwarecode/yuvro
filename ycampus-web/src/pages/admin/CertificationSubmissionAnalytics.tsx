@@ -4,7 +4,7 @@ import { getCertificationSubmission } from '@/services/certificationService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { Clock, AlertTriangle, CheckCircle, XCircle, Code, List } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -52,21 +52,20 @@ export default function CertificationSubmissionAnalytics() {
         <div className="min-h-screen bg-gray-50">
             <div className="flex">
                 <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader
-                        title={`${submission.user_name} - Analytics`}
-                        subtitle={submission.exam_title}
-                        actions={
-                            <button
-                                onClick={() => navigate(-1)}
-                                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                ← Back
-                            </button>
-                        }
-                    />
-
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="flex-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+                        <PageHeader
+                            title={`${submission.user_name} - Analytics`}
+                            subtitle={submission.exam_title}
+                            actions={
+                                <button
+                                    onClick={() => navigate(-1)}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                                >
+                                    ← Back
+                                </button>
+                            }
+                        />
 
                         {/* Overview Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
