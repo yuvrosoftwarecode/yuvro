@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from assessment.models import SkillTest, Contest, MockInterview, JobTest
-from Subject.models import Subject, Unit, Question
+from course.models import Subject, Unit, Question
 
 User = get_user_model()
 
@@ -21,6 +21,13 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing assessment data before loading new data",
         )
+        parser.add_argument(
+            "--deploy_env",
+            type=str,
+            default="dev",
+            choices=["dev", "prod"],
+            help="Environment to load fixtures from: dev or prod",
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -31,9 +38,9 @@ class Command(BaseCommand):
             SkillTest.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing assessment data cleared."))
 
-        # Determine fixtures directory (assessment/fixtures)
+        # Determine fixtures directory based on deploy_env
         here = Path(__file__).resolve()
-        fixtures_dir = here.parents[2] / "fixtures"
+        fixtures_dir = here.parents[2] / "fixtures" / options["deploy_env"]
 
         skill_file = fixtures_dir / "sample_assessment_skill_tests_data.json"
         contests_file = fixtures_dir / "sample_assessment_contests_data.json"
@@ -119,14 +126,13 @@ class Command(BaseCommand):
         if category:
             qs = qs.filter(categories__contains=[category])
         if topic_obj:
-            qs = qs.filter(Unit=topic_obj)
+            qs = qs.filter(unit=topic_obj)
         elif course_obj:
-            qs = qs.filter(Subject=course_obj)
+            qs = qs.filter(subject=course_obj)
 
         qs = qs.order_by("created_at")
         ids = list(qs.values_list("id", flat=True)[:count])
         if len(ids) < count:
-            # relax filters: ignore Unit/Subject restrictions and pick any remaining
             fallback = Question.objects.filter(type=qtype)
             if category:
                 fallback = fallback.filter(categories__contains=[category])
@@ -139,17 +145,17 @@ class Command(BaseCommand):
     def get_course_and_topic(self, course_short_code, topic_name=None):
         """Get Subject and Unit objects"""
         try:
-            Subject = Subject.objects.get(short_code=course_short_code)
+            subject = Subject.objects.get(short_code=course_short_code)
         except Subject.DoesNotExist:
             self.stdout.write(
                 self.style.WARNING(f"Subject {course_short_code} not found")
             )
             return None, None
 
-        Unit = None
+        unit = None
         if topic_name:
             try:
-                Unit = Unit.objects.get(Subject=Subject, name=topic_name)
+                unit = Unit.objects.get(subject=subject, name=topic_name)
             except Unit.DoesNotExist:
                 self.stdout.write(
                     self.style.WARNING(
@@ -157,7 +163,7 @@ class Command(BaseCommand):
                     )
                 )
 
-        return Subject, Unit
+        return subject, unit
 
     def load_skill_tests_from_json(self, data):
         """Load skill tests from JSON data"""
@@ -174,12 +180,12 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading skill test: {skill_test_data["title"]}')
 
-                Subject, Unit = self.get_course_and_topic(
+                subject, unit = self.get_course_and_topic(
                     skill_test_data.get("course_short_code"),
                     skill_test_data.get("topic_name"),
                 )
 
-                if not Subject:
+                if not subject:
                     self.stdout.write(
                         self.style.WARNING(
                             f"Skipping skill test '{skill_test_data.get('title')}' - Subject not found"
@@ -198,8 +204,8 @@ class Command(BaseCommand):
                     "enable_proctoring": skill_test_data.get(
                         "enable_proctoring", False
                     ),
-                    "Subject": Subject,
-                    "Unit": Unit,
+                    "subject": subject,
+                    "unit": unit,
                     "questions_random_config": skill_test_data.get(
                         "questions_random_config", {}
                     ),
@@ -215,7 +221,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "skill_test", Subject, Unit
+                                qtype, count, "skill_test", subject, unit
                             )
                             if count > 0
                             else []
@@ -225,7 +231,7 @@ class Command(BaseCommand):
 
                 # Check if skill test already exists
                 existing_skill_test = SkillTest.objects.filter(
-                    title=skill_test_kwargs["title"], Subject=Subject
+                    title=skill_test_kwargs["title"], subject=subject
                 ).first()
 
                 if not existing_skill_test:
@@ -270,12 +276,12 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading contest: {contest_data["title"]}')
 
-                Subject, Unit = self.get_course_and_topic(
+                subject, unit = self.get_course_and_topic(
                     contest_data.get("course_short_code"),
                     contest_data.get("topic_name"),
                 )
 
-                if not Subject:
+                if not subject:
                     self.stdout.write(
                         self.style.WARNING(
                             f"Skipping contest '{contest_data.get('title')}' - Subject not found"
@@ -319,7 +325,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "contest", Subject, None
+                                qtype, count, "contest", subject, None
                             )
                             if count > 0
                             else []
@@ -374,14 +380,14 @@ class Command(BaseCommand):
                 )
 
                 # Attempt to resolve Subject/Unit if provided; if not found, proceed without linking
-                Subject = None
-                Unit = None
+                subject = None
+                unit = None
                 course_code = mock_interview_data.get("course_short_code")
                 if course_code:
-                    Subject = Subject.objects.filter(short_code=course_code).first()
+                    subject = Subject.objects.filter(short_code=course_code).first()
                 topic_name = mock_interview_data.get("topic_name")
-                if topic_name and Subject:
-                    Unit = Unit.objects.filter(Subject=Subject, name=topic_name).first()
+                if topic_name and subject:
+                    unit = Unit.objects.filter(subject=subject, name=topic_name).first()
 
                 mock_interview_kwargs = {
                     "title": mock_interview_data["title"],
@@ -431,7 +437,7 @@ class Command(BaseCommand):
                         count = int(q_random.get(qtype, 0))
                         q_config[qtype] = (
                             self._select_questions(
-                                qtype, count, "mock_interview", Subject, Unit
+                                qtype, count, "mock_interview", subject, unit
                             )
                             if count > 0
                             else []

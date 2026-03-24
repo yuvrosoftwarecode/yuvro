@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Count, Avg, Q, Sum
+from django.utils import timezone
+from django.db import models
 
 from .models import (
     College,
@@ -14,9 +17,16 @@ from .models import (
     HODProfile,
     PrincipalProfile,
     CollegeAdminProfile,
+    TPOProfile,
     Department,
     AttendanceSession,
     AttendanceRecord,
+    Section,
+    Task,
+    TaskSubmission,
+    TaskComment,
+    Note,
+    Announcement,
 )
 from .serializers import (
     StudentProfileSerializer,
@@ -24,10 +34,19 @@ from .serializers import (
     HODProfileSerializer,
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
+    TPOProfileSerializer,
     AttendanceSessionSerializer,
     AttendanceRecordSerializer,
+    TaskSerializer,
+    TaskSubmissionSerializer,
+    TaskCommentSerializer,
+    NoteSerializer,
+    AnnouncementSerializer,
 )
-from authentication.permissions import IsCollegeManagementAdmin
+from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
+from django.shortcuts import get_object_or_404
+from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -422,6 +441,77 @@ class FacultyProfileViewSet(viewsets.ModelViewSet):
     serializer_class = FacultyProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
     filterset_fields = ["college", "department"]
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def stats(self, request):
+        """
+        Get statistics for the faculty dashboard.
+        Optional filters: subject_id, department_id
+        """
+        user = request.user
+        if user.role != "faculty":
+            return Response({"error": "Only faculty can access these stats"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            faculty_profile = user.faculty_profile
+        except FacultyProfile.DoesNotExist:
+            return Response({"error": "Faculty profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        subject_id = request.query_params.get("subject_id")
+        department_id = request.query_params.get("department_id")
+        section_id = request.query_params.get("section_id")
+
+        from course.models import SectionSubjectFaculty
+        
+        # Base assignments queryset
+        assignments = SectionSubjectFaculty.objects.filter(faculty=faculty_profile)
+        
+        if department_id:
+            assignments = assignments.filter(semester_subject__semester__batch__department_id=department_id)
+        
+        if subject_id:
+            assignments = assignments.filter(semester_subject__subject_id=subject_id)
+            
+        if section_id:
+            assignments = assignments.filter(section_id=section_id)
+
+        # 1. Total Courses (Unique subjects currently assigned)
+        total_courses = assignments.values('semester_subject__subject').distinct().count()
+
+        # 2. Total Students (Sum of students in all assigned sections)
+        sections = assignments.values_list('section', flat=True)
+        total_students = StudentProfile.objects.filter(section__in=sections).count()
+
+        # 3. Total Assessments (Tasks created by faculty)
+        tasks = Task.objects.filter(faculty=faculty_profile)
+        if subject_id:
+            tasks = tasks.filter(subject_id=subject_id)
+        if department_id:
+            tasks = tasks.filter(department_id=department_id)
+        if section_id:
+            tasks = tasks.filter(sections__id=section_id)
+        total_assessments = tasks.count()
+
+        # 4. Average Attendance
+        # Get sessions for these assignments
+        from core.models import AttendanceSession, AttendanceRecord
+        sessions = AttendanceSession.objects.filter(section_subject_faculty__in=assignments)
+        
+        avg_attendance = 0
+        if sessions.exists():
+            # Calculate average attendance across these sessions
+            # Formula: (Present Records / Total Records) * 100
+            total_records = AttendanceRecord.objects.filter(session__in=sessions).count()
+            if total_records > 0:
+                present_records = AttendanceRecord.objects.filter(session__in=sessions, is_present=True).count()
+                avg_attendance = (present_records / total_records) * 100
+
+        return Response({
+            "total_courses": total_courses,
+            "total_students": total_students,
+            "total_assessments": total_assessments,
+            "average_attendance": round(avg_attendance, 1)
+        })
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -941,6 +1031,113 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         return Response(results, status=status.HTTP_200_OK if results["created"] > 0 else status.HTTP_200_OK if results["total"] > 0 else status.HTTP_400_BAD_REQUEST)
 
 
+class TPOProfileViewSet(viewsets.ModelViewSet):
+    queryset = TPOProfile.objects.all()
+    serializer_class = TPOProfileSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
+    filterset_fields = ["college"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # If user is a College Admin or Principal, filter by their college
+        if user.role in ["college_admin", "principal"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+            
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+        
+        if not user_data:
+            return Response({"error": "User data is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        required_user_fields = ["email", "username", "first_name", "last_name", "password"]
+        if not all(field in user_data for field in required_user_fields):
+            return Response(
+                {"error": f"Missing user fields: {', '.join(required_user_fields)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            with transaction.atomic():
+                # 1. Create User
+                user = User.objects.create_user(
+                    email=user_data["email"],
+                    username=user_data["username"],
+                    first_name=user_data["first_name"],
+                    last_name=user_data["last_name"],
+                    password=user_data["password"],
+                    role="tpo"
+                )
+
+                # 2. Create TPO Profile
+                college_id = data.get("college")
+                college = get_object_or_404(College, pk=college_id) if college_id else request.user.college
+
+                profile = TPOProfile.objects.create(
+                    user=user,
+                    college=college
+                )
+                
+                serializer = self.get_serializer(profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        user_data = data.pop("user", None)
+
+        try:
+            with transaction.atomic():
+                # 1. Update User if data provided
+                if user_data:
+                    user = instance.user
+                    if "first_name" in user_data:
+                        user.first_name = user_data["first_name"]
+                    if "last_name" in user_data:
+                        user.last_name = user_data["last_name"]
+                    if "email" in user_data:
+                        user.email = user_data["email"]
+                    if "username" in user_data:
+                        user.username = user_data["username"]
+                    user.save()
+
+                # 2. Update Profile with remaining data
+                if "college" in data and isinstance(data["college"], str):
+                    try:
+                        data["college"] = College.objects.get(pk=data["college"]).id
+                    except College.DoesNotExist:
+                        pass
+                
+                serializer = self.get_serializer(instance, data=data, partial=partial)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+
+                return Response(self.get_serializer(instance).data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            with transaction.atomic():
+                user = instance.user
+                instance.delete()
+                # Also delete the user account
+                user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 class AttendanceSessionViewSet(viewsets.ModelViewSet):
     queryset = AttendanceSession.objects.all()
     serializer_class = AttendanceSessionSerializer
@@ -974,3 +1171,339 @@ class AttendanceRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ["session", "student", "is_present"]
+
+class TaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage tasks assigned by faculty.
+    """
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticatedUser]
+    filterset_fields = ["faculty", "department", "subject", "unit", "sub_unit"]
+
+    def get_queryset(self):
+        qs = Task.objects.select_related(
+            "faculty__user", "subject", "unit", "sub_unit"
+        ).prefetch_related("sections")
+        
+        user = self.request.user
+        if user.role == "faculty":
+            # Faculty see tasks they assigned
+            qs = qs.filter(faculty__user=user)
+        elif user.role == "student":
+            # Students see only SENT tasks assigned to their section
+            if hasattr(user, 'student_profile') and user.student_profile.section:
+                qs = qs.filter(sections=user.student_profile.section, is_sent=True)
+            else:
+                return Task.objects.none()
+        elif user.role not in ["admin", "college_admin", "principal"]:
+            # Other roles restricted
+            return Task.objects.none()
+            
+        return qs
+
+    def perform_create(self, serializer):
+        from course.models import Question
+        # Auto-set faculty if role is faculty
+        faculty_profile = None
+        if self.request.user.role == "faculty":
+            from core.models import FacultyProfile
+            faculty_profile = get_object_or_404(FacultyProfile, user=self.request.user)
+            
+        # Check if the task is created manually
+        if serializer.validated_data.get("question_source") == "manual":
+            # Create a corresponding Question under the "task" category
+            try:
+                sub_unit = serializer.validated_data.get("sub_unit")
+                unit = serializer.validated_data.get("unit")
+                question_level = "subunit" if sub_unit else ("unit" if unit else "subject")
+                
+                question = Question.objects.create(
+                    type=serializer.validated_data.get("task_type", "descriptive"),
+                    title=serializer.validated_data.get("title", "Manual Task"),
+                    content=serializer.validated_data.get("description", "Task Description"),
+                    level=question_level,
+                    subject=serializer.validated_data.get("subject"),
+                    unit=unit,
+                    sub_unit=sub_unit,
+                    difficulty="medium",
+                    marks=10,
+                    categories=["task"],
+                    created_by=self.request.user
+                )
+                
+                # Append the created question to the task's questions list
+                questions_qs = serializer.validated_data.get("questions")
+                questions_list = list(questions_qs) if questions_qs is not None else []
+                questions_list.append(question)
+                serializer.validated_data["questions"] = questions_list
+            except Exception as e:
+                # If question creation fails, we just silently continue and create the task itself.
+                print("Failed to auto-create manual question in Question Bank:", str(e))
+
+        if faculty_profile:
+            serializer.save(faculty=faculty_profile)
+        else:
+            serializer.save()
+
+class TaskSubmissionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet to manage student task submissions.
+    """
+    queryset = TaskSubmission.objects.all()
+    serializer_class = TaskSubmissionSerializer
+    permission_classes = [IsAuthenticatedUser]
+    filterset_fields = ["task", "student", "is_submitted"]
+
+    def perform_create(self, serializer):
+        from core.models import StudentProfile
+        student = get_object_or_404(StudentProfile, user=self.request.user)
+        serializer.save(student=student)
+
+    def get_queryset(self):
+        qs = TaskSubmission.objects.select_related(
+            "task", "student__user"
+        ).prefetch_related("comments__faculty__user")
+        
+        user = self.request.user
+        if user.role == "faculty":
+            # Faculty see submissions for tasks they assigned
+            qs = qs.filter(task__faculty__user=user)
+        elif user.role == "student":
+            # Students see their own submissions
+            qs = qs.filter(student__user=user)
+        elif user.role not in ["admin", "college_admin", "principal"]:
+            return TaskSubmission.objects.none()
+            
+        return qs
+
+    @action(detail=True, methods=["post"])
+    def add_comment(self, request, pk=None):
+        """
+        Action to add a comment to a submission (supports both faculty and students).
+        """
+        submission = self.get_object()
+        comment_text = request.data.get("comment")
+        if not comment_text:
+            return Response({"error": "Comment text is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        faculty = None
+        student = None
+
+        if request.user.role == "faculty":
+            from core.models import FacultyProfile
+            faculty = get_object_or_404(FacultyProfile, user=request.user)
+            # Check if this faculty assigned the task
+            if submission.task.faculty != faculty:
+                return Response({"error": "You can only comment on submissions for your own tasks"}, status=status.HTTP_403_FORBIDDEN)
+        elif request.user.role == "student":
+            from core.models import StudentProfile
+            student = get_object_or_404(StudentProfile, user=request.user)
+            # Check if this is the student's own submission
+            if submission.student != student:
+                return Response({"error": "You can only comment on your own submissions"}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({"error": "Only faculty and students can add comments"}, status=status.HTTP_403_FORBIDDEN)
+
+        comment = TaskComment.objects.create(
+            submission=submission,
+            faculty=faculty,
+            student=student,
+            comment=comment_text
+        )
+        
+        serializer = TaskCommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"], url_path="clear_chat")
+    def clear_chat(self, request, pk=None):
+        """
+        Permanently delete all comments for a submission.
+        Only the student who owns the submission or the faculty who assigned the task can clear the chat.
+        """
+        submission = self.get_object()
+
+        if request.user.role == "faculty":
+            from core.models import FacultyProfile
+            faculty = get_object_or_404(FacultyProfile, user=request.user)
+            if submission.task.faculty != faculty:
+                return Response(
+                    {"error": "You can only clear chat for submissions on your own tasks"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        elif request.user.role == "student":
+            from core.models import StudentProfile
+            student = get_object_or_404(StudentProfile, user=request.user)
+            if submission.student != student:
+                return Response(
+                    {"error": "You can only clear your own submission chat"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        else:
+            return Response(
+                {"error": "Only faculty and students can clear chat"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        deleted_count, _ = TaskComment.objects.filter(submission=submission).delete()
+        return Response(
+            {"message": f"Successfully deleted {deleted_count} comment(s)"},
+            status=status.HTTP_200_OK
+        )
+
+class NoteViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing personal notes.
+    """
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Only return notes owned by the current user.
+        """
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """
+        Set the user to the current user when creating a note.
+        """
+        serializer.save(user=self.request.user)
+
+class AnnouncementViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing announcements.
+    - College Admin can create, update, delete announcements for their college
+    - Students can view announcements for their college or department
+    """
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ["college", "department", "level", "priority", "is_active"]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["title", "content"]
+    ordering_fields = ["created_at", "priority"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # Filter by active status and publish date
+        from django.utils import timezone
+        now = timezone.now()
+        queryset = queryset.filter(
+            is_active=True,
+        ).filter(
+            models.Q(publish_date__isnull=True) | models.Q(publish_date__lte=now)
+        ).filter(
+            models.Q(expiry_date__isnull=True) | models.Q(expiry_date__gte=now)
+        )
+        
+        # If user is a College Admin or Principal, show all their college announcements
+        if user.role in ["college_admin", "principal", "admin"]:
+            college = user.college
+            if college:
+                return queryset.filter(college=college)
+            return queryset.none()
+        
+        # If user is a student, show college-level + their department announcements
+        if user.role == "student":
+            try:
+                student_profile = user.student_profile
+                college = student_profile.college
+                department = student_profile.department
+                
+                # Get college-level announcements OR department-level announcements for their department
+                return queryset.filter(
+                    models.Q(college=college, level="college") |
+                    models.Q(college=college, level="department", department=department)
+                )
+            except StudentProfile.DoesNotExist:
+                return queryset.none()
+        
+        # For other roles (faculty, HOD, TPO), show college-level + their department announcements
+        if user.role in ["faculty", "hod", "tpo"]:
+            try:
+                if user.role == "hod":
+                    profile = user.hod_profile
+                    college = profile.college
+                    department = profile.department
+                elif user.role == "tpo":
+                    profile = user.tpo_profile
+                    college = profile.college
+                    department = None
+                else:
+                    profile = user.faculty_profile
+                    college = profile.college
+                    department = profile.department
+                
+                if college:
+                    if department:
+                        return queryset.filter(
+                            models.Q(college=college, level="college") |
+                            models.Q(college=college, level="department", department=department)
+                        )
+                    return queryset.filter(college=college, level="college")
+                return queryset.none()
+            except:
+                return queryset.none()
+        
+        return queryset.none()
+
+    def perform_create(self, serializer):
+        # Set created_by to current user
+        serializer.save(created_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Only college_admin and principal can create announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to create announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get college from the user profile OR from request data
+        college = request.user.college
+        
+        # If college not found in profile, try to get from request data
+        if not college and 'college' in request.data:
+            college_id = request.data.get('college')
+            if college_id:
+                try:
+                    college = College.objects.get(id=college_id)
+                except College.DoesNotExist:
+                    pass
+        
+        if not college:
+            return Response(
+                {"detail": "Could not determine your college."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        data = request.data.copy()
+        data['college'] = str(college.id)
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        # Only college_admin and principal can update announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to update announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Only college_admin and principal can delete announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
+            return Response(
+                {"detail": "You do not have permission to delete announcements."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)

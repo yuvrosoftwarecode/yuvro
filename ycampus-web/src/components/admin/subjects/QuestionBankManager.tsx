@@ -31,6 +31,7 @@ import {
   FileText,
   CheckCircle,
   Search,
+  FlaskConical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -45,6 +46,9 @@ import {
   QUESTION_CATEGORIES,
   validateQuestion,
 } from '@/services/questionService';
+import TestCasesModal from './TestCasesModal';
+
+import { getDefaultMarks, getDefaultDuration } from '@/constants/questionMarksConfig';
 
 interface QuestionBankManagerProps {
   subject: any;
@@ -79,6 +83,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     level: 'subject',
     difficulty: 'easy',
     marks: 1,
+    duration: 1,
     categories: [],
     mcq_options: [
       { text: '', is_correct: false },
@@ -93,6 +98,9 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   // Delete confirmation
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Test cases modal
+  const [testCasesTarget, setTestCasesTarget] = useState<Question | null>(null);
 
   const loadQuestions = async () => {
     if (!subject) {
@@ -163,7 +171,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   useEffect(() => {
     if (!editingQuestion && activeTab === 'create') {
       let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
-      let formSubject = subject?.id;
+      const formSubject = subject?.id;
       let formUnit = undefined;
       let formSubUnit = undefined;
 
@@ -186,10 +194,23 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
     }
   }, [subject, selectedUnit, selectedSubUnit, editingQuestion, activeTab]);
 
+  // Update marks and duration when type or difficulty changes
+  useEffect(() => {
+    if (!editingQuestion && activeTab === 'create') {
+      const marks = getDefaultMarks(formData.type, formData.difficulty);
+      const duration = getDefaultDuration(formData.type, formData.difficulty);
+      setFormData((prev: CreateQuestionData) => ({
+        ...prev,
+        marks,
+        duration
+      }));
+    }
+  }, [formData.type, formData.difficulty, editingQuestion, activeTab]);
+
   const openCreateForm = () => {
     // Determine default level and set appropriate IDs based on current selection
     let defaultLevel: 'subject' | 'unit' | 'subunit' = 'subject';
-    let formSubject = subject?.id;
+    const formSubject = subject?.id;
     let formUnit = undefined;
     let formSubUnit = undefined;
 
@@ -212,6 +233,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       sub_unit: formSubUnit,
       difficulty: 'easy',
       marks: 1,
+      duration: 1,
       categories: [],
       mcq_options: [
         { text: '', is_correct: false },
@@ -238,6 +260,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       sub_unit: question.sub_unit,
       difficulty: question.difficulty,
       marks: question.marks,
+      duration: question.duration || 1,
       categories: question.categories,
       mcq_options: question.mcq_options || [
         { text: '', is_correct: false },
@@ -571,6 +594,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                         )}
                       </div>
                       <div className="flex items-center gap-2 ml-4">
+                        {question.type === 'coding' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setTestCasesTarget(question)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            title="Edit Test Cases"
+                          >
+                            <FlaskConical className="w-4 h-4" />
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"
@@ -745,6 +779,17 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     max="100"
                     value={formData.marks}
                     onChange={(e) => setFormData(prev => ({ ...prev, marks: parseInt(e.target.value) || 1 }))}
+                    className="bg-white border-slate-300 h-10"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">Duration (mins)</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="180"
+                    value={formData.duration}
+                    onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 1 }))}
                     className="bg-white border-slate-300 h-10"
                   />
                 </div>
@@ -996,6 +1041,25 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Test Cases Modal */}
+      {testCasesTarget && (
+        <TestCasesModal
+          open={!!testCasesTarget}
+          onOpenChange={(open) => { if (!open) setTestCasesTarget(null); }}
+          questionId={testCasesTarget.id}
+          questionTitle={testCasesTarget.title}
+          initialBasic={testCasesTarget.test_cases_basic || []}
+          initialAdvanced={testCasesTarget.test_cases_advanced || []}
+          onSaved={(basic, advanced) => {
+            setQuestions(prev => prev.map(q =>
+              q.id === testCasesTarget.id
+                ? { ...q, test_cases_basic: basic, test_cases_advanced: advanced }
+                : q
+            ));
+          }}
+        />
+      )}
     </div>
   );
 };

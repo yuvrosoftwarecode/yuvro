@@ -12,22 +12,25 @@ import ApplyJobDialog from '@/components/student/jobs/ApplyJobDialog';
 import ShareJobModal from '@/components/student/jobs/ShareJobModal';
 import useJobApplications from '@/hooks/useJobApplications';
 
+import { mockJobService } from '@/services/mockJobService';
+
 const JobDetails = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const [job, setJob] = useState<Job | null>(null);
+  const [job, setJob] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [isTPOApproved, setIsTPOApproved] = useState(true);
 
   // Use the custom hook for job applications (only if authenticated)
   const jobApplicationsHook = useJobApplications();
   const {
     userJobStatus = {},
     bookmarkLoading = new Set(),
-    handleBookmarkJob = () => {},
-    handleApplyToJob = async () => {}
+    handleBookmarkJob = () => { },
+    handleApplyToJob = async () => { }
   } = isAuthenticated ? jobApplicationsHook : {};
 
   useEffect(() => {
@@ -40,29 +43,29 @@ const JobDetails = () => {
   useEffect(() => {
     if (job) {
       document.title = `${job.title} at ${job.company.name} | YourCompany Jobs`;
-      
+
       // Update meta description
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
-        metaDescription.setAttribute('content', 
+        metaDescription.setAttribute('content',
           `Apply for ${job.title} at ${job.company.name}. ${job.description.substring(0, 150)}...`
         );
       }
-      
+
       // Update Open Graph tags for social sharing
       const ogTitle = document.querySelector('meta[property="og:title"]');
       if (ogTitle) {
         ogTitle.setAttribute('content', `${job.title} at ${job.company.name}`);
       }
-      
+
       const ogDescription = document.querySelector('meta[property="og:description"]');
       if (ogDescription) {
-        ogDescription.setAttribute('content', 
+        ogDescription.setAttribute('content',
           `Apply for ${job.title} at ${job.company.name}. ${job.description.substring(0, 150)}...`
         );
       }
     }
-    
+
     return () => {
       // Reset title when component unmounts
       document.title = 'YourCompany Jobs';
@@ -72,8 +75,13 @@ const JobDetails = () => {
   const fetchJob = async () => {
     try {
       setLoading(true);
-      const jobData = await jobService.getJob(jobId!);
-      setJob(jobData);
+      const mockJob = mockJobService.getJobById(jobId!);
+      if (mockJob) {
+        setIsTPOApproved(mockJob.status === 'approved');
+        setJob(mockJobService.mapToJob(mockJob));
+      } else {
+        setJob(null);
+      }
     } catch (error) {
       console.error('Error fetching job:', error);
       toast.error('Failed to load job details');
@@ -201,7 +209,7 @@ const JobDetails = () => {
     const posted = new Date(postedAt);
     const diffTime = Math.abs(now.getTime() - posted.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week${Math.ceil(diffDays / 7) > 1 ? 's' : ''} ago`;
@@ -234,7 +242,7 @@ const JobDetails = () => {
                   <p className="text-xl text-gray-600">{job.company.name}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 {isAuthenticated ? (
                   <>
@@ -300,7 +308,7 @@ const JobDetails = () => {
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {job.skills.map((skill, index) => (
+                {job.skills.map((skill: string, index: number) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
@@ -331,6 +339,14 @@ const JobDetails = () => {
                 >
                   Applied
                 </button>
+              ) : !isTPOApproved ? (
+                <button
+                  disabled
+                  className="bg-amber-100 text-amber-700 px-8 py-3 rounded-lg font-medium cursor-not-allowed flex items-center gap-2"
+                >
+                  <Clock className="h-4 w-4" />
+                  Waiting for TPO Approval
+                </button>
               ) : (
                 <button
                   onClick={handleApplyClick}
@@ -357,7 +373,7 @@ const JobDetails = () => {
               <div className="prose max-w-none text-gray-700">
                 <p className="whitespace-pre-wrap">{job.company.description}</p>
               </div>
-              
+
               {job.company.website && (
                 <div className="mt-4">
                   <a

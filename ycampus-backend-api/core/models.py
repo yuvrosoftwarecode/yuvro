@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -332,3 +333,182 @@ class TPOProfile(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.username} - TPO {self.college.name}"
+
+class Task(models.Model):
+    """
+    Model representing a task assigned by a faculty to one or more sections.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    faculty = models.ForeignKey(
+        FacultyProfile, on_delete=models.CASCADE, related_name="assigned_tasks"
+    )
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True
+    )
+    subject = models.ForeignKey(
+        "course.Subject", on_delete=models.CASCADE, related_name="tasks"
+    )
+    unit = models.ForeignKey(
+        "course.Unit", on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks"
+    )
+    sub_unit = models.ForeignKey(
+        "course.SubUnit", on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks"
+    )
+    sections = models.ManyToManyField(
+        Section, related_name="tasks"
+    )
+    task_type = models.CharField(
+        max_length=20, 
+        choices=[("descriptive", "Descriptive"), ("coding", "Coding")], 
+        default="descriptive"
+    )
+    question_source = models.CharField(
+        max_length=20, 
+        choices=[("manual", "Manual Entry"), ("bank", "Question Bank")], 
+        default="manual"
+    )
+    questions = models.ManyToManyField(
+        "course.Question", related_name="tasks", blank=True
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    is_sent = models.BooleanField(default=False)
+    due_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.faculty.user.username}"
+
+class TaskSubmission(BaseTimestampedModel):
+    """
+    Model representing a student's submission for a task.
+    """
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="submissions"
+    )
+    student = models.ForeignKey(
+        StudentProfile, on_delete=models.CASCADE, related_name="task_submissions"
+    )
+    answer = models.TextField(blank=True, null=True)
+    answers_data = models.JSONField(
+        default=dict, blank=True, help_text="Stores answers for multiple questions"
+    )
+    is_submitted = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    file = models.FileField(upload_to="task_submissions/", null=True, blank=True)
+
+    class Meta:
+        unique_together = ("task", "student")
+        ordering = ["-submitted_at"]
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.task.title}"
+
+class TaskComment(BaseTimestampedModel):
+    """
+    Model representing comments/feedback on a task submission.
+    """
+    submission = models.ForeignKey(
+        TaskSubmission, on_delete=models.CASCADE, related_name="comments"
+    )
+    faculty = models.ForeignKey(
+        FacultyProfile, on_delete=models.CASCADE, related_name="task_comments", null=True, blank=True
+    )
+    student = models.ForeignKey(
+        StudentProfile, on_delete=models.CASCADE, related_name="task_comments", null=True, blank=True
+    )
+    comment = models.TextField()
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Comment by {self.faculty.user.username} on {self.submission}"
+
+class Note(models.Model):
+    """
+    Note model representing user-created notes for personal study.
+    Stored in core app to better group user-generated content.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sub_unit = models.ForeignKey(
+        "course.SubUnit",
+        on_delete=models.CASCADE,
+        related_name="notes",
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes"
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        # Handle cases where sub_unit might be None if unlinked
+        subunit_name = self.sub_unit.name if self.sub_unit else "Unlinked"
+        return f"{self.user.username} - {subunit_name} - {self.content[:30]}..."
+
+class Announcement(BaseTimestampedModel):
+    """
+    Model representing college or department level announcements.
+    """
+    PRIORITY_CHOICES = [
+        ("normal", "Normal"),
+        ("important", "Important"),
+        ("urgent", "Urgent"),
+    ]
+
+    LEVEL_CHOICES = [
+        ("college", "College"),
+        ("department", "Department"),
+    ]
+
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    attachment = models.FileField(upload_to='announcements/attachments/', null=True, blank=True)
+    college = models.ForeignKey(
+        College, on_delete=models.CASCADE, related_name="announcements"
+    )
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="announcements",
+        null=True,
+        blank=True,
+        help_text="If null, this is a college-level announcement"
+    )
+    level = models.CharField(
+        max_length=20,
+        choices=LEVEL_CHOICES,
+        default="college"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="announcements",
+        null=True,
+        blank=True
+    )
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY_CHOICES,
+        default="normal"
+    )
+    is_active = models.BooleanField(default=True)
+    publish_date = models.DateTimeField(null=True, blank=True)
+    expiry_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.title} - {self.college.name}"

@@ -23,9 +23,16 @@ const ContestAnalyticsList = () => {
   const loadAttendedContests = async () => {
     try {
       setLoading(true);
-      // Get all contests and filter for ones the user has registered for
       const allContests = await contestService.getAllContests();
-      const attended = allContests.filter((contest: any) => contest.is_registered);
+      // Show contests the user has actually attempted (has a submission), not just registered
+      const attended = allContests.filter((contest: any) =>
+        contest.my_submission_status != null
+      );
+      // Sort: past first (have analytics), then ongoing, then upcoming
+      attended.sort((a: any, b: any) => {
+        const order: Record<string, number> = { past: 0, ongoing: 1, upcoming: 2 };
+        return (order[a.status] ?? 3) - (order[b.status] ?? 3);
+      });
       setAttendedContests(attended);
     } catch (error) {
       console.error('Failed to load attended contests:', error);

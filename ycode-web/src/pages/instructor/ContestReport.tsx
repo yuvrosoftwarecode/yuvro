@@ -210,7 +210,7 @@ export default function ContestReport() {
                                     { label: 'Registered', value: summary.registered_count, icon: Users },
                                     { label: 'Attempted', value: summary.attempted_count, icon: Target },
                                     { label: 'Completed', value: summary.completed_count, icon: CheckCircle2 },
-                                    { label: 'Avg Score', value: `${summary.avg_marks}/${summary.total_marks}`, icon: TrendingUp },
+                                    { label: 'Completion Rate', value: `${summary.completion_rate}%`, icon: TrendingUp },
                                 ].map(stat => (
                                     <Card key={stat.label} className="border border-slate-200 shadow-sm">
                                         <CardContent className="p-5">
@@ -228,7 +228,7 @@ export default function ContestReport() {
                                 ))}
                             </div>
 
-                            <div className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="grid grid-cols-4 gap-4 mb-8">
                                 <Card className="border border-slate-200 shadow-sm">
                                     <CardContent className="p-4 text-center">
                                         <p className="text-lg font-bold text-slate-800">{summary.max_marks}</p>
@@ -245,6 +245,12 @@ export default function ContestReport() {
                                     <CardContent className="p-4 text-center">
                                         <p className="text-lg font-bold text-slate-800">{summary.min_marks}</p>
                                         <p className="text-xs text-slate-500">Lowest Score</p>
+                                    </CardContent>
+                                </Card>
+                                <Card className="border border-slate-200 shadow-sm">
+                                    <CardContent className="p-4 text-center">
+                                        <p className="text-lg font-bold text-slate-800">{summary.attempted_count > 0 ? Math.round(summary.attempted_count / summary.registered_count * 100) : 0}%</p>
+                                        <p className="text-xs text-slate-500">Attempt Rate</p>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -266,6 +272,7 @@ export default function ContestReport() {
                                                     <th className="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Student</th>
                                                     <th className="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">College</th>
                                                     <th className="text-left py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Department</th>
+                                                    <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Submitted At</th>
                                                     <th className="text-right py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Score</th>
                                                 </tr>
                                             </thead>
@@ -284,6 +291,7 @@ export default function ContestReport() {
                                                         <td className="py-3 px-3 font-medium text-slate-900">{p.name}</td>
                                                         <td className="py-3 px-3 text-slate-600">{p.college}</td>
                                                         <td className="py-3 px-3 text-slate-600">{p.department}</td>
+                                                        <td className="py-3 px-3 text-center text-slate-500 text-xs">{formatDate(p.submitted_at)}</td>
                                                         <td className="py-3 px-3 text-right font-bold text-[#F97316]">{p.marks}/{summary.total_marks}</td>
                                                     </tr>
                                                 ))}
@@ -311,6 +319,7 @@ export default function ContestReport() {
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Students</th>
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Avg Score</th>
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Best</th>
+                                                        <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Lowest</th>
                                                         <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Completion</th>
                                                         <th className="text-right py-3 px-3 text-xs font-semibold text-slate-500 uppercase">Actions</th>
                                                     </tr>
@@ -322,6 +331,7 @@ export default function ContestReport() {
                                                             <td className="py-3 px-3 text-center text-slate-600">{c.participants}</td>
                                                             <td className="py-3 px-3 text-center font-semibold text-slate-800">{c.avg_marks}</td>
                                                             <td className="py-3 px-3 text-center font-medium text-slate-700">{c.max_marks}</td>
+                                                            <td className="py-3 px-3 text-center font-medium text-slate-500">{c.min_marks}</td>
                                                             <td className="py-3 px-3 text-center">
                                                                 <div className="flex items-center gap-2 justify-center">
                                                                     <div className="w-16 h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -449,7 +459,13 @@ export default function ContestReport() {
                                                     Improvement Suggestions
                                                 </h4>
                                                 <ul className="space-y-1.5">
-                                                    {question_performance.filter(q => q.correct_percentage < 50).map((q, i) => (
+                                                    {Array.from(
+                                                        new Map(
+                                                            question_performance
+                                                                .filter(q => q.correct_percentage < 50)
+                                                                .map(q => [`${q.topic}|${q.type}`, q])
+                                                        ).values()
+                                                    ).map((q, i) => (
                                                         <li key={i} className="text-sm text-slate-600">
                                                             <span className="font-medium text-slate-800">{q.topic}</span> ({q.type.replace('_', ' ')}) — only {q.correct_percentage}% correct.
                                                             {' '}Consider adding more practice material on this topic.

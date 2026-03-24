@@ -55,7 +55,7 @@ function mapContestFromBackend(c: any): Contest {
     status: c.status,
     startDate: c.start_datetime || c.start_date || '',
     endDate: c.end_datetime || c.end_date || '',
-    duration: c.duration ? `${Math.round((typeof c.duration === 'string' ? parseFloat(c.duration) : c.duration) / 60)} min` : '',
+    duration: c.duration ? `${Math.round(typeof c.duration === 'string' ? parseFloat(c.duration) : c.duration)} min` : '',
     participants: c.participants_count ?? 0,
     prize: c.prize ?? '',
     difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),

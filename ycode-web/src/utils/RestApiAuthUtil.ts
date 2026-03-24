@@ -9,19 +9,24 @@ interface RequestOptions extends RequestInit {
 class RestApiAuthUtil extends RestApiUtil {
     private token: string | null = null;
     private isRefreshing: boolean = false;
-    private refreshSubscribers: ((token: string) => void)[] = [];
+    private refreshSubscribers: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
 
     constructor(baseURL: string) {
         super(baseURL);
     }
 
     private onRefreshed(token: string) {
-        this.refreshSubscribers.forEach((cb) => cb(token));
+        this.refreshSubscribers.forEach((cb) => cb.resolve(token));
         this.refreshSubscribers = [];
     }
 
-    private addSubscriber(cb: (token: string) => void) {
-        this.refreshSubscribers.push(cb);
+    private onRefreshFailed(error: any) {
+        this.refreshSubscribers.forEach((cb) => cb.reject(error));
+        this.refreshSubscribers = [];
+    }
+
+    private addSubscriber(resolve: (token: string) => void, reject: (err: any) => void) {
+        this.refreshSubscribers.push({ resolve, reject });
     }
 
     setAuthToken(token: string) {
@@ -29,13 +34,17 @@ class RestApiAuthUtil extends RestApiUtil {
     }
 
     getAuthToken(): string | null {
-        return this.token || localStorage.getItem('access');
+        const t = this.token || localStorage.getItem('access');
+        // Filter out junk values that can get stuck in localStorage
+        if (!t || t === 'undefined' || t === 'null') return null;
+        return t;
     }
 
     clearAuthToken() {
         this.token = null;
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
+        localStorage.removeItem('user');
     }
 
     isAuthenticated(): boolean {
@@ -123,12 +132,12 @@ class RestApiAuthUtil extends RestApiUtil {
                         if (success && this.token) {
                             this.onRefreshed(this.token);
                         } else {
-                            this.refreshSubscribers = [];
+                            this.onRefreshFailed(error);
                         }
                     });
                 }
 
-                return new Promise<T>((resolve) => {
+                return new Promise<T>((resolve, reject) => {
                     this.addSubscriber((newToken) => {
                         const retryHeaders: HeadersInit = {
                             ...options.headers,
@@ -141,7 +150,7 @@ class RestApiAuthUtil extends RestApiUtil {
                             headers: retryHeaders,
                         };
                         resolve(super.request<T>(endpoint, retryOptionsWithAuth));
-                    });
+                    }, reject);
                 });
             }
             throw error;

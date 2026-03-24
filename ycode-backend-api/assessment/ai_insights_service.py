@@ -101,8 +101,8 @@ class ContestAIInsightsService:
 - Result: {"PASSED" if did_pass else "NEEDS IMPROVEMENT"}
 - Rank: #{perf.get('rank')} out of {perf.get('total_participants')} participants
 - Percentile: {perf.get('percentile')}%
-- vs Contest Average: {perf.get('vs_contest_avg'):+.1f}%
-{f"- vs College Average: {perf.get('vs_college_avg'):+.1f}%" if perf.get('vs_college_avg') is not None else ""}
+- vs Contest Average: {perf.get('vs_contest_avg'):+.1f} pts
+{f"- vs College Average: {perf.get('vs_college_avg'):+.1f} pts" if perf.get('vs_college_avg') is not None else ""}
 
 **Topic Performance:**
 Strong Topics:
@@ -204,6 +204,103 @@ CRITICAL GUIDELINES:
             "ai_generated": False
         }
 
+    async def generate_college_insights(
+        self,
+        college_analytics: Dict[str, Any],
+        contest_title: str,
+    ) -> Dict[str, Any]:
+        """
+        Generate AI-powered insights for a college's contest performance.
+        """
+        try:
+            ai_service = AIServiceFactory.create_service(self.provider, self.model_name)
+
+            overview = college_analytics.get("college_overview", {})
+            departments = college_analytics.get("department_breakdown", [])
+            topics = college_analytics.get("topic_performance", [])
+            integrity = college_analytics.get("integrity_metrics", {})
+
+            strong_topics = [t for t in topics if t.get("vs_average", 0) > 5][:3]
+            weak_topics = [t for t in topics if t.get("vs_average", 0) < -5][:3]
+            top_depts = sorted(departments, key=lambda d: d.get("average_score", 0), reverse=True)[:3]
+            weak_depts = sorted(departments, key=lambda d: d.get("average_score", 0))[:2]
+
+            prompt = f"""Analyze this college's performance in the "{contest_title}" contest and provide comprehensive institutional insights for faculty and administrators.
+
+**College Overview:**
+- College: {overview.get('college_name')}
+- Rank: #{overview.get('college_rank')} out of {overview.get('total_colleges')} colleges
+- Total Students: {overview.get('total_students')} ({overview.get('completed_students')} completed)
+- Completion Rate: {overview.get('completion_rate'):.1f}%
+- Average Score: {overview.get('average_score'):.1f} (Contest avg: {overview.get('contest_average'):.1f}, Difference: {overview.get('vs_contest_avg'):+.1f})
+- Performance Status: {overview.get('performance_status')}
+
+**Department Performance:**
+Top Departments:
+{chr(10).join([f"- {d['department_name']}: avg {d['average_score']:.1f}, {d['student_count']} students, {d['completion_rate']:.1f}% completion" for d in top_depts]) if top_depts else "- No department data"}
+
+Weak Departments:
+{chr(10).join([f"- {d['department_name']}: avg {d['average_score']:.1f}, {d['student_count']} students" for d in weak_depts]) if weak_depts and len(departments) > 1 else "- N/A"}
+
+**Topic Performance:**
+Strong Topics (above contest avg):
+{chr(10).join([f"- {t['topic']}: {t['score_percentage']:.1f}% ({t['vs_average']:+.1f}% vs avg)" for t in strong_topics]) if strong_topics else "- None"}
+
+Weak Topics (below contest avg):
+{chr(10).join([f"- {t['topic']}: {t['score_percentage']:.1f}% ({t['vs_average']:+.1f}% vs avg)" for t in weak_topics]) if weak_topics else "- None"}
+
+**Integrity:**
+- Clean Submissions: {integrity.get('clean_percentage', 100):.1f}%
+- Total Violations: {integrity.get('total_violations', 0)}
+
+Provide institutional insights in JSON format:
+{{
+  "strengths": ["3-4 specific institutional strengths with data references"],
+  "weaknesses": ["3-4 specific areas needing improvement with data references"],
+  "recommendations": ["4-5 actionable recommendations for faculty/administrators"],
+  "learning_path": ["4-5 concrete steps to improve institutional performance"],
+  "motivational_message": "2-3 sentence encouraging message for the institution acknowledging their performance",
+  "comparison_insight": "2 sentences comparing this college's performance to peers and what it means"
+}}
+
+Be specific, data-driven, and actionable. Reference actual departments, topics, and numbers."""
+
+            messages = [
+                {
+                    "role": "system",
+                    "content": "You are an expert educational data analyst specializing in institutional performance assessment. Provide constructive, data-driven insights for college administrators and faculty."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+
+            response = await ai_service.generate_response(
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1500
+            )
+
+            content = response.get("content", "").strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            elif content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
+
+            insights = json.loads(content)
+            insights["ai_generated"] = True
+            return insights
+
+        except (AIServiceError, Exception):
+            return {
+                "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
+                "ai_generated": False
+            }
+
 
 
 def generate_student_insights_sync(
@@ -215,17 +312,13 @@ def generate_student_insights_sync(
     Can be called from Django views.
     """
     service = ContestAIInsightsService()
-    
-    # Run async function in sync context
+    loop = asyncio.new_event_loop()
     try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    
-    return loop.run_until_complete(
-        service.generate_student_insights(student_analytics, contest_title)
-    )
+        return loop.run_until_complete(
+            service.generate_student_insights(student_analytics, contest_title)
+        )
+    finally:
+        loop.close()
 
 
 
@@ -234,91 +327,16 @@ def generate_college_insights_sync(
     contest_title: str,
 ) -> Dict[str, Any]:
     """
-    Generate rule-based insights for college performance.
-    Uses statistical analysis rather than AI for institutional metrics.
-    Synchronous wrapper that can be called from Django views.
+    Synchronous wrapper for generating AI-powered college insights.
     """
-    # College insights use rule-based approach for analyzing institutional patterns
-    # This is intentional - not a fallback, but the primary method for college analytics
-    
-    overview = college_analytics.get("college_overview", {})
-    departments = college_analytics.get("department_breakdown", [])
-    topics = college_analytics.get("topic_performance", [])
-    
-    # Identify strengths and weaknesses
-    strong_topics = [t for t in topics if t.get("vs_average", 0) > 5][:3]
-    weak_topics = [t for t in topics if t.get("vs_average", 0) < -5][:3]
-    
-    strong_departments = sorted(departments, key=lambda d: d.get("average_score", 0), reverse=True)[:2]
-    weak_departments = sorted(departments, key=lambda d: d.get("average_score", 0))[:2]
-    
-    strengths = []
-    if overview.get("college_rank", 999) <= 3:
-        strengths.append(f"Excellent institutional performance - Ranked #{overview.get('college_rank')} among {overview.get('total_colleges')} colleges")
-    elif overview.get("vs_contest_avg", 0) > 0:
-        strengths.append(f"Above average performance - {overview.get('vs_contest_avg'):+.1f}% compared to contest average")
-    
-    if strong_topics:
-        strengths.append(f"Strong performance in {', '.join([t['topic'] for t in strong_topics])}")
-    
-    if strong_departments:
-        strengths.append(f"{strong_departments[0]['department_name']} department leading with {strong_departments[0]['average_score']:.1f} average score")
-    
-    if overview.get("completion_rate", 0) > 80:
-        strengths.append(f"High completion rate of {overview.get('completion_rate'):.1f}% shows good student engagement")
-    
-    weaknesses = []
-    if weak_topics:
-        weaknesses.append(f"Students struggled with {', '.join([t['topic'] for t in weak_topics])}")
-    
-    if overview.get("completion_rate", 0) < 60:
-        weaknesses.append(f"Low completion rate of {overview.get('completion_rate'):.1f}% - consider reviewing contest difficulty or duration")
-    
-    if weak_departments and len(departments) > 1:
-        weaknesses.append(f"{weak_departments[0]['department_name']} department needs additional support")
-    
-    if overview.get("vs_contest_avg", 0) < -10:
-        weaknesses.append("Overall performance significantly below contest average")
-    
-    recommendations = []
-    if weak_topics:
-        recommendations.append(f"Organize workshops or training sessions on {weak_topics[0]['topic']}")
-    
-    if weak_departments and len(departments) > 1:
-        recommendations.append(f"Provide targeted support to {weak_departments[0]['department_name']} department")
-    
-    recommendations.append("Encourage peer learning between high and low performers")
-    recommendations.append("Analyze top performers' strategies and share with other students")
-    
-    if overview.get("completion_rate", 0) < 70:
-        recommendations.append("Conduct feedback sessions to understand barriers to completion")
-    
-    learning_path = [
-        "Review detailed student-wise performance to identify individual needs",
-        "Organize topic-specific practice sessions for weak areas",
-        "Create study groups mixing students from different performance levels",
-        "Schedule regular mock contests to build confidence and speed"
-    ]
-    
-    # Motivational message based on performance
-    if overview.get("college_rank", 999) <= 5:
-        motivational_message = f"Outstanding performance! Your college ranked #{overview.get('college_rank')} out of {overview.get('total_colleges')} colleges. Continue fostering this culture of excellence."
-    elif overview.get("vs_contest_avg", 0) > 0:
-        motivational_message = f"Good institutional performance with an average score of {overview.get('average_score'):.1f}. With focused improvements in weak areas, your college can achieve even better results."
-    else:
-        motivational_message = f"Your college has {overview.get('total_students')} participating students showing good engagement. Focus on strengthening fundamentals and providing targeted support to improve overall performance."
-    
-    comparison_insight = f"Your college ranked #{overview.get('college_rank')} out of {overview.get('total_colleges')} colleges with an average score of {overview.get('average_score'):.1f}, which is {overview.get('vs_contest_avg'):+.1f}% compared to the contest average."
-    
-    return {
-        "strengths": strengths if strengths else ["Students participated in the contest"],
-        "weaknesses": weaknesses if weaknesses else ["Review detailed analytics for improvement areas"],
-        "recommendations": recommendations,
-        "learning_path": learning_path,
-        "motivational_message": motivational_message,
-        "comparison_insight": comparison_insight,
-        "ai_generated": False  # Flag to indicate this is rule-based, not AI-generated
-    }
+    service = ContestAIInsightsService()
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(
+            service.generate_college_insights(college_analytics, contest_title)
+        )
+    finally:
+        loop.close()
 
 
 async def generate_contest_insights(
@@ -439,18 +457,14 @@ def generate_contest_insights_sync(
     contest_title: str,
 ) -> Dict[str, Any]:
     """Synchronous wrapper for generate_contest_insights."""
+    loop = asyncio.new_event_loop()
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # If loop is already running, create a new one
-            import nest_asyncio
-            nest_asyncio.apply()
-            return loop.run_until_complete(generate_contest_insights(contest_data, contest_title))
-        else:
-            return loop.run_until_complete(generate_contest_insights(contest_data, contest_title))
+        return loop.run_until_complete(generate_contest_insights(contest_data, contest_title))
     except Exception:
         return {
             "error": "We're sorry for the inconvenience. AI insights are temporarily unavailable. Please try again later.",
             "ai_generated": False
         }
+    finally:
+        loop.close()
 
