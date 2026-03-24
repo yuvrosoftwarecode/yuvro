@@ -22,6 +22,7 @@ import {
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
+import RoleSidebar from '@/components/common/RoleSidebar';
 
 import { CodeEditorWithAI } from '@/components/code-editor';
 import type { Subject as EditorSubject, Unit as EditorUnit, CodingProblem } from './CodePractice';
@@ -32,6 +33,8 @@ const StudentTask: React.FC = () => {
     const [submissions, setSubmissions] = useState<Record<string, TaskSubmission>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [subjectFilter, setSubjectFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     // Submission form state
     const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -99,11 +102,25 @@ const StudentTask: React.FC = () => {
         return () => clearInterval(interval);
     }, [isDialogOpen, activeTask]);
 
-    // Polling for task list updates (background)
+    // Silent background refresh — does NOT reset isLoading to avoid UI flicker
+    const silentRefresh = async () => {
+        try {
+            const data = await taskService.getTasks();
+            setTasks(data);
+            const submissionMap: Record<string, TaskSubmission> = {};
+            await Promise.all(data.map(async (task) => {
+                const subs = await taskService.getTaskSubmissions(task.id);
+                if (subs.length > 0) submissionMap[task.id] = subs[0];
+            }));
+            setSubmissions(submissionMap);
+        } catch {
+            // silently ignore background refresh errors
+        }
+    };
+
+    // Polling for task list updates (background) — silent, no loader flash
     useEffect(() => {
-        const interval = setInterval(() => {
-            loadTasks();
-        }, 15000); // Check for new tasks every 15s
+        const interval = setInterval(silentRefresh, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -410,11 +427,36 @@ const StudentTask: React.FC = () => {
         processFile();
     }, [fileViewerUrl, isFileViewerOpen]);
 
-    const filteredTasks = tasks.filter(t =>
-        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.subject_details?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Helper: extract subject name from task regardless of backend field shape
+    const getSubjectName = (t: Task): string => {
+        const sd = t.subject_details;
+        if (!sd) return '';
+        // Try multiple possible field names the backend may return
+        return sd.name || sd.subject_name || sd.subject || sd.title || String(t.subject) || '';
+    };
+
+    // Unique subjects derived from task list
+    const uniqueSubjects = Array.from(
+        new Set(tasks.map(getSubjectName).filter(Boolean))
+    ) as string[];
+
+    const getTaskStatus = (taskId: string): 'pending' | 'in_progress' | 'completed' => {
+        const sub = submissions[taskId];
+        if (!sub) return 'pending';             // no submission record at all
+        if (sub.is_submitted) return 'completed'; // student submitted — done from their perspective
+        return 'in_progress';                   // draft exists but not yet submitted
+    };
+
+    const filteredTasks = tasks.filter(t => {
+        const subjectName = getSubjectName(t);
+        const matchesSearch =
+            t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            subjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (t.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSubject = subjectFilter === 'all' || subjectName === subjectFilter;
+        const matchesStatus = statusFilter === 'all' || getTaskStatus(t.id) === statusFilter;
+        return matchesSearch && matchesSubject && matchesStatus;
+    });
 
     const getStatusInfo = (taskId: string) => {
         const sub = submissions[taskId];
@@ -529,122 +571,151 @@ const StudentTask: React.FC = () => {
     });
 
     return (
-        <div className="p-4 md:p-8 min-h-screen bg-[#F8FAFC]">
-            <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-3xl font-normal text-slate-900 tracking-tight flex items-center gap-3">
-                            <LayoutGrid className="w-8 h-8 text-orange-500" />
-                            Academic Tasks
-                        </h1>
-                        <p className="text-slate-500 font-normal mt-1">Submit your assignments and track your progress</p>
+        <div className="flex h-screen bg-white font-sans overflow-hidden">
+            <RoleSidebar />
+            <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+                <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+                    {/* Header Section */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                                Tasks
+                            </h1>
+                            <p className="text-slate-500 font-medium mt-1">View and complete your assigned tasks</p>
+                        </div>
+                        <div className="relative w-full sm:w-72">
+                            <input
+                                type="text"
+                                placeholder="Search tasks..."
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none transition-all placeholder:text-gray-400 focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 shadow-sm"
+                            />
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        </div>
                     </div>
-                    <div className="relative w-full md:w-96 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 transition-colors group-focus-within:text-indigo-600" />
-                        <Input
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Find a task or subject..."
-                            className="pl-12 h-13 bg-white border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-orange-100 transition-all outline-none"
-                        />
-                    </div>
-                </div>
 
-                {/* Tasks Grid */}
+                    {/* Filters — single outer card, two inner select boxes */}
+                    <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4 mb-4 shadow-sm">
+                        <div className="flex gap-6">
+                            {/* Subjects */}
+                            <div className="flex-1 space-y-2">
+                                <span className="text-[13px] font-bold text-gray-900">Subjects</span>
+                                <div className="relative">
+                                    <select
+                                        value={subjectFilter}
+                                        onChange={e => setSubjectFilter(e.target.value)}
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium outline-none cursor-pointer pr-8"
+                                    >
+                                        <option value="all">All Subjects</option>
+                                        {uniqueSubjects.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Status */}
+                            <div className="flex-1 space-y-2">
+                                <span className="text-[13px] font-bold text-gray-900">Status</span>
+                                <div className="relative">
+                                    <select
+                                        value={statusFilter}
+                                        onChange={e => setStatusFilter(e.target.value)}
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium outline-none cursor-pointer pr-8"
+                                    >
+                                        <option value="all">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {/* Tasks List */}
                 {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-4">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="h-64 rounded-[2.5rem] bg-slate-100 animate-pulse" />
+                            <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
                         ))}
                     </div>
                 ) : filteredTasks.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+                    <div className="space-y-4 pb-12">
                         {filteredTasks.map((task) => {
                             const status = getStatusInfo(task.id);
-                            const isSubmitted = submissions[task.id]?.is_submitted;
-
+                            
+                            // Determine status label and strict layout styling
+                            const taskStatus = getTaskStatus(task.id);
+                            const statusText = taskStatus === 'completed' ? 'Completed' : taskStatus === 'in_progress' ? 'In Progress' : 'Pending';
+                            const badgeStyle = taskStatus === 'pending'
+                                ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                                : 'bg-[#0F172A] text-white border-none shadow-sm';
+                            
                             return (
-                                <Card key={task.id} className="group rounded-[2.5rem] border-none bg-white shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-600/10 transition-all duration-300 overflow-hidden flex flex-col">
-                                    <CardHeader className="p-6 pb-2 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <Badge variant="outline" className={`rounded-full px-4 py-1 text-[10px] font-normal uppercase tracking-wider border-none ${task.task_type === 'coding' ? 'bg-orange-50 text-orange-600' : 'bg-rose-50 text-rose-600'
-                                                }`}>
-                                                {task.task_type === 'coding' ? <Code className="w-3 h-3 mr-1" /> : <FileText className="w-3 h-3 mr-1" />}
-                                                {task.task_type}
+                                <div
+                                    key={task.id}
+                                    onClick={() => handleStartTask(task)}
+                                    className="bg-white rounded-2xl border border-gray-300 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer shadow-sm transition-shadow hover:shadow-lg group"
+                                >
+                                    {/* Left: info */}
+                                    <div className="flex-1 space-y-2 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <Badge className={`rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-200 bg-white text-slate-700`}>
+                                                {task.task_type === 'coding' ? <Code className="w-3 h-3 mr-1 inline text-slate-500" /> : <FileText className="w-3 h-3 mr-1 inline text-slate-500" />}
+                                                {task.task_type || 'Task'}
                                             </Badge>
-                                            <Badge variant="outline" className={`rounded-full px-4 py-1 font-normal border-none ${status.color}`}>
-                                                <span className="mr-1">{status.icon}</span>
-                                                {status.label}
-                                            </Badge>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-normal text-slate-900 group- transition-colors line-clamp-2">
-                                                {task.title}
-                                            </h3>
-                                            <p className="text-sm font-normal text-slate-400 mt-1">{task.subject_details?.name}</p>
-                                        </div>
-                                    </CardHeader>
-
-                                    <CardContent className="p-6 flex-1 flex flex-col justify-between">
-                                        <div className="space-y-4 mb-6">
-                                            <div className="flex items-center gap-4 text-sm font-normal text-slate-500 bg-slate-50 p-3 rounded-2xl ring-1 ring-slate-100">
-                                                <Calendar className="w-4 h-4 text-orange-500" />
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] uppercase tracking-widest text-slate-400">Created On</span>
-                                                    <span className="text-slate-700">{format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-sm font-normal text-slate-500 bg-orange-50 p-3 rounded-2xl ring-1 ring-orange-100">
-                                                <Clock className="w-4 h-4 text-orange-500" />
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] uppercase tracking-widest text-orange-400">Due Date</span>
-                                                    <span className="text-orange-900">{task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Deadline'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <Button
-                                            onClick={() => handleStartTask(task)}
-                                            className={`w-full h-14 rounded-3xl font-normal text-lg gap-3 transition-all ${isSubmitted
-                                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-50 shadow-none border border-orange-100'
-                                                : 'bg-orange-500 text-white  shadow-xl shadow-orange-100'
-                                                }`}
-                                        >
-                                            {isSubmitted ? (
-                                                <>
-                                                    {submissions[task.id]?.status === 'accepted' ? (
-                                                        <CheckCircle2 className="w-6 h-6" />
-                                                    ) : submissions[task.id]?.status === 'rejected' ? (
-                                                        <AlertCircle className="w-6 h-6" />
-                                                    ) : (
-                                                        <CheckCircle2 className="w-6 h-6" />
-                                                    )}
-                                                    {(!submissions[task.id]?.status || submissions[task.id]?.status === 'pending')
-                                                        ? 'View Submission'
-                                                        : submissions[task.id]?.status.charAt(0).toUpperCase() + submissions[task.id]?.status.slice(1)}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <PlayCircle className="w-6 h-6" />
-                                                    Start Task
-                                                </>
+                                            {getSubjectName(task) && (
+                                                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{getSubjectName(task)}</span>
                                             )}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                                        </div>
+                                        <h3 className="text-[16px] font-bold text-[#0F172A] group-hover:text-slate-700 transition-colors truncate pr-4">
+                                            {task.title}
+                                        </h3>
+                                        <p className="text-[13px] text-slate-500 line-clamp-1 leading-relaxed font-medium pr-4">
+                                            {task.description || 'No description provided.'}
+                                        </p>
+                                        <div className="flex items-center gap-4 text-[12px] text-slate-400 font-medium pt-0.5">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                Created {format(new Date(task.created_at), 'M/d/yyyy')}
+                                            </span>
+                                            {task.due_date && (
+                                                <span className="flex items-center gap-1 text-orange-500 font-semibold">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    Due {format(new Date(task.due_date), 'M/d/yyyy')}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Right: status badge */}
+                                    <div className="shrink-0">
+                                        <Badge variant="outline" className={`rounded-full px-4 py-1.5 text-[12px] font-bold shadow-none ${badgeStyle}`}>
+                                            {statusText}
+                                        </Badge>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
                 ) : (
-                    <div className="h-[60vh] flex flex-col items-center justify-center text-center p-10 bg-white rounded-[4rem] border-4 border-dashed border-slate-100">
-                        <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                            <LayoutGrid className="w-16 h-16 text-slate-200" />
+                    <div className="h-[60vh] flex flex-col items-center justify-center text-center p-10">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                            <LayoutGrid className="w-12 h-12 text-slate-200" />
                         </div>
-                        <h2 className="text-3xl font-normal text-slate-900 mb-2">No Tasks Found</h2>
-                        <p className="text-slate-400 font-normal max-w-sm">There are no tasks available for your section at this moment. Check back later!</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">No Tasks Found</h2>
+                        <p className="text-slate-400 font-medium max-w-sm">There are no tasks available for your section at this moment. Check back later!</p>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Submission Modal */}
