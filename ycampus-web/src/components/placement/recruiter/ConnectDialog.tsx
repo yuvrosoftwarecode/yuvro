@@ -61,7 +61,7 @@ const ConnectDialog: React.FC<ConnectDialogProps> = ({
               placeholder="Hi Priya, I'm the TPO from Yuvro Campus. We have some excellent candidates for the upcoming hiring cycle..."
               className="min-h-[150px] resize-none border-slate-200 rounded-2xl focus:ring-purple-500/20 focus:border-purple-500 text-sm p-4"
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNote(e.target.value)}
             />
             <p className="text-[10px] text-slate-400 flex items-center gap-1.5 px-1">
               <Info className="h-3 w-3" />

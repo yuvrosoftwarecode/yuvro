@@ -32,9 +32,9 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
 }) => {
   const getStatusStyles = (status: string) => {
     switch (status) {
-      case 'connected': return 'bg-green-50 text-green-600 border-green-100';
-      case 'applied': return 'bg-amber-50 text-amber-600 border-amber-100';
-      default: return 'bg-slate-50 text-slate-500 border-slate-100';
+      case 'connected': return 'bg-[#ECFDF5] text-[#10B981] border-[#D1FAE5]';
+      case 'applied': return 'bg-[#FFFBEB] text-[#F59E0B] border-[#FEF3C7]';
+      default: return 'bg-[#F9FAFB] text-[#6B7280] border-[#F3F4F6]';
     }
   };
 
@@ -64,7 +64,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
                 <span className="w-1 h-1 rounded-full bg-slate-300" />
                 <div className="flex items-center gap-1">
                   <User className="h-3 w-3" />
-                  <span>{company.employees}</span>
+                  <span>{company.headcount}</span>
                 </div>
               </div>
             </div>
@@ -83,7 +83,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
             <User className="h-4 w-4 shrink-0 text-slate-400" />
             <div className="text-sm leading-tight">
               <span className="font-bold">{company.recruiterName}</span>
-              <span className="text-slate-400 font-medium ml-1">— {company.recruiterRole}</span>
+              <span className="text-slate-400 font-medium ml-1">— {company.recruiterDesignation}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 text-slate-400 truncate">
@@ -92,36 +92,25 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           </div>
         </div>
 
-        <div className="pt-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="pt-4 flex items-center gap-3" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
           {company.status === 'connected' ? (
             <Button 
               size="sm"
-              className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold gap-2 h-9 shadow-sm shadow-emerald-100"
+              className="flex-1 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold gap-2 h-10 border-none shadow-none"
               onClick={() => onChat(company.id)}
             >
               <MessageSquare className="h-4 w-4" />
               Chat
             </Button>
           ) : company.status === 'applied' ? (
-            <div className="flex-1 flex items-center justify-between">
-               <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold py-2">
-                <Clock className="h-4 w-4" />
-                Waiting for recruiter
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-[10px] h-7 px-2 text-slate-400 hover:text-emerald-500"
-                onClick={() => onSimulateAccept(company.id)}
-              >
-                Simulate Accept
-              </Button>
+            <div className="flex-1 flex items-center gap-2 text-slate-400 text-[11px] font-medium py-2.5">
+              <Clock className="h-4 w-4" />
+              Waiting for recruiter to accept
             </div>
-           
           ) : (
             <Button 
               size="sm"
-              className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold gap-2 h-9"
+              className="flex-1 rounded-xl bg-slate-900 hover:bg-black text-white font-bold gap-2 h-10 border-none shadow-none"
               onClick={() => onConnect(company.id)}
             >
               <Plus className="h-4 w-4" />
@@ -130,13 +119,13 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           )}
           
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm" 
-            className="rounded-xl border-slate-200 h-9 flex items-center gap-2 px-3 text-slate-600 hover:bg-slate-50 transition-all font-bold text-xs"
+            className="rounded-xl h-10 flex items-center gap-2 px-3 text-slate-600 hover:bg-slate-50 transition-all font-bold text-xs"
             onClick={() => company.website && window.open(company.website, '_blank')}
           >
             <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Website</span>
+            <span>Website</span>
           </Button>
         </div>
       </CardContent>
