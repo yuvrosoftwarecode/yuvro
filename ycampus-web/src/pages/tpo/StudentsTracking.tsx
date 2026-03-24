@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 const StudentsTracking: React.FC = () => {
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-white">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <main className="flex-1 overflow-y-auto p-6">
@@ -32,20 +32,20 @@ const StudentsTracking: React.FC = () => {
                                 <input
                                     type="text"
                                     placeholder="Search student..."
-                                    className="pl-9 pr-4 py-1.5 bg-gray-50/50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 w-full"
+                                    className="pl-9 pr-4 py-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 w-full"
                                 />
                             </div>
 
                             <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50/50 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors">
                                     <span className="text-xs font-semibold text-gray-500">All Branches</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                                 </div>
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50/50 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-200 transition-colors">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-200 transition-colors">
                                     <span className="text-xs font-semibold text-gray-500">All Status</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                                 </div>
-                                <Button variant="outline" className="flex items-center gap-2 border-gray-100 text-[10px] font-bold uppercase h-8 rounded-lg shadow-sm hover:bg-gray-50">
+                                <Button variant="outline" className="flex items-center gap-2 border-gray-100 text-[10px] font-bold uppercase h-8 rounded-lg shadow-sm hover:bg-white">
                                     <Download className="h-3.5 w-3.5" />
                                     Export CSV
                                 </Button>

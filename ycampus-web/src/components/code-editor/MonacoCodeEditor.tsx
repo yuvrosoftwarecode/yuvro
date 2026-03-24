@@ -71,7 +71,7 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
   return (
     <div className="relative rounded-lg overflow-hidden bg-white" style={{ height }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-100 relative z-10">
+      <div className="flex items-center justify-between px-4 py-2 bg-white relative z-10">
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-800 font-medium">Select Language</span>
           {onLanguageChange && (

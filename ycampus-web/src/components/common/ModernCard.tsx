@@ -33,7 +33,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
     title,
     description,
     icon,
-    iconClassName = "bg-slate-100 text-slate-600",
+    iconClassName = "bg-white text-slate-600",
     gradientColor = "from-blue-500",
     tags = [],
     footerItems = [],
@@ -91,7 +91,7 @@ const ModernCard: React.FC<ModernCardProps> = ({
                                 <span>Progress</span>
                                 <span>{Math.round(progress)}%</span>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-white rounded-full overflow-hidden">
                                 <div
                                     className={`h-full rounded-full transition-all duration-500 ${progress >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
                                     style={{ width: `${progress}%` }}

@@ -133,7 +133,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                     id="title"
                     {...register("title", { required: true })}
                     placeholder="e.g., RideWise App"
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -146,7 +146,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                     id="role"
                     {...register("role", { required: true })}
                     placeholder="e.g., Backend Developer"
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -160,7 +160,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                 {...register("description", { required: true })}
                 rows={3}
                 placeholder="Describe the problem you solved, usage of the project, etc."
-                className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none leading-relaxed"
+                className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none leading-relaxed"
               />
             </div>
 
@@ -175,7 +175,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                     e.key === "Enter" && (e.preventDefault(), addTech())
                   }
                   placeholder="e.g., React, Django, PostgreSQL"
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
                 <Button
                   type="button"
@@ -203,7 +203,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
             </div>
 
             {/* Links */}
-            <div className="grid grid-cols-2 gap-6 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-2 gap-6 bg-white p-4 rounded-xl border border-slate-100">
               {/* GitHub */}
               <div className="space-y-2">
                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">GitHub Link</Label>

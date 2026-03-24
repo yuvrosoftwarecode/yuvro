@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
                   <div className="p-6">
                     <div className="space-y-4">
                       {dashboardData.recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div key={activity.id} className="flex items-center space-x-4 p-4 bg-white rounded-lg hover:bg-gray-100 transition-colors">
                           <div className={`p-2 rounded-lg ${activity.color} bg-opacity-10`}>
                             <activity.icon className={`w-5 h-5 ${activity.color}`} />
                           </div>

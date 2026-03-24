@@ -37,7 +37,7 @@ const Attendance: React.FC = () => {
     }, [user]);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
@@ -124,7 +124,7 @@ const Attendance: React.FC = () => {
                             </div>
                         ) : (
                             <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto">
-                                <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                                     <BookOpen className="h-10 w-10 text-gray-300" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">No Assignments Found</h3>

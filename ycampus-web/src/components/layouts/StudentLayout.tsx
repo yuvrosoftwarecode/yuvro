@@ -7,7 +7,7 @@ interface StudentLayoutProps {
 
 export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-[#FBFBFB] flex">
+    <div className="min-h-screen bg-white flex">
       <RoleSidebar />
       <main className="flex-1 min-w-0 overflow-hidden flex flex-col pt-16 md:pt-0">
         <div className="flex-1 overflow-y-auto w-full">

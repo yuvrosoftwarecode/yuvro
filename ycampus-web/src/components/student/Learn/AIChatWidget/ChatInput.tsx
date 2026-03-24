@@ -60,7 +60,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ onSend, disabled, suggestedPr
           className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
             canSend
               ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
-              : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+              : 'bg-white text-gray-300 cursor-not-allowed'
           }`}
         >
           <ArrowUp size={14} strokeWidth={2.5} />

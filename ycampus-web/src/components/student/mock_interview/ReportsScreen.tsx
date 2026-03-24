@@ -226,7 +226,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
         <div className="relative w-24 h-24 mb-6">
           <div className="absolute inset-0 border-t-4 border-blue-600 rounded-full animate-spin"></div>
           <div className="absolute inset-2 border-r-4 border-purple-500 rounded-full animate-spin reverse-spin"></div>
@@ -242,7 +242,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
         <Card className="max-w-md w-full border-red-100 shadow-xl shadow-red-50 rounded-2xl">
           <CardContent className="pt-8 text-center space-y-4">
             <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -307,11 +307,11 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
           </div>
           <div className="flex gap-3" data-html2canvas-ignore>
             {!isAdmin && (
-                <Button variant="outline" onClick={onTryAgain} className="gap-2 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl border-slate-200 shadow-sm">
+                <Button variant="outline" onClick={onTryAgain} className="gap-2 cursor-pointer hover:bg-white transition-colors rounded-xl border-slate-200 shadow-sm">
                 <RotateCcw className="w-4 h-4" /> Try Again
                 </Button>
             )}
-            <Button variant="outline" onClick={handleCopyLink} className="gap-2 cursor-pointer hover:bg-slate-50 transition-colors rounded-xl border-slate-200 shadow-sm">
+            <Button variant="outline" onClick={handleCopyLink} className="gap-2 cursor-pointer hover:bg-white transition-colors rounded-xl border-slate-200 shadow-sm">
               <Copy className="w-4 h-4" /> Copy Link
             </Button>
             <Button onClick={handleDownloadPDF} className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 border-0 cursor-pointer transition-all hover:scale-105 active:scale-95 rounded-xl text-white font-medium">
@@ -359,7 +359,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
               </div>
 
               <p className="mt-8 text-center text-slate-600 text-base font-medium px-4">
-                Better than <strong className="text-slate-900 bg-slate-100 px-2 py-0.5 rounded">72%</strong> of candidates.
+                Better than <strong className="text-slate-900 bg-white px-2 py-0.5 rounded">72%</strong> of candidates.
               </p>
             </CardContent>
           </Card>
@@ -478,7 +478,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="relative h-2.5 w-full bg-slate-100 rounded-full mb-4 overflow-hidden">
+                          <div className="relative h-2.5 w-full bg-white rounded-full mb-4 overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r ${score >= 7 ? 'from-emerald-400 to-emerald-500' : 'from-blue-400 to-blue-600'}`}
                               style={{ width: `${score * 10}%` }}
@@ -528,11 +528,11 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
                       {/* Card Header / Summary */}
                       <div
                         onClick={() => toggleQuestion(idx)}
-                        className="p-6 flex items-start gap-6 cursor-pointer hover:bg-slate-50/50 transition-colors select-none"
+                        className="p-6 flex items-start gap-6 cursor-pointer hover:bg-white transition-colors select-none"
                       >
                         <div className={`
                                  w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-all duration-300 shadow-sm
-                                 ${isExpanded ? 'bg-blue-600 text-white scale-110' : 'bg-slate-100 text-slate-500'}
+                                 ${isExpanded ? 'bg-blue-600 text-white scale-110' : 'bg-white text-slate-500'}
                                `}>
                           {idx + 1}
                         </div>
@@ -547,7 +547,7 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
                             </Badge>
                           </div>
                           <div className="flex items-center gap-3 text-sm text-slate-500">
-                            <span className="capitalize font-semibold text-xs bg-slate-100 px-3 py-1 rounded-md text-slate-600 border border-slate-200 tracking-wide">{q.type}</span>
+                            <span className="capitalize font-semibold text-xs bg-white px-3 py-1 rounded-md text-slate-600 border border-slate-200 tracking-wide">{q.type}</span>
                             {isExpanded ? <ChevronUp className="w-5 h-5 ml-auto text-blue-500" /> : <ChevronDown className="w-5 h-5 ml-auto text-slate-400" />}
                           </div>
                         </div>
@@ -631,12 +631,12 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
             {/* TRANSCRIPT TAB */}
             <TabsContent value="transcript" className="animate-in fade-in slide-in-from-bottom-2 duration-500 mt-0">
               <Card className="h-[calc(100vh-250px)] flex flex-col border-0 shadow-xl shadow-slate-200/50 rounded-3xl bg-white/90 backdrop-blur overflow-hidden">
-                <CardHeader className="bg-slate-50/80 border-b border-slate-100 py-4 px-8">
+                <CardHeader className="bg-white/80 border-b border-slate-100 py-4 px-8">
                   <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
                     <FileText className="w-4 h-4" /> Interview Transcript
                   </CardTitle>
                 </CardHeader>
-                <ScrollArea className="flex-1 p-8 bg-slate-50/30">
+                <ScrollArea className="flex-1 p-8 bg-white/30">
                   <div className="space-y-8 max-w-5xl mx-auto">
                     {report.interview_session?.transcript?.map((msg, idx) => (
                       msg.message_type !== 'system' && (

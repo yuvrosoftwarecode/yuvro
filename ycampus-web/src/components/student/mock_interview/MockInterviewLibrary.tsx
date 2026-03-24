@@ -286,7 +286,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
               className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 selectedCategory === cat
                   ? 'bg-slate-900 text-white shadow-lg shadow-slate-200'
-                  : 'bg-white text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  : 'bg-white text-slate-500 hover:text-slate-700 hover:bg-white border border-slate-200'
               }`}
             >
               {cat}
@@ -314,7 +314,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
         {/* No Results */}
         {filteredRoles.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4">
               <Search className="w-10 h-10 text-slate-300" />
             </div>
             <h3 className="text-xl font-bold text-slate-800 mb-1">No interviews found</h3>
@@ -326,7 +326,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   }
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <RoleSidebar />
       <main className="flex-1 h-screen overflow-y-auto">
         {content}

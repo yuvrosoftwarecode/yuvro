@@ -403,7 +403,7 @@ export const StudentAddModal: React.FC<StudentAddModalProps> = ({ isOpen, onClos
                         </div>
 
                         {/* Academic Details */}
-                        <div className="space-y-4 bg-gray-50/50 p-5 rounded-xl border border-gray-100">
+                        <div className="space-y-4 bg-white p-5 rounded-xl border border-gray-100">
                             <h4 className="font-semibold text-xs text-orange-600 uppercase tracking-widest flex items-center gap-2 mb-4">
                                 <span className="w-8 h-px bg-orange-200"></span>
                                 Academic Details
@@ -446,7 +446,7 @@ export const StudentAddModal: React.FC<StudentAddModalProps> = ({ isOpen, onClos
                                 >
                                     <SelectTrigger className={cn(
                                         "bg-white h-11 transition-all duration-200 focus:ring-2 focus:ring-orange-500/20 px-4",
-                                        touched.batch_id && errors.batch_id ? "border-red-500" : "border-gray-200 hover:border-orange-300 hover:bg-white disabled:bg-gray-50"
+                                        touched.batch_id && errors.batch_id ? "border-red-500" : "border-gray-200 hover:border-orange-300 hover:bg-white disabled:bg-white"
                                     )}>
                                         <SelectValue placeholder="Select Batch" />
                                     </SelectTrigger>
@@ -503,7 +503,7 @@ export const StudentAddModal: React.FC<StudentAddModalProps> = ({ isOpen, onClos
                         </div>
                     </div>
 
-                    <DialogFooter className="mt-8 border-t px-6 py-4 bg-gray-50/80 rounded-b-2xl">
+                    <DialogFooter className="mt-8 border-t px-6 py-4 bg-white/80 rounded-b-2xl">
                         <Button
                             type="button"
                             variant="outline"

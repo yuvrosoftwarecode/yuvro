@@ -47,7 +47,7 @@ const CodeEditorPage: React.FC = () => {
         </button>
     );
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-white flex">
             <RoleSidebar />
             <div className="flex-1 flex flex-col relative overflow-hidden">
                 <div className="px-6 pt-6">

@@ -100,7 +100,7 @@ const JobShareDialog: React.FC<JobShareDialogProps> = ({ job, isOpen, onClose })
           </button>
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+        <div className="bg-white rounded-lg p-4 mb-6">
           <h3 className="font-medium text-gray-900">{job.title}</h3>
           <p className="text-sm text-gray-600">{job.company.name}</p>
         </div>
@@ -114,14 +114,14 @@ const JobShareDialog: React.FC<JobShareDialogProps> = ({ job, isOpen, onClose })
               type="text"
               value={jobShareUrl}
               readOnly
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-600 font-mono truncate"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-600 font-mono truncate"
             />
             <button
               onClick={handleCopyLink}
               className={`p-2 rounded-lg transition-colors ${
                 copied
                   ? 'bg-green-100 text-green-600'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-white text-gray-600 hover:bg-gray-200'
               }`}
               title="Copy to clipboard"
             >

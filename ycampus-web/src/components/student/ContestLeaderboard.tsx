@@ -62,7 +62,7 @@ const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestId, cont
     }
 
     return (
-        <Card className="border-2 border-orange-500/20 bg-white/50 backdrop-blur-sm">
+        <Card className="border-2 border-orange-500/20 bg-white backdrop-blur-sm">
             <CardHeader className="pb-3 border-b border-gray-100">
                 <div className="flex items-center gap-2 text-primary">
                     <Trophy className="h-5 w-5 text-amber-500" />

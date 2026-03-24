@@ -63,7 +63,7 @@ const CollegeDetails: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex h-screen bg-gray-50 flex">
+            <div className="flex h-screen bg-white flex">
                 <RoleSidebar />
                 <div className="flex-1">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -81,7 +81,7 @@ const CollegeDetails: React.FC = () => {
     if (!college) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
@@ -93,7 +93,7 @@ const CollegeDetails: React.FC = () => {
                                 <Button
                                     variant="outline"
                                     onClick={() => navigate("/admin/colleges")}
-                                    className="h-10 px-4 border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 rounded-lg hover:bg-slate-50"
+                                    className="h-10 px-4 border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 rounded-lg hover:bg-white"
                                 >
                                     <ArrowLeft className="h-4 w-4" />
                                     Back to Colleges
@@ -111,7 +111,7 @@ const CollegeDetails: React.FC = () => {
                                     flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black tracking-wide transition-all duration-300
                                     ${activeTab === "management"
                                         ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                        : "text-slate-500 hover:bg-white hover:text-slate-900"
                                     }
                                 `}
                             >
@@ -124,7 +124,7 @@ const CollegeDetails: React.FC = () => {
                                     flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black tracking-wide transition-all duration-300
                                     ${activeTab === "academics"
                                         ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                        : "text-slate-500 hover:bg-white hover:text-slate-900"
                                     }
                                 `}
                             >

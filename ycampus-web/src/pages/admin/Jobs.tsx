@@ -62,7 +62,7 @@ const Jobs: React.FC = () => {
 
   const headerActions = (
     <>
-      <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+      <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white">
         <Filter className="h-4 w-4" />
         <span>Filter</span>
       </button>
@@ -76,7 +76,7 @@ const Jobs: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         {/* Sidebar */}
         <RoleSidebar />

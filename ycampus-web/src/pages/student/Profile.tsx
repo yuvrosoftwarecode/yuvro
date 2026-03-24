@@ -369,7 +369,7 @@ const Profile = () => {
    * -------------------------------------------- */
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-background">
+    <div className="min-h-screen bg-white dark:bg-background">
       <Navigation />
 
       <div className="max-w-[1480px] mx-auto px-8 py-8 space-y-8">
@@ -454,7 +454,7 @@ const Profile = () => {
                     <div className="flex gap-3">
                       {profile.links.github && (
                         <a href={profile.links.github} target="_blank" rel="noopener noreferrer">
-                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:scale-110 transition-transform">
+                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full bg-white hover:bg-slate-200 text-slate-700 hover:scale-110 transition-transform">
                             <Github className="h-6 w-6" />
                           </Button>
                         </a>
@@ -577,7 +577,7 @@ const Profile = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <Button variant="outline" size="sm" className="h-8 gap-2 bg-white border-gray-200 hover:bg-slate-50 text-slate-700 shadow-none">
+                              <Button variant="outline" size="sm" className="h-8 gap-2 bg-white border-gray-200 hover:bg-white text-slate-700 shadow-none">
                                 <Github className="h-3.5 w-3.5" /> Code
                               </Button>
                             </a>
@@ -679,7 +679,7 @@ const Profile = () => {
                           <Badge
                             key={`${tech}-${idx}`}
                             variant="outline"
-                            className="bg-slate-50 text-slate-700 border-gray-200 px-3 py-1 font-semibold hover:bg-slate-100 transition-colors"
+                            className="bg-white text-slate-700 border-gray-200 px-3 py-1 font-semibold hover:bg-slate-100 transition-colors"
                           >
                             {tech}
                           </Badge>

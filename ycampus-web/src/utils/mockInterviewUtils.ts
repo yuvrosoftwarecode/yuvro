@@ -49,7 +49,7 @@ export const getRoleIconConfig = (title: string) => {
 
     return {
         icon: "💼",
-        iconBg: "bg-slate-100 dark:bg-slate-800",
+        iconBg: "bg-white dark:bg-slate-800",
         iconColor: "text-slate-600 dark:text-slate-400",
         buttonGradient: "from-slate-700 to-slate-900"
     };

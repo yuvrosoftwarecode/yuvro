@@ -498,7 +498,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
             {/* Divider */}
             {showOutput && (
-              <ResizableHandle className="h-2 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+              <ResizableHandle className="h-2 bg-white hover:bg-gray-200 flex items-center justify-center transition-colors">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </ResizableHandle>
             )}
@@ -686,7 +686,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                     }`}>
                                     <div className={`px-6 py-4 border-b-2 flex justify-between items-center ${isHidden
                                       ? result.passed
-                                        ? 'bg-slate-100/60 border-slate-200'
+                                        ? 'bg-white/60 border-slate-200'
                                         : 'bg-purple-100/60 border-purple-200'
                                       : result.passed
                                         ? 'bg-green-100/60 border-green-200'
@@ -716,8 +716,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           Input {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
                                         </div>
                                         <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
+                                          ? 'bg-white border-gray-300 text-gray-600'
+                                          : 'bg-white border-gray-200 text-gray-800'
                                           }`}>
                                           {result.input}
                                         </pre>
@@ -727,8 +727,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           Expected Output {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
                                         </div>
                                         <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
+                                          ? 'bg-white border-gray-300 text-gray-600'
+                                          : 'bg-white border-gray-200 text-gray-800'
                                           }`}>
                                           {result.expected_output}
                                         </pre>
@@ -749,7 +749,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="text-xs bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200"
+                                            className="text-xs bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
                                             onClick={() => {
                                               if (onToggleAiChat && !isAiChatOpen) {
                                                 onToggleAiChat();
@@ -776,7 +776,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                             <Button
                                               size="sm"
                                               variant="outline"
-                                              className="text-xs bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200"
+                                              className="text-xs bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
                                               onClick={() => {
                                                 if (onToggleAiChat && !isAiChatOpen) {
                                                   onToggleAiChat();

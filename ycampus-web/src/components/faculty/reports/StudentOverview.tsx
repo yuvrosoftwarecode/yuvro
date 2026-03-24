@@ -21,7 +21,7 @@ function getStatusBadge(score: number, thresholds: { high: number; mid: number; 
   if (score >= thresholds.high) return { label: labels[0], cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
   if (score >= thresholds.mid) return { label: labels[1], cls: 'bg-[#FEF3C7] text-[#B45309] border-amber-200/50' };
   if (score >= thresholds.low) return { label: labels[2], cls: 'bg-red-50 text-red-700 border-red-100' };
-  return { label: labels[3], cls: 'bg-slate-100 text-slate-700 border-slate-200' };
+  return { label: labels[3], cls: 'bg-white text-slate-700 border-slate-200' };
 }
 
 const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {

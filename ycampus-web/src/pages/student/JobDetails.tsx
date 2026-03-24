@@ -137,7 +137,7 @@ const JobDetails = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading job details...</p>
@@ -151,7 +151,7 @@ const JobDetails = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Job not found</h2>
             <p className="text-gray-600 mb-4">The job you're looking for doesn't exist or has been removed.</p>
@@ -219,7 +219,7 @@ const JobDetails = () => {
   return (
     <>
       <Navigation />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button */}
           <button
@@ -253,7 +253,7 @@ const JobDetails = () => {
                     />
                     <button
                       onClick={handleShare}
-                      className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="p-3 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
                       title="Share this job"
                     >
                       <Share2 className="h-5 w-5" />
@@ -270,7 +270,7 @@ const JobDetails = () => {
                     </button>
                     <button
                       onClick={handleShare}
-                      className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="p-3 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
                       title="Share this job"
                     >
                       <Share2 className="h-5 w-5" />

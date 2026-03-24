@@ -108,7 +108,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                                 <Input
                                     id="first_name"
                                     placeholder="e.g. Robert"
-                                    className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                                    className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                                     value={formData.first_name}
                                     onChange={handleChange}
                                     required
@@ -119,7 +119,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                                 <Input
                                     id="last_name"
                                     placeholder="e.g. Smith"
-                                    className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                                    className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                                     value={formData.last_name}
                                     onChange={handleChange}
                                     required
@@ -135,7 +135,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                                     id="email"
                                     type="email"
                                     placeholder="name@college.edu"
-                                    className="pl-10 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                                    className="pl-10 rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
@@ -156,7 +156,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                                 <Input
                                     id="username"
                                     placeholder="robert_tpo"
-                                    className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                                    className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                                     value={formData.username}
                                     onChange={handleChange}
                                     required
@@ -171,7 +171,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                                             id="password"
                                             type="text"
                                             placeholder="••••••••"
-                                            className="pl-10 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-bold text-indigo-600"
+                                            className="pl-10 rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-bold text-indigo-600"
                                             value={formData.password}
                                             onChange={handleChange}
                                             required
@@ -187,7 +187,7 @@ const TPOForm: React.FC<TPOFormProps> = ({ isOpen, onClose, onSubmit, tpo, loadi
                     </div>
 
                     <DialogFooter className="pt-8 border-t border-slate-100">
-                        <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-slate-50 text-slate-500 font-bold rounded-xl px-6 h-12 uppercase text-[10px] tracking-widest">Cancel</Button>
+                        <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white text-slate-500 font-bold rounded-xl px-6 h-12 uppercase text-[10px] tracking-widest">Cancel</Button>
                         <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-10 h-12 rounded-xl shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95 uppercase text-[10px] tracking-widest" disabled={loading}>
                             {loading ? (
                                 <div className="flex items-center gap-2">

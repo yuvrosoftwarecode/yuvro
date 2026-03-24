@@ -272,7 +272,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
           <CardContent>
             <div className="space-y-4">
               {Object.entries(stats.difficultyBreakdown).map(([difficulty, data]) => (
-                <div key={difficulty} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={difficulty} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className={getDifficultyColor(difficulty)}>
                       {difficulty}
@@ -296,7 +296,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
           <CardContent>
             <div className="space-y-3">
               {stats.recentSubmissions.map((submission) => (
-                <div key={submission.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <div key={submission.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-white transition">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className={getStatusColor(submission.status)}>
                       {submission.status}

@@ -224,7 +224,7 @@ export default function OwnerContest() {
     switch (status) {
       case 'ongoing': return 'bg-green-100 text-green-700 border-green-200';
       case 'upcoming': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'past': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'past': return 'bg-white text-gray-700 border-gray-200';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -263,7 +263,7 @@ export default function OwnerContest() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -339,19 +339,19 @@ export default function OwnerContest() {
                           All Contests
                         </TabsTrigger>
                         <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'upcoming' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'upcoming' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
                           value="upcoming"
                         >
                           Upcoming
                         </TabsTrigger>
                         <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'ongoing' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'ongoing' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
                           value="ongoing"
                         >
                           Ongoing
                         </TabsTrigger>
                         <TabsTrigger
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'past' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'past' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'}`}
                           value="past"
                         >
                           Completed

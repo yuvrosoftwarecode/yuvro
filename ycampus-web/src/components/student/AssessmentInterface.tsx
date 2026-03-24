@@ -407,7 +407,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       case 'viewed': return 'bg-blue-400 text-white hover:bg-blue-500';
       case 'flagged': return 'bg-orange-500 text-white hover:bg-orange-600';
       case 'answered': return 'bg-emerald-500 text-white hover:bg-emerald-600';
-      default: return 'bg-white text-gray-700 border border-slate-200 hover:bg-slate-50';
+      default: return 'bg-white text-gray-700 border border-slate-200 hover:bg-white';
     }
   };
 
@@ -426,7 +426,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                 return (
                   <div
                     key={index}
-                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-slate-50 hover:border-slate-200'}`}
+                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-white hover:border-slate-200'}`}
                     onClick={() => handleAnswerChange(question.id, option.text)}
                   >
                     <div className="flex items-center space-x-4 flex-1">
@@ -441,7 +441,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                           />
                         )}
                       </div>
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-slate-500'
                         }`}>
                         {String.fromCharCode(65 + index)}
                       </div>
@@ -454,7 +454,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
               })}
             </RadioGroup>
 
-            <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+            <div className="mt-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-inner">
               <div className="flex items-center space-x-2 mb-3">
                 <div className="h-4 w-1 bg-amber-500 rounded-full"></div>
                 <Label htmlFor={`explanation-${question.id}`} className="text-sm font-bold text-slate-800">
@@ -481,7 +481,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                 return (
                   <div
                     key={index}
-                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-slate-50 hover:border-slate-200'}`}
+                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-white hover:border-slate-200'}`}
                     onClick={() => {
                       const current = answers[question.id] || [];
                       const newAns = current.includes(option.text)
@@ -502,7 +502,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                           />
                         )}
                       </div>
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-slate-500'
                         }`}>
                         {String.fromCharCode(65 + index)}
                       </div>
@@ -515,7 +515,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
               })}
             </div>
 
-            <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+            <div className="mt-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-inner">
               <div className="flex items-center space-x-2 mb-3">
                 <div className="h-4 w-1 bg-amber-500 rounded-full"></div>
                 <Label htmlFor={`explanation-${question.id}`} className="text-sm font-bold text-slate-800">
@@ -547,7 +547,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             )}
 
             {!isCodeEditorFullscreen && question.test_cases_basic && (
-              <div className="mb-4 p-4 bg-slate-50 rounded-lg shadow-sm">
+              <div className="mb-4 p-4 bg-white rounded-lg shadow-sm">
                 <h4 className="font-semibold text-sm mb-2 text-slate-700">Test Cases</h4>
                 <div className="space-y-2">
                   {question.test_cases_basic.map((tc: any, idx: number) => (
@@ -664,7 +664,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="bg-card shadow-lg relative z-30 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="relative h-14 w-20 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+            <div className="relative h-14 w-20 bg-white rounded-xl overflow-hidden border border-slate-200">
               <video
                 ref={videoRef}
                 autoPlay
@@ -726,7 +726,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                           <div className="font-bold text-orange-500 uppercase tracking-wider text-[8px] text-center">Flagged</div>
                         </div>
 
-                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-100">
                           <div className="text-xl font-black text-slate-600">{questions.length - answeredCount}</div>
                           <div className="font-bold text-slate-500 uppercase tracking-wider text-[8px] text-center">Left</div>
                         </div>
@@ -806,7 +806,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                         <div className="text-[8px] font-semibold text-orange-600 uppercase text-center leading-tight">Flagged</div>
                       </div>
 
-                      <div className="bg-gray-50 p-2 rounded-lg text-center shadow-sm">
+                      <div className="bg-white p-2 rounded-lg text-center shadow-sm">
                         <div className="text-md font-bold text-gray-700">{questions.length - answeredCount}</div>
                         <div className="text-[8px] font-semibold text-gray-500 uppercase text-center leading-tight">Left</div>
                       </div>
@@ -826,7 +826,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                         <div key={group.label} className="mb-6">
                           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1 flex items-center gap-2">
                             {group.label}
-                            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px]">{groupQuestions.length}</span>
+                            <span className="bg-white text-slate-500 px-1.5 py-0.5 rounded text-[10px]">{groupQuestions.length}</span>
                           </h4>
                           <div className="grid grid-cols-5 gap-2">
                             {groupQuestions.map(q => {
@@ -856,19 +856,19 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                       <Shield className="h-3 w-3 mr-1.5" /> Proctoring
                     </h4>
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
+                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
                         <span className="text-muted-foreground">Camera</span>
                         <Badge variant="outline" className={videoTrackEnabled ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-red-100 text-red-700 border-red-200"}>
                           {videoTrackEnabled ? "Active" : "Off"}
                         </Badge>
                       </div>
-                      <div className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
+                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
                         <span className="text-muted-foreground">Microphone</span>
                         <Badge variant="outline" className={audioTrackEnabled ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-red-100 text-red-700 border-red-200"}>
                           {audioTrackEnabled ? "Active" : "Off"}
                         </Badge>
                       </div>
-                      <div className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
+                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
                         <span className="text-muted-foreground">Tab Switches</span>
                         <Badge variant="outline" className={tabSwitchCount > 0 ? "bg-red-100 text-red-700 border-red-200" : "bg-emerald-100 text-emerald-700 border-emerald-200"}>
                           {tabSwitchCount}
@@ -952,7 +952,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                             <h4 className="font-semibold text-sm mb-3 text-slate-800">Sample Test Cases</h4>
                             <div className="space-y-3">
                               {currentQuestionData.test_cases_basic.map((tc: any, idx: number) => (
-                                <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 grid grid-cols-2 gap-4 text-xs font-mono">
+                                <div key={idx} className="bg-white p-3 rounded-lg border border-slate-100 grid grid-cols-2 gap-4 text-xs font-mono">
                                   <div>
                                     <div className="font-semibold text-slate-500 mb-1">Input</div>
                                     <div className="bg-white p-2 rounded border border-slate-200">{tc.input}</div>
@@ -971,7 +971,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
                     {/* Collapsed Sidebar Ghost */}
                     {isDescriptionCollapsed && (
-                      <div className="w-10 bg-slate-50 border-r flex flex-col items-center py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setIsDescriptionCollapsed(false)}>
+                      <div className="w-10 bg-white border-r flex flex-col items-center py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setIsDescriptionCollapsed(false)}>
                         <div className="rotate-180 mb-4">
                           <ChevronLeft className="h-4 w-4 text-slate-500" />
                         </div>

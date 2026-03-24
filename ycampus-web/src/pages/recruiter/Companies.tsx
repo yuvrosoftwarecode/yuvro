@@ -140,10 +140,10 @@ const RecruiterCompanies: React.FC = () => {
       'finance': 'bg-purple-100 text-purple-700 border-purple-200',
       'education': 'bg-orange-100 text-orange-700 border-orange-200',
       'retail': 'bg-pink-100 text-pink-700 border-pink-200',
-      'manufacturing': 'bg-gray-100 text-gray-700 border-gray-200',
+      'manufacturing': 'bg-white text-gray-700 border-gray-200',
     };
     const key = domain?.toLowerCase() || '';
-    return colors[key as keyof typeof colors] || 'bg-gray-100 text-gray-700 border-gray-200';
+    return colors[key as keyof typeof colors] || 'bg-white text-gray-700 border-gray-200';
   };
 
   const getSizeColor = (size: string) => {
@@ -153,16 +153,16 @@ const RecruiterCompanies: React.FC = () => {
       '51-200': 'bg-purple-100 text-purple-700 border-purple-200',
       '201-500': 'bg-orange-100 text-orange-700 border-orange-200',
       '501-1000': 'bg-red-100 text-red-700 border-red-200',
-      '1000+': 'bg-gray-100 text-gray-700 border-gray-200',
+      '1000+': 'bg-white text-gray-700 border-gray-200',
     };
-    return colors[size as keyof typeof colors] || 'bg-gray-100 text-gray-700 border-gray-200';
+    return colors[size as keyof typeof colors] || 'bg-white text-gray-700 border-gray-200';
   };
 
   const headerActions = (
     <>
       <button
         onClick={() => navigate('/recruiter/jobs')}
-        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white"
       >
         <span>Back to Jobs</span>
       </button>
@@ -177,7 +177,7 @@ const RecruiterCompanies: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         {/* Sidebar */}
         <RoleSidebar />
@@ -254,7 +254,7 @@ const RecruiterCompanies: React.FC = () => {
                         <button
                           onClick={() => setSelectedSizeFilter('1-10')}
                           className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '1-10' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                            selectedSizeFilter === '1-10' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                           }`}
                         >
                           Startup
@@ -262,7 +262,7 @@ const RecruiterCompanies: React.FC = () => {
                         <button
                           onClick={() => setSelectedSizeFilter('11-50')}
                           className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '11-50' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                            selectedSizeFilter === '11-50' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                           }`}
                         >
                           Small
@@ -270,7 +270,7 @@ const RecruiterCompanies: React.FC = () => {
                         <button
                           onClick={() => setSelectedSizeFilter('51-200')}
                           className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '51-200' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                            selectedSizeFilter === '51-200' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                           }`}
                         >
                           Medium
@@ -278,7 +278,7 @@ const RecruiterCompanies: React.FC = () => {
                         <button
                           onClick={() => setSelectedSizeFilter('501-1000')}
                           className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${
-                            selectedSizeFilter === '501-1000' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                            selectedSizeFilter === '501-1000' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                           }`}
                         >
                           Large
@@ -321,7 +321,7 @@ const RecruiterCompanies: React.FC = () => {
                       </div>
                     ) : (
                       filteredCompanies.map((company) => (
-                        <div key={company.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                        <div key={company.id} className="px-6 py-4 hover:bg-white transition-colors">
                           <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center space-x-3">
@@ -512,7 +512,7 @@ const RecruiterCompanies: React.FC = () => {
                   <div className="flex justify-end space-x-3">
                     <button
                       onClick={() => setShowCompanyForm(false)}
-                      className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
                     >
                       Cancel
                     </button>
@@ -541,7 +541,7 @@ const RecruiterCompanies: React.FC = () => {
             <div className="flex justify-end space-x-3">
               <button
                 onClick={closeDeleteModal}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-white"
                 disabled={isDeleting}
               >
                 Cancel

@@ -111,7 +111,7 @@ const StudentsScreen: React.FC = () => {
     const totalPages = Math.ceil(totalCount / 25);
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1 overflow-y-auto">
@@ -156,7 +156,7 @@ const StudentsScreen: React.FC = () => {
                                                 {(['all', 'active', 'detained'] as const).map((status) => (
                                                     <button
                                                         key={status}
-                                                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterStatus === status ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                                                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterStatus === status ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
                                                         onClick={() => setFilterStatus(status)}
                                                     >
                                                         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -171,7 +171,7 @@ const StudentsScreen: React.FC = () => {
                                                 {(['all', 'regular', 'lateral_entry'] as const).map((type) => (
                                                     <button
                                                         key={type}
-                                                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterAdmissionType === type ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                                                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterAdmissionType === type ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
                                                         onClick={() => setFilterAdmissionType(type)}
                                                     >
                                                         {type === 'all' ? 'All' : type === 'regular' ? 'Reg' : 'LE'}
@@ -239,7 +239,7 @@ const StudentsScreen: React.FC = () => {
                                 )}
                                 <Button
                                     variant="outline"
-                                    className="border-gray-200 text-gray-600 hover:bg-gray-50"
+                                    className="border-gray-200 text-gray-600 hover:bg-white"
                                     onClick={() => setIsImportModalOpen(true)}
                                 >
                                     <Upload className="h-4 w-4 mr-2" />
@@ -286,7 +286,7 @@ const StudentsScreen: React.FC = () => {
                         ) : (
                             <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
                                 <Table>
-                                    <TableHeader className="bg-gray-50/50">
+                                    <TableHeader className="bg-white">
                                         <TableRow>
                                             <TableHead className="w-[60px] text-center">Sl. No</TableHead>
                                             <TableHead>Student Name</TableHead>
@@ -314,7 +314,7 @@ const StudentsScreen: React.FC = () => {
                                                 <TableCell className="text-gray-900 text-xs">{student.user_details.email}</TableCell>
                                                 <TableCell className="text-gray-900 text-xs whitespace-nowrap">{student.phone_number}</TableCell>
                                                 <TableCell>
-                                                    <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
+                                                    <code className="text-xs bg-white px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[11px] uppercase px-1.5 py-0 font-bold`}>
@@ -400,7 +400,7 @@ const StudentsScreen: React.FC = () => {
                                                         onClick={() => loadStudents(currentPage - 1)}
                                                         disabled={currentPage === 1}
                                                         variant="outline"
-                                                        className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                        className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                                                     >
                                                         <span className="sr-only">Previous</span>
                                                         <ChevronLeft className="h-5 w-5" />
@@ -414,7 +414,7 @@ const StudentsScreen: React.FC = () => {
                                                                     key={page}
                                                                     onClick={() => loadStudents(page)}
                                                                     variant={currentPage === page ? "default" : "outline"}
-                                                                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}`}
+                                                                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-white'}`}
                                                                 >
                                                                     {page}
                                                                 </Button>
@@ -430,7 +430,7 @@ const StudentsScreen: React.FC = () => {
                                                         onClick={() => loadStudents(currentPage + 1)}
                                                         disabled={currentPage === totalPages}
                                                         variant="outline"
-                                                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                                                     >
                                                         <span className="sr-only">Next</span>
                                                         <ChevronRight className="h-5 w-5" />

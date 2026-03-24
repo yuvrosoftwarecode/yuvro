@@ -55,7 +55,7 @@ const CompanyDetail: React.FC = () => {
     <>
       <button 
         onClick={() => navigate('/recruiter/jobs/companies')}
-        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Companies</span>
@@ -74,7 +74,7 @@ const CompanyDetail: React.FC = () => {
 
   if (showEditForm && company) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -85,7 +85,7 @@ const CompanyDetail: React.FC = () => {
                 actions={
                   <button 
                     onClick={() => setShowEditForm(false)}
-                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     <span>Back to Details</span>
@@ -106,7 +106,7 @@ const CompanyDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -208,11 +208,11 @@ const CompanyDetail: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="px-6 py-4 bg-gray-50 border-t">
+                <div className="px-6 py-4 bg-white border-t">
                   <div className="flex justify-end space-x-3">
                     <button 
                       onClick={() => navigate('/recruiter/jobs/companies')}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white"
                     >
                       Back to Companies
                     </button>

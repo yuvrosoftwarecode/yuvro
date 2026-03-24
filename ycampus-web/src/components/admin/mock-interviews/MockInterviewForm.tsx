@@ -355,14 +355,14 @@ export default function MockInterviewForm() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+      <div className="min-h-screen bg-white flex justify-center items-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -383,7 +383,7 @@ export default function MockInterviewForm() {
             />
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-4 mb-6 bg-white p-1 rounded-lg">
                   <TabsTrigger value="details">Basic Info</TabsTrigger>
                   <TabsTrigger value="questions">Questions</TabsTrigger>
                   <TabsTrigger value="ai_config">AI Config</TabsTrigger>
@@ -458,7 +458,7 @@ export default function MockInterviewForm() {
                       </div>
 
                       {formData.ai_generation_mode === 'mixed' && (
-                        <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-gray-50">
+                        <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-white">
                           <div>
                             <label className="block text-sm font-medium mb-1">AI Generated (%)</label>
                             <Input
@@ -480,7 +480,7 @@ export default function MockInterviewForm() {
                             <Input
                               disabled
                               value={100 - (formData.ai_percentage || 0)}
-                              className="bg-gray-100 cursor-not-allowed"
+                              className="bg-white cursor-not-allowed"
                             />
                             <p className="text-xs text-gray-500 mt-1">
                               Remaining % will be from fixed/random question bank.
@@ -749,7 +749,7 @@ export default function MockInterviewForm() {
                       </div>
 
                       {/* Voice Preview Section */}
-                      <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+                      <div className="mt-4 p-4 border rounded-lg bg-white">
                         <label className="block text-sm font-medium mb-2">Voice Preview</label>
                         <div className="flex gap-2">
                           <Input
@@ -869,7 +869,7 @@ export default function MockInterviewForm() {
                   <button
                     type="button"
                     onClick={() => navigate('/admin/mock-interview')}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
                   >
                     Cancel
                   </button>

@@ -20,7 +20,7 @@ const MockSkillTestReport = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 overflow-y-auto">
         <TestResults

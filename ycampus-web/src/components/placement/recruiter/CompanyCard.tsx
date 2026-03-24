@@ -54,7 +54,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
       <CardContent className="p-6 space-y-4">
         <div className="flex items-start justify-between">
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-bold shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 font-bold shrink-0 group-hover:scale-105 transition-transform">
               <Building2 className="h-6 w-6" />
             </div>
             <div className="min-w-0">
@@ -121,7 +121,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="rounded-xl h-10 flex items-center gap-2 px-3 text-slate-600 hover:bg-slate-50 transition-all font-bold text-xs"
+            className="rounded-xl h-10 flex items-center gap-2 px-3 text-slate-600 hover:bg-white transition-all font-bold text-xs"
             onClick={() => company.website && window.open(company.website, '_blank')}
           >
             <Globe className="h-4 w-4" />

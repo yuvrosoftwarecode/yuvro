@@ -469,7 +469,7 @@ const Reports: React.FC = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#F8FAFC]">
+        <div className="flex min-h-screen bg-white">
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -485,7 +485,7 @@ const Reports: React.FC = () => {
                                         <Button
                                             onClick={handleExportPDF}
                                             variant="outline"
-                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-white bg-white"
                                         >
                                             <FileText className="h-4 w-4" />
                                             <span>PDF</span>
@@ -493,7 +493,7 @@ const Reports: React.FC = () => {
                                         <Button
                                             onClick={handleExportExcel}
                                             variant="outline"
-                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-white bg-white"
                                         >
                                             <TableIcon className="h-4 w-4" />
                                             <span>Excel</span>
@@ -534,7 +534,7 @@ const Reports: React.FC = () => {
                                                         <button
                                                             key={s.id}
                                                             onClick={() => selectStudent(s)}
-                                                            className="w-full px-5 py-4 text-left hover:bg-gray-50 flex flex-col transition-colors border-b last:border-0 border-gray-50"
+                                                            className="w-full px-5 py-4 text-left hover:bg-white flex flex-col transition-colors border-b last:border-0 border-gray-50"
                                                         >
                                                             <span className="font-bold text-sm text-gray-900">{s.user_details?.first_name || s.user?.first_name} {s.user_details?.last_name || s.user?.last_name}</span>
                                                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{s.roll_number} • {s.department_name}</span>
@@ -645,7 +645,7 @@ const Reports: React.FC = () => {
                                 <CardContent className="p-8">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                                         <div className="flex items-center gap-6">
-                                            <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
+                                            <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center text-gray-400 border border-gray-100">
                                                 <User className="h-10 w-10" />
                                             </div>
                                             <div className="space-y-1">
@@ -660,7 +660,7 @@ const Reports: React.FC = () => {
 
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 flex-1 max-w-4xl">
                                             {/* Performance Index */}
-                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
+                                            <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
                                                 <TrendingUp className="h-3.5 w-3.5 text-indigo-400 mb-1" />
                                                 <div className="text-2xl font-bold text-gray-900 leading-none">
                                                     {analyticsData?.performanceIndex || '74%'}
@@ -669,7 +669,7 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             {/* Overall Status */}
-                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 border border-gray-50/50">
+                                            <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 border border-gray-50/50">
                                                 <Badge className="bg-[#DCFCE7] text-[#166534] hover:bg-[#DCFCE7] border-none px-3 py-1 rounded-full text-[11px] font-medium shadow-none">
                                                     On Track
                                                 </Badge>
@@ -677,7 +677,7 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             {/* Attendance */}
-                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
+                                            <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center space-y-1 border border-gray-50/50">
                                                 <Calendar className="h-3.5 w-3.5 text-gray-400 mb-1" />
                                                 <div className="text-2xl font-bold text-gray-900 leading-none">
                                                     {attendanceStats.percentage}%
@@ -686,14 +686,14 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             {/* Learning Progress */}
-                                            <div className="bg-[#F8FAFC]/50 rounded-2xl p-6 flex flex-col items-center justify-center border border-gray-50/50">
+                                            <div className="bg-white rounded-2xl p-6 flex flex-col items-center justify-center border border-gray-50/50">
                                                 <BookOpen className="h-3.5 w-3.5 text-gray-400 mb-2" />
                                                 <div className="w-full space-y-3">
                                                     <div className="space-y-1.5">
                                                         <div className="flex justify-between items-center px-0.5">
                                                             <span className="text-[10px] font-bold text-gray-900">76%</span>
                                                         </div>
-                                                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                        <div className="h-1.5 w-full bg-white rounded-full overflow-hidden">
                                                             <div
                                                                 className="h-full bg-gray-900 rounded-full"
                                                                 style={{ width: '76%' }}
@@ -734,8 +734,8 @@ const Reports: React.FC = () => {
                                                     <React.Fragment key={idx}>
                                                         <TableRow
                                                             className={cn(
-                                                                "hover:bg-gray-50/50 transition-colors border-gray-50 cursor-pointer",
-                                                                expandedRows[row.id] && "bg-gray-50/30"
+                                                                "hover:bg-white transition-colors border-gray-50 cursor-pointer",
+                                                                expandedRows[row.id] && "bg-white/30"
                                                             )}
                                                             onClick={() => toggleRow(row.id)}
                                                         >
@@ -791,7 +791,7 @@ const Reports: React.FC = () => {
                                                         </TableRow>
 
                                                         {expandedRows[row.id] && (
-                                                            <TableRow className="bg-gray-50/20 hover:bg-gray-50/20 border-none">
+                                                            <TableRow className="bg-white/20 hover:bg-white/20 border-none">
                                                                 <TableCell colSpan={9} className="p-8 pt-0">
                                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                                                         {/* Notes & Learning */}
@@ -941,7 +941,7 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             {/* Performance Gap */}
-                                            <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center min-h-[160px] col-span-2 xl:col-span-1">
+                                            <div className="p-4 rounded-2xl bg-white border border-gray-100 text-center space-y-2 flex flex-col items-center justify-center min-h-[160px] col-span-2 xl:col-span-1">
                                                 <Target className="h-5 w-5 text-gray-400" />
                                                 <div className="text-[11px] font-bold text-gray-400 leading-none">Performance Gap</div>
                                                 <div className="text-2xl font-bold text-gray-900 leading-tight tracking-tight">{analyticsData?.performanceGap || '31%'}</div>
@@ -997,7 +997,7 @@ const Reports: React.FC = () => {
                                     <div className="flex flex-col lg:flex-row gap-12 items-stretch">
                                         {/* Left Side: Stats Summary */}
                                         <div className="flex-none w-full lg:w-[320px] space-y-6">
-                                            <div className="p-10 rounded-[2.5rem] bg-[#F8FAFC] border-none flex flex-col items-center justify-center text-center space-y-4">
+                                            <div className="p-10 rounded-[2.5rem] bg-white border-none flex flex-col items-center justify-center text-center space-y-4">
                                                 <div className="h-12 w-12 rounded-2xl bg-white flex items-center justify-center text-indigo-600">
                                                     <Calendar className="h-6 w-6" />
                                                 </div>
@@ -1008,18 +1008,18 @@ const Reports: React.FC = () => {
                                             </div>
 
                                             <div className="grid grid-cols-3 gap-4">
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-white border-none">
                                                     <div className="text-xl font-bold text-gray-900 tracking-tight">{attendanceStats.present || 41}</div>
                                                     <div className="text-[11px] font-medium text-gray-400 mt-1 text-center leading-tight">Active Days</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-white border-none">
                                                     <div className="flex items-center gap-1">
                                                         <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
                                                         <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.streak || 2}</span>
                                                     </div>
                                                     <div className="text-[11px] font-medium text-gray-400 mt-1 text-center leading-tight">Current</div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-[#F8FAFC] border-none">
+                                                <div className="flex flex-col items-center justify-center p-5 rounded-3xl bg-white border-none">
                                                     <div className="flex items-center gap-1">
                                                         <Star className="h-3 w-3 text-indigo-500 fill-indigo-500" />
                                                         <span className="text-xl font-bold text-gray-900 tracking-tight">{analyticsData?.longest_streak || 8}</span>
@@ -1078,9 +1078,9 @@ const Reports: React.FC = () => {
                                             { name: 'Notes Starter', color: 'bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7]', icon: '📚' },
                                             { name: '5 Day Streak', color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]', icon: '🔥' },
                                             { name: '10 Day Streak', color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FFEDD5]', icon: '🔥' },
-                                            { name: 'All Tasks Done', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '✅', locked: true },
-                                            { name: 'Perfect Attendance', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '🎯', locked: true },
-                                            { name: 'Assessment Ace', color: 'bg-gray-50 text-gray-300 border-gray-100', icon: '⭐', locked: true },
+                                            { name: 'All Tasks Done', color: 'bg-white text-gray-300 border-gray-100', icon: '✅', locked: true },
+                                            { name: 'Perfect Attendance', color: 'bg-white text-gray-300 border-gray-100', icon: '🎯', locked: true },
+                                            { name: 'Assessment Ace', color: 'bg-white text-gray-300 border-gray-100', icon: '⭐', locked: true },
                                         ].map((badge, i) => (
                                             <Badge key={i} className={cn(
                                                 "px-6 py-5 rounded-2xl flex flex-row items-center gap-3 text-xs font-bold shadow-none border transition-all cursor-default",
@@ -1101,7 +1101,7 @@ const Reports: React.FC = () => {
                         </div>
                     ) : (
                         <div className="py-24 flex flex-col items-center justify-center text-center space-y-4">
-                            <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-2 text-gray-200">
+                            <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center mb-2 text-gray-200">
                                 <FileText className="h-8 w-8" />
                             </div>
                             <div className="space-y-1">
@@ -1167,7 +1167,7 @@ const Reports: React.FC = () => {
                                 </thead>
                                 <tbody>
                                     {(performanceData.length > 0 ? performanceData : []).map((row: any, idx: number) => (
-                                        <tr key={idx} className={cn("border-b border-gray-50 text-xs", idx % 2 === 0 ? "bg-white" : "bg-gray-50/30")}>
+                                        <tr key={idx} className={cn("border-b border-gray-50 text-xs", idx % 2 === 0 ? "bg-white" : "bg-white/30")}>
                                             <td className="py-3 px-4 font-bold text-gray-900">{row.name}</td>
                                             <td className="py-3 px-2 text-center font-bold">{row.notes}</td>
                                             <td className="py-3 px-2 text-center font-bold">{row.testAvg}</td>

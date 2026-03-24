@@ -146,7 +146,7 @@ const TopicSelection = ({
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-gray-50">
+    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-white">
       {/* Reusable Sidebar */}
       <TopicSidebar
         course={sidebarCourse}

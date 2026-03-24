@@ -199,7 +199,7 @@ const Jobs = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading job opportunities...</p>
@@ -213,7 +213,7 @@ const Jobs = () => {
     <>
       <Navigation />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
@@ -308,7 +308,7 @@ const Jobs = () => {
                 </div>
 
                 {/* Save Filters Button */}
-                <button className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <button className="w-full bg-white text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                   <BookmarkIcon className="h-4 w-4" />
                   Save Filters
                 </button>
@@ -352,7 +352,7 @@ const Jobs = () => {
                     </div>
                     <button
                       onClick={() => setShowFilters(!showFilters)}
-                      className="lg:hidden bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      className="lg:hidden bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-white transition-colors flex items-center gap-2"
                     >
                       <Filter className="h-4 w-4" />
                       Filters

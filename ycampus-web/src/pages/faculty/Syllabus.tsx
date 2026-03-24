@@ -152,10 +152,10 @@ const Syllabus: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <RoleSidebar />
       <div className="flex flex-1 flex-col h-screen overflow-hidden min-w-0">
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar min-h-0 bg-[#F8FAFC]">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar min-h-0 bg-white">
           <div className="mx-auto max-w-7xl space-y-6">
             <PageHeader title="Syllabus Management" subtitle="Take and manage attendance for your assigned sections" />
 
@@ -270,7 +270,7 @@ const Syllabus: React.FC = () => {
                             variant={topic.status === 'Completed' ? 'secondary' : 'outline'}
                             className={`rounded-full px-3 font-medium ${
                               topic.status === 'Completed' 
-                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-100' 
+                                ? 'bg-white text-gray-700 hover:bg-gray-100' 
                                 : 'text-gray-500 border-gray-200'
                             }`}
                           >

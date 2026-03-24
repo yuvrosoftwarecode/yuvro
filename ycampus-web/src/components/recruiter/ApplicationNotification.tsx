@@ -130,13 +130,13 @@ const ApplicationNotificationCenter: React.FC = () => {
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                  className={`p-4 border-b border-gray-100 hover:bg-white cursor-pointer transition-colors ${
                     !notification.read ? 'bg-blue-50' : ''
                   }`}
                   onClick={() => viewApplications(notification.jobId, notification.id)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-full ${!notification.read ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                    <div className={`p-2 rounded-full ${!notification.read ? 'bg-blue-100' : 'bg-white'}`}>
                       <Users className={`h-4 w-4 ${!notification.read ? 'text-blue-600' : 'text-gray-600'}`} />
                     </div>
                     <div className="flex-1 min-w-0">

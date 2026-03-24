@@ -113,7 +113,7 @@ const TopicsView: React.FC<TopicsViewProps> = ({ course, onBackToCourses, onProb
                       w-full text-left p-3 rounded-lg transition-colors
                       ${selectedTopic?.id === topic.id
                         ? 'bg-blue-50 border-blue-200 border text-blue-900'
-                        : 'hover:bg-gray-50 border border-transparent'
+                        : 'hover:bg-white border border-transparent'
                       }
                     `}
                   >

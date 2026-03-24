@@ -118,7 +118,7 @@ const SubjectAddModal: React.FC<SubjectAddModalProps> = ({
                             </div>
                         ) : filteredSubjects.length > 0 ? (
                             filteredSubjects.map(cs => (
-                                <div key={cs.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md border group">
+                                <div key={cs.id} className="flex items-center justify-between p-2 hover:bg-white rounded-md border group">
                                     <div className="flex flex-col min-w-0">
                                         <span className="font-semibold text-sm truncate">{cs.subject_details?.subject_name}</span>
                                         <span className="text-[10px] text-gray-400">

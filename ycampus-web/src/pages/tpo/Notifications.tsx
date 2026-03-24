@@ -5,7 +5,7 @@ import { Search, Bell } from 'lucide-react';
 
 const Notifications: React.FC = () => {
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-white">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-y-auto">
@@ -23,7 +23,7 @@ const Notifications: React.FC = () => {
                         </div>
 
                         <div className="flex flex-col items-center justify-center py-40 border-none bg-white rounded-2xl shadow-sm">
-                            <div className="p-8 bg-gray-50 rounded-3xl mb-6 flex items-center justify-center">
+                            <div className="p-8 bg-white rounded-3xl mb-6 flex items-center justify-center">
                                 <Bell className="h-12 w-12 text-gray-200" />
                             </div>
                             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">No notifications yet</p>

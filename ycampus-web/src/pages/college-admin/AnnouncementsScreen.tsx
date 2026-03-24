@@ -291,7 +291,7 @@ const AnnouncementsScreen: React.FC = () => {
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -336,7 +336,7 @@ const AnnouncementsScreen: React.FC = () => {
                         {(['all', 'college', 'department'] as const).map((level) => (
                           <button
                             key={level}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
                             onClick={() => setFilterLevel(level)}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -351,7 +351,7 @@ const AnnouncementsScreen: React.FC = () => {
                         {(['all', 'normal', 'important', 'urgent'] as const).map((priority) => (
                           <button
                             key={priority}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
                             onClick={() => setFilterPriority(priority)}
                           >
                             {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -369,7 +369,7 @@ const AnnouncementsScreen: React.FC = () => {
                         ].map((sortOption) => (
                           <button
                             key={sortOption.value}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
                             onClick={() => setFilterSort(sortOption.value)}
                           >
                             {sortOption.label}
@@ -481,7 +481,7 @@ const AnnouncementsScreen: React.FC = () => {
                             onClick={() => loadAnnouncements(currentPage - 1)}
                             disabled={currentPage === 1}
                             variant="outline"
-                            className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                            className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                           >
                             <span className="sr-only">Previous</span>
                             <ChevronLeft className="h-5 w-5" />
@@ -495,7 +495,7 @@ const AnnouncementsScreen: React.FC = () => {
                                   key={page}
                                   onClick={() => loadAnnouncements(page)}
                                   variant={currentPage === page ? "default" : "outline"}
-                                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}`}
+                                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-white'}`}
                                 >
                                   {page}
                                 </Button>
@@ -511,7 +511,7 @@ const AnnouncementsScreen: React.FC = () => {
                             onClick={() => loadAnnouncements(currentPage + 1)}
                             disabled={currentPage === totalPages}
                             variant="outline"
-                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                           >
                             <span className="sr-only">Next</span>
                             <ChevronRight className="h-5 w-5" />
@@ -690,8 +690,8 @@ const AnnouncementsScreen: React.FC = () => {
                     htmlFor="file-upload"
                     className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${
                       attachmentFile
-                        ? 'bg-slate-50 border-orange-200 text-slate-900'
-                        : 'bg-slate-50 border-slate-200 text-slate-500'
+                        ? 'bg-white border-orange-200 text-slate-900'
+                        : 'bg-white border-slate-200 text-slate-500'
                     }`}
                   >
                     <Paperclip className="w-5 h-5 text-orange-500" />
@@ -758,7 +758,7 @@ const AnnouncementsScreen: React.FC = () => {
               {viewAnnouncement?.content}
             </div>
           </div>
-          <div className="bg-gray-50 border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-gray-400" />

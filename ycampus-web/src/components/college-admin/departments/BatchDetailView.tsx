@@ -289,7 +289,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                     )}
                                 </div>
                                 <div className="flex items-center gap-4 text-sm font-medium text-gray-600">
-                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg">
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg">
                                         {activeTab === 'students' ? (
                                             <>
                                                 <Users className="h-4 w-4 text-orange-500" />
@@ -316,7 +316,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                             ) : students.length === 0 ? (
                                 <Card className="border-dashed border-2 border-gray-100 shadow-none">
                                     <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                                        <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                        <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mb-4">
                                             <GraduationCap className="h-10 w-10 text-gray-200" />
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-700">No students listed</h3>
@@ -326,7 +326,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                             ) : (
                                 <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
                                     <Table>
-                                        <TableHeader className="bg-gray-50/50">
+                                        <TableHeader className="bg-white">
                                             <TableRow>
                                                 <TableHead className="w-[60px] text-center">Sl. No</TableHead>
                                                 <TableHead>Student Name</TableHead>
@@ -354,7 +354,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                     <TableCell className="text-gray-900 text-xs">{student.user_details.email}</TableCell>
                                                     <TableCell className="text-gray-900 text-xs whitespace-nowrap">{student.phone_number}</TableCell>
                                                     <TableCell>
-                                                        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
+                                                        <code className="text-xs bg-white px-1.5 py-0.5 rounded font-mono text-gray-700 tracking-tighter uppercase">{student.roll_number}</code>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'} text-[11px] uppercase px-1.5 py-0 font-bold`}>
@@ -441,7 +441,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                             onClick={() => loadStudentsList(currentPage - 1)}
                                                             disabled={currentPage === 1}
                                                             variant="outline"
-                                                            className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                            className="rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                                                         >
                                                             <span className="sr-only">Previous</span>
                                                             <ChevronLeft className="h-5 w-5" />
@@ -455,7 +455,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                                         key={page}
                                                                         onClick={() => loadStudentsList(page)}
                                                                         variant={currentPage === page ? "default" : "outline"}
-                                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}`}
+                                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${currentPage === page ? 'bg-orange-600 text-white shadow-md' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-white'}`}
                                                                     >
                                                                         {page}
                                                                     </Button>
@@ -471,7 +471,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                             onClick={() => loadStudentsList(currentPage + 1)}
                                                             disabled={currentPage === totalPages}
                                                             variant="outline"
-                                                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                                                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                                                         >
                                                             <span className="sr-only">Next</span>
                                                             <ChevronRight className="h-5 w-5" />
@@ -495,7 +495,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                             ) : filteredSubjects.length === 0 ? (
                                 <Card className="border-dashed border-2 border-gray-100 shadow-none">
                                     <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                                        <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                        <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mb-4">
                                             <BookOpen className="h-10 w-10 text-gray-200" />
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-700">No subjects listed</h3>
@@ -561,7 +561,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                         className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-sm
                                                             ${(subject as any).is_lab ? "bg-blue-50 text-blue-700 border-blue-200" : 
                                                               (subject as any).is_elective ? "bg-purple-50 text-purple-700 border-purple-200" : 
-                                                              "bg-slate-100 text-slate-700 border-slate-200"}`
+                                                              "bg-white text-slate-700 border-slate-200"}`
                                                         }
                                                     >
                                                         {(subject as any).is_lab ? "Lab" : (subject as any).is_elective ? "Elective" : "Core"}
@@ -574,7 +574,7 @@ const BatchDetailView: React.FC<BatchDetailViewProps> = ({ batchId, collegeId, o
                                                         {subject.subject_details?.subject_name}
                                                     </h4>
                                                     {(subject.assignment_id || subject.subject_details?.short_code) && (
-                                                        <p className="text-xs text-gray-500 mt-1.5 font-mono bg-gray-50 inline-block px-1.5 py-0.5 rounded border border-gray-100">
+                                                        <p className="text-xs text-gray-500 mt-1.5 font-mono bg-white inline-block px-1.5 py-0.5 rounded border border-gray-100">
                                                             {subject.assignment_id || subject.subject_details?.short_code}
                                                         </p>
                                                     )}

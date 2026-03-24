@@ -300,7 +300,7 @@ int main() {
         ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
         : problem.difficulty === 'Hard'
           ? 'bg-red-50 text-red-700 border border-red-200'
-          : 'bg-gray-50 text-gray-700 border border-gray-200';
+          : 'bg-white text-gray-700 border border-gray-200';
 
   const runCode = async () => {
     if (!code.trim()) return toast.error('Please write some code first');
@@ -513,7 +513,7 @@ ${code}
                   <h3 className="font-semibold text-gray-900 mb-2">Examples</h3>
                   <div className="space-y-3">
                     {problem.examples.map((ex: any, idx: number) => (
-                      <div key={idx} className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                      <div key={idx} className="bg-white p-4 rounded-lg shadow-sm">
                         <div className="text-sm mb-1">
                           <strong>Input:</strong> <code className="font-mono">{ex.input}</code>
                         </div>
@@ -617,7 +617,7 @@ ${code}
                           <h4 className="font-semibold text-gray-900 mb-2">Examples</h4>
                           <div className="space-y-3">
                             {problem.examples.map((ex: any, idx: number) => (
-                              <div key={idx} className="bg-gray-50 p-3 rounded-lg shadow-sm">
+                              <div key={idx} className="bg-white p-3 rounded-lg shadow-sm">
                                 <p><strong>Input:</strong> <code>{ex.input}</code></p>
                                 <p><strong>Output:</strong> <code>{ex.output}</code></p>
                               </div>
@@ -659,7 +659,7 @@ ${code}
             </ResizablePanel>
             {/* COLLAPSED SIDEBAR GHOST */}
             {isSidebarCollapsed && (
-              <div className="w-10 border-r border-gray-200 bg-gray-50 flex flex-col items-center py-4 gap-4 transition-all">
+              <div className="w-10 border-r border-gray-200 bg-white flex flex-col items-center py-4 gap-4 transition-all">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -726,7 +726,7 @@ ${code}
                     <ResizablePanel defaultSize={35} minSize={15} maxSize={70}>
                       <div className="h-full overflow-hidden border-t border-gray-200 bg-white">
                         <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                          <TabsList className="flex-shrink-0 justify-between h-10 bg-gray-50 border-b px-2">
+                          <TabsList className="flex-shrink-0 justify-between h-10 bg-white border-b px-2">
                             <div className="flex items-center gap-1">
                               <TabsTrigger value="output" className="h-8 text-[11px] flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm font-semibold uppercase tracking-tight">
                                 <Terminal className="h-3 w-3" /> Console
@@ -997,7 +997,7 @@ ${code}
 
                 {/* Minimal Console Bar when collapsed */}
                 {!showOutput && (
-                  <div className="flex-shrink-0 h-12 bg-gray-50 border-t flex items-center justify-between px-6 shadow-sm">
+                  <div className="flex-shrink-0 h-12 bg-white border-t flex items-center justify-between px-6 shadow-sm">
                     <Button
                       variant="ghost"
                       className="h-9 text-[11px] font-bold text-gray-500 flex items-center gap-2.5 hover:bg-gray-100 uppercase tracking-widest transition-all"
@@ -1056,7 +1056,7 @@ ${code}
             {/* AI Chat Sidebar in Split View */}
             {showAiChat && (
               <>
-                <ResizableHandle className="w-1.5 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                <ResizableHandle className="w-1.5 bg-white hover:bg-gray-200 flex items-center justify-center transition-colors">
                   <div className="flex flex-col gap-1.5">
                     <span className="block w-1 h-1 bg-purple-400 rounded-full" />
                     <span className="block w-1 h-1 bg-purple-400 rounded-full" />
@@ -1123,7 +1123,7 @@ ${code}
 
                     {/* Divider */}
                     {showOutput && (
-                      <ResizableHandle className="h-2 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                      <ResizableHandle className="h-2 bg-white hover:bg-gray-200 flex items-center justify-center transition-colors">
                         <div className="w-12 h-1 bg-gray-300 rounded-full" />
                       </ResizableHandle>
                     )}
@@ -1133,7 +1133,7 @@ ${code}
                       <ResizablePanel defaultSize={40} minSize={20}>
                         <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                           <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                            <TabsList className="flex-shrink-0 justify-between h-12 bg-gray-50 border-b px-6">
+                            <TabsList className="flex-shrink-0 justify-between h-12 bg-white border-b px-6">
                               <div className="flex items-center gap-4">
                                 <TabsTrigger value="output" className="h-9 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold uppercase tracking-wide">
                                   <Terminal className="h-4 w-4" /> Console Output
@@ -1301,7 +1301,7 @@ ${code}
 
                   {/* Minimal Console Bar for Fullscreen when collapsed */}
                   {!showOutput && (
-                    <div className="flex-shrink-0 h-14 bg-gray-50 border-t flex items-center justify-between px-10 shadow-inner">
+                    <div className="flex-shrink-0 h-14 bg-white border-t flex items-center justify-between px-10 shadow-inner">
                       <Button
                         variant="ghost"
                         className="h-10 text-sm font-bold text-gray-500 flex items-center gap-3 hover:bg-gray-100 uppercase tracking-widest"
@@ -1360,7 +1360,7 @@ ${code}
               {/* AI Chat Sidebar in Fullscreen */}
               {showAiChat && (
                 <>
-                  <ResizableHandle className="w-1.5 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                  <ResizableHandle className="w-1.5 bg-white hover:bg-gray-200 flex items-center justify-center transition-colors">
                     <div className="flex flex-col gap-1">
                       <span className="w-1 h-1 bg-gray-400 rounded-full" />
                       <span className="w-1 h-1 bg-gray-400 rounded-full" />

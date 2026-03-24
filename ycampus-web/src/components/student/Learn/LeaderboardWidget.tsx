@@ -53,7 +53,7 @@ const LeaderboardWidget: React.FC = () => {
                         <Trophy className="h-5 w-5 text-yellow-500" />
                         Leaderboard
                     </CardTitle>
-                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Top 10</span>
+                    <span className="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-full">Top 10</span>
                 </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -64,7 +64,7 @@ const LeaderboardWidget: React.FC = () => {
                         data.map((entry, index) => (
                             <div
                                 key={index}
-                                className={`flex items-center gap-3 p-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors
+                                className={`flex items-center gap-3 p-3 border-b border-gray-50 last:border-0 hover:bg-white transition-colors
                                 ${entry.rank === 1 ? 'bg-yellow-50/30' : ''}`}
                             >
                                 <div className="flex-shrink-0 w-6 flex justify-center font-bold text-sm text-gray-500">
@@ -84,7 +84,7 @@ const LeaderboardWidget: React.FC = () => {
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 mt-0.5">
-                                        <div className="h-1.5 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-1.5 flex-1 bg-white rounded-full overflow-hidden">
                                             <div
                                                 className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full"
                                                 style={{ width: `${Math.min(100, (entry.xp % 200) / 2)}%` }} // Visual progress bar for level

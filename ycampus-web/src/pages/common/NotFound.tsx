@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const NotFound: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="text-9xl font-bold text-gray-300 mb-4">404</div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Page Not Found</h1>

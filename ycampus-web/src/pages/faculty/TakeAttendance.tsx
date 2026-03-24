@@ -260,7 +260,7 @@ const TakeAttendance: React.FC = () => {
                             <Button
                                 variant="outline"
                                 className={cn(
-                                    "w-full sm:w-auto justify-start text-left font-semibold border-gray-200 shadow-sm rounded-xl py-6 px-4 bg-white hover:bg-gray-50",
+                                    "w-full sm:w-auto justify-start text-left font-semibold border-gray-200 shadow-sm rounded-xl py-6 px-4 bg-white hover:bg-white",
                                     !date && "text-muted-foreground"
                                 )}
                             >
@@ -295,7 +295,7 @@ const TakeAttendance: React.FC = () => {
                 {/* Left Sidebar: Summary & Remarks */}
                 <div className="lg:col-span-3 space-y-6">
                     <Card className="shadow-sm border-gray-200 border overflow-hidden">
-                        <CardHeader className="pb-4 bg-gray-50/50 border-b border-gray-100">
+                        <CardHeader className="pb-4 bg-white border-b border-gray-100">
                             <CardTitle className="text-lg font-bold flex items-center gap-2 text-gray-800">
                                 <Users className="h-5 w-5 text-orange-500" />
                                 Live Stats
@@ -303,7 +303,7 @@ const TakeAttendance: React.FC = () => {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-4 text-center">
                             <div className="grid grid-cols-1 gap-3">
-                                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <div className="p-4 bg-white rounded-2xl border border-gray-100">
                                     <div className="text-2xl font-black text-gray-900">{students.length}</div>
                                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Total Students</div>
                                 </div>
@@ -326,7 +326,7 @@ const TakeAttendance: React.FC = () => {
                                     onChange={(e) => setRemarks(e.target.value)}
                                     onBlur={() => performSave(attendance)}
                                     placeholder="Notes (e.g. Unit 1 completed)"
-                                    className="w-full min-h-[80px] text-sm p-3 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none transition-all resize-none bg-gray-50/30"
+                                    className="w-full min-h-[80px] text-sm p-3 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none transition-all resize-none bg-white/30"
                                 />
                             </div>
 
@@ -412,9 +412,9 @@ const TakeAttendance: React.FC = () => {
                             </div>
                         </CardHeader>
 
-                        <CardContent className="pt-6 flex-1 bg-gray-50/40 relative">
+                        <CardContent className="pt-6 flex-1 bg-white/40 relative">
                             {fetchingAttendance && (
-                                <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-20 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-white backdrop-blur-[1px] z-20 flex items-center justify-center">
                                     <div className="flex flex-col items-center gap-2">
                                         <Loader2 className="h-10 w-10 animate-spin text-orange-500" />
                                         <span className="text-xs font-black text-gray-400 uppercase">Fetching Date History...</span>
@@ -453,7 +453,7 @@ const TakeAttendance: React.FC = () => {
                                                     "mb-2 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter",
                                                     status === true ? "bg-green-100 text-green-700" :
                                                         status === false ? "bg-red-100 text-red-700" :
-                                                            "bg-gray-100 text-gray-400"
+                                                            "bg-white text-gray-400"
                                                 )}>
                                                     {status === true ? 'Present' : status === false ? 'Absent' : 'Unmarked'}
                                                 </div>

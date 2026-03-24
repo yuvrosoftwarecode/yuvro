@@ -100,7 +100,7 @@ const AddEducationDialog: React.FC<AddEducationDialogProps> = ({
                 <Input
                   {...register("institution", { required: true })}
                   placeholder="e.g., ABC Institute of Technology"
-                  className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@ const AddEducationDialog: React.FC<AddEducationDialogProps> = ({
                   <Input
                     {...register("degree", { required: true })}
                     placeholder="e.g., B.Tech"
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -126,7 +126,7 @@ const AddEducationDialog: React.FC<AddEducationDialogProps> = ({
                   <Input
                     {...register("field", { required: true })}
                     placeholder="e.g., Computer Science"
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -141,7 +141,7 @@ const AddEducationDialog: React.FC<AddEducationDialogProps> = ({
                   <Input
                     {...register("duration", { required: true })}
                     placeholder="2021 - 2025"
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -151,7 +151,7 @@ const AddEducationDialog: React.FC<AddEducationDialogProps> = ({
                 <Input
                   {...register("cgpa")}
                   placeholder="e.g., 8.7"
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>

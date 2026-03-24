@@ -30,7 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   if (allowedEmails.length > 0 && user && user.email) {
     if (!allowedEmails.includes(user.email)) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-white">
           <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8 text-center">
             <div className="text-red-600 mb-4">
               <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">

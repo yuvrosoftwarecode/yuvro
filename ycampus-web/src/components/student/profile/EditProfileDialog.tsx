@@ -93,7 +93,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                 <Input
                   id="first_name"
                   {...register("first_name")}
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
 
@@ -102,7 +102,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                 <Input
                   id="last_name"
                   {...register("last_name")}
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>
@@ -115,7 +115,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                   id="title"
                   {...register("title")}
                   placeholder="e.g., Full Stack Developer"
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
 
@@ -125,7 +125,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                   id="location"
                   {...register("location")}
                   placeholder="e.g., San Francisco, CA"
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>
@@ -137,7 +137,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                 id="about"
                 {...register("about")}
                 placeholder="Tell your story..."
-                className="min-h-[100px] bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none leading-relaxed"
+                className="min-h-[100px] bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none leading-relaxed"
               />
             </div>
 
@@ -150,7 +150,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* GitHub */}
-                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-slate-200 transition-all bg-slate-50/50 border border-slate-200/50">
+                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-slate-200 transition-all bg-white border border-slate-200/50">
                   <div className="p-2 bg-white rounded-lg shadow-sm group-focus-within:text-black text-slate-400 transition-colors">
                     <Github size={18} />
                   </div>
@@ -163,7 +163,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                 </div>
 
                 {/* LinkedIn */}
-                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all bg-slate-50/50 border border-slate-200/50">
+                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-blue-200 transition-all bg-white border border-slate-200/50">
                   <div className="p-2 bg-white rounded-lg shadow-sm text-blue-400 group-focus-within:text-blue-600 transition-colors">
                     <Linkedin size={18} />
                   </div>
@@ -176,7 +176,7 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({
                 </div>
 
                 {/* Portfolio */}
-                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-purple-200 transition-all bg-slate-50/50 border border-slate-200/50">
+                <div className="group flex items-center gap-3 p-1 rounded-xl focus-within:ring-2 focus-within:ring-purple-200 transition-all bg-white border border-slate-200/50">
                   <div className="p-2 bg-white rounded-lg shadow-sm text-purple-400 group-focus-within:text-purple-600 transition-colors">
                     <Globe size={18} />
                   </div>

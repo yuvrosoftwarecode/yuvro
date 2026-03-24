@@ -142,13 +142,13 @@ const JobCard: React.FC<JobCardProps> = ({
             {job.skills.slice(0, 3).map((skill, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                className="px-3 py-1 bg-white text-gray-700 rounded-full text-sm"
               >
                 {skill}
               </span>
             ))}
             {job.skills.length > 3 && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
+              <span className="px-3 py-1 bg-white text-gray-500 rounded-full text-sm">
                 +{job.skills.length - 3} more
               </span>
             )}
@@ -173,7 +173,7 @@ const JobCard: React.FC<JobCardProps> = ({
               onClick={() => onBookmark(job.id)}
             />
             <button 
-              className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+              className="p-2 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
               onClick={handleShare}
               title="Share this job"
             >
@@ -190,7 +190,7 @@ const JobCard: React.FC<JobCardProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleTitleClick}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+            className="bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
           >
             View Details
           </button>

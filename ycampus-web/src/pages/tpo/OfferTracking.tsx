@@ -63,7 +63,7 @@ const OfferTracking: React.FC = () => {
       case 'Accepted': return 'bg-[#29a35a] text-white';
       case 'Pending': return 'bg-[#f59e0b] text-white';
       case 'Declined': return 'bg-[#f43f5e] text-white';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-white text-gray-600';
     }
   };
 
@@ -142,7 +142,7 @@ const OfferTracking: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50/50">
+    <div className="flex h-screen bg-white">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
@@ -212,7 +212,7 @@ const OfferTracking: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-50">
+                    <tr className="bg-white border-b border-gray-50">
                       <th className="px-6 py-4 text-xs font-semibold text-gray-500">Roll No</th>
                       <th className="px-6 py-4 text-xs font-semibold text-gray-500">Student Name</th>
                       <th className="px-6 py-4 text-xs font-semibold text-gray-500">Branch</th>
@@ -227,7 +227,7 @@ const OfferTracking: React.FC = () => {
                   <tbody className="divide-y divide-gray-50">
                     {filteredRecords.length > 0 ? (
                       filteredRecords.map((offer, index) => (
-                        <tr key={index} className="hover:bg-gray-50/50 transition-colors">
+                        <tr key={index} className="hover:bg-white transition-colors">
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">{offer.rollNo}</td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">{offer.name}</td>
                           <td className="px-6 py-4 text-sm text-gray-900">{offer.branch}</td>

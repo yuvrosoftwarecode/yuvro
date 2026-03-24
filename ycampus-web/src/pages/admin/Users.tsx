@@ -253,7 +253,7 @@ const Users: React.FC = () => {
             recruiter: 'bg-purple-100 text-purple-800 border-purple-200',
             student: 'bg-green-100 text-green-800 border-green-200'
         };
-        return roleStyles[role as keyof typeof roleStyles] || 'bg-gray-100 text-gray-800 border-gray-200';
+        return roleStyles[role as keyof typeof roleStyles] || 'bg-white text-gray-800 border-gray-200';
     };
 
     const getRoleIcon = (role: string) => {

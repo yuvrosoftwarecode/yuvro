@@ -28,7 +28,7 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
             <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
@@ -116,7 +116,7 @@ const JobApplicantsContent: React.FC = () => {
   };
 
   const getStatusColor = (status: string | null | undefined) => {
-    if (!status) return 'bg-gray-100 text-gray-700 border-gray-200';
+    if (!status) return 'bg-white text-gray-700 border-gray-200';
     
     switch (status) {
       case 'under_review': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
@@ -124,7 +124,7 @@ const JobApplicantsContent: React.FC = () => {
       case 'interview_scheduled': return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'selected': return 'bg-green-100 text-green-700 border-green-200';
       case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -153,7 +153,7 @@ const JobApplicantsContent: React.FC = () => {
     <>
       <button
         onClick={() => navigate('/recruiter/jobs')}
-        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Jobs</span>
@@ -163,7 +163,7 @@ const JobApplicantsContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -185,7 +185,7 @@ const JobApplicantsContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -289,7 +289,7 @@ const JobApplicantsContent: React.FC = () => {
               ) : (
                 <div className="divide-y divide-gray-200">
                   {filteredApplications.map((application) => (
-                    <div key={application.id} className="p-6 hover:bg-gray-50">
+                    <div key={application.id} className="p-6 hover:bg-white">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
@@ -353,7 +353,7 @@ const JobApplicantsContent: React.FC = () => {
                                 <FileText className="h-4 w-4 mr-2 text-gray-500" />
                                 <span className="text-sm font-medium text-gray-700">Cover Letter</span>
                               </div>
-                              <div className="bg-gray-50 rounded-lg p-3">
+                              <div className="bg-white rounded-lg p-3">
                                 <p className="text-sm text-gray-700 line-clamp-3">{application.cover_letter}</p>
                               </div>
                             </div>
@@ -456,7 +456,7 @@ const JobApplicantsContent: React.FC = () => {
               {/* Application Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {selectedApplication.expected_salary && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-white rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
                       <span className="text-sm font-medium text-gray-700">Expected Salary</span>
@@ -466,7 +466,7 @@ const JobApplicantsContent: React.FC = () => {
                 )}
                 
                 {selectedApplication.available_from && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-white rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <Calendar className="h-4 w-4 mr-2 text-gray-500" />
                       <span className="text-sm font-medium text-gray-700">Available From</span>
@@ -476,7 +476,7 @@ const JobApplicantsContent: React.FC = () => {
                 )}
                 
                 {selectedApplication.notice_period_days && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-white rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <Clock className="h-4 w-4 mr-2 text-gray-500" />
                       <span className="text-sm font-medium text-gray-700">Notice Period</span>
@@ -486,7 +486,7 @@ const JobApplicantsContent: React.FC = () => {
                 )}
                 
                 {selectedApplication.portfolio_url && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-white rounded-lg p-4">
                     <div className="flex items-center mb-2">
                       <ExternalLink className="h-4 w-4 mr-2 text-gray-500" />
                       <span className="text-sm font-medium text-gray-700">Portfolio</span>
@@ -510,7 +510,7 @@ const JobApplicantsContent: React.FC = () => {
                     <FileText className="h-5 w-5 mr-2 text-gray-500" />
                     <span className="text-lg font-medium text-gray-900">Cover Letter</span>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-white rounded-lg p-4">
                     <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.cover_letter}</p>
                   </div>
                 </div>

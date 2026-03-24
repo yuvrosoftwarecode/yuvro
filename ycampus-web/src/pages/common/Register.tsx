@@ -231,7 +231,7 @@ const Register: React.FC = () => {
                   name="email"
                   type="email"
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
                   placeholder="you@campus.edu"
                   value={formData.email}
                   onChange={handleChange}
@@ -251,7 +251,7 @@ const Register: React.FC = () => {
                   name="username"
                   type="text"
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
                   placeholder="Choose a username"
                   value={formData.username}
                   onChange={handleChange}
@@ -271,7 +271,7 @@ const Register: React.FC = () => {
                   name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
                   placeholder="Minimum 8 characters"
                   value={formData.password}
                   onChange={handleChange}
@@ -298,7 +298,7 @@ const Register: React.FC = () => {
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
                   placeholder="Confirm your password"
                   value={formData.confirmPassword}
                   onChange={handleChange}

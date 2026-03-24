@@ -90,7 +90,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
               {data.overall}%
             </span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-100">
+          <div className="h-1.5 w-full rounded-full bg-white">
             <div
               className="h-1.5 rounded-full transition-all"
               style={{
@@ -117,7 +117,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
                   </span>
                 </div>
 
-                <div className="h-2 w-full rounded-full bg-slate-100">
+                <div className="h-2 w-full rounded-full bg-white">
                   <div
                     className="h-2 rounded-full transition-all"
                     style={{
@@ -189,7 +189,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
               Chapters Completed
             </span>
             <span
-              className={`${badgeBase} w-10 justify-center border-transparent bg-slate-100 text-[#0F172A]`}
+              className={`${badgeBase} w-10 justify-center border-transparent bg-white text-[#0F172A]`}
             >
               {data.chaptersCompleted}
             </span>
@@ -271,7 +271,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => {
             </span>
           </div>
 
-          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-white overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
               style={{
@@ -345,7 +345,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
             Assessments Overview
           </h3>
           <span
-            className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}
+            className={`${badgeBase} border-transparent bg-white text-[#0F172A]`}
           >
             {data.completed}/{data.total}
           </span>
@@ -664,7 +664,7 @@ const Announcements: React.FC<{ announcements: AnnouncementItem[]; count: number
             <Bell className="h-6 w-6" style={{ color: '#E7B008' }} />
             Announcements
           </h3>
-          <span className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}>
+          <span className={`${badgeBase} border-transparent bg-white text-[#0F172A]`}>
             {count} new
           </span>
         </div>
@@ -771,7 +771,7 @@ const StreaksBadges: React.FC = () => {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="text-center p-3 rounded-xl bg-[#F8FAFC]">
+        <div className="text-center p-3 rounded-xl bg-white">
           <div className="flex items-center justify-center gap-2 mb-0.5">
             <Flame
               className="h-7 w-7"
@@ -793,7 +793,7 @@ const StreaksBadges: React.FC = () => {
             </span>
           </div>
 
-          <div className="h-1.5 w-full rounded-full bg-[#F1F5F9] overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-white overflow-hidden">
             <div
               className="h-full bg-[#0F172A] transition-all"
               style={{ width: `${progressToNext}%` }}
@@ -916,7 +916,7 @@ const PerformanceMetrics: React.FC = () => {
                 </span>
               </div>
 
-              <div className="h-2 w-full rounded-full bg-[#f1f5f9] overflow-hidden">
+              <div className="h-2 w-full rounded-full bg-white overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
@@ -1019,7 +1019,7 @@ const Dashboard: React.FC = () => {
     !contestsData
   ) {
     return (
-      <div className="h-screen bg-gray-50 flex overflow-hidden text-slate-900">
+      <div className="h-screen bg-white flex overflow-hidden text-slate-900">
         <RoleSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <RoleHeader
@@ -1042,7 +1042,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden text-slate-900">
+    <div className="h-screen bg-white flex overflow-hidden text-slate-900">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">

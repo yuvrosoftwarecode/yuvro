@@ -66,7 +66,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
               {questionCount} Questions
             </span>
           </div>
-          <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold text-[10px] uppercase px-2 py-0.5 rounded-md">
+          <Badge variant="secondary" className="bg-white text-slate-600 border-none font-bold text-[10px] uppercase px-2 py-0.5 rounded-md">
             {category}
           </Badge>
         </div>

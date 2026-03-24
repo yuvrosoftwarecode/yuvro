@@ -47,7 +47,7 @@ const TPOList: React.FC<TPOListProps> = ({ tpos, onEdit, onDelete, loading }) =>
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                         placeholder="Search by name, email..."
-                        className="pl-10 h-10 bg-slate-50 border-slate-200 focus:bg-white transition-all shadow-none rounded-xl"
+                        className="pl-10 h-10 bg-white border-slate-200 focus:bg-white transition-all shadow-none rounded-xl"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -62,7 +62,7 @@ const TPOList: React.FC<TPOListProps> = ({ tpos, onEdit, onDelete, loading }) =>
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {filteredTPOs.length === 0 ? (
                     <div className="text-center py-20 px-6">
-                        <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-slate-50 text-slate-300 mb-4 border border-slate-100">
+                        <div className="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-white text-slate-300 mb-4 border border-slate-100">
                             <UserIcon className="h-10 w-10" />
                         </div>
                         <p className="text-slate-600 font-bold text-xl">No TPO members matched</p>
@@ -73,7 +73,7 @@ const TPOList: React.FC<TPOListProps> = ({ tpos, onEdit, onDelete, loading }) =>
                 ) : (
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50/80 hover:bg-slate-50/80 border-b-slate-200">
+                            <TableRow className="bg-white/80 hover:bg-white/80 border-b-slate-200">
                                 <TableHead className="w-[300px] font-bold text-slate-600 py-4 uppercase text-[10px] tracking-widest pl-6">TPO Staff</TableHead>
                                 <TableHead className="font-bold text-slate-600 py-4 uppercase text-[10px] tracking-widest">College</TableHead>
                                 <TableHead className="w-[120px] text-right py-4 uppercase text-[10px] tracking-widest pr-6">Quick Actions</TableHead>

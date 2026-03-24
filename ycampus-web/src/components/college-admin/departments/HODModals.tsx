@@ -89,7 +89,7 @@ export const AssignHODModal: React.FC<AssignHODModalProps> = ({ isOpen, onClose,
                             <div className="text-center py-4 text-sm text-gray-500">No faculty found</div>
                         ) : (
                             filteredFaculties.map((f) => (
-                                <div key={f.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div key={f.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-white transition-colors">
                                     <div>
                                         <p className="font-medium text-gray-900">{f.user_details.first_name} {f.user_details.last_name}</p>
                                         <p className="text-xs text-gray-500">{f.user_details.email}</p>

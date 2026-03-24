@@ -202,7 +202,7 @@ export default function InstructorSkillTest({ basePath = '/admin/skill-tests' }:
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-auto">
@@ -383,7 +383,7 @@ export default function InstructorSkillTest({ basePath = '/admin/skill-tests' }:
                             </button>
                             <button
                               onClick={() => openEditForm(skillTest)}
-                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+                              className="p-2 text-gray-600 hover:bg-white rounded-md transition-colors"
                               title="Edit"
                             >
                               <Pencil className="h-4 w-4" />

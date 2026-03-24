@@ -9,7 +9,7 @@ interface PlacementLayoutProps {
 
 const PlacementLayout: React.FC<PlacementLayoutProps> = ({ children, title }) => {
   return (
-    <div className="flex h-screen bg-[#F8FAFC]">
+    <div className="flex h-screen bg-white">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
@@ -27,7 +27,7 @@ const PlacementLayout: React.FC<PlacementLayoutProps> = ({ children, title }) =>
                 <p className="text-sm font-bold text-slate-900 leading-tight">Placement Officer</p>
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Placement</p>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 font-bold">
                 PO
               </div>
             </div>

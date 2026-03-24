@@ -249,7 +249,7 @@ export default function StudentAssessments() {
   if (view === 'instructions' && selected) {
     const used = ((selected as any).my_submissions || []).filter((s: any) => s.status === 'completed' || s.status === 'submitted').length;
     return (
-      <div className="h-screen bg-gray-50 flex overflow-hidden">
+      <div className="h-screen bg-white flex overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <TestInstructions
             test={{
@@ -275,7 +275,7 @@ export default function StudentAssessments() {
 
   if (view === 'test' && selected) {
     return (
-      <div className="h-screen bg-gray-50 flex overflow-hidden">
+      <div className="h-screen bg-white flex overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <AssessmentInterface
             assessment={{
@@ -299,7 +299,7 @@ export default function StudentAssessments() {
   if (view === 'results' && selected) {
     const latest = getLatestSubmission(selected);
     return (
-      <div className="h-screen bg-gray-50 flex overflow-hidden">
+      <div className="h-screen bg-white flex overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <TestResults
             test={{
@@ -320,7 +320,7 @@ export default function StudentAssessments() {
 
   // ── List view ─────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6 space-y-6">
@@ -419,7 +419,7 @@ export default function StudentAssessments() {
                         <Badge
                           className={status === 'completed'
                             ? 'shrink-0 bg-emerald-100 text-emerald-700 border-0 hover:bg-emerald-100'
-                            : 'shrink-0 bg-slate-100 text-slate-700 border-0 hover:bg-slate-100'}
+                            : 'shrink-0 bg-white text-slate-700 border-0 hover:bg-slate-100'}
                         >
                           {status === 'completed'
                             ? <><CheckCircle className="h-3 w-3 mr-1" />Completed</>
@@ -461,7 +461,7 @@ export default function StudentAssessments() {
                           {diffLabel}
                         </Badge>
                         {status === 'completed' && latest?.marks != null && (
-                          <Badge className="bg-slate-100 text-slate-700 border-0 hover:bg-slate-100 font-bold">
+                          <Badge className="bg-white text-slate-700 border-0 hover:bg-slate-100 font-bold">
                             Score: {latest.marks}/{test.total_marks}
                           </Badge>
                         )}
@@ -481,10 +481,10 @@ export default function StudentAssessments() {
                           <Button
                             variant="outline"
                             onClick={() => handleViewResults(test)}
-                            className="w-full h-11 flex items-center justify-between px-4 rounded-xl border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all group/res"
+                            className="w-full h-11 flex items-center justify-between px-4 rounded-xl border-slate-200 hover:border-slate-300 hover:bg-white transition-all group/res"
                           >
                             <div className="flex items-center gap-2">
-                              <div className="p-1.5 bg-slate-100 rounded-lg group-hover/res:bg-slate-200 transition-colors">
+                              <div className="p-1.5 bg-white rounded-lg group-hover/res:bg-slate-200 transition-colors">
                                 <BarChart3 className="h-3.5 w-3.5 text-slate-700" />
                               </div>
                               <span className="text-sm font-semibold text-slate-700">View Results</span>

@@ -253,7 +253,7 @@ const Candidates = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
        <RoleSidebar />
 
@@ -570,7 +570,7 @@ const Candidates = () => {
                     setTimeout(() => handleSearch(), 100); // Then search with reset filters
                   }}
                   variant="outline"
-                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white"
                 >
                   <RotateCcw className="h-4 w-4" />
                   <span>Reset Filters</span>
@@ -926,7 +926,7 @@ const CandidateDetailsModal = ({ candidate }: { candidate: Candidate }) => {
                 onClick={handleDownloadResume}
                 className={candidate.resume_file 
                   ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                  : "bg-gray-400 hover:bg-gray-500 text-white cursor-not-allowed"
+                  : "bg-gray-400 hover:bg-white0 text-white cursor-not-allowed"
                 }
                 size="sm"
                 disabled={!candidate.resume_file}
@@ -1238,25 +1238,25 @@ const CandidateDetailsModal = ({ candidate }: { candidate: Candidate }) => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {candidate.current_ctc && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Current CTC</span>
                 <p className="font-medium text-gray-900">{candidate.currency} {candidate.current_ctc} LPA</p>
               </div>
             )}
             {candidate.domain && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Domain</span>
                 <p className="font-medium text-gray-900">{candidate.domain}</p>
               </div>
             )}
             {candidate.highest_education && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Highest Education</span>
                 <p className="font-medium text-gray-900">{candidate.highest_education}</p>
               </div>
             )}
             {candidate.preferred_locations && candidate.preferred_locations.length > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Preferred Locations</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {candidate.preferred_locations.map((location, i) => (
@@ -1268,7 +1268,7 @@ const CandidateDetailsModal = ({ candidate }: { candidate: Candidate }) => {
               </div>
             )}
             {candidate.preferred_employment_types && candidate.preferred_employment_types.length > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Preferred Employment Types</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {candidate.preferred_employment_types.map((type, i) => (
@@ -1280,7 +1280,7 @@ const CandidateDetailsModal = ({ candidate }: { candidate: Candidate }) => {
               </div>
             )}
             {candidate.preferred_company_types && candidate.preferred_company_types.length > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-white p-3 rounded-lg">
                 <span className="text-sm text-gray-600">Preferred Company Types</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {candidate.preferred_company_types.map((type, i) => (

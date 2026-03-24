@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
 
   if (isStudent) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <PageHeader 
@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
 
   // Non-student roles use sidebar layout
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -154,7 +154,7 @@ const Dashboard: React.FC = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div key={activity.id} className="flex items-center space-x-4 p-4 bg-white rounded-lg">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">
                           {activity.action} <span className="text-indigo-600">{activity.target}</span>
@@ -261,7 +261,7 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   <div className="pt-4 border-t border-gray-200">
-                    <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium">
+                    <button className="w-full bg-white hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium">
                       Complete Profile
                     </button>
                   </div>

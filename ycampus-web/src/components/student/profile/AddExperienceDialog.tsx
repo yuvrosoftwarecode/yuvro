@@ -134,7 +134,7 @@ const AddExperienceDialog: React.FC<Props> = ({
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     placeholder="Google, Microsoft..."
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -147,7 +147,7 @@ const AddExperienceDialog: React.FC<Props> = ({
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     placeholder="Frontend Developer..."
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -162,7 +162,7 @@ const AddExperienceDialog: React.FC<Props> = ({
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   placeholder="Jun 2023 - Aug 2023..."
-                  className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ const AddExperienceDialog: React.FC<Props> = ({
                     }
                   }}
                   placeholder="Add tech stack (e.g., React, Node.js)..."
-                  className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
                 <Button
                   type="button"
@@ -224,7 +224,7 @@ const AddExperienceDialog: React.FC<Props> = ({
                     }
                     rows={2}
                     placeholder="Describe a key achievement or responsibility..."
-                    className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none"
+                    className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl resize-none"
                   />
                   {responsibilities.length > 1 && (
                     <Button

@@ -72,7 +72,7 @@ function Calendar({
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
-          "relative rounded-lg border border-gray-100 bg-gray-50/50 px-1.5 py-1",
+          "relative rounded-lg border border-gray-100 bg-white px-1.5 py-1",
           defaultClassNames.dropdown_root
         ),
         dropdown: cn(

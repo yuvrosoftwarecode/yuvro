@@ -271,7 +271,7 @@ export default function ContestForm() {
 
   if (loading && isEditMode) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -292,7 +292,7 @@ export default function ContestForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -313,7 +313,7 @@ export default function ContestForm() {
             />
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-2 mb-6 bg-white p-1 rounded-lg">
                   <TabsTrigger
                     value="details"
                     className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md py-2 px-4 transition-all"
@@ -563,7 +563,7 @@ export default function ContestForm() {
                 <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
                   <button
                     onClick={() => navigate('/admin/contests')}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
                   >
                     Cancel
                   </button>

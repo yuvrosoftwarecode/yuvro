@@ -124,7 +124,7 @@ const FacultySectionAssignModal: React.FC<FacultySectionAssignModalProps> = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-2xl bg-gray-50/50">
+            <DialogContent className="sm:max-w-2xl bg-white">
                 <DialogHeader className="pb-4 border-b">
                     <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 border border-orange-200 shadow-sm">
@@ -154,7 +154,7 @@ const FacultySectionAssignModal: React.FC<FacultySectionAssignModalProps> = ({
                                     {assignedSectionIds.length} of {sections.length} Sections
                                 </span>
                             </div>
-                            <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-white rounded-full overflow-hidden">
                                 <div 
                                     className={`h-full transition-all duration-500 rounded-full ${progress === 100 ? 'bg-green-500' : 'bg-orange-500'}`}
                                     style={{ width: `${progress}%` }}
@@ -200,7 +200,7 @@ const FacultySectionAssignModal: React.FC<FacultySectionAssignModalProps> = ({
                                             {/* Section Info */}
                                             <div className="flex items-center gap-3">
                                                 <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm border ${
-                                                    assignment ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-600 border-gray-100'
+                                                    assignment ? 'bg-green-50 text-green-700 border-green-100' : 'bg-white text-gray-600 border-gray-100'
                                                 }`}>
                                                     S{section.name}
                                                 </div>
@@ -216,7 +216,7 @@ const FacultySectionAssignModal: React.FC<FacultySectionAssignModalProps> = ({
                                             <div className="flex-1 max-w-sm ml-auto">
                                                 {assignment && !isEditing ? (
                                                     // Assigned State
-                                                    <div className="flex items-center justify-between bg-gray-50 border border-gray-100 p-2 rounded-lg group">
+                                                    <div className="flex items-center justify-between bg-white border border-gray-100 p-2 rounded-lg group">
                                                         <div className="flex items-center gap-2.5 min-w-0">
                                                             <div className="h-8 w-8 rounded-full bg-white border flex items-center justify-center text-gray-400 shrink-0 overflow-hidden">
                                                                 {assignment.faculty_details?.user_details?.profile_image ? (

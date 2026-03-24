@@ -244,7 +244,7 @@ export default function CertificationExamForm() {
 
     if (loading && isEditMode) {
         return (
-            <div className="min-h-screen bg-gray-50 flex">
+            <div className="min-h-screen bg-white flex">
                 <RoleSidebar />
                 <div className="flex-1">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -259,7 +259,7 @@ export default function CertificationExamForm() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-white flex">
             <RoleSidebar />
             <div className="flex-1 flex flex-col">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -279,7 +279,7 @@ export default function CertificationExamForm() {
                     />
                     <div className="bg-white shadow rounded-lg mb-6 p-6">
                         <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                            <TabsList className="grid w-full grid-cols-2 mb-6 bg-white p-1 rounded-lg">
                                 <TabsTrigger value="details" className="flex items-center gap-2">
                                     <Settings className="h-4 w-4" /> Exam Details & Schedule
                                 </TabsTrigger>
@@ -564,7 +564,7 @@ export default function CertificationExamForm() {
                             <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 mt-6">
                                 <button
                                     onClick={() => navigate('/admin/certifications')}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-white"
                                 >
                                     Cancel
                                 </button>

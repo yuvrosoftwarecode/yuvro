@@ -120,9 +120,9 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
           
           <button
             onClick={handleCopyLink}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
               <Copy className="h-5 w-5 text-gray-600" />
             </div>
             <div className="flex-1 text-left">
@@ -133,7 +133,7 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
 
           <button
             onClick={handleWhatsAppShare}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <MessageCircle className="h-5 w-5 text-green-600" />
@@ -146,7 +146,7 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
 
           <button
             onClick={handleLinkedInShare}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Linkedin className="h-5 w-5 text-blue-600" />
@@ -159,7 +159,7 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
 
           <button
             onClick={handleFacebookShare}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Facebook className="h-5 w-5 text-blue-700" />
@@ -172,7 +172,7 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
 
           <button
             onClick={handleTelegramShare}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Send className="h-5 w-5 text-blue-500" />
@@ -185,9 +185,9 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
 
           <button
             onClick={handleEmailShare}
-            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors mb-2"
+            className="w-full flex items-center gap-3 p-3 hover:bg-white rounded-lg transition-colors mb-2"
           >
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
               <Mail className="h-5 w-5 text-gray-600" />
             </div>
             <div className="flex-1 text-left">
@@ -198,7 +198,7 @@ const ShareJobModal: React.FC<ShareJobModalProps> = ({ isOpen, onClose, job }) =
         </div>
 
         <div className="px-6 pb-6">
-          <div className="bg-gray-50 rounded-lg p-3 border">
+          <div className="bg-white rounded-lg p-3 border">
             <div className="flex items-center gap-2 mb-2">
               <Link className="h-4 w-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Job Link</span>

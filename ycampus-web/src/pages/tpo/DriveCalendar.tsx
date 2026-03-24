@@ -19,7 +19,7 @@ const DriveCalendar: React.FC = () => {
     const activeDays = [7, 12, 17, 24, 25]; // Mock active dates
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-white">
             <RoleSidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <main className="flex-1 overflow-y-auto p-6">
@@ -44,11 +44,11 @@ const DriveCalendar: React.FC = () => {
                             <Card className="lg:col-span-5 border-none shadow-sm h-fit rounded-2xl overflow-hidden bg-white">
                                 <CardContent className="p-6">
                                     <div className="flex items-center justify-between mb-8">
-                                        <button className="p-2 hover:bg-gray-50 rounded-full text-gray-300 hover:text-purple-600 transition-all">
+                                        <button className="p-2 hover:bg-white rounded-full text-gray-300 hover:text-purple-600 transition-all">
                                             <ChevronLeft className="h-4 w-4" />
                                         </button>
                                         <h2 className="text-sm font-bold text-gray-700">{currentMonth}</h2>
-                                        <button className="p-2 hover:bg-gray-50 rounded-full text-gray-300 hover:text-purple-600 transition-all">
+                                        <button className="p-2 hover:bg-white rounded-full text-gray-300 hover:text-purple-600 transition-all">
                                             <ChevronRight className="h-4 w-4" />
                                         </button>
                                     </div>
@@ -64,7 +64,7 @@ const DriveCalendar: React.FC = () => {
                                             <div key={day} className="flex items-center justify-center relative">
                                                 <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-bold transition-all cursor-pointer
                            ${day === 25 ? 'bg-purple-600 text-white shadow-lg' :
-                                                        activeDays.includes(day) ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:bg-gray-50'}
+                                                        activeDays.includes(day) ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:bg-white'}
                         `}>
                                                     {day}
                                                 </div>
@@ -80,7 +80,7 @@ const DriveCalendar: React.FC = () => {
                                     <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">
                                         Drives on 25 February 2026
                                     </h3>
-                                    <div className="flex flex-col items-center justify-center py-10 border-none bg-white/50 rounded-2xl">
+                                    <div className="flex flex-col items-center justify-center py-10 border-none bg-white rounded-2xl">
                                         <p className="text-xs text-gray-400 font-bold uppercase tracking-tight">No drives scheduled for this date</p>
                                     </div>
                                 </div>
@@ -92,7 +92,7 @@ const DriveCalendar: React.FC = () => {
                                             <Card key={drive.id} className="border-none shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden bg-white group">
                                                 <CardContent className="p-4 flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="p-3 bg-gray-50 rounded-xl text-gray-300 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors">
+                                                        <div className="p-3 bg-white rounded-xl text-gray-300 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors">
                                                             <CalendarIcon className="h-5 w-5" />
                                                         </div>
                                                         <div className="flex flex-col">

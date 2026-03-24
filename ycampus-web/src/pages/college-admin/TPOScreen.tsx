@@ -89,7 +89,7 @@ const TPOScreen: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                     <main className="flex-1 overflow-y-auto custom-scrollbar">

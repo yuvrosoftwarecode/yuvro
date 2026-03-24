@@ -112,7 +112,7 @@ const Navigation: React.FC = () => {
                             {role !== 'student' && (
                                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${role === 'admin' ? 'bg-red-100 text-red-700' :
                                         role === 'recruiter' ? 'bg-purple-100 text-purple-700' :
-                                            'bg-gray-100 text-gray-700'
+                                            'bg-white text-gray-700'
                                     }`}>
                                     {role.charAt(0).toUpperCase() + role.slice(1)}
                                 </span>
@@ -192,7 +192,7 @@ const Navigation: React.FC = () => {
                         <div className="relative" ref={profileRef} key={`profile-${role}`}>
                             <button
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                className="flex items-center space-x-3 focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 ease-in-out transform hover:scale-105"
+                                className="flex items-center space-x-3 focus:outline-none hover:bg-white rounded-lg p-2 transition-all duration-200 ease-in-out transform hover:scale-105"
                             >
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg transition-all duration-300 ${role === 'admin' ? 'bg-gradient-to-r from-red-600 to-pink-600' :
                                         role === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-violet-600' :

@@ -152,7 +152,7 @@ const QuizComponent = ({ subUnit }: any) => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {q.options?.map((opt: string, i: number) => (
-                  <div key={i} className={`p-3 rounded-lg border flex items-center gap-3 ${i === q.correct_answer_index ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-100'}`}>
+                  <div key={i} className={`p-3 rounded-lg border flex items-center gap-3 ${i === q.correct_answer_index ? 'bg-green-50 border-green-200' : 'bg-white border-slate-100'}`}>
                     {i === q.correct_answer_index ? <CheckCircle className="h-4 w-4 text-green-600" /> : <div className="h-4 w-4 rounded-full border border-slate-300" />}
                     <span className={`text-sm ${i === q.correct_answer_index ? 'text-green-800 font-medium' : 'text-slate-600'}`}>{opt}</span>
                   </div>

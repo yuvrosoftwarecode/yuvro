@@ -197,7 +197,7 @@ const StudentCodingEmbed = ({ subunitId, subunitName, unitName, onComplete, code
       case 'easy': return 'bg-green-50 text-green-700 border-green-100';
       case 'medium': return 'bg-amber-50 text-amber-700 border-amber-100';
       case 'hard': return 'bg-red-50 text-red-700 border-red-100';
-      default: return 'bg-gray-50 text-gray-700 border-gray-100';
+      default: return 'bg-white text-gray-700 border-gray-100';
     }
   };
 
@@ -218,7 +218,7 @@ const StudentCodingEmbed = ({ subunitId, subunitName, unitName, onComplete, code
     return (
       <div className="flex-1 flex flex-col bg-white overflow-hidden font-sans">
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
             <Terminal className="w-8 h-8 text-gray-300" />
           </div>
           <h3 className="text-lg font-bold text-gray-800">No Challenges Found</h3>
@@ -254,7 +254,7 @@ const StudentCodingEmbed = ({ subunitId, subunitName, unitName, onComplete, code
                 </p>
               </div>
               <div className="h-10 w-[1px] bg-gray-200 hidden sm:block" />
-              <Badge variant={isCompleted ? "default" : "outline"} className={`rounded-xl px-4 py-1.5 font-bold transition-all ${isCompleted ? 'bg-green-600 border-green-600 shadow-lg shadow-green-100' : 'bg-slate-50 text-slate-700 border-slate-200'}`}>
+              <Badge variant={isCompleted ? "default" : "outline"} className={`rounded-xl px-4 py-1.5 font-bold transition-all ${isCompleted ? 'bg-green-600 border-green-600 shadow-lg shadow-green-100' : 'bg-white text-slate-700 border-slate-200'}`}>
                 {isCompleted ? (
                   <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> All Solved</span>
                 ) : (
@@ -277,7 +277,7 @@ const StudentCodingEmbed = ({ subunitId, subunitName, unitName, onComplete, code
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-3 mb-6">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSolved ? 'bg-green-100 text-green-600' : 'bg-slate-50 text-slate-800 group-hover:bg-slate-900 group-hover:text-white'}`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSolved ? 'bg-green-100 text-green-600' : 'bg-white text-slate-800 group-hover:bg-slate-900 group-hover:text-white'}`}>
                             <Terminal className="h-4 w-4" />
                           </div>
                           <h5 className="font-bold text-gray-900 leading-tight group-hover:text-slate-900 transition-colors line-clamp-2">
@@ -295,7 +295,7 @@ const StudentCodingEmbed = ({ subunitId, subunitName, unitName, onComplete, code
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                           <BrainCircuit className="w-3 h-3" /> {question.marks ?? 100} pts
                         </span>
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all transform group-hover:translate-x-1">
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all transform group-hover:translate-x-1">
                           <ChevronRight className="w-4 h-4" />
                         </div>
                       </div>

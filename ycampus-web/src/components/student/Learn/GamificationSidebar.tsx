@@ -57,7 +57,7 @@ const GamificationSidebar: React.FC<GamificationSidebarProps> = ({ stats, isOpen
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-slate-50/30">
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-white/30">
                     {/* Streak Section */}
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
                         <StreakCalendarWidget

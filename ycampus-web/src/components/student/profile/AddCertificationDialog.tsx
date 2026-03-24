@@ -78,7 +78,7 @@ const AddCertificationDialog: React.FC<Props> = ({
                 <Award className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 <Input
                   {...register("name", { required: true })}
-                  className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                  className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                 />
               </div>
             </div>
@@ -90,7 +90,7 @@ const AddCertificationDialog: React.FC<Props> = ({
                   <Building className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
                     {...register("issuer", { required: true })}
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
@@ -102,7 +102,7 @@ const AddCertificationDialog: React.FC<Props> = ({
                   <Input
                     type="date"
                     {...register("completion_date", { required: true })}
-                    className="pl-9 bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl w-full"
+                    className="pl-9 bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl w-full"
                     style={{ display: 'block' }} // Fix for some date input styling issues
                   />
                 </div>

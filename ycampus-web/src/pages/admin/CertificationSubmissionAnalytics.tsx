@@ -36,7 +36,7 @@ export default function CertificationSubmissionAnalytics() {
 
     if (loading || !submission) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         );
@@ -49,7 +49,7 @@ export default function CertificationSubmissionAnalytics() {
     const questionActivities = submission.question_activities || [];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
         <div className="flex-1">
@@ -60,7 +60,7 @@ export default function CertificationSubmissionAnalytics() {
                             actions={
                                 <button
                                     onClick={() => navigate(-1)}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                                    className="bg-white0 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
                                 >
                                     ← Back
                                 </button>
@@ -140,13 +140,13 @@ export default function CertificationSubmissionAnalytics() {
                                                         ) : activity.is_correct === false ? (
                                                             <Badge className="bg-red-100 text-red-700">Incorrect</Badge>
                                                         ) : (
-                                                            <Badge className="bg-gray-100 text-gray-700">Ungraded</Badge>
+                                                            <Badge className="bg-white text-gray-700">Ungraded</Badge>
                                                         )}
                                                     </div>
                                                 </div>
 
                                                 {/* Granular Logs */}
-                                                <div className="mt-4 bg-gray-50 rounded-md p-3 text-sm">
+                                                <div className="mt-4 bg-white rounded-md p-3 text-sm">
                                                     <h5 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                                         <List className="h-4 w-4" /> Activity Log
                                                     </h5>
@@ -167,7 +167,7 @@ export default function CertificationSubmissionAnalytics() {
                                                                             </span>
                                                                         )}
                                                                         {log.meta_data && log.meta_data.key && (
-                                                                            <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100">
+                                                                            <span className="text-xs text-gray-500 border px-1 rounded bg-white">
                                                                                 {log.meta_data.key}
                                                                             </span>
                                                                         )}
@@ -210,7 +210,7 @@ export default function CertificationSubmissionAnalytics() {
                                                         </span>
                                                     )}
                                                     {event.meta_data && event.meta_data.key && (
-                                                        <span className="text-xs text-gray-500 border px-1 rounded bg-gray-100">
+                                                        <span className="text-xs text-gray-500 border px-1 rounded bg-white">
                                                             {event.meta_data.key}
                                                         </span>
                                                     )}

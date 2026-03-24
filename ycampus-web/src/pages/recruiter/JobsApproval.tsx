@@ -28,7 +28,7 @@ const JobsApproval: React.FC = () => {
 
   if (!hasJobsApprovalAccess) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -294,14 +294,14 @@ const JobsApproval: React.FC = () => {
       case 'draft': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'paused': return 'bg-orange-100 text-orange-700 border-orange-200';
       case 'active': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -345,7 +345,7 @@ const JobsApproval: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -371,7 +371,7 @@ const JobsApproval: React.FC = () => {
                     Pending Approval
                     {jobs.length > 0 && (
                       <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                        selectedTab === 'pending' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'
+                        selectedTab === 'pending' ? 'bg-orange-100 text-orange-800' : 'bg-white text-gray-800'
                       }`}>
                         {jobs.filter(j => j.status === 'draft' || j.status === 'paused').length}
                       </span>
@@ -389,7 +389,7 @@ const JobsApproval: React.FC = () => {
                     Approved Jobs
                     {approvedJobs.length > 0 && (
                       <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                        selectedTab === 'approved' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        selectedTab === 'approved' ? 'bg-green-100 text-green-800' : 'bg-white text-gray-800'
                       }`}>
                         {approvedJobs.filter(j => j.status === 'active').length}
                       </span>
@@ -488,7 +488,7 @@ const JobsApproval: React.FC = () => {
               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-white">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Job Details
@@ -512,7 +512,7 @@ const JobsApproval: React.FC = () => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredJobs.map((job) => (
-                        <tr key={job.id} className="hover:bg-gray-50">
+                        <tr key={job.id} className="hover:bg-white">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="flex items-center gap-2">
@@ -527,7 +527,7 @@ const JobsApproval: React.FC = () => {
                                     </span>
                                   ))}
                                   {job.skills.length > 3 && (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-white text-gray-800">
                                       +{job.skills.length - 3} more
                                     </span>
                                   )}
@@ -675,7 +675,7 @@ const JobsApproval: React.FC = () => {
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-4">
               <button
                 onClick={() => setShowJobDetails(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white"
               >
                 Close
               </button>
@@ -731,7 +731,7 @@ const JobsApproval: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={cancelRejectJob}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

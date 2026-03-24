@@ -117,7 +117,7 @@ const StreakCalendarWidget: React.FC<StreakCalendarProps> = ({ currentStreak, ma
                                 className={`
                                     h-9 w-9 flex items-center justify-center rounded-lg text-xs relative group
                                     ${isTodayDate ? 'border border-blue-400' : ''}
-                                    ${isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50'}
+                                    ${isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-white'}
                                 `}
                             >
                                 {isActive ? (

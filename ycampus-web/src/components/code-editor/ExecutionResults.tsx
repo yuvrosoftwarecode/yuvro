@@ -63,7 +63,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ result, isExecuting
           ? 'bg-yellow-50 border-yellow-400'
           : result.status === 'error'
             ? 'bg-red-50 border-red-400'
-            : 'bg-gray-50 border-gray-400'
+            : 'bg-white border-gray-400'
         }`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
@@ -78,7 +78,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ result, isExecuting
               ? 'bg-yellow-100 text-yellow-800'
               : result.status === 'error'
                 ? 'bg-red-100 text-red-800'
-                : 'bg-gray-100 text-gray-800'
+                : 'bg-white text-gray-800'
             }`}>
             {result.status === 'completed' && result.test_cases_passed === result.total_test_cases
               ? '✅ SUCCESS'
@@ -105,7 +105,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ result, isExecuting
 
       {/* Test Results */}
       {result.test_results && (
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-white p-4 rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-medium">Test Results</h4>
             <div className="flex items-center space-x-2">
@@ -224,7 +224,7 @@ const ExecutionResults: React.FC<ExecutionResultsProps> = ({ result, isExecuting
 
       {/* Plagiarism Check */}
       {result.plagiarism_score !== undefined && (
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-white p-4 rounded-lg">
           <h4 className="font-medium mb-2">Plagiarism Check</h4>
           <div className="flex items-center justify-between mb-2">
             <span>Similarity Score:</span>

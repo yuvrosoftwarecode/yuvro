@@ -40,16 +40,16 @@ const ContestAnalyticsList = () => {
       case 'easy': return 'bg-green-100 text-green-700 border-green-200';
       case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'hard': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
   const statusColor = (s: string) => {
     switch (s) {
       case 'ongoing': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'past': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'past': return 'bg-white text-gray-700 border-gray-200';
       case 'upcoming': return 'bg-purple-100 text-purple-700 border-purple-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -61,7 +61,7 @@ const ContestAnalyticsList = () => {
   ];
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <RoleHeader

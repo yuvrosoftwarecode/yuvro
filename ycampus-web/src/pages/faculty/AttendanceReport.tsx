@@ -335,7 +335,7 @@ const AttendanceReport: React.FC = () => {
     ] : [];
 
     return (
-        <div className="flex min-h-screen bg-[#F8FAFC]">
+        <div className="flex min-h-screen bg-white">
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -498,7 +498,7 @@ const AttendanceReport: React.FC = () => {
                                 <CardContent className="p-0">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50 border-gray-50/50">
+                                            <TableRow className="bg-white hover:bg-white border-gray-50/50">
                                                 <TableHead
                                                     className="py-4 pl-8 text-[11px] font-semibold text-gray-400 uppercase tracking-wider cursor-pointer group/sort"
                                                     onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
@@ -523,7 +523,7 @@ const AttendanceReport: React.FC = () => {
                                         <TableBody>
                                             {filteredStudents.length > 0 ? (
                                                 filteredStudents.map((row, idx) => (
-                                                    <TableRow key={idx} className="hover:bg-gray-50/30 transition-colors border-gray-50/50">
+                                                    <TableRow key={idx} className="hover:bg-white/30 transition-colors border-gray-50/50">
                                                         <TableCell className="py-4 pl-8 font-medium text-gray-900 text-sm">{row.name}</TableCell>
                                                         <TableCell className="text-center text-gray-500 text-xs font-medium">{row.rollNo}</TableCell>
                                                         <TableCell className="text-center text-gray-500 text-xs font-medium">{row.classes}</TableCell>
@@ -535,7 +535,7 @@ const AttendanceReport: React.FC = () => {
                                                                     "text-xs font-bold",
                                                                     row.percentage >= 75 ? "text-green-600" : row.percentage >= 60 ? "text-amber-500" : "text-red-500"
                                                                 )}>{row.percentage}%</span>
-                                                                <div className="h-1 w-20 bg-gray-100 rounded-full overflow-hidden">
+                                                                <div className="h-1 w-20 bg-white rounded-full overflow-hidden">
                                                                     <div
                                                                         className={cn(
                                                                             "h-full rounded-full transition-all duration-500",
@@ -575,7 +575,7 @@ const AttendanceReport: React.FC = () => {
                             </Card>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-32 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
+                        <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border border-dashed border-gray-200">
                             <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
                                 <Filter className="h-8 w-8 text-gray-300" />
                             </div>
