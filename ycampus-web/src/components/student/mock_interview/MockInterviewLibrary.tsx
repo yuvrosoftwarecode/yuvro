@@ -34,6 +34,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   const [showThankYouScreen, setShowThankYouScreen] = useState(false);
   const [showReportsScreen, setShowReportsScreen] = useState(false);
   const [interviewSettings, setInterviewSettings] = useState<InterviewSettings | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +113,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     }
     setInterviewSettings(null);
     setSelectedRole(null);
+    setSessionId(null); // Reset session ID
     setShowInterviewScreen(false);
     setShowThankYouScreen(false);
     setShowReportsScreen(false);
@@ -125,12 +127,13 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
 
   const handleExitInterview = () => {
     setShowInterviewScreen(false);
-    setShowThankYouScreen(true); // Show thank you page when exiting
+    setShowReportsScreen(true); // Go directly to report
   };
 
-  const handleInterviewComplete = (role: Role, difficulty: string, duration: string) => {
+  const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sessionId: string) => {
+    setSessionId(sessionId);
     setShowInterviewScreen(false);
-    setShowThankYouScreen(true);
+    setShowReportsScreen(true); // Go directly to report
   };
 
   const handleViewReports = () => {
@@ -196,12 +199,13 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   };
 
   // Show reports screen if active
-  if (showReportsScreen && selectedRole && interviewSettings) {
+  if (showReportsScreen && selectedRole && interviewSettings && sessionId) {
     return (
       <ReportsScreen
         role={selectedRole}
         difficulty={interviewSettings.difficulty}
         duration={interviewSettings.duration}
+        sessionId={sessionId}
         onTryAgain={handleTryAgain}
         onBackToLibrary={handleBackToLibrary}
       />
