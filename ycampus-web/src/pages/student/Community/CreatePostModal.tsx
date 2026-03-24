@@ -109,6 +109,19 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
     }
   };
 
+  const getTagStyles = (tag: string, isSelected: boolean) => {
+    if (!isSelected) return 'text-gray-600 hover:bg-gray-50 border border-gray-100';
+    
+    switch (tag) {
+      case 'Exam': return 'bg-red-100/50 text-red-700 border-red-200';
+      case 'Event': return 'bg-blue-100/50 text-blue-700 border-blue-200';
+      case 'Doubt': return 'bg-amber-100/50 text-amber-700 border-amber-200';
+      case 'Placement': return 'bg-green-100/50 text-green-700 border-green-200';
+      case 'General': return 'bg-slate-100/50 text-slate-700 border-slate-200';
+      default: return 'bg-slate-100 text-slate-900 border-slate-200';
+    }
+  };
+
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
@@ -210,23 +223,23 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
 
           <div className="grid gap-2">
             <label className="text-sm font-medium text-gray-700">Tags (Optional)</label>
-            <div className="flex flex-wrap gap-2">
-              {hardcodedTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleTag(tag);
-                  }}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
-                    selectedTags.includes(tag)
-                      ? 'bg-slate-100 text-slate-900 border border-slate-200'
-                      : 'text-gray-600 hover:bg-gray-50 border border-transparent'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-3">
+              {hardcodedTags.map(tag => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleTag(tag);
+                    }}
+                    className={`px-3 py-1.5 text-[13px] font-medium rounded-full transition-all duration-200 border flex items-center gap-1.5 ${getTagStyles(tag, isSelected)}`}
+                  >
+                    {tag}
+                    {isSelected && <X className="w-3.5 h-3.5 stroke-[2.5]" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
