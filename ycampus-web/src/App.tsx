@@ -31,6 +31,7 @@ import StudentQuiz from './components/student/StudentQuiz';
 import StudentCoding from './components/student/StudentCoding';
 import Certify from './pages/student/Certify';
 import CertificationExam from './pages/student/CertificationExam';
+import StudentInterviewPrep from './pages/student/StudentInterviewPrep';
 import AIInterviewPlanner from './pages/student/AIInterviewPlanner';
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from './components/ErrorBoundary';
@@ -200,6 +201,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <SkillTest />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/interview-prep"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentInterviewPrep />
                   </ProtectedRoute>
                 }
               />

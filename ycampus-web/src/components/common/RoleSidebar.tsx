@@ -110,11 +110,17 @@ const sidebarItems: SidebarItem[] = [
     roles: ['student']
   },
   {
-    id: 'student-interview-preparation',
+    id: 'student-interview-prep',
     label: 'Interview Preparation',
-    icon: Mic,
-    path: '/student/interview-preparation',
+    icon: Users,
+    path: '/student/interview-prep',
     roles: ['student']
+  },
+  {
+    id: 'student-contest',
+    label: 'Contest',
+    icon: Trophy,
+    path: '/student/contests',
   },
   {
     id: 'student-ai-interview-planner',
