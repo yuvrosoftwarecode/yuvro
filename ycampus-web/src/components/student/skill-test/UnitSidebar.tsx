@@ -40,7 +40,7 @@ const UnitSidebar = ({
     return (
         <div
             className={cn(
-                'bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200'
+                'bg-white shadow-none transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200'
             )}
             style={{
                 width: isOpen ? "355px" : "70px",
@@ -52,7 +52,7 @@ const UnitSidebar = ({
                 {/* CONTENT AREA */}
                 {!isOpen ? (
                     <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                        <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={subject.name}>
+                        <div className="w-10 h-10 flex items-center justify-center text-2xl font-semibold mb-2 bg-gray-50 rounded-xl" title={subject.name}>
                             {subject.icon || '🗂️'}
                         </div>
                         <div className="flex flex-col items-center gap-3 w-full px-2">
@@ -63,7 +63,7 @@ const UnitSidebar = ({
                                 return (
                                     <div
                                         key={unit.id}
-                                        className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer border-2 shadow-sm transition-all
+                                        className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold cursor-pointer border-2 shadow-none transition-all
                       ${isCompleted
                                                 ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
                                                 : selectedUnit?.id === unit.id
@@ -88,7 +88,7 @@ const UnitSidebar = ({
                             <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
                                 {subject.icon || '🗂️'}
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
+                            <h2 className="text-xl font-semibold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
                         </div>
 
                         <p className="text-sm text-gray-500 mb-3 ml-1">
@@ -111,7 +111,7 @@ const UnitSidebar = ({
 
                         <div className="h-px bg-gray-100 w-full mb-5" />
 
-                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
+                        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
 
                         <div className="space-y-3 pb-4">
                             {subject.units.map((unit) => {
@@ -122,7 +122,7 @@ const UnitSidebar = ({
                                 return (
                                     <div
                                         key={unit.id}
-                                        className={`border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
+                                        className={`border border-gray-200 rounded-xl overflow-hidden shadow-none hover:shadow-sm transition-all duration-200 cursor-pointer ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
                                         onClick={() => onUnitSelect(unit)}
                                     >
                                         {/* Unit header */}
@@ -137,7 +137,7 @@ const UnitSidebar = ({
 
                                             {/* Show Checkmark if completed (and progress enabled), OR show problem count if strictly not showing progress */}
                                             {showProgress && completed && (
-                                                <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-sm">
+                                                <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-none">
                                                     <Check className="w-3 h-3" strokeWidth={4} />
                                                 </span>
                                             )}
@@ -174,7 +174,7 @@ const UnitSidebar = ({
             {/* Divider chevron button */}
             <button
                 onClick={onToggle}
-                className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
+                className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-none rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
                 style={{
                     left: isOpen ? "343px" : "58px",
                 }}

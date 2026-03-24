@@ -175,8 +175,36 @@ const sidebarItems: SidebarItem[] = [
   {
     id: 'principal-dashboard',
     label: 'Dashboard',
-    icon: BarChart3,
+    icon: LayoutDashboard,
     path: '/principal/dashboard',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-departments',
+    label: 'Departments',
+    icon: GraduationCap,
+    path: '/principal/departments',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-faculty',
+    label: 'Faculty',
+    icon: Users,
+    path: '/principal/faculty',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-students',
+    label: 'Students',
+    icon: BookOpen,
+    path: '/principal/students',
+    roles: ['principal']
+  },
+  {
+    id: 'principal-pri-report',
+    label: 'PRI Report',
+    icon: FileText,
+    path: '/principal/pri-report',
     roles: ['principal']
   },
   // College Admin Items
@@ -418,42 +446,6 @@ const sidebarItems: SidebarItem[] = [
     roles: ['placement', 'tpo', 'placement_officer']
   },
 
-  // Principal Items
-  {
-    id: 'principal-dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/principal/dashboard',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-department',
-    label: 'Department',
-    icon: Building2,
-    path: '/principal/departments',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-faculty',
-    label: 'Faculty',
-    icon: UserCheck,
-    path: '/principal/faculty',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-students',
-    label: 'Students',
-    icon: Users,
-    path: '/principal/students',
-    roles: ['principal']
-  },
-  {
-    id: 'principal-pri-report',
-    label: 'PRI Report',
-    icon: FileText,
-    path: '/principal/pri-report',
-    roles: ['principal']
-  },
   {
     id: 'users',
     label: 'User Management',
