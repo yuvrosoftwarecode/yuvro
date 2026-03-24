@@ -36,6 +36,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { AnnouncementsList } from '@/components/college-admin/announcements/AnnouncementsList';
 import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
   Plus, 
   Search, 
   Edit, 
@@ -278,7 +286,6 @@ const AnnouncementsScreen: React.FC = () => {
       expiry_date: '',
     });
   };
-
 
 
   const totalPages = Math.ceil(totalCount / pageSize);
