@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { departmentService, Department } from '@/services/departmentService';
 import DepartmentList from '@/components/college-admin/departments/DepartmentList';
 import DepartmentDetail from '@/components/college-admin/departments/DepartmentDetail';
@@ -79,12 +79,11 @@ const DepartmentsScreen: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title="Departments"
-                        subtitle="Overview of all academic departments"
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="Departments"
+                            subtitle="Overview of all academic departments"
+                        />
                         {loading ? (
                             <div className="flex justify-center py-12">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>

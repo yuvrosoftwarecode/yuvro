@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Play, Star, Clock, Users } from 'lucide-react';
-import Navigation from '@/components/common/Navigation';
+import RoleSidebar from '@/components/common/RoleSidebar';
+import InterviewRoleCard from '@/components/common/InterviewRoleCard';
 import PermissionDialog from './PermissionDialog';
 import InterviewScreen from './InterviewScreen';
 import ThankYouScreen from './ThankYouScreen';
@@ -33,7 +34,9 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
   const [showInterviewScreen, setShowInterviewScreen] = useState(false);
   const [showThankYouScreen, setShowThankYouScreen] = useState(false);
   const [showReportsScreen, setShowReportsScreen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [interviewSettings, setInterviewSettings] = useState<InterviewSettings | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,18 +46,30 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
       try {
         const data = await mockInterviewService.getAllMockInterviews();
         const mappedRoles = data.map((item: ApiMockInterview) => {
-          // Map difficulty to level (Defaulting to Intermediate as difficulty field is removed)
           let level: 'Beginner' | 'Intermediate' | 'Advanced' = 'Intermediate';
-          // Future: map from description or tags if available
+          
+          // Design mapping based on Image 2
+          const getDesignConfig = (title: string) => {
+            const t = title.toLowerCase();
+            if (t.includes('dsa')) return { gradient: 'from-orange-500 to-rose-500', category: 'Product Based', questions: 15 };
+            if (t.includes('python')) return { gradient: 'from-blue-500 to-indigo-600', category: 'Product Based', questions: 12 };
+            if (t.includes('java')) return { gradient: 'from-red-500 to-pink-500', category: 'Product Based', questions: 18 };
+            if (t.includes('system design')) return { gradient: 'from-purple-500 to-indigo-500', category: 'Product Based', questions: 10 };
+            if (t.includes('aptitude')) return { gradient: 'from-emerald-500 to-teal-500', category: 'Startup', questions: 20 };
+            if (t.includes('logical')) return { gradient: 'from-amber-400 to-orange-500', category: 'Startup', questions: 15 };
+            if (t.includes('communication')) return { gradient: 'from-sky-400 to-blue-500', category: 'Startup', questions: 5 };
+            if (t.includes('dbms')) return { gradient: 'from-cyan-400 to-blue-600', category: 'Startup', questions: 12 };
+            return { gradient: 'from-slate-500 to-slate-700', category: 'Service Based', questions: 10 };
+          };
 
-          // Determine icon based on title
-          const { icon, iconBg, iconColor, buttonGradient } = getRoleIconConfig(item.title);
+          const design = getDesignConfig(item.title);
+          const { icon, iconBg, iconColor } = getRoleIconConfig(item.title);
 
           return {
             id: item.id,
-            title: item.title,
+            title: item.title.replace('Mock Interview — ', ''),
             description: item.description,
-            category: item.ai_generation_mode.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            category: design.category,
             level: level,
             max_duration: item.max_duration,
             interviewer_name: item.interviewer_name || 'Junnu',
@@ -63,7 +78,8 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             icon: icon,
             iconBg: iconBg,
             iconColor: iconColor,
-            buttonGradient: buttonGradient
+            buttonGradient: design.gradient,
+            questionCount: design.questions
           };
         });
         setMockRoles(mappedRoles);
@@ -78,11 +94,12 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     fetchMockInterviews();
   }, []);
 
-  const filteredRoles = mockRoles.filter(role =>
-    role.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    role.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRoles = mockRoles.filter(role => {
+    const matchesSearch = role.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          role.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || role.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const handleStartPracticeClick = (role: Role) => {
     setSelectedRole(role);
@@ -112,6 +129,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     }
     setInterviewSettings(null);
     setSelectedRole(null);
+    setSessionId(null); // Reset session ID
     setShowInterviewScreen(false);
     setShowThankYouScreen(false);
     setShowReportsScreen(false);
@@ -125,12 +143,13 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
 
   const handleExitInterview = () => {
     setShowInterviewScreen(false);
-    setShowThankYouScreen(true); // Show thank you page when exiting
+    setShowReportsScreen(true); // Go directly to report
   };
 
-  const handleInterviewComplete = (role: Role, difficulty: string, duration: string) => {
+  const handleInterviewComplete = (role: Role, difficulty: string, duration: string, sessionId: string) => {
+    setSessionId(sessionId);
     setShowInterviewScreen(false);
-    setShowThankYouScreen(true);
+    setShowReportsScreen(true); // Go directly to report
   };
 
   const handleViewReports = () => {
@@ -195,34 +214,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     }
   };
 
-  // Show reports screen if active
-  if (showReportsScreen && selectedRole && interviewSettings) {
-    return (
-      <ReportsScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-      />
-    );
-  }
-
-  // Show thank you screen if active
-  if (showThankYouScreen && selectedRole && interviewSettings) {
-    return (
-      <ThankYouScreen
-        role={selectedRole}
-        difficulty={interviewSettings.difficulty}
-        duration={interviewSettings.duration}
-        onViewReports={handleViewReports}
-        onTryAgain={handleTryAgain}
-        onBackToLibrary={handleBackToLibrary}
-      />
-    );
-  }
-
-  // Show interview screen if active
+  // Show interview screen if active (FULL SCREEN - No Sidebar)
   if (showInterviewScreen && selectedRole && interviewSettings) {
     return (
       <InterviewScreen
@@ -238,59 +230,108 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
     );
   }
 
-  return (
-    <div className="bg-background min-h-screen">
-      <Navigation />
-      <div className="p-8 max-w-7xl mx-auto animate-fade-in">
-        {/* Header with Search */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-          <div className="text-left w-full md:w-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Mock Interview
+  let content;
+
+  if (showReportsScreen && selectedRole && interviewSettings && sessionId) {
+    content = (
+      <ReportsScreen
+        role={selectedRole}
+        difficulty={interviewSettings.difficulty}
+        duration={interviewSettings.duration}
+        sessionId={sessionId}
+        onTryAgain={handleTryAgain}
+        onBackToLibrary={handleBackToLibrary}
+      />
+    );
+  } else if (showThankYouScreen && selectedRole && interviewSettings) {
+    content = (
+      <ThankYouScreen
+        role={selectedRole}
+        difficulty={interviewSettings.difficulty}
+        duration={interviewSettings.duration}
+        onViewReports={handleViewReports}
+        onTryAgain={handleTryAgain}
+        onBackToLibrary={handleBackToLibrary}
+      />
+    );
+  } else {
+    content = (
+      <div className="px-8 py-10 max-w-[1400px] mx-auto animate-fade-in space-y-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="text-left">
+            <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tight">
+              Interview Library
             </h1>
-            <p className="text-muted-foreground">
-              Choose a role to start practicing your interview skills
+            <p className="text-slate-500 font-medium">
+              View courses tailored for specific roles.
             </p>
           </div>
 
-          <div className="w-full md:w-auto min-w-[320px] max-w-md">
+          <div className="w-full md:w-auto min-w-[320px]">
             <SearchBar
               searchQuery={searchTerm}
               setSearchQuery={setSearchTerm}
-              placeholder="Search roles..."
+              placeholder="Search by topic..."
             />
           </div>
         </div>
 
+        {/* Category Filters */}
+        <div className="flex flex-wrap gap-3">
+          {['All', 'Product Based', 'Service Based', 'Startup'].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                selectedCategory === cat
+                  ? 'bg-slate-900 text-white shadow-lg shadow-slate-200'
+                  : 'bg-white text-slate-500 hover:text-slate-700 hover:bg-slate-50 border border-slate-200'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
         {/* Role Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredRoles.map((role) => (
-            <ModernCard
+            <InterviewRoleCard
               key={role.id}
-              title={role.title.replace('Mock Interview — ', '')}
+              title={role.title}
               description={role.description}
               icon={role.icon}
-              iconClassName={role.iconBg}
-              gradientColor={role.buttonGradient || "from-slate-700"}
-              tags={[
-                {
-                  text: role.level,
-                  variant: getLevelBadgeVariant(role.level)
-                }
-              ]}
-              footerItems={[
-                { icon: <Clock className="w-3.5 h-3.5" />, text: `${role.max_duration} mins` },
-                { icon: <Users className="w-3.5 h-3.5" />, text: role.interviewer_name }
-              ]}
-              actionLabel="Start Practice"
-              onAction={() => handleStartPracticeClick(role)}
+              gradient={role.buttonGradient || "from-slate-500 to-slate-700"}
+              duration={role.max_duration}
+              questionCount={(role as any).questionCount || 10}
+              category={role.category}
+              onStart={() => handleStartPracticeClick(role)}
             />
           ))}
         </div>
 
+        {/* No Results */}
+        {filteredRoles.length === 0 && !loading && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+              <Search className="w-10 h-10 text-slate-300" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-1">No interviews found</h3>
+            <p className="text-slate-500">Try adjusting your search or category filters</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden">
+      <RoleSidebar />
+      <main className="flex-1 h-screen overflow-y-auto">
+        {content}
         <Dialog open={showModal} onOpenChange={handleCloseModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-xl ring-1 ring-black/5 p-0 flex flex-col overflow-hidden">
-
             {/* styled header matching Profile modal */}
             <DialogHeader className="p-6 border-b border-slate-100/50 bg-gradient-to-r from-slate-50/50 to-white flex-shrink-0">
               <div className="flex items-center gap-3 mb-1">
@@ -309,16 +350,15 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             </DialogHeader>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-
               {/* Difficulty Level */}
               <div className="space-y-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Experience Level</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { label: 'Intern', value: 'intern' },
-                    { label: 'Beginner (0-1 yrs)', value: 'beginner' },
-                    { label: 'Intermediate (1-3 yrs)', value: '1_3_years' },
-                    { label: 'Experienced (3+ yrs)', value: '3_plus_years' }
+                    { label: 'Fresher (0-1 yrs)', value: 'beginner' },
+                    { label: 'Junior (1-3 yrs)', value: '1_3_years' },
+                    { label: 'Professional (3+ yrs)', value: '3_plus_years' }
                   ].map((level) => (
                     <button
                       key={level.value}
@@ -447,13 +487,12 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
               <Button
                 onClick={handleStartInterview}
                 disabled={!selectedDifficulty || !selectedDuration || !agreeToTerms}
-                className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/10 px-8 py-6 font-semibold tracking-wide disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/10 px-10 py-7 font-black tracking-widest disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 group/btn"
               >
-                <Play className="h-4 w-4 mr-2" />
-                Start Interview
+                <Play className="h-5 w-5 mr-3 group-hover/btn:scale-110 transition-transform" />
+                START INTERVIEW
               </Button>
             </div>
-
           </DialogContent>
         </Dialog>
 
@@ -463,7 +502,7 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
           onConfirm={handleProceedWithInterview}
           onCancel={handleCancelInterview}
         />
-      </div>
+      </main>
     </div>
   );
 };

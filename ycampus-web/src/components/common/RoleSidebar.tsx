@@ -117,6 +117,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['student']
   },
   {
+    id: 'student-mock-interview',
+    label: 'Mock Interview',
+    icon: Mic,
+    path: '/student/mock-interview',
+    roles: ['student']
+  },
+  {
     id: 'student-contest',
     label: 'Contest',
     icon: Trophy,
@@ -135,13 +142,6 @@ const sidebarItems: SidebarItem[] = [
     label: 'Jobs',
     icon: Briefcase,
     path: '/student/jobs',
-    roles: ['student']
-  },
-  {
-    id: 'student-contest',
-    label: 'Contest',
-    icon: Trophy,
-    path: '/student/contest',
     roles: ['student']
   },
   {
@@ -180,7 +180,15 @@ const sidebarItems: SidebarItem[] = [
     path: '/principal/dashboard',
     roles: ['principal']
   },
+
   // College Admin Items
+  {
+    id: 'college-dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    path: '/college-admin/dashboard',
+    roles: ['college_admin']
+  },
   {
     id: 'college-departments',
     label: 'Departments',
@@ -210,6 +218,13 @@ const sidebarItems: SidebarItem[] = [
     roles: ['college_admin']
   },
   {
+    id: 'college-tpo',
+    label: 'TPO Management',
+    icon: Users,
+    path: '/college-admin/tpo',
+    roles: ['college_admin']
+  },
+  {
     id: 'college-announcements',
     label: 'Announcements',
     icon: Activity,
@@ -231,7 +246,7 @@ const sidebarItems: SidebarItem[] = [
     roles: ['college_admin']
   },
   {
-    id: 'college-logs',
+    id: 'college-activity-logs',
     label: 'Activity Logs',
     icon: Activity,
     path: '/college-admin/activity-logs',
@@ -273,84 +288,6 @@ const sidebarItems: SidebarItem[] = [
     icon: FileText,
     path: '/principal/pri-report',
     roles: ['principal']
-  },
-  // College Admin Items
-  {
-    id: 'college-dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/college-admin/dashboard',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-departments',
-    label: 'Departments',
-    icon: Building,
-    path: '/college-admin/departments',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-batch-ids',
-    label: 'Batch IDs',
-    icon: Layers,
-    path: '/college-admin/batches',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-faculty',
-    label: 'Faculty',
-    icon: UserCheck,
-    path: '/college-admin/faculty',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-students',
-    label: 'Students',
-    icon: Users,
-    path: '/college-admin/students',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-announcements',
-    label: 'Announcements',
-    icon: Activity,
-    path: '/college-admin/announcements',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-subjects',
-    label: 'Subjects',
-    icon: BookOpen,
-    path: '/college-admin/subjects',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-tpo',
-    label: 'TPO Management',
-    icon: Users,
-    path: '/college-admin/tpo',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-reports',
-    label: 'Reports',
-    icon: FileText,
-    path: '/college-admin/reports',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-activity-logs',
-    label: 'Activity Logs',
-    icon: Activity,
-    path: '/college-admin/logs',
-    roles: ['college_admin']
-  },
-  {
-    id: 'college-settings',
-    label: 'Settings',
-    icon: Settings,
-    path: '/college-admin/settings',
-    roles: ['college_admin']
   },
 
   // Faculty Items
@@ -629,7 +566,8 @@ export const SidebarContent = ({
     if (item.id === 'recruiter-jobs-approval') {
       return hasJobsApprovalAccess;
     }
-    return item.roles?.includes(userRole);  });
+    return item.roles?.includes(userRole);
+  });
 
   const isActiveItem = (item: SidebarItem) => {
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');

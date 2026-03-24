@@ -14,10 +14,6 @@ from io import BytesIO
 import traceback
 import logging
 
-from ai_assistant.models import AIAgent, ChatSession, ChatMessage
-from authentication.models import Profile
-from authentication.permissions import IsOwnerOrContentManagerOrAdmin
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import (
     Contest, MockInterview, JobTest, SkillTest,
     ContestSubmission, MockInterviewSubmission, 
@@ -25,10 +21,15 @@ from .models import (
     SkillTestQuestionActivity, ContestQuestionActivity, MockInterviewQuestionActivity,
     CertificationExam, CertificationSubmission, CertificationQuestionActivity, Certificate
 )
+from ai_assistant.models import AIAgent, ChatSession, ChatMessage, InterviewSession, InterviewReport
+from authentication.models import Profile
+from authentication.permissions import IsOwnerOrContentManagerOrAdmin
 from .mixins import ProctoringMixin
 from .serializers import (
     ContestSerializer, SkillTestSerializer, MockInterviewSerializer,
-    SkillTestSubmissionSerializer, CertificationExamSerializer, CertificationSubmissionSerializer
+    SkillTestSubmissionSerializer, ContestSubmissionSerializer,
+    MockInterviewSubmissionSerializer,
+    CertificationExamSerializer, CertificationSubmissionSerializer
 )
 
 class CertificationExamViewSet(ProctoringMixin, viewsets.ModelViewSet):
@@ -697,16 +698,16 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrContentManagerOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
-    search_fields = ['title', 'description']
-    ordering_fields = ['created_at', 'updated_at']
+    search_fields = ["title", "description"]
+    ordering_fields = ["created_at", "updated_at"]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
     def get_queryset(self):
         qs = super().get_queryset()
-        publish_status_param = self.request.query_params.get('publish_status')
-        ai_mode_param = self.request.query_params.get('ai_generation_mode')
+        publish_status_param = self.request.query_params.get("publish_status")
+        ai_mode_param = self.request.query_params.get("ai_generation_mode")
 
         q = Q()
         if publish_status_param:
@@ -720,30 +721,32 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
         return qs
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+    )
     def start_interview(self, request, pk=None):
         try:
             mock_interview = self.get_object()
             user = request.user
-            
+
             # Get user settings
-            experience_level = request.data.get('experience_level', MockInterviewSubmission.EXP_LEVEL_BEGINNER)
-            selected_duration = request.data.get('selected_duration', 0)
-            resume_file = request.FILES.get('resume')
-            
+            experience_level = request.data.get(
+                "experience_level", MockInterviewSubmission.EXP_LEVEL_BEGINNER
+            )
+            selected_duration = int(request.data.get("selected_duration", 0))
+            resume_file = request.FILES.get("resume")
+
             # 1. Check for existing active submission
             submission = MockInterviewSubmission.objects.filter(
                 mock_interview=mock_interview,
                 user=user,
-                status=MockInterviewSubmission.STATUS_STARTED
+                status=MockInterviewSubmission.STATUS_STARTED,
             ).first()
-
-            chat_session = None
 
             if not submission:
                 # 2. Handle Resume / Context Extraction
                 context_text = ""
-                
+
                 if resume_file:
                     try:
                         # Parse PDF
@@ -754,145 +757,138 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                 context_text += text + "\n"
                     except Exception as e:
                         logger.warning(f"Error parsing resume: {e}")
-                
+
                 # If no resume text, fetch profile data
                 if not context_text.strip():
                     try:
                         # Handle potential Profile.DoesNotExist
-                        if hasattr(user, 'profile'):
+                        if hasattr(user, "profile"):
                             profile = user.profile
-                            context_text += f"Name: {profile.full_name}\n"
+                            context_text += f"Name: {profile.user.get_full_name()}\n"
                             context_text += f"Title: {profile.title}\n"
                             context_text += f"About: {profile.about}\n"
-                            
+
                             # Skills
-                            skills = profile.skills.all()
-                            if skills.exists():
-                                context_text += "Skills:\n"
-                                for skill in skills:
-                                    context_text += f"- {skill.name} ({skill.level})\n"
-                                    
+                            if hasattr(profile, "skills"):
+                                skills = profile.skills.all()
+                                if skills.exists():
+                                    context_text += "Skills:\n"
+                                    for skill in skills:
+                                        context_text += (
+                                            f"- {skill.name} ({skill.level})\n"
+                                        )
+
                             # Experience
-                            experiences = profile.experiences.all()
-                            if experiences.exists():
-                                context_text += "Experience:\n"
-                                for exp in experiences:
-                                    context_text += f"- {exp.role} at {exp.company} ({exp.duration})\n"
-                                    
+                            if hasattr(profile, "experiences"):
+                                experiences = profile.experiences.all()
+                                if experiences.exists():
+                                    context_text += "Experience:\n"
+                                    for exp in experiences:
+                                        context_text += f"- {exp.role} at {exp.company} ({exp.duration})\n"
+
                             # Education
-                            educations = profile.education.all()
-                            if educations.exists():
-                                context_text += "Education:\n"
-                                for edu in educations:
-                                    context_text += f"- {edu.degree} in {edu.field} from {edu.institution}\n"
+                            if hasattr(profile, "educations"):
+                                educations = profile.educations.all()
+                                if educations.exists():
+                                    context_text += "Education:\n"
+                                    for edu in educations:
+                                        context_text += f"- {edu.degree} in {edu.field} from {edu.institution}\n"
                     except Exception as e:
                         logger.warning(f"Error fetching profile: {e}")
-                
+
                 # If still empty, use fallback
                 if not context_text.strip():
                     context_text = "No resume or profile information provided. Please ask general questions relevant to the position."
 
                 # 3. Initialize AI Chat Session
-                if mock_interview.ai_generation_mode in [MockInterview.AI_GEN_FULL, MockInterview.AI_GEN_MIXED]:
-                    # Find an active AI agent (prefer Gemini)
-                    ai_agent = AIAgent.objects.filter(is_active=True, provider='gemini').first()
+                ai_agent = None
+                if mock_interview.ai_generation_mode in [
+                    MockInterview.AI_GEN_FULL,
+                    MockInterview.AI_GEN_MIXED,
+                ]:
+                    # Find an active AI agent (prefer Anthropic, then Gemini)
+                    ai_agent = AIAgent.objects.filter(
+                        is_active=True, provider="anthropic"
+                    ).first()
+                    if not ai_agent:
+                        ai_agent = AIAgent.objects.filter(
+                            is_active=True, provider="gemini"
+                        ).first()
                     if not ai_agent:
                         ai_agent = AIAgent.objects.filter(is_active=True).first()
+
+                if not ai_agent and mock_interview.ai_generation_mode in [
+                    MockInterview.AI_GEN_FULL,
+                    MockInterview.AI_GEN_MIXED,
+                ]:
+                    return Response(
+                        {"error": "No active AI agent available"},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    )
+
+                chat_session = None
+                if ai_agent:
+                    # Safe user name
+                    user_first_name = user.first_name if user.first_name else "Candidate"
                     
-                    if ai_agent:
-                        # Safe user name
-                        user_first_name = user.first_name if user.first_name else "Candidate"
-                        
-                        # Safe extraction of AI Context and Coding Count
-                        raw_ai_context = mock_interview.ai_context.get(
-                            experience_level.lower(), {}
-                        ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+                    # Safe extraction of AI Context and Coding Count
+                    raw_ai_context = mock_interview.ai_context.get(
+                        experience_level.lower(), {}
+                    ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
 
-                        # Backwards compatibility check
-                        if isinstance(raw_ai_context, dict):
-                            actual_ai_context = raw_ai_context.get('context', [])
-                            coding_count = raw_ai_context.get('coding_questions_count', 1)
-                        else:
-                            actual_ai_context = raw_ai_context
-                            coding_count = 1
+                    # Backwards compatibility check
+                    if isinstance(raw_ai_context, dict):
+                        actual_ai_context = raw_ai_context.get('context_str') or raw_ai_context.get('context', [])
+                        coding_count = raw_ai_context.get('coding_questions_count', 1)
+                    else:
+                        actual_ai_context = raw_ai_context
+                        coding_count = 1
 
-                        chat_session = ChatSession.objects.create(
-                            user=user,
-                            ai_agent=ai_agent,
-                            title=f"Mock Interview: {mock_interview.title}",
-                            page="mock_interview",
-                            context={
-                                "role": mock_interview.title,
-                                "description": mock_interview.description,
-                                "instructions": mock_interview.instructions,
-                                "difficulty": experience_level,
-                                "level": experience_level,
-                                "max_duration": mock_interview.max_duration,
-                                "selected_duration": selected_duration,
-                                "required_skills": mock_interview.required_skills,
-                                "optional_skills": mock_interview.optional_skills,
-                                "interviewer_name": mock_interview.interviewer_name,
-                                "interviewer_voice_id": mock_interview.interviewer_voice_id,
-                                "voice_speed": mock_interview.voice_speed,
-                                "ai_context": actual_ai_context,
-                                "coding_questions_count": coding_count,
-                                "candidate_info": context_text
-                            }
-                        )                    
-                        # Extract AI Context based on experience level
-                        # This block is now redundant as actual_ai_context is already extracted and passed to chat_session.context
-                        # ai_context_val = mock_interview.ai_context.get(
-                        #     experience_level.lower(), []
-                        # ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
-                        
-                        ai_context_str = "\n".join([f"- {item}" for item in actual_ai_context]) if isinstance(actual_ai_context, list) else str(actual_ai_context)
+                    chat_session = ChatSession.objects.create(
+                        user=user,
+                        ai_agent=ai_agent,
+                        title=f"Mock Interview: {mock_interview.title}",
+                        page="mock_interview",
+                        context={
+                            "role": mock_interview.title,
+                            "description": mock_interview.description,
+                            "instructions": mock_interview.instructions,
+                            "difficulty": experience_level,
+                            "level": experience_level,
+                            "max_duration": mock_interview.max_duration,
+                            "selected_duration": selected_duration,
+                            "required_skills": mock_interview.required_skills,
+                            "optional_skills": mock_interview.optional_skills,
+                            "interviewer_name": mock_interview.interviewer_name,
+                            "interviewer_voice_id": mock_interview.interviewer_voice_id,
+                            "voice_speed": mock_interview.voice_speed,
+                            "ai_context": actual_ai_context,
+                            "coding_questions_count": coding_count,
+                            "candidate_info": context_text
+                        }
+                    )
+                    
+                    # Create Interview Session record
+                    interview_session = InterviewSession.objects.create(
+                        user=user,
+                        chat_session=chat_session,
+                        role_title=mock_interview.title,
+                        role_level=experience_level,
+                        difficulty="Adaptive",
+                        duration_minutes=selected_duration
+                        or mock_interview.max_duration,
+                        status="started",
+                    )
 
-                        # Create System Prompt
-                        system_prompt = f"""You are {mock_interview.interviewer_name}, an expert technical interviewer conducting a mock interview.
-ROLE & PERSONA:
-- You are professional yet conversational. Avoid robotic or standard "textbook" phrasing.
-- Speak naturally, like a human interviewer. Use phrases like "That's interesting, tell me more about...", "Let's pivot to...", or "I see, but considering...".
-- Do NOT say "Next question" or "Moving on". Transition naturally between topics.
-
-INTERVIEW CONTEXT:
-- Title: {mock_interview.title}
-- Description: {mock_interview.description}
-- Instructions: {mock_interview.instructions}
-- AI Focus Context:
-{ai_context_str}
-
-CANDIDATE INFO:
-{context_text}
-
-CRITICAL RULES:
-1. NO DEFINITIONAL QUESTIONS: Never ask "What is X?" or "Define Y". These are strictly forbidden.
-2. SCENARIO-BASED ONLY: All questions must be practical scenarios or problem-solving challenges.
-   - Bad: "What is a deadlock?"
-   - Good: "You have two threads waiting on each other's resources, causing the application to freeze. How would you detect this in production and fix it?"
-3. ADAPTIVE DIFFICULTY:
-   - If the candidate answers well: Increase complexity. Add constraints (e.g., "Now assume we have limited memory", "What if the network is unreliable?").
-   - If the candidate struggles: De-escalate. Ask a guiding follow-up or a simpler foundational question to help them regain confidence.
-   - If the answer is vague: Ask for specific examples or deeper technical reasoning.
-4. FOCUS: Test depth of understanding, not memorization. Ask "Why" and "How", not "What".
-
-START:
-Greet {user_first_name} warmly, introduce yourself, and immediately present the first scenario or problem statement based on the interview context and candidate's background.
-"""
-                        ChatMessage.objects.create(
-                            chat_session=chat_session,
-                            message_type="system",
-                            content=system_prompt
-                        )
-
-                # 4. Create NEW submission
+                # 4. Finalize Submission
                 submission = MockInterviewSubmission.objects.create(
                     mock_interview=mock_interview,
                     user=user,
                     status=MockInterviewSubmission.STATUS_STARTED,
                     experience_level=experience_level,
+                    chat_session=chat_session,
                     selected_duration=selected_duration,
-                    resume=resume_file,
-                    chat_session=chat_session
+                    resume=resume_file
                 )
             else:
                  # Update settings if restarted
@@ -902,16 +898,31 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                      submission.resume = resume_file
                  submission.save()
                  chat_session = submission.chat_session
+                 
+                 # Try to get linked interview session
+                 try:
+                     interview_session = InterviewSession.objects.get(chat_session=chat_session)
+                 except InterviewSession.DoesNotExist:
+                     interview_session = InterviewSession.objects.create(
+                         user=user,
+                         chat_session=chat_session,
+                         role_title=mock_interview.title,
+                         role_level=experience_level,
+                         difficulty="Adaptive",
+                         duration_minutes=selected_duration or mock_interview.max_duration,
+                         status='started'
+                     )
 
-            # Extract coding count one more time for frontend response
+            # Extract coding count for response
             raw_ai_context_resp = mock_interview.ai_context.get(
                 experience_level.lower(), {}
             ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
             coding_count_resp = raw_ai_context_resp.get('coding_questions_count', 1) if isinstance(raw_ai_context_resp, dict) else 1
 
-            # 5. Return Response
             return Response({
                 'submission_id': submission.id,
+                'interview_session_id': interview_session.id if interview_session else None,
+                'id': interview_session.id if interview_session else None, # Backwards compatibility
                 'status': submission.status,
                 'max_duration': mock_interview.max_duration,
                 'selected_duration': submission.selected_duration,
@@ -926,9 +937,85 @@ Greet {user_first_name} warmly, introduce yourself, and immediately present the 
                     'interviewer_voice_id': mock_interview.interviewer_voice_id
                 }
             })
+
         except Exception as e:
-            traceback.print_exc()
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Error starting interview: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def submissions(self, request, pk=None):
+        mock_interview = self.get_object()
+        user = request.user
+        
+        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview)
+        # Check if user is admin, content manager (staff), or instructor (if that role exists in user model)
+        is_privileged = user.is_staff or (hasattr(user, 'role') and user.role in ['admin', 'instructor'])
+        
+        if not is_privileged:
+            qs = qs.filter(user=user)
+            
+        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_interviews(self, request):
+        user = request.user
+        qs = MockInterviewSubmission.objects.filter(user=user).order_by('-created_at')
+        
+        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+
+class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
+    queryset = MockInterviewSubmission.objects.all()
+    serializer_class = MockInterviewSubmissionSerializer
+    permission_classes = [IsOwnerOrContentManagerOrAdmin]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+
+    search_fields = ["user__username", "mock_interview__title"]
+    ordering_fields = ["created_at", "updated_at"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        if user.is_authenticated:
+            if hasattr(user, "role") and user.role == "student":
+                qs = qs.filter(user=user)
+
+        interview_id = self.request.query_params.get("mock_interview")
+        if interview_id:
+            qs = qs.filter(mock_interview_id=interview_id)
+
+        return qs
+
+    @action(detail=True, methods=["get"])
+    def report(self, request, pk=None):
+        submission = self.get_object()
+        if (
+            not submission.chat_session
+            or not hasattr(submission.chat_session, "interview_session")
+        ):
+            return Response(
+                {"error": "No interview session associated"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        interview_session = submission.chat_session.interview_session
+        if not hasattr(interview_session, "report"):
+            return Response(
+                {"error": "Report not yet generated"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        from ai_assistant.serializers import InterviewReportSerializer
+
+        serializer = InterviewReportSerializer(interview_session.report)
+        return Response(serializer.data)
 
     
 

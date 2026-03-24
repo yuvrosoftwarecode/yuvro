@@ -64,6 +64,10 @@ import ApplicationTracker from "@/components/student/jobs/ApplicationTracker";
 import CodeEditorTool from './pages/common/CodeEditorTool';
 import Departments from './pages/admin/Departments';
 import CollegeSubjects from './pages/admin/CollegeSubjects';
+import MockInterviewAnalytics from './pages/admin/MockInterviewAnalytics';
+import MockInterviewReports from './pages/admin/MockInterviewReports';
+import MockInterviewReportView from './pages/admin/MockInterviewReportView';
+
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
 import PrincipalDashboard from './pages/principal/PrincipalDashboard';
@@ -743,6 +747,14 @@ function App() {
                 }
               />
               <Route
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/college-admin/tpo"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -1220,6 +1232,34 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/admin/mock-interview/:mockInterviewId/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/mock-interview/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReports />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/mock-interview/reports/:sessionId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor", "recruiter"]}>
+                    <MockInterviewReportView />
+                  </ProtectedRoute>
+                }
+              />
+
 
               <Route
                 path="/tools/code-editor"

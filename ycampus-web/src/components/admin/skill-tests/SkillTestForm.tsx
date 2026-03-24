@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import QuestionBank from '@/components/common/QuestionBank';
 import skillTestService, { SkillTest } from '@/services/skillTestService';
 import subjectService, { Subject, UnitBasic } from '@/services/subjectService';
@@ -293,16 +295,14 @@ export default function SkillTestForm() {
       <div className="min-h-screen bg-gray-50">
         <div className="flex">
           <RoleSidebar />
-          <div className="flex-1">
-            <RoleHeader
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
               title="Loading..."
               subtitle="Please wait while we load the skill test details"
               actions={null}
             />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           </div>
         </div>
@@ -315,47 +315,49 @@ export default function SkillTestForm() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={
-              <button
-                onClick={() => {
-                  const skillTestUnitId = formData.unit || unitIdFromUrl;
-                  const skillTestSubjectId = formData.subject || subjectIdFromUrl;
-                  console.log('Back button clicked. SkillTest SubjectId:', skillTestSubjectId, 'SkillTest UnitId:', skillTestUnitId);
-                  try {
-                    if (skillTestSubjectId) {
-                      let targetUrl = `/admin/skill-tests/courses/${skillTestSubjectId}/manage`;
-                      if (skillTestUnitId) {
-                        targetUrl += `?topicId=${skillTestUnitId}`;
-                      }
-                      console.log('Navigating to subject manage page with skill test unit:', targetUrl);
-                      navigate(targetUrl);
-                    } else {
-                      console.log('No subjectId, navigating to main skill tests page');
-                      navigate('/admin/skill-tests');
-                    }
-                  } catch (error) {
-                    console.error('Navigation failed, using window.location:', error);
-                    if (skillTestSubjectId) {
-                      let targetUrl = `/admin/skill-tests/courses/${skillTestSubjectId}/manage`;
-                      if (skillTestUnitId) {
-                        targetUrl += `?topicId=${skillTestUnitId}`;
-                      }
-                      window.location.href = targetUrl;
-                    } else {
-                      window.location.href = '/admin/skill-tests';
-                    }
-                  }
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                ← Back to Subjects
-              </button>
-            }
-          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={
+                <Button
+                  onClick={() => {
+                    const skillTestUnitId = formData.unit || unitIdFromUrl;
+                    const skillTestSubjectId = formData.subject || subjectIdFromUrl;
+                    console.log('Back button clicked. SkillTest SubjectId:', skillTestSubjectId, 'SkillTest UnitId:', skillTestUnitId);
+                    try {
+                      if (skillTestSubjectId) {
+                        let targetUrl = `/admin/skill-tests/courses/${skillTestSubjectId}/manage`;
+                        if (skillTestUnitId) {
+                          targetUrl += `?topicId=${skillTestUnitId}`;
+                        }
+                        console.log('Navigating to subject manage page with skill test unit:', targetUrl);
+                        navigate(targetUrl);
+                      } else {
+                        console.log('No subjectId, navigating to main skill tests page');
+                        navigate('/admin/skill-tests');
+                      }
+                    } catch (error) {
+                      console.error('Navigation failed, using window.location:', error);
+                      if (skillTestSubjectId) {
+                        let targetUrl = `/admin/skill-tests/courses/${skillTestSubjectId}/manage`;
+                        if (skillTestUnitId) {
+                          targetUrl += `?topicId=${skillTestUnitId}`;
+                        }
+                        window.location.href = targetUrl;
+                      } else {
+                        window.location.href = '/admin/skill-tests';
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Subjects
+                </Button>
+              }
+            />
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { getFacultyAssignments, SectionSubjectFaculty } from '../../services/subjectService';
 import { BookOpen, Users, Calendar, ArrowRight, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,12 +41,12 @@ const Attendance: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title="Attendance Management"
-                        subtitle="Take and manage attendance for your assigned sections"
-                    />
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader 
+                            title="Attendance Management" 
+                            subtitle="Take and manage attendance for your assigned sections" 
+                        />
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-20">
                                 <Loader2 className="h-10 w-10 text-orange-500 animate-spin mb-4" />

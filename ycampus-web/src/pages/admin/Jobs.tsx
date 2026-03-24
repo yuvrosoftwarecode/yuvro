@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Plus, Filter, MoreHorizontal, Briefcase, Users, Calendar, TrendingUp } from 'lucide-react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Job {
   id: string;
@@ -83,15 +83,13 @@ const Jobs: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1">
-          {/* Header */}
-          <RoleHeader 
-            title="Job Management Dashboard"
-            subtitle="Manage your job recruitment pipeline"
-            actions={headerActions}
-          />
-
-          {/* Stats Cards */}
-          <div className="p-6">
+          {/* Main Content Area */}
+          <div className="p-6 max-w-7xl mx-auto w-full">
+            <PageHeader 
+              title="Job Management Dashboard"
+              subtitle="Manage your job recruitment pipeline"
+              actions={headerActions}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Active Jobs */}
               <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">

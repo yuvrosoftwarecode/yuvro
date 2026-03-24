@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import {
   BookOpen, Users, ClipboardCheck, CheckSquare, Plus, Calendar, MessageSquare, CheckCircle, Clock, Play, Loader2
 } from 'lucide-react';
@@ -165,12 +165,11 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-background flex">
       <RoleSidebar />
       <div className="flex-1">
-        <RoleHeader
-          title={`Welcome back, ${user?.first_name || 'Professor'}!`}
-          subtitle="Here's an overview of your classes and activities."
-        />
-
         <div className="p-6 space-y-6">
+          <PageHeader
+            title={`Welcome back, ${user?.first_name || 'Professor'}!`}
+            subtitle="Here's an overview of your classes and activities."
+          />
 
           {/* Selectors */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -334,7 +333,7 @@ const Dashboard: React.FC = () => {
                     {/* Modules View */}
                     <TabsContent value="modules" className="space-y-4 mt-4">
                       {courseData.modules.map(module => (
-                        <div key={module.id} className="border rounded-lg p-4">
+                        <div key={module.id} className="border rounded-lg p-4 mb-4">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-semibold">{module.name}</h3>
                             <div className="flex items-center gap-2">

@@ -10,8 +10,9 @@ export interface MockInterview {
   // AI Config
   ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
   ai_percentage: number;
-  ai_verbal_question_count: number;
-  ai_coding_question_count: number;
+  ai_context?: any;
+  ai_coding_question_count?: number;
+
 
   // Voice Config
   voice_type: 'junnu' | 'munnu';
@@ -40,8 +41,9 @@ export interface CreateMockInterviewData {
   max_duration: number;
 
   ai_generation_mode: 'full_ai' | 'mixed' | 'predefined';
-  ai_verbal_question_count: number;
-  ai_coding_question_count: number;
+  ai_context?: any;
+  ai_coding_question_count?: number;
+
 
   voice_type: 'junnu' | 'munnu';
   interviewer_name: string;
@@ -119,6 +121,17 @@ class MockInterviewService {
     }
   }
 
+  async getMockInterviewSubmissions(id: string): Promise<any[]> {
+    try {
+      const response = await restApiAuthUtil.get<any[]>(`/assessment/mock-interviews/${id}/submissions/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching mock interview submissions:', error);
+      throw error;
+    }
+  }
+
+
   async startInterview(id: string, experience_level: string, selected_duration: number, resume?: File): Promise<any> {
     try {
       const formData = new FormData();
@@ -175,6 +188,37 @@ class MockInterviewService {
       throw error;
     }
   }
+
+  async endInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.post<any>(`/interviews/${sessionId}/end_interview/`, {});
+      return response;
+    } catch (error) {
+      console.error('Error ending interview session:', error);
+      throw error;
+    }
+  }
+
+  async getInterviewSession(sessionId: string): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>(`/interviews/${sessionId}/`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching interview session:', error);
+      throw error;
+    }
+  }
+
+  async getAllInterviewSessions(filters?: any): Promise<any> {
+    try {
+      const response = await restApiAuthUtil.get<any>('/interviews/', filters);
+      return response;
+    } catch (error) {
+      console.error('Error fetching all interview sessions:', error);
+      throw error;
+    }
+  }
+
 }
 
 export const mockInterviewService = new MockInterviewService();

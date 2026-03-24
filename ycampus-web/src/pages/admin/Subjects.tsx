@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate, useParams } from "react-router-dom";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 
 type MainTab = "global" | "colleges";
@@ -204,7 +204,7 @@ const Subjects: React.FC = () => {
     const headerActions = mainTab === "global" ? (
         <Button
             onClick={() => setIsAddOpen(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors cursor-pointer"
+            className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
         >
             <Plus className="h-4 w-4 mr-2" />
             Add New Subject
@@ -215,18 +215,17 @@ const Subjects: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="flex">
                 <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader
-                        title="Subject Management"
-                        subtitle={
-                            mainTab === "global"
-                                ? "Manage all subjects in the global repository"
-                                : "Select a college to manage its subjects"
-                        }
-                        actions={headerActions}
-                    />
-
+                <div className="flex-1 overflow-y-auto">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="Subject Management"
+                            subtitle={
+                                mainTab === "global"
+                                    ? "Manage all subjects in the global repository"
+                                    : "Select a college to manage its subjects"
+                            }
+                            actions={headerActions}
+                        />
                         {/* Main Tabs */}
                         <div className="mb-6">
                             <nav className="flex space-x-8 border-b border-gray-200">

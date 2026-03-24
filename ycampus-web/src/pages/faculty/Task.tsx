@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, UnitBasic, fetchSubUnitsByUnit, SubUnit } from '../../services/subjectService';
 import { taskService, Task, TaskSubmission, TaskComment } from '../../services/taskService';
 import { fetchQuestions, Question } from '../../services/questionService';
@@ -1204,12 +1204,12 @@ const FacultyTask: React.FC = () => {
         <div className="min-h-screen bg-[#FDFDFD] flex font-sans">
             <RoleSidebar />
             <div className="flex-1">
-                <RoleHeader
-                    title="Task Management"
-                    subtitle="Assign, manage, and review student tasks"
-                />
 
                 <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 space-y-6">
+                    <PageHeader 
+                        title="Task Management" 
+                        subtitle="Assign, manage, and review student tasks" 
+                    />
 
                     {/* Cards view — default landing */}
                     {view === 'cards' && renderCards()}

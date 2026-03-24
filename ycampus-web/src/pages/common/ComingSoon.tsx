@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 
 const ComingSoon = () => {
   const navigate = useNavigate();
@@ -14,19 +14,19 @@ const ComingSoon = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         <RoleSidebar />
-        <div className="flex-1 flex flex-col min-h-screen">
-          <RoleHeader 
-            title="Coming Soon" 
-            subtitle={user?.college_name ? `${user.college_name} | We are working hard to bring this feature to life.` : "We are working hard to bring this feature to life."} 
-          />
-          <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="flex-1">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader 
+              title="Coming Soon" 
+              subtitle={user?.college_name ? `${user.college_name} | We are working hard to bring this feature to life.` : "We are working hard to bring this feature to life."} 
+            />
+            <div className="flex flex-col items-center justify-center py-12">
             <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 max-w-lg w-full text-center space-y-8">
               <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
                 <Construction className="h-12 w-12 text-indigo-600" />
               </div>
               
               <div className="space-y-4">
-                <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Coming Soon!</h1>
                 <p className="text-slate-500 text-lg leading-relaxed">
                   This feature is currently under development. Stay tuned for exciting updates!
                 </p>
@@ -42,6 +42,7 @@ const ComingSoon = () => {
                 </Button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
