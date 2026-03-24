@@ -83,12 +83,12 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
       </div>
 
       {/* Test Info Card */}
-      <Card className="overflow-hidden border-0 shadow-xl rounded-2xl bg-gradient-to-br from-card to-card/80">
+      <Card className="overflow-hidden border border-gray-200 shadow-none rounded-2xl bg-gradient-to-br from-card to-card/80">
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 shadow-lg">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 shadow-none">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -109,31 +109,31 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
           <p className="text-muted-foreground mb-6">{test.description}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-blue-100 shadow-sm hover:border-blue-300 transition-colors">
+            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-blue-100 shadow-none hover:border-blue-300 transition-colors">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600">
                 <Clock className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Duration</p>
-                <p className="font-bold text-lg text-foreground">{test.duration} mins</p>
+                <p className="font-semibold text-lg text-foreground">{test.duration} mins</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-emerald-100 shadow-sm hover:border-emerald-300 transition-colors">
+            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-emerald-100 shadow-none hover:border-emerald-300 transition-colors">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600">
                 <FileText className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Questions</p>
-                <p className="font-bold text-lg text-foreground">{test.totalQuestions}</p>
+                <p className="font-semibold text-lg text-foreground">{test.totalQuestions}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-amber-100 shadow-sm hover:border-amber-300 transition-colors">
+            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-amber-100 shadow-none hover:border-amber-300 transition-colors">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-amber-50 text-amber-600">
                 <BarChart3 className="h-6 w-6" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Total Marks</p>
-                <p className="font-bold text-lg text-foreground">{test.marks}</p>
+                <p className="font-semibold text-lg text-foreground">{test.marks}</p>
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
       </Card>
 
       {/* Instructions */}
-      <Card className="rounded-2xl border-0 shadow-lg">
+      <Card className="rounded-2xl border border-gray-200 shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center space-x-2 text-lg">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -194,7 +194,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
       </Card>
 
       {/* Security Guidelines */}
-      <Card className="rounded-2xl border-0 shadow-lg">
+      <Card className="rounded-2xl border border-gray-200 shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center space-x-2 text-lg">
             <Shield className="h-5 w-5 text-amber-500" />
@@ -202,7 +202,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-sm">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 shadow-none">
             <div className="flex items-start space-x-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
@@ -244,7 +244,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
             </div>
           </div>
 
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow-none">
             <h4 className="font-semibold text-red-900 mb-2 text-sm">Prohibited Actions</h4>
             <div className="grid grid-cols-2 gap-2 text-xs text-red-800">
               <span>• Switching tabs or apps</span>
@@ -257,7 +257,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
       </Card>
 
       {/* Before You Begin - Compact Checklist */}
-      <Card className="rounded-2xl border-0 shadow-lg">
+      <Card className="rounded-2xl border border-gray-200 shadow-none">
         <CardContent className="py-5">
           <h4 className="font-semibold mb-4 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -294,7 +294,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
         <Button
           onClick={handleStartTest}
           size="lg"
-          className="px-8 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 gap-2"
+          className="px-8 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white shadow-none hover:shadow-xl transition-all duration-300 gap-2"
         >
           <Play className="h-4 w-4" />
           Start Test

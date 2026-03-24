@@ -10,6 +10,7 @@ import studentDashboardService, {
   AssessmentsData,
   ContestsData,
 } from '../../services/studentDashboardService';
+import announcementService from '../../services/announcementService';
 import {
   BookOpen,
   Trophy,
@@ -19,34 +20,21 @@ import {
   CheckCircle2,
   AlertCircle,
   TrendingUp,
+  TrendingDown,
   Target,
   Medal,
   ClipboardCheck,
   FileCheck,
-  TrendingDown,
   Calendar,
   Award,
   Flame,
   Zap,
   Star,
   ListTodo,
-  Diamond,
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Progress } from '../../components/ui/progress';
-import { Badge } from '../../components/ui/badge';
 
 const mockAttendance = { present: 85, absent: 15 };
-
-const mockStreaks = {
-  days: 12,
-  currentBadge: 'Bronze',
-  badgeProgress: { target: 'Silver', daysLeft: 3 },
-  recentAchievements: [
-    { text: '7 Day Streak Reached', time: '5 days ago' },
-    { text: 'Top 10% in Python Quiz', time: '1 week ago' },
-  ],
-};
 
 const mockPerformance = {
   learningProgress: 75,
@@ -57,51 +45,25 @@ const mockPerformance = {
   overall: 80,
 };
 
-const mockAnnouncements = [
-  {
-    id: 1,
-    title: 'New Python Course Available',
-    type: 'course',
-    description: 'Advanced Python programming course is now live',
-    timestamp: '2 hours ago',
-    read: false,
-  },
-  {
-    id: 2,
-    title: 'Contest Registration Open',
-    type: 'event',
-    description: 'Register for the upcoming coding contest by March 15',
-    timestamp: '5 hours ago',
-    read: false,
-  },
-  {
-    id: 3,
-    title: 'System Maintenance Notice',
-    type: 'system',
-    description: 'Platform will be under maintenance on Sunday',
-    timestamp: '1 day ago',
-    read: true,
-  },
-  {
-    id: 4,
-    title: 'Assignment Deadline Reminder',
-    type: 'reminder',
-    description: 'Data Structures assignment due in 3 days',
-    timestamp: '1 day ago',
-    read: true,
-  },
-];
+type AnnouncementItem = {
+  id: number | string;
+  title: string;
+  content?: string;
+  description?: string;
+  expiry_date?: string;
+  timestamp?: string;
+  type?: string;
+  level?: string;
+  read?: boolean;
+};
 
-const cardClass = 'h-full cursor-pointer border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg';
+const cardClass =
+  'h-full cursor-pointer border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg';
 
 const badgeBase =
   'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium';
 
-const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: NotesProgressData }) => {
-  const subjects = data.subjects || [];
-  const streak = data.streak || 0;
-  const overall = data.overall || 0;
-
+const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
   return (
     <Card
       className={cardClass}
@@ -115,7 +77,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: 
           </h3>
           <div className="flex items-center gap-1 text-sm">
             <TrendingUp className="h-4 w-4" style={{ color: '#E7B008' }} />
-            <span className="font-semibold">{streak} day streak</span>
+            <span className="font-semibold">{data.streak} day streak</span>
           </div>
         </div>
       </CardHeader>
@@ -125,14 +87,14 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: 
           <div className="flex justify-between text-sm">
             <span className="font-medium">Overall Completion</span>
             <span className="font-bold" style={{ color: '#16A249' }}>
-              {overall}%
+              {data.overall}%
             </span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-100">
             <div
               className="h-1.5 rounded-full transition-all"
               style={{
-                width: `${overall}%`,
+                width: `${data.overall}%`,
                 backgroundColor: '#0F172A',
               }}
             />
@@ -140,16 +102,21 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: 
         </div>
 
         <div className="space-y-3">
-          {subjects.map((topic: { name: string; progress: number; total: number }, index: number) => {
-            const pct = topic.total > 0 ? Math.round((topic.progress / topic.total) * 100) : 0;
+          {data.subjects.map((topic, index) => {
+            const pct =
+              topic.total > 0 ? Math.round((topic.progress / topic.total) * 100) : 0;
+
             return (
               <div key={index} className="space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-sm" style={{ color: '#64748B' }}>{topic.name}</span>
+                  <span className="text-sm" style={{ color: '#64748B' }}>
+                    {topic.name}
+                  </span>
                   <span className="text-xs font-semibold" style={{ color: '#000000' }}>
                     {topic.progress}/{topic.total}
                   </span>
                 </div>
+
                 <div className="h-2 w-full rounded-full bg-slate-100">
                   <div
                     className="h-2 rounded-full transition-all"
@@ -172,93 +139,117 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }: { data: 
   );
 };
 
-const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }: { data: TestPerformanceData }) => (
-  <Card
-    className={cardClass}
-    onClick={() => (window.location.href = '/student/skill-test')}
-  >
-    <CardHeader className="space-y-0 pb-2">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <ClipboardCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
-          Test Performance
-        </h3>
-        <Trophy className="h-5 w-5" style={{ color: '#64748B' }} />
-      </div>
-    </CardHeader>
-
-    <CardContent className="space-y-2.5">
-      <div className="grid grid-cols-3 gap-2.5">
-        <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
-          <div className="text-xl font-bold" style={{ color: '#16A249' }}>
-            {data.completed}
-          </div>
-          <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>Completed</div>
-        </div>
-
-        <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
-          <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
-            {data.avgScore}%
-          </div>
-          <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>Avg Score</div>
-        </div>
-
-        <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
-          <div className="text-xl font-bold text-[#0F172A]">{data.accuracy}%</div>
-          <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>Accuracy</div>
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
+const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
+  return (
+    <Card
+      className={cardClass}
+      onClick={() => (window.location.href = '/student/skill-test')}
+    >
+      <CardHeader className="space-y-0 pb-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Chapters Completed</span>
-          <span className={`${badgeBase} w-10 justify-center border-transparent bg-slate-100 text-[#0F172A]`}>
-            {data.chaptersCompleted}
-          </span>
+          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+            <ClipboardCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
+            Test Performance
+          </h3>
+          <Trophy className="h-5 w-5" style={{ color: '#64748B' }} />
         </div>
+      </CardHeader>
 
-        <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Last Test Score</span>
-          <span
-            className={`${badgeBase} w-10 justify-center`}
-            style={{
-              backgroundColor: '#16A24933',
-              color: '#16A249',
-              borderColor: 'transparent',
-            }}
-          >
-            {data.lastTestScore}%
-          </span>
-        </div>
-      </div>
-
-      <div className="space-y-3 border-t border-gray-300 pt-3">
-        <div className="flex items-center gap-2">
-          <Target className="h-4 w-4" style={{ color: '#94A3B8' }} />
-          <span className="text-sm font-semibold text-[#0F172A]">Leaderboard Comparison</span>
-        </div>
-        <div className="grid grid-cols-2 gap-3 pb-3">
-          <div className="text-center">
-            <div className="text-lg font-bold" style={{ color: '#E7B008' }}>
-              82%
+      <CardContent className="space-y-2.5">
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
+            <div className="text-xl font-bold" style={{ color: '#16A249' }}>
+              {data.completed}
             </div>
-            <div className="text-xs" style={{ color: '#64748B' }}>Your Average</div>
+            <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>
+              Completed
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-[#0F172A]">76%</div>
-            <div className="text-xs" style={{ color: '#64748B' }}>Global Average</div>
+
+          <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
+            <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
+              {data.avgScore}%
+            </div>
+            <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>
+              Avg Score
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
+            <div className="text-xl font-bold text-[#0F172A]">{data.accuracy}%</div>
+            <div className="mt-0.5 text-[10px]" style={{ color: '#64748B' }}>
+              Accuracy
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="text-xs" style={{ color: '#64748B' }}>
-        Click to attempt practice tests
-      </div>
-    </CardContent>
-  </Card>
-);
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Chapters Completed
+            </span>
+            <span
+              className={`${badgeBase} w-10 justify-center border-transparent bg-slate-100 text-[#0F172A]`}
+            >
+              {data.chaptersCompleted}
+            </span>
+          </div>
 
-const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData }) => {
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Last Test Score
+            </span>
+            <span
+              className={`${badgeBase} w-10 justify-center`}
+              style={{
+                backgroundColor: '#16A24933',
+                color: '#16A249',
+                borderColor: 'transparent',
+              }}
+            >
+              {data.lastTestScore}%
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-gray-300 pt-3">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4" style={{ color: '#94A3B8' }} />
+            <span className="text-sm font-semibold text-[#0F172A]">
+              Leaderboard Comparison
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 pb-3">
+            <div className="text-center">
+              <div className="text-lg font-bold" style={{ color: '#E7B008' }}>
+                {data.leaderboard.you}%
+              </div>
+              <div className="text-xs" style={{ color: '#64748B' }}>
+                Your Average
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="text-lg font-bold text-[#0F172A]">
+                {data.leaderboard.global}%
+              </div>
+              <div className="text-xs" style={{ color: '#64748B' }}>
+                Global Average
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs" style={{ color: '#64748B' }}>
+          Click to attempt practice tests
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => {
   return (
     <Card
       className={cardClass}
@@ -275,12 +266,18 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
         <div className="space-y-1">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium text-[#0F172A]">Overall Progress</span>
-            <span className="font-bold" style={{ color: '#16A249' }}>{data.overall}%</span>
+            <span className="font-bold" style={{ color: '#16A249' }}>
+              {data.overall}%
+            </span>
           </div>
+
           <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
             <div
               className="h-full rounded-full transition-all"
-              style={{ width: `${data.overall}%`, backgroundColor: '#16A249' }}
+              style={{
+                width: `${data.overall}%`,
+                backgroundColor: '#16A249',
+              }}
             />
           </div>
         </div>
@@ -289,7 +286,9 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
             <CheckCircle2 className="h-6 w-6" style={{ color: '#16A249' }} />
             <div>
-              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.completed}</div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">
+                {data.completed}
+              </div>
               <div className="text-xs text-[#64748B]">Completed</div>
             </div>
           </div>
@@ -297,7 +296,9 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
             <Clock className="h-6 w-6" style={{ color: '#E7B008' }} />
             <div>
-              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.inProgress}</div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">
+                {data.inProgress}
+              </div>
               <div className="text-xs text-[#64748B]">In Progress</div>
             </div>
           </div>
@@ -305,7 +306,9 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
             <AlertCircle className="h-6 w-6" style={{ color: '#ef4444' }} />
             <div>
-              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.pending}</div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">
+                {data.pending}
+              </div>
               <div className="text-xs text-[#64748B]">Pending</div>
             </div>
           </div>
@@ -313,7 +316,9 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
           <div className="flex items-center gap-3 rounded-lg bg-[#F1F5F980] p-2.5 border border-transparent">
             <ListTodo className="h-6 w-6" style={{ color: '#0F172A' }} />
             <div>
-              <div className="text-2xl font-bold text-[#0F172A] leading-tight">{data.total}</div>
+              <div className="text-2xl font-bold text-[#0F172A] leading-tight">
+                {data.total}
+              </div>
               <div className="text-xs text-[#64748B]">Total Tasks</div>
             </div>
           </div>
@@ -327,169 +332,207 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }: { data: TasksData
   );
 };
 
-const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }: { data: AssessmentsData }) => (
-  <Card
-    className={cardClass}
-    onClick={() => (window.location.href = '/student/assessment')}
-  >
-    <CardHeader className="space-y-0 pb-2">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <FileCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
-          Assessments Overview
-        </h3>
-        <span className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}>
-          {data.completed}/{data.total}
-        </span>
-      </div>
-    </CardHeader>
-
-    <CardContent className="space-y-2.5">
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
-          <div className="text-xl font-bold" style={{ color: '#16A249' }}>
-            {data.completed}
-          </div>
-          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Completed</div>
-        </div>
-        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
-          <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
-            {data.inProgress}
-          </div>
-          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>In Progress</div>
-        </div>
-        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
-          <div className="text-xl font-bold" style={{ color: '#ef4444' }}>{data.pending}</div>
-          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Pending</div>
-        </div>
-      </div>
-
-      <div className="space-y-2 border-t border-gray-100 pt-2">
+const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
+  return (
+    <Card
+      className={cardClass}
+      onClick={() => (window.location.href = '/student/assessment')}
+    >
+      <CardHeader className="space-y-0 pb-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Average Score</span>
-          <span className="text-lg font-bold" style={{ color: '#16A249' }}>
-            {data.avgScore}%
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Highest Score</span>
-          <div className="flex items-center gap-1">
-            <TrendingUp className="h-5 w-5" style={{ color: '#16A249' }} />
-            <span className="font-semibold" style={{ color: '#16A249' }}>
-              {data.highestScore}%
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Lowest Score</span>
-          <div className="flex items-center gap-1">
-            <TrendingDown className="h-5 w-5" style={{ color: '#E7B008' }} />
-            <span className="font-semibold" style={{ color: '#E7B008' }}>
-              {data.lowestScore}%
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between border-t border-gray-100 pt-2">
-          <span className="text-sm" style={{ color: '#64748B' }}>Recent Status</span>
+          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+            <FileCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
+            Assessments Overview
+          </h3>
           <span
-            className={`${badgeBase} border-transparent bg-[hsl(var(--success))33] text-[hsl(var(--success))]`}
+            className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}
           >
-            Completed - {data.recentStatus}%
+            {data.completed}/{data.total}
           </span>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="text-xs" style={{ color: '#64748B' }}>
-        Click to view all assessments
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }: { data: ContestsData }) => (
-  <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-    <CardHeader className="space-y-0 pb-2">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <Trophy className="h-6 w-6" style={{ color: '#E7B008' }} />
-          Contest Performance
-        </h3>
-        <Medal className="h-6 w-6" style={{ color: '#E7B008' }} />
-      </div>
-    </CardHeader>
-
-    <CardContent className="space-y-2.5">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
-          <div className="text-2xl font-bold" style={{ color: '#16A249' }}>
-            {data.completed}
-          </div>
-          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Completed</div>
-        </div>
-        <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
-          <div className="text-2xl font-bold" style={{ color: '#E7B008' }}>
-            #{data.bestRank}
-          </div>
-          <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Best Rank</div>
-        </div>
-      </div>
-
-      <div className="space-y-2 border-t border-gray-100 pt-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Average Score</span>
-          <span
-            className={`${badgeBase} border-transparent bg-[#F59E0B20] text-[#F59E0B]`}
-          >
-            {data.avgScore}%
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-sm" style={{ color: '#64748B' }}>Success Rate</span>
-          <span
-            className={`${badgeBase} border-transparent bg-[hsl(var(--success))33] text-[hsl(var(--success))]`}
-          >
-            {data.successRate}%
-          </span>
-        </div>
-      </div>
-
-      <div className="border-t border-gray-100 pt-2">
-        <div className="mb-2 flex items-center gap-2">
-          <Zap className="h-5 w-5" style={{ color: '#E7B008' }} />
-          <span className="text-sm font-semibold text-[#0F172A]">Last Contest Performance</span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
-            <div className="text-base font-bold text-[#0F172A]">#{data.lastContest.rank}</div>
-            <div className="text-xs text-muted-foreground text-[#64748B]">Rank</div>
-          </div>
-          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
-            <div className="text-base font-bold" style={{ color: '#16A249' }}>
-              {data.lastContest.accuracy}%
+      <CardContent className="space-y-2.5">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+            <div className="text-xl font-bold" style={{ color: '#16A249' }}>
+              {data.completed}
             </div>
-            <div className="text-xs text-muted-foreground text-[#64748B]">Accuracy</div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Completed
+            </div>
           </div>
-          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
-            <div className="text-base font-bold text-[#0F172A]">{data.lastContest.time}</div>
-            <div className="text-xs text-muted-foreground text-[#64748B]">Time</div>
+
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+            <div className="text-xl font-bold" style={{ color: '#E7B008' }}>
+              {data.inProgress}
+            </div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              In Progress
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+            <div className="text-xl font-bold" style={{ color: '#ef4444' }}>
+              {data.pending}
+            </div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Pending
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="text-xs" style={{ color: '#64748B' }}>
-        Keep participating to improve your ranking!
-      </div>
-    </CardContent>
-  </Card>
-);
+        <div className="space-y-2 border-t border-gray-100 pt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Average Score
+            </span>
+            <span className="text-lg font-bold" style={{ color: '#16A249' }}>
+              {data.avgScore}%
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span style={{ color: '#64748B' }}>Highest Score</span>
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-5 w-5" style={{ color: '#16A249' }} />
+              <span className="font-semibold" style={{ color: '#16A249' }}>
+                {data.highestScore}%
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span style={{ color: '#64748B' }}>Lowest Score</span>
+            <div className="flex items-center gap-1">
+              <TrendingDown className="h-5 w-5" style={{ color: '#E7B008' }} />
+              <span className="font-semibold" style={{ color: '#E7B008' }}>
+                {data.lowestScore}%
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between border-t border-gray-100 pt-2">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Recent Status
+            </span>
+            <span
+              className={`${badgeBase} border-transparent bg-[hsl(var(--success))33] text-[hsl(var(--success))]`}
+            >
+              Completed - {data.recentStatus}%
+            </span>
+          </div>
+        </div>
+
+        <div className="text-xs" style={{ color: '#64748B' }}>
+          Click to view all assessments
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => {
+  return (
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+            <Trophy className="h-6 w-6" style={{ color: '#E7B008' }} />
+            Contest Performance
+          </h3>
+          <Medal className="h-6 w-6" style={{ color: '#E7B008' }} />
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+            <div className="text-2xl font-bold" style={{ color: '#16A249' }}>
+              {data.completed}
+            </div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Completed
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
+            <div className="text-2xl font-bold" style={{ color: '#E7B008' }}>
+              #{data.bestRank}
+            </div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Best Rank
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2 border-t border-gray-100 pt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Average Score
+            </span>
+            <span
+              className={`${badgeBase} border-transparent bg-[#F59E0B20] text-[#F59E0B]`}
+            >
+              {data.avgScore}%
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: '#64748B' }}>
+              Success Rate
+            </span>
+            <span
+              className={`${badgeBase} border-transparent bg-[hsl(var(--success))33] text-[hsl(var(--success))]`}
+            >
+              {data.successRate}%
+            </span>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-100 pt-2">
+          <div className="mb-2 flex items-center gap-2">
+            <Zap className="h-5 w-5" style={{ color: '#E7B008' }} />
+            <span className="text-sm font-semibold text-[#0F172A]">
+              Last Contest Performance
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+              <div className="text-base font-bold text-[#0F172A]">
+                #{data.lastContest.rank}
+              </div>
+              <div className="text-xs text-[#64748B]">Rank</div>
+            </div>
+
+            <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+              <div className="text-base font-bold" style={{ color: '#16A249' }}>
+                {data.lastContest.accuracy}%
+              </div>
+              <div className="text-xs text-[#64748B]">Accuracy</div>
+            </div>
+
+            <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center border border-transparent">
+              <div className="text-base font-bold text-[#0F172A]">
+                {data.lastContest.time}
+              </div>
+              <div className="text-xs text-[#64748B]">Time</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs" style={{ color: '#64748B' }}>
+          Keep participating to improve your ranking!
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const AttendanceOverview: React.FC = () => {
   const { present, absent } = mockAttendance;
+
   const attendanceData = [
     { name: 'Present', value: present, fill: 'hsl(142 76% 36%)' },
     { name: 'Absent', value: absent, fill: 'hsl(45 93% 47%)' },
@@ -503,12 +546,8 @@ const AttendanceOverview: React.FC = () => {
             className="h-3 w-3 rounded-[2px]"
             style={{ backgroundColor: payload[0].fill }}
           />
-          <span className="text-sm font-medium text-[#64748B]">
-            {payload[0].name}
-          </span>
-          <span className="text-sm font-bold text-[#0F172A]">
-            {payload[0].value}
-          </span>
+          <span className="text-sm font-medium text-[#64748B]">{payload[0].name}</span>
+          <span className="text-sm font-bold text-[#0F172A]">{payload[0].value}</span>
         </div>
       );
     }
@@ -533,7 +572,19 @@ const AttendanceOverview: React.FC = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, value, x, y, fill }: { name: string; value: number; x: number; y: number; fill: string }) => (
+                label={({
+                  name,
+                  value,
+                  x,
+                  y,
+                  fill,
+                }: {
+                  name: string;
+                  value: number;
+                  x: number;
+                  y: number;
+                  fill: string;
+                }) => (
                   <text
                     x={x}
                     y={y}
@@ -562,19 +613,25 @@ const AttendanceOverview: React.FC = () => {
         <div className="grid grid-cols-3 gap-3 border-t border-gray-300 pt-2.5 text-center">
           <div>
             <div className="text-2xl font-bold text-[#0F172A]">100</div>
-            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Total Days</div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Total Days
+            </div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: '#16A249' }}>
               {present}
             </div>
-            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Present</div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Present
+            </div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: '#E7B008' }}>
               {absent}
             </div>
-            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>Absent</div>
+            <div className="mt-1 text-xs" style={{ color: '#64748B' }}>
+              Absent
+            </div>
           </div>
         </div>
       </CardContent>
@@ -582,71 +639,96 @@ const AttendanceOverview: React.FC = () => {
   );
 };
 
-const Announcements: React.FC<{ announcements: any[], count: number }> = ({ announcements, count }) => (
-  <Card className="h-full flex flex-col border border-gray-200 shadow hover:shadow-lg transition-shadow">
-    <CardHeader className="pb-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-amber-500" />
-          <h3 className="font-semibold text-gray-900">Announcements</h3>
+const Announcements: React.FC<{ announcements: AnnouncementItem[]; count: number }> = ({
+  announcements,
+  count,
+}) => {
+  const getTypeColor = (type?: string) => {
+    switch (type) {
+      case 'course':
+        return '#16A249';
+      case 'event':
+        return '#E7B008';
+      case 'department':
+        return '#7C3AED';
+      default:
+        return '#64748B';
+    }
+  };
+
+  return (
+    <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <CardHeader className="space-y-0 pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
+            <Bell className="h-6 w-6" style={{ color: '#E7B008' }} />
+            Announcements
+          </h3>
+          <span className={`${badgeBase} border-transparent bg-slate-100 text-[#0F172A]`}>
+            {count} new
+          </span>
         </div>
-        <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-          {count} new
-        </span>
-      </div>
-    </CardHeader>
+      </CardHeader>
 
-    <CardContent className="flex-grow">
-      <div
-        className="space-y-3 max-h-80 pr-1"
-        style={{ overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
-      >
-        {announcements.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <Bell className="h-8 w-8 text-gray-200 mb-2" />
-            <p className="text-sm text-gray-400">No new announcements</p>
-          </div>
-        ) : (
-          announcements.map((a) => (
-            <div key={a.id} className="border border-gray-200 border-l-4 border-l-orange-400 rounded-lg p-3 hover:bg-gray-50 transition-colors" style={{ backgroundColor: '#f3f4f6' }}>
-              <p className="text-sm font-semibold text-gray-900 line-clamp-1">{a.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{a.content}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {a.expiry_date ? new Date(a.expiry_date).toLocaleDateString() : 'No expiry'}
-                </span>
-                <span className={`text-xs px-2 py-0.5 rounded-full bg-white border border-gray-200 ${a.level === 'college' ? 'text-blue-600' : 'text-purple-600'}`}>
-                  {a.level === 'college' ? 'College' : 'Dept'}
-                </span>
-              </div>
+      <CardContent className="p-3">
+        <div
+          className="max-h-[280px] space-y-2.5 overflow-y-auto pr-1"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+        >
+          {announcements.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <Bell className="h-8 w-8 text-gray-200 mb-2" />
+              <p className="text-sm text-gray-400">No new announcements</p>
             </div>
-          ))
-        )}
-      </div>
-    </CardContent>
+          ) : (
+            announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="relative cursor-pointer rounded-lg border border-gray-100 bg-white p-3.5 transition-all hover:shadow-md border-l-4"
+                style={{ borderLeftColor: getTypeColor(announcement.type || announcement.level) }}
+              >
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <h4 className="text-sm font-bold text-[#0F172A]">
+                    {announcement.title}
+                  </h4>
+                  {!announcement.read && (
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: '#E7B008' }}
+                    />
+                  )}
+                </div>
 
-              <p className="mb-2 text-xs" style={{ color: '#64748B' }}>
-                {announcement.description}
-              </p>
+                <p className="mb-2 text-xs" style={{ color: '#64748B' }}>
+                  {announcement.content || announcement.description || 'No description'}
+                </p>
 
-              <div className="flex items-center gap-4 text-xs">
-                <span className="flex items-center gap-1.5" style={{ color: '#64748B' }}>
-                  <Calendar className="h-3.5 w-3.5" />
-                  {announcement.timestamp}
-                </span>
-                <span
-                  className={`${badgeBase} border-transparent px-2`}
-                  style={{
-                    backgroundColor: `${getTypeColor(announcement.type)}15`,
-                    color: getTypeColor(announcement.type),
-                  }}
-                >
-                  {announcement.type}
-                </span>
+                <div className="flex items-center gap-4 text-xs">
+                  <span
+                    className="flex items-center gap-1.5"
+                    style={{ color: '#64748B' }}
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                    {announcement.expiry_date
+                      ? new Date(announcement.expiry_date).toLocaleDateString()
+                      : announcement.timestamp || 'No expiry'}
+                  </span>
+
+                  <span
+                    className={`${badgeBase} border-transparent px-2`}
+                    style={{
+                      backgroundColor: `${getTypeColor(
+                        announcement.type || announcement.level
+                      )}15`,
+                      color: getTypeColor(announcement.type || announcement.level),
+                    }}
+                  >
+                    {announcement.type || announcement.level || 'notice'}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
@@ -654,28 +736,30 @@ const Announcements: React.FC<{ announcements: any[], count: number }> = ({ anno
 };
 
 const StreaksBadges: React.FC = () => {
-
   const streak = {
     current: 12,
     lastMilestone: 10,
     nextBadge: 'Silver',
-    daysToNext: 3
+    daysToNext: 3,
   };
 
   const badges = [
     { name: 'Bronze', earned: true, icon: '🥉' },
     { name: 'Silver', earned: false, icon: '🥈' },
     { name: 'Gold', earned: false, icon: '🥇' },
-    { name: 'Platinum', earned: false, icon: '💎' }
+    { name: 'Platinum', earned: false, icon: '💎' },
   ];
 
   const recentAchievements = [
     { text: 'Completed 5 notes in a week', date: '2 days ago' },
     { text: 'Perfect score in Python test', date: '5 days ago' },
-    { text: '10 day learning streak', date: '1 week ago' }
+    { text: '10 day learning streak', date: '1 week ago' },
   ];
 
-  const progressToNext = ((streak.current - streak.lastMilestone) / (streak.lastMilestone + 5 - streak.lastMilestone)) * 100;
+  const progressToNext = Math.min(
+    100,
+    Math.max(0, ((streak.current - streak.lastMilestone) / 5) * 100)
+  );
 
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
@@ -685,10 +769,15 @@ const StreaksBadges: React.FC = () => {
           Streaks & Badges
         </h3>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <div className="text-center p-3 rounded-xl bg-[#F8FAFC]">
           <div className="flex items-center justify-center gap-2 mb-0.5">
-            <Flame className="h-7 w-7" style={{ color: '#E7B008' }} strokeWidth={2} />
+            <Flame
+              className="h-7 w-7"
+              style={{ color: '#E7B008' }}
+              strokeWidth={2}
+            />
             <span className="text-3xl font-bold" style={{ color: '#E7B008' }}>
               {streak.current}
             </span>
@@ -699,8 +788,11 @@ const StreaksBadges: React.FC = () => {
         <div className="space-y-1.5 pb-1">
           <div className="flex justify-between text-[12px] items-center mb-1">
             <span className="text-[#64748B]">Progress to {streak.nextBadge}</span>
-            <span className="font-bold text-[#0F172A]">{streak.daysToNext} days left</span>
+            <span className="font-bold text-[#0F172A]">
+              {streak.daysToNext} days left
+            </span>
           </div>
+
           <div className="h-1.5 w-full rounded-full bg-[#F1F5F9] overflow-hidden">
             <div
               className="h-full bg-[#0F172A] transition-all"
@@ -718,15 +810,20 @@ const StreaksBadges: React.FC = () => {
             {badges.map((badge, index) => (
               <div
                 key={index}
-                className={`text-center p-2 rounded-xl border transition-all ${badge.earned
+                className={`text-center p-2 rounded-xl border transition-all ${
+                  badge.earned
                     ? 'bg-white border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
                     : 'bg-white border-gray-50 opacity-70 grayscale'
-                  }`}
+                }`}
               >
                 <div className="mb-1 text-2xl flex justify-center items-center h-8">
                   {badge.icon}
                 </div>
-                <div className={`text-[10px] font-bold ${badge.earned ? 'text-[#0F172A]' : 'text-[#94A3B8]'}`}>
+                <div
+                  className={`text-[10px] font-bold ${
+                    badge.earned ? 'text-[#0F172A]' : 'text-[#94A3B8]'
+                  }`}
+                >
                   {badge.name}
                 </div>
               </div>
@@ -737,15 +834,24 @@ const StreaksBadges: React.FC = () => {
         <div className="pt-3 border-t border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <Star className="h-4.5 w-4.5" style={{ color: '#E7B008' }} />
-            <span className="text-[13px] font-bold text-[#0F172A]">Recent Achievements</span>
+            <span className="text-[13px] font-bold text-[#0F172A]">
+              Recent Achievements
+            </span>
           </div>
           <div className="space-y-2.5">
             {recentAchievements.map((achievement, index) => (
               <div key={index} className="flex items-start gap-2.5 text-sm">
-                <TrendingUp className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#16A249' }} />
+                <TrendingUp
+                  className="h-4 w-4 mt-0.5 flex-shrink-0"
+                  style={{ color: '#16A249' }}
+                />
                 <div className="flex-1">
-                  <p className="font-medium text-[#0F172A] text-[12px] leading-tight">{achievement.text}</p>
-                  <p className="text-[10px] text-[#64748B] mt-0.5">{achievement.date}</p>
+                  <p className="font-medium text-[#0F172A] text-[12px] leading-tight">
+                    {achievement.text}
+                  </p>
+                  <p className="text-[10px] text-[#64748B] mt-0.5">
+                    {achievement.date}
+                  </p>
                 </div>
               </div>
             ))}
@@ -758,11 +864,31 @@ const StreaksBadges: React.FC = () => {
 
 const PerformanceMetrics: React.FC = () => {
   const metrics = [
-    { label: 'Learning Progress', value: mockPerformance.learningProgress, color: '#16A249' },
-    { label: 'Task Completion', value: mockPerformance.taskCompletion, color: '#16A249' },
-    { label: 'Assessment Average', value: mockPerformance.assessmentAverage, color: '#E7B008' },
-    { label: 'Contest Participation', value: mockPerformance.contestParticipation, color: '#E7B008' },
-    { label: 'Attendance Rate', value: mockPerformance.attendanceRate, color: '#16A249' },
+    {
+      label: 'Learning Progress',
+      value: mockPerformance.learningProgress,
+      color: '#16A249',
+    },
+    {
+      label: 'Task Completion',
+      value: mockPerformance.taskCompletion,
+      color: '#16A249',
+    },
+    {
+      label: 'Assessment Average',
+      value: mockPerformance.assessmentAverage,
+      color: '#E7B008',
+    },
+    {
+      label: 'Contest Participation',
+      value: mockPerformance.contestParticipation,
+      color: '#E7B008',
+    },
+    {
+      label: 'Attendance Rate',
+      value: mockPerformance.attendanceRate,
+      color: '#16A249',
+    },
   ];
 
   return (
@@ -779,15 +905,24 @@ const PerformanceMetrics: React.FC = () => {
           {metrics.map((metric, index) => (
             <div key={index} className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-[#0F172A]">{metric.label}</span>
-                <span className="text-[13px] font-bold" style={{ color: metric.color }}>
+                <span className="text-[13px] font-medium text-[#0F172A]">
+                  {metric.label}
+                </span>
+                <span
+                  className="text-[13px] font-bold"
+                  style={{ color: metric.color }}
+                >
                   {metric.value}%
                 </span>
               </div>
+
               <div className="h-2 w-full rounded-full bg-[#f1f5f9] overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ width: `${metric.value}%`, backgroundColor: '#0F172A' }}
+                  style={{
+                    width: `${metric.value}%`,
+                    backgroundColor: '#0F172A',
+                  }}
                 />
               </div>
             </div>
@@ -799,7 +934,12 @@ const PerformanceMetrics: React.FC = () => {
             <p className="text-3xl font-bold" style={{ color: '#16A249' }}>
               {mockPerformance.overall}%
             </p>
-            <p className="mt-1 text-[12px] font-medium" style={{ color: '#94A3B8' }}>Overall Performance Score</p>
+            <p
+              className="mt-1 text-[12px] font-medium"
+              style={{ color: '#94A3B8' }}
+            >
+              Overall Performance Score
+            </p>
           </div>
         </div>
       </CardContent>
@@ -814,37 +954,50 @@ const Dashboard: React.FC = () => {
   const [notesData, setNotesData] = useState<NotesProgressData | null>(null);
   const [testsData, setTestsData] = useState<TestPerformanceData | null>(null);
   const [tasksData, setTasksData] = useState<TasksData | null>(null);
-  const [assessmentsData, setAssessmentsData] = useState<AssessmentsData | null>(null);
+  const [assessmentsData, setAssessmentsData] = useState<AssessmentsData | null>(
+    null
+  );
   const [contestsData, setContestsData] = useState<ContestsData | null>(null);
-  const [announcementsData, setAnnouncementsData] = useState<any[]>([]);
+  const [announcementsData, setAnnouncementsData] = useState<AnnouncementItem[]>(
+    []
+  );
   const [announcementCount, setAnnouncementCount] = useState(0);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [notes, tests, tasks, assessments, contests, announcementsRes] = await Promise.all([
-          studentDashboardService.getNotesProgress(),
-          studentDashboardService.getTestPerformance(),
-          studentDashboardService.getTasksSummary(),
-          studentDashboardService.getAssessments(),
-          studentDashboardService.getContests(),
-          announcementService.getAnnouncements({ college: (user as any)?.college_id })
-        ]);
+        const [notes, tests, tasks, assessments, contests, announcementsRes] =
+          await Promise.all([
+            studentDashboardService.getNotesProgress(),
+            studentDashboardService.getTestPerformance(),
+            studentDashboardService.getTasksSummary(),
+            studentDashboardService.getAssessments(),
+            studentDashboardService.getContests(),
+            announcementService.getAnnouncements({
+              college: (user as any)?.college_id,
+            }),
+          ]);
 
         setNotesData(notes);
         setTestsData(tests);
         setTasksData(tasks);
         setAssessmentsData(assessments);
         setContestsData(contests);
-        
-        // Handle announcement visibility
+
         const deptId = (user as any)?.department_id;
-        const results = (announcementsRes as any).results || (announcementsRes as any).data || (Array.isArray(announcementsRes) ? announcementsRes : []);
+        const results =
+          (announcementsRes as any).results ||
+          (announcementsRes as any).data ||
+          (Array.isArray(announcementsRes) ? announcementsRes : []);
+
         const filtered = results.filter((ann: any) => {
           if (ann.level === 'college') return true;
-          if (ann.level === 'department') return ann.department?.toString() === deptId?.toString();
+          if (ann.level === 'department') {
+            return ann.department?.toString() === deptId?.toString();
+          }
           return false;
         });
+
         setAnnouncementsData(filtered.slice(0, 5));
         setAnnouncementCount(filtered.length);
       } catch (error) {
@@ -857,7 +1010,14 @@ const Dashboard: React.FC = () => {
     fetchAll();
   }, [user]);
 
-  if (loading || !notesData || !testsData || !tasksData || !assessmentsData || !contestsData) {
+  if (
+    loading ||
+    !notesData ||
+    !testsData ||
+    !tasksData ||
+    !assessmentsData ||
+    !contestsData
+  ) {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex">
@@ -870,7 +1030,10 @@ const Dashboard: React.FC = () => {
             <div className="p-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(9)].map((_, i) => (
-                  <Card key={i} className="h-64 animate-pulse border-border bg-muted/40" />
+                  <Card
+                    key={i}
+                    className="h-64 animate-pulse border-border bg-muted/40"
+                  />
                 ))}
               </div>
             </div>
@@ -904,7 +1067,10 @@ const Dashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <AttendanceOverview />
-              <Announcements announcements={announcementsData} count={announcementCount} />
+              <Announcements
+                announcements={announcementsData}
+                count={announcementCount}
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

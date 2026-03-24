@@ -217,6 +217,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n) for storing the values.",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Start from the head node and keep moving to the next node until you reach the end.",
+                "At each step, collect or print the current node's value before moving forward.",
+                "The traversal stops when the current pointer becomes null."
             ]
         },
         {
@@ -329,6 +334,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Traverse both linked lists at the same time instead of checking them separately.",
+                "If any pair of corresponding node values is different, the lists are not identical.",
+                "At the end, both pointers must reach null together for the answer to be true."
             ]
         },
         {
@@ -441,6 +451,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Try solving this in one pass instead of counting the nodes first.",
+                "Use two pointers moving at different speeds to find the middle efficiently.",
+                "When the fast pointer reaches the end, the slow pointer will be at the required middle node."
             ]
         },
         {
@@ -553,6 +568,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Read the linked list from left to right as a binary number.",
+                "For each node, multiply the current result by 2 and add the node's bit.",
+                "This works the same way as building a decimal value digit by digit from the most significant bit."
             ]
         },
         {
@@ -665,6 +685,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Every node must have the same chance of being selected, even if the length is unknown.",
+                "Think about a method that updates the chosen answer while traversing the list only once.",
+                "Reservoir sampling lets you keep one answer and replace it with probability 1/i at the i-th node."
             ]
         },
         {
@@ -777,6 +802,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to quickly check whether a node's value belongs to the given subset.",
+                "A connected component continues while consecutive nodes are present in that subset.",
+                "Count a component when the current node is in the set but the next node is missing or not in the set."
             ]
         },
         {
@@ -889,6 +919,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A node is critical only if it has both a previous and a next node.",
+                "Track the positions of nodes that are local minima or local maxima while traversing.",
+                "Use the first and previous critical positions to update the minimum and maximum distances."
             ]
         },
         {
@@ -1001,6 +1036,11 @@
                     "complexity_analysis": "Time Complexity: O(N*M) in worst case, Space Complexity: O(H).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You may need to start matching the linked list from many tree nodes, not just the root.",
+                "Use recursion to check whether the current tree path matches the current linked list node.",
+                "One function can search for a starting point, and another can continue the match downward."
             ]
         },
         {
@@ -1113,6 +1153,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Elements are removed in rounds based on their relationship with previous elements.",
+                "A monotonic stack can help track which elements survive and how many rounds each one lasts.",
+                "Store both the value and the number of steps needed before it disappears, then take the maximum."
             ]
         },
         {
@@ -1225,6 +1270,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Think about when the sequence is already sorted and when removals are necessary.",
+                "Removing an adjacent pair reduces the size by two, so focus on the bad positions causing disorder.",
+                "Try reasoning greedily about inversions or unsorted parts instead of simulating every removal choice."
             ]
         },
         {
@@ -1337,6 +1387,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "If the list is empty, the new node itself becomes the head.",
+                "Otherwise, move through the list until you reach the last node.",
+                "Attach the new node by updating the last node's next pointer."
             ]
         },
         {
@@ -1449,6 +1504,11 @@
                     "complexity_analysis": "Time Complexity: O(1), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A new node inserted at the beginning must point to the current head.",
+                "After linking it, that new node becomes the updated head of the list.",
+                "This operation does not require traversing the rest of the list."
             ]
         },
         {
@@ -1561,6 +1621,11 @@
                     "complexity_analysis": "Time Complexity: O(n log(max(a,b))) due to GCD computation, Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Look at every pair of consecutive nodes in the list.",
+                "Compute the gcd of their values and create a new node with that result.",
+                "Insert the new node between the current node and its original next node, then continue carefully."
             ]
         },
         {
@@ -1673,6 +1738,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Handle position 0 separately because the head changes in that case.",
+                "For other positions, move to the node just before where the new node should be inserted.",
+                "Update pointers in this order: new node points to next, previous node points to new node."
             ]
         },
         {
@@ -1785,6 +1855,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Because the list is circular, traversal should stop when you return to the starting node.",
+                "There are two insertion cases: normal sorted position or the turning point between maximum and minimum.",
+                "If all values are equal or no exact place is found during one full cycle, insert anywhere after the current node."
             ]
         },
         {
@@ -1897,6 +1972,11 @@
                     "complexity_analysis": "Time Complexity: O(N * k), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to remove a segment from the first list and splice the second list into that gap.",
+                "Find the node just before position a and the node just after position b.",
+                "Connect the first part to list2, then connect the tail of list2 to the remaining part of list1."
             ]
         },
         {
@@ -2009,6 +2089,11 @@
                     "complexity_analysis": "Average Time Complexity: O(log n). Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A skip list uses multiple forward links to speed up search, insertion, and deletion.",
+                "Higher levels act like shortcuts, while the bottom level still stores the full sorted order.",
+                "While moving through levels, keep track of the last node visited at each level so updates become easier."
             ]
         },
         {
@@ -2121,6 +2206,11 @@
                     "complexity_analysis": "Time Complexity: O(n + m). Space Complexity: O(1) excluding output list.",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Since the digits are stored from most significant to least significant, addition is harder from the front.",
+                "Think about reversing access order without changing the original meaning of the numbers.",
+                "Stacks help process digits from the end so you can handle carry just like normal addition."
             ]
         },
         {
@@ -2226,6 +2316,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "If the node to delete is the first node, return the next node as the new head.",
+                "Otherwise, move to the node just before the position that must be removed.",
+                "Skip the target node by linking the previous node directly to the next node."
             ]
         },
         {
@@ -2338,6 +2433,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Some nodes to remove may appear at the beginning of the list, so the head can change.",
+                "A dummy node before the head makes pointer updates easier.",
+                "Traverse once and unlink every node whose value matches the target."
             ]
         },
         {
@@ -2450,6 +2550,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This problem follows a repeating pattern: keep some nodes, then remove some nodes.",
+                "Move forward M nodes while keeping track of the last kept node.",
+                "Then delete the next N nodes by skipping them and reconnecting the kept part to the remaining list."
             ]
         },
         {
@@ -2562,6 +2667,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "If the list has only one node, removing the middle leaves an empty list.",
+                "Use slow and fast pointers to locate the middle while also tracking the node before it.",
+                "Once the middle is found, unlink it by updating the previous node's next pointer."
             ]
         },
         {
@@ -2674,6 +2784,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "In an unsorted list, duplicates are not necessarily adjacent.",
+                "Use extra memory to remember which values have already been seen.",
+                "As you traverse, remove a node if its value has appeared before; otherwise keep it and record the value."
             ]
         },
         {
@@ -2786,6 +2901,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(n) due to recursion stack.",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A node should be removed if some larger value appears later in the list.",
+                "This becomes easier if you process nodes from right to left instead of left to right.",
+                "Consider reversing the list, keeping nodes that are at least the maximum seen so far, then reversing again."
             ]
         },
         {
@@ -2898,6 +3018,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A zero-sum consecutive segment means the prefix sum repeats at two different positions.",
+                "Store prefix sums in a map so you can detect and remove such segments efficiently.",
+                "A dummy node at the front helps when the zero-sum segment starts from the head."
             ]
         },
         {
@@ -3010,6 +3135,11 @@
                     "complexity_analysis": "Time Complexity: O(n). Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Start at the head and move one node at a time while counting positions.",
+                "Stop when your counter reaches the requested index.",
+                "If the traversal ends before that index, handle the position as invalid according to the problem rules."
             ]
         },
         {
@@ -3122,6 +3252,11 @@
                     "complexity_analysis": "Time Complexity: O(n + m), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The intersection is based on shared node references, not equal values.",
+                "Two pointers can be used to balance the path lengths of both lists.",
+                "When a pointer reaches the end of one list, move it to the head of the other list."
             ]
         },
         {
@@ -3234,6 +3369,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A cycle means some node can be reached again by following next pointers.",
+                "Use two pointers moving at different speeds through the list.",
+                "If the slow and fast pointers ever meet, a cycle exists."
             ]
         },
         {
@@ -3346,6 +3486,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Because the list is sorted, duplicates appear next to each other.",
+                "Compare the current node with the next node while traversing.",
+                "When both values match, skip the next node; otherwise move forward."
             ]
         },
         {
@@ -3458,6 +3603,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "First detect whether a cycle exists using slow and fast pointers.",
+                "After the first meeting point, move one pointer back to the head.",
+                "Advance both pointers one step at a time; the node where they meet again is the cycle start."
             ]
         },
         {
@@ -3570,6 +3720,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "For each node, you need the next node to the right with a strictly larger value.",
+                "It is often easier to convert linked list values into an array first.",
+                "Use a decreasing monotonic stack of indices so you can fill answers when a larger value appears."
             ]
         },
         {
@@ -3682,6 +3837,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Twin nodes are paired from the start and end moving inward.",
+                "You need an efficient way to access the second half in reverse order.",
+                "Find the middle, reverse one half of the list, then compare paired sums to get the maximum."
             ]
         },
         {
@@ -3794,6 +3954,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to identify every node that belongs to a loop, not just whether a cycle exists.",
+                "Track visited nodes so you can detect when traversal returns to a previously seen node.",
+                "Once a repeated node is found, walk the cycle once more to collect all nodes in that loop."
             ]
         },
         {
@@ -3906,6 +4071,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A singly linked list only moves forward, so reverse output needs extra help.",
+                "You can either use recursion or push node values onto a stack during traversal.",
+                "After reaching the end, print the stored values in reverse order."
             ]
         },
         {
@@ -4018,6 +4188,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Reversing means each node should point to its previous node instead of its next node.",
+                "Keep track of three things while traversing: previous, current, and next.",
+                "After the loop finishes, the previous pointer will be the new head."
             ]
         },
         {
@@ -4130,6 +4305,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Think about changing the direction of links one node at a time.",
+                "Do not lose the rest of the list when you update current.next.",
+                "Store the next node first, reverse the pointer, then move all pointers forward."
             ]
         },
         {
@@ -4242,6 +4422,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to compare values from the front and back of the list.",
+                "A common way is to find the middle and reverse the second half.",
+                "Then compare both halves node by node to decide whether the sequence reads the same both ways."
             ]
         },
         {
@@ -4354,6 +4539,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Only the nodes between the given left and right positions should be reversed.",
+                "Find the node just before the reversal starts so you can reconnect the list later.",
+                "Use pointer rewiring inside the segment, then attach the reversed part back to the untouched nodes."
             ]
         },
         {
@@ -4466,6 +4656,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The final order alternates between nodes from the front and the back of the list.",
+                "Split the list into two halves, then reverse the second half.",
+                "Merge the two halves by taking one node from the first list, then one from the reversed second list."
             ]
         },
         {
@@ -4578,6 +4773,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Decide whether the swap is based on positions, values, or kth nodes from both ends.",
+                "Find the exact nodes that need to be swapped before changing links or values.",
+                "Sometimes swapping node values is simpler than swapping the actual node connections."
             ]
         },
         {
@@ -4690,6 +4890,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Process the list in blocks of size k instead of reversing the whole list at once.",
+                "Before reversing, check whether a full group of k nodes is available.",
+                "Reverse each valid group and connect it back to the previous and next parts of the list."
             ]
         },
         {
@@ -4802,6 +5007,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The list is divided into groups of length 1, 2, 3, 4 and so on.",
+                "For each group, first determine its actual size because the last group may be shorter.",
+                "Reverse only the groups whose actual length is even, then reconnect everything carefully."
             ]
         },
         {
@@ -4914,6 +5124,11 @@
                     "complexity_analysis": "Time Complexity: O(n log n), Space Complexity: O(log n) due to recursion.",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Linked lists are not efficient for random access, so avoid array-style sorting logic directly on nodes.",
+                "Merge sort works especially well because splitting and merging can be done with pointers.",
+                "Use slow and fast pointers to split the list, sort both halves recursively, then merge them."
             ]
         },
         {
@@ -5026,6 +5241,11 @@
                     "complexity_analysis": "Time Complexity: O(n+m), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Both input lists are already sorted, so compare their current heads each time.",
+                "Attach the smaller node to the answer list and move that list forward.",
+                "A dummy starting node makes the merge logic much cleaner."
             ]
         },
         {
@@ -5138,6 +5358,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to know how many times each value appears while traversing the list.",
+                "A hash map or dictionary is useful for counting occurrences.",
+                "After counting, output the frequencies in the format expected by the problem."
             ]
         },
         {
@@ -5250,6 +5475,11 @@
                     "complexity_analysis": "Time Complexity: O(n+k), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The game result depends on comparing linked list values according to the given rules.",
+                "Traverse the list in the required grouping or pairing pattern and maintain both players' scores.",
+                "After processing all rounds, compare the totals or wins to determine the final answer."
             ]
         },
         {
@@ -5362,6 +5592,11 @@
                     "complexity_analysis": "Time Complexity: O(n+m), Space Complexity: O(1).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "This is another merge-style problem using the sorted order of both lists.",
+                "At each step, choose the smaller current node from the two lists.",
+                "When one list ends, attach the remaining part of the other list directly."
             ]
         },
         {
@@ -5474,6 +5709,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Each copied node must preserve both next and random relationships.",
+                "You need a way to connect original nodes to their clones while building the copy.",
+                "A hash map from original node to copied node, or the interleaving method, can help set random pointers correctly."
             ]
         },
         {
@@ -5586,6 +5826,11 @@
                     "complexity_analysis": "Time Complexity: O(n), Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "A node may have a child list that must be inserted between the node and its next node.",
+                "Depth-first traversal helps flatten child levels before continuing to the next sibling.",
+                "While flattening, remember to update both next and prev pointers correctly."
             ]
         },
         {
@@ -5698,6 +5943,11 @@
                     "complexity_analysis": "Time Complexity: O(n log n), Space Complexity: O(log n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "Because the linked list is sorted, the middle element should become the tree root.",
+                "Use slow and fast pointers to find the middle node for the current sublist.",
+                "Recursively build the left subtree from the left half and the right subtree from the right half."
             ]
         },
         {
@@ -5810,6 +6060,11 @@
                     "complexity_analysis": "Time Complexity: O(1) per operation, Space Complexity: O(capacity).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need fast lookup by key and fast updates to recency order.",
+                "A hash map gives O(1) access to nodes, and a doubly linked list keeps the usage order.",
+                "Whenever a key is used, move its node to the most recent side; when capacity is full, remove the least recent node."
             ]
         },
         {
@@ -5922,6 +6177,11 @@
                     "complexity_analysis": "Time Complexity: O(1) amortized per operation, Space Complexity: O(capacity).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "The cache must track both access frequency and recency among keys with the same frequency.",
+                "Think about combining hash maps with linked lists grouped by frequency.",
+                "On every get or put, update the node's frequency and move it to the correct frequency list in O(1)."
             ]
         },
         {
@@ -6034,6 +6294,11 @@
                     "complexity_analysis": "Time Complexity: O(1) per operation, Space Complexity: O(n).",
                     "is_primary": false
                 }
+            ],
+            "hints": [
+                "You need to support increment, decrement, and retrieving min/max keys efficiently.",
+                "Keys with the same count can be grouped together in the same bucket.",
+                "A doubly linked list of count buckets plus a hash map from key to bucket can keep all operations in O(1)."
             ]
         },
         {

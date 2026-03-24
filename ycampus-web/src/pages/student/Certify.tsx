@@ -100,7 +100,7 @@ const Certify: React.FC = () => {
                     <div className="space-y-6 pt-4">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
                                     {currentView === 'courses' ? 'Certifications' : `${selectedCourse?.name} Certifications`}
                                 </h1>
                                 <p className="text-gray-600 py-2 text-sm">
@@ -148,9 +148,9 @@ const Certify: React.FC = () => {
 
                             {/* Courses Grid */}
                             {filteredCourses.length === 0 ? (
-                                <div className="py-12 text-center text-gray-600 bg-white rounded-lg shadow-sm border">
+                                <div className="py-12 text-center text-gray-600 bg-white rounded-lg shadow-none border border-gray-200">
                                     <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                                    <h3 className="text-lg font-medium">No Courses Available</h3>
+                                    <h3 className="text-lg font-semibold">No Courses Available</h3>
                                     <p className="max-w-md mx-auto mt-2 text-sm text-gray-500">
                                         No courses found in this category.
                                     </p>
@@ -160,7 +160,7 @@ const Certify: React.FC = () => {
                                     {filteredCourses.map((course) => (
                                         <div
                                             key={course.id}
-                                            className="group relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                                            className="group relative overflow-hidden bg-white rounded-xl shadow-none border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                                             onClick={() => handleCourseSelect(course)}
                                         >
                                             {/* Course Header with gradient */}
@@ -177,7 +177,7 @@ const Certify: React.FC = () => {
                                                             {CATEGORY_LABELS[course.category]}
                                                         </span>
                                                     </div>
-                                                    <h3 className="font-bold text-xl leading-tight text-white mb-1">
+                                                    <h3 className="font-semibold text-xl leading-tight text-white mb-1">
                                                         {course.name}
                                                     </h3>
                                                 </div>
@@ -206,9 +206,9 @@ const Certify: React.FC = () => {
                     {currentView === 'exams' && (
                         <>
                             {exams.length === 0 ? (
-                                <div className="py-12 text-center text-gray-600 bg-white rounded-lg shadow-sm border">
+                                <div className="py-12 text-center text-gray-600 bg-white rounded-lg shadow-none border border-gray-200">
                                     <Award className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                                    <h3 className="text-lg font-medium">No Active Exams</h3>
+                                    <h3 className="text-lg font-semibold">No Active Exams</h3>
                                     <p className="max-w-md mx-auto mt-2 text-sm text-gray-500">
                                         There are currently no active certification exams for this course.
                                     </p>
@@ -216,7 +216,7 @@ const Certify: React.FC = () => {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {exams.map((exam) => (
-                                        <Card key={exam.id} className="flex flex-col h-full hover:shadow-md transition-shadow border-t-4 border-t-blue-500">
+                                        <Card key={exam.id} className="flex flex-col h-full shadow-none border border-gray-200 border-t-4 border-t-blue-500">
                                             <CardHeader>
                                                 <div className="flex justify-between items-start mb-2">
                                                     <Badge variant="secondary" className="bg-blue-50 text-blue-700">
@@ -231,7 +231,7 @@ const Certify: React.FC = () => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <CardTitle className="line-clamp-2 text-lg">{exam.title}</CardTitle>
+                                                <CardTitle className="line-clamp-2 text-lg font-semibold">{exam.title}</CardTitle>
                                                 <CardDescription className="line-clamp-2 mt-2">{exam.description}</CardDescription>
                                             </CardHeader>
                                             <CardContent className="flex-1 space-y-4">

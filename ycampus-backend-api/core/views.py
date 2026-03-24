@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models import Count, Avg, Q, Sum
 from django.utils import timezone
 from django.db import models

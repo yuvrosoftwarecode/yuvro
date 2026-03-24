@@ -26,7 +26,7 @@ const SubjectSelection = ({ subjects, onSubjectSelect }: SubjectSelectionProps) 
   return (
     <div className="p-8 animate-fade-in max-w-[1600px] mx-auto">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+        <h1 className="text-3xl font-semibold text-foreground mb-2">
           Skill Test
         </h1>
         <p className="text-muted-foreground">

@@ -31,6 +31,7 @@ import StudentQuiz from './components/student/StudentQuiz';
 import StudentCoding from './components/student/StudentCoding';
 import Certify from './pages/student/Certify';
 import CertificationExam from './pages/student/CertificationExam';
+import StudentInterviewPrep from './pages/student/StudentInterviewPrep';
 import AIInterviewPlanner from './pages/student/AIInterviewPlanner';
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from './components/ErrorBoundary';
@@ -65,8 +66,17 @@ import Departments from './pages/admin/Departments';
 import CollegeSubjects from './pages/admin/CollegeSubjects';
 
 import CollegeAdminDashboard from './pages/college-admin/Dashboard';
-import PrincipalDashboard from './pages/principal/Dashboard';
-import HODDashboard from './pages/hod/Dashboard';
+import PrincipalDashboard from './pages/principal/PrincipalDashboard';
+import HODDashboard from './pages/hod/HODDashboard';
+import HODs from './pages/principal/HODs';
+
+import PrincipalDepartments from './pages/principal/Departments';
+import DepartmentDetail from './pages/principal/DepartmentDetail';
+import Faculty from './pages/principal/Faculty';
+import Students from './pages/principal/Students';
+import PRIReport from './pages/principal/PRIReport';
+
+
 
 import FacultyDashboard from './pages/faculty/Dashboard';
 import Attendance from './pages/faculty/Attendance';
@@ -200,6 +210,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <SkillTest />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/interview-prep"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentInterviewPrep />
                   </ProtectedRoute>
                 }
               />
@@ -381,6 +400,55 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["principal"]}>
                     <PrincipalDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/principal/departments"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <PrincipalDepartments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/departments/:id"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <DepartmentDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/faculty"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <Faculty />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/students"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <Students />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/hods"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <HODs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/pri-report"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <PRIReport />
                   </ProtectedRoute>
                 }
               />
@@ -588,6 +656,10 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <TPOScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/college-admin/announcements"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
@@ -638,64 +710,6 @@ function App() {
                 }
               />
 
-
-              {/* Principal Routes */}
-              <Route
-                path="/principal/departments"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/hods"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/faculty"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/students"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/courses"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/reports"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/principal/settings"
-                element={
-                  <ProtectedRoute allowedRoles={["principal"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
 
 
               <Route
