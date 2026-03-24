@@ -1,225 +1,107 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, DollarSign, Share2, BookmarkIcon } from 'lucide-react';
-import { Job } from '@/services/jobService';
-import BookmarkButton from './BookmarkButton';
-import ShareJobModal from './ShareJobModal';
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MapPin, Building2, Calendar, Clock, IndianRupee } from 'lucide-react';
+import { StudentJob, StudentJobApplication } from '@/pages/student/Jobs';
 
 interface JobCardProps {
-  job: Job;
-  isBookmarked: boolean;
-  isApplied: boolean;
-  onBookmark: (jobId: string) => void;
-  onApply: (job: Job) => void;
-  showBookmarkDate?: boolean;
-  bookmarkDate?: string;
-  bookmarkLoading?: boolean;
+  job: StudentJob;
+  variant: 'active' | 'applied' | 'previous';
+  application?: StudentJobApplication;
+  deadlineApproaching?: boolean;
+  onViewDetails: () => void;
+  onApply?: () => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ 
-  job, 
-  isBookmarked, 
-  isApplied, 
-  onBookmark, 
-  onApply, 
-  showBookmarkDate, 
-  bookmarkDate,
-  bookmarkLoading = false
+export const JobCard: React.FC<JobCardProps> = ({
+  job,
+  variant,
+  application,
+  deadlineApproaching,
+  onViewDetails,
+  onApply,
 }) => {
-  const navigate = useNavigate();
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  if (!job || !job.company) {
-    return null;
-  }
-
-  const getExperienceText = (job: Job) => {
-    if (job.experience_min_years === 0) return 'Fresher';
-    if (job.experience_max_years) {
-      return `${job.experience_min_years}-${job.experience_max_years} yrs`;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'applied': return <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50/50">Applied</Badge>;
+      case 'shortlisted': return <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50/50">Shortlisted</Badge>;
+      case 'interview': return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50/50">Interview</Badge>;
+      case 'selected': return <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50/50">Selected</Badge>;
+      case 'rejected': return <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50/50">Rejected</Badge>;
+      default: return null;
     }
-    return `${job.experience_min_years}+ yrs`;
   };
 
-  const getSalaryText = (job: Job) => {
-    if (!job.min_salary && !job.max_salary) return null;
-    const currency = job.currency === 'INR' ? '₹' : '$';
-    if (job.min_salary && job.max_salary) {
-      return `${currency}${job.min_salary}-${job.max_salary} LPA`;
-    }
-    if (job.min_salary) {
-      return `${currency}${job.min_salary}+ LPA`;
-    }
-    return `Up to ${currency}${job.max_salary} LPA`;
-  };
-
-  const getLocationText = (job: Job) => {
-    if (job.is_remote && job.locations.length > 0) {
-      return `${job.locations[0]} • Hybrid`;
-    }
-    if (job.is_remote) {
-      return 'Remote';
-    }
-    if (job.locations.length > 0) {
-      return `${job.locations[0]} • Onsite`;
-    }
-    return 'Location not specified';
-  };
-
-  const getPostedTime = (postedAt: string) => {
-    const now = new Date();
-    const posted = new Date(postedAt);
-    const diffTime = Math.abs(now.getTime() - posted.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week${Math.ceil(diffDays / 7) > 1 ? 's' : ''} ago`;
-    return `${Math.ceil(diffDays / 30)} month${Math.ceil(diffDays / 30) > 1 ? 's' : ''} ago`;
-  };
-
-  const getMatchPercentage = (job: Job) => {
-    const userSkills = ['React', 'TypeScript', 'JavaScript']; 
-    const matchingSkills = job.skills.filter(skill => 
-      userSkills.some(userSkill => 
-        userSkill.toLowerCase() === skill.toLowerCase()
-      )
-    );
-    const percentage = Math.min(Math.round((matchingSkills.length / Math.max(job.skills.length, 1)) * 100), 100);
-    return Math.max(percentage, 60); 
-  };
-
-  const handleShare = () => {
-    setShareModalOpen(true);
-  };
-
-  const handleTitleClick = () => {
-    navigate(`/student/jobs/${job.id}`);
+  const formatLPA = (amount: number) => {
+    return `${(amount / 100000).toFixed(1)} LPA`;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-lg">
-              {job.company.name.charAt(0)}
+    <Card className={`p-6 border-muted/20 shadow-sm transition-all hover:shadow-md ${variant === 'previous' ? 'opacity-70 bg-muted/5' : ''}`}>
+      <div className="flex flex-row justify-between items-start gap-2">
+        {/* Left Content */}
+        <div className="flex-1 space-y-2">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-medium text-gray-900">{job.role}</h3>
+            <Badge variant="outline" className="bg-[#f0fdf4] text-[#15803d] border-[#dcfce7] font-medium text-[11px] py-0 px-2 h-5">
+              {job.companyType}
+            </Badge>
+            {variant === 'applied' && application && getStatusBadge(application.status)}
+            {variant === 'active' && deadlineApproaching && (
+                <Badge variant="secondary" className="bg-orange-50 text-orange-600 border-orange-100 text-[10px] py-0 h-5">
+                  <Clock className="h-3 w-3 mr-1" /> Deadline Soon
+                </Badge>
+              )}
+          </div>
+          
+          <div className="flex items-center gap-2 text-gray-800">
+            <Building2 className="h-4 w-4 text-gray-500" />
+            <span className="text-sm font-medium">{job.companyName}</span>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-gray-600">
+            <div className="flex items-center gap-1 text-xs">
+              <MapPin className="h-3 w-3" />
+              {job.location}
             </div>
-            <div>
-              <h3 
-                className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
-                onClick={handleTitleClick}
-              >
-                {job.title}
-              </h3>
-              <p className="text-gray-600">{job.company.name}</p>
+            <div className="flex items-center gap-1 text-xs">
+              <IndianRupee className="h-3 w-3" />
+              {formatLPA(job.ctcTotal)}
+            </div>
+            <div className="flex items-center gap-1 text-xs">
+              <Calendar className="h-3 w-3" />
+              Deadline: {new Date(job.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-            <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              {getLocationText(job)}
-            </div>
-            <div className="flex items-center gap-1">
-              <Briefcase className="h-4 w-4" />
-              {getExperienceText(job)}
-            </div>
-            {job.posted_at && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {getPostedTime(job.posted_at)}
-              </div>
-            )}
-            {showBookmarkDate && bookmarkDate && (
-              <div className="flex items-center gap-1 text-blue-600">
-                <BookmarkIcon className="h-4 w-4" />
-                Bookmarked {getPostedTime(bookmarkDate)}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-3">
-            {job.skills.slice(0, 3).map((skill, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-              >
-                {skill}
+          
+          <div className="flex flex-wrap gap-2 pt-3">
+            {job.eligibleBranches.map(branch => (
+              <span key={branch} className="bg-[#f1f5f9] text-gray-900 text-[11px] font-semibold px-2.5 py-0.5 rounded-full uppercase">
+                {branch}
               </span>
             ))}
-            {job.skills.length > 3 && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
-                +{job.skills.length - 3} more
-              </span>
-            )}
           </div>
-
-          {getSalaryText(job) && (
-            <div className="flex items-center gap-1 text-green-600 font-medium">
-              <DollarSign className="h-4 w-4" />
-              {getSalaryText(job)}
-            </div>
-          )}
         </div>
 
-        <div className="flex flex-col items-end gap-3">
-          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            {getMatchPercentage(job)}% Match
-          </div>
-          <div className="flex items-center gap-2">
-            <BookmarkButton
-              isBookmarked={isBookmarked}
-              isLoading={bookmarkLoading}
-              onClick={() => onBookmark(job.id)}
-            />
-            <button 
-              className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-              onClick={handleShare}
-              title="Share this job"
+        {/* Right Actions */}
+        <div className="flex flex-col items-end gap-3 shrink-0">
+          {variant === 'active' && onApply && (
+            <Button 
+              onClick={onApply} 
+              className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-medium px-6 h-10 rounded-lg min-w-[80px]"
             >
-              <Share2 className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-        <p className="text-sm text-gray-600 line-clamp-2 flex-1 mr-4">
-          {job.description.substring(0, 150)}...
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleTitleClick}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+              Apply
+            </Button>
+          )}
+          <button 
+            onClick={onViewDetails}
+            className="text-gray-600 font-medium hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors pr-1"
           >
             View Details
           </button>
-          {isApplied ? (
-            <button
-              disabled
-              className="bg-green-100 text-green-700 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
-            >
-              Applied
-            </button>
-          ) : (
-            <button
-              onClick={() => onApply(job)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Apply Now
-            </button>
-          )}
         </div>
       </div>
-
-      {/* Share Modal */}
-      <ShareJobModal
-        isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        job={job}
-      />
-    </div>
+    </Card>
   );
 };
-
-export default JobCard;

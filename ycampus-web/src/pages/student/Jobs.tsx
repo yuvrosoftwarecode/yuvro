@@ -1,469 +1,280 @@
-import { useState, useEffect } from 'react';
-import { Search, Filter, BookmarkIcon } from 'lucide-react';
-import Navigation from '@/components/common/Navigation';
+import React, { useState } from 'react';
+import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'sonner';
+import { JobCard } from '@/components/student/jobs/JobCard';
+import { JobDetailView } from '@/components/student/jobs/JobDetailView';
+import { JobFilters } from '@/components/student/jobs/JobFilters';
+import { ApplyDialog } from '@/components/student/jobs/ApplyDialog';
+import { Briefcase } from 'lucide-react';
 
-import { jobService, Job } from '@/services/jobService';
-import { JobApplicationData } from '@/services/jobApplicationService';
-import JobCard from '@/components/student/jobs/JobCard';
-import ApplicationCard from '@/components/student/jobs/ApplicationCard';
-import ApplyJobDialog from '@/components/student/jobs/ApplyJobDialog';
-import EmptyState from '@/components/student/jobs/EmptyState';
-import useJobApplications from '@/hooks/useJobApplications';
-
-interface JobFilters {
-  location: string[];
-  experienceLevel: string[];
-  jobType: string[];
-  salaryRange: string[];
-  currency: string[];
+export interface StudentJob {
+  id: string;
+  companyName: string;
+  companyType: 'Product' | 'Service' | 'Startup';
+  role: string;
+  location: string;
+  ctcFixed: number;
+  ctcVariable: number;
+  ctcTotal: number;
+  deadline: string;
+  eligibleBranches: string[];
+  minCgpa: number;
+  description: string;
+  requirements: string[];
   skills: string[];
-  companySize: string[];
-  educationLevel: string[];
-  noticePeriod: string[];
+  vacancies: number;
+  selectionRounds: string[];
   postedDate: string;
+  status: 'active' | 'expired';
 }
 
-import { mockJobService } from '@/services/mockJobService';
+export interface StudentJobApplication {
+  jobId: string;
+  appliedDate: string;
+  cgpa: number;
+  previousOffers: boolean;
+  highestCtc?: number;
+  status: 'applied' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
+}
 
-const Jobs = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
+const dummyJobs: StudentJob[] = [
+  {
+    id: '1', companyName: 'TCS', companyType: 'Service', role: 'Software Developer',
+    location: 'Mumbai, India', ctcFixed: 350000, ctcVariable: 50000, ctcTotal: 400000,
+    deadline: '2026-04-15', eligibleBranches: ['CSE', 'IT', 'ECE'], minCgpa: 6.5,
+    description: 'Join TCS as a Software Developer and work on cutting-edge enterprise solutions for global clients. You will be part of an agile team delivering high-quality software.',
+    requirements: ['B.Tech in CSE/IT/ECE', 'No active backlogs', 'Min 6.5 CGPA'],
+    skills: ['Java', 'Python', 'SQL', 'Problem Solving'],
+    vacancies: 50, selectionRounds: ['Aptitude', 'Technical', 'HR'],
+    postedDate: '2026-03-10', status: 'active',
+  },
+  {
+    id: '2', companyName: 'Infosys', companyType: 'Service', role: 'Systems Engineer',
+    location: 'Bangalore, India', ctcFixed: 320000, ctcVariable: 30000, ctcTotal: 350000,
+    deadline: '2026-04-20', eligibleBranches: ['CSE', 'IT', 'ECE', 'EEE'], minCgpa: 6.0,
+    description: 'Infosys is hiring Systems Engineers for their digital transformation projects. Work with latest technologies and grow your career.',
+    requirements: ['B.Tech any branch', 'No active backlogs'],
+    skills: ['C++', 'Java', 'Cloud Computing'],
+    vacancies: 100, selectionRounds: ['Online Test', 'Technical Interview', 'HR'],
+    postedDate: '2026-03-12', status: 'active',
+  },
+  {
+    id: '3', companyName: 'Razorpay', companyType: 'Product', role: 'Backend Engineer',
+    location: 'Bangalore, India', ctcFixed: 1200000, ctcVariable: 300000, ctcTotal: 1500000,
+    deadline: '2026-04-05', eligibleBranches: ['CSE', 'IT'], minCgpa: 7.5,
+    description: 'Build payment infrastructure that powers millions of businesses. Work on high-scale distributed systems at Razorpay.',
+    requirements: ['B.Tech CSE/IT', 'Strong DSA skills', 'Min 7.5 CGPA'],
+    skills: ['Go', 'Python', 'Distributed Systems', 'Microservices'],
+    vacancies: 5, selectionRounds: ['Coding Round', 'System Design', 'Technical', 'HR'],
+    postedDate: '2026-03-08', status: 'active',
+  },
+  {
+    id: '4', companyName: 'Zoho', companyType: 'Product', role: 'Member Technical Staff',
+    location: 'Chennai, India', ctcFixed: 600000, ctcVariable: 100000, ctcTotal: 700000,
+    deadline: '2026-04-10', eligibleBranches: ['CSE', 'IT', 'ECE'], minCgpa: 7.0,
+    description: 'Join Zoho to build world-class SaaS products used by millions of businesses worldwide.',
+    requirements: ['B.Tech CSE/IT/ECE', 'Strong programming fundamentals'],
+    skills: ['Java', 'JavaScript', 'Problem Solving', 'Data Structures'],
+    vacancies: 20, selectionRounds: ['Programming Round', 'Advanced Coding', 'Technical', 'HR'],
+    postedDate: '2026-03-05', status: 'active',
+  },
+  {
+    id: '5', companyName: 'Wipro', companyType: 'Service', role: 'Project Engineer',
+    location: 'Hyderabad, India', ctcFixed: 300000, ctcVariable: 60000, ctcTotal: 360000,
+    deadline: '2026-03-01', eligibleBranches: ['CSE', 'IT', 'ECE', 'ME'], minCgpa: 6.0,
+    description: 'Wipro is hiring Project Engineers for their technology division.',
+    requirements: ['B.Tech any branch', 'Min 6.0 CGPA'],
+    skills: ['Java', '.NET', 'SQL'],
+    vacancies: 80, selectionRounds: ['Aptitude', 'Technical', 'HR'],
+    postedDate: '2026-02-15', status: 'expired',
+  },
+  {
+    id: '6', companyName: 'Freshworks', companyType: 'Product', role: 'SDE Intern',
+    location: 'Chennai, India', ctcFixed: 500000, ctcVariable: 100000, ctcTotal: 600000,
+    deadline: '2026-02-20', eligibleBranches: ['CSE', 'IT'], minCgpa: 7.0,
+    description: 'Freshworks is looking for talented interns to join their engineering team.',
+    requirements: ['B.Tech CSE/IT', 'Min 7.0 CGPA'],
+    skills: ['React', 'Node.js', 'Ruby on Rails'],
+    vacancies: 10, selectionRounds: ['Coding', 'Technical', 'Cultural Fit'],
+    postedDate: '2026-02-01', status: 'expired',
+  },
+];
+
+const initialApplications: StudentJobApplication[] = [
+  { jobId: '2', appliedDate: '2026-03-14', cgpa: 7.8, previousOffers: false, status: 'applied' },
+];
+
+export default function StudentJobs() {
+  const [applications, setApplications] = useState<StudentJobApplication[]>(initialApplications);
+  const [selectedJob, setSelectedJob] = useState<StudentJob | null>(null);
+  const [applyJob, setApplyJob] = useState<StudentJob | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
-  const [applyDialogOpen, setApplyDialogOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [ctcRange, setCtcRange] = useState<[number, number]>([0, 2000000]);
 
-  // Use the custom hook for job applications
-  const {
-    myApplications,
-    bookmarks,
-    bookmarkedJobs,
-    appliedJobs,
-    userJobStatus,
-    bookmarkLoading,
-    handleBookmarkJob,
-    handleApplyToJob
-  } = useJobApplications();
+  const isApplied = (jobId: string) => applications.some(a => a.jobId === jobId);
 
-  const [filters, setFilters] = useState<JobFilters>({
-    location: [],
-    experienceLevel: [],
-    jobType: [],
-    salaryRange: [],
-    currency: [],
-    skills: [],
-    companySize: [],
-    educationLevel: [],
-    noticePeriod: [],
-    postedDate: ''
-  });
+  const activeJobs = dummyJobs.filter(j => j.status === 'active' && !isApplied(j.id));
+  const appliedJobs = dummyJobs.filter(j => isApplied(j.id));
+  const previousJobs = dummyJobs.filter(j => j.status === 'expired');
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [jobs, searchQuery, filters]);
-
-  const fetchJobs = async () => {
-    try {
-      setLoading(true);
-      // Synchronized with TPO approvals via mockJobService
-      const mockJobs = mockJobService.getLiveJobs();
-      const mappedJobs = mockJobs.map(mj => mockJobService.mapToJob(mj));
-      setJobs(mappedJobs);
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-      setJobs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const applyFilters = () => {
-    let filtered = jobs;
-
-    if (searchQuery) {
-      filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
-
-    if (filters.location.length > 0) {
-      filtered = filtered.filter(job => {
-        if (filters.location.includes('Remote') && job.is_remote) return true;
-        if (filters.location.includes('Hybrid') && job.locations.length > 0 && job.is_remote) return true;
-        if (filters.location.includes('Onsite') && job.locations.length > 0 && !job.is_remote) return true;
-        return job.locations.some(loc =>
-          filters.location.some(filterLoc =>
-            loc.toLowerCase().includes(filterLoc.toLowerCase())
-          )
-        );
-      });
-    }
-
-    if (filters.experienceLevel.length > 0) {
-      filtered = filtered.filter(job => {
-        if (filters.experienceLevel.includes('Fresher') && job.experience_min_years === 0) return true;
-        if (filters.experienceLevel.includes('0-2 yrs') && job.experience_min_years <= 2) return true;
-        if (filters.experienceLevel.includes('2-5 yrs') && job.experience_min_years >= 2 && job.experience_min_years <= 5) return true;
-        if (filters.experienceLevel.includes('5+ yrs') && job.experience_min_years >= 5) return true;
-        return false;
-      });
-    }
-
-    if (filters.jobType.length > 0) {
-      filtered = filtered.filter(job =>
-        filters.jobType.some(type =>
-          job.employment_type.toLowerCase().replace('-', ' ') === type.toLowerCase()
-        )
-      );
-    }
-
-    if (filters.salaryRange.length > 0) {
-      filtered = filtered.filter(job => {
-        if (!job.min_salary) return false;
-        return filters.salaryRange.some(range => {
-          switch (range) {
-            case '0-5':
-              return job.min_salary! <= 500000;
-            case '5-10':
-              return job.min_salary! >= 500000 && job.min_salary! <= 1000000;
-            case '10-15':
-              return job.min_salary! >= 1000000 && job.min_salary! <= 1500000;
-            case '15-25':
-              return job.min_salary! >= 1500000 && job.min_salary! <= 2500000;
-            case '25+':
-              return job.min_salary! >= 2500000;
-            default:
-              return true;
-          }
-        });
-      });
-    }
-
-    setFilteredJobs(filtered);
-  };
-
-  const toggleFilter = (filterType: keyof JobFilters, value: string) => {
-    setFilters(prev => {
-      const currentFilter = prev[filterType];
-      if (Array.isArray(currentFilter)) {
-        const newFilter = currentFilter.includes(value)
-          ? currentFilter.filter(item => item !== value)
-          : [...currentFilter, value];
-        return { ...prev, [filterType]: newFilter };
-      }
-      return prev;
+  const filterJobs = (jobs: StudentJob[]) => {
+    return jobs.filter(j => {
+      const matchSearch = j.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        j.role.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchLocation = locationFilter === 'all' || j.location.toLowerCase().includes(locationFilter.toLowerCase());
+      const matchType = typeFilter === 'all' || j.companyType === typeFilter;
+      const matchCtc = j.ctcTotal >= ctcRange[0] && j.ctcTotal <= ctcRange[1];
+      return matchSearch && matchLocation && matchType && matchCtc;
     });
   };
 
-  const clearAllFilters = () => {
-    setFilters({
-      location: [],
-      experienceLevel: [],
-      jobType: [],
-      salaryRange: [],
-      currency: [],
-      skills: [],
-      companySize: [],
-      educationLevel: [],
-      noticePeriod: [],
-      postedDate: ''
-    });
+  const handleApply = (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => {
+    if (!applyJob) return;
+    const newApp: StudentJobApplication = {
+      jobId: applyJob.id,
+      appliedDate: new Date().toISOString().split('T')[0],
+      cgpa: data.cgpa,
+      previousOffers: data.previousOffers,
+      highestCtc: data.highestCtc,
+      status: 'applied',
+    };
+    setApplications(prev => [...prev, newApp]);
+    setApplyJob(null);
   };
 
-  const handleApplyClick = (job: Job) => {
-    setSelectedJob(job);
-    setApplyDialogOpen(true);
+  const getApplication = (jobId: string) => applications.find(a => a.jobId === jobId);
+
+  const isDeadlineApproaching = (deadline: string) => {
+    const diff = new Date(deadline).getTime() - new Date().getTime();
+    return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000;
   };
 
-  const handleApplySubmit = async (applicationData: JobApplicationData) => {
-    try {
-      await handleApplyToJob(applicationData);
-      setApplyDialogOpen(false);
-      toast.success(`Successfully applied to ${selectedJob?.title}`);
-    } catch (error) {
-      toast.error('Failed to apply to job. Please try again.');
-    }
-  };
-
-  if (loading) {
+  if (selectedJob) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading job opportunities...</p>
-          </div>
-        </div>
-      </>
+      <StudentLayout>
+        <JobDetailView
+          job={selectedJob}
+          isApplied={isApplied(selectedJob.id)}
+          application={getApplication(selectedJob.id)}
+          onBack={() => setSelectedJob(null)}
+          onApply={() => setApplyJob(selectedJob)}
+        />
+      </StudentLayout>
     );
   }
 
   return (
-    <>
-      <Navigation />
-
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
-            <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-sm text-blue-600 hover:text-blue-700"
-                  >
-                    Clear All Filters
-                  </button>
-                </div>
-
-                {/* Location Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Location</h4>
-                  <div className="space-y-2">
-                    {['Remote', 'Hybrid', 'Onsite'].map(location => (
-                      <label key={location} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.location.includes(location)}
-                          onChange={() => toggleFilter('location', location)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{location}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Experience Level Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Experience Level</h4>
-                  <div className="space-y-2">
-                    {['Fresher', '0-2 yrs', '2-5 yrs', '5+ yrs'].map(level => (
-                      <label key={level} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.experienceLevel.includes(level)}
-                          onChange={() => toggleFilter('experienceLevel', level)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{level}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Job Type Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Job Type</h4>
-                  <div className="space-y-2">
-                    {['Full-time', 'Part-time', 'Contract', 'Internship'].map(type => (
-                      <label key={type} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.jobType.includes(type)}
-                          onChange={() => toggleFilter('jobType', type)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Salary Range Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-3">Salary Range (LPA)</h4>
-                  <div className="space-y-2">
-                    {[
-                      { value: '0-5', label: '0-5 LPA' },
-                      { value: '5-10', label: '5-10 LPA' },
-                      { value: '10-15', label: '10-15 LPA' },
-                      { value: '15-25', label: '15-25 LPA' },
-                      { value: '25+', label: '25+ LPA' }
-                    ].map(range => (
-                      <label key={range.value} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={filters.salaryRange.includes(range.value)}
-                          onChange={() => toggleFilter('salaryRange', range.value)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">{range.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Save Filters Button */}
-                <button className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
-                  <BookmarkIcon className="h-4 w-4" />
-                  Save Filters
-                </button>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Job Opportunities</h1>
-                  <p className="text-gray-600 mt-1">
-                    {activeTab === 'all' && `${filteredJobs.length} jobs found`}
-                    {activeTab === 'bookmarks' && `${bookmarks.length} bookmarked jobs`}
-                    {activeTab === 'applications' && `${myApplications.length} applications`}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="all">All Jobs</TabsTrigger>
-                  <TabsTrigger value="bookmarks">Bookmarks ({bookmarks.length})</TabsTrigger>
-                  <TabsTrigger value="applications">Applications ({myApplications.length})</TabsTrigger>
-                </TabsList>
-
-                {/* Search and Filter Toggle - Only show for All Jobs tab */}
-                {activeTab === 'all' && (
-                  <div className="flex gap-4 mb-6">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <input
-                        type="text"
-                        placeholder="Search by title, skill, or company..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <button
-                      onClick={() => setShowFilters(!showFilters)}
-                      className="lg:hidden bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-                    >
-                      <Filter className="h-4 w-4" />
-                      Filters
-                    </button>
-                  </div>
-                )}
-
-                {/* All Jobs Tab */}
-                <TabsContent value="all" className="space-y-4">
-                  {filteredJobs.map((job) => {
-                    const jobStatus = userJobStatus[job.id] || { is_bookmarked: false, is_applied: false };
-                    const isBookmarked = jobStatus.is_bookmarked || bookmarkedJobs.has(job.id);
-                    const isApplied = jobStatus.is_applied || appliedJobs.has(job.id);
-
-                    return (
-                      <div key={job.id} className="relative">
-                        {/* Bookmarked indicator for recently bookmarked jobs */}
-                        {isBookmarked && (
-                          <div className="absolute top-4 right-4 z-10">
-                            <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 animate-pulse">
-                              <BookmarkIcon className="h-3 w-3 fill-current" />
-                              Saved
-                            </div>
-                          </div>
-                        )}
-                        <JobCard
-                          job={job}
-                          isBookmarked={isBookmarked}
-                          isApplied={isApplied}
-                          onBookmark={handleBookmarkJob}
-                          onApply={handleApplyClick}
-                          bookmarkLoading={bookmarkLoading.has(job.id)}
-                        />
-                      </div>
-                    );
-                  })}
-                  {filteredJobs.length === 0 && !loading && (
-                    <EmptyState
-                      title="No jobs found"
-                      description="Try adjusting your search criteria or filters to find more opportunities."
-                      actionText="Clear Filters"
-                      onAction={clearAllFilters}
-                    />
-                  )}
-                </TabsContent>
-
-                {/* Bookmarks Tab */}
-                <TabsContent value="bookmarks" className="space-y-4">
-                  {bookmarks.map((application) => (
-                    <div key={application.id} className="relative">
-                      {/* Bookmarked indicator */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <div className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                          <BookmarkIcon className="h-3 w-3 fill-current" />
-                          Saved
-                        </div>
-                      </div>
-                      <JobCard
-                        job={application.job}
-                        isBookmarked={application.is_bookmarked}
-                        isApplied={application.is_applied}
-                        onBookmark={handleBookmarkJob}
-                        onApply={handleApplyClick}
-                        showBookmarkDate={true}
-                        bookmarkDate={application.created_at}
-                        bookmarkLoading={bookmarkLoading.has(application.job.id)}
-                      />
-                    </div>
-                  ))}
-                  {bookmarks.length === 0 && (
-                    <EmptyState
-                      title="No bookmarked jobs"
-                      description="Start bookmarking jobs you're interested in to see them here."
-                      actionText="Browse Jobs"
-                      onAction={() => setActiveTab('all')}
-                    />
-                  )}
-                </TabsContent>
-
-                {/* Applications Tab */}
-                <TabsContent value="applications" className="space-y-4">
-                  {myApplications.map((application) => (
-                    <ApplicationCard
-                      key={application.id}
-                      application={application}
-                    />
-                  ))}
-                  {myApplications.length === 0 && (
-                    <EmptyState
-                      title="No applications yet"
-                      description="Start applying to jobs to track your applications here."
-                      actionText="Browse Jobs"
-                      onAction={() => setActiveTab('all')}
-                    />
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
+    <StudentLayout>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Jobs</h1>
+          <p className="text-sm text-muted-foreground mt-1">Discover opportunities and track your applications</p>
         </div>
 
-        {/* Apply Dialog */}
-        <ApplyJobDialog
-          isOpen={applyDialogOpen}
-          onClose={() => setApplyDialogOpen(false)}
-          job={selectedJob}
-          onSubmit={handleApplySubmit}
-        />
-      </div>
-    </>
-  );
-};
+        <Tabs defaultValue="active" className="space-y-4">
+          <TabsList className="bg-muted/60">
+            <TabsTrigger value="active" className="data-[state=active]:bg-background">
+              Active Jobs
+              <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                {filterJobs(activeJobs).length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="applied" className="data-[state=active]:bg-background">
+              Applied Jobs
+              <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                {appliedJobs.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="previous" className="data-[state=active]:bg-background">
+              Previous Jobs
+              <span className="ml-1.5 text-xs bg-muted-foreground/20 text-muted-foreground px-1.5 py-0.5 rounded-full">
+                {previousJobs.length}
+              </span>
+            </TabsTrigger>
+          </TabsList>
 
-export default Jobs;
+          <JobFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            locationFilter={locationFilter}
+            onLocationChange={setLocationFilter}
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+          />
+
+          <TabsContent value="active" className="space-y-3">
+            {filterJobs(activeJobs).length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p className="font-medium">No active jobs found</p>
+                <p className="text-sm">Check back later for new opportunities</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {filterJobs(activeJobs).map(job => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    variant="active"
+                    deadlineApproaching={isDeadlineApproaching(job.deadline)}
+                    onViewDetails={() => setSelectedJob(job)}
+                    onApply={() => setApplyJob(job)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="applied" className="space-y-3">
+            {appliedJobs.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="font-medium">No applications yet</p>
+                <p className="text-sm">Apply to active jobs to see them here</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {appliedJobs.map(job => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    variant="applied"
+                    application={getApplication(job.id)}
+                    onViewDetails={() => setSelectedJob(job)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="previous" className="space-y-3">
+            {previousJobs.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="font-medium">No previous jobs</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {previousJobs.map(job => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    variant="previous"
+                    onViewDetails={() => setSelectedJob(job)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <ApplyDialog
+        job={applyJob}
+        open={!!applyJob}
+        onClose={() => setApplyJob(null)}
+        onSubmit={handleApply}
+      />
+    </StudentLayout>
+  );
+}

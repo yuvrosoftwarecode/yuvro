@@ -236,7 +236,7 @@ function App() {
                 path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentJobs />
                   </ProtectedRoute>
                 }
               />
