@@ -810,6 +810,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 if mock_interview.ai_generation_mode in [
                     MockInterview.AI_GEN_FULL,
                     MockInterview.AI_GEN_MIXED,
+                    MockInterview.AI_GEN_PREDEFINED,
                 ]:
                     # Find an active AI agent (prefer Anthropic, then Gemini)
                     ai_agent = AIAgent.objects.filter(
@@ -825,9 +826,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 if not ai_agent and mock_interview.ai_generation_mode in [
                     MockInterview.AI_GEN_FULL,
                     MockInterview.AI_GEN_MIXED,
+                    MockInterview.AI_GEN_PREDEFINED,
                 ]:
                     return Response(
-                        {"error": "No active AI agent available"},
+                        {"error": "No active AI agent available for this interview."},
                         status=status.HTTP_503_SERVICE_UNAVAILABLE,
                     )
 
@@ -837,13 +839,18 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     user_first_name = user.first_name if user.first_name else "Candidate"
                     
                     # Safe extraction of AI Context and Coding Count
-                    raw_ai_context = mock_interview.ai_context.get(
-                        experience_level.lower(), {}
-                    ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+                    if isinstance(mock_interview.ai_context, dict):
+                        # check if it's the old nested format or new flat format
+                        if experience_level.lower() in mock_interview.ai_context:
+                            raw_ai_context = mock_interview.ai_context.get(experience_level.lower(), {})
+                        else:
+                            raw_ai_context = mock_interview.ai_context
+                    else:
+                        raw_ai_context = mock_interview.ai_context
 
                     # Backwards compatibility check
                     if isinstance(raw_ai_context, dict):
-                        actual_ai_context = raw_ai_context.get('context_str') or raw_ai_context.get('context', [])
+                        actual_ai_context = raw_ai_context
                         coding_count = raw_ai_context.get('coding_questions_count', 1)
                     else:
                         actual_ai_context = raw_ai_context
@@ -858,10 +865,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             "role": mock_interview.title,
                             "description": mock_interview.description,
                             "instructions": mock_interview.instructions,
-                            "difficulty": experience_level,
-                            "level": experience_level,
+                            "difficulty": experience_level or "Standard",
+                            "level": experience_level or "Standard",
                             "max_duration": mock_interview.max_duration,
-                            "selected_duration": selected_duration,
+                            "selected_duration": selected_duration or mock_interview.max_duration,
                             "required_skills": mock_interview.required_skills,
                             "optional_skills": mock_interview.optional_skills,
                             "interviewer_name": mock_interview.interviewer_name,
@@ -869,6 +876,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                             "voice_speed": mock_interview.voice_speed,
                             "ai_context": actual_ai_context,
                             "coding_questions_count": coding_count,
+                            "ai_generation_mode": mock_interview.ai_generation_mode,
                             "candidate_info": context_text
                         }
                     )
@@ -878,7 +886,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         user=user,
                         chat_session=chat_session,
                         role_title=mock_interview.title,
-                        role_level=experience_level,
+                        role_level=experience_level or "Standard",
                         difficulty="Adaptive",
                         duration_minutes=selected_duration
                         or mock_interview.max_duration,
@@ -890,15 +898,15 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     mock_interview=mock_interview,
                     user=user,
                     status=MockInterviewSubmission.STATUS_STARTED,
-                    experience_level=experience_level,
+                    experience_level=experience_level or MockInterviewSubmission.EXP_LEVEL_BEGINNER,
                     chat_session=chat_session,
-                    selected_duration=selected_duration,
+                    selected_duration=selected_duration or 0,
                     resume=resume_file
                 )
             else:
                  # Update settings if restarted
-                 submission.experience_level = experience_level
-                 submission.selected_duration = selected_duration
+                 submission.experience_level = experience_level or submission.experience_level
+                 submission.selected_duration = selected_duration or submission.selected_duration
                  if resume_file: 
                      submission.resume = resume_file
                  submission.save()
@@ -912,16 +920,21 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                          user=user,
                          chat_session=chat_session,
                          role_title=mock_interview.title,
-                         role_level=experience_level,
+                         role_level=experience_level or "Standard",
                          difficulty="Adaptive",
                          duration_minutes=selected_duration or mock_interview.max_duration,
                          status='started'
                      )
 
             # Extract coding count for response
-            raw_ai_context_resp = mock_interview.ai_context.get(
-                experience_level.lower(), {}
-            ) if isinstance(mock_interview.ai_context, dict) else mock_interview.ai_context
+            if isinstance(mock_interview.ai_context, dict):
+                if experience_level.lower() in mock_interview.ai_context:
+                    raw_ai_context_resp = mock_interview.ai_context.get(experience_level.lower(), {})
+                else:
+                    raw_ai_context_resp = mock_interview.ai_context
+            else:
+                raw_ai_context_resp = mock_interview.ai_context
+            
             coding_count_resp = raw_ai_context_resp.get('coding_questions_count', 1) if isinstance(raw_ai_context_resp, dict) else 1
 
             return Response({

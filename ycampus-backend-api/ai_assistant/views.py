@@ -63,62 +63,95 @@ class AIChatMixin:
             full_response_text = ""
             tokens_used = 0
             
-            # Use ai_service to get the stream
-            ai_service = AIServiceFactory.create_service(
-                ai_agent.provider, ai_agent.model_name
+            # Check if we should bypass AI for predefined mock interview (0 latency mode)
+            context = chat_session.context or {}
+            # Robust check for predefined mode
+            is_predefined = (
+                str(chat_session.page) == "mock_interview" and 
+                (context.get("ai_generation_mode") == "predefined" or (isinstance(context.get("ai_context"), dict) and context.get("ai_context", {}).get("predefined_questions")))
             )
             
-            try:
-                # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
-                yield " " * 1024 + "\n"
+            if is_predefined:
+                ai_context_data = context.get("ai_context", {})
+                predefined_questions = []
+                if isinstance(ai_context_data, dict):
+                    predefined_questions = ai_context_data.get("predefined_questions", [])
                 
-                # Resolve user name safely
-                target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
-                user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
-
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=user_name,
-                    stream=True,
-                )
-                
-                # Check if the service actually returned a stream
-                if "stream" in response_data:
-                    stream = response_data["stream"]
-                    async for chunk in stream:
-                        text = None
-                        # Gemini
-                        if hasattr(chunk, 'text'):
-                            try:
-                                text = chunk.text
-                            except ValueError: # Blocked or safety
-                                pass
-                        # Anthropic
-                        elif hasattr(chunk, 'type'):
-                            if chunk.type == 'content_block_delta':
-                                text = chunk.delta.text
-                        
-                        if text:
-                            full_response_text += text
-                            data = json.dumps({"chunk": text})
-                            yield f"data: {data}\n\n"
+                if predefined_questions:
+                    ai_msg_count = await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").count())()
+                    if ai_msg_count < len(predefined_questions):
+                        full_response_text = predefined_questions[ai_msg_count]
+                    else:
+                        full_response_text = "The interview is now complete. Thank you for your time!"
                     
-                    # Final usage update after loop
-                    if hasattr(stream, "get_final_metadata"):
-                        meta = stream.get_final_metadata()
-                        if hasattr(meta, 'usage'):
-                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
-                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
-                        tokens_used = stream.usage_metadata.total_token_count
-                else:
-                    # Fallback if streaming is not supported by the provider
-                    full_response_text = response_data["response"]
+                    logger.info(f"Zero-latency mode: Serving predefined question index {ai_msg_count}")
+                    
+                    # Yield immediately and skip AI service
                     data = json.dumps({"chunk": full_response_text})
                     yield f"data: {data}\n\n"
-                    tokens_used = response_data.get("tokens_used", 0)
+                    tokens_used = 0
+                    response_data = {"metadata": {"mode": "predefined_zero_latency"}}
+                    # Jump past the AI service call
+                else:
+                    is_predefined = False # Fallback to AI if no questions found
+
+            if not is_predefined:
+                # Original AI Service logic
+                ai_service = AIServiceFactory.create_service(
+                    ai_agent.provider, ai_agent.model_name
+                )
+            
+            try:
+                if not is_predefined:
+                    # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
+                    yield " " * 1024 + "\n"
+                    
+                    # Resolve user name safely
+                    target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                    user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
+
+                    response_data = await ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=user_name,
+                        stream=True,
+                    )
+                
+                    if "stream" in response_data:
+                        stream = response_data["stream"]
+                        async for chunk in stream:
+                            text = None
+                            # Gemini
+                            if hasattr(chunk, 'text'):
+                                try:
+                                    text = chunk.text
+                                except ValueError: # Blocked or safety
+                                    pass
+                            # Anthropic
+                            elif hasattr(chunk, 'type'):
+                                if chunk.type == 'content_block_delta':
+                                    text = chunk.delta.text
+                            
+                            if text:
+                                full_response_text += text
+                                data = json.dumps({"chunk": text})
+                                yield f"data: {data}\n\n"
+                        
+                        # Final usage update after loop
+                        if hasattr(stream, "get_final_metadata"):
+                            meta = stream.get_final_metadata()
+                            if hasattr(meta, 'usage'):
+                                tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
+                        elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                            tokens_used = stream.usage_metadata.total_token_count
+                    else:
+                        # Fallback if streaming is not supported by the provider
+                        full_response_text = response_data["response"]
+                        data = json.dumps({"chunk": full_response_text})
+                        yield f"data: {data}\n\n"
+                        tokens_used = response_data.get("tokens_used", 0)
                     
             except Exception as e:
                 # Send error chunk
@@ -209,9 +242,30 @@ class AIChatMixin:
             except:
                 pass
             
-            candidate_info_snippet = str(candidate_info)[:200]
-            # Optimized, shorter interview prompt
-            interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
+            # Predefined Questions Logic
+            ai_context_data = context.get("ai_context", {})
+            predefined_questions = []
+            if isinstance(ai_context_data, dict):
+                predefined_questions = ai_context_data.get("predefined_questions", [])
+            
+            if predefined_questions:
+                # Count how many AI messages exist to track progress through predefined questions
+                ai_msg_count = await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").count())()
+                
+                if ai_msg_count < len(predefined_questions):
+                    next_q = predefined_questions[ai_msg_count]
+                    if is_start:
+                        interview_prompt = f"Greet the candidate and ask: {next_q}"
+                    else:
+                        interview_prompt = f"Ask: {next_q}"
+                else:
+                    interview_prompt = f"""Expert Technical Interviewer for "{role}".
+                    TASK: Predefined questions are finished. Acknowledge the last answer and conclude the interview warmly.
+                    STRICT RULE: Your response MUST be exactly 1 line long."""
+            else:
+                candidate_info_snippet = str(candidate_info)[:200]
+                # Optimized, shorter interview prompt for mixed/dynamic mode
+                interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
 Rules:
 1. RESPONSE LENGTH: Exactly 1 line.
 2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
@@ -219,8 +273,9 @@ Rules:
 4. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
 5. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
 {time_left_msg}"""
-            if is_start:
-                # Override everything for the very first message
+                
+            if is_start and not predefined_questions:
+                # Override everything for the very first message in non-predefined mode
                 interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
                 
                 TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.

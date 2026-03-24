@@ -85,7 +85,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
         const isUser = m.message_type === 'user';
         const visible = isVisible(m.id);
         const isStreaming = !!(activeStream && activeStream.id === m.id);
-        const displayContent = isStreaming ? `${activeStream!.content}▊` : m.content;
+        const displayContent = isStreaming ? `${activeStream!.content}|` : m.content;
 
         return (
           <div

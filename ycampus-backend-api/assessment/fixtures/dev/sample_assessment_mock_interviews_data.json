@@ -1,171 +1,102 @@
 {
   "mock_interviews": [
     {
-      "title": "Mock Interview — Java Developer",
-      "description": "Master core Java concepts, multithreading, and stream APIs. This interview challenges your understanding of JVM internals, memory management, and object-oriented design patterns used in enterprise-grade applications.",
-      "instructions": "60 minutes. Includes MCQs, short design prompts, and one coding task in Java.",
+      "title": "Mock Interview — Data Structures & Algorithms (DSA)",
+      "description": "Master algorithmic thinking, problem-solving patterns, and optimization techniques. This interview challenges your ability to analyze time-space complexity and implement efficient solutions for complex computational problems.",
+      "instructions": "Algorithm analysis, problem-solving patterns, and coding tasks with multiple test cases. Focus on optimization and edge cases.",
       "max_duration": 60,
-      "ai_generation_mode": "mixed",
+      "ai_generation_mode": "predefined",
+      "ai_percentage": 100,
+      "ai_context": {
+        "context": "Focus on Arrays, Strings, Linked Lists, Trees, Graphs, and Dynamic Programming.",
+        "predefined_questions": [
+          "Could you explain what a Hash Table is and how it handles collisions?",
+          "Explain the difference between a BFS and DFS traversal in a graph.",
+          "What is Dynamic Programming, and can you give an example of a problem where it's useful?",
+          "Walk me through how you would find the middle of a linked list in a single pass.",
+          "Great, now please write a function in Python that takes a list of integers and returns the two numbers that add up to a specific target."
+        ],
+        "coding_questions_count": 1
+      },
       "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
       "voice_speed": 1.0,
       "audio_settings": {},
-      "required_skills": [
-        "Java",
-        "OOP",
-        "Spring Boot"
-      ],
-      "optional_skills": [
-        "Hibernate",
-        "Microservices"
-      ],
-      "ai_verbal_question_count": 5,
-      "ai_coding_question_count": 2,
+      "required_skills": ["Data Structures", "Algorithms", "Problem Solving", "Complexity Analysis"],
+      "optional_skills": ["Competitive Programming", "System Design"],
       "publish_status": "active",
       "questions_random_config": {
         "mcq_single": 3,
         "mcq_multiple": 2,
-        "coding": 3,
-        "descriptive": 2
+        "coding": 4,
+        "descriptive": 1
       }
     },
     {
-      "title": "Mock Interview — Python Developer",
-      "description": "Dive deep into Python's data structures, decorators, and generators. You'll face questions on asynchronous programming, Django/Flask frameworks, and writing efficient, pythonic code for scalable backends.",
-      "instructions": "50 minutes. MCQs and one coding task; focus on Pythonic solutions.",
-      "max_duration": 50,
-      "ai_generation_mode": "mixed",
-      "voice_type": "munnu",
-      "voice_speed": 1.1,
-      "audio_settings": {},
-      "required_skills": [
-        "Python",
-        "Django",
-        "DSA"
-      ],
-      "optional_skills": [
-        "Flask",
-        "AWS"
-      ],
-      "ai_verbal_question_count": 5,
-      "ai_coding_question_count": 2,
-      "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 3,
-        "mcq_multiple": 2,
-        "coding": 3,
-        "descriptive": 2
-      }
-    },
-    {
-      "title": "Mock Interview — Frontend Developer",
-      "description": "Demonstrate your expertise in building responsive, accessible web applications. Expect questions on React hooks, state management (Redux/Context), CSS architecture, and optimizing browser performance.",
-      "instructions": "55 minutes. MCQs, DOM/CSS problems, and a small implementation task.",
-      "max_duration": 55,
-      "ai_generation_mode": "mixed",
+      "title": "Mock Interview — Python Development",
+      "description": "Comprehensive assessment of Python programming skills, including language internals, asynchronous programming, web frameworks, and data processing.",
+      "instructions": "Python syntax, decorators, generators, multi-threading vs multi-processing.",
+      "max_duration": 45,
+      "ai_generation_mode": "predefined",
+      "ai_percentage": 100,
+      "ai_context": {
+        "context": "Focus on Pythonic idioms (PEP 8), memory management, GIL, async/await, and library usage.",
+        "predefined_questions": [
+          "What are decorators in Python, and how would you use them?",
+          "Explain the difference between a list and a tuple, and when would you use one over the other?",
+          "What is the Global Interpreter Lock (GIL) and how does it affect multi-threading in Python?",
+          "How does memory management work in Python? Mention garbage collection.",
+          "Please write a Python decorator that logs the execution time of any function it wraps."
+        ],
+        "coding_questions_count": 1
+      },
       "voice_type": "junnu",
+      "interviewer_name": "Junnu",
+      "interviewer_voice_id": "",
       "voice_speed": 1.0,
       "audio_settings": {},
-      "required_skills": [
-        "React",
-        "JavaScript",
-        "CSS"
-      ],
-      "optional_skills": [
-        "TypeScript",
-        "Tailwind"
-      ],
-      "ai_verbal_question_count": 5,
-      "ai_coding_question_count": 1,
+      "required_skills": ["Python", "Backend Development", "Web Frameworks"],
+      "optional_skills": ["FastAPI", "Pandas", "Pytest"],
       "publish_status": "active",
       "questions_random_config": {
-        "mcq_single": 3,
+        "mcq_single": 5,
         "mcq_multiple": 2,
-        "coding": 3,
+        "coding": 2,
         "descriptive": 2
       }
     },
     {
-      "title": "Mock Interview — Data Scientist",
-      "description": "Validate your expertise in statistical modeling, machine learning algorithms, and data visualization. Be ready to discuss feature engineering, model evaluation metrics, and real-world data pipeline challenges.",
-      "instructions": "75 minutes. MCQs, short analytical problems, and one coding/data task.",
-      "max_duration": 75,
-      "ai_generation_mode": "full_ai",
-      "voice_type": "munnu",
+      "title": "Mock Interview — HR & Behavioral",
+      "description": "Behavioral assessment focusing on cultural fit, career aspirations, soft skills, and alignment with company values.",
+      "instructions": "Behavioral questions, situational scenarios, career discussions, and value alignment conversations.",
+      "max_duration": 30,
+      "ai_generation_mode": "predefined",
+      "ai_percentage": 100,
+      "ai_context": {
+        "context": "Focus on conflict resolution, leadership potential, adaptability, and communication skills.",
+        "predefined_questions": [
+          "Tell me about yourself and why you're interested in this role.",
+          "Describe a situation where you had a conflict with a team member and how you resolved it.",
+          "What are your long-term career goals, and how does this company fit into them?",
+          "What is your biggest weakness, and how are you working to improve it?",
+          "Why should we hire you over other candidates with similar technical backgrounds?"
+        ],
+        "coding_questions_count": 0
+      },
+      "voice_type": "riley",
+      "interviewer_name": "Riley",
+      "interviewer_voice_id": "riley-voice-8",
       "voice_speed": 1.0,
       "audio_settings": {},
-      "required_skills": [
-        "Python",
-        "Machine Learning",
-        "Statistics"
-      ],
-      "optional_skills": [
-        "Pandas",
-        "Scikit-Learn"
-      ],
-      "ai_verbal_question_count": 8,
-      "ai_coding_question_count": 2,
+      "required_skills": ["Communication", "Cultural Fit", "Behavioral Competencies"],
+      "optional_skills": ["Leadership", "Emotional Intelligence"],
       "publish_status": "active",
       "questions_random_config": {
-        "mcq_single": 3,
-        "mcq_multiple": 2,
-        "coding": 3,
-        "descriptive": 2
-      }
-    },
-    {
-      "title": "Mock Interview — System Design Engineer",
-      "description": "Architect scalable, distributed systems. You'll be tested on load balancing, database sharding, caching strategies, and CAP theorem trade-offs for high-traffic global services.",
-      "instructions": "90 minutes. Design prompts and discussion-based questions; include one architecture diagram task.",
-      "max_duration": 90,
-      "ai_generation_mode": "mixed",
-      "voice_type": "junnu",
-      "voice_speed": 1.0,
-      "audio_settings": {},
-      "required_skills": [
-        "System Design",
-        "Scalability",
-        "Distributed Systems"
-      ],
-      "optional_skills": [
-        "Kafka",
-        "Redis"
-      ],
-      "ai_verbal_question_count": 6,
-      "ai_coding_question_count": 0,
-      "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 3,
-        "mcq_multiple": 2,
-        "coding": 3,
-        "descriptive": 2
-      }
-    },
-    {
-      "title": "Mock Interview — DevOps Engineer",
-      "description": "Prove your skills in CI/CD pipelines, container orchestration (Kubernetes), and infrastructure as code. This session covers cloud reliability, monitoring, and automated deployment strategies.",
-      "instructions": "60 minutes. MCQs, short scenario-based tasks, and one practical automation task.",
-      "max_duration": 60,
-      "ai_generation_mode": "mixed",
-      "voice_type": "munnu",
-      "voice_speed": 1.0,
-      "audio_settings": {},
-      "required_skills": [
-        "Docker",
-        "Kubernetes",
-        "CI/CD"
-      ],
-      "optional_skills": [
-        "AWS",
-        "Terraform"
-      ],
-      "ai_verbal_question_count": 5,
-      "ai_coding_question_count": 1,
-      "publish_status": "active",
-      "questions_random_config": {
-        "mcq_single": 3,
-        "mcq_multiple": 2,
-        "coding": 3,
-        "descriptive": 2
+        "mcq_single": 0,
+        "mcq_multiple": 0,
+        "coding": 0,
+        "descriptive": 5
       }
     }
   ]

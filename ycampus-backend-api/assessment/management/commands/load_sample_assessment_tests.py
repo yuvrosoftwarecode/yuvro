@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from assessment.models import SkillTest, Contest, MockInterview, JobTest
 from course.models import Subject, Unit, Question
+from ai_assistant.models import AIAgent
 
 User = get_user_model()
 
@@ -45,6 +46,17 @@ class Command(BaseCommand):
         skill_file = fixtures_dir / "sample_assessment_skill_tests_data.json"
         contests_file = fixtures_dir / "sample_assessment_contests_data.json"
         mock_file = fixtures_dir / "sample_assessment_mock_interviews_data.json"
+
+        # Ensure at least one AI agent exists for mock interviews (required for ChatSession)
+        if not AIAgent.objects.exists():
+            self.stdout.write("No AI agents found. Creating default Gemini agent for local testing...")
+            AIAgent.objects.create(
+                name="Gemini Pro (Default)",
+                provider="gemini",
+                model_name="gemini-1.5-pro",
+                description="Default agent created for local testing",
+                is_active=True
+            )
 
         def _load_json(path):
             try:
@@ -416,6 +428,7 @@ class Command(BaseCommand):
                         "interviewer_voice_id", ""
                     ),
                     "voice_speed": mock_interview_data.get("voice_speed", 1.0),
+                    "ai_context": mock_interview_data.get("ai_context", {}),
                     "audio_settings": mock_interview_data.get("audio_settings", {}),
                     "questions_random_config": mock_interview_data.get(
                         "questions_random_config", {}
