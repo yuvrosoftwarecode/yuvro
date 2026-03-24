@@ -27,6 +27,8 @@ export interface AnnouncementFilters {
   priority?: string;
   ordering?: string;
   is_active?: boolean;
+  search?: string;
+  page?: number;
 }
 
 export const announcementService = {
@@ -50,10 +52,13 @@ export const announcementService = {
   getAnnouncement: async (id: string) => {
     return await restApiAuthUtil.get<Announcement>(`/core/announcement/${id}/`);
   },
+
+  createAnnouncement: async (data: Partial<Announcement> | FormData) => {
     return await restApiAuthUtil.post<Announcement>('/core/announcement/', data);
   },
 
   updateAnnouncement: async (id: string, data: Partial<Announcement> | FormData) => {
+    return await restApiAuthUtil.patch<Announcement>(`/core/announcement/${id}/`, data);
   },
 
   deleteAnnouncement: async (id: string) => {

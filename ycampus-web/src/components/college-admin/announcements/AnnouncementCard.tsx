@@ -96,7 +96,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ announcement
         {onEdit && (
           <button
             onClick={() => onEdit(announcement)}
-            className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+            className="p-1.5 text-gray-400 hover:text-slate-950 hover:bg-slate-100 rounded-md transition-colors"
             title="Edit"
           >
             <Pencil className="w-4 h-4" />

@@ -184,7 +184,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
               onChange={(e) => setContent(e.target.value.slice(0, 1000))}
               placeholder="Share updates, ask questions, or start a discussion..."
               rows={5}
-              className="border-gray-200 focus:border-orange-300 focus:ring-orange-200 resize-none text-gray-800"
+              className="border-gray-200 focus:border-slate-300 focus:ring-slate-200 resize-none text-gray-800"
             />
             <div className="text-right text-xs text-gray-500">{content.length}/1000</div>
           </div>
@@ -196,7 +196,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
                 value={visibility}
                 onValueChange={(value) => setVisibility(value)}
               >
-                <SelectTrigger className="border-gray-200 focus:border-orange-300">
+                <SelectTrigger className="border-gray-200 focus:border-slate-300">
                   <SelectValue placeholder="Select Visibility" />
                 </SelectTrigger>
                 <SelectContent>
@@ -220,7 +220,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
                   }}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
                     selectedTags.includes(tag)
-                      ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                      ? 'bg-slate-100 text-slate-900 border border-slate-200'
                       : 'text-gray-600 hover:bg-gray-50 border border-transparent'
                   }`}
                 >
@@ -262,9 +262,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
                     />
                     <label
                       htmlFor="image-upload"
-                      className="flex flex-col items-center justify-center w-24 h-24 rounded-lg cursor-pointer border-2 border-dashed bg-slate-50 border-slate-200 text-slate-500 hover:border-orange-400 hover:text-orange-500 transition-all font-bold"
+                      className="flex flex-col items-center justify-center w-24 h-24 rounded-lg cursor-pointer border-2 border-dashed bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-600 transition-all font-bold"
                     >
-                      <ImageIcon className="w-6 h-6 mb-1 text-orange-400" />
+                      <ImageIcon className="w-6 h-6 mb-1 text-slate-400" />
                       <span className="text-xs">Add</span>
                     </label>
                   </div>
@@ -279,7 +279,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onSu
           <Button variant="outline" onClick={onClose} className="border-gray-200">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!content.trim() || loading} className="bg-orange-600 hover:bg-orange-700 text-white">
+          <Button onClick={handleSubmit} disabled={!content.trim() || loading} className="bg-slate-900 hover:bg-slate-950 text-white">
              {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : (editPost ? 'Update' : 'Post')}
           </Button>
         </DialogFooter>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RoleSidebar from '../../../components/common/RoleSidebar';
 import RoleHeader from '../../../components/common/RoleHeader';
+import { useAuth } from '../../../contexts/AuthContext';
 import PostCard from './PostCard';
 import CreatePostModal from './CreatePostModal';
 import { Post, getPosts } from '../../../services/community';
@@ -8,6 +9,7 @@ import { MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Community = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,8 +63,8 @@ const Community = () => {
           <div className="max-w-7xl mx-auto space-y-6">
           
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-8 flex items-center gap-4">
-             <div className="w-10 h-10 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center font-bold text-lg">
-                ST
+             <div className="w-10 h-10 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center font-bold text-lg">
+                {(user as any)?.first_name?.charAt(0).toUpperCase() || 'S'}
              </div>
              <div 
                className="flex-1 bg-gray-100 rounded-full px-4 py-3 text-gray-500 cursor-text hover:bg-gray-200 transition-colors"
@@ -72,7 +74,7 @@ const Community = () => {
              </div>
              <button 
                 onClick={() => { setEditingPost(null); setIsCreateModalOpen(true); }}
-                className="bg-orange-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center gap-2 shadow-sm"
+                className="bg-slate-900 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-slate-950 transition-colors flex items-center gap-2 shadow-sm"
              >
                <span className="hidden sm:inline">Create Post</span>
                <span className="sm:hidden">+</span>
@@ -86,7 +88,7 @@ const Community = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   activeTab === tab.id 
-                    ? 'border-orange-600 text-orange-600' 
+                    ? 'border-slate-900 text-slate-900' 
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -98,7 +100,7 @@ const Community = () => {
           <div className="space-y-6">
             {loading ? (
               <div className="flex justify-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
               </div>
             ) : posts.length > 0 ? (
               posts.map(post => (
