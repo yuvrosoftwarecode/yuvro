@@ -58,6 +58,7 @@ interface CodeEditorProps {
   isFullscreen?: boolean;
   templates?: Record<string, string>;
   height?: string;
+  hideSubmitButton?: boolean;
 }
 
 export interface CodeEditorHandle {
@@ -102,7 +103,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   onFullscreenChange,
   isFullscreen: controlledFullscreen,
   templates,
-  height = '100%'
+  height = '100%',
+  hideSubmitButton = false
 }, ref) => {
   // Editor & code state
   // If value is provided, we use it as initial state, but we also sync it via useEffect
@@ -532,14 +534,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         >
                           <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
-                        <Button
-                          onClick={submitSolution}
-                          disabled={isRunning || isSubmitting}
-                          size="sm"
-                          className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
-                        >
-                          <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
-                        </Button>
+                        {!hideSubmitButton && (
+                          <Button
+                            onClick={submitSolution}
+                            disabled={isRunning || isSubmitting}
+                            size="sm"
+                            className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
+                          >
+                            <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                          </Button>
+                        )}
                         <div className="w-px h-5 bg-gray-300 mx-2" />
                         <Button
                           variant="ghost"
@@ -855,14 +859,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 >
                   <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
                 </Button>
-                <Button
-                  onClick={submitSolution}
-                  disabled={isRunning || isSubmitting}
-                  size="sm"
-                  className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
-                >
-                  <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
+                {!hideSubmitButton && (
+                  <Button
+                    onClick={submitSolution}
+                    disabled={isRunning || isSubmitting}
+                    size="sm"
+                    className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-4 rounded-md transition-all disabled:opacity-50"
+                  >
+                    <Send className="h-3 w-3 mr-1" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                  </Button>
+                )}
               </div>
             </div>
           )}

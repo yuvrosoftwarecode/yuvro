@@ -155,7 +155,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
             <span>/</span>
             <span className="text-foreground font-medium">Analytics</span>
           </div>
-          <Button onClick={onViewInsights} className="gap-1 items-right ml-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:opacity-90 shadow-md transition-transform hover:scale-105">
+          <Button onClick={onViewInsights} className="gap-1 items-right ml-auto bg-gradient-to-r from-orange-600 to-amber-500 text-white border-0 hover:opacity-90 shadow-md transition-transform hover:scale-105">
             <Brain className="h-4 w-4" />
             AI Insights
           </Button>

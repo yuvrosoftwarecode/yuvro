@@ -1,0 +1,214 @@
+{
+  "courses": [
+    {
+      "short_code": "JAVA101",
+      "name": "Java Programming",
+      "category": "programming",
+      "instructor_email": "instructor_ds@yuvro.com",
+      "topics": [
+        {
+          "name": "Java Fundamentals",
+          "order_index": 0,
+          "subtopics": [
+            {
+              "name": "Data Types and Variables",
+              "content": "Primitive types, wrapper classes, and variable declaration in Java",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Java Data Types and Variables",
+                  "video_link": "https://www.youtube.com/watch?v=Le25I331_yU",
+                  "ai_context": "Java primitive types, autoboxing, and variable scope"
+                },
+                {
+                  "title": "Java Wrapper Classes",
+                  "video_link": "https://www.youtube.com/watch?v=kog78g2fvqU",
+                  "ai_context": "Integer, Double, Boolean and other wrapper classes"
+                }
+              ]
+            },
+            {
+              "name": "Control Statements",
+              "content": "if/else, switch, for, while, and do-while in Java",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Java Control Flow Statements",
+                  "video_link": "https://www.youtube.com/watch?v=I_tAPKMoZpE",
+                  "ai_context": "Conditional and loop constructs in Java"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Object-Oriented Programming",
+          "order_index": 1,
+          "subtopics": [
+            {
+              "name": "Classes and Objects",
+              "content": "Class definition, constructors, fields, and methods in Java",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Java Classes and Objects",
+                  "video_link": "https://www.youtube.com/watch?v=IUqKuGNasdM",
+                  "ai_context": "OOP fundamentals in Java"
+                }
+              ]
+            },
+            {
+              "name": "Interfaces and Abstract Classes",
+              "content": "Defining and implementing interfaces, abstract classes, and polymorphism",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Java Interfaces vs Abstract Classes",
+                  "video_link": "https://www.youtube.com/watch?v=A7X4R3uxohY",
+                  "ai_context": "Interface implementation and abstract class usage in Java"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Collections Framework",
+          "order_index": 2,
+          "subtopics": [
+            {
+              "name": "List and ArrayList",
+              "content": "ArrayList, LinkedList, and the List interface",
+              "order_index": 0,
+              "videos": [
+                {
+                  "title": "Java ArrayList Tutorial",
+                  "video_link": "https://www.youtube.com/watch?v=IEqvmsqjpT0",
+                  "ai_context": "ArrayList operations and performance characteristics"
+                }
+              ]
+            },
+            {
+              "name": "HashMap and HashSet",
+              "content": "HashMap, HashSet, and their use cases",
+              "order_index": 1,
+              "videos": [
+                {
+                  "title": "Java HashMap and HashSet",
+                  "video_link": "https://www.youtube.com/watch?v=H62Jfv1DZMc",
+                  "ai_context": "Hash-based collections in Java"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "type": "mcq_single",
+          "title": "Java Default Integer Value",
+          "content": "What is the default value of an int field in a Java class?",
+          "level": "subtopic",
+          "topic_name": "Java Fundamentals",
+          "subtopic_name": "Data Types and Variables",
+          "difficulty": "easy",
+          "marks": 2,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "0", "is_correct": true},
+            {"text": "null", "is_correct": false},
+            {"text": "-1", "is_correct": false},
+            {"text": "undefined", "is_correct": false}
+          ]
+        },
+        {
+          "type": "mcq_multiple",
+          "title": "Java OOP Pillars",
+          "content": "Which of the following are core pillars of OOP in Java?",
+          "level": "topic",
+          "topic_name": "Object-Oriented Programming",
+          "difficulty": "easy",
+          "marks": 3,
+          "categories": ["learn", "skill_test"],
+          "mcq_options": [
+            {"text": "Encapsulation", "is_correct": true},
+            {"text": "Inheritance", "is_correct": true},
+            {"text": "Compilation", "is_correct": false},
+            {"text": "Polymorphism", "is_correct": true}
+          ]
+        },
+        {
+          "type": "coding",
+          "title": "Reverse an Array",
+          "content": "Given an array of integers, return a new array with elements in reverse order.",
+          "level": "subtopic",
+          "topic_name": "Java Fundamentals",
+          "subtopic_name": "Control Statements",
+          "difficulty": "easy",
+          "marks": 5,
+          "categories": ["practice", "contest"],
+          "test_cases_basic": [
+            {"input": "[1, 2, 3, 4, 5]", "expected_output": "[5, 4, 3, 2, 1]"},
+            {"input": "[10, 20]", "expected_output": "[20, 10]"}
+          ],
+          "test_cases_advanced": [
+            {"input": "[1]", "expected_output": "[1]"},
+            {"input": "[]", "expected_output": "[]"}
+          ]
+        },
+        {
+          "type": "mcq_single",
+          "title": "Java Interface vs Abstract Class",
+          "content": "Which statement is true about Java interfaces (Java 8+)?",
+          "level": "subtopic",
+          "topic_name": "Object-Oriented Programming",
+          "subtopic_name": "Interfaces and Abstract Classes",
+          "difficulty": "medium",
+          "marks": 3,
+          "categories": ["learn", "practice"],
+          "mcq_options": [
+            {"text": "Interfaces can have default method implementations", "is_correct": true},
+            {"text": "Interfaces can have instance fields", "is_correct": false},
+            {"text": "A class can extend multiple abstract classes", "is_correct": false},
+            {"text": "Abstract classes cannot have constructors", "is_correct": false}
+          ]
+        },
+        {
+          "type": "coding",
+          "title": "Count Word Frequency",
+          "content": "Given a sentence, return a map of each word to its frequency count.",
+          "level": "subtopic",
+          "topic_name": "Collections Framework",
+          "subtopic_name": "HashMap and HashSet",
+          "difficulty": "medium",
+          "marks": 8,
+          "categories": ["practice", "mock_interview"],
+          "test_cases_basic": [
+            {"input": "hello world hello", "expected_output": "{hello=2, world=1}"},
+            {"input": "a b a a b", "expected_output": "{a=3, b=2}"}
+          ],
+          "test_cases_advanced": [
+            {"input": "one", "expected_output": "{one=1}"},
+            {"input": "x x x x", "expected_output": "{x=4}"}
+          ]
+        }
+      ],
+      "assessments": {
+        "skill_tests": [
+          {
+            "title": "Java Fundamentals Skill Test",
+            "description": "Test your Java programming knowledge",
+            "instructions": "Answer all questions within the time limit.",
+            "difficulty": "medium",
+            "duration": 45,
+            "total_marks": 60,
+            "passing_marks": 36,
+            "course_short_code": "JAVA101",
+            "questions_random_config": {"mcq_single": 3, "mcq_multiple": 1, "coding": 1},
+            "publish_status": "published"
+          }
+        ],
+        "contests": []
+      }
+    }
+  ]
+}

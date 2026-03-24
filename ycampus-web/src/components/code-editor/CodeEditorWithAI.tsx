@@ -28,11 +28,15 @@ interface CodeEditorWithAIProps {
   showProblemDescription?: boolean;
   codeSubmissionType?: 'learn' | 'practice';
   onSubmissionComplete?: (problemId: string, success: boolean, submissionResult?: any) => void;
+  onCodeChange?: (code: string) => void;
+  initialCode?: string;
+  hideSubmitButton?: boolean;
 }
 
 export interface CodeEditorWithAIHandle {
   openExampleGallery: () => void;
   getLanguage: () => string;
+  getCode: () => string;
 }
 
 const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProps>(({
@@ -50,7 +54,10 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   showAiBuddy = true,
   showProblemDescription = true,
   codeSubmissionType = 'practice',
-  onSubmissionComplete
+  onSubmissionComplete,
+  onCodeChange,
+  initialCode = "",
+  hideSubmitButton = false
 }, ref) => {
   // UI state
   const [editorOpen, setEditorOpen] = useState(initialEditorOpen);
@@ -60,7 +67,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [chatSessionId, setChatSessionId] = useState(() => `chat-${problem.id}-${crypto.randomUUID()}`);
 
   // Lifted state to persist across view switches
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initialCode);
   const [language, setLanguage] = useState("python");
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
@@ -116,7 +123,8 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
     openExampleGallery: () => codeEditorRef.current?.openExampleGallery(),
-    getLanguage: () => codeEditorRef.current?.getLanguage() || 'python'
+    getLanguage: () => codeEditorRef.current?.getLanguage() || 'python',
+    getCode: () => codeEditorRef.current?.getCode() || ''
   }));
 
   // Difficulty badge style (pure Tailwind)
@@ -417,7 +425,10 @@ ${codeEditorRef.current?.getCode() || ''}
                 <CodeEditor
                   ref={codeEditorRef}
                   initialCode={code}
-                  onCodeChange={setCode}
+                  onCodeChange={(newCode) => {
+                    setCode(newCode);
+                    onCodeChange?.(newCode);
+                  }}
                   initialLanguage={language}
                   onLanguageChange={setLanguage}
                   problemTitle={problem.title}
@@ -438,6 +449,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   templates={apiTemplates}
                   codeSubmissionType={codeSubmissionType}
                   onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                  hideSubmitButton={hideSubmitButton}
                 />
               </div>
             </ResizablePanel>
@@ -524,7 +536,10 @@ ${codeEditorRef.current?.getCode() || ''}
                   <CodeEditor
                     ref={codeEditorRef}
                     initialCode={code}
-                    onCodeChange={setCode}
+                    onCodeChange={(newCode) => {
+                      setCode(newCode);
+                      onCodeChange?.(newCode);
+                    }}
                     initialLanguage={language}
                     onLanguageChange={setLanguage}
                     problemTitle={problem.title}
@@ -545,6 +560,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     templates={apiTemplates}
                     codeSubmissionType={codeSubmissionType}
                     onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+                    hideSubmitButton={hideSubmitButton}
                   />
                 </div>
               </ResizablePanel>

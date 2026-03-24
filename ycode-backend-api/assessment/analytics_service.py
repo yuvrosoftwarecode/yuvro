@@ -57,6 +57,14 @@ class ContestAnalyticsService:
         behavioral_insights = self._calculate_behavioral_insights(submission, question_activities)
 
         return {
+            "contest_info": {
+                "title": self.contest.title,
+                "start_time": self.contest.start_datetime,
+                "end_time": self.contest.end_datetime,
+                "total_marks": self.contest.total_marks,
+                "passing_marks": self.contest.passing_marks,
+                "duration_minutes": self.contest.duration,
+            },
             "performance_overview": performance_overview,
             "question_breakdown": question_breakdown,
             "topic_performance": topic_performance,
@@ -83,17 +91,21 @@ class ContestAnalyticsService:
             status=ContestSubmission.STATUS_CANCELLED
         ).order_by('-marks', 'submitted_at')
 
-        # Calculate overall rank
-        rank = 1
-        for idx, sub in enumerate(all_submissions, 1):
-            if sub.id == submission.id:
-                rank = idx
-                break
+        # Calculate overall rank using a single DB count (avoids iterating all rows)
+        student_marks = submission.marks or 0
+        rank = all_submissions.filter(
+            Q(marks__gt=student_marks) |
+            Q(marks=student_marks, submitted_at__lt=submission.submitted_at)
+        ).count() + 1
 
         total_participants = all_submissions.count()
-        
-        # Calculate percentile
-        percentile = ((total_participants - rank) / total_participants * 100) if total_participants > 0 else 0
+
+        # Rank is only meaningful with multiple participants
+        display_rank = rank if total_participants > 1 else None
+
+        # Percentile = score-based (% of max marks achieved) — always meaningful regardless of participant count
+        score_percentage = round((student_marks / self.contest.total_marks * 100), 2) if self.contest.total_marks > 0 else 0
+        percentile = score_percentage
 
         # Get college rank if user has a college
         college_rank = None
@@ -104,10 +116,11 @@ class ContestAnalyticsService:
                 user__profile__college=profile.college
             )
             college_total = college_submissions.count()
-            for idx, sub in enumerate(college_submissions, 1):
-                if sub.id == submission.id:
-                    college_rank = idx
-                    break
+            # Use DB count for college rank too
+            college_rank = college_submissions.filter(
+                Q(marks__gt=student_marks) |
+                Q(marks=student_marks, submitted_at__lt=submission.submitted_at)
+            ).count() + 1
 
         # Calculate time taken
         time_taken_seconds = None
@@ -128,7 +141,7 @@ class ContestAnalyticsService:
             "score": submission.marks or 0,
             "max_score": self.contest.total_marks,
             "percentage": round((submission.marks or 0) / self.contest.total_marks * 100, 2) if self.contest.total_marks > 0 else 0,
-            "rank": rank,
+            "rank": display_rank,
             "total_participants": total_participants,
             "percentile": round(percentile, 2),
             "college_rank": college_rank,
@@ -139,8 +152,8 @@ class ContestAnalyticsService:
             "completion_status": submission.status,
             "contest_average": round(contest_avg, 2),
             "college_average": round(college_avg, 2) if college_avg else None,
-            "vs_contest_avg": round(((submission.marks or 0) - contest_avg) / contest_avg * 100, 2) if contest_avg > 0 else 0,
-            "vs_college_avg": round(((submission.marks or 0) - college_avg) / college_avg * 100, 2) if college_avg and college_avg > 0 else None,
+            "vs_contest_avg": round((submission.marks or 0) - contest_avg, 2),
+            "vs_college_avg": round((submission.marks or 0) - college_avg, 2) if college_avg is not None else None,
         }
 
     def _calculate_question_breakdown(
@@ -151,6 +164,21 @@ class ContestAnalyticsService:
         
         for qa in question_activities:
             question = qa.question
+
+            # Extract correct answer(s) for MCQ questions
+            correct_answer = None
+            if question.type in ('mcq_single', 'mcq_multiple') and question.mcq_options:
+                correct_options = [
+                    opt['text'] for opt in question.mcq_options
+                    if opt.get('is_correct')
+                ]
+                correct_answer = correct_options[0] if question.type == 'mcq_single' else correct_options
+
+            # Extract student's submitted answer
+            student_answer = None
+            if qa.answer_data:
+                student_answer = qa.answer_data.get('answer', qa.answer_data)
+
             breakdown.append({
                 "question_id": str(question.id),
                 "title": question.title,
@@ -165,6 +193,8 @@ class ContestAnalyticsService:
                 "status": "Correct ✓" if qa.is_correct else "Incorrect ✗",
                 "has_violations": qa.has_violations,
                 "violation_count": qa.violation_count,
+                "correct_answer": correct_answer,
+                "student_answer": student_answer,
             })
         
         return breakdown
@@ -194,19 +224,8 @@ class ContestAnalyticsService:
             topic_data[topic_name]["marks_obtained"] += qa.marks_obtained or 0
             topic_data[topic_name]["total_time"] += qa.total_question_time or 0
 
-        # Calculate contest average per topic for comparison
-        all_activities = ContestQuestionActivity.objects.filter(
-            contest_submission__contest=self.contest,
-            is_final_answer=True
-        ).select_related('question', 'question__topic')
-
-        topic_averages = {}
-        for qa in all_activities:
-            topic_name = qa.question.topic.name if qa.question.topic else "General"
-            if topic_name not in topic_averages:
-                topic_averages[topic_name] = []
-            if qa.marks_obtained is not None:
-                topic_averages[topic_name].append(qa.marks_obtained / qa.question.marks * 100 if qa.question.marks > 0 else 0)
+        # Use cached contest-wide topic averages (single shared DB query)
+        topic_averages = self._get_contest_topic_averages()
 
         # Format results
         results = []
@@ -216,7 +235,8 @@ class ContestAnalyticsService:
             avg_time = data["total_time"] / data["questions_attempted"] if data["questions_attempted"] > 0 else 0
             
             # Calculate topic average
-            topic_avg = sum(topic_averages.get(topic, [0])) / len(topic_averages.get(topic, [1])) if topic in topic_averages else 0
+            topic_avg_list = topic_averages.get(topic, [])
+            topic_avg = sum(topic_avg_list) / len(topic_avg_list) if topic_avg_list else 0
             vs_average = score_percentage - topic_avg
 
             results.append({
@@ -282,6 +302,10 @@ class ContestAnalyticsService:
         question_count = len(question_activities)
         avg_time = total_time / question_count if question_count > 0 else 0
 
+        # Fall back to actual submission wall-clock time if no per-question tracking
+        if total_time == 0 and submission.submitted_at and submission.started_at:
+            total_time = (submission.submitted_at - submission.started_at).total_seconds()
+
         # Find fastest and slowest questions
         sorted_by_time = sorted(question_activities, key=lambda qa: qa.total_question_time or 0)
         fastest = sorted_by_time[0] if sorted_by_time else None
@@ -310,6 +334,30 @@ class ContestAnalyticsService:
             "allocated_time_minutes": self.contest.duration,
             "time_efficiency_percentage": round(time_efficiency, 2),
         }
+
+    def _get_contest_topic_averages(self) -> Dict[str, list]:
+        """
+        Compute per-topic score percentages for ALL contest activities.
+        Cached on the instance so student and college analytics share one DB query.
+        """
+        if hasattr(self, '_topic_averages_cache'):
+            return self._topic_averages_cache
+
+        all_activities = ContestQuestionActivity.objects.filter(
+            contest_submission__contest=self.contest,
+            is_final_answer=True
+        ).select_related('question', 'question__topic')
+
+        topic_averages: Dict[str, list] = {}
+        for qa in all_activities:
+            topic_name = qa.question.topic.name if qa.question.topic else "General"
+            if topic_name not in topic_averages:
+                topic_averages[topic_name] = []
+            if qa.marks_obtained is not None and qa.question.marks > 0:
+                topic_averages[topic_name].append(qa.marks_obtained / qa.question.marks * 100)
+
+        self._topic_averages_cache = topic_averages
+        return topic_averages
 
     def _calculate_behavioral_insights(
         self, submission: ContestSubmission, question_activities: List[ContestQuestionActivity]
@@ -375,14 +423,26 @@ class ContestAnalyticsService:
         college_topic_performance = self._calculate_college_topic_performance(college_submissions)
         college_time_metrics = self._calculate_college_time_metrics(college_submissions)
         college_integrity = self._calculate_college_integrity(college_submissions)
+        score_distribution = self._calculate_score_distribution(college_submissions)
+        did_not_attempt = self._calculate_did_not_attempt(college)
 
         return {
+            "contest_info": {
+                "title": self.contest.title,
+                "start_time": self.contest.start_datetime,
+                "end_time": self.contest.end_datetime,
+                "total_marks": self.contest.total_marks,
+                "passing_marks": self.contest.passing_marks,
+                "duration_minutes": self.contest.duration,
+            },
             "college_overview": college_overview,
             "department_breakdown": department_breakdown,
             "student_list": student_list,
             "topic_performance": college_topic_performance,
             "time_metrics": college_time_metrics,
             "integrity_metrics": college_integrity,
+            "score_distribution": score_distribution,
+            "did_not_attempt": did_not_attempt,
         }
 
     def _calculate_college_overview(
@@ -408,8 +468,10 @@ class ContestAnalyticsService:
         
         completion_rate = (completed_students / total_students * 100) if total_students > 0 else 0
 
-        # Calculate college rank among all colleges
-        college_rankings = all_submissions.values(
+        # Calculate college rank among all colleges — exclude null-college submissions
+        college_rankings = all_submissions.exclude(
+            user__profile__college__isnull=True
+        ).values(
             'user__profile__college__id',
             'user__profile__college__name'
         ).annotate(
@@ -418,10 +480,9 @@ class ContestAnalyticsService:
         ).order_by('-avg_score')
 
         college_rank = None
-        total_colleges = 0
+        total_colleges = college_rankings.count()
         for idx, ranking in enumerate(college_rankings, 1):
-            total_colleges += 1
-            if ranking['user__profile__college__id'] == str(college.id):
+            if str(ranking['user__profile__college__id']) == str(college.id):
                 college_rank = idx
                 break
 
@@ -468,11 +529,29 @@ class ContestAnalyticsService:
             ))
         ).order_by('-avg_score')
 
+        passing_marks = self.contest.passing_marks or 0
+
         results = []
         for dept in department_data:
             if dept['user__profile__department__name']:  # Skip null departments
                 completion_rate = (dept['completed_count'] / dept['student_count'] * 100) if dept['student_count'] > 0 else 0
-                
+
+                # Pass rate: students in this dept who scored >= passing_marks
+                dept_submissions = college_submissions.filter(
+                    user__profile__department__id=dept['user__profile__department__id']
+                )
+                passed_count = dept_submissions.filter(marks__gte=passing_marks).count() if passing_marks > 0 else 0
+                pass_rate = (passed_count / dept['student_count'] * 100) if dept['student_count'] > 0 and passing_marks > 0 else None
+
+                # Avg time for this department
+                dept_time_total = 0
+                dept_time_count = 0
+                for sub in dept_submissions:
+                    if sub.submitted_at and sub.started_at:
+                        dept_time_total += (sub.submitted_at - sub.started_at).total_seconds()
+                        dept_time_count += 1
+                dept_avg_time = (dept_time_total / dept_time_count) if dept_time_count > 0 else 0
+
                 results.append({
                     "department_id": dept['user__profile__department__id'],
                     "department_name": dept['user__profile__department__name'],
@@ -482,6 +561,9 @@ class ContestAnalyticsService:
                     "average_score": round(dept['avg_score'] or 0, 2),
                     "max_score": dept['max_score'] or 0,
                     "min_score": dept['min_score'] or 0,
+                    "passed_count": passed_count,
+                    "pass_rate": round(pass_rate, 2) if pass_rate is not None else None,
+                    "avg_time_minutes": round(dept_avg_time / 60, 1) if dept_avg_time > 0 else None,
                 })
 
         return results
@@ -490,21 +572,33 @@ class ContestAnalyticsService:
         """Generate list of all students from the college with their performance."""
         students = []
         
-        # Get all submissions ordered by marks
+        # Get all non-cancelled submissions for global rank calculation
+        all_submissions = ContestSubmission.objects.filter(
+            contest=self.contest
+        ).exclude(status=ContestSubmission.STATUS_CANCELLED)
+
         ordered_submissions = college_submissions.order_by('-marks', 'submitted_at')
         
         for idx, submission in enumerate(ordered_submissions, 1):
             user = submission.user
             profile = user.profile
-            
+            student_marks = submission.marks or 0
+
+            # Global rank via DB count (no full table iteration)
+            global_rank = all_submissions.filter(
+                Q(marks__gt=student_marks) |
+                Q(marks=student_marks, submitted_at__lt=submission.submitted_at)
+            ).count() + 1
+
             students.append({
-                "rank": idx,
+                "rank": idx,  # rank within college
+                "global_rank": global_rank,
                 "user_id": str(user.id),
                 "name": user.get_full_name(),
                 "email": user.email,
                 "department": profile.department.name if profile.department else "N/A",
-                "score": submission.marks or 0,
-                "percentage": round((submission.marks or 0) / self.contest.total_marks * 100, 2) if self.contest.total_marks > 0 else 0,
+                "score": student_marks,
+                "percentage": round(student_marks / self.contest.total_marks * 100, 2) if self.contest.total_marks > 0 else 0,
                 "status": submission.status,
                 "submitted_at": submission.submitted_at,
                 "time_taken_minutes": round((submission.submitted_at - submission.started_at).total_seconds() / 60, 2) if submission.submitted_at and submission.started_at else None,
@@ -540,19 +634,8 @@ class ContestAnalyticsService:
             topic_data[topic_name]["total_marks"] += qa.question.marks
             topic_data[topic_name]["marks_obtained"] += qa.marks_obtained or 0
 
-        # Calculate contest average per topic
-        all_activities = ContestQuestionActivity.objects.filter(
-            contest_submission__contest=self.contest,
-            is_final_answer=True
-        ).select_related('question', 'question__topic')
-
-        topic_averages = {}
-        for qa in all_activities:
-            topic_name = qa.question.topic.name if qa.question.topic else "General"
-            if topic_name not in topic_averages:
-                topic_averages[topic_name] = []
-            if qa.marks_obtained is not None:
-                topic_averages[topic_name].append(qa.marks_obtained / qa.question.marks * 100 if qa.question.marks > 0 else 0)
+        # Use cached contest-wide topic averages (single shared DB query)
+        topic_averages = self._get_contest_topic_averages()
 
         # Format results
         results = []
@@ -560,7 +643,8 @@ class ContestAnalyticsService:
             accuracy = (data["correct"] / data["attempts"] * 100) if data["attempts"] > 0 else 0
             score_percentage = (data["marks_obtained"] / data["total_marks"] * 100) if data["total_marks"] > 0 else 0
             
-            topic_avg = sum(topic_averages.get(topic, [0])) / len(topic_averages.get(topic, [1])) if topic in topic_averages else 0
+            topic_avg_list = topic_averages.get(topic, [])
+            topic_avg = sum(topic_avg_list) / len(topic_avg_list) if topic_avg_list else 0
             vs_average = score_percentage - topic_avg
 
             results.append({
@@ -616,10 +700,81 @@ class ContestAnalyticsService:
         clean_submissions = college_submissions.count() - submissions_with_violations
         clean_percentage = (clean_submissions / college_submissions.count() * 100) if college_submissions.count() > 0 else 0
 
+        # Per-student violation summary for staff follow-up
+        flagged_students = []
+        for submission in college_submissions:
+            sub_violations = activities.filter(contest_submission=submission)
+            v_count = sum(qa.violation_count for qa in sub_violations)
+            if v_count > 0:
+                flagged_students.append({
+                    "name": submission.user.get_full_name(),
+                    "email": submission.user.email,
+                    "violation_count": v_count,
+                })
+        flagged_students.sort(key=lambda x: x["violation_count"], reverse=True)
+
         return {
             "total_violations": total_violations,
             "submissions_with_violations": submissions_with_violations,
             "clean_submissions": clean_submissions,
             "clean_percentage": round(clean_percentage, 2),
             "average_violations_per_student": round(total_violations / college_submissions.count(), 2) if college_submissions.count() > 0 else 0,
+            "flagged_students": flagged_students,
         }
+
+    def _calculate_score_distribution(self, college_submissions) -> List[Dict[str, Any]]:
+        """Bucket scores into ranges for a histogram view."""
+        total_marks = self.contest.total_marks
+        if total_marks == 0:
+            return []
+
+        buckets = [
+            {"range": "0–20%", "min_pct": 0, "max_pct": 20, "count": 0},
+            {"range": "21–40%", "min_pct": 21, "max_pct": 40, "count": 0},
+            {"range": "41–60%", "min_pct": 41, "max_pct": 60, "count": 0},
+            {"range": "61–80%", "min_pct": 61, "max_pct": 80, "count": 0},
+            {"range": "81–100%", "min_pct": 81, "max_pct": 100, "count": 0},
+        ]
+
+        for submission in college_submissions:
+            pct = ((submission.marks or 0) / total_marks * 100)
+            for bucket in buckets:
+                if bucket["min_pct"] <= pct <= bucket["max_pct"]:
+                    bucket["count"] += 1
+                    break
+
+        return [{"range": b["range"], "count": b["count"]} for b in buckets]
+
+    def _calculate_did_not_attempt(self, college: College) -> List[Dict[str, Any]]:
+        """Return students from this college who are enrolled but never started the contest."""
+        from authentication.models import Profile
+
+        # Students from this college who have a profile
+        college_user_ids = set(
+            Profile.objects.filter(college=college).values_list('user_id', flat=True)
+        )
+
+        # Students who have any submission (including cancelled) for this contest
+        attempted_user_ids = set(
+            ContestSubmission.objects.filter(
+                contest=self.contest,
+                user_id__in=college_user_ids
+            ).values_list('user_id', flat=True)
+        )
+
+        not_attempted_ids = college_user_ids - attempted_user_ids
+
+        from authentication.models import User as AuthUser
+        students = AuthUser.objects.filter(
+            id__in=not_attempted_ids,
+            role='student'
+        ).select_related('profile', 'profile__department')
+
+        return [
+            {
+                "name": s.get_full_name(),
+                "email": s.email,
+                "department": s.profile.department.name if hasattr(s, 'profile') and s.profile.department else "N/A",
+            }
+            for s in students
+        ]

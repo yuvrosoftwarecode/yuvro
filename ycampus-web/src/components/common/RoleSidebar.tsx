@@ -166,7 +166,6 @@ const sidebarItems: SidebarItem[] = [
     path: '/recruiter/dashboard',
     roles: ['recruiter']
   },
-  // Principal Items
   {
     id: 'principal-dashboard',
     label: 'Dashboard',
@@ -239,10 +238,24 @@ const sidebarItems: SidebarItem[] = [
     roles: ['college_admin']
   },
   {
+    id: 'college-announcements',
+    label: 'Announcements',
+    icon: Activity,
+    path: '/college-admin/announcements',
+    roles: ['college_admin']
+  },
+  {
     id: 'college-subjects',
     label: 'Subjects',
     icon: BookOpen,
     path: '/college-admin/subjects',
+    roles: ['college_admin']
+  },
+  {
+    id: 'college-tpo',
+    label: 'TPO Management',
+    icon: Users,
+    path: '/college-admin/tpo',
     roles: ['college_admin']
   },
   {
@@ -817,7 +830,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
         </div>
       </div>
 
-      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-white shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
+      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-[#FBFBFB] shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
         <SidebarContent 
           collapsed={sidebarCollapsed} 
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

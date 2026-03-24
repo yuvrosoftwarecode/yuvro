@@ -19,6 +19,7 @@ export interface User {
   };
   college_name?: string;
   college_id?: string;
+  department_id?: string;
 }
 
 interface AuthState {

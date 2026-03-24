@@ -5,7 +5,6 @@ from .models import (
     Unit,
     SubUnit,
     Video,
-    Note,
     Question,
     StudentCodePractice,
     UserSubjectProgress,
@@ -145,27 +144,6 @@ class QuestionAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
-
-# ------------------ NOTE ADMIN ------------------
-@admin.register(Note)
-class NoteAdmin(admin.ModelAdmin):
-    list_display = ["content_preview", "user", "sub_unit", "created_at", "updated_at"]
-    list_filter = ["sub_unit__unit__subject", "sub_unit__unit", "user", "created_at"]
-    search_fields = [
-        "content",
-        "user__username",
-        "user__email",
-        "sub_unit__name",
-        "sub_unit__unit__name",
-    ]
-    readonly_fields = ["id", "created_at", "updated_at"]
-    fields = ["content", "user", "sub_unit", "id", "created_at", "updated_at"]
-    ordering = ["sub_unit", "user", "created_at"]
-
-    def content_preview(self, obj):
-        return obj.content[:30] + "..." if len(obj.content) > 30 else obj.content
-
-    content_preview.short_description = "Content"
 
 
 @admin.register(CollegeSubject)

@@ -4,6 +4,7 @@ import AIChatInput from './ChatInput';
 import useAIChat from './useAIChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { History as HistoryIcon, Clock, X, Plus } from 'lucide-react';
+import './AIChatWidget.css';
 
 const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => string, welcomeMessage?: string, persistenceKey?: string, chatTitle?: string, onNewChat?: () => void, showHistory?: boolean, onInsertCode?: (code: string) => void }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onNewChat, showHistory = true, onInsertCode }) => {
   const { user } = useAuth();
@@ -11,7 +12,10 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
     ? welcomeMessage.replace(/^Hi!/, `Hi ${user?.first_name || 'Student'}!`)
     : `Hi ${user?.first_name || 'Student'}! I'm here to help you. Ask me anything!`;
 
-  const { messages, sendMessage, isLoading, clearMessages, history, loadSession, suggestedPrompts, provideFeedback } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle });
+  const { 
+    messages, sendMessage, isLoading, clearMessages, 
+    history, loadSession, suggestedPrompts, provideFeedback, handleType, activeStream 
+  } = useAIChat({ getContext: contextGetter, persistenceKey, chatTitle, userName: user?.first_name || 'Student' });
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -28,13 +32,13 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
 
   return (
     <div
-      className={`ai-chat-container relative flex flex-col bg-white shadow-xl rounded-2xl overflow-hidden  border border-slate-100 ${className || 'w-[360px] h-[500px]'}`}
+      className={`ai-chat-container relative flex flex-col rounded-2xl overflow-hidden ${className || 'w-[360px] h-[520px]'}`}
     >
-      <div className="px-6 py-4 border-b border-slate-50 bg-white shrink-0">
+      <div className="px-5 py-4 border-b border-slate-100 shrink-0 bg-white">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-            <div className="text-base font-black text-slate-800 tracking-tight">AI Buddy</div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="text-sm font-bold text-slate-800 tracking-tight">AI Buddy</div>
           </div>
           <div className="flex items-center gap-3">
             {persistenceKey && (
@@ -57,7 +61,7 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
                 )}
               </>
             )}
-            <span className="text-[10px] font-black px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-100 tracking-wider">PLUS</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg tracking-wider">PLUS</span>
           </div>
         </div>
 
@@ -98,11 +102,12 @@ const AIChatContainer: React.FC<{ className?: string, contextGetter?: () => stri
         )}
       </div>
 
-      <AIChatMessages messages={messages} isLoading={isLoading} welcomeMessage={personalizedWelcome} onInsertCode={onInsertCode} onFeedback={provideFeedback} />
+      <AIChatMessages messages={messages} isLoading={isLoading} activeStream={activeStream} welcomeMessage={personalizedWelcome} onInsertCode={onInsertCode} onFeedback={provideFeedback} />
 
       <div className="p-4 border-t border-slate-50 bg-white shrink-0">
         <AIChatInput 
           onSend={sendMessage} 
+          onType={handleType}
           disabled={isLoading} 
           suggestedPrompts={suggestedPrompts} 
         />

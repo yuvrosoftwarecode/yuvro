@@ -1,0 +1,92 @@
+/* Minimalist Elite Design System */
+
+:root {
+  --ai-primary: #4f46e5; /* Indigo 600 */
+  --ai-text: #1e293b; /* Slate 800 */
+  --ai-bg: #ffffff;
+  --ai-border: #f1f5f9;
+}
+
+.ai-chat-container {
+  background: var(--ai-bg);
+  border: 1px solid var(--ai-border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+/* Subtle Shimmer */
+@keyframes subtleShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: subtleShimmer 1.5s infinite;
+}
+
+/* Minimalist Cursor */
+.typing-cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.1em;
+  background: var(--ai-primary);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Clean Scrollbar */
+.ai-chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+/* Minimalist Bubbles */
+.user-bubble {
+  background: var(--ai-primary);
+  color: white;
+}
+
+.assistant-bubble {
+  background: #f8fafc;
+  border: 1px solid var(--ai-border);
+}
+
+/* Focus Improvements */
+.input-focus-area:focus-within {
+  border-color: var(--ai-primary);
+  box-shadow: 0 0 0 1px var(--ai-primary);
+}
+
+/* Markdown Clean Up */
+.prose code {
+  font-weight: 600 !important;
+  color: var(--ai-primary) !important;
+  background: rgba(79, 70, 229, 0.05) !important;
+  padding: 0.1em 0.3em !important;
+  border-radius: 4px !important;
+}
+
+.prose pre {
+  border-radius: 8px !important;
+  border: 1px solid var(--ai-border) !important;
+}
