@@ -50,7 +50,7 @@ from .serializers import (
     SemesterSubjectSerializer,
     SectionSubjectFacultySerializer,
 )
-from core.serializers import TaskSubmissionSerializer, TaskCommentSerializer
+
 from ai_assistant.services import AIServiceFactory, AIServiceError
 from ai_assistant.models import AIAgent
 from django.contrib.auth import get_user_model

@@ -84,6 +84,8 @@ import TakeAttendance from './pages/faculty/TakeAttendance';
 import FacultyTask from './pages/faculty/Task';
 import Revise from './pages/faculty/Revise';
 import Syllabus from './pages/faculty/Syllabus';
+import FacultyReports from './pages/faculty/Reports';
+import AttendanceReport from './pages/faculty/AttendanceReport';
 import StudentTask from './pages/student/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
@@ -103,6 +105,7 @@ import TPOSettings from './pages/tpo/Settings';
 
 
 import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 
 function App() {
   return (
@@ -547,6 +550,80 @@ function App() {
                 path="/tpo/settings"
                 element={
                   <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOSettings />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Placement Routes */}
+              <Route
+                path="/placement/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPODashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/pri-report"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <PRIReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/job-approvals"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOJobApprovals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/offer-tracking"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOOfferTracking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOAIAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/recruiters"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPORecruiterInsights />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/drives"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPODriveCalendar />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/notifications"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPONotifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
                     <TPOSettings />
                   </ProtectedRoute>
                 }
