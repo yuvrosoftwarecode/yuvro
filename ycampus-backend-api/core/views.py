@@ -37,6 +37,7 @@ from .serializers import (
     CollegeAdminProfileSerializer,
     TPOProfileSerializer,
 )
+from core.serializers import TaskSubmissionSerializer, TaskCommentSerializer
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
 from django.shortcuts import get_object_or_404
 from authentication.permissions import IsCollegeManagementAdmin, IsAuthenticatedUser
