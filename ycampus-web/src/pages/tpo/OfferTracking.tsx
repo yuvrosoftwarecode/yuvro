@@ -157,20 +157,20 @@ const OfferTracking: React.FC = () => {
             </div>
 
             {/* Controls Section */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 shadow-none">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   placeholder="Search by name or roll no..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 bg-white border-gray-200 rounded-xl text-sm shadow-sm"
+                  className="pl-10 h-11 bg-white border-gray-200 rounded-xl text-sm"
                 />
               </div>
 
               <div className="flex items-center gap-3">
                 <Select value={branchFilter} onValueChange={setBranchFilter}>
-                  <SelectTrigger className="w-[140px] h-11 bg-white border-gray-200 rounded-xl text-sm shadow-sm font-medium">
+                  <SelectTrigger className="w-[140px] h-11 bg-white border-gray-200 rounded-xl text-sm">
                     <SelectValue placeholder="Branch" />
                   </SelectTrigger>
                   <SelectContent>
@@ -180,7 +180,7 @@ const OfferTracking: React.FC = () => {
                 </Select>
 
                 <Select value={batchFilter} onValueChange={setBatchFilter}>
-                  <SelectTrigger className="w-[140px] h-11 bg-white border-gray-200 rounded-xl text-sm shadow-sm font-medium">
+                  <SelectTrigger className="w-[140px] h-11 bg-white border-gray-200 rounded-xl text-sm">
                     <SelectValue placeholder="Batch" />
                   </SelectTrigger>
                   <SelectContent>
@@ -194,7 +194,7 @@ const OfferTracking: React.FC = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 border-gray-200 bg-white text-gray-900 h-11 px-4 rounded-xl shadow-sm hover:bg-gray-50"
+                  className="flex items-center gap-2 border-gray-200 bg-white text-gray-900 h-11 px-4 rounded-xl hover:bg-gray-100"
                 >
                   <Upload className="h-4 w-4" />
                   <span className="font-semibold">Import CSV</span>
@@ -203,7 +203,7 @@ const OfferTracking: React.FC = () => {
                 <Button 
                   variant="outline" 
                   onClick={exportCSV}
-                  className="flex items-center gap-2 border-gray-200 bg-white text-gray-900 h-11 px-4 rounded-xl shadow-sm hover:bg-gray-50"
+                  className="flex items-center gap-2 border-gray-200 bg-white text-gray-900 h-11 px-4 rounded-xl hover:bg-gray-100"
                 >
                   <Download className="h-4 w-4" />
                   <span className="font-semibold">Export CSV</span>
@@ -212,20 +212,20 @@ const OfferTracking: React.FC = () => {
             </div>
 
             {/* Table Section */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-50">
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Roll No</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Name</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Branch</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">CGPA</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">CTC</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Offer</th>
-                      <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Joining</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Roll No</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Student Name</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Branch</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">CGPA</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Company</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Role</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">CTC</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Offer</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-500">Joining</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -234,17 +234,17 @@ const OfferTracking: React.FC = () => {
                         <tr key={index} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">{offer.rollNo}</td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">{offer.name}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{offer.branch}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{offer.cgpa}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{offer.company}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{offer.role}</td>
-                          <td className="px-6 py-4 text-sm font-bold text-gray-900">{offer.ctc}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{offer.branch}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{offer.cgpa}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{offer.company}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{offer.role}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{offer.ctc}</td>
                           <td className="px-6 py-4">
                             <Badge className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(offer.status)} shadow-sm border-none`}>
                               {offer.status}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-gray-900">
                             {offer.joining && offer.joining !== '-' ? format(new Date(offer.joining), 'dd MMM yy') : '-'}
                           </td>
                         </tr>
