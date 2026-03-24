@@ -162,6 +162,50 @@ const FacultyTask: React.FC = () => {
         return textExtensions.includes(ext) || filename.toLowerCase().includes('makefile') || filename.toLowerCase().includes('dockerfile');
     };
 
+    const handleAnnotationClick = (commentText: string) => {
+        const bracketEnd = commentText.indexOf(']');
+        if (bracketEnd === -1) return;
+        
+        const tag = commentText.substring(1, bracketEnd);
+        let filename = null;
+        let lineNumber = 0;
+
+        if (tag.includes(' | Line: ')) {
+            const parts = tag.split(' | Line: ');
+            filename = parts[0];
+            lineNumber = parseInt(parts[1], 10);
+        } else if (tag.startsWith('Line: ')) {
+            lineNumber = parseInt(tag.replace('Line: ', ''), 10);
+        }
+
+        if (filename && zipFiles.length > 0) {
+            const targetFile = zipFiles.find(f => f.name === filename);
+            if (targetFile) {
+                setSelectedZipFile(targetFile.name);
+                setPreviewContent(targetFile.content);
+                setPreviewLanguage(getLanguageFromExtension(targetFile.name));
+            }
+        }
+
+        if (lineNumber > 0) {
+            setTimeout(() => {
+                if (editorRef.current) {
+                    editorRef.current.revealLineInCenter(lineNumber);
+                    editorRef.current.setPosition({ lineNumber, column: 1 });
+                    editorRef.current.focus();
+                    try {
+                        decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                            {
+                                range: new (window as any).monaco.Range(lineNumber, 1, lineNumber, 1),
+                                options: { isWholeLine: true, className: 'bg-orange-100/50 block w-full border-l-[3px] border-orange-500' }
+                            }
+                        ]);
+                    } catch (e) {}
+                }
+            }, 100);
+        }
+    };
+
     const isImageFile = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
         return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext || '');
@@ -1477,7 +1521,7 @@ const FacultyTask: React.FC = () => {
 
             {/* File Review Modal */}
             <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
-                <DialogContent className="max-w-6xl w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
+                <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
                     <DialogHeader className="p-8 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
                         <div>
                             <DialogTitle className="text-2xl font-black text-gray-900">Review Attached File</DialogTitle>
@@ -1531,7 +1575,7 @@ const FacultyTask: React.FC = () => {
                         )}
 
                         {/* Main Content Area */}
-                        <div className="flex-1 overflow-auto flex flex-col p-8 custom-scrollbar relative">
+                        <div className="flex-1 overflow-auto flex flex-col p-6 custom-scrollbar relative">
                             {loadingFile ? (
                                 <div className="flex-1 flex flex-col items-center justify-center py-20">
                                     <Loader2 className="h-12 w-12 text-orange-500 animate-spin mb-4" />
@@ -1539,7 +1583,7 @@ const FacultyTask: React.FC = () => {
                                     <p className="text-sm text-gray-400 font-medium">Extracting and preparing preview</p>
                                 </div>
                             ) : previewContent ? (
-                                <div className="flex-1 flex flex-col min-h-[50vh] bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 ring-1 ring-gray-950/[0.02]">
+                                <div className="flex-1 flex flex-col h-full min-h-[60vh] bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden ring-1 ring-gray-950/[0.02]">
                                     <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
                                         <div className="flex items-center gap-3">
                                             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -1694,7 +1738,7 @@ const FacultyTask: React.FC = () => {
                         </div>
 
                         {/* Right Sidebar: In-line Feedback Area */}
-                        <div className="w-full md:w-[400px] border-l border-gray-200 bg-white flex flex-col shrink-0 custom-scrollbar z-10 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
+                        <div className="w-full md:w-[320px] border-l border-gray-200 bg-white flex flex-col shrink-0 custom-scrollbar z-10 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
                             <div className="p-8 border-b border-gray-50 flex-none">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-black text-gray-900">Annotations</h3>
@@ -1718,7 +1762,11 @@ const FacultyTask: React.FC = () => {
                                         return tag.startsWith('Line:') || tag === 'File Review';
                                     }
                                 }).map((c, i) => (
-                                    <div key={i} className="p-5 bg-gray-50/50 border border-gray-100 rounded-3xl hover:bg-white hover:shadow-md transition-all flex flex-col items-start w-full">
+                                    <div 
+                                        key={i} 
+                                        onClick={() => c.comment.startsWith('[') && handleAnnotationClick(c.comment)}
+                                        className={`p-5 bg-gray-50/50 border border-gray-100 rounded-3xl hover:bg-white hover:shadow-md transition-all flex flex-col items-start w-full ${c.comment.startsWith('[') ? 'cursor-pointer hover:border-orange-200' : ''}`}
+                                    >
                                         {c.comment.includes(']') ? (
                                             <>
                                                 <Badge className="bg-orange-50 text-orange-600 font-black tracking-normal text-[9px] mb-3 border-none hover:bg-orange-100 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">

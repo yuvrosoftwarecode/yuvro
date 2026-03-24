@@ -59,6 +59,7 @@ const StudentTask: React.FC = () => {
     const chatEndRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<any>(null);
     const decorationsRef = useRef<string[]>([]);
+    const pendingNavRef = useRef<{ filename: string, lineNumber: number } | null>(null);
 
 
 
@@ -341,10 +342,37 @@ const StudentTask: React.FC = () => {
                     
                     setZipFiles(files);
                     if (files.length > 0) {
-                        const firstPreviewable = files[0];
-                        setSelectedZipFile(firstPreviewable.name);
-                        setFileViewerContent(firstPreviewable.content);
-                        setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                        const pendingNav = pendingNavRef.current;
+                        if (pendingNav) {
+                            const targetFile = files.find(f => f.name === pendingNav.filename);
+                            if (targetFile) {
+                                setSelectedZipFile(targetFile.name);
+                                setFileViewerContent(targetFile.content);
+                                setFileViewerLanguage(getLanguageFromExtension(targetFile.name));
+                                
+                                setTimeout(() => {
+                                    if (editorRef.current) {
+                                        editorRef.current.revealLineInCenter(pendingNav.lineNumber);
+                                        editorRef.current.setPosition({ lineNumber: pendingNav.lineNumber, column: 1 });
+                                        editorRef.current.focus();
+                                        try {
+                                            decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                                                {
+                                                    range: new (window as any).monaco.Range(pendingNav.lineNumber, 1, pendingNav.lineNumber, 1),
+                                                    options: { isWholeLine: true, className: 'bg-orange-100/50 block w-full border-l-[3px] border-orange-500' }
+                                                }
+                                            ]);
+                                        } catch (e) {}
+                                    }
+                                }, 300);
+                            }
+                            pendingNavRef.current = null;
+                        } else {
+                            const firstPreviewable = files[0];
+                            setSelectedZipFile(firstPreviewable.name);
+                            setFileViewerContent(firstPreviewable.content);
+                            setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                        }
                     } else {
                         toast.info("ZIP is empty or contains no previewable files.");
                         setFileViewerContent("");
@@ -447,7 +475,11 @@ const StudentTask: React.FC = () => {
             // First, ensure file viewer is open
             if (!isFileViewerOpen) {
                 const url = activeSub?.file;
-                if (url) openFileViewer(url);
+                if (url) {
+                    pendingNavRef.current = { filename, lineNumber };
+                    openFileViewer(url);
+                    return; // The useEffect will handle the rest once loaded
+                }
             }
 
             // If it's a file inside a ZIP, switch to it
@@ -461,26 +493,22 @@ const StudentTask: React.FC = () => {
             }
 
             // Scroll the editor to the line
-            if (editorRef.current) {
-                // Small delay to ensure content is loaded if we switched files
-                setTimeout(() => {
+            setTimeout(() => {
+                if (editorRef.current) {
                     editorRef.current.revealLineInCenter(lineNumber);
                     editorRef.current.setPosition({ lineNumber, column: 1 });
                     editorRef.current.focus();
 
-                    // Apply visual highlight
-                    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
-                        {
-                            range: { startLineNumber: lineNumber, startColumn: 1, endLineNumber: lineNumber, endColumn: 1 },
-                            options: {
-                                isWholeLine: true,
-                                className: 'line-highlight',
-                                marginClassName: 'line-highlight-margin'
+                    try {
+                        decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                            {
+                                range: new (window as any).monaco.Range(lineNumber, 1, lineNumber, 1),
+                                options: { isWholeLine: true, className: 'bg-orange-100/50 block w-full border-l-[3px] border-orange-500' }
                             }
-                        }
-                    ]);
-                }, 200);
-            }
+                        ]);
+                    } catch (e) {}
+                }
+            }, 300);
         }
     };
 
@@ -634,7 +662,7 @@ const StudentTask: React.FC = () => {
 
                     <div className="flex flex-col md:flex-row flex-1 min-h-0">
                         {/* Main Submission Area */}
-                        <div className="w-full md:w-[68%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
+                        <div className="w-full md:w-[75%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3 flex-wrap">
                                     <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-600 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
@@ -784,7 +812,7 @@ const StudentTask: React.FC = () => {
                         </div>
 
                         {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
+                        <div className="w-full md:w-[25%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
                             <div className="mb-6 flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
@@ -883,7 +911,7 @@ const StudentTask: React.FC = () => {
 
             {/* File Viewer Modal */}
             <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
-                <DialogContent className="max-w-5xl w-[95vw] h-[85vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
+                <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
                     <DialogHeader className="p-6 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
                         <div>
                             <DialogTitle className="text-xl font-black text-gray-900">Submitted File</DialogTitle>
