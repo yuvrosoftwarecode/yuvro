@@ -19,6 +19,7 @@ import Users from './pages/admin/Users';
 import Colleges from './pages/admin/Colleges';
 import CollegeDetails from './components/admin/colleges/CollegeDetails';
 import StudentDashboard from './pages/student/StudentDashboard';
+import StudentLearn from './pages/student/StudentLearn';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/PracticeTest';
 import MockInterview from './pages/student/MockInterview';
@@ -26,6 +27,7 @@ import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
 import ContestAttempt from './pages/student/ContestAttempt';
+import ContestAnalyticsList from './pages/student/ContestAnalyticsList';
 import CodePractice from './pages/student/CodePractice';
 import StudentQuiz from './components/student/StudentQuiz';
 import StudentCoding from './components/student/StudentCoding';
@@ -219,7 +221,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/student/assessments"
                 element={
@@ -296,7 +297,7 @@ function App() {
                 path="/student/contests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <Contest />
                   </ProtectedRoute>
                 }
               />
@@ -306,6 +307,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <ContestAttempt />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/contest-analytics-list"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ContestAnalyticsList />
                   </ProtectedRoute>
                 }
               />
@@ -324,23 +334,15 @@ function App() {
                 path="/student/notes"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentLearn />
                   </ProtectedRoute>
                 }
               />
               <Route
-                path="/student/practice-test"
+                path="/student/notes/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/task"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentLearn />
                   </ProtectedRoute>
                 }
               />
@@ -354,14 +356,6 @@ function App() {
               />
               <Route
                 path="/student/ai-interview-planner"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/announcements"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <ComingSoon />

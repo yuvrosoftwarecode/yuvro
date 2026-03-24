@@ -20,7 +20,14 @@ import {
 import { fetchQuestions } from "@/services/questionService";
 import { Check } from "lucide-react";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { PlayCircle, HelpCircle, StickyNote, Code, BookOpen, Info, CheckCircle2, MonitorPlay } from "lucide-react";
+import { PlayCircle, HelpCircle, StickyNote, BookOpen, Info, CheckCircle2, MonitorPlay, Layout, Video as VideoIcon, Code, Sparkles } from "lucide-react";
+import { getSubjectStyle } from "@/utils/subjectIcon";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     Dialog,
     DialogContent,
@@ -32,13 +39,24 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const SubjectDetail: React.FC = () => {
+
+const SubjectDetail: React.FC<{
+    hideNavigation?: boolean;
+    onSwitchSubject?: () => void;
+    onCollapseChange?: (collapsed: boolean) => void;
+}> = ({ hideNavigation = false, onSwitchSubject, onCollapseChange }) => {
     const { subjectId } = useParams<{ subjectId: string }>();
 
     const [subject, setSubject] = useState<Subject | null>(null);
     const [units, setUnits] = useState<Unit[]>([]);
 
     const [collapsed, setCollapsed] = useState(false);
+
+    useEffect(() => {
+        if (onCollapseChange) {
+            onCollapseChange(collapsed);
+        }
+    }, [collapsed, onCollapseChange]);
 
     const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({});
     const [subunitsMap, setSubunitsMap] = useState<Record<string, SubUnit[]>>({});
@@ -92,14 +110,11 @@ const SubjectDetail: React.FC = () => {
 
     const checkRequirements = async (subunitId: string) => {
         try {
-            const quizzes = await fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'mcq_single' });
-            const hasQuiz = quizzes.length > 0;
-
-            const coding = await fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'coding' });
-            const hasCoding = coding.length > 0;
-
-            setRequirements({ hasQuiz, hasCoding, loaded: true });
-
+            const [quizzes, coding] = await Promise.all([
+                fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'mcq_single' }),
+                fetchQuestions({ sub_unit: subunitId, level: 'subunit', type: 'coding' }),
+            ]);
+            setRequirements({ hasQuiz: quizzes.length > 0, hasCoding: coding.length > 0, loaded: true });
         } catch (err) {
             console.error("Failed to check requirements", err);
             setRequirements({ hasQuiz: false, hasCoding: false, loaded: true });
@@ -152,10 +167,12 @@ const SubjectDetail: React.FC = () => {
         setLoading(true);
 
         try {
-            const s = await fetchSubjectById(subjectId);
+            // Fetch subject + units in parallel instead of sequentially
+            const [s, u] = await Promise.all([
+                fetchSubjectById(subjectId),
+                fetchUnitsBySubject(subjectId),
+            ]);
             setSubject(s);
-
-            const u = await fetchUnitsBySubject(subjectId);
             setUnits(u);
 
             const allSubUnits: Record<string, SubUnit[]> = {};
@@ -283,22 +300,32 @@ const SubjectDetail: React.FC = () => {
     }
 
     return (
-        <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
-            <Navigation />
+        <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+            {!hideNavigation && <Navigation />}
             <div className="flex flex-1 overflow-hidden relative">
                 <div
                     className={`bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200`}
                     style={{
-                        width: collapsed ? "70px" : "355px",
-                        minWidth: collapsed ? "70px" : "355px",
+                        width: collapsed ? "50px" : "300px",
+                        minWidth: collapsed ? "50px" : "300px",
                         overflow: "hidden",
                     }}
                 >
-                    <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
+                    <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar flex-1">
                         {collapsed ? (
-                            <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={subject.name}>
-                                    🗂️
+                            <div className="flex flex-col items-center h-full py-3 gap-6 animate-fade-in">
+                                <button
+                                    onClick={() => setCollapsed(false)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-all"
+                                    aria-label="Expand sidebar"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                                <div className={`w-10 h-10 flex items-center justify-center rounded-xl flex-shrink-0 text-white shadow-sm ${getSubjectStyle(subject.subject_name || subject.name || '', 0).bg}`} title={subject.name}>
+                                    {(() => {
+                                        const Icon = getSubjectStyle(subject.subject_name || subject.name || '', 0).icon;
+                                        return <Icon className="w-5 h-5 text-white" />;
+                                    })()}
                                 </div>
                                 <div className="flex flex-col items-center gap-3 w-full px-2">
                                     {units.map((unit) => {
@@ -328,11 +355,26 @@ const SubjectDetail: React.FC = () => {
                             </div>
                         ) : (
                             <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
-                                        🗂️
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 flex items-center justify-center rounded-lg flex-shrink-0 text-white shadow-sm ${getSubjectStyle(subject.subject_name || subject.name || '', 0).bg}`}>
+                                            {(() => {
+                                                const Icon = getSubjectStyle(subject.subject_name || subject.name || '', 0).icon;
+                                                return <Icon className="w-5 h-5 text-white" />;
+                                            })()}
+                                        </div>
+                                        <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.subject_name || subject.name}</h2>
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
+                                    <button
+                                        onClick={() => {
+                                            setCollapsed(true);
+                                            onCollapseChange?.(true);
+                                        }}
+                                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-all shrink-0"
+                                        aria-label="Collapse sidebar"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
                                 </div>
 
                                 <p className="text-sm text-gray-500 mb-5 ml-1">Track your learning progress</p>
@@ -441,26 +483,25 @@ const SubjectDetail: React.FC = () => {
                             </div>
                         )}
                     </div>
+
+                    {onSwitchSubject && (
+                        <div className={`border-t border-gray-100 flex-shrink-0 transition-all duration-300 ${collapsed ? "px-2 py-4" : "p-4"}`}>
+                            <button
+                                onClick={onSwitchSubject}
+                                className={`flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-all
+                                    ${collapsed ? "w-8 h-8 p-0 mx-auto" : "w-full px-4 py-2"}`}
+                                title="Switch Subject"
+                            >
+                                <ChevronLeft className={`${collapsed ? "w-5 h-5" : "w-4 h-4"}`} />
+                                {!collapsed && <span>Switch Subject</span>}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
-                    style={{
-                        left: collapsed ? "58px" : "343px",
-                    }}
-                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                >
-                    {collapsed ? (
-                        <ChevronRight className="w-3 h-3" />
-                    ) : (
-                        <ChevronLeft className="w-3 h-3" />
-                    )}
-                </button>
-
                 <div className="flex-1 bg-white shadow-sm overflow-hidden flex flex-col">
-                    <div className="border-b border-gray-200 py-3 flex items-center justify-between relative min-h-[4.5rem]">
-                        <div className="ml-4 flex items-center gap-2 text-sm bg-white border border-gray-300 shadow-sm rounded-full px-4 py-1 font-medium text-gray-700 max-w-[30%] min-w-0">
+                    <div className="border-b border-gray-200 py-3 flex items-center justify-between relative h-16">
+                        <div className="ml-4 flex items-center gap-2 text-sm bg-white border border-gray-300 shadow-sm rounded-full px-3 py-1 font-medium text-gray-700 max-w-[30%] min-w-0">
                             {selectedSubUnit && (
                                 <>
                                     <span className="text-gray-500 truncate hidden md:block max-w-[120px]" title={units.find(u => u.id === selectedSubUnit.unit)?.name}>
@@ -477,18 +518,18 @@ const SubjectDetail: React.FC = () => {
                             </span>
                         </div>
 
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-2">
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-1.5">
                             {[
                                 { key: "videos", label: "Videos", icon: <PlayCircle className="w-4 h-4" /> },
                                 { key: "materials", label: "Materials", icon: <BookOpen className="w-4 h-4" /> },
                                 { key: "my-notes", label: "My Notes", icon: <StickyNote className="w-4 h-4" /> },
                                 { key: "quizzes", label: "Quiz", icon: <HelpCircle className="w-4 h-4" /> },
-                                { key: "coding", label: "Coding", icon: <Code className="w-4 h-4" /> }
+                                // { key: "coding", label: "Coding", icon: <Code className="w-4 h-4" /> }
                             ].map((tab) => (
                                 <button
                                     key={tab.key}
                                     title={!collapsed ? tab.label : ""}
-                                    className={`relative px-4 py-2.5 rounded-full text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-300 ${rightTab === tab.key
+                                    className={`relative px-3.5 py-1.5 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 ${rightTab === tab.key
                                         ? "bg-slate-900 text-white shadow-md ring-2 ring-slate-100 ring-offset-2"
                                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-white border border-slate-200"
                                         }`}
@@ -509,14 +550,14 @@ const SubjectDetail: React.FC = () => {
                         <div className="flex items-center gap-4 ml-4 mr-6">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Subject Guide">
+                                    <button className="p-2 text-gray-500 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-colors" title="Subject Guide">
                                         <Info className="w-5 h-5" />
                                     </button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[85vh] p-0 overflow-hidden rounded-2xl">
                                     <DialogHeader className="p-6 pb-2">
                                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                                            <Info className="w-6 h-6 text-blue-600" /> Subject Guide
+                                            <Info className="w-6 h-6 text-slate-900" /> Subject Guide
                                         </DialogTitle>
                                         <DialogDescription>
                                             Everything you need to know to master this subject.
@@ -525,20 +566,20 @@ const SubjectDetail: React.FC = () => {
 
                                     <div className="p-6 pt-2">
                                         <Tabs defaultValue="progress" className="w-full">
-                                            <TabsList className="grid w-full grid-cols-4 mb-6">
+                                            <TabsList className="grid w-full grid-cols-3 mb-6">
                                                 <TabsTrigger value="progress">Progress</TabsTrigger>
                                                 <TabsTrigger value="quiz">Quizzes</TabsTrigger>
-                                                <TabsTrigger value="coding">Coding</TabsTrigger>
+                                                {/* <TabsTrigger value="coding">Coding</TabsTrigger> */}
                                                 <TabsTrigger value="notes">Notes</TabsTrigger>
                                             </TabsList>
 
                                             <ScrollArea className="h-[400px] pr-4">
                                                 <TabsContent value="progress" className="space-y-4">
-                                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4">
-                                                        <h3 className="font-semibold text-blue-900 mb-1 flex items-center gap-2">
+                                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
+                                                        <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                                                             <CheckCircle2 className="w-4 h-4" /> How to Complete a Unit?
                                                         </h3>
-                                                        <p className="text-sm text-blue-700">
+                                                        <p className="text-sm text-slate-700">
                                                             A subunit is marked as <strong>100% Complete</strong> only when you have finished all required activities.
                                                         </p>
                                                     </div>
@@ -564,7 +605,7 @@ const SubjectDetail: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex gap-4 items-start">
+                                                        {/* <div className="flex gap-4 items-start">
                                                             <div className="p-2 bg-orange-100 text-orange-600 rounded-lg mt-1">
                                                                 <Code className="w-5 h-5" />
                                                             </div>
@@ -572,7 +613,7 @@ const SubjectDetail: React.FC = () => {
                                                                 <h4 className="font-medium text-gray-900">3. Solve Coding Challenges</h4>
                                                                 <p className="text-sm text-gray-600">All test cases must pass for the solution to be accepted.</p>
                                                             </div>
-                                                        </div>
+                                                        </div> */}
                                                     </div>
                                                 </TabsContent>
 
@@ -588,7 +629,7 @@ const SubjectDetail: React.FC = () => {
                                                     </ul>
                                                 </TabsContent>
 
-                                                <TabsContent value="coding" className="space-y-4">
+                                                {/* <TabsContent value="coding" className="space-y-4">
                                                     <h3 className="text-lg font-semibold text-gray-800">Hands-on Coding</h3>
                                                     <p className="text-gray-600 text-sm leading-relaxed">
                                                         Practice makes perfect. Our built-in code editor lets you write and run code in the browser.
@@ -603,7 +644,7 @@ const SubjectDetail: React.FC = () => {
                                                             <p className="text-sm">Runs against hidden test cases. Required for completion.</p>
                                                         </div>
                                                     </div>
-                                                </TabsContent>
+                                                </TabsContent> */}
 
                                                 <TabsContent value="notes" className="space-y-4">
                                                     <h3 className="text-lg font-semibold text-gray-800">Effective Note Taking</h3>
@@ -612,11 +653,11 @@ const SubjectDetail: React.FC = () => {
                                                     </p>
 
                                                     <div className="space-y-3 mt-4">
-                                                        <div className="flex gap-3 p-3 border border-blue-100 bg-blue-50/50 rounded-xl">
-                                                            <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                                        <div className="flex gap-3 p-3 border border-slate-100 bg-slate-50/50 rounded-xl">
+                                                            <BookOpen className="w-5 h-5 text-slate-800 flex-shrink-0 mt-0.5" />
                                                             <div>
-                                                                <h4 className="font-semibold text-blue-900 text-sm">Materials</h4>
-                                                                <p className="text-xs text-blue-800 mt-1">Official notes and cheat sheets provided by the instructor. These are read-only references.</p>
+                                                                <h4 className="font-semibold text-black text-sm">Materials</h4>
+                                                                <p className="text-xs text-gray-600 mt-1">Official notes and cheat sheets provided by the instructor. These are read-only references.</p>
                                                             </div>
                                                         </div>
 
@@ -658,20 +699,59 @@ const SubjectDetail: React.FC = () => {
                                         className={`px-3 py-1.5 text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-colors 
                                             ${activeProgress.video
                                                 ? "bg-green-100 text-green-700 hover:bg-green-200"
-                                                : "bg-blue-600 text-white hover:bg-blue-700"}`}
+                                                : "bg-slate-900 text-white hover:bg-black"}`}
                                     >
                                         {activeProgress.video ? <Check className="w-3.5 h-3.5" /> : <PlayCircle className="w-3.5 h-3.5" />}
                                         {activeProgress.video ? "Watched" : "Mark as Watched"}
                                     </button>
                                     <div className="h-4 w-px bg-gray-300 mx-1" />
+
+                                    {/* Layout Switcher Dropdown */}
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="h-9 px-4 text-gray-600 bg-white border border-gray-300 rounded-full shadow-sm flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:text-blue-700 hover:bg-blue-50 active:scale-95">
+                                                <Layout className="w-4 h-4" />
+                                                <span>Layouts</span>
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent
+                                            align="end"
+                                            className="w-64 p-2 rounded-2xl border border-gray-100 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] z-[100] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-200 ease-out"
+                                        >
+                                            {[
+                                                { id: "video", label: "Standard View", sub: "Primary video focus", icon: <VideoIcon className="w-5 h-5" /> },
+                                                { id: "video-chat", label: "Video + AI Chat", sub: "Interactive learning", icon: <div className="flex gap-1"><VideoIcon className="w-4 h-4" /><Sparkles className="w-4 h-4" /></div> },
+                                                { id: "video-code", label: "Video + Code", sub: "Follow & Practice", icon: <div className="flex gap-1"><VideoIcon className="w-4 h-4" /><Code className="w-4 h-4" /></div> },
+                                                { id: "code-chat", label: "Code + AI Chat", sub: "AI-assisted coding", icon: <div className="flex gap-1"><Code className="w-4 h-4" /><Sparkles className="w-4 h-4" /></div> },
+                                                { id: "video-chat-code", label: "Pro Workspace", sub: "Full-stack experience", icon: <div className="flex flex-col gap-1 items-center"><div className="flex gap-1"><VideoIcon className="w-3 h-3" /><Sparkles className="w-3 h-3" /></div><Code className="w-3 h-3" /></div> },
+                                            ].map((opt) => (
+                                                <DropdownMenuItem
+                                                    key={opt.id}
+                                                    onClick={() => setVideoLayout(opt.id as LayoutMode)}
+                                                    className={`group flex items-center gap-4 px-3.5 py-3 rounded-xl cursor-pointer transition-[background,transform,box-shadow] duration-200 ease-out hover:scale-[1.015] hover:shadow-md active:scale-[0.98] ${videoLayout === opt.id ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg" : "text-gray-700 hover:bg-gray-50"}`}
+                                                >
+                                                    <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-3 ${videoLayout === opt.id ? "bg-white/20" : "bg-gray-100 group-hover:bg-white"}`}>
+                                                        {opt.icon}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold">{opt.label}</span>
+                                                        <span className="text-[10px] opacity-70">{opt.sub}</span>
+                                                    </div>
+                                                    {videoLayout === opt.id && (
+                                                        <div className="ml-auto w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                        </div>
+                                                    )}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             )}
-
-
                         </div>
                     </div>
 
-                    <div className={rightTab === "coding" ? "flex-1 overflow-hidden" : "p-6 flex-1 overflow-y-auto"}>
+                    <div className="flex-1 overflow-hidden">
                         {!selectedSubUnit ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
                                 <div className="text-lg font-medium mb-2">Select a subunit on the left</div>
@@ -698,17 +778,33 @@ const SubjectDetail: React.FC = () => {
                                         onComplete={() => debouncedProgressUpdate()}
                                     />
                                 )}
-                                {rightTab === "coding" && (
+                                {/* {rightTab === "coding" && (
                                     <StudentCodingEmbed
                                         subunitId={selectedSubUnit.id}
+                                        subunitName={selectedSubUnit.name}
+                                        unitName={units.find(u => u.id === selectedSubUnit.unit)?.name}
                                         onComplete={() => debouncedProgressUpdate()}
                                         codeSubmissionType="learn"
                                         subjectId={subjectId}
                                         unitId={selectedSubUnit.unit}
                                     />
+                                )} */}
+                                {rightTab === "materials" && (
+                                    <StudentNotes
+                                        subunitId={selectedSubUnit.id}
+                                        mode="materials"
+                                        sessionId={chatSessionId}
+                                        onNewSession={() => setChatSessionId(`subject-chat-${subjectId}-${crypto.randomUUID()}`)}
+                                    />
                                 )}
-                                {rightTab === "materials" && <StudentNotes subunitId={selectedSubUnit.id} mode="materials" />}
-                                {rightTab === "my-notes" && <StudentNotes subunitId={selectedSubUnit.id} mode="my-notes" />}
+                                {rightTab === "my-notes" && (
+                                    <StudentNotes
+                                        subunitId={selectedSubUnit.id}
+                                        mode="my-notes"
+                                        sessionId={chatSessionId}
+                                        onNewSession={() => setChatSessionId(`subject-chat-${subjectId}-${crypto.randomUUID()}`)}
+                                    />
+                                )}
 
                             </>
                         )}

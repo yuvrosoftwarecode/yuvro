@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 
 from core.models import College, Batch, Department, Semester, Section, Task
+from core.models import Note
 from .models import (
     Subject,
     Unit,
@@ -683,3 +684,9 @@ class StudentCodePracticeSerializer(serializers.ModelSerializer):
         return value
 
 
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ["id", "content", "sub_unit", "user", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]

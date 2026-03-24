@@ -20,6 +20,7 @@ import {
 import { getSkillTestSubmission, getSkillTestSubmissions } from '@/services/skillTestService';
 import { toast } from 'sonner';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
+import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 
 interface Test {
   id: string;
@@ -57,6 +58,11 @@ const TestResults: React.FC<TestResultsProps> = ({
 
   useEffect(() => {
     const fetchAll = async () => {
+      // Skip API call for mock test IDs
+      if (test.id.startsWith('mock-')) {
+        setLoading(false);
+        return;
+      }
       try {
         const subs = await getSkillTestSubmissions(test.id);
         const filtered = subs.filter((s: any) => s.status === 'completed' || s.status === 'submitted');
@@ -83,7 +89,93 @@ const TestResults: React.FC<TestResultsProps> = ({
 
   useEffect(() => {
     if (!currentSubId) return;
-    if (currentSubId.startsWith('mock-') || currentSubId.startsWith('sub-')) return;
+
+    // Mock submission — inject realistic mock data for presentation
+    if (currentSubId.startsWith('mock-') || currentSubId.startsWith('sub-')) {
+        const mockScore = test.marks > 0
+          ? Math.round(test.marks * (0.55 + Math.random() * 0.35))
+          : 0;
+        const totalQ = test.totalQuestions || 10;
+        const now = new Date();
+        const started = new Date(now.getTime() - test.duration * 60 * 1000 * 0.8);
+
+        const MOCK_QUESTIONS = [
+          // MCQ questions
+          { question_type: 'mcq_single', question_content: 'Which data structure uses LIFO order?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Stack', explanation: 'A stack follows Last In First Out (LIFO) principle — the last element pushed is the first to be popped.' }, mcq_options: [{ text: 'Queue', is_correct: false }, { text: 'Stack', is_correct: true }, { text: 'Array', is_correct: false }, { text: 'Tree', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What is the time complexity of binary search?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'O(log n)', explanation: 'Binary search halves the search space each iteration, giving O(log n) time complexity.' }, mcq_options: [{ text: 'O(n)', is_correct: false }, { text: 'O(n²)', is_correct: false }, { text: 'O(log n)', is_correct: true }, { text: 'O(1)', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'Which sorting algorithm has the best average-case complexity?', is_correct: false, marks: 2, marks_obtained: 0, answer_data: { answer: 'Bubble Sort', explanation: 'Merge Sort and Quick Sort both achieve O(n log n) average complexity, far better than Bubble Sort\'s O(n²).' }, mcq_options: [{ text: 'Bubble Sort', is_correct: false }, { text: 'Merge Sort', is_correct: true }, { text: 'Selection Sort', is_correct: false }, { text: 'Insertion Sort', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What does OOP stand for?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Object-Oriented Programming', explanation: 'OOP is a programming paradigm based on objects that bundle data and behavior together.' }, mcq_options: [{ text: 'Object-Oriented Programming', is_correct: true }, { text: 'Open Operational Process', is_correct: false }, { text: 'Ordered Object Protocol', is_correct: false }, { text: 'None of the above', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What is the output of 2 ** 10 in Python?', is_correct: false, marks: 2, marks_obtained: 0, answer_data: { answer: '20', explanation: '2 ** 10 is the exponentiation operator in Python — it means 2 to the power of 10, which equals 1024, not 20.' }, mcq_options: [{ text: '20', is_correct: false }, { text: '1024', is_correct: true }, { text: '512', is_correct: false }, { text: '2048', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'Which keyword is used to inherit a class in Python?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Passing the parent class in parentheses', explanation: 'In Python, inheritance is done by passing the parent class in parentheses: class Child(Parent).' }, mcq_options: [{ text: 'extends', is_correct: false }, { text: 'Passing the parent class in parentheses', is_correct: true }, { text: 'inherits', is_correct: false }, { text: 'super', is_correct: false }] },
+          // Coding questions
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `reverse_string(s)` that returns the reversed version of the input string.',
+            question_title: 'Reverse a String',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def reverse_string(s):\n    return s[::-1]\n\n# Test\nprint(reverse_string("hello"))  # Output: "olleh"`,
+              language: 'python',
+              explanation: 'Python slice notation s[::-1] steps through the string backwards, producing the reversed string in O(n) time.',
+              reference_solution: `def reverse_string(s):\n    return s[::-1]\n\n# Alternative: using reversed()\ndef reverse_string_v2(s):\n    return ''.join(reversed(s))`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `is_palindrome(s)` that returns True if the string is a palindrome, False otherwise. Ignore case.',
+            question_title: 'Check Palindrome',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def is_palindrome(s):\n    s = s.lower()\n    return s == s[::-1]\n\n# Test\nprint(is_palindrome("Racecar"))  # True\nprint(is_palindrome("hello"))    # False`,
+              language: 'python',
+              explanation: 'Convert to lowercase first to handle case-insensitivity, then compare the string with its reverse.',
+              reference_solution: `def is_palindrome(s):\n    s = s.lower().replace(' ', '')\n    return s == s[::-1]`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `fibonacci(n)` that returns the nth Fibonacci number (0-indexed). Use an iterative approach.',
+            question_title: 'Fibonacci Number',
+            is_correct: false,
+            marks: 5,
+            marks_obtained: 0,
+            answer_data: {
+              answer: `def fibonacci(n):\n    if n == 0: return 0\n    a, b = 0, 1\n    for _ in range(n - 1):\n        a, b = b, a + b\n    return a  # Bug: should return b`,
+              language: 'python',
+              explanation: 'The iterative approach is correct but the return value has an off-by-one error. After the loop, `b` holds the nth Fibonacci number, not `a`. The fix is `return b`.',
+              reference_solution: `def fibonacci(n):\n    if n == 0: return 0\n    if n == 1: return 1\n    a, b = 0, 1\n    for _ in range(n - 1):\n        a, b = b, a + b\n    return b`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `count_vowels(s)` that returns the count of vowels (a, e, i, o, u) in the given string. Case-insensitive.',
+            question_title: 'Count Vowels',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def count_vowels(s):\n    return sum(1 for c in s.lower() if c in 'aeiou')\n\n# Test\nprint(count_vowels("Hello World"))  # 3`,
+              language: 'python',
+              explanation: 'Using a generator expression with sum() is clean and Pythonic. Converting to lowercase first handles case-insensitivity.',
+              reference_solution: `def count_vowels(s):\n    vowels = set('aeiou')\n    return sum(1 for c in s.lower() if c in vowels)`,
+            },
+          },
+        ];
+
+        setSubmissionData({
+          marks: mockScore,
+          started_at: started.toISOString(),
+          completed_at: now.toISOString(),
+          question_activities: MOCK_QUESTIONS,
+        });
+      setAllSubmissions([{ id: currentSubId, status: 'completed', marks: mockScore }]);
+        setLoading(false);
+        return;
+      }
 
     const fetchSubmission = async () => {
       setLoading(true);
@@ -231,8 +323,8 @@ const TestResults: React.FC<TestResultsProps> = ({
 
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-50">
-                <Clock className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50">
+                <Clock className="w-5 h-5 text-slate-600" />
               </div>
               <div>
                 <p className="text-xl font-bold text-gray-900">{timeTakenMinutes}m<span className="text-sm font-normal text-gray-400"> / {test.duration}m</span></p>
@@ -295,8 +387,8 @@ const TestResults: React.FC<TestResultsProps> = ({
               onClick={() => setActiveTab(activeTab === 'ai_buddy' ? 'all' : 'ai_buddy')}
               className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all ${
                 activeTab === 'ai_buddy'
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-700 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               <MessageCircle className="w-4 h-4" /> AI Buddy
@@ -338,7 +430,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 border border-gray-200">{qType}</Badge>
+                            <Badge className="text-[10px] h-4 px-1.5 bg-slate-100 text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
                           </div>
                           <p className="text-sm font-medium text-gray-900 line-clamp-2">{q.question_content || q.question_title}</p>
                         </div>
@@ -383,14 +475,38 @@ const TestResults: React.FC<TestResultsProps> = ({
                                 <Code className="h-4 w-4" /> Your Code
                               </p>
                               {q.answer_data?.answer ? (
-                                <pre className="bg-gray-900 text-green-400 text-xs font-mono p-4 rounded-lg overflow-x-auto max-h-48">
-                                  {q.answer_data.answer}
-                                </pre>
+                                <div className="rounded-lg overflow-hidden border border-gray-200">
+                                  <MonacoCodeEditor
+                                    value={q.answer_data.answer}
+                                    onChange={() => {}}
+                                    language={q.answer_data?.language || 'python'}
+                                    readOnly={true}
+                                    height="200px"
+                                  />
+                                </div>
                               ) : (
                                 <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
                                   <Eye className="w-4 h-4" /> No code submitted
                                 </div>
                               )}
+                            </div>
+                          )}
+
+                          {/* Reference solution for coding questions */}
+                          {q.question_type === 'coding' && q.answer_data?.reference_solution && (
+                            <div className="space-y-2 pt-2 border-t border-gray-100">
+                              <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                <Lightbulb className="h-4 w-4" /> Reference Solution
+                              </p>
+                              <div className="rounded-lg overflow-hidden border border-green-200">
+                                <MonacoCodeEditor
+                                  value={q.answer_data.reference_solution}
+                                  onChange={() => {}}
+                                  language={q.answer_data?.language || 'python'}
+                                  readOnly={true}
+                                  height="200px"
+                                />
+                              </div>
                             </div>
                           )}
 

@@ -75,23 +75,12 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     }
   }, []);
 
-  // Persistence: Load messages when activeKey changes
+  // Persistence: always start fresh when the key changes (switching subunits/topics)
   useEffect(() => {
     if (activeKey) {
-      try {
-        setSessionId(null); // Force reset session ID when key changes
-        const stored = localStorage.getItem(activeKey);
-        if (stored) {
-          setMessages(JSON.parse(stored));
-        } else {
-          setMessages([]);
-        }
-        setLoadedKey(activeKey);
-      } catch (e) {
-        console.error("Failed to load chat history", e);
-        setMessages([]);
-        setLoadedKey(activeKey);
-      }
+      setSessionId(null);
+      setMessages([]);
+      setLoadedKey(activeKey);
     } else {
       setLoadedKey(null);
       setSessionId(null);

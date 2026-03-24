@@ -4,6 +4,17 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ProgressBar from '@/components/ui/ProgressBar';
 
+const COLOR_MAP: Record<string, string> = {
+    blue: 'bg-blue-600',
+    green: 'bg-emerald-600',
+    orange: 'bg-orange-600',
+    yellow: 'bg-amber-500',
+    purple: 'bg-purple-600',
+    cyan: 'bg-cyan-600',
+    pink: 'bg-pink-600',
+    indigo: 'bg-indigo-600',
+};
+
 export interface SidebarUnit {
     id: string;
     name: string;
@@ -46,8 +57,8 @@ const UnitSidebar = ({
                 'bg-white shadow-none transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200'
             )}
             style={{
-                width: isOpen ? "300px" : "70px",
-                minWidth: isOpen ? "300px" : "70px",
+                width: isOpen ? "320px" : "64px",
+                minWidth: isOpen ? "320px" : "64px",
             }}
         >
             {/* Scrollable content container */}
@@ -55,8 +66,16 @@ const UnitSidebar = ({
                 {/* CONTENT AREA */}
                 {!isOpen ? (
                     <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                        <div className="w-10 h-10 flex items-center justify-center text-2xl font-semibold mb-2 bg-gray-50 rounded-xl" title={subject.name}>
-                            {subject.icon || '🗂️'}
+                        <div className="w-10 h-10 flex items-center justify-center text-2xl mb-2 bg-gray-50 rounded-xl" title={subject.name}>
+                            {subject.icon ? (() => {
+                                const Icon = subject.icon as any;
+                                const colorClass = COLOR_MAP[(subject as any).color] || 'bg-slate-600';
+                                return (
+                                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-xl text-white", colorClass)}>
+                                        <Icon className="w-6 h-6 text-white" />
+                                    </div>
+                                );
+                            })() : '🗂️'}
                         </div>
                         <div className="flex flex-col items-center gap-3 w-full px-2">
                             {subject.units.map((unit) => {
@@ -88,10 +107,20 @@ const UnitSidebar = ({
                 ) : (
                     <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
                         <div className="flex items-center gap-3 mb-1">
-                            <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
-                                {subject.icon || '🗂️'}
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-10 h-10 flex items-center justify-center text-xl rounded-lg overflow-hidden">
+                                    {subject.icon ? (() => {
+                                        const Icon = subject.icon as any;
+                                        const colorClass = COLOR_MAP[(subject as any).color] || 'bg-slate-600';
+                                        return (
+                                            <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-white", colorClass)}>
+                                                <Icon className="w-6 h-6 text-white" />
+                                            </div>
+                                        );
+                                    })() : '🗂️'}
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
                             </div>
-                            <h2 className="text-xl font-semibold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
                         </div>
 
                         <p className="text-sm text-gray-500 mb-3 ml-1">
@@ -125,24 +154,23 @@ const UnitSidebar = ({
                                 return (
                                     <div
                                         key={unit.id}
-<<<<<<< HEAD
-                                        className={`border border-gray-200 rounded-xl overflow-hidden shadow-none hover:shadow-sm transition-all duration-200 cursor-pointer ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
+                                        className={`border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer ${isSelected ? 'ring-1 ring-blue-100' : ''}`}
                                         onClick={() => onUnitSelect(unit)}
                                     >
                                         {/* Unit header */}
                                         <div
-                                            className={`flex items-center justify-between w-full p-3 transition-colors ${isSelected ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}`}
+                                            className={`flex items-center justify-between w-full p-3 transition-colors ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
                                         >
-                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                <div className={`p-1 rounded-full ${isSelected ? 'bg-blue-100' : 'bg-transparent'}`}>
-                                                    <ChevronRight className={`w-4 h-4 ${isSelected ? 'text-blue-600' : 'text-gray-600'}`} />
+                                            <div className="flex items-center gap-3 overflow-hidden text-left">
+                                                <div className={`p-1 rounded-full transition-colors ${isSelected ? 'bg-blue-100' : 'bg-transparent'}`}>
+                                                    <ChevronRight className={cn("w-4 h-4 transition-colors", isSelected ? "text-blue-700" : "text-gray-600")} />
                                                 </div>
-                                                <span className={`font-semibold truncate text-sm ${isSelected ? 'text-blue-700' : 'text-gray-800'}`}>{unit.name}</span>
+                                                <span className={cn("font-semibold truncate text-sm transition-colors", isSelected ? "text-blue-700" : "text-gray-800")}>{unit.name}</span>
                                             </div>
 
                                             {/* Show Checkmark if completed (and progress enabled), OR show problem count if strictly not showing progress */}
                                             {showProgress && completed && (
-                                                <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-none">
+                                                <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-sm">
                                                     <Check className="w-3 h-3" strokeWidth={4} />
                                                 </span>
                                             )}
@@ -164,7 +192,7 @@ const UnitSidebar = ({
                                                     value={progress}
                                                     height={6}
                                                     trackClassName="bg-gray-100 rounded-full"
-                                                    barClassName={isSelected ? "bg-blue-500 rounded-full" : "bg-green-500 rounded-full"}
+                                                    barClassName="bg-green-500 rounded-full"
                                                 />
                                             </div>
                                         )}

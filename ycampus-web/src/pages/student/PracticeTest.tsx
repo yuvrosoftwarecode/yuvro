@@ -3,7 +3,6 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleSidebar from "@/components/common/RoleSidebar";
 import { Button } from "@/components/ui/button";
-import { BookOpen } from 'lucide-react';
 
 import SubjectSelection from "@/components/student/skill-test/SubjectSelection";
 import UnitSidebar from "@/components/student/skill-test/UnitSidebar";
@@ -11,6 +10,13 @@ import TestCards from "@/components/student/skill-test/TestCards";
 import TestInstructions from "@/components/student/skill-test/TestInstructions";
 import TestResults from "@/components/student/skill-test/TestResults";
 import AssessmentInterface from "@/components/student/AssessmentInterface";
+import {
+  BookOpen, Code, Database,
+  Globe, Cpu, Layers, FlaskConical,
+  BookMarked, PenLine, Sigma, Atom,
+  Pencil, Binary, BrainCircuit, SquareFunction,
+  LayoutGrid
+} from 'lucide-react';
 
 import {
   fetchSubjects,
@@ -81,7 +87,7 @@ export interface Subject {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: any; // Lucide icon component
   color: string;
   units: Unit[];
   category?: string;
@@ -116,18 +122,24 @@ type View =
   | "test"
   | "results";
 
-const getSubjectIcon = (name: string, index: number): string => {
+const getSubjectIcon = (name: string, index: number): any => {
   const lowerName = name.toLowerCase();
   
-  if (lowerName.includes('react') || lowerName.includes('frontend') || lowerName.includes('web') || lowerName.includes('html')) return '🌐';
-  if (lowerName.includes('python') || lowerName.includes('c++') || lowerName.includes('java') || lowerName.includes('code') || lowerName.includes('programming')) return '💻';
-  if (lowerName.includes('data') || lowerName.includes('sql') || lowerName.includes('db')) return '🗄️';
-  if (lowerName.includes('ai') || lowerName.includes('machine learning') || lowerName.includes('ml')) return '🧠';
-  if (lowerName.includes('system') || lowerName.includes('os') || lowerName.includes('architecture') || lowerName.includes('network') || lowerName.includes('cloud')) return '⚙️';
-  if (lowerName.includes('design') || lowerName.includes('ui')) return '🎨';
-  if (lowerName.includes('english') || lowerName.includes('aptitude') || lowerName.includes('math') || lowerName.includes('reasoning')) return '📖';
+  if (lowerName.includes('calculus') || lowerName.includes('matrices') || lowerName.includes('math')) return Sigma;
+  if (lowerName.includes('python') || lowerName.includes('java') || lowerName.includes('programming') || lowerName.includes('code')) return Code;
+  if (lowerName.includes('data') || lowerName.includes('sql') || lowerName.includes('database') || lowerName.includes('db')) return Database;
+  if (lowerName.includes('physics')) return Atom;
+  if (lowerName.includes('chemistry')) return FlaskConical;
+  if (lowerName.includes('network') || lowerName.includes('web') || lowerName.includes('internet') || lowerName.includes('html') || lowerName.includes('react')) return Globe;
+  if (lowerName.includes('os') || lowerName.includes('operating') || lowerName.includes('computer') || lowerName.includes('system') || lowerName.includes('architecture')) return Cpu;
+  if (lowerName.includes('structure') || lowerName.includes('algorithm') || lowerName.includes('dsa')) return Layers;
+  if (lowerName.includes('english') || lowerName.includes('communication') || lowerName.includes('aptitude') || lowerName.includes('reasoning')) return PenLine;
+  if (lowerName.includes('drawing') || lowerName.includes('cad') || lowerName.includes('design') || lowerName.includes('ui')) return Pencil;
+  if (lowerName.includes('digital') || lowerName.includes('logic') || lowerName.includes('circuit')) return Binary;
+  if (lowerName.includes('ai') || lowerName.includes('machine') || lowerName.includes('deep') || lowerName.includes('ml')) return BrainCircuit;
+  if (lowerName.includes('algebra') || lowerName.includes('linear') || lowerName.includes('discrete')) return SquareFunction;
   
-  const defaultIcons = ['🧩', '📐', '📚', '🖥️'];
+  const defaultIcons = [BookOpen, LayoutGrid, BookMarked, Layers];
   return defaultIcons[index % defaultIcons.length];
 };
 const COLORS = [
@@ -145,12 +157,30 @@ interface SkillTestProps {
   testType?: 'practice' | 'assessment';
 }
 
+// Demo mock test — always visible in practice tests for presentation purposes.
+// TestResults detects the "mock-" submission ID and injects realistic data without any API call.
+const MOCK_DEMO_TEST: Test = {
+  id: 'mock-python-fundamentals',
+  title: '🎯 Python Fundamentals (Demo)',
+  difficulty: 'Medium',
+  totalQuestions: 10,
+  duration: 30,
+  totalMarks: 32,
+  unitId: 'mock-unit-demo',
+  subject: 'Python Programming',
+  maxAttempts: 3,
+  testType: 'practice',
+  my_submissions: [
+    { id: 'mock-sub-demo-001', status: 'completed', marks: 22 },
+  ],
+};
+
 const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
   const { subjectId, testId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const basePath = testType === 'practice' ? '/student/test' : '/student/assessment';
+  const basePath = testType === 'practice' ? '/student/practice-tests' : '/student/assessments';
   const typeText = testType === 'practice' ? 'Practice Tests' : 'Assessments';
 
   const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(true);
@@ -182,7 +212,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
       // Path: /student/practice-tests/:subjectId/:testId/results
       //   or: /student/assessment/:subjectId/:testId/results
       const pathParts = location.pathname.split('/');
-      const typePath = testType === 'practice' ? 'test' : 'assessment';
+      const typePath = testType === 'practice' ? 'practice-tests' : 'assessments';
       const index = pathParts.indexOf(typePath);
       // typePath is at index N, subjectId at N+1, testId at N+2
       if (index !== -1 && pathParts[index + 2]) {
@@ -206,14 +236,14 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
             return {
               id: c.id,
               name: subjectName,
-            description: `${typeText} for ${subjectName}`,
-            icon: getSubjectIcon(subjectName, index),
-            color: COLORS[index % COLORS.length],
-            units: [],
-            category: c.category || "General",
-            unitCount: c.units ? c.units.length : 0,
-          };
-        }
+              description: `${typeText} for ${subjectName}`,
+              icon: getSubjectIcon(subjectName, index),
+              color: COLORS[index % COLORS.length],
+              units: [],
+              category: c.category || "General",
+              unitCount: c.units ? c.units.length : 0,
+            };
+          }
         );
 
         setSubjects(mapped);
@@ -246,6 +276,8 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
     navigate(basePath);
   };
 
+  const withMockTest = (realTests: Test[]) => realTests;
+
   const refreshTestsData = async () => {
     if (!selectedSubject) return;
     try {
@@ -254,7 +286,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
         selectedSubject.name,
         testType
       );
-      setTests(realTests);
+      setTests(withMockTest(realTests));
       setSelectedSubject(prev => prev ? { ...prev, units: updatedUnits } : null);
     } catch (err) {
       console.error("Failed to refresh tests data", err);
@@ -305,15 +337,22 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
                 foundSubject.name,
                 testType
               );
-              setTests(realTests);
+              setTests(withMockTest(realTests));
               setSelectedSubject(prev => prev ? { ...prev, units: progressUnits } : null);
 
             } catch (err) {
               console.error("Failed to load units", err);
             }
           } else {
-            // Units already loaded — just set the subject
+            // Units already loaded — just set the subject and load tests
             setSelectedSubject(foundSubject);
+            const { tests: realTests, updatedUnits: progressUnits } = await loadTestsForUnits(
+              foundSubject.units,
+              foundSubject.name,
+              testType
+            );
+            setTests(withMockTest(realTests));
+            setSelectedSubject(prev => prev ? { ...prev, units: progressUnits } : null);
           }
 
           // Always show the welcome screen when no specific test is selected
@@ -337,9 +376,25 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
   useEffect(() => {
     if (selectedSubject && tests.length > 0) {
       if (actualTestId) {
-        const foundTest = tests.find(t => t.id === actualTestId);
+        const foundTest = tests.find(t => t.id === actualTestId)
+          ?? (actualTestId.startsWith('mock-') ? MOCK_DEMO_TEST : undefined);
         if (foundTest) {
           setSelectedTest(foundTest);
+
+          // Mock test — bypass unit lookup, go straight to results
+          if (foundTest.id.startsWith('mock-')) {
+            if (isResultsRoute) {
+              const submissions = foundTest.my_submissions || [];
+              const latestSubmission = submissions.find((s: any) => s.status === 'completed' || s.status === 'submitted');
+              if (latestSubmission) setCurrentSubmissionId(latestSubmission.id);
+              setSelectedUnit({ id: 'mock-unit-demo', name: 'Demo Unit' });
+              setCurrentView("results");
+            } else {
+              setSelectedUnit({ id: 'mock-unit-demo', name: 'Demo Unit' });
+              setCurrentView("instructions");
+            }
+            return;
+          }
 
           // Check if we're on the results route
           if (isResultsRoute) {
@@ -386,6 +441,12 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
 
   const handleBeginTest = async () => {
     if (!selectedTest) return;
+
+    // Mock test — skip API, go straight to results for demo
+    if (selectedTest.id.startsWith('mock-')) {
+      if (subjectId) navigate(`${basePath}/${subjectId}/${selectedTest.id}/results`);
+      return;
+    }
 
     try {
       const loadingToast = toast.loading("Starting test...");
@@ -486,7 +547,11 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
 
 
   const filteredTests: Test[] = selectedUnit
-    ? tests.filter((t) => t.unitId === selectedUnit.id)
+    ? [
+        ...tests.filter((t) => t.unitId === selectedUnit.id && !t.id.startsWith('mock-')),
+        // Always append the single demo mock test in practice mode
+        ...(testType === 'practice' ? [MOCK_DEMO_TEST] : []),
+      ]
     : [];
 
   const hideNavigation =
@@ -589,6 +654,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
             onUnitSelect={handleUnitSelect}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
+            onBackToSubjects={handleBackToSubjects}
             overallProgress={
               selectedSubject.units.length > 0
                 ? Math.round(
@@ -610,7 +676,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
             ) : selectedUnit ? (
             <TestCards
                 tests={filteredTests}
-                courseName={selectedSubject?.name || ""}
+                subjectName={selectedSubject?.name || ""}
                 topicName={selectedUnit?.name || ""}
                 onBack={handleBackToSubjects}
                 onStartTest={handleStartTest}
@@ -621,8 +687,8 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
             ) : (
               <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-fade-in">
                 <div className="max-w-md">
-                  <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <BookOpen className="w-10 h-10 text-blue-600" />
+                  <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-slate-100">
+                    <BookOpen className="w-12 h-12 text-slate-800" />
                   </div>
                   <h2 className="text-2xl font-bold text-slate-900 mb-3">
                     Welcome to {selectedSubject?.name}
@@ -635,7 +701,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
                       <Button 
                         key={unit.id}
                         onClick={() => handleUnitSelect(unit)}
-                        className="h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold px-8 shadow-md"
+                        className="h-14 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold px-10 shadow-xl shadow-slate-200/50 text-lg"
                       >
                         Start First Unit: {unit.name}
                       </Button>
@@ -652,7 +718,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
       {!hideNavigation && (
-        <RoleSidebar />
+        <RoleSidebar collapsed={!!selectedSubject} />
       )}
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">

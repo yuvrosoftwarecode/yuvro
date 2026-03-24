@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import PageHeader from '../../components/common/PageHeader';
+import RoleHeader from '../../components/common/RoleHeader';
 import { Card, CardHeader, CardContent } from '../../components/ui/card';
 import studentDashboardService, {
   NotesProgressData,
@@ -1019,23 +1019,21 @@ const Dashboard: React.FC = () => {
     !contestsData
   ) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex">
-          <RoleSidebar />
-          <div className="flex-1">
-            <PageHeader
-              title="Loading..."
-              subtitle="Please wait while we load your dashboard."
-            />
-            <div className="p-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(9)].map((_, i) => (
-                  <Card
-                    key={i}
-                    className="h-64 animate-pulse border-border bg-muted/40"
-                  />
-                ))}
-              </div>
+      <div className="h-screen bg-gray-50 flex overflow-hidden text-slate-900">
+        <RoleSidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <RoleHeader
+            title="Loading..."
+            subtitle="Please wait while we load your dashboard."
+          />
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(9)].map((_, i) => (
+                <Card
+                  key={i}
+                  className="h-64 animate-pulse border-border bg-muted/40"
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -1044,39 +1042,38 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
+    <div className="h-screen bg-gray-50 flex overflow-hidden text-slate-900">
+      <RoleSidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+          <RoleHeader
+            title="Dashboard Overview"
+            subtitle="Monitor your academic progress and performance metrics"
+            className="py-0 pb-4"
+            noPadding
+          />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <NotesProgress data={notesData} />
+            <TestPerformance data={testsData} />
+            <TasksSummary data={tasksData} />
+          </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-            <PageHeader
-              title="Dashboard Overview"
-              subtitle="Monitor your academic progress and performance metrics"
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <AssessmentsOverview data={assessmentsData} />
+            <ContestPerformance data={contestsData} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <AttendanceOverview />
+            <Announcements
+              announcements={announcementsData}
+              count={announcementCount}
             />
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <NotesProgress data={notesData} />
-              <TestPerformance data={testsData} />
-              <TasksSummary data={tasksData} />
-            </div>
+          </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <AssessmentsOverview data={assessmentsData} />
-              <ContestPerformance data={contestsData} />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <AttendanceOverview />
-              <Announcements
-                announcements={announcementsData}
-                count={announcementCount}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <StreaksBadges />
-              <PerformanceMetrics />
-            </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <StreaksBadges />
+            <PerformanceMetrics />
           </div>
         </div>
       </div>

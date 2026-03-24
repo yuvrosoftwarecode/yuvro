@@ -11,7 +11,7 @@ import AssessmentInterface from '@/components/student/AssessmentInterface';
 import TestResults from '@/components/student/skill-test/TestResults';
 import TestInstructions from '@/components/student/skill-test/TestInstructions';
 import { toast } from 'sonner';
-import { Clock, FileText, BarChart3, Play, CheckCircle, Timer } from 'lucide-react';
+import { Clock, FileText, BarChart3, Play, CheckCircle, Timer, ChevronRight } from 'lucide-react';
 
 type AssessmentStatus = 'all' | 'pending' | 'completed';
 type View = 'list' | 'instructions' | 'test' | 'results';
@@ -64,7 +64,7 @@ const MOCK_ASSESSMENTS: (SkillTest & { my_submissions: any[] })[] = [
     created_by: '',
     created_at: '',
     updated_at: '',
-    my_submissions: [{ id: 'sub-1', status: 'completed', marks: 72 }],
+    my_submissions: [{ id: 'mock-sub-oop-001', status: 'completed', marks: 72 }],
   },
   {
     id: 'mock-3',
@@ -112,7 +112,7 @@ const MOCK_ASSESSMENTS: (SkillTest & { my_submissions: any[] })[] = [
     created_by: '',
     created_at: '',
     updated_at: '',
-    my_submissions: [{ id: 'sub-2', status: 'completed', marks: 88 }],
+    my_submissions: [{ id: 'mock-sub-calc-001', status: 'completed', marks: 88 }],
   },
   {
     id: 'mock-5',
@@ -160,22 +160,30 @@ export default function StudentAssessments() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
-      const [tests, subs] = await Promise.all([
-        fetchSkillTests({ test_type: 'assessment' }),
-        fetchSubjects(),
-      ]);
+      // Only fetch subjects if we don't have them yet to save time
+      const fetchList: Promise<any>[] = [fetchSkillTests({ test_type: 'assessment' })];
+      if (subjects.length === 0 || subjects === MOCK_SUBJECTS) {
+        fetchList.push(fetchSubjects());
+      }
+
+      const results = await Promise.all(fetchList);
+      const tests = results[0];
+      
       if (tests.length > 0) {
         setAssessments(tests as any);
+      }
+
+      if (results[1]) {
+        const subs = results[1];
         setSubjects(subs.map((s: any) => ({ id: s.id, name: s.subject_name || s.name })));
       }
-      // if API returns empty, mock data stays visible
     } catch {
       // silently keep mock data on error
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -220,9 +228,22 @@ export default function StudentAssessments() {
     }
   };
 
-  const handleComplete = async () => { await load(); setView('results'); };
-  const handleViewResults = (test: SkillTest) => { setSelected(test); setView('results'); };
-  const handleBackToList = async () => { await load(); setSelected(null); setView('list'); };
+  const handleComplete = async () => {
+    setView('results');
+    load(true); // Background refresh
+  };
+  const handleViewResults = (test: SkillTest) => {
+    const latest = getLatestSubmission(test);
+    setSelected(test);
+    setSubmissionId(latest?.id || null);
+    setView('results');
+  };
+  const handleBackToList = async () => {
+    setSelected(null);
+    setSubmissionId(null);
+    setView('list');
+    load(true); // Background refresh
+  };
 
   // ── Non-list views ────────────────────────────────────────────────────────
   if (view === 'instructions' && selected) {
@@ -299,18 +320,19 @@ export default function StudentAssessments() {
 
   // ── List view ─────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader
-          title="Assessments"
-          subtitle="Complete your assigned assessments and track your progress"
-        />
+        <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6 space-y-6">
+          <RoleHeader
+            title="Assessments"
+            subtitle="Complete your assigned assessments and track your progress"
+            className="py-0 pb-2"
+            noPadding
+          />
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-
-          {/* Filters card — borderless, shadow only */}
-          <Card className="border border-gray-200 shadow-sm">
+          {/* Filters card — standardized */}
+          <Card className="border border-gray-100 bg-white shadow-sm rounded-xl">
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
@@ -345,14 +367,19 @@ export default function StudentAssessments() {
           </Card>
 
           {/* Section label */}
-          <h3 className="text-lg font-semibold text-foreground">
-            Available Assessments {statusFilter !== 'all' && `(${statusFilter})`}
-          </h3>
+          <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-100 shadow-sm">
+              <FileText className="w-5 h-5 text-slate-600" />
+            </div>
+            <h2 className="text-2xl font-bold">
+              Available Assessments {statusFilter !== 'all' && `(${statusFilter})`}
+            </h2>
+          </div>
 
           {/* Loading */}
           {loading && (
             <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-700" />
             </div>
           )}
 
@@ -380,19 +407,19 @@ export default function StudentAssessments() {
                 return (
                   <Card
                     key={test.id}
-                    className="group relative border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-200 hover:-translate-y-0.5 transition-all duration-200 rounded-xl overflow-hidden flex flex-col"
+                    className="group relative border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 rounded-xl overflow-hidden flex flex-col"
                   >
 
                     <div className="p-6 flex flex-col flex-1 space-y-4">
                       {/* Title + status badge */}
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-base font-semibold text-foreground leading-snug group-hover:text-orange-600 transition-colors">
+                        <h3 className="text-base font-semibold text-foreground leading-snug group-hover:text-slate-900 transition-colors">
                           {test.title}
                         </h3>
                         <Badge
                           className={status === 'completed'
                             ? 'shrink-0 bg-emerald-100 text-emerald-700 border-0 hover:bg-emerald-100'
-                            : 'shrink-0 bg-orange-100 text-orange-700 border-0 hover:bg-orange-100'}
+                            : 'shrink-0 bg-slate-100 text-slate-700 border-0 hover:bg-slate-100'}
                         >
                           {status === 'completed'
                             ? <><CheckCircle className="h-3 w-3 mr-1" />Completed</>
@@ -427,14 +454,14 @@ export default function StudentAssessments() {
                             test.difficulty === 'easy'
                               ? 'bg-emerald-100 text-emerald-700 border-0 hover:bg-emerald-100'
                               : test.difficulty === 'medium'
-                              ? 'bg-cyan-100 text-cyan-700 border-0 hover:bg-cyan-100'
+                              ? 'bg-blue-100 text-blue-700 border-0 hover:bg-blue-100'
                               : 'bg-rose-100 text-rose-700 border-0 hover:bg-rose-100'
                           }
                         >
                           {diffLabel}
                         </Badge>
                         {status === 'completed' && latest?.marks != null && (
-                          <Badge variant="secondary" className="font-bold">
+                          <Badge className="bg-slate-100 text-slate-700 border-0 hover:bg-slate-100 font-bold">
                             Score: {latest.marks}/{test.total_marks}
                           </Badge>
                         )}
@@ -445,23 +472,24 @@ export default function StudentAssessments() {
                         {status === 'pending' ? (
                           <Button
                             onClick={() => handleStart(test)}
-                            className="w-full h-11 bg-gradient-to-r from-[#FFB300] to-[#FF6B00] hover:from-[#FF8800] hover:to-[#FF5500] text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 gap-2"
+                            className="w-full h-11 bg-slate-800 hover:bg-slate-900 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 gap-2 font-semibold"
                           >
                             <Play className="h-4 w-4" />
                             Start Assessment
                           </Button>
                         ) : (
                           <Button
-                            variant="secondary"
+                            variant="outline"
                             onClick={() => handleViewResults(test)}
-                            className="w-full h-11 flex items-center justify-between px-4 rounded-xl border-slate-200 hover:border-orange-200 hover:bg-orange-50/50 transition-all group/res"
+                            className="w-full h-11 flex items-center justify-between px-4 rounded-xl border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all group/res"
                           >
                             <div className="flex items-center gap-2">
-                              <div className="p-1.5 bg-orange-50 rounded-lg group-hover/res:bg-orange-100 transition-colors">
-                                <BarChart3 className="h-3.5 w-3.5 text-orange-600" />
+                              <div className="p-1.5 bg-slate-100 rounded-lg group-hover/res:bg-slate-200 transition-colors">
+                                <BarChart3 className="h-3.5 w-3.5 text-slate-700" />
                               </div>
                               <span className="text-sm font-semibold text-slate-700">View Results</span>
                             </div>
+                            <ChevronRight className="h-4 w-4 text-slate-400 group-hover/res:translate-x-1 transition-transform" />
                           </Button>
                         )}
                       </div>

@@ -205,13 +205,14 @@ export default function InstructorSkillTest({ basePath = '/admin/skill-tests' }:
     <div className="h-screen bg-gray-50 flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader
-          title={getHeaderTitle()}
-          subtitle={getHeaderSubtitle()}
-          actions={getHeaderActions()}
-        />
         <div className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto">
+            <RoleHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={getHeaderActions()}
+            />
+          <div className="px-6 lg:px-8 pb-8">
 
             {/* Loading */}
             {loading && (
@@ -411,6 +412,7 @@ export default function InstructorSkillTest({ basePath = '/admin/skill-tests' }:
               </div>
             )}
 
+          </div>
           </div>
         </div>
       </div>

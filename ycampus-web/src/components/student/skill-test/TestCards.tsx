@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Test } from '@/pages/student/PracticeTest';
-import { Clock, FileQuestion, Play, Trophy, ChevronRight } from 'lucide-react';
+import { Clock, CheckCircle, Play, Trophy, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import RoleHeader from '@/components/common/RoleHeader';
 
 interface TestCardsProps {
   tests: Test[];
@@ -20,17 +20,22 @@ interface TestCardsProps {
 
 type DifficultyTab = 'All' | 'Easy' | 'Medium' | 'Hard';
 
-const getButtonGradient = (difficulty: string) => {
-  switch (difficulty) {
-    case 'Easy':
-      return 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600';
-    case 'Medium':
-      return 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600';
-    case 'Hard':
-      return 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600';
-    default:
-      return 'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600';
-  }
+const DIFFICULTY_GRADIENT: Record<string, string> = {
+  Easy:   'from-emerald-400 to-teal-500',
+  Medium: 'from-amber-400 to-orange-500',
+  Hard:   'from-rose-500 to-pink-500',
+};
+
+const DIFFICULTY_TOP: Record<string, string> = {
+  Easy:   'from-emerald-400 to-teal-400',
+  Medium: 'from-amber-400 to-yellow-400',
+  Hard:   'from-rose-500 to-pink-400',
+};
+
+const DIFFICULTY_BADGE: Record<string, string> = {
+  Easy:   'bg-emerald-50 text-emerald-700',
+  Medium: 'bg-amber-50 text-amber-700',
+  Hard:   'bg-rose-50 text-rose-700',
 };
 
 const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewResult, onViewAllResults, completedTests }: TestCardsProps) => {
@@ -44,16 +49,13 @@ const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewR
   const visibleTests = activeTab === 'All' ? tests : tests.filter(t => t.difficulty === activeTab);
 
   return (
-    <div className="px-6 py-6 animate-fade-in">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-          {topicName} Tests
-        </h1>
-        <p className="text-sm text-slate-500">
-          Choose a test based on your skill level
-        </p>
-      </div>
+    <div className="px-6 lg:px-8 py-6 animate-fade-in max-w-[1600px] mx-auto">
+      <RoleHeader
+        title={`${topicName} Tests`}
+        subtitle="Choose a test based on your skill level"
+        noPadding
+        className="py-0 pb-8"
+      />
 
       {/* Difficulty Tabs */}
       {tests.length > 0 && (
@@ -76,109 +78,117 @@ const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewR
       )}
 
       {/* Test Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {visibleTests.map((test) => {
           const submissions = test.my_submissions || [];
           const completedSubmissions = submissions.filter(s => s.status === 'completed' || s.status === 'submitted');
           const attemptCount = completedSubmissions.length;
           const canAttempt = attemptCount < test.maxAttempts;
+          const topGradient = DIFFICULTY_TOP[test.difficulty] || 'from-blue-400 to-indigo-400';
+          const btnGradient = DIFFICULTY_GRADIENT[test.difficulty] || 'from-blue-500 to-indigo-500';
+          const badgeClass = DIFFICULTY_BADGE[test.difficulty] || 'bg-gray-100 text-gray-600';
 
           return (
-            <Card
+            <div
               key={test.id}
-              className="group relative bg-gradient-to-br from-white to-slate-50/50 border-0 shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden rounded-xl"
+              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col"
             >
-              <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Colored top bar */}
+              <div className={cn('h-1.5 w-full bg-gradient-to-r', topGradient)} />
 
-              <div className="p-6 space-y-5 relative z-10">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {test.title}
-                  </h3>
-                  <Badge variant="secondary" className="font-bold">
-                    {attemptCount}/{test.maxAttempts} Attempts
-                  </Badge>
+              <div className="p-5 flex flex-col flex-1 gap-3">
+                {/* Title + difficulty badge */}
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-base font-bold text-gray-900 leading-snug">{test.title}</h3>
+                  <span className={cn('text-xs font-semibold px-3 py-1 rounded-full shrink-0', badgeClass)}>
+                    {test.difficulty}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-5 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <FileQuestion className="h-4 w-4 opacity-70" />
-                    <span>{test.totalQuestions} questions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 opacity-70" />
-                    <span>{test.duration} mins</span>
-                  </div>
+                {/* Description */}
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {test.subject} — {test.totalMarks} marks
+                </p>
+
+                {/* Meta row */}
+                <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" />
+                    {test.duration} min
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4" />
+                    {test.totalQuestions} questions
+                  </span>
                 </div>
 
-                <div className="pt-2 space-y-2">
-                  {canAttempt ? (
-                    <Button
-                      onClick={() => onStartTest(test)}
-                      className={cn(
-                        "w-full text-white transition-all duration-300 gap-2 h-11 shadow-md hover:shadow-lg",
-                        getButtonGradient(test.difficulty)
-                      )}
-                    >
-                      <Play className="h-4 w-4" />
-                      {attemptCount === 0 ? 'Start Test' : 'Retake Test'}
-                    </Button>
-                  ) : (
-                    <Button
-                      disabled
-                      variant="outline"
-                      className="w-full h-11 bg-slate-50 opacity-60 cursor-not-allowed border-dashed"
-                    >
-                      Limit Reached ({test.maxAttempts}/{test.maxAttempts})
-                    </Button>
-                  )}
+                {/* Attempts info */}
+                {attemptCount > 0 && (
+                  <p className="text-xs text-gray-400">
+                    {attemptCount}/{test.maxAttempts} attempts used
+                  </p>
+                )}
 
-                  {completedSubmissions.length > 0 && (
-                    <Button
-                      variant="outline"
-                      onClick={() => onViewAllResults(test)}
-                      className="w-full flex items-center justify-between px-4 h-11 rounded-xl border-slate-200 hover:border-blue-200 hover:bg-blue-50/50 transition-all group/res"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-50 rounded-lg group-hover/res:bg-blue-100 transition-colors">
-                          <Trophy className="h-3.5 w-3.5 text-blue-600" />
-                        </div>
-                        <span className="text-sm font-bold text-slate-700">Results</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-slate-100 text-[10px] font-black group-hover/res:bg-blue-100 group-hover/res:text-blue-700 transition-colors">
-                          {completedSubmissions.length} Attempts
-                        </Badge>
-                        <ChevronRight className="h-4 w-4 text-slate-400 group-hover/res:translate-x-1 transition-transform" />
-                      </div>
-                    </Button>
-                  )}
-                </div>
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Action buttons */}
+                {canAttempt ? (
+                  <button
+                    onClick={() => onStartTest(test)}
+                    className={cn(
+                      'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm bg-gradient-to-r transition-opacity hover:opacity-90 active:scale-[0.98]',
+                      btnGradient
+                    )}
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    {attemptCount === 0 ? 'Start Test' : 'Retake Test'}
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="w-full py-3 rounded-xl text-sm font-semibold text-gray-400 bg-gray-100 cursor-not-allowed"
+                  >
+                    Limit Reached ({test.maxAttempts}/{test.maxAttempts})
+                  </button>
+                )}
+
+                {completedSubmissions.length > 0 && (
+                  <button
+                    onClick={() => onViewAllResults(test)}
+                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all text-sm"
+                  >
+                    <span className="flex items-center gap-2 text-gray-600 font-medium">
+                      <Trophy className="w-4 h-4 text-amber-500" />
+                      View Results
+                    </span>
+                    <span className="flex items-center gap-1 text-gray-400">
+                      <span className="text-xs">{completedSubmissions.length} attempt{completedSubmissions.length > 1 ? 's' : ''}</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </span>
+                  </button>
+                )}
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
 
       {/* Empty States */}
       {tests.length === 0 && (
-        <Card className="p-12 text-center rounded-xl border-dashed">
-          <div className="text-muted-foreground">
-            <FileQuestion className="h-12 w-12 mx-auto mb-4 opacity-40" />
-            <p className="text-lg font-medium mb-2">No tests available</p>
-            <p className="text-sm">Tests for this topic will be available soon.</p>
-          </div>
-        </Card>
+        <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200">
+          <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <p className="text-base font-medium text-gray-500 mb-1">No tests available</p>
+          <p className="text-sm text-gray-400">Tests for this topic will be available soon.</p>
+        </div>
       )}
 
       {tests.length > 0 && visibleTests.length === 0 && (
-        <Card className="p-12 text-center rounded-xl border-dashed">
-          <div className="text-muted-foreground">
-            <FileQuestion className="h-12 w-12 mx-auto mb-4 opacity-40" />
-            <p className="text-lg font-medium mb-2">No {activeTab} tests</p>
-            <p className="text-sm">There are no {activeTab.toLowerCase()} difficulty tests for this topic yet.</p>
-          </div>
-        </Card>
+        <div className="p-12 text-center rounded-2xl border border-dashed border-gray-200">
+          <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <p className="text-base font-medium text-gray-500 mb-1">No {activeTab} tests</p>
+          <p className="text-sm text-gray-400">There are no {activeTab.toLowerCase()} difficulty tests for this topic yet.</p>
+        </div>
       )}
     </div>
   );

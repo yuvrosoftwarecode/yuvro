@@ -520,7 +520,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         </TabsTrigger>
                         {showTestCases && (
                           <TabsTrigger value="testcases" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
-                            <FlaskConical className="h-4 w-4 text-blue-600" /> Test Cases
+                            <FlaskConical className="h-4 w-4 text-slate-900" /> Test Cases
                           </TabsTrigger>
                         )}
                       </div>
@@ -530,7 +530,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           disabled={isRunning || isSubmitting}
                           size="sm"
                           variant="outline"
-                          className="h-9 text-xs font-bold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
+                          className="h-9 text-xs font-bold gap-2 bg-slate-900 hover:bg-black text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
                         >
                           <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
@@ -567,10 +567,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {executionMetrics.execution_time !== undefined && (
-                                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-xl border border-blue-200 shadow-md hover:shadow-lg transition-shadow">
-                                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Execution Time</div>
-                                  <div className="text-2xl font-bold text-blue-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
-                                  <div className="text-xs text-blue-600 mt-1">milliseconds</div>
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+                                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">Execution Time</div>
+                                  <div className="text-2xl font-bold text-slate-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
+                                  <div className="text-xs text-slate-600 mt-1">milliseconds</div>
                                 </div>
                               )}
                               {executionMetrics.memory_usage !== undefined && (
@@ -661,7 +661,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         {testResults && testResults.results && Array.isArray(testResults.results) && (
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                              <CheckCircle2 className="h-5 w-5 text-slate-900" />
                               Test Results
                               <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${testResults.passed === testResults.total
                                 ? 'bg-green-100 text-green-800'
@@ -678,7 +678,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                 return (
                                   <div key={idx} className={`border-2 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow ${isHidden
                                     ? result.passed
-                                      ? 'border-blue-200 bg-gradient-to-br from-blue-50/50 to-blue-100/30'
+                                      ? 'border-slate-200 bg-gradient-to-br from-slate-50/50 to-slate-100/30'
                                       : 'border-purple-200 bg-gradient-to-br from-purple-50/50 to-purple-100/30'
                                     : result.passed
                                       ? 'border-green-200 bg-gradient-to-br from-green-50/50 to-green-100/30'
@@ -686,7 +686,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                     }`}>
                                     <div className={`px-6 py-4 border-b-2 flex justify-between items-center ${isHidden
                                       ? result.passed
-                                        ? 'bg-blue-100/60 border-blue-200'
+                                        ? 'bg-slate-100/60 border-slate-200'
                                         : 'bg-purple-100/60 border-purple-200'
                                       : result.passed
                                         ? 'bg-green-100/60 border-green-200'
@@ -749,7 +749,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                            className="text-xs bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200"
                                             onClick={() => {
                                               if (onToggleAiChat && !isAiChatOpen) {
                                                 onToggleAiChat();
@@ -776,7 +776,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                             <Button
                                               size="sm"
                                               variant="outline"
-                                              className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                              className="text-xs bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200"
                                               onClick={() => {
                                                 if (onToggleAiChat && !isAiChatOpen) {
                                                   onToggleAiChat();

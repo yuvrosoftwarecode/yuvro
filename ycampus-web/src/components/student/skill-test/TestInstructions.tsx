@@ -138,8 +138,8 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
                 <p className="font-semibold text-lg text-foreground">{test.totalQuestions}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-amber-100 shadow-none hover:border-amber-300 transition-colors">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-amber-50 text-amber-600">
+            <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-slate-100 shadow-none hover:border-slate-300 transition-colors">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-slate-50 text-slate-600">
                 <BarChart3 className="h-6 w-6" />
               </div>
               <div>
@@ -230,7 +230,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
         <Card className="rounded-2xl border border-gray-200 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center space-x-2 text-lg">
-              <Shield className="h-5 w-5 text-amber-500" />
+              <Shield className="h-5 w-5 text-slate-600" />
               <span>Security Guidelines</span>
             </CardTitle>
           </CardHeader>
@@ -290,7 +290,6 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
 
       {/* Before You Begin */}
       <Card className="rounded-2xl border border-gray-200 shadow-none">
->>>>>>> 588c09d (Recovered lost work)
         <CardContent className="py-5">
           <h4 className="font-semibold mb-4 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -321,7 +320,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
         <Button
           onClick={handleStartTest}
           size="lg"
-          className="px-8 bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white shadow-none hover:shadow-xl transition-all duration-300 gap-2"
+          className="px-8 bg-slate-800 hover:bg-slate-900 text-white shadow-none hover:shadow-xl transition-all duration-300 gap-2 font-semibold"
         >
           <Play className="h-4 w-4" />
           Start Test

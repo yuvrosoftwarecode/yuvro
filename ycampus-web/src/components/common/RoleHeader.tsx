@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface RoleHeaderProps {
   title: React.ReactNode;
@@ -13,23 +14,22 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
   subtitle,
   actions,
   className = '',
-  noPadding = false,
+  noPadding = false
 }) => {
   return (
-    <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 ${noPadding ? '' : 'px-6 lg:px-8 py-4'} border-b border-gray-100 bg-white ${className}`}>
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          {title}
-        </h1>
+    <div className={cn(
+      'flex items-center justify-between py-5 flex-shrink-0',
+      !noPadding && 'px-6 lg:px-8',
+      className
+    )}>
+      <div className="flex flex-col justify-center min-w-0">
+        <h1 className="text-xl font-semibold text-gray-900 leading-tight truncate">{title}</h1>
         {subtitle && (
-          <p className="text-slate-500 text-[13px] font-medium max-w-2xl">
-            {subtitle}
-          </p>
+          <p className="text-sm text-gray-500 leading-tight truncate mt-0.5">{subtitle}</p>
         )}
       </div>
-
       {actions && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 ml-4 flex-shrink-0">
           {actions}
         </div>
       )}

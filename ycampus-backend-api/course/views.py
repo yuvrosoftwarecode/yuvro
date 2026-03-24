@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
-from core.models import College, Batch, Department, Semester, Section, AttendanceSession, AttendanceRecord, StudentProfile, Task, TaskSubmission, TaskComment
+from core.models import College, Batch, Department, Semester, Section, AttendanceSession, AttendanceRecord, StudentProfile, Task, TaskSubmission, TaskComment, Note
 from .models import (
     Subject,
     Unit,
@@ -49,6 +49,7 @@ from .serializers import (
     CollegeSubjectSerializer,
     SemesterSubjectSerializer,
     SectionSubjectFacultySerializer,
+    NoteSerializer,
 )
 from core.serializers import TaskSubmissionSerializer, TaskCommentSerializer
 from ai_assistant.services import AIServiceFactory, AIServiceError
