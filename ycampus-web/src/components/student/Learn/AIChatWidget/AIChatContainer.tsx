@@ -2,6 +2,7 @@ import React from 'react';
 import AIChatMessages from './ChatMessages';
 import AIChatInput from './ChatInput';
 import useAIChat from './useAIChat';
+import { useAuth } from '@/contexts/AuthContext';
 import { Sparkles } from 'lucide-react';
 
 const AIChatContainer: React.FC<{
@@ -14,17 +15,19 @@ const AIChatContainer: React.FC<{
   showHistory?: boolean;
   onInsertCode?: (code: string) => void;
 }> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onInsertCode }) => {
-  const { messages, sendMessage, isLoading, suggestedPrompts, provideFeedback } = useAIChat({
+  const { user } = useAuth();
+  const { messages, sendMessage, isLoading, suggestedPrompts, provideFeedback, activeStream } = useAIChat({
     getContext: contextGetter,
     persistenceKey,
     chatTitle,
+    userName: user?.first_name || 'Student',
   });
 
   return (
-    <div className={`flex flex-col ${className || 'w-[360px] h-[500px]'}`}>
+    <div className={`flex flex-col min-h-0 ${className || 'w-[360px] h-[500px]'}`}>
       <div
-        className="flex flex-col flex-1 min-h-0 rounded-2xl overflow-hidden bg-white"
-        style={{ border: '1px solid #e5e7eb', boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}
+        className={`flex flex-col flex-1 min-h-0 bg-white overflow-hidden ${!className ? 'rounded-2xl border border-gray-200 shadow-xl' : ''}`}
+        style={!className ? { border: '1px solid #e5e7eb', boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' } : {}}
       >
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-white shrink-0" style={{ borderBottom: '1px solid #f3f4f6' }}>
@@ -41,6 +44,7 @@ const AIChatContainer: React.FC<{
         <AIChatMessages
           messages={messages}
           isLoading={isLoading}
+          activeStream={activeStream}
           welcomeMessage={welcomeMessage}
           onInsertCode={onInsertCode}
           onFeedback={provideFeedback}

@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Load sample subjects with units, subunits, videos, and questions from JSON file"
+    help = "Load sample subjects with units, subunits, videos, and questions from JSON file or directory"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,8 +30,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file",
             type=str,
-            default="sample_courses_data.json",
-            help="Filename within fixtures/<deploy_env>/ to load",
+            default=None,
+            help="Filename or directory within fixtures/<deploy_env>/ to load. Defaults to sample_courses_data.json in dev, or data_structures directory in prod.",
         )
 
     def handle(self, *args, **options):
@@ -50,18 +50,65 @@ class Command(BaseCommand):
         self.load_instructors(deploy_env)
 
         fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures" / deploy_env
-        filepath = fixtures_dir / options["file"]
+        
+        # Default file logic
+        filename = options["file"]
+        if not filename:
+            if deploy_env == "prod":
+                filename = "data_structures"
+            else:
+                filename = "sample_courses_data.json"
+        
+        filepath = fixtures_dir / filename
 
         self.stdout.write(f"\nLoading from {filepath}...")
-        try:
-            with open(filepath, "r", encoding="utf-8") as f:
+        
+        data = {}
+        if filepath.is_dir():
+            # Modular structure
+            course_file = filepath / "course.json"
+            if not course_file.exists():
+                self.stdout.write(self.style.ERROR(f"course.json not found in {filepath}"))
+                return
+            
+            with open(course_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR(f"File not found: {filepath}"))
-            return
-        except json.JSONDecodeError as e:
-            self.stdout.write(self.style.ERROR(f"Invalid JSON: {e}"))
-            return
+            
+            # Use "subjects" or "courses"
+            subjects = data.get("subjects", data.get("courses", []))
+            if not subjects:
+                self.stdout.write(self.style.ERROR("No subjects/courses found in course.json"))
+                return
+            
+            # Assume only one subject per modular folder for now
+            subject_data = subjects[0]
+            
+            # Load units (formerly topics)
+            units_dir = filepath / "units"
+            if not units_dir.exists():
+                # Fallback to "topics"
+                units_dir = filepath / "topics"
+            
+            if units_dir.exists() and units_dir.is_dir():
+                subject_data["units"] = []
+                for unit_file in sorted(units_dir.glob("*.json")):
+                    with open(unit_file, "r", encoding="utf-8") as f:
+                        unit_content = json.load(f)
+                        subject_data["units"].append(unit_content)
+            
+            # Normalize keys to 'subjects'
+            data = {"subjects": [subject_data], "assessments": data.get("assessments", {})}
+        else:
+            # Single file structure
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except FileNotFoundError:
+                self.stdout.write(self.style.ERROR(f"File not found: {filepath}"))
+                return
+            except json.JSONDecodeError as e:
+                self.stdout.write(self.style.ERROR(f"Invalid JSON: {e}"))
+                return
 
         self.load_subjects_from_json(data)
         self.load_assessments_from_json(data)
@@ -103,10 +150,14 @@ class Command(BaseCommand):
 
     def load_subjects_from_json(self, data):
         """Load subjects, units, subunits, videos, and questions"""
-        for course_data in data.get("courses", []):
-            self.stdout.write(f'Loading subject: {course_data["name"]}')
+        # Support both old "courses" and new "subjects" keys
+        subjects_data = data.get("subjects", data.get("courses", []))
+        
+        for subject_data in subjects_data:
+            name = subject_data.get("subject_name", subject_data.get("name"))
+            self.stdout.write(f'Loading subject: {name}')
 
-            instructor_email = course_data.get("instructor_email")
+            instructor_email = subject_data.get("instructor_email")
             instructor = None
             if instructor_email:
                 try:
@@ -117,48 +168,53 @@ class Command(BaseCommand):
                     ))
 
             subject, created = Subject.objects.get_or_create(
-                short_code=course_data["short_code"],
-                defaults={"subject_name": course_data["name"]},
+                short_code=subject_data["short_code"],
+                defaults={"subject_name": name},
             )
             if created:
                 self.stdout.write(f"  ✓ Created subject: {subject.subject_name}")
             else:
+                # Update name if it changed
+                if subject.subject_name != name:
+                    subject.subject_name = name
+                    subject.save()
                 self.stdout.write(f"  → Subject exists: {subject.subject_name}")
 
             unit_map = {}
             subunit_map = {}
 
-            for topic_data in course_data.get("topics", []):
+            # Support both old "topics" and new "units" keys
+            units_data = subject_data.get("units", subject_data.get("topics", []))
+
+            for unit_data in units_data:
                 unit, unit_created = Unit.objects.update_or_create(
                     subject=subject,
-                    name=topic_data["name"],
-                    defaults={"order_index": topic_data.get("order_index", 0)},
+                    name=unit_data["name"],
+                    defaults={"order_index": unit_data.get("order_index", 0)},
                 )
-                Unit.objects.filter(pk=unit.pk).update(order_index=topic_data.get("order_index", 0))
-                unit.refresh_from_db()
-                unit_map[topic_data["name"]] = unit
+                unit_map[unit_data["name"]] = unit
 
                 if unit_created:
                     self.stdout.write(f"    ✓ Created unit: {unit.name}")
 
-                for subtopic_data in topic_data.get("subtopics", []):
+                # Support both old "subtopics" and new "sub_units" keys
+                subunits_data = unit_data.get("sub_units", unit_data.get("subtopics", []))
+
+                for subunit_data in subunits_data:
                     subunit, su_created = SubUnit.objects.update_or_create(
                         unit=unit,
-                        name=subtopic_data["name"],
+                        name=subunit_data["name"],
                         defaults={
-                            "content": subtopic_data.get("content", ""),
-                            "order_index": subtopic_data.get("order_index", 0),
+                            "content": subunit_data.get("content", ""),
+                            "order_index": subunit_data.get("order_index", 0),
                         },
                     )
-                    SubUnit.objects.filter(pk=subunit.pk).update(
-                        order_index=subtopic_data.get("order_index", 0)
-                    )
-                    subunit_map[f"{topic_data['name']}::{subtopic_data['name']}"] = subunit
+                    subunit_map[f"{unit_data['name']}::{subunit_data['name']}"] = subunit
 
                     if su_created:
                         self.stdout.write(f"      ✓ Created subunit: {subunit.name}")
 
-                    for video_data in subtopic_data.get("videos", []):
+                    for video_data in subunit_data.get("videos", []):
                         video, v_created = Video.objects.get_or_create(
                             sub_unit=subunit,
                             title=video_data["title"],
@@ -170,7 +226,17 @@ class Command(BaseCommand):
                         if v_created:
                             self.stdout.write(f"        ✓ Created video: {video.title}")
 
-            for question_data in course_data.get("questions", []):
+                    # Load questions at subunit level
+                    for question_data in subunit_data.get("questions", []):
+                        self._create_question(question_data, subject, unit_map, subunit_map, instructor)
+
+                # Load questions at unit level
+                for question_data in unit_data.get("questions", []):
+                    self._create_question(question_data, subject, unit_map, subunit_map, instructor)
+
+            # Load questions associated with this subject
+            questions_data = subject_data.get("questions", [])
+            for question_data in questions_data:
                 self._create_question(question_data, subject, unit_map, subunit_map, instructor)
 
             self.stdout.write(f"✓ Loaded subject: {subject.subject_name}")
@@ -182,8 +248,15 @@ class Command(BaseCommand):
         if not instructor:
             return
 
-        # Map ycode level names to ycampus level names
-        level_map = {"course": "subject", "topic": "unit", "subtopic": "subunit"}
+        # Map old level names to new nomenclature
+        level_map = {
+            "course": "subject", 
+            "topic": "unit", 
+            "subtopic": "subunit",
+            "subject": "subject",
+            "unit": "unit",
+            "subunit": "subunit"
+        }
         raw_level = question_data.get("level", "subject")
         level = level_map.get(raw_level, raw_level)
 
@@ -202,21 +275,23 @@ class Command(BaseCommand):
         if level == "subject":
             kwargs["subject"] = subject
         elif level == "unit":
-            topic_name = question_data.get("topic_name")
-            if topic_name and topic_name in unit_map:
-                kwargs["unit"] = unit_map[topic_name]
+            # Support both topic_name and unit_name
+            unit_name = question_data.get("unit_name", question_data.get("topic_name"))
+            if unit_name and unit_name in unit_map:
+                kwargs["unit"] = unit_map[unit_name]
                 kwargs["subject"] = subject
         elif level == "subunit":
-            topic_name = question_data.get("topic_name")
-            subtopic_name = question_data.get("subtopic_name")
-            if topic_name and subtopic_name:
-                key = f"{topic_name}::{subtopic_name}"
+            # Support both unit_name/topic_name and subunit_name/subtopic_name
+            unit_name = question_data.get("unit_name", question_data.get("topic_name"))
+            subunit_name = question_data.get("subunit_name", question_data.get("subtopic_name"))
+            if unit_name and subunit_name:
+                key = f"{unit_name}::{subunit_name}"
                 if key in subunit_map:
                     kwargs["sub_unit"] = subunit_map[key]
-                    kwargs["unit"] = unit_map.get(topic_name)
+                    kwargs["unit"] = unit_map.get(unit_name)
                     kwargs["subject"] = subject
-                elif topic_name in unit_map:
-                    kwargs["unit"] = unit_map[topic_name]
+                elif unit_name in unit_map:
+                    kwargs["unit"] = unit_map[unit_name]
                     kwargs["subject"] = subject
 
         if question_data["type"] in ["mcq_single", "mcq_multiple"]:
@@ -252,7 +327,9 @@ class Command(BaseCommand):
         subject_map = {s.short_code: s for s in Subject.objects.all()}
 
         for st_data in assessments_data.get("skill_tests", []):
-            subject = subject_map.get(st_data.get("course_short_code"))
+            # Support both course_short_code and subject_short_code
+            short_code = st_data.get("subject_short_code", st_data.get("course_short_code"))
+            subject = subject_map.get(short_code)
             if not subject:
                 continue
             creator = User.objects.filter(role="admin").first()

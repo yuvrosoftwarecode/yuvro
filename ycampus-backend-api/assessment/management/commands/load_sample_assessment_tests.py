@@ -142,24 +142,27 @@ class Command(BaseCommand):
 
         return [str(i) for i in ids]
 
-    def get_course_and_topic(self, course_short_code, topic_name=None):
+    def get_subject_and_unit(self, subject_short_code, unit_name=None):
         """Get Subject and Unit objects"""
+        if not subject_short_code:
+            return None, None
+            
         try:
-            subject = Subject.objects.get(short_code=course_short_code)
+            subject = Subject.objects.get(short_code=subject_short_code)
         except Subject.DoesNotExist:
             self.stdout.write(
-                self.style.WARNING(f"Subject {course_short_code} not found")
+                self.style.WARNING(f"Subject {subject_short_code} not found")
             )
             return None, None
 
         unit = None
-        if topic_name:
+        if unit_name:
             try:
-                unit = Unit.objects.get(subject=subject, name=topic_name)
+                unit = Unit.objects.get(subject=subject, name=unit_name)
             except Unit.DoesNotExist:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Unit {topic_name} not found in Subject {course_short_code}"
+                        f"Unit {unit_name} not found in Subject {subject_short_code}"
                     )
                 )
 
@@ -180,9 +183,9 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading skill test: {skill_test_data["title"]}')
 
-                subject, unit = self.get_course_and_topic(
-                    skill_test_data.get("course_short_code"),
-                    skill_test_data.get("topic_name"),
+                subject, unit = self.get_subject_and_unit(
+                    skill_test_data.get("subject_short_code"),
+                    skill_test_data.get("unit_name"),
                 )
 
                 if not subject:
@@ -276,9 +279,9 @@ class Command(BaseCommand):
             try:
                 self.stdout.write(f'Loading contest: {contest_data["title"]}')
 
-                subject, unit = self.get_course_and_topic(
-                    contest_data.get("course_short_code"),
-                    contest_data.get("topic_name"),
+                subject, unit = self.get_subject_and_unit(
+                    contest_data.get("subject_short_code"),
+                    contest_data.get("unit_name"),
                 )
 
                 if not subject:
@@ -382,12 +385,12 @@ class Command(BaseCommand):
                 # Attempt to resolve Subject/Unit if provided; if not found, proceed without linking
                 subject = None
                 unit = None
-                course_code = mock_interview_data.get("course_short_code")
-                if course_code:
-                    subject = Subject.objects.filter(short_code=course_code).first()
-                topic_name = mock_interview_data.get("topic_name")
-                if topic_name and subject:
-                    unit = Unit.objects.filter(subject=subject, name=topic_name).first()
+                subject_code = mock_interview_data.get("subject_short_code")
+                if subject_code:
+                    subject = Subject.objects.filter(short_code=subject_code).first()
+                unit_name = mock_interview_data.get("unit_name")
+                if unit_name and subject:
+                    unit = Unit.objects.filter(subject=subject, name=unit_name).first()
 
                 mock_interview_kwargs = {
                     "title": mock_interview_data["title"],

@@ -231,22 +231,18 @@ All colors MUST be HSL.
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 200px;
-    border:1px solid;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    border-radius: 1rem;
-    background-clip: padding-box;
-    background-color: #fbfbfb;
-    border: 0.25rem solid rgba(118, 118, 118, 0);
-    background: initial;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    border-radius: 1rem;
-    background-color: rgba(118, 118, 118, 0.16);
-    background: initial;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
   /* Hide WebKit scrollbar arrow buttons (top/bottom) */
