@@ -408,7 +408,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'placement-offer-tracking',
     label: 'Offer Tracking',
     icon: Users,
-    path: '/placement/students',
+    path: '/placement/offer-tracking',
     roles: ['placement', 'tpo', 'placement_officer']
   },
   {
