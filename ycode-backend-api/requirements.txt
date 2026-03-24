@@ -32,6 +32,7 @@ prometheus-client==0.20.0
 
 # Development tools
 black==24.3.0
+pycodestyle==2.12.1
 flake8==7.1.1
 
 # Document Processing
