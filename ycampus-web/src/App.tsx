@@ -236,7 +236,7 @@ function App() {
                 path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentJobs />
                   </ProtectedRoute>
                 }
               />
@@ -295,31 +295,7 @@ function App() {
                 }
               />
               <Route
-                path="/student/task"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/student/assessment"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/ai-interview-planner"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/announcements"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <ComingSoon />
