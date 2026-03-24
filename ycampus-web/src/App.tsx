@@ -84,27 +84,28 @@ import TakeAttendance from './pages/faculty/TakeAttendance';
 import FacultyTask from './pages/faculty/Task';
 import Revise from './pages/faculty/Revise';
 import Syllabus from './pages/faculty/Syllabus';
+import FacultyReports from './pages/faculty/Reports';
+import AttendanceReport from './pages/faculty/AttendanceReport';
 import StudentTask from './pages/student/Task';
 import DepartmentsScreen from './pages/college-admin/DepartmentsScreen';
 import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPOScreen from './pages/college-admin/TPOScreen';
-import FacultyReports from './pages/faculty/Reports';
-import AttendanceReport from './pages/faculty/AttendanceReport';
-import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
 import TPOStudentsTracking from './pages/tpo/StudentsTracking';
 import TPOAIAnalytics from './pages/tpo/AIAnalytics';
 import TPORecruiterInsights from './pages/tpo/RecruiterInsights';
+import TPOOfferTracking from './pages/tpo/OfferTracking';
 import TPODriveCalendar from './pages/tpo/DriveCalendar';
 import TPONotifications from './pages/tpo/Notifications';
 import TPOSettings from './pages/tpo/Settings';
 
 
 import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 
 function App() {
   return (
@@ -236,7 +237,7 @@ function App() {
                 path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentJobs />
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />
@@ -254,7 +255,7 @@ function App() {
                 path="/student/contests"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <Contest />
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />
@@ -276,6 +277,65 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Newly added Coming Soon Pages for Student Dashboard Links */}
+              <Route
+                path="/student/notes"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/practice-test"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/task"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/assessment"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/ai-interview-planner"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/community"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              
               <Route
                 path="/student/ai-interview-planner"
                 element={
@@ -447,6 +507,14 @@ function App() {
                 }
               />
               <Route
+                path="/tpo/offer-tracking"
+                element={
+                  <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOOfferTracking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/tpo/analytics"
                 element={
                   <ProtectedRoute allowedRoles={["tpo"]}>
@@ -482,6 +550,80 @@ function App() {
                 path="/tpo/settings"
                 element={
                   <ProtectedRoute allowedRoles={["tpo"]}>
+                    <TPOSettings />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Placement Routes */}
+              <Route
+                path="/placement/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPODashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/pri-report"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <PRIReport />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/job-approvals"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOJobApprovals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/offer-tracking"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOOfferTracking />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPOAIAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/recruiters"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPORecruiterInsights />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/drives"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPODriveCalendar />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/notifications"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
+                    <TPONotifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/placement/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["placement", "tpo", "placement_officer"]}>
                     <TPOSettings />
                   </ProtectedRoute>
                 }
@@ -601,18 +743,10 @@ function App() {
                 }
               />
               <Route
-                path="/college-admin/announcements"
+                path="/college-admin/tpo"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <AnnouncementsScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/college-admin/subjects"
-                element={
-                  <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <TPOScreen />
                   </ProtectedRoute>
                 }
               />
@@ -628,7 +762,7 @@ function App() {
                 path="/college-admin/activity-logs"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <ComingSoon />
+                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
@@ -640,13 +774,59 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* College Subject Management Route */}
               <Route
-                path="/admin/subjects/colleges/:collegeId"
+                path="/instructor/subjects/colleges/:collegeId"
                 element={
-                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
-                    <CollegeSubjects />
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/hods"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/faculty"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/students"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/courses"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/reports"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/principal/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["principal"]}>
+                    <ComingSoon />
                   </ProtectedRoute>
                 }
               />

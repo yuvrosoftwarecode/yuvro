@@ -16,7 +16,7 @@ const RoleHeader: React.FC<RoleHeaderProps> = ({
   actions,
   className = ''
 }) => {
-  return null;
+ return null;
 };
 
 export default RoleHeader;

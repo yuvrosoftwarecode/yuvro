@@ -12,7 +12,6 @@ from .views import (
     NoteViewSet,
     AnnouncementViewSet
 )
-
 router = DefaultRouter()
 router.register(r"college-allocation", CollegeUserAllocationViewSet, basename="college-allocation")
 router.register(r"college", CollegeUserAllocationViewSet, basename="college")
