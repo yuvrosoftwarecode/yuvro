@@ -204,7 +204,7 @@ const Subjects: React.FC = () => {
     const headerActions = mainTab === "global" ? (
         <Button
             onClick={() => setIsAddOpen(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors cursor-pointer"
+            className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
         >
             <Plus className="h-4 w-4 mr-2" />
             Add New Subject

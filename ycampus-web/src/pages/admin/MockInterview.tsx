@@ -176,7 +176,7 @@ export default function MockInterviewPage() {
   const headerActions = currentView === 'list' ? (
     <button
       onClick={() => navigate('/admin/mock-interview/add')}
-      className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
+      className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors text-sm font-medium"
     >
       + Add Mock Interview
     </button>
@@ -186,7 +186,7 @@ export default function MockInterviewPage() {
         setCurrentView('list');
         setSelectedInterview(null);
       }}
-      className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+      className="bg-slate-600 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors text-sm font-medium"
     >
       Back to Interviews
     </button>

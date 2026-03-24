@@ -309,7 +309,7 @@ const Users: React.FC = () => {
     const headerActions = (
         <Button
             onClick={() => setShowAddUser(true)}
-            className="bg-orange-500 hover:bg-orange-600 shadow-sm cursor-pointer"
+            className="bg-slate-900 hover:bg-slate-800 text-white shadow-sm cursor-pointer"
         >
             <UserPlus className="w-4 h-4 mr-2" />
             Add New User

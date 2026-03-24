@@ -11,13 +11,7 @@ const StudentMockInterview = () => {
     // For now, we'll just log the details
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <main>
-        <MockInterviewLibrary onStartInterview={handleStartInterview} />
-      </main>
-    </div>
-  );
+  return <MockInterviewLibrary onStartInterview={handleStartInterview} />;
 };
 
 export default StudentMockInterview;
