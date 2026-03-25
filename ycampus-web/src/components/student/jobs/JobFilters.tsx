@@ -1,13 +1,7 @@
 import React from 'react';
-import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, MapPin, Building2 } from 'lucide-react';
 
 interface JobFiltersProps {
   searchQuery: string;
@@ -27,14 +21,14 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
   onTypeChange,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-6">
-      <div className="flex-1 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+    <div className="flex flex-col md:flex-row gap-3 items-center">
+      <div className="relative flex-1 w-full">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search by company or role..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-10 border-gray-200 focus:border-blue-500 transition-colors"
+          className="pl-10 h-10 border-muted/20 shadow-sm focus-visible:ring-primary/20"
         />
       </div>
       
@@ -53,8 +47,24 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
       </div>
 
       <div className="w-full md:w-48">
+        <Select value={locationFilter} onValueChange={onLocationChange}>
+          <SelectTrigger className="h-10 border-muted/20 shadow-sm">
+            <SelectValue placeholder="All Locations" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            <SelectItem value="bangalore">Bangalore</SelectItem>
+            <SelectItem value="mumbai">Mumbai</SelectItem>
+            <SelectItem value="chennai">Chennai</SelectItem>
+            <SelectItem value="hyderabad">Hyderabad</SelectItem>
+            <SelectItem value="remote">Remote</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="w-full md:w-48">
         <Select value={typeFilter} onValueChange={onTypeChange}>
-          <SelectTrigger className="h-10 border-gray-200">
+          <SelectTrigger className="h-10 border-muted/20 shadow-sm">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent>
@@ -68,5 +78,3 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
     </div>
   );
 };
-
-export default JobFilters;

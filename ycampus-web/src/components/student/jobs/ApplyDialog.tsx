@@ -4,86 +4,134 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { StudentJob } from './JobCard';
+import { StudentJob } from '@/pages/student/Jobs';
 
 interface ApplyDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
   job: StudentJob | null;
-  onSubmit: (data: { cgpa: string; hasPreviousOffer: string }) => void;
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => void;
 }
 
 export const ApplyDialog: React.FC<ApplyDialogProps> = ({
-  isOpen,
-  onClose,
   job,
+  open,
+  onClose,
   onSubmit,
 }) => {
   const [cgpa, setCgpa] = useState('');
-  const [hasPreviousOffer, setHasPreviousOffer] = useState('no');
+  const [previousOffers, setPreviousOffers] = useState('no');
+  const [highestCtc, setHighestCtc] = useState('');
 
   if (!job) return null;
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      cgpa: parseFloat(cgpa),
+      previousOffers: previousOffers === 'yes',
+      highestCtc: previousOffers === 'yes' ? parseFloat(highestCtc) : undefined,
+    });
+    // Reset state
+    setCgpa('');
+    setPreviousOffers('no');
+    setHighestCtc('');
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] rounded-2xl p-6">
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-2xl font-bold text-gray-900">Apply for Job</DialogTitle>
-          <div className="text-sm text-gray-500">
-            {job.role} at <span className="text-blue-600 font-medium">{job.companyName}</span> • {job.location}
-          </div>
-        </DialogHeader>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-2xl font-bold text-[#0f172a]">
+              Apply to {job.companyName}
+            </DialogTitle>
+            <p className="text-sm font-medium text-gray-500">
+              {job.role} - {job.location}
+            </p>
+          </DialogHeader>
 
-        <div className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="cgpa" className="text-sm font-semibold text-gray-700">
-              B.Tech CGPA <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="cgpa"
-              placeholder="Ex: 8.5"
-              value={cgpa}
-              onChange={(e) => setCgpa(e.target.value)}
-              className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-            />
+          <div className="space-y-6 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="cgpa" className="text-sm font-bold text-[#0f172a]">
+                B.Tech CGPA <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="cgpa"
+                type="number"
+                step="0.01"
+                placeholder="e.g. 7.85"
+                required
+                value={cgpa}
+                onChange={(e) => setCgpa(e.target.value)}
+                className="h-12 border-gray-300 rounded-xl focus-visible:ring-[#0f172a]"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-bold text-[#0f172a]">
+                Previous Offers <span className="text-red-500">*</span>
+              </Label>
+              <RadioGroup 
+                value={previousOffers} 
+                onValueChange={setPreviousOffers}
+                className="flex items-center gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="yes" className="border-gray-400 text-[#0f172a]" />
+                  <Label htmlFor="yes" className="text-sm font-medium text-gray-700 cursor-pointer">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="no" className="border-gray-400 text-[#0f172a]" />
+                  <Label htmlFor="no" className="text-sm font-medium text-gray-700 cursor-pointer">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {previousOffers === 'yes' && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="highestCtc" className="text-sm font-bold text-[#0f172a]">
+                  Highest CTC offered (LPA) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="highestCtc"
+                  type="number"
+                  step="0.1"
+                  placeholder="e.g. 12"
+                  required={previousOffers === 'yes'}
+                  value={highestCtc}
+                  onChange={(e) => setHighestCtc(e.target.value)}
+                  className="h-12 border-gray-300 rounded-xl focus-visible:ring-[#0f172a]"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold text-gray-700">
-              Do you have any previous offer? <span className="text-red-500">*</span>
-            </Label>
-            <RadioGroup
-              value={hasPreviousOffer}
-              onValueChange={setHasPreviousOffer}
-              className="flex gap-6"
+          <DialogFooter className="flex flex-row justify-center gap-3 sm:justify-center p-0 pt-2">
+            <Button 
+              variant="outline" 
+              type="button" 
+              onClick={onClose}
+              className="h-12 px-8 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 flex-1 sm:flex-none"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="yes" className="border-gray-300 text-blue-600" />
-                <Label htmlFor="yes" className="text-sm font-medium text-gray-600 cursor-pointer">Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="no" className="border-gray-300 text-blue-600" />
-                <Label htmlFor="no" className="text-sm font-medium text-gray-600 cursor-pointer">No</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <Button
-            onClick={() => onSubmit({ cgpa, hasPreviousOffer })}
-            disabled={!cgpa}
-            className="w-full h-11 bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold rounded-lg mt-2 transition-all"
-          >
-            Submit Application
-          </Button>
-        </div>
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={parseFloat(cgpa) < job.minCgpa}
+              className="h-12 px-8 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold rounded-lg flex-1 sm:flex-auto"
+            >
+              Submit Application
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
 };
-
-export default ApplyDialog;
