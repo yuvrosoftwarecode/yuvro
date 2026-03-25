@@ -12,7 +12,7 @@
       "type": "college",
       "prize": "Certificate and Coding Swag",
       "enable_proctoring": false,
-      "course_short_code": "DS101",
+      "subject_short_code": "DSA100",
       "publish_status": "active",
       "start_days_from_now": 3,
       "questions_random_config": {"mcq_single": 0, "mcq_multiple": 0, "coding": 5, "descriptive": 0}
@@ -29,7 +29,7 @@
       "type": "company",
       "prize": "Internship Opportunities and Cash Prizes",
       "enable_proctoring": true,
-      "course_short_code": "DS101",
+      "subject_short_code": "DSA100",
       "publish_status": "active",
       "start_days_from_now": 7,
       "questions_random_config": {"mcq_single": 2, "mcq_multiple": 1, "coding": 6, "descriptive": 1}
@@ -46,7 +46,7 @@
       "type": "college",
       "prize": "Python Learning Resources and Certificates",
       "enable_proctoring": false,
-      "course_short_code": "PY101",
+      "subject_short_code": "PY101",
       "publish_status": "active",
       "start_days_from_now": 10,
       "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 7, "descriptive": 1}
@@ -63,7 +63,7 @@
       "type": "college",
       "prize": "Scholarship Opportunities and Tech Gadgets",
       "enable_proctoring": true,
-      "course_short_code": "DS101",
+      "subject_short_code": "DSA100",
       "publish_status": "active",
       "start_days_from_now": 14,
       "questions_random_config": {"mcq_single": 1, "mcq_multiple": 1, "coding": 8, "descriptive": 0}
@@ -80,7 +80,7 @@
       "type": "company",
       "prize": "Job Interviews and Project Funding",
       "enable_proctoring": false,
-      "course_short_code": "WEB101",
+      "subject_short_code": "WEB101",
       "publish_status": "active",
       "start_days_from_now": 21,
       "questions_random_config": {"mcq_single": 2, "mcq_multiple": 1, "coding": 5, "descriptive": 2}
@@ -97,7 +97,7 @@
       "type": "company",
       "prize": "Research Internships and AI Course Vouchers",
       "enable_proctoring": true,
-      "course_short_code": "AI101",
+      "subject_short_code": "AI101",
       "publish_status": "active",
       "start_days_from_now": 28,
       "questions_random_config": {"mcq_single": 3, "mcq_multiple": 2, "coding": 4, "descriptive": 3}
@@ -114,7 +114,7 @@
       "type": "college",
       "prize": "Database Certification and Learning Materials",
       "enable_proctoring": false,
-      "course_short_code": "SQL101",
+      "subject_short_code": "SQL101",
       "publish_status": "active",
       "start_days_from_now": 35,
       "questions_random_config": {"mcq_single": 4, "mcq_multiple": 2, "coding": 3, "descriptive": 3}
@@ -131,7 +131,7 @@
       "type": "company",
       "prize": "Enterprise Development Opportunities",
       "enable_proctoring": true,
-      "course_short_code": "JAVA101",
+      "subject_short_code": "JAVA101",
       "publish_status": "active",
       "start_days_from_now": 42,
       "questions_random_config": {"mcq_single": 2, "mcq_multiple": 2, "coding": 6, "descriptive": 2}

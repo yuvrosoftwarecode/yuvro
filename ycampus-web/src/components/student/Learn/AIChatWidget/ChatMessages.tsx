@@ -19,12 +19,13 @@ interface ChatMessagesProps {
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
   onFeedback?: (messageId: string, isPositive: boolean) => void;
+  activeStream?: { id: string; content: string } | null;
 }
 
 // Tracks which message IDs have already animated so re-renders don't re-trigger
 const animatedIds = new Set<string>();
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, onFeedback }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, activeStream, welcomeMessage, onInsertCode, onFeedback }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
@@ -35,12 +36,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
     setTimeout(() => setCopiedCodeId(null), 2000);
   };
 
-  // Smooth scroll on new messages
+  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages.length, isLoading]);
+  }, [messages, isLoading, activeStream]);
 
   // Stagger-animate new messages in
   useEffect(() => {
@@ -58,8 +59,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
   const isVisible = (id: string) => visibleIds.has(id);
 
   return (
-    <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-5 space-y-4 bg-gray-50/40"
-      style={{ scrollBehavior: 'smooth' }}
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-4 bg-gray-50/40 custom-scrollbar"
+      style={{ scrollBehavior: 'auto' }}
     >
       {/* Welcome state */}
       {messages.length === 0 && !isLoading && (
@@ -83,6 +84,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
       {messages.map((m) => {
         const isUser = m.message_type === 'user';
         const visible = isVisible(m.id);
+        const isStreaming = !!(activeStream && activeStream.id === m.id);
+        const displayContent = isStreaming ? `${activeStream!.content}|` : m.content;
 
         return (
           <div
@@ -112,10 +115,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
               {isUser ? (
                 <p className="whitespace-pre-wrap">{m.content}</p>
               ) : (
-                <div className="prose prose-sm prose-gray max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5">
+                <div className="prose prose-sm prose-gray max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 relative">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
+                      p({ children }) {
+                        return <p className="mb-1 last:inline">{children}</p>;
+                      },
                       code({ node, inline, className, children, ...props }: any) {
                         const match = /language-(\w+)/.exec(className || '');
                         const codeString = String(children).replace(/\n$/, '');
@@ -126,6 +132,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                             <code className="bg-gray-100 text-violet-700 px-1.5 py-0.5 rounded-md text-[12px] font-mono" {...props}>
                               {children}
                             </code>
+                          );
+                        }
+
+                        // If it's a streaming message, use a simplified code block to avoid lag
+                        if (isStreaming) {
+                          return (
+                            <pre className="bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto my-2.5 font-mono text-[11px] border border-gray-800">
+                              <code>{codeString}</code>
+                            </pre>
                           );
                         }
 
@@ -166,16 +181,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                       },
                     }}
                   >
-                    {m.content}
+                    {displayContent}
                   </ReactMarkdown>
 
-                  {/* Streaming cursor */}
-                  {isLoading && m.id === messages[messages.length - 1]?.id && (
-                    <span className="inline-block w-[3px] h-3.5 ml-0.5 bg-violet-400 rounded-full animate-pulse align-middle" />
-                  )}
-
                   {/* Feedback */}
-                  {!isLoading && (
+                  {!isLoading && !isStreaming && (
                     <div className="flex items-center gap-0.5 mt-2.5 pt-2 border-t border-gray-100 justify-end">
                       <button
                         onClick={() => onFeedback?.(m.id, true)}
@@ -199,7 +209,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
       })}
 
       {/* Typing indicator */}
-      {isLoading && (
+      {isLoading && messages[messages.length - 1]?.message_type !== 'assistant' && (
         <div
           className="flex items-end gap-2"
           style={{ animation: 'buddyFade 0.2s ease both' }}

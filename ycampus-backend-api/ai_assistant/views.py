@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils import timezone
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import StreamingHttpResponse
@@ -35,6 +35,301 @@ from .serializers import (
 from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
 
 logger = logging.getLogger(__name__)
+
+
+class AIChatMixin:
+    """
+    Mixin for shared AI chat logic between ChatSessionViewSet and ChatViewSet.
+    """
+
+    async def _handle_streaming_response(
+        self,
+        chat_session,
+        ai_agent,
+        user_config,
+        messages,
+        temperature,
+        max_tokens,
+        page_content,
+        user=None,
+    ):
+        """Handle streaming response from AI service via SSE."""
+        import json
+        import time
+        
+        start_time = time.time()
+        
+        async def stream_generator():
+            full_response_text = ""
+            tokens_used = 0
+            
+            # Check if we should bypass AI for predefined mock interview (0 latency mode)
+            context = chat_session.context or {}
+            # Robust check for predefined mode
+            is_predefined = (
+                str(chat_session.page) == "mock_interview" and 
+                (context.get("ai_generation_mode") == "predefined" or (isinstance(context.get("ai_context"), dict) and context.get("ai_context", {}).get("predefined_questions")))
+            )
+            
+            if is_predefined:
+                ai_context_data = context.get("ai_context", {})
+                predefined_questions = []
+                if isinstance(ai_context_data, dict):
+                    predefined_questions = ai_context_data.get("predefined_questions", [])
+                
+                if predefined_questions:
+                    ai_msg_count = await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").count())()
+                    if ai_msg_count < len(predefined_questions):
+                        full_response_text = predefined_questions[ai_msg_count]
+                    else:
+                        full_response_text = "The interview is now complete. Thank you for your time!"
+                    
+                    logger.info(f"Zero-latency mode: Serving predefined question index {ai_msg_count}")
+                    
+                    # Yield immediately and skip AI service
+                    data = json.dumps({"chunk": full_response_text})
+                    yield f"data: {data}\n\n"
+                    tokens_used = 0
+                    response_data = {"metadata": {"mode": "predefined_zero_latency"}}
+                    # Jump past the AI service call
+                else:
+                    is_predefined = False # Fallback to AI if no questions found
+
+            if not is_predefined:
+                # Original AI Service logic
+                ai_service = AIServiceFactory.create_service(
+                    ai_agent.provider, ai_agent.model_name
+                )
+            
+            try:
+                if not is_predefined:
+                    # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
+                    yield " " * 1024 + "\n"
+                    
+                    # Resolve user name safely
+                    target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                    user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
+
+                    response_data = await ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=user_name,
+                        stream=True,
+                    )
+                
+                    if "stream" in response_data:
+                        stream = response_data["stream"]
+                        async for chunk in stream:
+                            text = None
+                            # Gemini
+                            if hasattr(chunk, 'text'):
+                                try:
+                                    text = chunk.text
+                                except ValueError: # Blocked or safety
+                                    pass
+                            # Anthropic
+                            elif hasattr(chunk, 'type'):
+                                if chunk.type == 'content_block_delta':
+                                    text = chunk.delta.text
+                            
+                            if text:
+                                full_response_text += text
+                                data = json.dumps({"chunk": text})
+                                yield f"data: {data}\n\n"
+                        
+                        # Final usage update after loop
+                        if hasattr(stream, "get_final_metadata"):
+                            meta = stream.get_final_metadata()
+                            if hasattr(meta, 'usage'):
+                                tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
+                        elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                            tokens_used = stream.usage_metadata.total_token_count
+                    else:
+                        # Fallback if streaming is not supported by the provider
+                        full_response_text = response_data["response"]
+                        data = json.dumps({"chunk": full_response_text})
+                        yield f"data: {data}\n\n"
+                        tokens_used = response_data.get("tokens_used", 0)
+                    
+            except Exception as e:
+                # Send error chunk
+                error_data = json.dumps({"error": str(e)})
+                yield f"data: {error_data}\n\n"
+            finally:
+                # We need to save the final message to the DB after the stream completes
+                final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                
+                if full_response_text and chat_session:
+                    end_time = time.time()
+                    response_time_ms = int((end_time - start_time) * 1000)
+                    
+                    assistant_message = await sync_to_async(ChatMessage.objects.create)(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=full_response_text,
+                        tokens_used=tokens_used,
+                        response_time_ms=response_time_ms,
+                        metadata=response_data.get("metadata", {}),
+                    )
+                    
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, ai_agent, tokens_used
+                    )
+                    
+                    chat_session.updated_at = timezone.now()
+                    await sync_to_async(chat_session.save)()
+                    
+                    # Send a final 'done' event with the full message metadata
+                    done_data = json.dumps({
+                        "done": True, 
+                        "message_id": str(assistant_message.id),
+                        "chat_session_id": str(chat_session.id)
+                    })
+                    yield f"data: {done_data}\n\n"
+                elif full_response_text and final_user:
+                    # Just update usage stats for quick_chat
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, ai_agent, tokens_used
+                    )
+                    yield f"data: {json.dumps({'done': True})}\n\n"
+
+        response = StreamingHttpResponse(
+            stream_generator(), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
+
+    async def _prepare_messages(self, chat_session, user_config=None):
+        """Prepare messages for AI service."""
+        messages = []
+
+        if not chat_session:
+            return messages
+
+        # Check if this is a mock interview session and inject specialized persona
+        if chat_session.page == "mock_interview":
+            # Determine if this is the very first AI message - ASYNC SAFE
+            is_start = not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())()
+            
+            context = chat_session.context or {}
+            role = context.get("role", "Software Engineer")
+            level = context.get("level", "Intermediate")
+            interviewer_name = context.get("interviewer_name", "AI Interviewer")
+            candidate_info = context.get("candidate_info", "No specific background provided.")
+            ai_context_list = context.get("ai_context", [])
+            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
+            
+            instructions = context.get("instructions", "")
+            required_skills = ", ".join(context.get("required_skills", []))
+            coding_questions_count = context.get("coding_questions_count", 2)
+
+            # Time Tracking Logic
+            time_left_msg = ""
+            try:
+                interview_session = await sync_to_async(lambda: chat_session.interview_session)()
+                total_duration_mins = interview_session.duration_minutes
+                elapsed_time = timezone.now() - interview_session.created_at
+                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
+                
+                if remaining_mins <= 2 and remaining_mins > 0:
+                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
+                elif remaining_mins <= 0:
+                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
+            except:
+                pass
+            
+            # Predefined Questions Logic
+            ai_context_data = context.get("ai_context", {})
+            predefined_questions = []
+            if isinstance(ai_context_data, dict):
+                predefined_questions = ai_context_data.get("predefined_questions", [])
+            
+            if predefined_questions:
+                # Count how many AI messages exist to track progress through predefined questions
+                ai_msg_count = await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").count())()
+                
+                if ai_msg_count < len(predefined_questions):
+                    next_q = predefined_questions[ai_msg_count]
+                    if is_start:
+                        interview_prompt = f"Greet the candidate and ask: {next_q}"
+                    else:
+                        interview_prompt = f"Ask: {next_q}"
+                else:
+                    interview_prompt = f"""Expert Technical Interviewer for "{role}".
+                    TASK: Predefined questions are finished. Acknowledge the last answer and conclude the interview warmly.
+                    STRICT RULE: Your response MUST be exactly 1 line long."""
+            else:
+                candidate_info_snippet = str(candidate_info)[:200]
+                # Optimized, shorter interview prompt for mixed/dynamic mode
+                interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
+Rules:
+1. RESPONSE LENGTH: Exactly 1 line.
+2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
+3. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
+4. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
+5. ADAPTIVE: Base depth on candidate depth: {candidate_info_snippet}
+{time_left_msg}"""
+                
+            if is_start and not predefined_questions:
+                # Override everything for the very first message in non-predefined mode
+                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
+                
+                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
+                STRICT RULE: Your response MUST be exactly 1 line long.
+                
+                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
+                """
+            
+            messages.append({"role": "system", "content": interview_prompt})
+
+        # Add user-configured system prompt
+        elif user_config and user_config.system_prompt:
+            messages.append({"role": "system", "content": user_config.system_prompt})
+
+        # Add conversation history - LIMIT TO LAST 5 MESSAGES for speed - ASYNC SAFE
+        chat_messages_qs = chat_session.messages.order_by("-created_at")[:5]
+        chat_messages_list = await sync_to_async(list)(chat_messages_qs)
+        
+        # Re-order back to chronological for the AI
+        chat_messages_list = sorted(chat_messages_list, key=lambda x: x.created_at)
+        
+        for msg in chat_messages_list:
+            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
+            messages.append({"role": role, "content": msg.content})
+
+        if chat_session.page == "mock_interview" and not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())():
+            # Find the last user message
+            last_user_msg = None
+            for msg in reversed(messages):
+                if msg["role"] == "user":
+                    last_user_msg = msg["content"]
+                    break
+            
+            if last_user_msg:
+                last_user_msg_snippet = str(last_user_msg)[:100]
+                adaptive_instruction = f"Candidate said: \"{last_user_msg_snippet}\". Briefly acknowledge and ask your next 1-LINE question. STAY ON TOPIC."
+                messages.append({"role": "system", "content": adaptive_instruction})
+
+        return messages
+
+    def _update_usage_stats(self, user, ai_agent, tokens_used):
+        """Update usage statistics for the user and AI agent."""
+        today = timezone.now().date()
+        usage, created = AIAgentUsage.objects.get_or_create(
+            user=user,
+            ai_agent=ai_agent,
+            date=today,
+            defaults={"total_messages": 0, "total_tokens": 0, "total_cost": 0.0000},
+        )
+
+        usage.total_messages += 1
+        usage.total_tokens += tokens_used
+        # TODO: Calculate cost based on provider pricing
+        usage.save()
 
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -86,7 +381,7 @@ class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(available_providers)
 
 
-class ChatSessionViewSet(viewsets.ModelViewSet):
+class ChatSessionViewSet(AIChatMixin, viewsets.ModelViewSet):
     """
     ViewSet for ChatSession model.
     """
@@ -212,7 +507,12 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 )
                 
                 # Pre-fetch for service call
-                full_user_name = await sync_to_async(lambda: session_user.profile.full_name if hasattr(session_user, 'profile') and session_user.profile.full_name else (session_user.first_name or session_user.username))()
+                def get_full_name(u):
+                    if hasattr(u, 'profile') and u.profile.full_name:
+                        return u.profile.full_name
+                    return u.first_name or u.username
+                
+                full_user_name = await sync_to_async(get_full_name)(session_user)
 
                 response_data = await ai_service.generate_response(
                     messages=messages,
@@ -266,238 +566,6 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
             
-    async def _handle_streaming_response(
-        self,
-        chat_session,
-        ai_agent,
-        user_config,
-        messages,
-        temperature,
-        max_tokens,
-        page_content,
-        user=None,
-    ):
-        """Handle streaming response from AI service via SSE."""
-        import json
-        import time
-        
-        start_time = time.time()
-        
-        async def stream_generator():
-            full_response_text = ""
-            tokens_used = 0
-            
-            # Use ai_service to get the stream
-            ai_service = AIServiceFactory.create_service(
-                ai_agent.provider, ai_agent.model_name
-            )
-            
-            try:
-                # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
-                yield " " * 1024 + "\n"
-                
-                # Prepare messages - AWAIT ASYNC PREPARE
-                messages = await self._prepare_messages(chat_session, user_config)
-
-                # Resolve user name safely
-                target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
-                user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
-
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=user_name,
-                    stream=True,
-                )
-                
-                # Check if the service actually returned a stream
-                if "stream" in response_data:
-                    stream = response_data["stream"]
-                    async for chunk in stream:
-                        text = None
-                        # Gemini
-                        if hasattr(chunk, 'text'):
-                            try:
-                                text = chunk.text
-                            except ValueError: # Blocked or safety
-                                pass
-                        # Anthropic
-                        elif hasattr(chunk, 'type'):
-                            if chunk.type == 'content_block_delta':
-                                text = chunk.delta.text
-                        
-                        if text:
-                            full_response_text += text
-                            data = json.dumps({"chunk": text})
-                            yield f"data: {data}\n\n"
-                            # Artificial delay removed for maximum performance
-                    
-                    # Final usage update after loop
-                    if hasattr(stream, "get_final_metadata"):
-                        meta = stream.get_final_metadata()
-                        if hasattr(meta, 'usage'):
-                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
-                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
-                        tokens_used = stream.usage_metadata.total_token_count
-                else:
-                    # Fallback if streaming is not supported by the provider
-                    full_response_text = response_data["response"]
-                    data = json.dumps({"chunk": full_response_text})
-                    yield f"data: {data}\n\n"
-                    tokens_used = response_data.get("tokens_used", 0)
-                    
-            except Exception as e:
-                # Send error chunk
-                error_data = json.dumps({"error": str(e)})
-                yield f"data: {error_data}\n\n"
-            finally:
-                # We need to save the final message to the DB after the stream completes
-                final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
-                
-                if full_response_text and chat_session:
-                    end_time = time.time()
-                    response_time_ms = int((end_time - start_time) * 1000)
-                    
-                    assistant_message = await sync_to_async(ChatMessage.objects.create)(
-                        chat_session=chat_session,
-                        message_type="assistant",
-                        content=full_response_text,
-                        tokens_used=tokens_used,
-                        response_time_ms=response_time_ms,
-                        metadata=response_data.get("metadata", {}),
-                    )
-                    
-                    await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
-                    )
-                    
-                    chat_session.updated_at = timezone.now()
-                    await sync_to_async(chat_session.save)()
-                    
-                    # Send a final 'done' event with the full message metadata
-                    done_data = json.dumps({
-                        "done": True, 
-                        "message_id": str(assistant_message.id),
-                        "chat_session_id": str(chat_session.id)
-                    })
-                    yield f"data: {done_data}\n\n"
-                elif full_response_text and final_user:
-                    # Just update usage stats for quick_chat
-                    await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
-                    )
-                    yield f"data: {json.dumps({'done': True})}\n\n"
-
-        response = StreamingHttpResponse(
-            stream_generator(), content_type="text/event-stream"
-        )
-        response["Cache-Control"] = "no-cache"
-        response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
-        response["X-Content-Type-Options"] = "nosniff"
-        return response
-
-    async def _prepare_messages(self, chat_session, user_config=None):
-        """Prepare messages for AI service."""
-        messages = []
-
-        # Check if this is a mock interview session and inject specialized persona
-        if chat_session.page == "mock_interview":
-            # Determine if this is the very first AI message - ASYNC SAFE
-            is_start = not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())()
-            
-            context = chat_session.context or {}
-            role = context.get("role", "Software Engineer")
-            level = context.get("level", "Intermediate")
-            interviewer_name = context.get("interviewer_name", "AI Interviewer")
-            candidate_info = context.get("candidate_info", "No specific background provided.")
-            ai_context_list = context.get("ai_context", [])
-            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
-            
-            instructions = context.get("instructions", "")
-            required_skills = ", ".join(context.get("required_skills", []))
-            coding_questions_count = context.get("coding_questions_count", 2)
-
-            # Time Tracking Logic
-            time_left_msg = ""
-            try:
-                interview_session = await sync_to_async(lambda: chat_session.interview_session)()
-                total_duration_mins = interview_session.duration_minutes
-                elapsed_time = timezone.now() - interview_session.created_at
-                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
-                
-                if remaining_mins <= 2 and remaining_mins > 0:
-                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
-                elif remaining_mins <= 0:
-                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
-            except:
-                pass
-            
-            # Optimized, shorter interview prompt
-            interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
-Rules:
-1. RESPONSE LENGTH: Exactly 1 line.
-2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
-3. STRUCTURE: Plan for exactly {coding_questions_count} coding questions.
-4. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
-5. ADAPTIVE: Base depth on candidate background: {str(candidate_info)[:200]}
-{time_left_msg}"""
-            if is_start:
-                # Override everything for the very first message
-                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
-                
-                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
-                STRICT RULE: Your response MUST be exactly 1 line long.
-                
-                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
-                """
-            
-            messages.append({"role": "system", "content": interview_prompt})
-
-        # Add user-configured system prompt
-        elif user_config and user_config.system_prompt:
-            messages.append({"role": "system", "content": user_config.system_prompt})
-
-        # Add conversation history - LIMIT TO LAST 5 MESSAGES for speed - ASYNC SAFE
-        chat_messages_qs = chat_session.messages.order_by("-created_at")[:5]
-        chat_messages_list = await sync_to_async(list)(chat_messages_qs)
-        
-        # Re-order back to chronological for the AI
-        chat_messages_list = sorted(chat_messages_list, key=lambda x: x.created_at)
-        
-        for msg in chat_messages_list:
-            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
-            messages.append({"role": role, "content": msg.content})
-
-        if chat_session.page == "mock_interview" and not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())():
-            # Find the last user message
-            last_user_msg = None
-            for msg in reversed(messages):
-                if msg["role"] == "user":
-                    last_user_msg = msg["content"]
-                    break
-            
-            if last_user_msg:
-                adaptive_instruction = f"Candidate said: \"{last_user_msg[:100]}\". Briefly acknowledge and ask your next 1-LINE question. STAY ON TOPIC."
-                messages.append({"role": "system", "content": adaptive_instruction})
-
-        return messages
-
-    def _update_usage_stats(self, user, ai_agent, tokens_used):
-        """Update usage statistics for the user and AI agent."""
-        today = timezone.now().date()
-        usage, created = AIAgentUsage.objects.get_or_create(
-            user=user,
-            ai_agent=ai_agent,
-            date=today,
-            defaults={"total_messages": 0, "total_tokens": 0, "total_cost": 0.0000},
-        )
-
-        usage.total_messages += 1
-        usage.total_tokens += tokens_used
-        # TODO: Calculate cost based on provider pricing
-        usage.save()
 
 
 class ChatMessageViewSet(viewsets.ReadOnlyModelViewSet):
@@ -564,45 +632,6 @@ class AIAgentUsageViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
-class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    ViewSet for AIAgent model - read-only.
-    """
-
-    serializer_class = AIAgentSerializer
-    permission_classes = [IsAuthenticatedUser]
-    queryset = AIAgent.objects.filter(is_active=True)
-
-    @action(detail=False, methods=["post"])
-    def warmup(self, request):
-        """Trigger active background warmup for AI models."""
-        try:
-            return async_to_sync(self._async_warmup)(request)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    async def _async_warmup(self, request):
-        providers = await sync_to_async(lambda: list(AIAgent.objects.filter(is_active=True).values_list('provider', 'model_name')))()
-        
-        async def warm_provider(p, m):
-            try:
-                svc = AIServiceFactory.create_service(p, m)
-                await svc.generate_response([{"role": "user", "content": "hi"}], max_tokens=1)
-            except: pass
-
-        import asyncio
-        async def fire_and_forget():
-            await asyncio.gather(*(warm_provider(p, m) for p, m in providers))
-        
-        # Fire background tasks safely
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(fire_and_forget())
-        except RuntimeError:
-            # Fallback if no loop is running (shouldn't happen in ASGI)
-            asyncio.create_task(fire_and_forget())
-            
-        return Response({"status": "active warmup initiated"}, status=status.HTTP_200_OK)
 
 
 class AIAgentConfigurationViewSet(viewsets.ModelViewSet):
@@ -622,7 +651,7 @@ class AIAgentConfigurationViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class ChatViewSet(viewsets.ViewSet):
+class ChatViewSet(AIChatMixin, viewsets.ViewSet):
     """
     ViewSet for chat operations that don't require a session.
     """
@@ -683,6 +712,24 @@ class ChatViewSet(viewsets.ViewSet):
 
                 messages.append({"role": "user", "content": message_content})
 
+                # Get validated settings
+                temperature = validated_data.get("temperature")
+                max_tokens = validated_data.get("max_tokens")
+
+                # Use custom settings if available
+                if temperature is None:
+                    temperature = (
+                        user_config.custom_temperature
+                        if user_config and user_config.custom_temperature
+                        else ai_agent.temperature
+                    )
+                if max_tokens is None:
+                    max_tokens = (
+                        user_config.custom_max_tokens
+                        if user_config and user_config.custom_max_tokens
+                        else ai_agent.max_tokens
+                    )
+
                 # Check if stream is requested
                 is_streaming = validated_data.get("stream", False)
 
@@ -698,6 +745,10 @@ class ChatViewSet(viewsets.ViewSet):
                         user=request.user,
                     )
                 
+                ai_service = AIServiceFactory.create_service(
+                    ai_agent.provider, ai_agent.model_name
+                )
+
                 response_data = await ai_service.generate_response(
                     messages=messages,
                     temperature=temperature,
