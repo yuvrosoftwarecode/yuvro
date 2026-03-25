@@ -26,13 +26,14 @@ const CategorySection: React.FC<Props> = ({ title, icon, subjects, progressMap, 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {subjects.map((s, index) => {
           const progress = Math.max(0, Math.min(100, progressMap[s.id] ?? 0));
-          const style = getSubjectStyle(s.name, index);
+          const displayName = s.name || (s as any).subject_name || '';
+          const style = getSubjectStyle(displayName, index);
           const subjectIcon = <style.icon className="w-6 h-6" />;
 
           return (
             <ModernCard
               key={s.id}
-              title={s.name}
+              title={displayName}
               description={
                 s.units?.length
                   ? s.units.slice(0, 3).map(u => u.name).join(", ")
@@ -46,7 +47,7 @@ const CategorySection: React.FC<Props> = ({ title, icon, subjects, progressMap, 
                 { text: `${s.units?.length || 0} Units`, variant: "secondary" }
               ]}
               actionLabel={progress > 0 ? "Continue Learning" : "Start Learning"}
-              onAction={() => onStartLearning(s.id)}
+              onAction={() => onStartLearning(String(s.id))}
             />
           );
         })}

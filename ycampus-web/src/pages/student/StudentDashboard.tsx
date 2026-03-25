@@ -67,7 +67,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
   return (
     <Card
       className={cardClass}
-      onClick={() => (window.location.href = '/student/learn')}
+      onClick={() => (window.location.href = '/student/notes')}
     >
       <CardHeader className="space-y-0 pb-3">
         <div className="flex items-center justify-between">

@@ -581,6 +581,8 @@ class StudentCodePractice(BaseTimestampedModel):
         default=dict, blank=True, help_text="Detailed test case results"
     )
     marks_obtained = models.FloatField(null=True, blank=True)
+    used_hint = models.BooleanField(default=False, help_text="Whether the student used a hint for this problem")
+    viewed_solution = models.BooleanField(default=False, help_text="Whether the student viewed the solution for this problem")
 
     class Meta:
         ordering = ["-created_at"]
