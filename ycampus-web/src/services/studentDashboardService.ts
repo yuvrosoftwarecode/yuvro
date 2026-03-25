@@ -104,45 +104,9 @@ class StudentDashboardService {
    * Endpoint: GET /api/course/student-subject-progress/
    */
   async getNotesProgress(): Promise<NotesProgressData> {
-    try {
-      const response = await restApiAuthUtil.get<any[]>('/course/student-subject-progress/');
-      if (!response || !Array.isArray(response) || response.length === 0) {
-        return mockNotes;
-      }
-
-      // Group progress by subject
-      const subjectMap = new Map<string, { completed: number; total: number }>();
-      let totalCompleted = 0;
-      let totalItems = 0;
-
-      response.forEach((item: any) => {
-        const subjectName = item.subject_name || item.subject?.name || 'Unknown';
-        const existing = subjectMap.get(subjectName) || { completed: 0, total: 0 };
-        existing.total += 1;
-        if (item.is_completed || item.progress_percent >= 100) {
-          existing.completed += 1;
-          totalCompleted += 1;
-        }
-        totalItems += 1;
-        subjectMap.set(subjectName, existing);
-      });
-
-      const subjects = Array.from(subjectMap.entries()).map(([name, data]) => ({
-        name,
-        progress: data.completed,
-        total: data.total,
-      }));
-
-      return {
-        overall: totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0,
-        streak: mockNotes.streak, // No backend endpoint for streaks
-        subjects,
-        chaptersCompleted: totalCompleted,
-      };
-    } catch (error) {
-      console.warn('Notes progress API failed, using mock data:', error);
-      return mockNotes;
-    }
+    // NOTE: /api/course/student-subject-progress/ is not yet implemented on the backend.
+    // Return mock data directly until the endpoint is available.
+    return mockNotes;
   }
 
   /**

@@ -290,7 +290,7 @@ function App() {
                 path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <StudentJobs />
                   </ProtectedRoute>
                 }
               />
@@ -343,14 +343,6 @@ function App() {
               {/* Newly added Coming Soon Pages for Student Dashboard Links */}
               <Route
                 path="/student/notes"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentLearn />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/notes/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentLearn />
