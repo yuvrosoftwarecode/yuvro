@@ -355,10 +355,15 @@ class MockInterviewSubmission(BaseUserSubmission):
         max_length=20,
         choices=EXP_LEVEL_CHOICES,
         default=EXP_LEVEL_BEGINNER,
+        null=True,
+        blank=True,
         help_text="Candidate's self-declared experience level for this interview",
     )
     selected_duration = models.IntegerField(
-        default=0, help_text="Duration selected by the user in minutes"
+        null=True,
+        blank=True,
+        default=0,
+        help_text="Duration selected by the user in minutes"
     )
 
     resume = models.FileField(upload_to="resumes/", null=True, blank=True)

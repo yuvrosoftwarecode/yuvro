@@ -251,23 +251,18 @@ class SubjectViewSet(viewsets.ModelViewSet):
                 Q(subject_name__icontains=search) | Q(short_code__icontains=search) | Q(yuvro_id__icontains=search)
             )
 
+        # Optimize total_problems calculation
+        # Since all questions (direct, via unit, or via subunit) are linked to the subject by the loader,
+        # we can just count the direct relationship 'questions'.
         queryset = queryset.annotate(
             total_problems=Count(
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
                 distinct=True
-            ) + Count(
-                'units__questions',
-                filter=Q(units__questions__type='coding') & Q(units__questions__categories__contains=['practice']),
-                distinct=True
-            ) + Count(
-                'units__subunits__questions',
-                filter=Q(units__subunits__questions__type='coding') & Q(units__subunits__questions__categories__contains=['practice']),
-                distinct=True
             )
         )
 
-        if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 subject=OuterRef('pk'),

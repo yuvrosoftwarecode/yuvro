@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navigation from '@/components/common/Navigation';
+import RoleSidebar from '@/components/common/RoleSidebar';
+import PageHeader from '@/components/common/PageHeader';
 import SubjectDashboard from '@/components/student/code-practice/CourseDashboard';
 import UnitSelection from '@/components/student/code-practice/UnitSelection';
 import { CodeEditorWithAI } from '@/components/code-editor';
@@ -89,10 +91,10 @@ const CodePractice = () => {
     try {
       // 1. Fetch Subject
       if (!selectedSubject || selectedSubject.id !== subjectId) {
-        const subject = await fetchSubjectById(subjectId);
+        const subject: any = await fetchSubjectById(subjectId);
         const transformedSubject: Subject = {
           id: subject.id.toString(),
-          name: subject.name || 'Untitled Subject',
+          name: subject.subject_name || subject.name || subject.title || 'Untitled Subject',
           icon: subject.category,
           progress: Math.round(subject.progress_percentage || 0),
           totalProblems: subject.total_problems || 0,
@@ -254,41 +256,44 @@ const CodePractice = () => {
                     />
                   )}
 
-            {currentView === 'units' && selectedSubject && (
-              <UnitSelection
-                subject={selectedSubject}
-                selectedUnit={selectedUnit}
-                onUnitSelect={handleUnitSelect}
-                onProblemSelect={handleProblemSelect}
-                onBack={handleBackToDashboard}
-              />
-            )}
+                  {currentView === 'units' && selectedSubject && (
+                    <UnitSelection
+                      subject={selectedSubject}
+                      selectedUnit={selectedUnit}
+                      onUnitSelect={handleUnitSelect}
+                      onProblemSelect={handleProblemSelect}
+                      onBack={handleBackToDashboard}
+                    />
+                  )}
 
-            {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
-              <CodeEditorWithAI
-                problem={selectedProblem}
-                subject={selectedSubject}
-                unit={selectedUnit}
-                onBack={handleBackToUnits}
-                onViewAnalytics={handleViewAnalytics}
-                codeSubmissionType="practice"
-              />
-            )}
+                  {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
+                    <CodeEditorWithAI
+                      problem={selectedProblem}
+                      subject={selectedSubject}
+                      unit={selectedUnit}
+                      onBack={handleBackToUnits}
+                      onViewAnalytics={handleViewAnalytics}
+                      codeSubmissionType="practice"
+                    />
+                  )}
 
-            {currentView === 'analytics' && (
-              <ScoreAnalytics
-                onBack={handleBackToDashboard}
-                onViewInsights={handleViewInsights}
-              />
-            )}
+                  {currentView === 'analytics' && (
+                    <ScoreAnalytics
+                      onBack={handleBackToDashboard}
+                      onViewInsights={handleViewInsights}
+                    />
+                  )}
 
-            {currentView === 'insights' && (
-              <AIInsights
-                onBack={() => setCurrentView('analytics')}
-              />
-            )}
-          </>
-        )}
+                  {currentView === 'insights' && (
+                    <AIInsights
+                      onBack={() => setCurrentView('analytics')}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

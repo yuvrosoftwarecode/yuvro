@@ -644,7 +644,7 @@ const Announcements: React.FC<{ announcements: AnnouncementItem[]; count: number
   count,
 }) => {
   const getTypeColor = (type?: string) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case 'course':
         return '#16A249';
       case 'event':

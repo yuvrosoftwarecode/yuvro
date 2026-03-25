@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import RoleSidebar from '../../components/common/RoleSidebar';
 import PageHeader from '../../components/common/PageHeader';
 
@@ -29,6 +29,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchSubjects } from '@/services/subjectService';
 
 // ===== DUMMY DATA (UNCHANGED) =====
 const psBreakdown = {
@@ -156,6 +157,28 @@ function getPsStatus(score: number) {
 const StudentInterviewPrep: React.FC = () => {
   const navigate = useNavigate();
   const psStatus = getPsStatus(psBreakdown.overall);
+  const [dsaSubjectId, setDsaSubjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const fetchedSubjects = await fetchSubjects();
+        
+        // Find DSA subject
+        const dsa = fetchedSubjects.find(s => {
+          const name = (s.subject_name || s.name || s.title || "").toLowerCase();
+          return name.includes("data structures") || name === "dsa";
+        });
+        
+        if (dsa) {
+          setDsaSubjectId(dsa.id.toString());
+        }
+      } catch (error) {
+        console.error("Failed to fetch subjects in Interview Prep:", error);
+      }
+    };
+    loadSubjects();
+  }, []);
 
   const chartConfig = {
     ps: { label: 'PS Score', color: '#111827' },
@@ -320,7 +343,11 @@ const StudentInterviewPrep: React.FC = () => {
                               if (mod.title === 'Mock Interviews') {
                                 navigate('/student/mock-interview');
                               } else if (mod.cta === 'Start Practice') {
-                                navigate('/student/dsa');
+                                if (dsaSubjectId) {
+                                  navigate(`/student/code-practice/subjects/${dsaSubjectId}`);
+                                } else {
+                                  navigate('/student/code-practice');
+                                }
                               } else if (mod.cta === 'Take Test') {
                                 navigate('/student/aptitude');
                               } else if (mod.cta === 'Continue Learning') {

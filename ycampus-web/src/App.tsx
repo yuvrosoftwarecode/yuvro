@@ -23,7 +23,7 @@ import StudentLearn from './pages/student/StudentLearn';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/PracticeTest';
 import MockInterview from './pages/student/MockInterview';
-import StudentJobs from './pages/student/Jobs';
+import Jobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
 import ContestAttempt from './pages/student/ContestAttempt';
@@ -99,6 +99,7 @@ import BatchesScreen from './pages/college-admin/BatchesScreen';
 import FacultyScreen from './pages/college-admin/FacultyScreen';
 import StudentsScreen from './pages/college-admin/StudentsScreen';
 import TPOScreen from './pages/college-admin/TPOScreen';
+import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
 import TPODashboard from './pages/tpo/Dashboard';
 import TPOJobApprovals from './pages/tpo/JobApprovals';
 import TPOLiveJobs from './pages/tpo/LiveJobs';
@@ -113,7 +114,7 @@ import TPOSettings from './pages/tpo/Settings';
 
 
 import StudentAnnouncementsScreen from './pages/student/StudentAnnouncementsScreen';
-import AnnouncementsScreen from './pages/college-admin/AnnouncementsScreen';
+import Community from './pages/student/Community/Community';
 
 function App() {
   return (
@@ -147,6 +148,15 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/student/community"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <Community />
                   </ProtectedRoute>
                 }
               />
@@ -359,7 +369,15 @@ function App() {
                 path="/student/ai-interview-planner"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <AIInterviewPlanner />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentAnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
@@ -367,16 +385,15 @@ function App() {
                 path="/student/community"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <ComingSoon />
+                    <Community />
                   </ProtectedRoute>
                 }
               />
-              
               <Route
-                path="/student/ai-interview-planner"
+                path="/student/jobs"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <AIInterviewPlanner />
+                    <Jobs />
                   </ProtectedRoute>
                 }
               />
@@ -811,10 +828,26 @@ function App() {
                 }
               />
               <Route
-                path="/college-admin/tpo"
+                path="/college-admin/announcements"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <AnnouncementsScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/subjects"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
                     <TPOScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/college-admin/subjects"
+                element={
+                  <ProtectedRoute allowedRoles={["college_admin"]}>
+                    <CollegeSubjects />
                   </ProtectedRoute>
                 }
               />
@@ -991,6 +1024,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "instructor"]}>
                     <Subjects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/subjects/colleges/:collegeId"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "instructor"]}>
+                    <CollegeSubjects />
                   </ProtectedRoute>
                 }
               />

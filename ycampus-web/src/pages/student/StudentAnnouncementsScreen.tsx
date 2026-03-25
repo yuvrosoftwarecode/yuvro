@@ -28,6 +28,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const StudentAnnouncementsScreen: React.FC = () => {
@@ -144,7 +145,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
                   placeholder="Search announcements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-10 bg-white border-gray-200 focus:border-orange-300 focus:ring-orange-200"
+                  className="pl-10 pr-10 bg-white border-gray-200 focus:border-slate-300 focus:ring-slate-200"
                 />
                 {searchQuery && (
                   <button
@@ -159,8 +160,8 @@ const StudentAnnouncementsScreen: React.FC = () => {
                 <button
                   className={`flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md border ${
                     (filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at')
-                      ? 'bg-orange-50 border-orange-200 text-orange-600'
-                      : 'text-gray-600 border-gray-200 hover:bg-white'
+                      ? 'bg-slate-50 border-slate-200 text-slate-900'
+                      : 'text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
                 >
@@ -176,7 +177,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
                         {(['all', 'college', 'department'] as const).map((level) => (
                           <button
                             key={level}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterLevel(level)}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -191,7 +192,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
                         {(['all', 'normal', 'important', 'urgent'] as const).map((priority) => (
                           <button
                             key={priority}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterPriority(priority)}
                           >
                             {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -209,7 +210,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
                         ].map((sortOption) => (
                           <button
                             key={sortOption.value}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-white border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterSort(sortOption.value)}
                           >
                             {sortOption.label}
@@ -229,12 +230,13 @@ const StudentAnnouncementsScreen: React.FC = () => {
                       >
                         Reset Filters
                       </button>
-                      <button
-                        className="text-xs bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-1.5 rounded-md"
+                      <Button
+                        size="sm"
+                        className="text-xs bg-slate-900 hover:bg-slate-950 text-white"
                         onClick={() => setIsFilterMenuOpen(false)}
                       >
                         Apply
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -243,19 +245,19 @@ const StudentAnnouncementsScreen: React.FC = () => {
 
             {loading ? (
               <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
               </div>
             ) : announcements.length === 0 ? (
               <Card className="border-dashed border-2 border-gray-100 shadow-none bg-transparent">
-                <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="h-20 w-20 bg-orange-50 rounded-full flex items-center justify-center mb-4">
-                    <Bell className="h-10 w-10 text-orange-200" />
-                  </div>
+                <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                  <Bell className="h-10 w-10 text-slate-300" />
+                </div>
                   <h3 className="text-xl font-bold text-gray-700">No announcements found</h3>
                   <p className="text-gray-400 text-sm max-w-sm mt-1">
                     {searchQuery ? "No announcements match your search criteria." : "There are no active announcements at this time."}
                   </p>
-                </CardContent>
+                </div>
               </Card>
             ) : (
               <div className="flex flex-col gap-4">
@@ -366,7 +368,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
                     download={viewAnnouncement.attachment.split('/').pop() || 'attachment'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-orange-100 bg-white shadow-sm w-fit"
+                    className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-slate-200 bg-white shadow-sm w-fit"
                   >
                     <Download className="w-4 h-4" />
                     <span>Download</span>

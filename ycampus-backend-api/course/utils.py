@@ -179,8 +179,8 @@ class CodeExecutionUtil:
         execution_results,
         execution_output,
         test_results,
-        course=None,
-        topic=None,
+        subject=None,
+        unit=None,
     ):
         """
         Create or update StudentCodePractice record
@@ -193,8 +193,8 @@ class CodeExecutionUtil:
             execution_results (dict): Execution results from code executor
             execution_output (str): Console output
             test_results (dict): Test results summary
-            course: Course object (optional)
-            topic: Topic object (optional)
+            subject: Subject object (optional)
+            unit: Unit object (optional)
 
         Returns:
             StudentCodePractice: The created or updated practice record
@@ -203,10 +203,10 @@ class CodeExecutionUtil:
             user=user,
             question=question,
             defaults={
-                "course": course or question.course,
-                "topic": topic
-                or question.topic
-                or (question.subtopic.topic if question.subtopic else None),
+                "subject": subject or question.subject,
+                "unit": unit
+                or question.unit
+                or (question.sub_unit.unit if question.sub_unit else None),
                 "status": StudentCodePractice.STATUS_SUBMITTED,
             },
         )

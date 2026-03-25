@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil } from "lucide-react";
@@ -26,7 +27,9 @@ import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 
 const CollegeSubjects: React.FC = () => {
-    const { collegeId } = useParams<{ collegeId: string }>();
+    const { user } = useAuth();
+    const { collegeId: paramCollegeId } = useParams<{ collegeId: string }>();
+    const collegeId = paramCollegeId || (user as any)?.college_id;
     const navigate = useNavigate();
 
     const [assignments, setAssignments] = useState<CollegeSubject[]>([]);
@@ -174,11 +177,17 @@ const CollegeSubjects: React.FC = () => {
         <div className="flex gap-3">
             <Button
                 variant="outline"
-                onClick={() => navigate("/admin/subjects/colleges")}
+                onClick={() => {
+                    if (user?.role === 'admin' || user?.role === 'instructor') {
+                        navigate("/admin/subjects/colleges");
+                    } else {
+                        navigate("/college-admin/dashboard");
+                    }
+                }}
                 className="cursor-pointer"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Colleges
+                {user?.role === 'admin' || user?.role === 'instructor' ? "Back to Colleges" : "Back to Dashboard"}
             </Button>
             <Button
                 onClick={() => {

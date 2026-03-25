@@ -153,23 +153,7 @@ const ScoreAnalytics = ({ onBack, onViewInsights }: ScoreAnalyticsProps) => {
   }
 
   return (
-    <div className="container mx-auto px-[1px] py-3 max-w-9xl">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 mb-3 text-sm">
-        <div className="flex items-center gap-2 py-1 text-sm text-muted-foreground">
-          <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
-            <ChevronLeft className="h-4 w-4" />
-            Code Practice
-          </Button>
-          <span>/</span>
-          <span className="text-foreground font-medium">Analytics</span>
-        </div>
-        <Button onClick={onViewInsights} className="gap-1 items-right ml-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:opacity-90 transition-all duration-300">
-          <Brain className="h-4 w-4" />
-          AI Insights
-        </Button>
-      </div>
-
+    <div className="w-full flex-1 overflow-y-auto space-y-6 pb-12 min-h-0 pr-2 custom-scrollbar">
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
