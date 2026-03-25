@@ -368,7 +368,7 @@ const Revise = () => {
             placeholder="Search notes..."
             value={noteSearch}
             onChange={(e) => setNoteSearch(e.target.value)}
-            className="h-10 rounded-xl bg-slate-100 border-0 pl-9 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-teal-600"
+            className="h-10 rounded-xl bg-white border-0 pl-9 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-teal-600"
           />
         </div>
       </div>
@@ -489,7 +489,7 @@ const Revise = () => {
             </div>
           ) : aiResponse ? (
             <div className="space-y-3">
-              <div className="whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-relaxed text-slate-900">
+              <div className="whitespace-pre-wrap rounded-xl border border-slate-200 bg-white p-3 text-sm leading-relaxed text-slate-900">
                 {aiResponse}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -537,7 +537,7 @@ const Revise = () => {
 
   /* ─── Page ───────────────────────────────────────────────────────── */
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <RoleSidebar />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
@@ -699,7 +699,7 @@ const Revise = () => {
                 </div>
               ) : (
                 <div className="flex flex-1 flex-col items-center justify-center text-sm text-slate-400">
-                  <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 border border-slate-200">
+                  <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center mb-4 border border-slate-200">
                     <FileText className="h-8 w-8 text-slate-300" />
                   </div>
                   <p className="text-center px-8">

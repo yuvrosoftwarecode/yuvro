@@ -28,7 +28,7 @@ export interface CompanyRecord {
 export const statusColors: Record<string, string> = {
   connected: 'bg-emerald-500 text-white',
   applied: 'bg-amber-500 text-white',
-  not_connected: 'bg-slate-500 text-white',
+  not_connected: 'bg-white0 text-white',
 };
 
 export const statusLabels: Record<string, string> = {

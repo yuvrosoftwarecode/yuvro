@@ -141,7 +141,7 @@ const RecruiterDashboard: React.FC = () => {
       case 'active':
         return 'bg-green-100 text-green-800';
       case 'closed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white text-gray-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
       case 'under review':
@@ -151,12 +151,12 @@ const RecruiterDashboard: React.FC = () => {
       case 'interview scheduled':
         return 'bg-purple-100 text-purple-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white text-gray-800';
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-white">
       <RoleSidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -212,7 +212,7 @@ const RecruiterDashboard: React.FC = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {dashboardData.recentJobs.map((job) => (
-                    <div key={job.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div key={job.id} className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-gray-100 transition-colors">
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{job.title}</h4>
                         <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
@@ -266,7 +266,7 @@ const RecruiterDashboard: React.FC = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {dashboardData.recentApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div key={application.id} className="flex items-center justify-between p-4 bg-white rounded-lg hover:bg-gray-100 transition-colors">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                           <span className="text-purple-600 font-medium text-sm">

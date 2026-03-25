@@ -863,7 +863,7 @@ const FacultyTask: React.FC = () => {
                 </div>
             ) : (
                 <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto">
-                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                         <BookOpen className="h-10 w-10 text-gray-300" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No Assignments Found</h3>
@@ -975,7 +975,7 @@ const FacultyTask: React.FC = () => {
                 </div>
             ) : (
                 <div className="bg-white rounded-3xl border border-dashed border-gray-200 p-20 text-center flex flex-col items-center shadow-sm">
-                    <div className="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                    <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mb-6">
                         <BookOpen className="h-10 w-10 text-gray-300" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">No tasks found</h3>
@@ -1181,7 +1181,7 @@ const FacultyTask: React.FC = () => {
                                 <div className="space-y-4">
                                     <ScrollArea className="h-[400px]">
                                         <div
-                                            className="cursor-text select-text rounded-2xl border border-gray-300 bg-gray-50/10 p-6 whitespace-pre-wrap leading-relaxed text-sm font-medium text-slate-700 min-h-[150px]"
+                                            className="cursor-text select-text rounded-2xl border border-gray-300 bg-white/10 p-6 whitespace-pre-wrap leading-relaxed text-sm font-medium text-slate-700 min-h-[150px]"
                                             onMouseUp={handleTextSelection}
                                         >
                                             {selectedSubmission.answer}
@@ -1278,7 +1278,7 @@ const FacultyTask: React.FC = () => {
                             <div className="relative mt-2">
                                 <Textarea
                                     placeholder="Add a comment..."
-                                    className="min-h-[100px] text-sm border-gray-300 rounded-2xl bg-gray-50/50 focus:bg-white transition-colors pr-12 pb-12"
+                                    className="min-h-[100px] text-sm border-gray-300 rounded-2xl bg-white focus:bg-white transition-colors pr-12 pb-12"
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     onKeyDown={(e) => {
@@ -1537,7 +1537,7 @@ const FacultyTask: React.FC = () => {
                         </Button>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-[#F8FAFC]">
+                    <div className="flex-1 overflow-hidden flex flex-col md:flex-row bg-white">
                         {/* File Explorer Sidebar (for ZIP) */}
                         {zipFiles.length > 0 && (
                             <div className="w-full md:w-64 border-r border-gray-200 bg-white overflow-y-auto shrink-0 custom-scrollbar">
@@ -1727,7 +1727,7 @@ const FacultyTask: React.FC = () => {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-gray-400 py-20">
-                                            <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center mb-6 border border-gray-100 border-dashed">
+                                            <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center mb-6 border border-gray-100 border-dashed">
                                                 <Eye className="h-8 w-8 text-gray-200" />
                                             </div>
                                             <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No file selected for preview</p>
@@ -1742,7 +1742,7 @@ const FacultyTask: React.FC = () => {
                             <div className="p-8 border-b border-gray-50 flex-none">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-lg font-black text-gray-900">Annotations</h3>
-                                    <Badge variant="outline" className="rounded-full bg-gray-50 text-gray-400 border-gray-100 font-bold px-3 py-0.5">
+                                    <Badge variant="outline" className="rounded-full bg-white text-gray-400 border-gray-100 font-bold px-3 py-0.5">
                                         {selectedSubmission?.comments.filter(c => c.comment.startsWith('[') && c.comment.includes(']')).length}
                                     </Badge>
                                 </div>
@@ -1791,7 +1791,7 @@ const FacultyTask: React.FC = () => {
                                     return tag.startsWith('Line:') || tag === 'File Review';
                                 }).length === 0 && (
                                     <div className="flex flex-col items-center justify-center p-10 text-center opacity-70 mt-10">
-                                        <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 border-dashed">
+                                        <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center mb-4 border border-gray-100 border-dashed">
                                             <MessageSquare className="h-6 w-6 text-gray-300" />
                                         </div>
                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No annotations</p>

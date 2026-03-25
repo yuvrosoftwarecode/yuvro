@@ -26,7 +26,7 @@ export default function InstructorAnalytics() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-white flex">
             <RoleSidebar />
             <div className="flex-1 overflow-y-auto">
                 <div className="p-6 max-w-7xl mx-auto w-full space-y-6">

@@ -69,7 +69,7 @@ export function DataTable<T>({
                 )}
                 <CardContent className="pt-0 px-0 pb-0 p-5">
                     <div className="text-center py-12 bg-white rounded-lg border border-gray-200 border-dashed m-5">
-                        <div className="mx-auto h-12 w-12 text-gray-300 mb-3 flex items-center justify-center rounded-full bg-gray-50">
+                        <div className="mx-auto h-12 w-12 text-gray-300 mb-3 flex items-center justify-center rounded-full bg-white">
                             <FolderOpen className="h-6 w-6" />
                         </div>
                         <h3 className="mt-2 text-sm font-medium text-gray-900">{emptyState.message}</h3>
@@ -94,7 +94,7 @@ export function DataTable<T>({
                 <div className="rounded-lg overflow-hidden border border-gray-200">
                     <Table className="border border-gray-200 rounded-lg">
                         <TableHeader>
-                            <TableRow className="border border-gray-200 bg-gray-50/50">
+                            <TableRow className="border border-gray-200 bg-white">
                                 {columns.map((col, index) => (
                                     <TableHead key={index} className={`font-semibold text-gray-700 ${col.className || ''}`}>
                                         {col.header}
@@ -104,7 +104,7 @@ export function DataTable<T>({
                         </TableHeader>
                         <TableBody>
                             {data.map((row) => (
-                                <TableRow className="border border-gray-200 hover:bg-slate-50/50 transition-colors" key={keyExtractor(row)}>
+                                <TableRow className="border border-gray-200 hover:bg-white transition-colors" key={keyExtractor(row)}>
                                     {columns.map((col, index) => (
                                         <TableCell key={index} className={col.className}>
                                             {col.cell

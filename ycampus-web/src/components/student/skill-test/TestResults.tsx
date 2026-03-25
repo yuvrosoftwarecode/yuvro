@@ -255,7 +255,7 @@ const TestResults: React.FC<TestResultsProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-[1400px] mx-auto px-8 py-6 space-y-6">
 
         {/* Header */}
@@ -289,7 +289,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                 <RotateCcw className="h-4 w-4" /> Retake
               </Button>
             )}
-            <Button variant="outline" onClick={onBackToList} className="border-gray-200 text-gray-600 hover:bg-gray-50">
+            <Button variant="outline" onClick={onBackToList} className="border-gray-200 text-gray-600 hover:bg-white">
               Back to List
             </Button>
           </div>
@@ -323,7 +323,7 @@ const TestResults: React.FC<TestResultsProps> = ({
 
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white">
                 <Clock className="w-5 h-5 text-slate-600" />
               </div>
               <div>
@@ -375,7 +375,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                   key={t}
                   onClick={() => setTypeFilter(t)}
                   className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${
-                    typeFilter === t ? 'bg-gray-100 text-gray-900 border border-gray-300' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'
+                    typeFilter === t ? 'bg-white text-gray-900 border border-gray-300' : 'text-gray-400 hover:text-gray-700 hover:bg-white'
                   }`}
                 >
                   {t === 'all' ? 'All Types' : t.toUpperCase()}
@@ -388,7 +388,7 @@ const TestResults: React.FC<TestResultsProps> = ({
               className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all ${
                 activeTab === 'ai_buddy'
                   ? 'bg-slate-800 text-white'
-                  : 'text-slate-700 hover:bg-slate-50 border border-slate-200'
+                  : 'text-slate-700 hover:bg-white border border-slate-200'
               }`}
             >
               <MessageCircle className="w-4 h-4" /> AI Buddy
@@ -419,7 +419,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                       className={`border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm bg-white ${isCorrect ? 'border-gray-200' : 'border-red-200'}`}
                     >
                       <div
-                        className={`p-4 cursor-pointer flex items-start gap-3 hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}
+                        className={`p-4 cursor-pointer flex items-start gap-3 hover:bg-white transition-colors ${isExpanded ? 'bg-white' : ''}`}
                         onClick={() => toggleQuestion(idx)}
                       >
                         <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -430,7 +430,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
-                            <Badge className="text-[10px] h-4 px-1.5 bg-slate-100 text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
+                            <Badge className="text-[10px] h-4 px-1.5 bg-white text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
                           </div>
                           <p className="text-sm font-medium text-gray-900 line-clamp-2">{q.question_content || q.question_title}</p>
                         </div>
@@ -485,7 +485,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                                   />
                                 </div>
                               ) : (
-                                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
+                                <div className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
                                   <Eye className="w-4 h-4" /> No code submitted
                                 </div>
                               )}
@@ -514,7 +514,7 @@ const TestResults: React.FC<TestResultsProps> = ({
                           {q.question_type === 'descriptive' && (
                             <div className="space-y-2">
                               <p className="text-sm font-medium text-gray-700">Your Answer</p>
-                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <div className="bg-white rounded-lg p-3 border border-gray-200">
                                 <pre className="text-sm whitespace-pre-wrap text-gray-800">{q.answer_data?.answer || 'No answer provided'}</pre>
                               </div>
                             </div>
@@ -539,7 +539,7 @@ const TestResults: React.FC<TestResultsProps> = ({
 
             {/* AI Chat panel */}
             {showAiChat && (
-              <div className="lg:w-[35%] w-full flex flex-col bg-gray-50/50" style={{ height: 'calc(100vh - 200px)', maxHeight: '800px' }}>
+              <div className="lg:w-[35%] w-full flex flex-col bg-white" style={{ height: 'calc(100vh - 200px)', maxHeight: '800px' }}>
                 <div className="flex-1 p-4 h-full relative">
                   <div className="absolute inset-4">
                     <AIChatContainer

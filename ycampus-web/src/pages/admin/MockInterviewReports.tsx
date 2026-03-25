@@ -68,7 +68,7 @@ export default function MockInterviewReports() {
             case 'completed': return 'bg-green-100 text-green-700 border-green-200';
             case 'started': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'abandoned': return 'bg-red-100 text-red-700 border-red-200';
-            default: return 'bg-gray-100 text-gray-700';
+            default: return 'bg-white text-gray-700';
         }
     };
 
@@ -89,7 +89,7 @@ export default function MockInterviewReports() {
     });
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
@@ -142,7 +142,7 @@ export default function MockInterviewReports() {
                             <Card className="border border-gray-200 shadow-sm overflow-hidden">
                                 <div className="p-0">
                                     <Table>
-                                        <TableHeader className="bg-gray-50/50">
+                                        <TableHeader className="bg-white">
                                             <TableRow className="border-b border-gray-200">
                                                 <TableHead className="font-semibold text-gray-900">Candidate</TableHead>
                                                 <TableHead className="font-semibold text-gray-900">Role & Level</TableHead>
@@ -170,7 +170,7 @@ export default function MockInterviewReports() {
                                                 </TableRow>
                                             ) : (
                                                 filteredSessions.map((session) => (
-                                                    <TableRow key={session.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                                                    <TableRow key={session.id} className="border-b border-gray-100 hover:bg-white transition-colors">
                                                         <TableCell>
                                                             <div className="flex items-center gap-3">
                                                                 <div className="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">

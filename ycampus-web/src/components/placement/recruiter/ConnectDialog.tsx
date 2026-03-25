@@ -85,7 +85,7 @@ const ConnectDialog: React.FC<ConnectDialogProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="p-8 bg-slate-50 border-t border-slate-100 flex sm:justify-between items-center gap-4">
+        <DialogFooter className="p-8 bg-white border-t border-slate-100 flex sm:justify-between items-center gap-4">
           <Button
             variant="ghost"
             onClick={onClose}

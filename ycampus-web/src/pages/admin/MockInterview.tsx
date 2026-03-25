@@ -153,7 +153,7 @@ export default function MockInterviewPage() {
       case 'full_ai': return 'bg-blue-100 text-blue-700';
       case 'mixed': return 'bg-purple-100 text-purple-700';
       case 'predefined': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-gray-100 text-gray-700';
+      default: return 'bg-white text-gray-700';
     }
   };
 
@@ -275,7 +275,7 @@ export default function MockInterviewPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -402,7 +402,7 @@ export default function MockInterviewPage() {
                             <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Optional Skills</p>
                             <div className="flex flex-wrap gap-2">
                                 {selectedInterview.optional_skills.length > 0
-                                ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="secondary" className="bg-gray-100 text-gray-700 border-0">{s}</Badge>)
+                                ? selectedInterview.optional_skills.map((s) => <Badge key={s} variant="secondary" className="bg-white text-gray-700 border-0">{s}</Badge>)
                                 : <span className="text-sm text-slate-500">None</span>}
                             </div>
                             </div>

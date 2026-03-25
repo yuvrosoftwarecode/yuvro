@@ -687,7 +687,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
             ) : (
               <div className="h-full flex flex-col items-center justify-center p-8 text-center animate-fade-in">
                 <div className="max-w-md">
-                  <div className="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-slate-100">
+                  <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mx-auto mb-8 border border-slate-100">
                     <BookOpen className="w-12 h-12 text-slate-800" />
                   </div>
                   <h2 className="text-2xl font-bold text-slate-900 mb-3">
@@ -716,7 +716,7 @@ const SkillTest: React.FC<SkillTestProps> = ({ testType = 'practice' }) => {
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       {!hideNavigation && (
         <RoleSidebar collapsed={!!selectedSubject} />
       )}

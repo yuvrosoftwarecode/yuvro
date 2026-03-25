@@ -375,7 +375,7 @@ const SubjectEdit: React.FC = () => {
 
   if (!subjectId) return <div className="min-h-screen flex items-center justify-center">No subject selected</div>;
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 uppercase-none flex">
+    <div className="min-h-screen bg-white uppercase-none flex">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <RoleHeader title="Loading Subject..." />
@@ -388,7 +388,7 @@ const SubjectEdit: React.FC = () => {
 
   return (
     <>
-      <div className="h-screen overflow-hidden bg-gray-50">
+      <div className="h-screen overflow-hidden bg-white">
       <div className="flex h-full">
         <RoleSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -472,7 +472,7 @@ const SubjectEdit: React.FC = () => {
                             </div>
                             <div className="space-y-2">
                               {subs.map((s) => (
-                                <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white/50 border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
+                                <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
                                   <div className="flex items-center justify-between">
                                     <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

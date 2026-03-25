@@ -240,7 +240,7 @@ const CollegeList: React.FC = () => {
                         placeholder="Scan colleges..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="h-10 pl-10 w-64 bg-slate-50 border-none rounded-xl text-[10px] font-bold tracking-widest uppercase focus-visible:ring-indigo-600 focus-visible:bg-white transition-all ring-1 ring-slate-100 shadow-inner"
+                        className="h-10 pl-10 w-64 bg-white border-none rounded-xl text-[10px] font-bold tracking-widest uppercase focus-visible:ring-indigo-600 focus-visible:bg-white transition-all ring-1 ring-slate-100 shadow-inner"
                     />
                 </div>
                 <Button
@@ -347,7 +347,7 @@ const CollegeList: React.FC = () => {
                                         <div className="flex flex-wrap gap-1.5">
                                             {college.departments && college.departments.length > 0 ? (
                                                 college.departments.slice(0, 4).map((dept) => (
-                                                    <Badge key={dept.id} variant="secondary" className="bg-slate-100/50 text-slate-500 text-[10px] px-2 py-0 h-5 font-bold border-slate-200/50 shadow-none">
+                                                    <Badge key={dept.id} variant="secondary" className="bg-white text-slate-500 text-[10px] px-2 py-0 h-5 font-bold border-slate-200/50 shadow-none">
                                                         {dept.name}
                                                     </Badge>
                                                 ))
@@ -410,7 +410,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             placeholder="e.g. Stanford University"
-                                            className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold"
+                                            className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -419,7 +419,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.short_form}
                                             onChange={(e) => setFormData({ ...formData, short_form: e.target.value })}
                                             placeholder="e.g. SU"
-                                            className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold uppercase tracking-widest"
+                                            className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold uppercase tracking-widest"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -428,7 +428,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.location}
                                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                             placeholder="e.g. California, USA"
-                                            className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold"
+                                            className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -437,7 +437,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.website}
                                             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                                             placeholder="https://..."
-                                            className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold text-indigo-600"
+                                            className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-semibold text-indigo-600"
                                         />
                                     </div>
 
@@ -447,7 +447,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.college_type}
                                             onValueChange={(val: any) => setFormData({ ...formData, college_type: val })}
                                         >
-                                            <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-bold">
+                                            <SelectTrigger className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-bold">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -462,7 +462,7 @@ const CollegeList: React.FC = () => {
                                             value={formData.affiliated_university}
                                             onValueChange={(val: any) => setFormData({ ...formData, affiliated_university: val })}
                                         >
-                                            <SelectTrigger className="h-11 border-slate-200 bg-slate-50/50 rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-bold">
+                                            <SelectTrigger className="h-11 border-slate-200 bg-white rounded-xl focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all font-bold">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -474,7 +474,7 @@ const CollegeList: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-8 pt-2">
-                                    <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex-1">
+                                    <div className="flex items-center space-x-3 bg-white p-3 rounded-xl border border-slate-100 flex-1">
                                         <Checkbox
                                             id="aicte"
                                             checked={formData.is_aicte_approved}
@@ -486,7 +486,7 @@ const CollegeList: React.FC = () => {
                                             <p className="text-[10px] text-slate-400 font-medium">Technical education recognition</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-100 flex-1">
+                                    <div className="flex items-center space-x-3 bg-white p-3 rounded-xl border border-slate-100 flex-1">
                                         <Checkbox
                                             id="ugc"
                                             checked={formData.is_ugc_approved}
@@ -501,7 +501,7 @@ const CollegeList: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="h-px bg-slate-100 w-full" />
+                            <div className="h-px bg-white w-full" />
 
                             {/* Bottom Section: Departments */}
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-700 delay-100">
@@ -528,7 +528,7 @@ const CollegeList: React.FC = () => {
                                             type="button"
                                             variant="ghost"
                                             onClick={() => handleClearDepts(ALL_DEPARTMENT_NAMES)}
-                                            className="text-[10px] font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 h-7 rounded-lg"
+                                            className="text-[10px] font-bold text-slate-500 bg-white hover:bg-slate-200 h-7 rounded-lg"
                                         >
                                             CLEAR
                                         </Button>
@@ -546,7 +546,7 @@ const CollegeList: React.FC = () => {
                                                     cursor-pointer p-3 rounded-xl border-2 transition-all duration-200 flex flex-col gap-1 relative overflow-hidden group
                                                     ${isSelected
                                                         ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200'
-                                                        : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-slate-50'
+                                                        : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-white'
                                                     }
                                                 `}
                                             >
@@ -568,7 +568,7 @@ const CollegeList: React.FC = () => {
                             </div>
                         </div>
 
-                        <DialogFooter className="bg-slate-50 -mx-8 -mb-8 p-6 flex justify-between items-center border-t border-slate-100">
+                        <DialogFooter className="bg-white -mx-8 -mb-8 p-6 flex justify-between items-center border-t border-slate-100">
                             <p className="text-[10px] text-slate-400 font-medium">
                                 <span className="text-rose-500">*</span> Required fields
                             </p>
@@ -612,7 +612,7 @@ const CollegeList: React.FC = () => {
                             This will permanently remove the college and all its associated data. This action cannot be undone.
                         </p>
                     </div>
-                    <div className="bg-slate-50 p-6 flex gap-3 border-t border-slate-100">
+                    <div className="bg-white p-6 flex gap-3 border-t border-slate-100">
                         <Button
                             variant="ghost"
                             onClick={() => setConfirmDelete(null)}

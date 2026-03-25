@@ -38,7 +38,7 @@ export default function DetailHeader({
                 <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <Badge className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200">
+                            <Badge className="bg-white hover:bg-slate-200 text-slate-700 border-slate-200">
                                 {type.toUpperCase()}
                             </Badge>
                             <StatusBadge status={status} />
@@ -73,7 +73,7 @@ export default function DetailHeader({
 
             {/* Quick Stats Footer */}
             {stats.length > 0 && (
-                <div className={`grid grid-cols-2 md:grid-cols-${stats.length} border-t border-slate-100 bg-slate-50/50 divide-x divide-slate-100`}>
+                <div className={`grid grid-cols-2 md:grid-cols-${stats.length} border-t border-slate-100 bg-white divide-x divide-slate-100`}>
                     {stats.map((stat, index) => {
                         const Icon = stat.icon;
                         return (

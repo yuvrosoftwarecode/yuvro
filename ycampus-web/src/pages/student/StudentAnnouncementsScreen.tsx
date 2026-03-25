@@ -127,7 +127,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <RoleSidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -272,14 +272,14 @@ const StudentAnnouncementsScreen: React.FC = () => {
                       <button
                         onClick={() => loadAnnouncements(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                        className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50"
                       >
                         Previous
                       </button>
                       <button
                         onClick={() => loadAnnouncements(currentPage + 1)}
                         disabled={currentPage === totalPages(totalCount, pageSize)}
-                        className="ml-3 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                        className="ml-3 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-white disabled:opacity-50"
                       >
                         Next
                       </button>
@@ -295,14 +295,14 @@ const StudentAnnouncementsScreen: React.FC = () => {
                         <button
                           onClick={() => loadAnnouncements(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                          className="p-2 border border-gray-300 rounded-md hover:bg-white disabled:opacity-50"
                         >
                           <ChevronLeft className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => loadAnnouncements(currentPage + 1)}
                           disabled={currentPage === totalPages(totalCount, pageSize)}
-                          className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                          className="p-2 border border-gray-300 rounded-md hover:bg-white disabled:opacity-50"
                         >
                           <ChevronRight className="h-5 w-5" />
                         </button>
@@ -335,7 +335,7 @@ const StudentAnnouncementsScreen: React.FC = () => {
               {viewAnnouncement?.content}
             </div>
           </div>
-          <div className="bg-gray-50 border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4 text-gray-400" />

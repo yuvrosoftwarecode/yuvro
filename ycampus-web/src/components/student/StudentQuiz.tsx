@@ -103,7 +103,7 @@ const StudentQuiz = () => {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-white py-8">
           <div className="max-w-2xl mx-auto px-4">
             <Card className="p-6 text-center border border-gray-300">
               <h2 className="text-2xl font-bold mb-3">Quiz Completed 🎉</h2>
@@ -206,7 +206,7 @@ const StudentQuiz = () => {
   return (
     <>
       <Navigation />
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-white py-8">
         <div className="max-w-2xl mx-auto px-4">
           <div className="mb-6">
             <Button
@@ -233,7 +233,7 @@ const StudentQuiz = () => {
 
             <CardContent className="space-y-4">
               {/* Question */}
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-white p-4 rounded-lg">
                 <p className="font-medium text-lg">{currentQuiz.question}</p>
               </div>
 
@@ -281,7 +281,7 @@ const StudentQuiz = () => {
 
               {/* Feedback */}
               {submitted && (
-                <div className="text-center mt-4 p-4 rounded-lg bg-gray-50">
+                <div className="text-center mt-4 p-4 rounded-lg bg-white">
                   {selectedOption === currentQuiz.correct_answer_index ? (
                     <p className="text-green-600 font-semibold">Correct! 🎉</p>
                   ) : (

@@ -186,7 +186,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
           {currentCompanies.length > 0 ? (
             <div className="bg-white shadow rounded-lg overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-white">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Company
@@ -209,7 +209,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
                   {currentCompanies.map((company) => (
                     <tr 
                       key={company.id} 
-                      className={`hover:bg-gray-50 ${showSelectMode ? 'cursor-pointer' : 'cursor-pointer'}`}
+                      className={`hover:bg-white ${showSelectMode ? 'cursor-pointer' : 'cursor-pointer'}`}
                       onClick={() => showSelectMode ? handleSelectCompany(company) : handleViewCompany(company)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -328,14 +328,14 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
@@ -355,7 +355,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
                     <button
                       onClick={() => paginate(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
@@ -366,7 +366,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
                         className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                           currentPage === number
                             ? 'z-10 bg-blue-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0'
                         }`}
                       >
                         {number}
@@ -375,7 +375,7 @@ export default function CompaniesList({ onClose, onCompanySelect, showSelectMode
                     <button
                       onClick={() => paginate(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>

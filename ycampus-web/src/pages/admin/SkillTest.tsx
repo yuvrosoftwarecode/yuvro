@@ -188,7 +188,7 @@ export default function InstructorSkillTest() {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-700 border-green-200';
       case 'draft': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'inactive': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'inactive': return 'bg-white text-gray-700 border-gray-200';
       case 'archived': return 'bg-orange-100 text-orange-700 border-orange-200';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -239,7 +239,7 @@ export default function InstructorSkillTest() {
         return (
           <button
             onClick={handleBackToCourses}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+            className="bg-white0 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
           >
             ← Back to Subjects
           </button>
@@ -248,7 +248,7 @@ export default function InstructorSkillTest() {
         return (
           <button
             onClick={handleBackToCourses}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+            className="bg-white0 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
           >
             ← Back to Subjects
           </button>
@@ -259,7 +259,7 @@ export default function InstructorSkillTest() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -299,7 +299,7 @@ export default function InstructorSkillTest() {
                           }`}
                       >
                         <span>{tab.label}</span>
-                        <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                        <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-white text-gray-600'
                           }`}>
                           {tab.count}
                         </span>
@@ -496,7 +496,7 @@ export default function InstructorSkillTest() {
                           </TableHeader>
                           <TableBody>
                             {filteredSkillTests.map((skillTest) => (
-                              <TableRow key={skillTest.id} className="border-b border-gray-100 hover:bg-gray-50">
+                              <TableRow key={skillTest.id} className="border-b border-gray-100 hover:bg-white">
                                 <TableCell className="font-medium">{skillTest.title}</TableCell>
                                 <TableCell>
                                   <Badge className={getDifficultyColor(skillTest.difficulty)} variant="outline">
@@ -521,7 +521,7 @@ export default function InstructorSkillTest() {
                                     </button>
                                     <button
                                       onClick={() => openEditForm(skillTest)}
-                                      className="p-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+                                      className="p-2 text-gray-600 hover:bg-white rounded-md transition-colors"
                                       title="Edit"
                                     >
                                       <Pencil className="h-4 w-4" />

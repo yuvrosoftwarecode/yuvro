@@ -119,7 +119,7 @@ const AddSkillDialog: React.FC<AddSkillDialogProps> = ({
               <Input
                 {...register("name", { required: true })}
                 placeholder="e.g., React, Python"
-                className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
+                className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl"
               />
             </div>
 
@@ -140,7 +140,7 @@ const AddSkillDialog: React.FC<AddSkillDialogProps> = ({
                     }}
                     defaultValue={field.value}
                   >
-                    <SelectTrigger className="bg-slate-50/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl">
+                    <SelectTrigger className="bg-white border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all rounded-xl">
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-0 shadow-xl">

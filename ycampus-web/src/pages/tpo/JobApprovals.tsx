@@ -135,7 +135,7 @@ const JobApprovals: React.FC = () => {
                                         </div>
 
                                         <div className="flex items-start gap-3 mb-4">
-                                            <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                                            <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center">
                                                 <Building2 className="h-5 w-5 text-slate-400" />
                                             </div>
 
@@ -169,7 +169,7 @@ const JobApprovals: React.FC = () => {
                                             </div>
                                             <div className="flex gap-1.5">
                                                 {job.eligible_branches?.slice(0, 2).map((tag: string) => (
-                                                    <span key={tag} className="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-md font-medium">
+                                                    <span key={tag} className="bg-white text-slate-600 text-[10px] px-2 py-0.5 rounded-md font-medium">
                                                         {tag}
                                                     </span>
                                                 ))}
@@ -272,7 +272,7 @@ const JobApprovals: React.FC = () => {
                                 ) : (
                                     <div className="space-y-3">
                                         {applications.map((app) => (
-                                            <div key={app.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <div key={app.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-8 w-8 rounded-full bg-white border border-slate-100 flex items-center justify-center font-bold text-[hsl(249,60%,69%)] text-xs">
                                                         {app.applicant_name ? app.applicant_name[0] : 'U'}

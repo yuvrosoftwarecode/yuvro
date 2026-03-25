@@ -267,7 +267,7 @@ export default function ContestEdit() {
       case 'easy': return 'bg-green-100 text-green-700 border-green-200';
       case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'hard': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -288,7 +288,7 @@ export default function ContestEdit() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
@@ -383,7 +383,7 @@ export default function ContestEdit() {
                         ) : (
                           <div className="space-y-2">
                             {section.questions.map((question, questionIndex) => (
-                              <div key={question.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                              <div key={question.id} className="flex items-center justify-between p-2 bg-white rounded-lg">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm text-gray-500 w-6">{questionIndex + 1}.</span>
                                   {getQuestionTypeIcon(question.type)}
@@ -535,7 +535,7 @@ export default function ContestEdit() {
                               Found {filteredAvailableQuestions.length} question{filteredAvailableQuestions.length !== 1 ? 's' : ''}
                             </div>
                             {filteredAvailableQuestions.map((question) => (
-                              <div key={question.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                              <div key={question.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-white transition-colors">
                                 <div className="flex items-center gap-3">
                                   {getQuestionTypeIcon(question.type)}
                                   <div>

@@ -95,7 +95,7 @@ const UserForm = ({ onSubmit, initialData, roleName, isEditMode = false }: UserF
                             value={formData.first_name} 
                             onChange={handleChange} 
                             required 
-                            className="pl-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            className="pl-9 bg-white border-slate-200 focus:bg-white transition-all"
                             placeholder="e.g. John"
                         />
                     </div>
@@ -109,7 +109,7 @@ const UserForm = ({ onSubmit, initialData, roleName, isEditMode = false }: UserF
                             value={formData.last_name} 
                             onChange={handleChange} 
                             required 
-                            className="pl-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            className="pl-9 bg-white border-slate-200 focus:bg-white transition-all"
                             placeholder="e.g. Doe"
                         />
                     </div>
@@ -126,7 +126,7 @@ const UserForm = ({ onSubmit, initialData, roleName, isEditMode = false }: UserF
                         value={formData.email} 
                         onChange={handleChange} 
                         required 
-                        className="pl-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                        className="pl-9 bg-white border-slate-200 focus:bg-white transition-all"
                         placeholder="john.doe@college.edu"
                     />
                 </div>
@@ -142,7 +142,7 @@ const UserForm = ({ onSubmit, initialData, roleName, isEditMode = false }: UserF
                             value={formData.password} 
                             onChange={handleChange} 
                             required 
-                            className="bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            className="bg-white border-slate-200 focus:bg-white transition-all"
                             placeholder="Set a strong password"
                         />
                         <p className="text-xs text-slate-500">Default: ChangeMe@123</p>
@@ -253,7 +253,7 @@ const Management: React.FC<ManagementProps> = ({ college }) => {
         
         if (users.length === 0) {
              return (
-                 <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                 <div className="flex flex-col items-center justify-center py-8 text-center bg-white rounded-xl border border-dashed border-slate-200">
                     <h4 className="font-semibold text-slate-700 text-sm">No {role}s Added</h4>
                     <Button 
                         variant="link" 
@@ -279,7 +279,7 @@ const Management: React.FC<ManagementProps> = ({ college }) => {
                             <div>
                                 <h4 className="font-semibold text-slate-900 leading-tight flex items-center gap-2">
                                     {user.first_name} {user.last_name}
-                                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold tracking-wider px-1.5 py-0">
+                                    <Badge variant="secondary" className="bg-white text-slate-600 text-[10px] uppercase font-bold tracking-wider px-1.5 py-0">
                                         {role}
                                     </Badge>
                                 </h4>

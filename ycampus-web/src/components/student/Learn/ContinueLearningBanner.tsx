@@ -61,7 +61,7 @@ const ContinueLearningBanner: React.FC<Props> = ({ continueProgress }) => {
                             <span>Lesson {continueProgress.lesson} of {continueProgress.total_lessons}</span>
                             <span className="text-blue-600">{progressPercent}%</span>
                         </div>
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 w-full bg-white rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500 group-hover:brightness-110"
                                 style={{ width: `${progressPercent}%` }}

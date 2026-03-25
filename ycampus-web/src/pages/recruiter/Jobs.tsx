@@ -413,9 +413,9 @@ const Jobs: React.FC = () => {
       case 'active': return 'bg-green-100 text-green-700 border-green-200';
       case 'draft': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'paused': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'closed': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'closed': return 'bg-white text-gray-700 border-gray-200';
       case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -423,7 +423,7 @@ const Jobs: React.FC = () => {
 
   const headerActions = (
     <>
-      <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+      <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-white">
         <Filter className="h-4 w-4" />
         <span>Filter</span>
       </button>
@@ -453,7 +453,7 @@ const Jobs: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         <RoleSidebar />
 
@@ -524,35 +524,35 @@ const Jobs: React.FC = () => {
                         </button>
                         <button
                           onClick={() => setSelectedTab('active')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'active' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'active' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Active
                         </button>
                         <button
                           onClick={() => setSelectedTab('draft')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'draft' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Draft
                         </button>
                         <button
                           onClick={() => setSelectedTab('paused')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'paused' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'paused' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Paused
                         </button>
                         <button
                           onClick={() => setSelectedTab('closed')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'closed' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'closed' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Closed
                         </button>
                         <button
                           onClick={() => setSelectedTab('Approved')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'Approved' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'Approved' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Approved
@@ -562,7 +562,7 @@ const Jobs: React.FC = () => {
                         </button>
                         <button
                           onClick={() => setSelectedTab('rejected')}
-                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'rejected' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'bg-white text-gray-600'
+                          className={`px-5 h-8 text-sm font-medium rounded-lg transition-colors duration-150 ${selectedTab === 'rejected' ? 'bg-white text-gray-900 shadow-sm' : 'bg-white text-gray-600'
                             }`}
                         >
                           Rejected
@@ -583,7 +583,7 @@ const Jobs: React.FC = () => {
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-white">
                         <tr>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Job Details
@@ -613,7 +613,7 @@ const Jobs: React.FC = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {filteredJobs.map((job) => (
-                          <tr key={job.id} className="hover:bg-gray-50">
+                          <tr key={job.id} className="hover:bg-white">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div>
                                 <div className="text-sm font-medium text-gray-900">{job.title}</div>
@@ -626,7 +626,7 @@ const Jobs: React.FC = () => {
                                       </span>
                                     ))}
                                     {job.skills.length > 2 && (
-                                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+                                      <span className="px-2 py-1 bg-white text-gray-700 text-xs rounded-md">
                                         +{job.skills.length - 2}
                                       </span>
                                     )}
@@ -807,7 +807,7 @@ const Jobs: React.FC = () => {
                             <div className="flex items-center justify-between">
                               <span className={`px-2 py-1 rounded text-xs ${job.status === 'active' ? 'bg-green-100 text-green-700' :
                                 job.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-gray-100 text-gray-700'
+                                  'bg-white text-gray-700'
                                 }`}>
                                 {job.status}
                               </span>
@@ -830,7 +830,7 @@ const Jobs: React.FC = () => {
                 )}
 
                 <div className="w-full">
-                  <div className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                  <div className="grid w-full grid-cols-2 mb-6 bg-white p-1 rounded-lg">
                     <button
                       onClick={() => setCurrentFormTab('details')}
                       className={`flex items-center gap-2 rounded-md py-2 px-4 transition-all ${currentFormTab === 'details' ? 'bg-white shadow-sm' : ''
@@ -1185,7 +1185,7 @@ const Jobs: React.FC = () => {
                   <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
                     <button
                       onClick={() => setShowJobForm(false)}
-                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors"
                     >
                       Cancel
                     </button>
@@ -1212,7 +1212,7 @@ const Jobs: React.FC = () => {
                   <div className="flex justify-end space-x-4">
                     <button
                       onClick={closeDeleteModal}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-white"
                       disabled={isDeleting}
                     >
                       Cancel

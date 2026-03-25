@@ -156,7 +156,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                 <Input 
                   id="first_name" 
                   placeholder="e.g. Robert" 
-                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                  className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                   value={formData.first_name} 
                   onChange={handleChange} 
                   required 
@@ -167,7 +167,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                 <Input 
                   id="last_name" 
                   placeholder="e.g. Oppenheimer" 
-                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                  className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                   value={formData.last_name} 
                   onChange={handleChange} 
                   required 
@@ -183,7 +183,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                     id="email" 
                     type="email" 
                     placeholder="name@college.edu" 
-                    className="pl-10 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                    className="pl-10 rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                     value={formData.email} 
                     onChange={handleChange} 
                     required 
@@ -204,7 +204,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                 <Input 
                   id="username" 
                   placeholder="robert_phys" 
-                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                  className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                   value={formData.username} 
                   onChange={handleChange} 
                   required 
@@ -219,7 +219,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                         id="password" 
                         type="text"
                         placeholder="••••••••" 
-                        className="pl-10 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-bold text-indigo-600"
+                        className="pl-10 rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-bold text-indigo-600"
                         value={formData.password} 
                         onChange={handleChange} 
                         required 
@@ -245,7 +245,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
               <Input 
                 id="designation" 
                 placeholder="e.g. Senior Professor & Academic Head" 
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-indigo-600 transition-all font-medium"
+                className="rounded-xl border-slate-200 bg-white focus:bg-white focus:ring-indigo-600 transition-all font-medium"
                 value={formData.designation} 
                 onChange={handleChange} 
               />
@@ -255,7 +255,7 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
               <div className="space-y-1.5">
                 <Label htmlFor="department" className="text-slate-600 font-bold text-[11px] uppercase tracking-wider">Primary Department</Label>
                 <Select onValueChange={handleSelectChange} value={formData.department}>
-                  <SelectTrigger id="department" className="h-11 rounded-xl border-slate-200 bg-slate-50 focus:ring-indigo-600 transition-all font-semibold text-slate-700 shadow-none">
+                  <SelectTrigger id="department" className="h-11 rounded-xl border-slate-200 bg-white focus:ring-indigo-600 transition-all font-semibold text-slate-700 shadow-none">
                     <SelectValue placeholder="Assign Primary Department" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-100 shadow-2xl">
@@ -275,14 +275,14 @@ const FacultyForm: React.FC<FacultyFormProps> = ({ isOpen, onClose, onSubmit, fa
                   selected={formData.linked_departments}
                   onChange={handleMultiSelectChange}
                   placeholder="Link other departments..."
-                  className="rounded-xl border-slate-200 bg-slate-50 focus:ring-indigo-600 shadow-none font-medium"
+                  className="rounded-xl border-slate-200 bg-white focus:ring-indigo-600 shadow-none font-medium"
                 />
               </div>
             </div>
           </div>
 
           <DialogFooter className="pt-8 border-t border-slate-100">
-            <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-slate-50 text-slate-500 font-bold rounded-xl px-6 h-12 uppercase text-[10px] tracking-widest">Cancel</Button>
+            <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white text-slate-500 font-bold rounded-xl px-6 h-12 uppercase text-[10px] tracking-widest">Cancel</Button>
             <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-10 h-12 rounded-xl shadow-lg shadow-indigo-100 transition-all hover:scale-105 active:scale-95 uppercase text-[10px] tracking-widest" disabled={loading}>
               {loading ? (
                   <div className="flex items-center gap-2">

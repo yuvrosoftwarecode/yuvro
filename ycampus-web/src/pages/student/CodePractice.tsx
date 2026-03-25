@@ -81,7 +81,7 @@ const CodePractice = () => {
       fundamentals: 'bg-purple-100 text-purple-600',
       ai_tools: 'bg-amber-100 text-amber-600',
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-600';
+    return colors[category as keyof typeof colors] || 'bg-white text-gray-600';
   };
 
   const hydrateStateFromUrl = useCallback(async () => {
@@ -234,7 +234,7 @@ const CodePractice = () => {
     <div className="min-h-screen bg-white">
       <div className="flex h-screen overflow-hidden">
         <RoleSidebar />
-        <div className="flex-1 h-screen overflow-hidden bg-gray-50/30 flex flex-col">
+        <div className="flex-1 h-screen overflow-hidden bg-white/30 flex flex-col">
           <div className="flex-1 overflow-hidden px-4 md:px-6 lg:px-8 py-8 space-y-6 flex flex-col">
             <PageHeader
               title={currentView === 'dashboard' ? "Code Practice" : selectedSubject?.name || "Code Practice"}

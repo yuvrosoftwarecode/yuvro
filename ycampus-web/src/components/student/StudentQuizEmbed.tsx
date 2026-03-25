@@ -139,7 +139,7 @@ const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
     return (
       <div className="h-full flex flex-col bg-white overflow-hidden">
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
             <AlertCircle className="w-8 h-8 text-gray-300" />
           </div>
           <h3 className="text-lg font-semibold text-gray-800">No Quizzes Found</h3>
@@ -171,7 +171,7 @@ const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
-            <Button onClick={handleRetakeQuiz} variant="secondary" className="flex-1 rounded-xl h-12 border border-gray-200 font-bold hover:bg-gray-50 transition-all">
+            <Button onClick={handleRetakeQuiz} variant="secondary" className="flex-1 rounded-xl h-12 border border-gray-200 font-bold hover:bg-white transition-all">
               <RotateCcw className="h-4 w-4 mr-2" /> Retake
             </Button>
             {isPassed && onComplete && (
@@ -191,7 +191,7 @@ const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
     <div className="h-full flex flex-col bg-white overflow-hidden">
       <div className="flex-1 overflow-hidden flex flex-col">
         {/* Quiz Header */}
-        <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex justify-between items-center shrink-0">
+        <div className="px-6 py-4 bg-white border-b border-gray-100 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shadow-sm">
               <BrainCircuit className="w-4 h-4 text-white" />
@@ -251,9 +251,9 @@ const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
                     buttonClass += "border-gray-50 opacity-40";
                   }
                 } else if (isSelected) {
-                  buttonClass += "border-slate-900 bg-slate-50/50 text-slate-900 ring-4 ring-slate-50 shadow-md transform -translate-y-0.5";
+                  buttonClass += "border-slate-900 bg-white text-slate-900 ring-4 ring-slate-50 shadow-md transform -translate-y-0.5";
                 } else {
-                  buttonClass += "border-gray-100 bg-white hover:border-slate-300 hover:bg-slate-50 text-gray-700 hover:shadow-sm";
+                  buttonClass += "border-gray-100 bg-white hover:border-slate-300 hover:bg-white text-gray-700 hover:shadow-sm";
                 }
 
                 return (
@@ -264,7 +264,7 @@ const StudentQuizEmbed = ({ subunitId, onComplete }: StudentQuizEmbedProps) => {
                     onClick={() => !submitted && setSelectedOption(index)}
                   >
                     <div className="flex items-center gap-4 w-full">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border-2 font-bold text-xs transition-colors ${isSelected ? 'bg-slate-900 border-slate-900 text-white' : 'border-gray-100 bg-gray-50 text-gray-400 group-hover:border-slate-300 group-hover:text-slate-600'}`}>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border-2 font-bold text-xs transition-colors ${isSelected ? 'bg-slate-900 border-slate-900 text-white' : 'border-gray-100 bg-white text-gray-400 group-hover:border-slate-300 group-hover:text-slate-600'}`}>
                         {String.fromCharCode(65 + index)}
                       </div>
                       <span className={`flex-1 text-sm md:text-base font-semibold transition-colors ${isSelected ? 'text-slate-900' : 'text-gray-700'}`}>{opt}</span>

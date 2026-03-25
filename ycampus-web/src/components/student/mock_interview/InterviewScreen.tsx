@@ -376,7 +376,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-slate-50 flex flex-col font-sans selection:bg-blue-100">
+    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans selection:bg-blue-100">
 
 
       <div className="bg-white border-b border-slate-200 px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-50 shadow-sm transition-all">
@@ -399,7 +399,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           </Button>
           <div className="h-4 w-px bg-slate-200" />
           <div className="flex items-center gap-2">
-            <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-transparent font-mono hidden sm:inline-flex">{role.title}</Badge>
+            <Badge className="bg-white text-slate-800 hover:bg-slate-200 border-transparent font-mono hidden sm:inline-flex">{role.title}</Badge>
             <Badge className="bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100">{difficulty}</Badge>
           </div>
         </div>
@@ -439,7 +439,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
           </div>
 
 
-          <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-md">
+          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md">
             <Clock className="w-4 h-4 text-slate-500" />
             <span className={`font-mono font-bold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-slate-700'}`}>
               {formatTime(timeLeft)}
@@ -470,7 +470,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
             </div>
 
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
               {conversation.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center opacity-60">
                   <Bot className="w-12 h-12 text-slate-300 mb-3" />
@@ -542,7 +542,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         {showCodeEditor && (
           <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? 'w-full lg:w-1/2' : 'w-full lg:w-1/2'}`}>
             <Card className="flex-1 h-full border-slate-200 overflow-hidden flex flex-col shadow-sm transition-all duration-500">
-              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+              <div className="px-4 py-2 bg-white border-b border-slate-100 flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-600 flex items-center gap-2"><Code className="w-3 h-3" /> Code Editor</span>
                 <Badge variant="outline" className="text-[10px] bg-white">JavaScript</Badge>
               </div>
@@ -568,7 +568,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
                 <span>AI Interviewer ({interviewer})</span>
                 {isAITyping && <span className="text-[10px] uppercase font-extrabold animate-pulse">Speaking...</span>}
               </div>
-              <div className="aspect-video bg-slate-50 relative flex items-center justify-center overflow-hidden">
+              <div className="aspect-video bg-white relative flex items-center justify-center overflow-hidden">
 
                 {isAITyping && (
                   <>

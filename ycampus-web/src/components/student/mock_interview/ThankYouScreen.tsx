@@ -25,7 +25,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({
   onBackToLibrary
 }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans selection:bg-blue-100">
+    <div className="min-h-screen bg-white flex items-center justify-center p-6 font-sans selection:bg-blue-100">
       <Card className="max-w-4xl w-full border-0 shadow-2xl bg-white/80 backdrop-blur-xl ring-1 ring-slate-200/50 rounded-[2rem] overflow-hidden">
         <div className="h-2 bg-gradient-to-r from-green-400 to-emerald-600 w-full" />
 
@@ -46,7 +46,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Left Column: Summary & Tips */}
             <div className="space-y-6">
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+              <div className="bg-white rounded-2xl p-6 border border-slate-100">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-1.5 bg-white rounded-lg border border-slate-100 shadow-sm">
                     <BarChart3 className="w-4 h-4 text-slate-500" />
@@ -98,7 +98,7 @@ const ThankYouScreen: React.FC<ThankYouScreenProps> = ({
               <Button
                 variant="outline"
                 onClick={onTryAgain}
-                className="w-full h-14 rounded-xl text-lg font-semibold bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
+                className="w-full h-14 rounded-xl text-lg font-semibold bg-white border-slate-200 text-slate-700 hover:bg-white hover:text-slate-900 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
               >
                 <RotateCcw className="w-5 h-5 mr-3" />
                 Try Same Interview Again

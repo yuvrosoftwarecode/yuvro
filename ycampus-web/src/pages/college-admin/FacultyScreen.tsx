@@ -89,7 +89,7 @@ const FacultyScreen: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1 flex flex-col h-screen overflow-hidden">

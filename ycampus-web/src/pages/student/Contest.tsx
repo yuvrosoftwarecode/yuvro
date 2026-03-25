@@ -163,9 +163,9 @@ const ContestPage = () => {
     switch (type) {
       case 'company': return { bg: 'bg-blue-50', text: 'text-blue-600' };
       case 'college': return { bg: 'bg-purple-50', text: 'text-purple-600' };
-      case 'weekly': return { bg: 'bg-slate-100', text: 'text-slate-600' };
+      case 'weekly': return { bg: 'bg-white', text: 'text-slate-600' };
       case 'monthly': return { bg: 'bg-slate-900', text: 'text-white' };
-      default: return { bg: 'bg-slate-50', text: 'text-slate-600' };
+      default: return { bg: 'bg-white', text: 'text-slate-600' };
     }
   };
 
@@ -193,7 +193,7 @@ const ContestPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-white flex">
         <RoleSidebar />
         <div className="flex-1">
           <RoleHeader title="Contests" subtitle="Loading contests..." />
@@ -207,7 +207,7 @@ const ContestPage = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6 space-y-6">
@@ -225,7 +225,7 @@ const ContestPage = () => {
                 { label: 'Joined', value: stats.joined, icon: Trophy, color: 'text-purple-600', bg: 'bg-purple-50' },
                 { label: 'Upcoming', value: stats.upcoming, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
                 { label: 'Live', value: stats.live, icon: Zap, color: 'text-green-600', bg: 'bg-green-50', pulse: stats.live > 0 },
-                { label: 'Total', value: stats.total, icon: Target, color: 'text-slate-600', bg: 'bg-slate-50' },
+                { label: 'Total', value: stats.total, icon: Target, color: 'text-slate-600', bg: 'bg-white' },
               ].map((s, i) => (
                 <div key={i} className={cn("flex items-center gap-2 px-4 py-2 rounded-full border border-gray-100 bg-white shadow-sm", s.pulse && "animate-pulse")}>
                   <div className={cn("flex items-center justify-center w-7 h-7 rounded-full", s.bg, s.color)}>
@@ -280,13 +280,13 @@ const ContestPage = () => {
                   <div className="flex flex-wrap gap-4 items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="bg-gray-100/50 p-1 rounded-xl">
+                        <TabsList className="bg-white p-1 rounded-xl">
                           <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-5">All</TabsTrigger>
                           <TabsTrigger value="past" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-5">Past</TabsTrigger>
                           <TabsTrigger value="my" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm px-5">My</TabsTrigger>
                         </TabsList>
                       </Tabs>
-                      <Button variant="outline" onClick={() => navigate('/student/contest-analytics-list')} className="border-gray-200 hover:bg-gray-50 rounded-xl">
+                      <Button variant="outline" onClick={() => navigate('/student/contest-analytics-list')} className="border-gray-200 hover:bg-white rounded-xl">
                         <TrendingUp className="h-4 w-4 mr-2 text-slate-600" />
                         Analytics
                       </Button>
@@ -294,7 +294,7 @@ const ContestPage = () => {
 
                     <div className="flex items-center gap-3 flex-1 min-w-[300px] lg:justify-end">
                       <Select value={selectedType} onValueChange={setSelectedType}>
-                        <SelectTrigger className="w-36 bg-gray-50/50 border-gray-100 rounded-xl">
+                        <SelectTrigger className="w-36 bg-white border-gray-100 rounded-xl">
                           <SelectValue placeholder="Type" />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-gray-100">
@@ -325,7 +325,7 @@ const ContestPage = () => {
 
                       <div className="relative flex-1 max-w-[240px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input placeholder="Search contests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 bg-gray-50/50 border-gray-100 rounded-xl" />
+                        <Input placeholder="Search contests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 bg-white border-gray-100 rounded-xl" />
                       </div>
                     </div>
                   </div>
@@ -334,7 +334,7 @@ const ContestPage = () => {
 
               {/* Table List View */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 border-b border-gray-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white border-b border-gray-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   <div className="col-span-6">Contest Details</div>
                   <div className="col-span-3 text-center">Timing</div>
                   <div className="col-span-3 text-right">Action</div>
@@ -348,7 +348,7 @@ const ContestPage = () => {
                       const style = getTypeStyle(contest.type);
                       const regInfo = getRegistrationInfo(contest.registrationStartDate, contest.registrationEndDate, contest.allowLateEntry, contest.endDate);
                       return (
-                        <div key={contest.id} className={cn("grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-gray-50/30 transition-colors group cursor-pointer", contest.status === 'ongoing' && "bg-green-50/20")}>
+                        <div key={contest.id} className={cn("grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-white/30 transition-colors group cursor-pointer", contest.status === 'ongoing' && "bg-green-50/20")}>
                           <div className="col-span-6 flex items-center gap-4">
                             <div className={cn("flex items-center justify-center w-12 h-12 rounded-xl shrink-0 group-hover:scale-105 transition-transform", style.bg, style.text)}>
                               {getTypeIcon(contest.type)}

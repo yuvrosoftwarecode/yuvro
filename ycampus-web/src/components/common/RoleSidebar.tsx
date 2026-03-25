@@ -100,23 +100,9 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     id: 'student-interview-prep',
-    label: 'Interview Preparation',
+    label: 'Interview Prep',
     icon: Users,
     path: '/student/interview-prep',
-    roles: ['student']
-  },
-  {
-    id: 'student-mock-interview',
-    label: 'Mock Interview',
-    icon: Mic,
-    path: '/student/mock-interview',
-    roles: ['student']
-  },
-  {
-    id: 'student-contest',
-    label: 'Contest',
-    icon: Trophy,
-    path: '/student/contests',
     roles: ['student']
   },
   {
@@ -145,6 +131,13 @@ const sidebarItems: SidebarItem[] = [
     label: 'Community',
     icon: Users,
     path: '/student/community',
+    roles: ['student']
+  },
+  {
+    id: 'student-contest',
+    label: 'Contest',
+    icon: Trophy,
+    path: '/student/contests',
     roles: ['student']
   },
   // Admin Items
@@ -564,7 +557,7 @@ export const SidebarContent = ({
 
   return (
     <TooltipProvider delayDuration={400}>
-      <div className={`flex flex-col h-full bg-[#FBFBFB] ${className}`}>
+      <div className={`flex flex-col h-full bg-white ${className}`}>
         <div className={`flex-1 overflow-y-auto overflow-x-hidden ${sidebarCollapsed ? 'py-2' : 'py-0'}`}>
           <div className={`flex items-center h-14 border-b border-[#e5e7eb] transition-all duration-300 ${sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
             {!sidebarCollapsed && (
@@ -596,7 +589,7 @@ export const SidebarContent = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="p-1.5 rounded-full hover:bg-gray-100 transition-all duration-200 relative group/bell">
-                      <Bell className="h-[18px] w-[18px] text-[#3B3D47] stroke-[1.5] transition-colors group-hover/bell:text-indigo-600" />
+                      <Bell className="h-[18px] w-[18px] text-black stroke-[1.5] transition-colors group-hover/bell:text-indigo-600" />
                       <span className="absolute top-[2px] right-[2px] h-[14px] w-[14px] rounded-full bg-[#ef4444] ring-[2px] ring-[#FBFBFB] text-[10px] font-semibold text-white flex items-center justify-center leading-none">3</span>
                     </button>
                   </TooltipTrigger>
@@ -609,7 +602,7 @@ export const SidebarContent = ({
                   <TooltipTrigger asChild>
                     <button
                       onClick={onToggle}
-                      className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-[#3B3D47] hover:text-indigo-600"
+                      className="p-1.5 rounded-md hover:bg-gray-100 transition-all duration-200 text-black hover:text-indigo-600"
                     >
                       <PanelLeftClose className="h-[18px] w-[18px] stroke-[1.5]" />
                     </button>
@@ -644,16 +637,16 @@ export const SidebarContent = ({
                         ? 'justify-center p-2 rounded-lg w-full h-9'
                         : `py-2 w-full rounded-lg ${isActive ? 'pl-4 pr-3 space-x-[14px]' : 'px-3 space-x-3'}`
                       } cursor-pointer group relative overflow-hidden transition-all duration-200 ${isActive
-                        ? 'text-[#0f172a] bg-[#f4f4f5] font-medium'
-                        : 'text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a] font-medium'
+                        ? 'text-black bg-[#f4f4f5] font-medium'
+                        : 'text-black hover:bg-white hover:text-black font-medium'
                       }`}
                     title={sidebarCollapsed ? item.label : ''}
                   >
                     {isActive && (
-                      <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#0f172a]" />
+                      <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-black" />
                     )}
 
-                    <Icon className={`h-[18px] w-[18px] flex-shrink-0 transition-all duration-200 stroke-[2] ${isActive ? 'text-[#0f172a]' : 'text-[#64748b] group-hover:text-[#0f172a]'}`} />
+                    <Icon className={`h-[18px] w-[18px] flex-shrink-0 transition-all duration-200 stroke-[2] ${isActive ? 'text-black' : 'text-black group-hover:text-black'}`} />
                     {!sidebarCollapsed && <span className="text-[13px] leading-tight">{item.label}</span>}
 
                     {sidebarCollapsed && (
@@ -669,7 +662,7 @@ export const SidebarContent = ({
             {userRole === 'faculty' && !sidebarCollapsed && (
               <div className="pt-3">
                 <div
-                  className="px-2 mb-1 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg py-1 transition-colors group"
+                  className="px-2 mb-1 flex items-center justify-between cursor-pointer hover:bg-white rounded-lg py-1 transition-colors group"
                   onClick={() => setReportsOpen(!reportsOpen)}
                 >
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Reports</span>
@@ -691,7 +684,7 @@ export const SidebarContent = ({
                         onClick={onItemClick}
                         className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer group relative transition-colors ${isActive
                           ? 'bg-orange-50 text-orange-600'
-                          : 'text-gray-600 hover:bg-gray-50'
+                          : 'text-gray-600 hover:bg-white'
                           }`}
                       >
                         <Icon className="h-[18px] w-[18px] flex-shrink-0" />
@@ -715,7 +708,7 @@ export const SidebarContent = ({
                     onClick={onItemClick}
                     className={`flex items-center justify-center p-2 rounded-lg cursor-pointer group relative transition-colors ${isActive
                       ? 'bg-orange-50 text-orange-600'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      : 'text-gray-600 hover:bg-white'
                       }`}
                     title={item.label}
                   >
@@ -737,24 +730,24 @@ export const SidebarContent = ({
             }}
           >
             <div className="flex items-center gap-3">
-              <div className={`h-[36px] w-[36px] rounded-full bg-[#f1f5f9] flex items-center justify-center text-[#3B3D47] font-semibold flex-shrink-0 text-sm`}>
+              <div className={`h-[36px] w-[36px] rounded-full bg-white flex items-center justify-center text-black font-semibold flex-shrink-0 text-sm`}>
                 {initial}
               </div>
               {!sidebarCollapsed && (
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-[#3B3D47] leading-tight">{firstName}</span>
+                <div className="flex flex-col truncate max-w-[150px]">
+                  <span className="text-sm font-medium text-black leading-tight truncate">{firstName}</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     {userRole === 'student' ? (
                       <>
-                        <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-[#f1f5f9] text-[#0f172a] rounded uppercase tracking-wide">
+                        <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-white text-black rounded uppercase tracking-wide">
                           {(user as any)?.branch || 'CSE'}
                         </span>
-                        <span className="text-xs text-[#64748b] truncate max-w-[100px]">
+                        <span className="text-xs text-black truncate max-w-[100px]">
                           Sem {(user as any)?.semester || 'I'} &middot; Sec {(user as any)?.section || 'B'}
                         </span>
                       </>
                     ) : (
-                      <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-[#f1f5f9] text-[#475569] rounded tracking-wide">
+                      <span className="text-[10px] font-semibold px-1.5 py-[2px] bg-white text-black rounded tracking-wide">
                         {formatRole(userRole)}
                       </span>
                     )}
@@ -763,7 +756,7 @@ export const SidebarContent = ({
               )}
             </div>
             {!sidebarCollapsed && (
-              <div className={`text-[#64748b] p-1 rounded-md transition-all duration-200 ${profileOpen ? 'rotate-180' : ''}`}>
+              <div className={`text-black p-1 rounded-md transition-all duration-200 ${profileOpen ? 'rotate-180' : ''}`}>
                 <ChevronsUpDown className="h-4 w-4 stroke-[1.5]" />
               </div>
             )}
@@ -771,11 +764,11 @@ export const SidebarContent = ({
 
           {(!sidebarCollapsed && profileOpen) && (
             <div className="mt-2 space-y-1 px-1 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <Link to={`/${userRole}/profile`} onClick={onItemClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
+              <Link to={`/${userRole}/profile`} onClick={onItemClick} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
                 <User className="h-[16px] w-[16px] stroke-[2]" />
                 Profile
               </Link>
-              <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#52525b] hover:text-[#3B3D47] hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
+              <button className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-black hover:text-black hover:bg-[#f4f4f5] rounded-md transition-all duration-200">
                 <Moon className="h-[16px] w-[16px] stroke-[2]" />
                 Dark Mode
               </button>
@@ -823,7 +816,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '', defaultCollap
           {/* User Initial Circle as Toggle (Left Top) */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <button className="h-9 w-9 rounded-full bg-[#f1f5f9] flex items-center justify-center text-[#3B3D47] font-semibold text-sm border border-[#e5e7eb] shadow-sm transform transition-all hover:scale-105 active:scale-95">
+              <button className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-black font-semibold text-sm border border-[#e5e7eb] shadow-sm transform transition-all hover:scale-105 active:scale-95">
                 {initial}
               </button>
             </SheetTrigger>
@@ -839,7 +832,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '', defaultCollap
         </div>
       </div>
 
-      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-[#FBFBFB] shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
+      <div className={`${sidebarCollapsed ? 'w-12' : 'w-64'} md:flex hidden bg-white shadow-sm border-r border-[#e5e7eb] sticky top-0 h-screen flex-col transition-all duration-300 ease-in-out z-40 ${className}`}>
         <SidebarContent
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

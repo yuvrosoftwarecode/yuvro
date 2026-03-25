@@ -340,7 +340,7 @@ export default function SkillTestForm() {
           }
         }
       }}
-      className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+      className="bg-white0 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
     >
       ← Back to Subjects
     </button>
@@ -348,7 +348,7 @@ export default function SkillTestForm() {
 
   if (loading && isEditMode) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
@@ -369,7 +369,7 @@ export default function SkillTestForm() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 relative">
+    <div className="flex h-screen overflow-hidden bg-white relative">
       <RoleSidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <RoleHeader
@@ -511,7 +511,7 @@ export default function SkillTestForm() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Test Type</label>
-                          <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-gray-200 bg-gray-50">
+                          <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-gray-200 bg-white">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
                               formData.test_type === 'practice'
                                 ? 'bg-blue-100 text-blue-700'

@@ -64,7 +64,7 @@ const UnitSidebar = ({
             {/* Toggle Button */}
             <button
                 onClick={onToggle}
-                className="absolute -right-3 top-10 z-30 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200"
+                className="absolute -right-3 top-10 z-30 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:bg-white transition-all duration-200"
             >
                 {isOpen ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
             </button>
@@ -74,7 +74,7 @@ const UnitSidebar = ({
                 {/* CONTENT AREA */}
                 {!isOpen ? (
                     <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                        <div className="w-10 h-10 flex items-center justify-center text-2xl mb-2 bg-gray-50 rounded-xl" title={subject.name}>
+                        <div className="w-10 h-10 flex items-center justify-center text-2xl mb-2 bg-white rounded-xl" title={subject.name}>
                             {subject.icon ? (() => {
                                 const Icon = subject.icon as any;
                                 const colorClass = COLOR_MAP[(subject as any).color] || 'bg-slate-600';
@@ -98,7 +98,7 @@ const UnitSidebar = ({
                                                 ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
                                                 : selectedUnit?.id === unit.id
                                                     ? "bg-blue-600 text-white border-transparent"
-                                                    : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-gray-50"
+                                                    : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-white"
                                             }`}
                                         title={unit.name}
                                         onClick={() => {
@@ -143,13 +143,13 @@ const UnitSidebar = ({
                                 <ProgressBar
                                     value={overallProgress}
                                     height={8}
-                                    trackClassName="bg-gray-100 rounded-full"
+                                    trackClassName="bg-white rounded-full"
                                     barClassName="bg-blue-600 rounded-full"
                                 />
                             </div>
                         )}
 
-                        <div className="h-px bg-gray-100 w-full mb-5" />
+                        <div className="h-px bg-white w-full mb-5" />
 
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
 
@@ -167,7 +167,7 @@ const UnitSidebar = ({
                                     >
                                         {/* Unit header */}
                                         <div
-                                            className={`flex items-center justify-between w-full p-3 transition-colors ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
+                                            className={`flex items-center justify-between w-full p-3 transition-colors ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-white'}`}
                                         >
                                             <div className="flex items-center gap-3 overflow-hidden text-left">
                                                 <div className={`p-1 rounded-full transition-colors ${isSelected ? 'bg-blue-100' : 'bg-transparent'}`}>
@@ -184,7 +184,7 @@ const UnitSidebar = ({
                                             )}
 
                                             {unit.problemCount !== undefined && (
-                                                <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full">
+                                                <span className="text-xs text-gray-500 font-medium bg-white px-2 py-0.5 rounded-full">
                                                     {unit.problemCount}
                                                 </span>
                                             )}
@@ -199,7 +199,7 @@ const UnitSidebar = ({
                                                 <ProgressBar
                                                     value={progress}
                                                     height={6}
-                                                    trackClassName="bg-gray-100 rounded-full"
+                                                    trackClassName="bg-white rounded-full"
                                                     barClassName="bg-green-500 rounded-full"
                                                 />
                                             </div>
@@ -217,7 +217,7 @@ const UnitSidebar = ({
                         <Button
                             variant="outline"
                             className={cn(
-                                "w-full flex items-center justify-center transition-all bg-white hover:bg-gray-50 border-gray-200 text-gray-700 shadow-sm",
+                                "w-full flex items-center justify-center transition-all bg-white hover:bg-white border-gray-200 text-gray-700 shadow-sm",
                                 isOpen ? "gap-2 px-4 py-2" : "p-2"
                             )}
                             onClick={onBackToSubjects}

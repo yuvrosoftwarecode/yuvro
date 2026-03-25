@@ -61,6 +61,38 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails, onApply })
                 {skill}
               </span>
             ))}
+            {job.skills.length > 3 && (
+              <span className="px-3 py-1 bg-white text-gray-500 rounded-full text-sm">
+                +{job.skills.length - 3} more
+              </span>
+            )}
+          </div>
+
+          {getSalaryText(job) && (
+            <div className="flex items-center gap-1 text-green-600 font-medium">
+              <DollarSign className="h-4 w-4" />
+              {getSalaryText(job)}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col items-end gap-3">
+          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            {getMatchPercentage(job)}% Match
+          </div>
+          <div className="flex items-center gap-2">
+            <BookmarkButton
+              isBookmarked={isBookmarked}
+              isLoading={bookmarkLoading}
+              onClick={() => onBookmark(job.id)}
+            />
+            <button 
+              className="p-2 bg-white text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+              onClick={handleShare}
+              title="Share this job"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
 

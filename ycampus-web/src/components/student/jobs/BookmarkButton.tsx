@@ -32,7 +32,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         relative p-2 rounded-lg transition-all duration-200 transform
         ${isBookmarked
           ? 'bg-blue-500 text-white shadow-lg hover:bg-blue-600 hover:shadow-xl'
-          : 'bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-500 hover:shadow-md'
+          : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-500 hover:shadow-md'
         }
         ${isLoading ? 'opacity-60 cursor-wait' : 'hover:scale-105 active:scale-95'}
         ${disabled ? 'cursor-not-allowed opacity-50' : ''}

@@ -576,7 +576,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 {manageLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-12">
                         {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-48 bg-slate-100 animate-pulse rounded-2xl border border-slate-200 shadow-sm" />
+                            <div key={i} className="h-48 bg-white animate-pulse rounded-2xl border border-slate-200 shadow-sm" />
                         ))}
                     </div>
                 ) : (
@@ -645,7 +645,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
                         {filteredData.length === 0 && (
                             <div className="col-span-full py-24 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
-                                <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mb-4">
+                                <div className="w-16 h-16 bg-white flex items-center justify-center rounded-2xl mb-4">
                                     <Search className="h-8 w-8 text-slate-200" />
                                 </div>
                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
@@ -736,7 +736,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                             className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
                                                                 isSelected 
                                                                     ? "bg-indigo-50 border-indigo-200 shadow-sm" 
-                                                                    : "bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50"
+                                                                    : "bg-white border-slate-100 hover:border-indigo-100 hover:bg-white"
                                                             }`}
                                                         >
                                                             <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${

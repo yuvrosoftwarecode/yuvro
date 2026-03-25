@@ -300,7 +300,7 @@ const SubjectDetail: React.FC<{
     }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+        <div className="h-screen flex flex-col bg-white overflow-hidden">
             {!hideNavigation && <Navigation />}
             <div className="flex flex-1 overflow-hidden relative">
                 <div
@@ -337,7 +337,7 @@ const SubjectDetail: React.FC<{
                                                 className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer border-2 shadow-sm transition-all
                                                     ${isCompleted
                                                         ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
-                                                        : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-gray-50"
+                                                        : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-white"
                                                     }`}
                                                 title={unit.name}
                                                 onClick={() => {
@@ -385,12 +385,12 @@ const SubjectDetail: React.FC<{
                                     <ProgressBar
                                         value={overallProgress}
                                         height={8}
-                                        trackClassName="bg-gray-100 rounded-full"
+                                        trackClassName="bg-white rounded-full"
                                         barClassName="bg-blue-600 rounded-full"
                                     />
                                 </div>
 
-                                <div className="h-px bg-gray-100 w-full mb-5" />
+                                <div className="h-px bg-white w-full mb-5" />
 
                                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
 
@@ -403,7 +403,7 @@ const SubjectDetail: React.FC<{
                                         return (
                                             <div key={unit.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
                                                 <div
-                                                    className={`flex items-center justify-between cursor-pointer w-full p-3 transition-colors ${expanded ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}`}
+                                                    className={`flex items-center justify-between cursor-pointer w-full p-3 transition-colors ${expanded ? 'bg-white' : 'bg-white hover:bg-white'}`}
                                                     onClick={() => toggleExpandUnit(unit.id)}
                                                 >
                                                     <div className="flex items-center gap-3 overflow-hidden">
@@ -427,7 +427,7 @@ const SubjectDetail: React.FC<{
                                                     <ProgressBar
                                                         value={progress}
                                                         height={6}
-                                                        trackClassName="bg-gray-100 rounded-full"
+                                                        trackClassName="bg-white rounded-full"
                                                         barClassName="bg-green-500 rounded-full"
                                                     />
                                                 </div>
@@ -435,7 +435,7 @@ const SubjectDetail: React.FC<{
                                                 <div
                                                     className={`transition-all duration-300 ease-in-out overflow-hidden ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
                                                 >
-                                                    <div className="bg-gray-50 border-t border-gray-100 pb-2 pt-2">
+                                                    <div className="bg-white border-t border-gray-100 pb-2 pt-2">
                                                         <div className="px-2 space-y-1">
                                                             {subs.map((s) => (
                                                                 <div
@@ -465,7 +465,7 @@ const SubjectDetail: React.FC<{
                                                                                 <ProgressBar
                                                                                     value={progressMap[s.id] || 0}
                                                                                     height={3}
-                                                                                    trackClassName="bg-gray-100 rounded-full"
+                                                                                    trackClassName="bg-white rounded-full"
                                                                                     barClassName="bg-blue-500 rounded-full"
                                                                                 />
                                                                             </div>
@@ -488,7 +488,7 @@ const SubjectDetail: React.FC<{
                         <div className={`border-t border-gray-100 flex-shrink-0 transition-all duration-300 ${collapsed ? "px-2 py-4" : "p-4"}`}>
                             <button
                                 onClick={onSwitchSubject}
-                                className={`flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-all
+                                className={`flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white hover:bg-white text-gray-700 text-sm font-semibold transition-all
                                     ${collapsed ? "w-8 h-8 p-0 mx-auto" : "w-full px-4 py-2"}`}
                                 title="Switch Subject"
                             >
@@ -550,7 +550,7 @@ const SubjectDetail: React.FC<{
                         <div className="flex items-center gap-4 ml-4 mr-6">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <button className="p-2 text-gray-500 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-colors" title="Subject Guide">
+                                    <button className="p-2 text-gray-500 hover:text-slate-900 hover:bg-white rounded-full transition-colors" title="Subject Guide">
                                         <Info className="w-5 h-5" />
                                     </button>
                                 </DialogTrigger>
@@ -575,7 +575,7 @@ const SubjectDetail: React.FC<{
 
                                             <ScrollArea className="h-[400px] pr-4">
                                                 <TabsContent value="progress" className="space-y-4">
-                                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
+                                                    <div className="bg-white p-4 rounded-xl border border-slate-100 mb-4">
                                                         <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                                                             <CheckCircle2 className="w-4 h-4" /> How to Complete a Unit?
                                                         </h3>
@@ -635,11 +635,11 @@ const SubjectDetail: React.FC<{
                                                         Practice makes perfect. Our built-in code editor lets you write and run code in the browser.
                                                     </p>
                                                     <div className="grid grid-cols-2 gap-4 mt-4">
-                                                        <div className="border p-3 rounded-lg bg-gray-50">
+                                                        <div className="border p-3 rounded-lg bg-white">
                                                             <h4 className="font-semibold text-xs uppercase text-gray-500 mb-2">Run Code</h4>
                                                             <p className="text-sm">Executes your code against sample inputs to verify logic.</p>
                                                         </div>
-                                                        <div className="border p-3 rounded-lg bg-gray-50">
+                                                        <div className="border p-3 rounded-lg bg-white">
                                                             <h4 className="font-semibold text-xs uppercase text-gray-500 mb-2">Submit</h4>
                                                             <p className="text-sm">Runs against hidden test cases. Required for completion.</p>
                                                         </div>
@@ -653,7 +653,7 @@ const SubjectDetail: React.FC<{
                                                     </p>
 
                                                     <div className="space-y-3 mt-4">
-                                                        <div className="flex gap-3 p-3 border border-slate-100 bg-slate-50/50 rounded-xl">
+                                                        <div className="flex gap-3 p-3 border border-slate-100 bg-white rounded-xl">
                                                             <BookOpen className="w-5 h-5 text-slate-800 flex-shrink-0 mt-0.5" />
                                                             <div>
                                                                 <h4 className="font-semibold text-black text-sm">Materials</h4>
@@ -670,7 +670,7 @@ const SubjectDetail: React.FC<{
                                                         </div>
                                                     </div>
 
-                                                    <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 flex items-center gap-2">
+                                                    <div className="mt-4 p-3 bg-white rounded-lg text-xs text-gray-600 flex items-center gap-2">
                                                         <MonitorPlay className="w-4 h-4" />
                                                         <span><strong>Tip:</strong> Use "Split View" to read materials and write notes simultaneously!</span>
                                                     </div>
@@ -728,9 +728,9 @@ const SubjectDetail: React.FC<{
                                                 <DropdownMenuItem
                                                     key={opt.id}
                                                     onClick={() => setVideoLayout(opt.id as LayoutMode)}
-                                                    className={`group flex items-center gap-4 px-3.5 py-3 rounded-xl cursor-pointer transition-[background,transform,box-shadow] duration-200 ease-out hover:scale-[1.015] hover:shadow-md active:scale-[0.98] ${videoLayout === opt.id ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg" : "text-gray-700 hover:bg-gray-50"}`}
+                                                    className={`group flex items-center gap-4 px-3.5 py-3 rounded-xl cursor-pointer transition-[background,transform,box-shadow] duration-200 ease-out hover:scale-[1.015] hover:shadow-md active:scale-[0.98] ${videoLayout === opt.id ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg" : "text-gray-700 hover:bg-white"}`}
                                                 >
-                                                    <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-3 ${videoLayout === opt.id ? "bg-white/20" : "bg-gray-100 group-hover:bg-white"}`}>
+                                                    <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-3 ${videoLayout === opt.id ? "bg-white/20" : "bg-white group-hover:bg-white"}`}>
                                                         {opt.icon}
                                                     </div>
                                                     <div className="flex flex-col">

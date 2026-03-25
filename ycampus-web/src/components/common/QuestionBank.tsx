@@ -252,7 +252,7 @@ export default function QuestionBank({
       case 'hard':
         return 'bg-red-100 text-red-700 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -266,7 +266,7 @@ export default function QuestionBank({
       case 'descriptive':
         return 'bg-orange-100 text-orange-700 border-orange-200';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -279,7 +279,7 @@ export default function QuestionBank({
             className="flex flex-col h-full border-r border-gray-200"
             style={{ width: `${leftPanelWidth}%` }}
           >
-            <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
               <h4 className="font-medium text-gray-900">Selected Questions</h4>
               <div className="flex items-center gap-2">
                 <div className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded">
@@ -359,7 +359,7 @@ export default function QuestionBank({
               <div className="flex flex-col gap-4">
                 {/* Question Type Tabs */}
                 <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 bg-gray-100 border border-gray-200 rounded-lg p-1">
+                  <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
                     <TabsTrigger value="mcq_single" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">MCQ Single</TabsTrigger>
                     <TabsTrigger value="mcq_multiple" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">MCQ Multiple</TabsTrigger>
                     <TabsTrigger value="coding" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">Coding</TabsTrigger>
@@ -424,7 +424,7 @@ export default function QuestionBank({
                       key={question.id}
                       className={`p-4 border border-gray-200 rounded-lg cursor-pointer transition-all hover:shadow-md ${selectedQuestions.includes(question.id)
                         ? 'bg-blue-50 border-blue-200'
-                        : 'bg-white hover:bg-gray-50'
+                        : 'bg-white hover:bg-white'
                         }`}
                       onClick={() => handleQuestionToggle(question.id)}
                     >
@@ -554,7 +554,7 @@ export default function QuestionBank({
                 {questions.map((question) => (
                   <TableRow
                     key={question.id}
-                    className={mode === 'selection' ? 'cursor-pointer hover:bg-gray-50' : ''}
+                    className={mode === 'selection' ? 'cursor-pointer hover:bg-white' : ''}
                     onClick={() => mode === 'selection' && handleQuestionToggle(question.id)}
                   >
                     {mode === 'selection' && (

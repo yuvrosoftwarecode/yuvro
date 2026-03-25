@@ -212,7 +212,7 @@ const Subjects: React.FC = () => {
     ) : null;
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1 overflow-y-auto">
@@ -243,7 +243,7 @@ const Subjects: React.FC = () => {
                                         className={`rounded-full px-2 py-1 text-xs transition-colors ${
                                             mainTab === "global"
                                                 ? "bg-blue-100 text-blue-600"
-                                                : "bg-gray-100 text-gray-600"
+                                                : "bg-white text-gray-600"
                                         }`}
                                     >
                                         {subjects.length}
@@ -263,7 +263,7 @@ const Subjects: React.FC = () => {
                                         className={`rounded-full px-2 py-1 text-xs transition-colors ${
                                             mainTab === "colleges"
                                                 ? "bg-blue-100 text-blue-600"
-                                                : "bg-gray-100 text-gray-600"
+                                                : "bg-white text-gray-600"
                                         }`}
                                     >
                                         {colleges.length}

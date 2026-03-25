@@ -54,7 +54,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
       case 'Easy': return 'bg-emerald-500 text-white border-transparent hover:bg-emerald-600';
       case 'Medium': return 'bg-cyan-500 text-white border-transparent hover:bg-cyan-600';
       case 'Hard': return 'bg-rose-500 text-white border-transparent hover:bg-rose-600';
-      default: return 'bg-gray-500 text-white border-transparent';
+      default: return 'bg-white0 text-white border-transparent';
     }
   };
 
@@ -139,7 +139,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
               </div>
             </div>
             <div className="flex items-center space-x-4 p-4 bg-white rounded-xl border border-slate-100 shadow-none hover:border-slate-300 transition-colors">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-slate-50 text-slate-600">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white text-slate-600">
                 <BarChart3 className="h-6 w-6" />
               </div>
               <div>
@@ -158,7 +158,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({ test, onStart, onBa
             </span>
             {attemptsLeft !== null && (
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                attemptsLeft <= 1 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'
+                attemptsLeft <= 1 ? 'bg-rose-100 text-rose-700' : 'bg-white text-slate-600'
               }`}>
                 {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining of {test.maxAttempts}
               </span>

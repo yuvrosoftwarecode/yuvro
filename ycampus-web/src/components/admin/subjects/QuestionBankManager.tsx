@@ -410,7 +410,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       case 'easy': return 'bg-green-100 text-green-800';
       case 'medium': return 'bg-yellow-100 text-yellow-800';
       case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-white text-gray-800';
     }
   };
 
@@ -553,7 +553,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   {[1, 2, 3].map(i => (
                     <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                      <div className="h-3 bg-white rounded w-1/2"></div>
                     </div>
                   ))}
                 </div>
@@ -586,7 +586,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                               <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 border-blue-100 font-medium">
                                 {getQuestionTypeLabel(question.type)}
                               </Badge>
-                              <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800 border-slate-200">
+                              <Badge variant="secondary" className="bg-white text-slate-700 hover:bg-slate-200 hover:text-slate-800 border-slate-200">
                                 {question.level} level
                               </Badge>
                               <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border-emerald-100">
@@ -883,7 +883,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       {formData.type === 'mcq_single' ? 'Select one correct answer' : 'Select multiple correct answers'}
                     </div>
                   </div>
-                  <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="space-y-3 p-4 bg-white rounded-xl border border-slate-200">
                     {formData.mcq_options?.map((option, index) => (
                       <div
                         key={index}
@@ -968,7 +968,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                               onChange={(e) => updateTestCase(index, 'input', e.target.value)}
                               placeholder="Input data"
                               rows={2}
-                              className="text-sm bg-slate-50/50"
+                              className="text-sm bg-white"
                             />
                           </div>
                           <div className="space-y-1">
@@ -978,7 +978,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                               onChange={(e) => updateTestCase(index, 'expected_output', e.target.value)}
                               placeholder="Expected output"
                               rows={2}
-                              className="text-sm bg-slate-50/50"
+                              className="text-sm bg-white"
                             />
                           </div>
                         </div>

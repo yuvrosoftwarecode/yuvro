@@ -199,7 +199,7 @@ export const StudentBulkImportModal: React.FC<StudentBulkImportModalProps> = ({ 
                             <div className="space-y-4">
                                 <Label className="text-gray-700 font-medium">Upload File (CSV or Excel)</Label>
                                 <div
-                                    className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer ${file ? 'border-orange-500 bg-orange-50/30' : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'}`}
+                                    className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 flex flex-col items-center justify-center cursor-pointer ${file ? 'border-orange-500 bg-orange-50/30' : 'border-gray-200 hover:border-orange-300 hover:bg-white'}`}
                                     onClick={() => document.getElementById('csv-upload')?.click()}
                                 >
                                     <input
@@ -239,7 +239,7 @@ export const StudentBulkImportModal: React.FC<StudentBulkImportModalProps> = ({ 
                     ) : (
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
+                                <div className="bg-white border border-gray-100 rounded-lg p-4 text-center">
                                     <span className="text-2xl font-bold text-gray-900">{resultSummary.total}</span>
                                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mt-1">Processed</p>
                                 </div>
@@ -296,7 +296,7 @@ export const StudentBulkImportModal: React.FC<StudentBulkImportModalProps> = ({ 
                     )}
                 </div>
 
-                <DialogFooter className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+                <DialogFooter className="px-6 py-4 bg-white border-t flex justify-between items-center">
                     {resultSummary ? (
                         <Button
                             className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto px-8"

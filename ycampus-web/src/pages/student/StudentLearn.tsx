@@ -100,7 +100,7 @@ export default function StudentLearn() {
 
   // Subject grid
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       <RoleSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="px-8 pt-8 pb-2">

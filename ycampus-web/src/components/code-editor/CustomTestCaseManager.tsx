@@ -66,7 +66,7 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
             onClick={() => setIsAddingTestCase(true)}
             size="sm"
             variant="outline"
-            className="h-8 text-xs bg-white border-gray-200 hover:bg-gray-50 text-gray-700 font-medium"
+            className="h-8 text-xs bg-white border-gray-200 hover:bg-white text-gray-700 font-medium"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />
             New Case
@@ -78,7 +78,7 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
       <div className="grid grid-cols-1 gap-4">
         {customTestCases.map((testCase, index) => (
           <div key={testCase.id} className="group relative bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition-all shadow-sm">
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-100">
+            <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-100">
               <span className="text-[10px] font-bold text-gray-500 uppercase">Case #{index + 1}</span>
               <Button
                 onClick={() => removeTestCase(testCase.id)}
@@ -97,7 +97,7 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
                   value={testCase.input}
                   onChange={(e) => updateTestCase(testCase.id, { input: e.target.value })}
                   placeholder="Enter input..."
-                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white transition-all shadow-inner"
+                  className="h-8 text-xs font-mono bg-white border-gray-100 focus:bg-white transition-all shadow-inner"
                 />
               </div>
               <div className="space-y-1.5">
@@ -106,7 +106,7 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
                   value={testCase.expected_output}
                   onChange={(e) => updateTestCase(testCase.id, { expected_output: e.target.value })}
                   placeholder="Enter expected result..."
-                  className="h-8 text-xs font-mono bg-gray-50 border-gray-100 focus:bg-white transition-all shadow-inner"
+                  className="h-8 text-xs font-mono bg-white border-gray-100 focus:bg-white transition-all shadow-inner"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ const CustomTestCaseManager: React.FC<CustomTestCaseManagerProps> = ({
         )}
 
         {customTestCases.length === 0 && !isAddingTestCase && (
-          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/30">
+          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-100 rounded-2xl bg-white/30">
             <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
               <Database className="w-5 h-5 text-gray-300" />
             </div>

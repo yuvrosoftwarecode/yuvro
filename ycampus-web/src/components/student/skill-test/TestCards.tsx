@@ -86,7 +86,7 @@ const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewR
           const canAttempt = attemptCount < test.maxAttempts;
           const topGradient = DIFFICULTY_TOP[test.difficulty] || 'from-blue-400 to-indigo-400';
           const btnGradient = DIFFICULTY_GRADIENT[test.difficulty] || 'from-blue-500 to-indigo-500';
-          const badgeClass = DIFFICULTY_BADGE[test.difficulty] || 'bg-gray-100 text-gray-600';
+          const badgeClass = DIFFICULTY_BADGE[test.difficulty] || 'bg-white text-gray-600';
 
           return (
             <div
@@ -147,7 +147,7 @@ const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewR
                 ) : (
                   <button
                     disabled
-                    className="w-full py-3 rounded-xl text-sm font-semibold text-gray-400 bg-gray-100 cursor-not-allowed"
+                    className="w-full py-3 rounded-xl text-sm font-semibold text-gray-400 bg-white cursor-not-allowed"
                   >
                     Limit Reached ({test.maxAttempts}/{test.maxAttempts})
                   </button>
@@ -156,7 +156,7 @@ const TestCards = ({ tests, subjectName, topicName, onBack, onStartTest, onViewR
                 {completedSubmissions.length > 0 && (
                   <button
                     onClick={() => onViewAllResults(test)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all text-sm"
+                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-white transition-all text-sm"
                   >
                     <span className="flex items-center gap-2 text-gray-600 font-medium">
                       <Trophy className="w-4 h-4 text-amber-500" />

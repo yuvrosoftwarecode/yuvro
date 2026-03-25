@@ -204,7 +204,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     if (diff === 'easy') return 'bg-green-50 text-green-700 border-green-100';
     if (diff === 'medium') return 'bg-amber-50 text-amber-700 border-amber-100';
     if (diff === 'hard') return 'bg-red-50 text-red-700 border-red-100';
-    return 'bg-gray-50 text-gray-700 border-gray-100';
+    return 'bg-white text-gray-700 border-gray-100';
   };
 
   const getProblemContext = () => {
@@ -233,8 +233,8 @@ ${codeEditorRef.current?.getCode() || ''}
   const containerClassName = isEditorFullscreen
     ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white')
     : (isEmbedded
-      ? 'h-full w-full flex flex-col box-border bg-slate-50 font-sans overflow-hidden p-1.5'
-      : 'flex-1 flex flex-col p-2 box-border bg-slate-50 font-sans overflow-hidden');
+      ? 'h-full w-full flex flex-col box-border bg-white font-sans overflow-hidden p-1.5'
+      : 'flex-1 flex flex-col p-2 box-border bg-white font-sans overflow-hidden');
 
   const handleRevealHint = async () => {
     if (hintToReveal === null) return;
@@ -306,7 +306,7 @@ ${codeEditorRef.current?.getCode() || ''}
                 {all.map((tc: any, i: number) => (
                   <div key={i}>
                     <h5 className="text-xs font-semibold text-gray-500 mb-1.5">Case {i + 1} <span className="text-gray-400 font-normal">({tc.label})</span></h5>
-                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1.5 font-mono text-xs">
+                    <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-1.5 font-mono text-xs">
                       <div><span className="font-bold text-gray-600">Input: </span><span className="text-gray-800">{typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input)}</span></div>
                       <div><span className="font-bold text-gray-600">Output: </span><span className="text-emerald-700">{typeof tc.expected_output === 'string' ? tc.expected_output : JSON.stringify(tc.expected_output)}</span></div>
                     </div>
@@ -430,12 +430,12 @@ ${codeEditorRef.current?.getCode() || ''}
                       </Button>
                     </div>
                     <div className="rounded-lg border border-gray-200 overflow-hidden">
-                      <div className="bg-gray-50 p-3 overflow-auto max-h-80">
+                      <div className="bg-white p-3 overflow-auto max-h-80">
                         <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap"><code>{sol.code}</code></pre>
                       </div>
                     </div>
                     {sol.complexity_analysis && (
-                      <div className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                      <div className="rounded-lg border border-slate-100 bg-white px-4 py-3">
                         <p className="text-xs font-bold text-slate-700 mb-1.5">Complexity Analysis</p>
                         <p className="text-sm text-slate-900 leading-relaxed">{sol.complexity_analysis}</p>
                       </div>
@@ -471,7 +471,7 @@ ${codeEditorRef.current?.getCode() || ''}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <Card className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
-            <CardHeader className="p-8 bg-gray-50/50 border-b border-gray-100">
+            <CardHeader className="p-8 bg-white border-b border-gray-100">
               <div className="max-w-4xl mx-auto w-full">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-100">
@@ -501,13 +501,13 @@ ${codeEditorRef.current?.getCode() || ''}
                 {/* Input/Output Formats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {problem.inputFormat && (
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100">
                       <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Input Format</h4>
                       <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{problem.inputFormat}</p>
                     </div>
                   )}
                   {problem.outputFormat && (
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-gray-100">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100">
                       <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Output Format</h4>
                       <p className="text-gray-700 text-sm leading-relaxed">{problem.outputFormat}</p>
                     </div>
@@ -524,11 +524,11 @@ ${codeEditorRef.current?.getCode() || ''}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Input</div>
-                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-slate-900 border border-slate-100">{ex.input}</pre>
+                              <pre className="bg-white p-4 rounded-xl text-sm font-mono text-slate-900 border border-slate-100">{ex.input}</pre>
                             </div>
                             <div>
                               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Output</div>
-                              <pre className="bg-slate-50 p-4 rounded-xl text-sm font-mono text-emerald-600 border border-slate-100">{ex.output}</pre>
+                              <pre className="bg-white p-4 rounded-xl text-sm font-mono text-emerald-600 border border-slate-100">{ex.output}</pre>
                             </div>
                           </div>
                           {ex.explanation && (
@@ -585,7 +585,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   key={t.key}
                   onClick={() => { setLeftTab(t.key as any); setIsSidebarCollapsed(false); }}
                   className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
-                    ${leftTab === t.key ? 'text-slate-900 bg-slate-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                    ${leftTab === t.key ? 'text-slate-900 bg-white' : 'text-gray-400 hover:text-gray-700 hover:bg-white'}`}
                   title={t.label}
                 >
                   {t.icon}
@@ -771,7 +771,7 @@ ${codeEditorRef.current?.getCode() || ''}
                 <Button
                   variant="ghost"
                   onClick={() => handleFullscreenChange(false)}
-                  className="h-10 px-5 gap-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-gray-100"
+                  className="h-10 px-5 gap-2 text-gray-500 hover:text-gray-900 hover:bg-white rounded-xl transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-gray-100"
                 >
                   <ChevronLeft className="w-4 h-4" /> Exit
                 </Button>
@@ -781,7 +781,7 @@ ${codeEditorRef.current?.getCode() || ''}
 
           <div
             ref={containerRef}
-            className={`flex-1 flex overflow-hidden p-4 gap-4 bg-gray-50 ${dragMode ? 'select-none' : ''}`}
+            className={`flex-1 flex overflow-hidden p-4 gap-4 bg-white ${dragMode ? 'select-none' : ''}`}
           >
             {/* Main Area (Editor + Output) */}
             <div className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>

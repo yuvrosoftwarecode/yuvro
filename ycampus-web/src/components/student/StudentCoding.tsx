@@ -55,7 +55,7 @@ const StudentCoding = () => {
       case 'hard':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-white text-gray-800';
     }
   };
 
@@ -88,7 +88,7 @@ const StudentCoding = () => {
   return (
     <>
       <Navigation />
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-white py-8">
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-6">
             <Button 
@@ -118,7 +118,7 @@ const StudentCoding = () => {
                       className={`cursor-pointer transition-colors ${
                         selectedQuestion?.id === question.id 
                           ? 'border-blue-500 bg-blue-50' 
-                          : 'hover:bg-gray-50'
+                          : 'hover:bg-white'
                       }`}
                       onClick={() => setSelectedQuestion(question)}
                     >
@@ -173,7 +173,7 @@ const StudentCoding = () => {
                     {/* Problem Description */}
                     <div>
                       <h4 className="font-medium mb-2">Problem Description</h4>
-                      <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="bg-white p-4 rounded-lg">
                         <pre className="whitespace-pre-wrap text-sm">
                           {selectedQuestion.content}
                         </pre>
@@ -186,7 +186,7 @@ const StudentCoding = () => {
                         <h4 className="font-medium mb-2">Sample Test Cases</h4>
                         <div className="space-y-3">
                           {selectedQuestion.test_cases_basic.map((testCase, index) => (
-                            <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                            <div key={index} className="bg-white p-3 rounded-lg">
                               <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                   <span className="font-medium text-gray-700">Input:</span>

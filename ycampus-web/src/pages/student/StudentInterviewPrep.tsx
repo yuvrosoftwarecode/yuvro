@@ -211,7 +211,7 @@ const StudentInterviewPrep: React.FC = () => {
                     </div>
                     <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0 rounded-full px-3 py-1 font-medium">{psStatus.label}</Badge>
                   </div>
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mt-4">
+                  <div className="h-2 w-full bg-white rounded-full overflow-hidden mt-4">
                     <div className="h-full bg-gray-900 rounded-full" style={{ width: `${psBreakdown.overall}%` }}></div>
                   </div>
                   <div className="space-y-3 pt-4">
@@ -223,7 +223,7 @@ const StudentInterviewPrep: React.FC = () => {
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 w-1/2">{item.label}</span>
-                        <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden mx-2">
+                        <div className="w-20 h-1.5 bg-white rounded-full overflow-hidden mx-2">
                           <div className="h-full bg-gray-800 rounded-full" style={{ width: `${item.value}%` }}></div>
                         </div>
                         <span className="text-gray-900 font-bold w-12 text-right">{item.value}%</span>
@@ -319,7 +319,7 @@ const StudentInterviewPrep: React.FC = () => {
                             <span>Progress</span>
                             <span className="font-medium text-gray-900">{mod.progress}%</span>
                           </div>
-                          <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full bg-white rounded-full overflow-hidden">
                             <div className="h-full bg-gray-900 rounded-full" style={{ width: `${mod.progress}%` }}></div>
                           </div>
                         </div>
@@ -378,7 +378,7 @@ const StudentInterviewPrep: React.FC = () => {
                   {recommendations.map((rec, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-gray-100/20 transition-colors"
+                      className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white/20 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <Zap className={`h-4 w-4 ${rec.priority === 'High' ? 'text-amber-500' : 'text-gray-600'}`} />
@@ -456,7 +456,7 @@ const StudentInterviewPrep: React.FC = () => {
                       {sectionLeaderboard.map((s) => (
                         <div
                           key={s.rank}
-                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${s.rank === 4 ? 'bg-[#FFFAF0] border border-amber-100' : 'hover:bg-gray-50 border border-transparent'
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${s.rank === 4 ? 'bg-[#FFFAF0] border border-amber-100' : 'hover:bg-white border border-transparent'
                             }`}
                         >
                           <div className="flex items-center gap-3">
@@ -481,7 +481,7 @@ const StudentInterviewPrep: React.FC = () => {
                   <CardContent className="pb-4">
                     <div className="space-y-3">
                       {collegeLeaderboard.map((s) => (
-                        <div key={s.rank} className="flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-gray-50 border border-transparent">
+                        <div key={s.rank} className="flex items-center justify-between px-3 py-2 text-sm rounded-lg hover:bg-white border border-transparent">
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-semibold text-gray-500 w-5">#{s.rank}</span>
                             <span className="text-gray-900">{s.name}</span>
@@ -516,7 +516,7 @@ const StudentInterviewPrep: React.FC = () => {
                       </div>
                       <p className="text-xs text-gray-500 mb-4">{w.module}</p>
 
-                      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-5">
+                      <div className="h-1.5 w-full bg-white rounded-full overflow-hidden mb-5">
                         <div className="h-full bg-gray-800 rounded-full" style={{ width: `${w.score}%` }}></div>
                       </div>
 

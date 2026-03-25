@@ -119,7 +119,7 @@ export default function InstructorCertifications() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-white flex">
             <RoleSidebar />
         <div className="flex-1 flex flex-col">
             <div className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
@@ -166,7 +166,7 @@ export default function InstructorCertifications() {
                                                         }`}
                                                 >
                                                     <span>{tab.label}</span>
-                                                    <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                                                    <span className={`rounded-full px-2 py-1 text-xs ${selectedTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-white text-gray-600'
                                                         }`}>
                                                         {tab.count}
                                                     </span>
@@ -261,7 +261,7 @@ export default function InstructorCertifications() {
                                             ) : (
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+                                                        <TableRow className="bg-white hover:bg-white">
                                                             <TableHead className="w-[30%]">Title</TableHead>
                                                             <TableHead>Difficulty</TableHead>
                                                             <TableHead>Duration</TableHead>
@@ -272,7 +272,7 @@ export default function InstructorCertifications() {
                                                     </TableHeader>
                                                     <TableBody>
                                                         {filteredExams.map((exam) => (
-                                                            <TableRow key={exam.id} className="hover:bg-gray-50/50 transition-colors">
+                                                            <TableRow key={exam.id} className="hover:bg-white transition-colors">
                                                                 <TableCell className="font-medium">
                                                                     <div className="text-sm font-semibold text-gray-900">{exam.title}</div>
                                                                     {exam.start_datetime && (
@@ -300,7 +300,7 @@ export default function InstructorCertifications() {
                                                                         variant={exam.publish_status === 'active' ? 'default' : 'secondary'}
                                                                         className={exam.publish_status === 'active'
                                                                             ? 'bg-green-100 text-green-700 hover:bg-green-100 shadow-none font-medium'
-                                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-100 font-medium'}
+                                                                            : 'bg-white text-gray-700 hover:bg-gray-100 font-medium'}
                                                                     >
                                                                         {exam.publish_status}
                                                                     </Badge>

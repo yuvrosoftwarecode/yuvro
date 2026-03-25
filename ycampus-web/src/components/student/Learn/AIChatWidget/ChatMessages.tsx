@@ -59,7 +59,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
   const isVisible = (id: string) => visibleIds.has(id);
 
   return (
-    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-4 bg-gray-50/40 custom-scrollbar"
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-4 bg-white/40 custom-scrollbar"
       style={{ scrollBehavior: 'auto' }}
     >
       {/* Welcome state */}
@@ -129,7 +129,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
 
                         if (inline) {
                           return (
-                            <code className="bg-gray-100 text-violet-700 px-1.5 py-0.5 rounded-md text-[12px] font-mono" {...props}>
+                            <code className="bg-white text-violet-700 px-1.5 py-0.5 rounded-md text-[12px] font-mono" {...props}>
                               {children}
                             </code>
                           );

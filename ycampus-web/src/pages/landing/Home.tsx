@@ -180,7 +180,7 @@ const Home: React.FC = () => {
                   </Link>
                   <Link
                     to="/login"
-                    className="inline-flex items-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    className="inline-flex items-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-white transition-colors"
                   >
                     <Play className="mr-2 w-5 h-5" />
                     Watch Demo
@@ -210,7 +210,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Role-based Features Section */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
@@ -333,7 +333,7 @@ const Home: React.FC = () => {
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   to="/register"
-                  className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-white transition-colors"
                 >
                   Get Started Today
                   <ArrowRight className="ml-2 w-5 h-5" />

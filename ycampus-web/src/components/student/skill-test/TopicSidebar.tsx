@@ -52,7 +52,7 @@ const TopicSidebar = ({
         {/* CONTENT AREA */}
         {!isOpen ? (
           <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-            <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-gray-50 rounded-xl" title={course.name}>
+            <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold mb-2 bg-white rounded-xl" title={course.name}>
               {course.icon || '🗂️'}
             </div>
             <div className="flex flex-col items-center gap-3 w-full px-2">
@@ -68,7 +68,7 @@ const TopicSidebar = ({
                         ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
                         : selectedTopic?.id === topic.id
                           ? "bg-blue-600 text-white border-transparent"
-                          : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-gray-50"
+                          : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-white"
                       }`}
                     title={topic.name}
                     onClick={() => {
@@ -85,7 +85,7 @@ const TopicSidebar = ({
         ) : (
           <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
+              <div className="w-10 h-10 flex items-center justify-center text-xl bg-white rounded-lg">
                 {course.icon || '🗂️'}
               </div>
               <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
@@ -103,13 +103,13 @@ const TopicSidebar = ({
                 <ProgressBar
                   value={overallProgress}
                   height={8}
-                  trackClassName="bg-gray-100 rounded-full"
+                  trackClassName="bg-white rounded-full"
                   barClassName="bg-blue-600 rounded-full"
                 />
               </div>
             )}
 
-            <div className="h-px bg-gray-100 w-full mb-5" />
+            <div className="h-px bg-white w-full mb-5" />
 
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Course Topics</h3>
 
@@ -122,7 +122,7 @@ const TopicSidebar = ({
                 return (
                   <div
                     key={topic.id}
-                    className={`border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-gray-50'}`}
+                    className={`border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-white'}`}
                     onClick={() => onTopicSelect(topic)}
                   >
                     {/* Topic header */}
@@ -143,7 +143,7 @@ const TopicSidebar = ({
                       )}
 
                       {topic.problemCount !== undefined && (
-                        <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full">
+                        <span className="text-xs text-gray-500 font-medium bg-white px-2 py-0.5 rounded-full">
                           {topic.problemCount}
                         </span>
                       )}
@@ -158,7 +158,7 @@ const TopicSidebar = ({
                         <ProgressBar
                           value={progress}
                           height={6}
-                          trackClassName="bg-gray-100 rounded-full"
+                          trackClassName="bg-white rounded-full"
                           barClassName={isSelected ? "bg-blue-500 rounded-full" : "bg-green-500 rounded-full"}
                         />
                       </div>
@@ -174,7 +174,7 @@ const TopicSidebar = ({
       {/* Divider chevron button */}
       <button
         onClick={onToggle}
-        className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
+        className="absolute top-13 z-30 w-6 h-6 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center hover:bg-white text-gray-500 hover:text-gray-900 transition-all duration-300 ease-in-out"
         style={{
           left: isOpen ? "343px" : "58px",
         }}

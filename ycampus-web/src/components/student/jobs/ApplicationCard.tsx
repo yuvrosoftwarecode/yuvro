@@ -73,7 +73,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ application }) => {
       </div>
 
       {application.cover_letter && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+        <div className="mt-4 p-3 bg-white rounded-lg">
           <p className="text-sm text-gray-700 line-clamp-3">{application.cover_letter}</p>
         </div>
       )}
