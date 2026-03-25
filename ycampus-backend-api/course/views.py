@@ -1836,20 +1836,76 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @action(detail=False, methods=["post"], url_path="reveal-hint")
+    def reveal_hint(self, request, pk=None):
+        question_id = request.data.get("question_id")
+        if not question_id:
+            return Response({"error": "question_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, _ = StudentCodePractice.objects.get_or_create(
+            user=request.user, question=question,
+            defaults={"answer_latest": {}}
+        )
+
+        hint_index = request.data.get("hint_index", 0)
+        hints = question.hints
+
+        if not hints or hint_index >= len(hints):
+            return Response({"error": "Hint not available"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission.used_hint = True
+        submission.marks_obtained = 0
+        submission.save(update_fields=['used_hint', 'marks_obtained'])
+
+        return Response({"hint": hints[hint_index]})
+
+    @action(detail=False, methods=["post"], url_path="reveal-solution")
+    def reveal_solution(self, request, pk=None):
+        question_id = request.data.get("question_id")
+        if not question_id:
+            return Response({"error": "question_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission, _ = StudentCodePractice.objects.get_or_create(
+            user=request.user, question=question,
+            defaults={"answer_latest": {}}
+        )
+
+        solutions = question.solutions.all()
+        if not solutions.exists():
+            return Response({"error": "No predefined solutions available for this question"}, status=status.HTTP_404_NOT_FOUND)
+
+        submission.viewed_solution = True
+        submission.marks_obtained = 0
+        submission.save(update_fields=['viewed_solution', 'marks_obtained'])
+
+        from .serializers import QuestionSolutionSerializer
+        serializer = QuestionSolutionSerializer(solutions, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=["get"])
     def generate_insights(self, request):
         """
         Generate AI insights based on user's recent coding practice using `ai_assistant` service.
         """
         user = request.user
-        
+
         # 1. Fetch recent submissions (last 20)
         recent_submissions = StudentCodePractice.objects.filter(
             user=user
         ).order_by('-created_at')[:20]
-        
+
         if not recent_submissions.exists():
-             return Response({
+            return Response({
                 "insights": [],
                 "message": "No coding practice data available yet."
             })

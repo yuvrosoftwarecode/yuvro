@@ -7,7 +7,6 @@ import Login from './pages/common/Login';
 import Register from './pages/common/Register';
 import ComingSoon from './pages/common/ComingSoon';
 import Profile from './pages/student/Profile';
-import Learn from './pages/student/Learn';
 import NotFound from './pages/common/NotFound';
 import ResetPassword from './pages/common/ResetPassword';
 import ForgotPassword from './pages/common/ForgotPassword';
@@ -162,37 +161,15 @@ function App() {
               />
 
               <Route
+                path="/student/learn"
+                element={<Navigate to="/student/notes" replace />}
+              />
+
+              <Route
                 path="/student/learn/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <SubjectDetail />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/student/learn/:subUnitId/quiz"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentQuiz />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/student/learn/:subUnitId/coding"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentCoding />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/student/learn"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <Learn />
+                    <StudentLearn />
                   </ProtectedRoute>
                 }
               />
@@ -343,6 +320,14 @@ function App() {
               {/* Newly added Coming Soon Pages for Student Dashboard Links */}
               <Route
                 path="/student/notes"
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentLearn />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/notes/:subjectId"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentLearn />

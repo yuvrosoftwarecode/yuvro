@@ -9,6 +9,7 @@ from .models import (
     SubUnit,
     Video,
     Question,
+    QuestionSolution,
     UserSubjectProgress,
     StudentCodePractice,
     CollegeSubject,
@@ -351,6 +352,7 @@ class SubjectSerializer(serializers.ModelSerializer):
     """
 
     units = UnitSerializer(many=True, read_only=True)
+    name = serializers.CharField(source='subject_name', read_only=True)
 
     class Meta:
         model = Subject
@@ -359,6 +361,7 @@ class SubjectSerializer(serializers.ModelSerializer):
             "yuvro_id",
             "short_code",
             "subject_name",
+            "name",
             "created_at",
             "updated_at",
             "units",
@@ -386,6 +389,8 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 
 class SubjectBasicSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='subject_name', read_only=True)
+
     class Meta:
         model = Subject
         fields = [
@@ -393,6 +398,7 @@ class SubjectBasicSerializer(serializers.ModelSerializer):
             "yuvro_id",
             "short_code",
             "subject_name",
+            "name",
             "created_at",
             "updated_at",
             "total_problems",
@@ -430,12 +436,34 @@ class VideoSerializer(serializers.ModelSerializer):
         return value
 
 
+class QuestionSolutionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for QuestionSolution model
+    """
+
+    class Meta:
+        model = QuestionSolution
+        fields = [
+            "id",
+            "question",
+            "title",
+            "language",
+            "code",
+            "complexity_analysis",
+            "is_primary",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer for Question model - supports MCQ, Coding, and Descriptive questions
     """
 
     created_by = serializers.StringRelatedField(read_only=True)
+    solutions = QuestionSolutionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
@@ -458,6 +486,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "created_by",
+            "solutions",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "created_by"]
 
