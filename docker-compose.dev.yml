@@ -1,0 +1,36 @@
+# docker-compose.dev.yml
+# Override for DEPLOY_ENV=dev: loads .env.dev files, no source code volume mounts.
+# Usage: docker compose -f docker-compose.ycode.yml -f docker-compose.ycampus.yml \
+#          -f docker-compose.common.yml -f docker-compose.dev.yml up
+
+services:
+  # ── YCode ──────────────────────────────────────────────────────────────────
+  ycode-db:
+    env_file:
+      - ./ycode-backend-api/.env.dev
+
+  ycode-backend:
+    env_file:
+      - ./ycode-backend-api/.env.dev
+
+  ycode-frontend:
+    env_file:
+      - ./ycode-web/.env.dev
+
+  # ── YCampus ────────────────────────────────────────────────────────────────
+  ycampus-db:
+    env_file:
+      - ./ycampus-backend-api/.env.dev
+
+  ycampus-backend:
+    env_file:
+      - ./ycampus-backend-api/.env.dev
+
+  ycampus-frontend:
+    env_file:
+      - ./ycampus-web/.env.dev
+
+  # ── Code Executor ──────────────────────────────────────────────────────────
+  yuvro-code-executor:
+    env_file:
+      - ./yuvro-code-executer/.env.dev

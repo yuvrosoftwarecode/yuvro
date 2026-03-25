@@ -4,17 +4,17 @@ services:
       context: ./yuvro-code-executer
       dockerfile: Dockerfile
     ports:
-      - "8002:8002"
+      - "8002:8002"  # Code executor (tech.md: 8002)
       - "9002:9002"  # Prometheus metrics
     env_file:
-      - ./yuvro-code-executer/.env
-    volumes:
-      - ./yuvro-code-executer:/app
+      - ./yuvro-code-executer/.env.local
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 15s
+    restart: on-failure
     networks:
       - executor
 

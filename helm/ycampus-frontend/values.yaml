@@ -1,0 +1,51 @@
+# Default values for ycampus-frontend
+namespace: ycampus
+replicaCount: 1
+
+global:
+  deployEnv: local
+  deployType: kubernetes
+  imageRegistry: localhost:5000
+
+image: ycampus-frontend
+imageTag: latest
+imagePullPolicy: IfNotPresent
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 3002
+
+apiUrl: "http://localhost:8003"
+codeExecutorUrl: "http://localhost:8002"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+nodeSelector: {}
+affinity: {}
+tolerations: []

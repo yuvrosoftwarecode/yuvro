@@ -1,0 +1,59 @@
+# Default values for code-executor
+namespace: yuvro
+replicaCount: 1
+
+global:
+  deployEnv: local
+  deployType: kubernetes
+  imageRegistry: localhost:5000
+
+image: code-executor
+imageTag: latest
+imagePullPolicy: IfNotPresent
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 8002
+
+debug: "False"
+maxExecutionTime: "30"
+maxMemoryMb: "512"
+redis:
+  url: "redis://localhost:6379/0"
+
+secrets:
+  secretKey: "change-this-secret-key-in-production"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+extraEnv: []

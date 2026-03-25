@@ -1,0 +1,50 @@
+# docker-compose.local.yml
+# Override for DEPLOY_ENV=local: loads .env.local files and mounts source code for live reload.
+# Usage: docker compose -f docker-compose.ycode.yml -f docker-compose.ycampus.yml \
+#          -f docker-compose.common.yml -f docker-compose.local.yml up
+
+services:
+  # ── YCode ──────────────────────────────────────────────────────────────────
+  ycode-db:
+    env_file:
+      - ./ycode-backend-api/.env.local
+
+  ycode-backend:
+    env_file:
+      - ./ycode-backend-api/.env.local
+    volumes:
+      - ./ycode-backend-api:/app
+      - /app/venv
+
+  ycode-frontend:
+    env_file:
+      - ./ycode-web/.env.local
+    volumes:
+      - ./ycode-web:/app
+      - /app/node_modules
+
+  # ── YCampus ────────────────────────────────────────────────────────────────
+  ycampus-db:
+    env_file:
+      - ./ycampus-backend-api/.env.local
+
+  ycampus-backend:
+    env_file:
+      - ./ycampus-backend-api/.env.local
+    volumes:
+      - ./ycampus-backend-api:/app
+      - /app/venv
+
+  ycampus-frontend:
+    env_file:
+      - ./ycampus-web/.env.local
+    volumes:
+      - ./ycampus-web:/app
+      - /app/node_modules
+
+  # ── Code Executor ──────────────────────────────────────────────────────────
+  yuvro-code-executor:
+    env_file:
+      - ./yuvro-code-executer/.env.local
+    volumes:
+      - ./yuvro-code-executer:/app

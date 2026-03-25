@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ycampus-backend.fullname" . }}-config
+  namespace: {{ .Values.namespace | default "ycampus" }}
+  labels:
+    {{- include "ycampus-backend.labels" . | nindent 4 }}
+data:
+  DEPLOY_ENV: {{ .Values.global.deployEnv | quote }}
+  DEPLOY_TYPE: {{ .Values.global.deployType | quote }}
+  DEBUG: {{ .Values.debug | default "False" | quote }}
+  ALLOWED_HOSTS: {{ .Values.allowedHosts | default "*" | quote }}
+  CORS_ALLOWED_ORIGINS: {{ .Values.corsOrigins | default "http://localhost:3002" | quote }}
+  DATABASE_HOST: {{ include "ycampus-backend.databaseHost" . | quote }}
+  DATABASE_NAME: {{ .Values.database.name | default "ycampus_backend_db" | quote }}
+  DATABASE_PORT: {{ .Values.database.port | default "5432" | quote }}
+  JWT_ACCESS_TOKEN_LIFETIME: {{ .Values.jwt.accessTokenLifetime | default "15" | quote }}
+  JWT_REFRESH_TOKEN_LIFETIME: {{ .Values.jwt.refreshTokenLifetime | default "7" | quote }}
+  CODE_EXECUTOR_URL: {{ include "ycampus-backend.codeExecutorUrl" . | quote }}
