@@ -36,14 +36,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { AnnouncementsList } from '@/components/college-admin/announcements/AnnouncementsList';
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
   Plus, 
   Search, 
   Edit, 
@@ -288,6 +280,7 @@ const AnnouncementsScreen: React.FC = () => {
   };
 
 
+
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
@@ -305,7 +298,7 @@ const AnnouncementsScreen: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search announcements..."
-                  className="pl-10 pr-10 border-gray-200 focus:border-orange-300 focus:ring-orange-200"
+                  className="pl-10 pr-10 border-gray-200 focus:border-slate-300 focus:ring-slate-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -321,7 +314,7 @@ const AnnouncementsScreen: React.FC = () => {
               <div className="flex items-center gap-3 relative">
                 <Button
                   variant="outline"
-                  className={`text-gray-600 border-gray-200 ${(filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at') ? 'bg-orange-50 border-orange-200 text-orange-600' : ''}`}
+                  className={`text-gray-600 border-gray-200 ${(filterLevel !== 'all' || filterPriority !== 'all' || filterSort !== '-created_at') ? 'bg-slate-50 border-slate-200 text-slate-900' : ''}`}
                   onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
                 >
                   <Search className="h-4 w-4 mr-2" />
@@ -336,7 +329,7 @@ const AnnouncementsScreen: React.FC = () => {
                         {(['all', 'college', 'department'] as const).map((level) => (
                           <button
                             key={level}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterLevel === level ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterLevel(level)}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -351,7 +344,7 @@ const AnnouncementsScreen: React.FC = () => {
                         {(['all', 'normal', 'important', 'urgent'] as const).map((priority) => (
                           <button
                             key={priority}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterPriority === priority ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterPriority(priority)}
                           >
                             {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -369,7 +362,7 @@ const AnnouncementsScreen: React.FC = () => {
                         ].map((sortOption) => (
                           <button
                             key={sortOption.value}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${filterSort === sortOption.value ? 'bg-slate-100 text-slate-900 border border-slate-200' : 'text-gray-600 hover:bg-gray-50 border border-transparent'}`}
                             onClick={() => setFilterSort(sortOption.value)}
                           >
                             {sortOption.label}
@@ -393,7 +386,7 @@ const AnnouncementsScreen: React.FC = () => {
                       </Button>
                       <Button
                         size="sm"
-                        className="text-xs bg-orange-600 hover:bg-orange-700 text-white"
+                        className="text-xs bg-slate-900 hover:bg-slate-950 text-white"
                         onClick={() => setIsFilterMenuOpen(false)}
                       >
                         Apply
@@ -402,7 +395,7 @@ const AnnouncementsScreen: React.FC = () => {
                   </div>
                 )}
                 <Button
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  className="bg-slate-900 hover:bg-slate-950 text-white shadow-sm"
                   onClick={() => {
                     resetForm();
                     setIsDialogOpen(true);
@@ -416,13 +409,13 @@ const AnnouncementsScreen: React.FC = () => {
 
             {loading ? (
               <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
               </div>
             ) : announcements.length === 0 ? (
               <Card className="border-dashed border-2 border-gray-100 shadow-none bg-transparent">
                 <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="h-20 w-20 bg-orange-50 rounded-full flex items-center justify-center mb-4">
-                    <Bell className="h-10 w-10 text-orange-200" />
+                  <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <Bell className="h-10 w-10 text-slate-300" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-700">No announcements found</h3>
                   <p className="text-gray-400 text-sm max-w-sm mt-1">
@@ -535,14 +528,12 @@ const AnnouncementsScreen: React.FC = () => {
         }
       }}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}
+          <DialogHeader className="px-6 py-4 border-b border-gray-100">
+            <DialogTitle className="text-xl font-bold text-slate-900">
+              {editingAnnouncement ? 'Edit Announcement' : 'Add New Announcement'}
             </DialogTitle>
             <DialogDescription>
-              {editingAnnouncement 
-                ? 'Update the announcement details below' 
-                : 'Create a new college or department level announcement'}
+              {editingAnnouncement ? 'Update the announcement details below' : 'Fill in the information to create a new announcement'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -552,9 +543,9 @@ const AnnouncementsScreen: React.FC = () => {
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
-                placeholder="Enter announcement title"
-                className="border-gray-200 focus:border-orange-300 focus:ring-orange-200"
-              />
+                  placeholder="Enter announcement title"
+                  className="border-gray-200 focus:border-slate-400 focus:ring-slate-300"
+                />
             </div>
             <div className="grid gap-2">
               <label htmlFor="content" className="text-sm font-medium text-gray-700">Content</label>
@@ -562,12 +553,13 @@ const AnnouncementsScreen: React.FC = () => {
                 id="content"
                 value={formData.content}
                 onChange={(e) => setFormData({...formData, content: e.target.value})}
-                placeholder="Enter announcement content"
-                rows={5}
-                className="border-gray-200 focus:border-orange-300 focus:ring-orange-200"
-              />
+                  placeholder="Enter announcement content"
+                  rows={5}
+                  className="border-gray-200 focus:border-slate-400 focus:ring-slate-300"
+                />
             </div>
             <div className="grid grid-cols-2 gap-4">
+              {/* Row 1: Level and Priority */}
               <div className="grid gap-2">
                 <label htmlFor="level" className="text-sm font-medium text-gray-700">Announcement Level</label>
                 <Select
@@ -576,7 +568,7 @@ const AnnouncementsScreen: React.FC = () => {
                     setFormData({...formData, level: value})
                   }
                 >
-                  <SelectTrigger className="border-gray-200 focus:border-orange-300">
+                  <SelectTrigger className="border-gray-200 focus:border-slate-400">
                     <SelectValue placeholder="-select-" />
                   </SelectTrigger>
                   <SelectContent>
@@ -585,6 +577,7 @@ const AnnouncementsScreen: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="grid gap-2">
                 <label htmlFor="priority" className="text-sm font-medium text-gray-700">Priority</label>
                 <Select
@@ -593,7 +586,7 @@ const AnnouncementsScreen: React.FC = () => {
                     setFormData({...formData, priority: value})
                   }
                 >
-                  <SelectTrigger className="border-gray-200 focus:border-orange-300">
+                  <SelectTrigger className="border-gray-200 focus:border-slate-400">
                     <SelectValue placeholder="-select-" />
                   </SelectTrigger>
                   <SelectContent>
@@ -603,75 +596,132 @@ const AnnouncementsScreen: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {formData.level === 'department' && (
-                <div className="grid gap-2">
-                  <label htmlFor="department" className="text-sm font-medium text-gray-700">Department</label>
-                  <Select
-                    value={formData.department}
-                    onValueChange={(value) => 
-                      setFormData({...formData, department: value})
-                    }
-                  >
-                    <SelectTrigger className="border-gray-200 focus:border-orange-300 bg-white">
-                      <SelectValue placeholder="Select Department" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[300px]">
-                      {departments.map((dept) => (
-                        <SelectItem 
-                          key={dept.id} 
-                          value={dept.id.toString()}
-                          className="cursor-pointer font-medium"
-                          icon={<Building2 className="h-4 w-4 text-orange-500 shrink-0" />}
-                        >
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+
+              {/* Row 2: Dynamic Column positioning */}
+              {/* Col 1: Department (if level=dept) OR Expiry Date (if level=college) */}
               <div className="grid gap-2">
-                <label htmlFor="expiry_date" className="text-sm font-medium text-gray-700">Expiry Date</label>
-                <div className="relative">
-                  <Input
-                    id="expiry_date"
-                    value={formData.expiry_date}
-                    onChange={(e) => {
-                      setFormData({...formData, expiry_date: e.target.value});
-                    }}
-                    placeholder="DD-MM-YYYY"
-                    className="border-gray-200 focus:border-orange-300 pr-10"
-                  />
-                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <button 
-                        type="button"
-                        className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-400 hover:text-orange-600 transition-colors"
-                      >
-                        <CalendarIcon className="h-4 w-4" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[10005]" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          formData.expiry_date && /^\d{2}-\d{2}-\d{4}$/.test(formData.expiry_date) 
-                            ? parse(formData.expiry_date, 'dd-MM-yyyy', new Date()) 
-                            : undefined
-                        }
-                        onSelect={(date) => {
-                          if (date) {
-                            setFormData({...formData, expiry_date: format(date, 'dd-MM-yyyy')});
-                          } else {
-                            setFormData({...formData, expiry_date: ''});
-                          }
-                          setIsCalendarOpen(false);
+                {formData.level === 'department' ? (
+                  <>
+                    <label htmlFor="department" className="text-sm font-medium text-gray-700">Department</label>
+                    <Select
+                      value={formData.department}
+                      onValueChange={(value) => 
+                        setFormData({...formData, department: value})
+                      }
+                    >
+                      <SelectTrigger className="border-gray-200 focus:border-slate-400 bg-white">
+                        <SelectValue placeholder="Select Department" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {departments.map((dept) => (
+                          <SelectItem 
+                            key={dept.id} 
+                            value={dept.id.toString()}
+                            className="cursor-pointer font-medium"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-slate-500 shrink-0" />
+                              {dept.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : (
+                  <>
+                    <label htmlFor="expiry_date" className="text-sm font-medium text-gray-700">Expiry Date</label>
+                    <div className="relative">
+                      <Input
+                        id="expiry_date"
+                        value={formData.expiry_date}
+                        onChange={(e) => {
+                          setFormData({...formData, expiry_date: e.target.value});
                         }}
-                        initialFocus
+                        placeholder="DD-MM-YYYY"
+                        className="border-gray-200 focus:border-slate-400 pr-10"
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <button 
+                            type="button"
+                            className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-400 hover:text-slate-600 transition-colors"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 z-[10005]" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={
+                              formData.expiry_date && /^\d{2}-\d{2}-\d{4}$/.test(formData.expiry_date) 
+                                ? parse(formData.expiry_date, 'dd-MM-yyyy', new Date()) 
+                                : undefined
+                            }
+                            onSelect={(date) => {
+                              if (date) {
+                                setFormData({...formData, expiry_date: format(date, 'dd-MM-yyyy')});
+                              } else {
+                                setFormData({...formData, expiry_date: ''});
+                              }
+                              setIsCalendarOpen(false);
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Col 2: Expiry Date (if level=dept) OR empty (if level=college) */}
+              <div className="grid gap-2">
+                {formData.level === 'department' && (
+                  <>
+                    <label htmlFor="expiry_date" className="text-sm font-medium text-gray-700">Expiry Date</label>
+                    <div className="relative">
+                      <Input
+                        id="expiry_date"
+                        value={formData.expiry_date}
+                        onChange={(e) => {
+                          setFormData({...formData, expiry_date: e.target.value});
+                        }}
+                        placeholder="DD-MM-YYYY"
+                        className="border-gray-200 focus:border-slate-400 pr-10"
+                      />
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <button 
+                            type="button"
+                            className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-400 hover:text-slate-600 transition-colors"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 z-[10005]" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={
+                              formData.expiry_date && /^\d{2}-\d{2}-\d{4}$/.test(formData.expiry_date) 
+                                ? parse(formData.expiry_date, 'dd-MM-yyyy', new Date()) 
+                                : undefined
+                            }
+                            onSelect={(date) => {
+                              if (date) {
+                                setFormData({...formData, expiry_date: format(date, 'dd-MM-yyyy')});
+                              } else {
+                                setFormData({...formData, expiry_date: ''});
+                              }
+                              setIsCalendarOpen(false);
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             <div className="grid gap-2 mb-2">
@@ -690,11 +740,11 @@ const AnnouncementsScreen: React.FC = () => {
                     htmlFor="file-upload"
                     className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${
                       attachmentFile
-                        ? 'bg-slate-50 border-orange-200 text-slate-900'
+                        ? 'bg-slate-50 border-slate-200 text-slate-900'
                         : 'bg-slate-50 border-slate-200 text-slate-500'
                     }`}
                   >
-                    <Paperclip className="w-5 h-5 text-orange-500" />
+                    <Paperclip className="w-5 h-5 text-slate-500" />
 
                     {attachmentFile ? (
                       <span className="text-slate-900 truncate">{attachmentFile.name}</span>
@@ -724,17 +774,27 @@ const AnnouncementsScreen: React.FC = () => {
                 id="is_active"
                 checked={formData.is_active}
                 onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
-                className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                className="w-4 h-4 rounded border-gray-300 text-slate-600 focus:ring-slate-500"
               />
               <label htmlFor="is_active" className="text-sm text-gray-700">Active</label>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-gray-200">
+          <DialogFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDialogOpen(false);
+                resetForm();
+              }}
+              className="border-gray-300 text-gray-700 font-medium"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} className="bg-orange-600 hover:bg-orange-700">
-              {editingAnnouncement ? 'Update' : 'Create'}
+            <Button
+              className="bg-slate-900 hover:bg-slate-950 text-white font-medium px-8"
+              onClick={handleSubmit}
+            >
+              {editingAnnouncement ? 'Update Announcement' : 'Create Announcement'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -742,8 +802,8 @@ const AnnouncementsScreen: React.FC = () => {
       {/* View Announcement Modal */}
       <Dialog open={!!viewAnnouncement} onOpenChange={(open) => !open && setViewAnnouncement(null)}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white">
-          <div className="bg-orange-50 border-b border-orange-100 px-6 py-4 flex flex-wrap gap-2 items-center">
-             <Badge className="bg-white text-orange-700 border-orange-200">
+          <div className="bg-blue-50 border-b border-blue-100 px-6 py-4 flex flex-wrap gap-2 items-center">
+             <Badge className={`bg-white border-blue-200 ${viewAnnouncement?.level === 'college' ? 'text-blue-600' : 'text-purple-600 border-purple-200'}`}>
                 {viewAnnouncement?.level === 'college' 
                   ? 'College Level' 
                   : (viewAnnouncement?.department_name ? `${viewAnnouncement.department_name} Department` : 'Department Level')}
@@ -791,7 +851,7 @@ const AnnouncementsScreen: React.FC = () => {
                     download={viewAnnouncement.attachment.split('/').pop() || 'attachment'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-orange-100 bg-white shadow-sm w-fit"
+                    className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-blue-100 bg-white shadow-sm w-fit"
                   >
                     <Download className="w-4 h-4" />
                     <span>Download</span>
