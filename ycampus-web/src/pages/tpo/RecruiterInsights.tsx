@@ -1,113 +1,168 @@
-import React from 'react';
-import RoleHeader from '../../components/common/RoleHeader';
-import RoleSidebar from '../../components/common/RoleSidebar';
-import { Search, Star, ExternalLink } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PlacementLayout from '@/components/placement/PlacementLayout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search } from 'lucide-react';
+import { CompanyRecord, ChatMessage } from '@/components/placement/recruiter/types';
+import { initialCompanies } from '@/components/placement/recruiter/dummyData';
+import CompanyCard from '@/components/placement/recruiter/CompanyCard';
+import ConnectDialog from '@/components/placement/recruiter/ConnectDialog';
 
-const recruiterData = [
-    { id: 1, company: 'TCS', location: 'Mumbai', recruiter: 'Rahul Sharma', email: 'rahul@tcs.com', industry: 'IT Services', trust: 85, rating: 4.2, status: 'Verified', statusColor: 'bg-teal-50 text-teal-600' },
-    { id: 2, company: 'Infosys', location: 'Bangalore', recruiter: 'Priya Patel', email: 'priya@infosys.com', industry: 'IT Services', trust: 78, rating: 3.8, status: 'Verified', statusColor: 'bg-teal-50 text-teal-600' },
-    { id: 3, company: 'Wipro', location: 'Hyderabad', recruiter: 'Amit Kumar', email: 'amit@wipro.com', industry: 'IT Services', trust: 65, rating: 3.5, status: 'Unverified', statusColor: 'bg-gray-50 text-gray-500' },
-    { id: 4, company: 'Google', location: 'Bangalore', recruiter: 'Sarah Johnson', email: 'sarah@google.com', industry: 'Technology', trust: 95, rating: 4.9, status: 'Verified', statusColor: 'bg-teal-50 text-teal-600' },
-    { id: 5, company: 'TechStartup Inc', location: 'Delhi', recruiter: 'Deepak Verma', email: 'deepak@startup.com', industry: 'Fintech', trust: 35, rating: 2.1, status: 'Flagged', statusColor: 'bg-red-50 text-red-600' },
-];
+const RecruiterInsights = () => {
+  const navigate = useNavigate();
+  const [companies, setCompanies] = useState<CompanyRecord[]>(initialCompanies);
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [connectTarget, setConnectTarget] = useState<string | null>(null);
 
-const RecruiterInsights: React.FC = () => {
-    return (
-        <div className="flex h-screen bg-gray-50">
-            <RoleSidebar />
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="" subtitle="" />
-                <main className="flex-1 overflow-y-auto p-6">
-                    <div className="max-w-7xl mx-auto space-y-6">
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-[20px] font-bold text-gray-900">Recruiter Insights</h1>
-                            <div className="relative group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
-                                <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    className="pl-10 pr-4 py-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-purple-400 w-64 shadow-sm"
-                                />
-                            </div>
-                        </div>
+  const handleConnect = (id: string, note: string, attachment?: string) => {
+    setCompanies(prev => prev.map(c =>
+      c.id === id ? { ...c, status: 'applied' as const, connectionNote: note, connectionAttachment: attachment } : c
+    ));
+  };
 
-                        <div className="bg-white rounded-2xl border-none shadow-sm overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-white border-b border-gray-50">
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Company</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Recruiter</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Industry</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Trust Score</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rating</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                            <th className="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {recruiterData.map((row) => (
-                                            <tr key={row.id} className="border-b border-gray-50/50 hover:bg-gray-50/30 transition-colors">
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 font-bold text-lg border border-gray-100">
-                                                            {row.company[0]}
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-gray-900 leading-tight">{row.company}</span>
-                                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-tight">{row.location}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-gray-800 leading-tight">{row.recruiter}</span>
-                                                        <span className="text-[10px] font-semibold text-gray-400">{row.email}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className="text-[11px] font-bold text-gray-600 uppercase tracking-tight">{row.industry}</span>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-3 min-w-[100px]">
-                                                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                            <div
-                                                                className={`h-full rounded-full ${row.trust > 80 ? 'bg-teal-500' : row.trust > 50 ? 'bg-orange-500' : 'bg-red-500'
-                                                                    }`}
-                                                                style={{ width: `${row.trust}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-[10px] font-bold text-gray-700">{row.trust}%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <div className="flex items-center gap-1 bg-gray-50 w-fit px-2 py-1 rounded-lg">
-                                                        <Star className="h-3 w-3 text-orange-400 fill-orange-400" />
-                                                        <span className="text-[11px] font-bold text-gray-700">{row.rating}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${row.statusColor}`}>
-                                                        {row.status}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 text-center">
-                                                    <button className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-800 text-[10px] font-bold uppercase transition-colors bg-purple-50 px-3 py-1.5 rounded-full">
-                                                        <ExternalLink className="h-3 w-3" />
-                                                        Site
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
+  const handleSimulateAccept = (id: string) => {
+    setCompanies(prev => prev.map(c => c.id === id ? { ...c, status: 'connected' as const } : c));
+  };
+
+  const locations = useMemo(() => [...new Set(companies.map(c => c.location))], [companies]);
+
+  const filterFn = (c: CompanyRecord) => {
+    if (search && !c.companyName.toLowerCase().includes(search.toLowerCase()) && !c.recruiterName.toLowerCase().includes(search.toLowerCase())) return false;
+    if (typeFilter !== 'all' && c.companyType !== typeFilter) return false;
+    if (locationFilter !== 'all' && c.location !== locationFilter) return false;
+    return true;
+  };
+
+  const allFiltered = companies.filter(filterFn);
+  const appliedFiltered = allFiltered.filter(c => c.status === 'applied');
+  const connectedFiltered = allFiltered.filter(c => c.status === 'connected');
+
+  const connectCompany = companies.find(c => c.id === connectTarget);
+
+  const renderGrid = (list: CompanyRecord[]) => (
+    list.length === 0 ? (
+      <div className="text-center py-16 text-muted-foreground text-sm">No companies found</div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {list.map(c => (
+          <CompanyCard
+            key={c.id}
+            company={c}
+            onConnect={(id) => setConnectTarget(id)}
+            onChat={(id) => navigate(`/placement/recruiters/${id}?chat=true`)}
+            onCardClick={(id) => navigate(`/placement/recruiters/${id}`)}
+            onSimulateAccept={handleSimulateAccept}
+          />
+        ))}
+      </div>
+    )
+  );
+
+  return (
+    <PlacementLayout title="">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">Recruiter Connections</h1>
+        
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="relative flex-1 min-w-[280px] max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search company or recruiter..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              className="pl-10 h-11 bg-white border-slate-200 rounded-xl text-sm focus:ring-slate-200" 
+            />
+          </div>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-[160px] h-11 bg-white border-slate-200 rounded-xl text-sm capitalize">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="Product">Product</SelectItem>
+              <SelectItem value="Service">Service</SelectItem>
+              <SelectItem value="Startup">Startup</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={locationFilter} onValueChange={setLocationFilter}>
+            <SelectTrigger className="w-[160px] h-11 bg-white border-slate-200 rounded-xl text-sm capitalize">
+              <SelectValue placeholder="All Locations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              {locations.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
-    );
+
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <Card className="bg-white border-slate-100 shadow-sm rounded-xl py-6">
+            <div className="text-center space-y-1">
+              <p className="text-3xl font-bold text-slate-900">{companies.length}</p>
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Companies</p>
+            </div>
+          </Card>
+          <Card className="bg-white border-slate-100 shadow-sm rounded-xl py-6">
+            <div className="text-center space-y-1">
+              <p className="text-3xl font-bold text-[#F59E0B]">{companies.filter(c => c.status === 'applied').length}</p>
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Applied</p>
+            </div>
+          </Card>
+          <Card className="bg-white border-slate-100 shadow-sm rounded-xl py-6">
+            <div className="text-center space-y-1">
+              <p className="text-3xl font-bold text-[#10B981]">{companies.filter(c => c.status === 'connected').length}</p>
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Connected</p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Tabs */}
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="bg-transparent h-auto p-0 gap-6 mb-8 border-none justify-start w-full overflow-x-auto scrollbar-hide">
+            <TabsTrigger 
+              value="all" 
+              className="px-0 py-2 border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none text-sm font-bold text-slate-400 data-[state=active]:text-slate-900 transition-all"
+            >
+              All ({allFiltered.length})
+            </TabsTrigger>
+            <TabsTrigger 
+              value="applied" 
+              className="px-0 py-2 border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none text-sm font-bold text-slate-400 data-[state=active]:text-slate-900 transition-all"
+            >
+              Applied ({appliedFiltered.length})
+            </TabsTrigger>
+            <TabsTrigger 
+              value="connected" 
+              className="px-0 py-2 border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none text-sm font-bold text-slate-400 data-[state=active]:text-slate-900 transition-all"
+            >
+              Connected ({connectedFiltered.length})
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="all" className="mt-0 outline-none">{renderGrid(allFiltered)}</TabsContent>
+          <TabsContent value="applied" className="mt-0 outline-none">{renderGrid(appliedFiltered)}</TabsContent>
+          <TabsContent value="connected" className="mt-0 outline-none">{renderGrid(connectedFiltered)}</TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Connect Dialog */}
+      {connectCompany && (
+        <ConnectDialog
+          open={!!connectTarget}
+          onClose={() => setConnectTarget(null)}
+          companyName={connectCompany.companyName}
+          recruiterName={connectCompany.recruiterName}
+          onSend={(note, attachment) => handleConnect(connectCompany.id, note, attachment)}
+        />
+      )}
+    </PlacementLayout>
+  );
 };
 
 export default RecruiterInsights;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCertificationExams, CertificationExam, deleteCertificationExam } from '@/services/certificationService';
 import subjectService, { Subject } from '@/services/subjectService';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import SearchBar from '@/components/common/SearchBar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -121,25 +121,24 @@ export default function InstructorCertifications() {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <RoleSidebar />
-            <div className="flex-1 flex flex-col">
-                <RoleHeader
-                    title={getHeaderTitle()}
-                    subtitle={getHeaderSubtitle()}
-                    actions={
-                        currentView === 'exams' ? (
-                            <div className="flex gap-2">
-                                <Button variant="outline" onClick={handleBackToSubjects} className="bg-white text-gray-700 hover:bg-gray-100">
-                                    ← Back to Subjects
-                                </Button>
-                                <Button onClick={handleCreateExam}>
-                                    <Plus className="mr-2 h-4 w-4" /> Create Exam
-                                </Button>
-                            </div>
-                        ) : null
-                    }
-                />
-
-                <div className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+        <div className="flex-1 flex flex-col">
+            <div className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+                    <PageHeader
+                        title={getHeaderTitle()}
+                        subtitle={getHeaderSubtitle()}
+                        actions={
+                            currentView === 'exams' ? (
+                                <div className="flex gap-2">
+                                    <Button variant="outline" onClick={handleBackToSubjects} className="bg-white text-gray-700 hover:bg-gray-100">
+                                        ← Back to Subjects
+                                    </Button>
+                                    <Button onClick={handleCreateExam}>
+                                        <Plus className="mr-2 h-4 w-4" /> Create Exam
+                                    </Button>
+                                </div>
+                            ) : null
+                        }
+                    />
                     {loading ? (
                         <div className="flex justify-center items-center py-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

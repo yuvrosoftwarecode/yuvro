@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 
 const Departments: React.FC = () => {
     const { user } = useAuth();
@@ -143,14 +143,13 @@ const Departments: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="flex">
                 <RoleSidebar />
-                <div className="flex-1">
-                    <RoleHeader
-                        title="Departments"
-                        subtitle="Manage academic departments and their organization"
-                        actions={headerActions}
-                    />
-
+                <div className="flex-1 overflow-y-auto">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="Departments"
+                            subtitle="Manage academic departments and their organization"
+                            actions={headerActions}
+                        />
                         {loading ? (
                             <div className="flex justify-center py-12">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>

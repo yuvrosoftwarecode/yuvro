@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -19,11 +19,16 @@ interface ChatMessagesProps {
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
   onFeedback?: (messageId: string, isPositive: boolean) => void;
+  activeStream?: { id: string; content: string } | null;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, onFeedback }) => {
+// Tracks which message IDs have already animated so re-renders don't re-trigger
+const animatedIds = new Set<string>();
+
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, activeStream, welcomeMessage, onInsertCode, onFeedback }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
 
   const handleCopyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -36,125 +41,163 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, activeStream]);
+
+  // Stagger-animate new messages in
+  useEffect(() => {
+    messages.forEach((m, i) => {
+      if (!animatedIds.has(m.id)) {
+        animatedIds.add(m.id);
+        const delay = i === messages.length - 1 ? 30 : 0; // only animate the newest
+        setTimeout(() => {
+          setVisibleIds(prev => new Set([...prev, m.id]));
+        }, delay);
+      }
+    });
+  }, [messages]);
+
+  const isVisible = (id: string) => visibleIds.has(id);
 
   return (
-    <div ref={scrollRef} className="ai-chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-4 bg-gray-50/40 custom-scrollbar"
+      style={{ scrollBehavior: 'auto' }}
+    >
+      {/* Welcome state */}
       {messages.length === 0 && !isLoading && (
-        <div className="flex flex-col items-center justify-center min-h-full text-center p-8 text-slate-500 space-y-6">
-          <div className="w-24 h-24 bg-blue-50/50 rounded-full flex items-center justify-center mb-2 ring-8 ring-blue-50/30">
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-50">
-              <Bot size={48} className="text-blue-600" />
-            </div>
+        <div className="flex flex-col items-center justify-center h-full gap-5 text-center select-none">
+          <div
+            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200"
+            style={{ animation: 'buddyPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both' }}
+          >
+            <Sparkles size={28} className="text-white" />
           </div>
-          <div className="space-y-2">
-            <p className="font-black text-slate-800 text-2xl tracking-tight">Hi, I'm your AI Buddy!</p>
-            <p className="text-sm font-bold text-slate-400 max-w-[280px] leading-relaxed">
-              {welcomeMessage || "I'm here to help you with your assessment review. Ask me anything!"}
+          <div style={{ animation: 'buddyFade 0.4s ease 0.15s both' }}>
+            <p className="text-[15px] font-semibold text-gray-900">Hi, I'm Buddy!</p>
+            <p className="text-[13px] text-gray-400 max-w-[200px] leading-relaxed mt-1">
+              {welcomeMessage || 'Ask me anything about this topic.'}
             </p>
           </div>
         </div>
       )}
 
+      {/* Messages */}
       {messages.map((m) => {
         const isUser = m.message_type === 'user';
-        return (
-          <div key={m.id} className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${isUser ? 'bg-blue-600' : 'bg-white border border-gray-100'}`}>
-              {isUser ? <User size={14} className="text-white" /> : <Bot size={16} className="text-emerald-500" />}
-            </div>
+        const visible = isVisible(m.id);
+        const isStreaming = !!(activeStream && activeStream.id === m.id);
+        const displayContent = isStreaming ? `${activeStream!.content}|` : m.content;
 
-            <div className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-sm shadow-sm ${isUser
-              ? 'bg-blue-600 text-white rounded-tr-sm'
-              : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
-              }`}>
+        return (
+          <div
+            key={m.id}
+            className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible
+                ? 'translateY(0) scale(1)'
+                : `translateY(10px) scale(0.97)`,
+              transition: 'opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.2,0.64,1)',
+            }}
+          >
+            {/* AI avatar */}
+            {!isUser && (
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 mb-0.5 shadow-sm">
+                <Sparkles size={12} className="text-white" />
+              </div>
+            )}
+
+            {/* Bubble */}
+            <div className={`max-w-[78%] text-[13px] leading-relaxed ${
+              isUser
+                ? 'bg-gray-900 text-white px-4 py-2.5 rounded-2xl rounded-br-md'
+                : 'bg-white text-gray-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100'
+            }`}>
               {isUser ? (
-                <div className="whitespace-pre-wrap font-medium">{m.content}</div>
+                <p className="whitespace-pre-wrap">{m.content}</p>
               ) : (
-                <div className="prose prose-sm prose-blue max-w-none dark:prose-invert leading-relaxed relative flex flex-col">
+                <div className="prose prose-sm prose-gray max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 relative">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
+                      p({ children }) {
+                        return <p className="mb-1 last:inline">{children}</p>;
+                      },
                       code({ node, inline, className, children, ...props }: any) {
                         const match = /language-(\w+)/.exec(className || '');
                         const codeString = String(children).replace(/\n$/, '');
-                        const codeId = Math.random().toString(36).substring(7); // simple unique ID for copy state
-                        
-                        // Don't render custom block if it's inline code
+                        const codeId = Math.random().toString(36).substring(7);
+
                         if (inline) {
                           return (
-                            <code className={className} {...props}>
+                            <code className="bg-gray-100 text-violet-700 px-1.5 py-0.5 rounded-md text-[12px] font-mono" {...props}>
                               {children}
                             </code>
                           );
                         }
-                        
+
+                        // If it's a streaming message, use a simplified code block to avoid lag
+                        if (isStreaming) {
+                          return (
+                            <pre className="bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto my-2.5 font-mono text-[11px] border border-gray-800">
+                              <code>{codeString}</code>
+                            </pre>
+                          );
+                        }
+
                         return (
-                          <div className="relative group rounded-lg overflow-hidden my-3 border border-slate-700 w-[calc(100%+1.25rem)] -ml-5 sm:ml-0 sm:w-full">
-                            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
-                              <span className="text-xs font-mono text-slate-400 capitalize">{match?.[1] || 'Code'}</span>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="relative group rounded-xl overflow-hidden my-2.5 border border-gray-200">
+                            <div className="flex items-center justify-between px-3 py-2 bg-gray-900">
+                              <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider">{match?.[1] || 'code'}</span>
+                              <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => handleCopyCode(codeString, codeId)}
-                                  className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1.5"
-                                  title="Copy code"
+                                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors text-[11px]"
                                 >
-                                  {copiedCodeId === codeId ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                                  {copiedCodeId === codeId ? <span className="text-[10px] font-medium text-emerald-400">Copied!</span> : <span className="text-[10px] font-medium hidden sm:inline-block">Copy</span>}
+                                  {copiedCodeId === codeId
+                                    ? <><Check size={11} className="text-emerald-400" /><span className="text-emerald-400">Copied</span></>
+                                    : <><Copy size={11} /><span>Copy</span></>}
                                 </button>
                                 {onInsertCode && (
-                                  <>
-                                    <div className="w-px h-4 bg-slate-600 mx-0.5"></div>
-                                    <button
-                                      onClick={() => onInsertCode(codeString)}
-                                      className="p-1.5 rounded bg-blue-600/80 hover:bg-blue-600 text-white transition-colors flex items-center gap-1.5"
-                                      title="Insert code at cursor"
-                                    >
-                                      <Terminal size={14} />
-                                      <span className="text-[10px] font-medium hidden sm:inline-block">Insert</span>
-                                    </button>
-                                  </>
+                                  <button
+                                    onClick={() => onInsertCode(codeString)}
+                                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white transition-colors text-[11px]"
+                                  >
+                                    <Terminal size={11} /><span>Insert</span>
+                                  </button>
                                 )}
                               </div>
                             </div>
-                            <div className="text-[13px] leading-relaxed relative">
-                              <SyntaxHighlighter
-                                language={match?.[1] || 'text'}
-                                style={vscDarkPlus}
-                                PreTag="div"
-                                customStyle={{ margin: 0, padding: '1rem', background: '#1e1e1e' }}
-                                {...props}
-                              >
-                                {codeString}
-                              </SyntaxHighlighter>
-                            </div>
+                            <SyntaxHighlighter
+                              language={match?.[1] || 'text'}
+                              style={vscDarkPlus}
+                              PreTag="div"
+                              customStyle={{ margin: 0, padding: '0.875rem', background: '#111827', fontSize: '12px', lineHeight: '1.6' }}
+                              {...props}
+                            >
+                              {codeString}
+                            </SyntaxHighlighter>
                           </div>
                         );
-                      }
+                      },
                     }}
                   >
-                    {m.content}
+                    {displayContent}
                   </ReactMarkdown>
-                  {/* Blinking cursor for the actively streaming message */}
-                  {!isUser && isLoading && m.id === messages[messages.length - 1]?.id && (
-                    <span className="inline-block w-1.5 h-4 ml-1 mt-1 bg-slate-400 animate-pulse align-middle" style={{ animationDuration: '0.8s' }}></span>
-                  )}
-                  
-                  {!isUser && !isLoading && (
-                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100/60 justify-end">
+
+                  {/* Feedback */}
+                  {!isLoading && !isStreaming && (
+                    <div className="flex items-center gap-0.5 mt-2.5 pt-2 border-t border-gray-100 justify-end">
                       <button
                         onClick={() => onFeedback?.(m.id, true)}
-                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'positive' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
-                        title="Helpful"
+                        className={`p-1 rounded-lg transition-colors ${m.feedback === 'positive' ? 'text-emerald-500 bg-emerald-50' : 'text-gray-300 hover:text-emerald-500 hover:bg-emerald-50'}`}
                       >
-                        <ThumbsUp size={14} className={m.feedback === 'positive' ? 'fill-current' : ''} />
+                        <ThumbsUp size={12} className={m.feedback === 'positive' ? 'fill-current' : ''} />
                       </button>
                       <button
                         onClick={() => onFeedback?.(m.id, false)}
-                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'negative' ? 'bg-red-50 text-red-600' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
-                        title="Not helpful"
+                        className={`p-1 rounded-lg transition-colors ${m.feedback === 'negative' ? 'text-red-400 bg-red-50' : 'text-gray-300 hover:text-red-400 hover:bg-red-50'}`}
                       >
-                        <ThumbsDown size={14} className={m.feedback === 'negative' ? 'fill-current' : ''} />
+                        <ThumbsDown size={12} className={m.feedback === 'negative' ? 'fill-current' : ''} />
                       </button>
                     </div>
                   )}
@@ -165,17 +208,42 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
         );
       })}
 
-      {isLoading && (
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm">
-            <Bot size={16} className="text-emerald-500 animate-pulse" />
+      {/* Typing indicator */}
+      {isLoading && messages[messages.length - 1]?.message_type !== 'assistant' && (
+        <div
+          className="flex items-end gap-2"
+          style={{ animation: 'buddyFade 0.2s ease both' }}
+        >
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <Sparkles size={12} className="text-white" />
           </div>
-          <div className="bg-white px-5 py-3.5 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex items-center gap-2 text-gray-400 text-sm">
-            <Loader2 size={14} className="animate-spin text-emerald-500" />
-            <span>Thinking...</span>
+          <div className="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-1">
+            {[0, 150, 300].map((delay) => (
+              <span
+                key={delay}
+                className="w-1.5 h-1.5 rounded-full bg-gray-300"
+                style={{ animation: `typingDot 1.2s ease-in-out ${delay}ms infinite` }}
+              />
+            ))}
           </div>
         </div>
       )}
+
+      {/* Keyframes injected once */}
+      <style>{`
+        @keyframes buddyPop {
+          from { opacity: 0; transform: scale(0.7); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes buddyFade {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes typingDot {
+          0%, 60%, 100% { transform: translateY(0);    opacity: 0.4; }
+          30%            { transform: translateY(-5px); opacity: 1;   }
+        }
+      `}</style>
     </div>
   );
 };

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import subjectService, { SectionSubjectFaculty, getFacultyAssignments } from '../../services/subjectService';
 import studentService from '../../services/studentService';
 import { cn } from '@/lib/utils';
@@ -473,38 +473,35 @@ const Reports: React.FC = () => {
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <RoleHeader title="" subtitle="" />
 
                 <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-8 bg-white">
-                    {/* Page Header */}
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                        <div className="space-y-1">
-                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Student Reports</h1>
-                            <p className="text-sm font-medium text-gray-500">
-                                Consolidated academic report — view performance, progress, and insights
-                            </p>
-                        </div>
-                        {reportGenerated && (
-                            <div className="flex gap-2">
-                                <Button
-                                    onClick={handleExportPDF}
-                                    variant="outline"
-                                    className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
-                                >
-                                    <FileText className="h-4 w-4" />
-                                    <span>PDF</span>
-                                </Button>
-                                <Button
-                                    onClick={handleExportExcel}
-                                    variant="outline"
-                                    className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
-                                >
-                                    <TableIcon className="h-4 w-4" />
-                                    <span>Excel</span>
-                                </Button>
-                            </div>
-                        )}
-                    </div>
+                    <div className="max-w-7xl mx-auto space-y-8">
+                        <PageHeader
+                            title="Student Reports"
+                            subtitle="Consolidated academic report — view performance, progress, and insights"
+                            actions={
+                                reportGenerated && (
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={handleExportPDF}
+                                            variant="outline"
+                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                        >
+                                            <FileText className="h-4 w-4" />
+                                            <span>PDF</span>
+                                        </Button>
+                                        <Button
+                                            onClick={handleExportExcel}
+                                            variant="outline"
+                                            className="h-9 px-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 bg-[#F8FAFC]/50"
+                                        >
+                                            <TableIcon className="h-4 w-4" />
+                                            <span>Excel</span>
+                                        </Button>
+                                    </div>
+                                )
+                            }
+                        />
 
                     {/* Filter Section */}
                     <Card className="border border-gray-100 shadow-sm bg-white rounded-xl">
@@ -1271,6 +1268,7 @@ const Reports: React.FC = () => {
                             }
                         }
                     ` }} />
+                    </div>
                 </main >
             </div >
         </div >

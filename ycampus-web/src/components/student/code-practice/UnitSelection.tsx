@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Code2 } from 'lucide-react';
 import {
     fetchUnitsBySubject,
+    fetchSubUnitsByUnit,
 } from '@/services/subjectService';
 import { fetchQuestions } from '@/services/questionService';
 import type { Subject, Unit, CodingProblem } from '@/pages/student/CodePractice';
@@ -79,26 +80,40 @@ const UnitSelection = ({
     const loadProblems = async (unitId: string) => {
         setProblemsLoading(true);
         try {
-            // Prepare filters for question service
-            // Note: Backend question filter expects 'unit' instead of 'topic' if updated, 
-            // but usually question service might still use 'topic' unless updated.
-            // Assuming backend QuestionViewSet filters by 'unit' now?
-            // Let's use 'unit' as the filter key. If backend expects 'topic', this needs to be 'topic'.
-            // Based on previous conversations, Topic->Unit rename happened in models.
-            // FilterSet fields likely updated to 'unit'.
-            const filters: any = {
+            // 1. Try fetching questions directly for the unit
+            const unitFilters: any = {
                 unit: unitId,
-                categories: 'practice',
                 type: 'coding'
             };
-
-            // Add difficulty filter if not 'All'
+            
             if (difficulty !== 'All') {
-                filters.difficulty = difficulty.toLowerCase();
+                unitFilters.difficulty = difficulty.toLowerCase();
             }
 
-            // Load questions from question service with category 'practice' and type 'coding'
-            const questions = await fetchQuestions(filters);
+            console.log('Fetching unit questions with filters:', unitFilters);
+            let questions = await fetchQuestions(unitFilters);
+            
+            // 2. If no questions found at unit level, try fetching sub-units and their questions
+            // This is because often questions are linked to sub-units in this platform
+            if (questions.length === 0) {
+                console.log('No unit-level questions, trying sub-units...');
+                const subunits = await fetchSubUnitsByUnit(unitId);
+                
+                if (subunits && subunits.length > 0) {
+                    const subunitQuestionPromises = subunits.map((su: any) => 
+                        fetchQuestions({
+                            sub_unit: su.id,
+                            type: 'coding',
+                            ...(difficulty !== 'All' ? { difficulty: difficulty.toLowerCase() as any } : {})
+                        })
+                    );
+                    
+                    const subunitQuestionsResults = await Promise.all(subunitQuestionPromises);
+                    questions = subunitQuestionsResults.flat();
+                }
+            }
+
+            console.log('Total questions found:', questions.length);
 
             const transformedProblems: CodingProblem[] = questions.map((q: any) => ({
                 id: q.id,
@@ -152,7 +167,7 @@ const UnitSelection = ({
     };
 
     return (
-        <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-gray-50">
+        <div className="flex flex-1 w-full h-full min-h-0 overflow-hidden bg-white border border-gray-200 rounded-2xl shadow-sm">
             {/* Reusable Sidebar */}
             <UnitSidebar
                 subject={sidebarSubject}
@@ -169,7 +184,7 @@ const UnitSelection = ({
 
             {/* Main Content Area */}
             <div className="flex-1 overflow-auto">
-                <div className="p-6 max-w-7xl mx-auto min-h-full">
+                <div className="p-6 min-h-full">
                     {/* Breadcrumb */}
                     <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
                         <Button variant="ghost" size="sm" onClick={onBack} className="h-auto p-0 hover:bg-transparent hover:text-gray-900 transition-colors">

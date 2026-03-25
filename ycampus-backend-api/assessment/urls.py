@@ -4,6 +4,7 @@ from .views import (
     ContestViewSet,
     SkillTestViewSet,
     MockInterviewViewSet,
+    MockInterviewSubmissionViewSet,
     SkillTestSubmissionViewSet,
     CertificationExamViewSet,
     CertificationSubmissionViewSet,
@@ -13,6 +14,7 @@ router = DefaultRouter()
 router.register(r"contests", ContestViewSet)
 router.register(r"skill-tests", SkillTestViewSet)
 router.register(r"mock-interviews", MockInterviewViewSet)
+router.register(r"mock-interview/submissions", MockInterviewSubmissionViewSet, basename="mock-interview-submissions")
 router.register(
     r"skill-test/submissions",
     SkillTestSubmissionViewSet,

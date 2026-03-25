@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .utils import CodeExecutionUtil
 from .gamification_service import GamificationService
 from .gamification_models import UserGamificationProfile, DailyUserActivity
-from core.models import College, Batch, Department, Semester, Section, AttendanceSession, AttendanceRecord, StudentProfile, Task, TaskSubmission, TaskComment
+from core.models import College, Batch, Department, Semester, Section, AttendanceSession, AttendanceRecord, StudentProfile, Task, TaskSubmission, TaskComment, Note
 from .models import (
     Subject,
     Unit,
@@ -49,6 +49,7 @@ from .serializers import (
     CollegeSubjectSerializer,
     SemesterSubjectSerializer,
     SectionSubjectFacultySerializer,
+    NoteSerializer,
 )
 from core.serializers import TaskSubmissionSerializer, TaskCommentSerializer
 from ai_assistant.services import AIServiceFactory, AIServiceError
@@ -250,23 +251,18 @@ class SubjectViewSet(viewsets.ModelViewSet):
                 Q(subject_name__icontains=search) | Q(short_code__icontains=search) | Q(yuvro_id__icontains=search)
             )
 
+        # Optimize total_problems calculation
+        # Since all questions (direct, via unit, or via subunit) are linked to the subject by the loader,
+        # we can just count the direct relationship 'questions'.
         queryset = queryset.annotate(
             total_problems=Count(
                 'questions', 
                 filter=Q(questions__type='coding') & Q(questions__categories__contains=['practice']), 
                 distinct=True
-            ) + Count(
-                'units__questions',
-                filter=Q(units__questions__type='coding') & Q(units__questions__categories__contains=['practice']),
-                distinct=True
-            ) + Count(
-                'units__subunits__questions',
-                filter=Q(units__subunits__questions__type='coding') & Q(units__subunits__questions__categories__contains=['practice']),
-                distinct=True
             )
         )
 
-        if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
             solved_subquery = StudentCodePractice.objects.filter(
                 user=self.request.user,
                 subject=OuterRef('pk'),
@@ -410,8 +406,7 @@ class UnitViewSet(viewsets.ModelViewSet):
                     "subject_id", flat=True
                 )
                 qs = qs.filter(subject_id__in=assigned_subject_ids)
-            else:
-                qs = qs.none()
+            # If no college assigned, fall through and apply subject filter below
 
         subject_id = self.request.query_params.get("subject")
         if subject_id:
@@ -602,20 +597,71 @@ class VideoViewSet(viewsets.ModelViewSet):
 
 
 
+class NoteViewSet(viewsets.ModelViewSet):
+    queryset = Note.objects.select_related("sub_unit", "user")
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticatedUser]
+
+    def get_queryset(self):
+        from django.db.models import Q
+
+        qs = Note.objects.select_related("sub_unit", "user")
+        user = self.request.user
+
+        if user.role == "faculty":
+            if hasattr(user, 'college') and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
+                    "subject_id", flat=True
+                )
+                qs = qs.filter(sub_unit__unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
+        if user.role == "student":
+            qs = qs.filter(
+                Q(user=user) |
+                Q(user__role__in=["faculty", "admin"])
+            )
+
+        if sid := self.request.query_params.get("sub_unit"):
+            qs = qs.filter(sub_unit_id=sid)
+
+        return qs
+
+    def create(self, request, *a, **kw):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=201)
+
+    def update(self, request, *a, **kw):
+        note = self.get_object()
+        user = request.user
+        is_owner = note.user == user
+        subject = note.sub_unit.unit.subject
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
+        is_admin = user.role == "admin"
+        if not (is_owner or is_faculty or is_admin):
+            return Response({"error": "Not allowed"}, status=403)
+        return super().update(request, *a, **kw)
+
+    def destroy(self, request, *a, **kw):
+        note = self.get_object()
+        user = request.user
+        is_owner = note.user == user
+        subject = note.sub_unit.unit.subject
+        is_faculty = user.role == "faculty" and subject_assigned_to_college_faculty(user, subject)
+        is_admin = user.role == "admin"
+        if not (is_owner or is_faculty or is_admin):
+            return Response({"error": "Not allowed"}, status=403)
+        return super().destroy(request, *a, **kw)
+
+
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.select_related(
         "subject", "unit", "sub_unit", "created_by"
     )
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticatedUser]
-
-    def get_queryset(self):
-        from django.db import models
-
-        qs = Question.objects.select_related(
-            "subject", "unit", "sub_unit", "created_by"
-        )
-        user = self.request.user
 
     def get_assigned_subject_ids(self, user):
         if user.is_staff or user.role == 'admin':
@@ -650,9 +696,16 @@ class QuestionViewSet(viewsets.ModelViewSet):
         search = self.request.query_params.get("search")
 
         if subject_id:
-            qs = qs.filter(subject_id=subject_id)
+            qs = qs.filter(
+                models.Q(subject_id=subject_id)
+                | models.Q(unit__subject_id=subject_id)
+                | models.Q(sub_unit__unit__subject_id=subject_id)
+            )
         if unit_id:
-            qs = qs.filter(unit_id=unit_id)
+            qs = qs.filter(
+                models.Q(unit_id=unit_id)
+                | models.Q(sub_unit__unit_id=unit_id)
+            )
         if sub_unit_id:
             qs = qs.filter(sub_unit_id=sub_unit_id)
         if question_type:

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleSidebar from "@/components/common/RoleSidebar";
-import RoleHeader from "@/components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -251,7 +251,7 @@ const RecruiterProfile = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader 
+            <PageHeader 
               title="Loading Profile..." 
               subtitle="Please wait while we load your profile information." 
             />
@@ -305,10 +305,6 @@ const RecruiterProfile = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader 
-            title="Recruiter Profile" 
-            subtitle="Manage your professional profile and company information"
-          />
           
           <div className="p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -373,9 +369,6 @@ const RecruiterProfile = () => {
                     <CardContent className="pt-20 pb-6">
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                          <h1 className="text-3xl font-bold">
-                            {profile.full_name || "Recruiter Name"}
-                          </h1>
                           <p className="text-lg text-muted-foreground">
                             {profile.title || "Add your professional title"}
                           </p>

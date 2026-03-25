@@ -277,4 +277,4 @@ export default function StudentJobs() {
       />
     </StudentLayout>
   );
-}
+}

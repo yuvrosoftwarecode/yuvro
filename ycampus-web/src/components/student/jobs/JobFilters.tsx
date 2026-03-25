@@ -31,6 +31,20 @@ export const JobFilters: React.FC<JobFiltersProps> = ({
           className="pl-10 h-10 border-muted/20 shadow-sm focus-visible:ring-primary/20"
         />
       </div>
+      
+      <div className="w-full md:w-48">
+        <Select value={locationFilter} onValueChange={onLocationChange}>
+          <SelectTrigger className="h-10 border-gray-200">
+            <SelectValue placeholder="All Locations" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            <SelectItem value="Mumbai">Mumbai</SelectItem>
+            <SelectItem value="Bangalore">Bangalore</SelectItem>
+            <SelectItem value="Remote">Remote</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="w-full md:w-48">
         <Select value={locationFilter} onValueChange={onLocationChange}>

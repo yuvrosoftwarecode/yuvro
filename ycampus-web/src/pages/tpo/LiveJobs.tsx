@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from '../../components/common/PageHeader';
 import RoleSidebar from "../../components/common/RoleSidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Users, UserCheck, Clock, CheckCircle2, Building2 } from "lucide-react";
@@ -17,14 +17,15 @@ const LiveJobs: React.FC = () => {
             <RoleSidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <RoleHeader title="" subtitle="" />
 
                 <main className="flex-1 overflow-y-auto p-8">
                     <div className="max-w-7xl mx-auto space-y-8">
-
+                        <PageHeader
+                            title="Live Jobs"
+                            subtitle="View and manage active job postings"
+                        />
                         {/* Top Bar */}
                         <div className="flex items-center justify-between">
-                            <h1 className="text-3xl font-bold text-slate-900">Live Jobs</h1>
 
                             <div className="relative w-[280px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

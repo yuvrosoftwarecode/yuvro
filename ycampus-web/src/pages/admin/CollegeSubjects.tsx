@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2, BookOpen, ArrowLeft, Search, Pencil } from "lucide-react";
@@ -22,11 +23,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RoleSidebar from "../../components/common/RoleSidebar";
-import RoleHeader from "../../components/common/RoleHeader";
+import PageHeader from "../../components/common/PageHeader";
 import { toast } from "sonner";
 
 const CollegeSubjects: React.FC = () => {
-    const { collegeId } = useParams<{ collegeId: string }>();
+    const { user } = useAuth();
+    const { collegeId: paramCollegeId } = useParams<{ collegeId: string }>();
+    const collegeId = paramCollegeId || (user as any)?.college_id;
     const navigate = useNavigate();
 
     const [assignments, setAssignments] = useState<CollegeSubject[]>([]);
@@ -174,11 +177,17 @@ const CollegeSubjects: React.FC = () => {
         <div className="flex gap-3">
             <Button
                 variant="outline"
-                onClick={() => navigate("/admin/subjects/colleges")}
+                onClick={() => {
+                    if (user?.role === 'admin' || user?.role === 'instructor') {
+                        navigate("/admin/subjects/colleges");
+                    } else {
+                        navigate("/college-admin/dashboard");
+                    }
+                }}
                 className="cursor-pointer"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Colleges
+                {user?.role === 'admin' || user?.role === 'instructor' ? "Back to Colleges" : "Back to Dashboard"}
             </Button>
             <Button
                 onClick={() => {
@@ -198,13 +207,12 @@ const CollegeSubjects: React.FC = () => {
             <div className="flex">
                 <RoleSidebar />
                 <div className="flex-1">
-                    <RoleHeader
-                        title="College Subjects"
-                        subtitle="Manage subjects assigned to this college"
-                        actions={headerActions}
-                    />
-
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <PageHeader
+                            title="College Subjects"
+                            subtitle="Manage subjects assigned to this college"
+                            actions={headerActions}
+                        />
                         {/* Search Bar */}
                         <div className="mb-6">
                             <div className="relative">

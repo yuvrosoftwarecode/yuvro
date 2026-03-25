@@ -47,7 +47,7 @@ const LearnDashboard: React.FC = () => {
             }
           })
         );
-        setSubjects(withUnits as Subject[]);
+        setSubjects(withUnits as unknown as Subject[]);
         return withUnits;
       } catch (err) {
         console.error("Failed to fetch subjects", err);

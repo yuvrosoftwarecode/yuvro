@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 
 // FILE-2 IMPORTS (UNCHANGED)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +29,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchSubjects } from '@/services/subjectService';
 
 // ===== DUMMY DATA (UNCHANGED) =====
 const psBreakdown = {
@@ -156,6 +157,28 @@ function getPsStatus(score: number) {
 const StudentInterviewPrep: React.FC = () => {
   const navigate = useNavigate();
   const psStatus = getPsStatus(psBreakdown.overall);
+  const [dsaSubjectId, setDsaSubjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const fetchedSubjects = await fetchSubjects();
+        
+        // Find DSA subject
+        const dsa = fetchedSubjects.find(s => {
+          const name = (s.subject_name || s.name || s.title || "").toLowerCase();
+          return name.includes("data structures") || name === "dsa";
+        });
+        
+        if (dsa) {
+          setDsaSubjectId(dsa.id.toString());
+        }
+      } catch (error) {
+        console.error("Failed to fetch subjects in Interview Prep:", error);
+      }
+    };
+    loadSubjects();
+  }, []);
 
   const chartConfig = {
     ps: { label: 'PS Score', color: '#111827' },
@@ -166,17 +189,17 @@ const StudentInterviewPrep: React.FC = () => {
       <div className="flex h-screen overflow-hidden">
         <RoleSidebar />
         <div className="flex-1 h-screen overflow-y-auto">
-          <RoleHeader
-            title="Interview Preparation"
-            subtitle="Track your preparation, practice skills, and stay ahead."
-          />
-          <div className="p-6 space-y-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            <PageHeader
+              title="Interview Preparation"
+              subtitle="Track your preparation, practice skills, and stay ahead."
+            />
 
 
             {/* ===== HERO SECTION ===== */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* PS Score Card */}
-              <Card className="md:col-span-1 shadow-sm border-gray-200">
+              <Card className="md:col-span-1 border-gray-200 h-75 shadow-none">
                 <CardContent className="pt-6 space-y-4">
                   <div className="flex items-start justify-between">
                     <div>
@@ -199,8 +222,8 @@ const StudentInterviewPrep: React.FC = () => {
                       { label: 'Mock Interviews', value: psBreakdown.mockInterviews },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500 w-1/3">{item.label}</span>
-                        <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden mx-2">
+                        <span className="text-gray-500 w-1/2">{item.label}</span>
+                        <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden mx-2">
                           <div className="h-full bg-gray-800 rounded-full" style={{ width: `${item.value}%` }}></div>
                         </div>
                         <span className="text-gray-900 font-bold w-12 text-right">{item.value}%</span>
@@ -211,7 +234,7 @@ const StudentInterviewPrep: React.FC = () => {
               </Card>
 
               {/* Ranking Card */}
-              <Card className="shadow-sm border-gray-200">
+              <Card className="border-gray-200 h-75 shadow-none">
                 <CardContent className="pt-6 space-y-5">
                   <p className="text-sm text-gray-500 font-medium">Your Ranking</p>
                   <div className="space-y-4">
@@ -256,13 +279,13 @@ const StudentInterviewPrep: React.FC = () => {
               </Card>
 
               {/* Streak Card */}
-              <Card className="shadow-sm border-gray-200">
+              <Card className="border-gray-200 h-75 shadow-none">
                 <CardContent className="pt-10 pb-8 flex flex-col items-center justify-center text-center space-y-4 h-full">
-                  <div className="h-16 w-16 rounded-full bg-orange-50 flex items-center justify-center mb-2">
-                    <Flame className="h-8 w-8 text-amber-500" strokeWidth={1.5} />
-                  </div>
+                  <div className="h-16 w-16 rounded-full bg-orange-50 flex items-center justify-center mb-2 shrink-0">
+  <Flame className="h-8 w-8 text-amber-500" strokeWidth={2} />
+</div>
                   <div className="space-y-1">
-                    <p className="text-6xl font-bold text-gray-900" style={{ fontFamily: 'serif' }}>{streakData.currentStreak}</p>
+                    <p className="text-5xl font-bold text-gray-900" style={{ fontFamily: 'serif' }}>{streakData.currentStreak}</p>
                     <p className="text-sm text-gray-500">Day Streak</p>
                   </div>
                   <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-0 rounded-full px-4 py-1.5 font-medium mt-4">
@@ -279,20 +302,20 @@ const StudentInterviewPrep: React.FC = () => {
             {/* ===== CORE MODULES ===== */}
             <div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Core Preparation Modules</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Core Preparation Modules</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {moduleCards.map((mod) => (
-                    <Card key={mod.title} className="shadow-sm border-gray-200">
-                      <CardContent className="p-5 space-y-5">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-10 w-10 flex items-center justify-center rounded bg-gray-50 border border-gray-100`}>
-                            <mod.icon className={`h-5 w-5 ${mod.color}`} />
+                    <Card key={mod.title} className="border-gray-200 shadow-none">
+                      <CardContent className="p-5 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-9 w-9 flex items-center justify-center rounded ${mod.bgColor}`}>
+                            <mod.icon className={`h-4.5 w-4.5 ${mod.color}`} />
                           </div>
-                          <h3 className="font-semibold text-gray-900">{mod.title}</h3>
+                          <h3 className="font-semibold text-sm text-gray-900">{mod.title}</h3>
                         </div>
 
                         <div className="pt-2">
-                          <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+                          <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                             <span>Progress</span>
                             <span className="font-medium text-gray-900">{mod.progress}%</span>
                           </div>
@@ -301,19 +324,37 @@ const StudentInterviewPrep: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-3 pt-2">
-                          <div className="flex justify-between text-sm">
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex justify-between text-xs">
                             <span className="text-gray-500">{mod.stat1Label}</span>
                             <span className="text-gray-900 font-medium">{mod.stat1Value}</span>
                           </div>
-                          <div className="flex justify-between text-sm">
+                          <div className="flex justify-between text-xs">
                             <span className="text-gray-500">{mod.stat2Label}</span>
                             <span className="text-gray-900 font-medium">{mod.stat2Value}</span>
                           </div>
                         </div>
 
                         <div className="pt-2">
-                          <Button variant="outline" className="w-full justify-center bg-gray-900 border-gray-200 hover:bg-gray-800 text-white font-medium py-5">
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-center bg-gray-900 border-gray-200 hover:bg-gray-800 text-white font-medium py-5"
+                            onClick={() => {
+                              if (mod.title === 'Mock Interviews') {
+                                navigate('/student/mock-interview');
+                              } else if (mod.cta === 'Start Practice') {
+                                if (dsaSubjectId) {
+                                  navigate(`/student/code-practice/subjects/${dsaSubjectId}`);
+                                } else {
+                                  navigate('/student/code-practice');
+                                }
+                              } else if (mod.cta === 'Take Test') {
+                                navigate('/student/aptitude');
+                              } else if (mod.cta === 'Continue Learning') {
+                                navigate('/student/python');
+                              }
+                            }}
+                          >
                             {mod.cta} <ArrowRight className="h-4 w-4 ml-2" />
                           </Button>
                         </div>
@@ -325,7 +366,7 @@ const StudentInterviewPrep: React.FC = () => {
             </div>
 
             {/* ===== RECOMMENDED ACTIONS ===== */}
-            <Card className="shadow-sm border-gray-200">
+            <Card className="shadow-sm border-gray-200 shadow-none">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2 text-gray-900">
                   <Target className="h-4 w-4 text-orange-500" />
@@ -337,7 +378,7 @@ const StudentInterviewPrep: React.FC = () => {
                   {recommendations.map((rec, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between p-3.5 rounded-xl border border-gray-300 bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-gray-100/20 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <Zap className={`h-4 w-4 ${rec.priority === 'High' ? 'text-amber-500' : 'text-gray-600'}`} />
@@ -366,7 +407,7 @@ const StudentInterviewPrep: React.FC = () => {
             {/* ===== PROGRESS GRAPH + LEADERBOARD ===== */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Progress Chart */}
-              <Card className="lg:col-span-2 shadow-sm border-gray-200">
+              <Card className="lg:col-span-2 border-gray-200 shadow-none">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base text-gray-900">PS Progress</CardTitle>
                   <p className="text-xs text-gray-500">Your PS improved from 58% to 72% over 6 weeks</p>
@@ -403,7 +444,7 @@ const StudentInterviewPrep: React.FC = () => {
 
               {/* Leaderboards */}
               <div className="space-y-4">
-                <Card className="shadow-sm border-gray-200">
+                <Card className="border-gray-200 shadow-none">
                   <CardHeader className="pb-3 border-b border-gray-100 mb-3">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-900">
                       <Trophy className="h-4 w-4 text-amber-500" strokeWidth={1.5} fill="transparent" />
@@ -430,7 +471,7 @@ const StudentInterviewPrep: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border-gray-200">
+                <Card className="border-gray-200 shadow-none">
                   <CardHeader className="pb-3 border-b border-gray-100 mb-3">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-900">
                       <Trophy className="h-4 w-4 text-emerald-500" strokeWidth={1.5} fill="transparent" />
@@ -455,9 +496,9 @@ const StudentInterviewPrep: React.FC = () => {
             </div>
 
             {/* ===== WEAK AREAS ===== */}
-            <Card className="shadow-sm border-gray-200 mt-6">
+            <Card className="border-gray-200 mt-6 shadow-none">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold flex items-center gap-2 text-gray-900">
+                <CardTitle className="text-lg font-medium flex items-center gap-2 text-gray-900">
                   <AlertTriangle className="h-5 w-5 text-amber-500" strokeWidth={1.5} fill="transparent" />
                   Weak Areas
                 </CardTitle>
@@ -470,8 +511,8 @@ const StudentInterviewPrep: React.FC = () => {
                       className="p-3 rounded-lg border bg-red-50/30 dark:bg-red-950/10 border-red-100 dark:border-red-900/20"
                     >
                       <div className="flex justify-between items-start mb-1">
-                        <p className="text-sm font-bold text-gray-900 pr-2">{w.area}</p>
-                        <span className="text-sm font-bold text-red-500">{w.score}%</span>
+                        <p className="text-sm font-medium text-gray-900 pr-2">{w.area}</p>
+                        <span className="text-sm font-medium text-red-500">{w.score}%</span>
                       </div>
                       <p className="text-xs text-gray-500 mb-4">{w.module}</p>
 

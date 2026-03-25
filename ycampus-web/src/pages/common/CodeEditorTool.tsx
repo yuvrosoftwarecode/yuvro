@@ -3,7 +3,7 @@ import { CodeEditorWithAI, CodeEditorWithAIHandle } from '@/components/code-edit
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { BookOpen } from 'lucide-react';
 
 const CodeEditorPage: React.FC = () => {
@@ -46,15 +46,17 @@ const CodeEditorPage: React.FC = () => {
             Examples
         </button>
     );
-
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex">
             <RoleSidebar />
             <div className="flex-1 flex flex-col relative overflow-hidden">
-                <RoleHeader
-                    title="Code Editor"
-                    subtitle="A versatile playground for testing algorithms and code snippets."
-                />
+                <div className="px-6 pt-6">
+                    <PageHeader
+                        title="Code Editor"
+                        subtitle="A versatile playground for testing algorithms and code snippets."
+                        actions={headerActions}
+                    />
+                </div>
                 <div className="flex-1 relative overflow-hidden">
                     <CodeEditorWithAI
                         ref={problemSolvingRef}

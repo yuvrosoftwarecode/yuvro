@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Calendar, Settings, FileText } from 'lucide-react';
+import { Trophy, Settings, FileText, ArrowLeft, Plus, Minus } from 'lucide-react';
 import QuestionBank from '@/components/common/QuestionBank';
 import { toast } from 'sonner';
 import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import PageHeader from '@/components/common/PageHeader';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { fetchQuestionById } from '@/services/questionService';
 
@@ -142,13 +142,10 @@ export default function MockInterviewForm() {
     ai_generation_mode: 'full_ai' as 'full_ai' | 'mixed' | 'predefined',
     ai_percentage: 100,
     ai_context: {
-      intern: '',
-      beginner: '',
-      '1_3_years': '',
-      '3_plus_years': ''
+      context: '',
+      predefined_questions: [] as string[],
+      coding_questions_count: 1
     },
-    ai_verbal_question_count: 5,
-    ai_coding_question_count: 1,
 
     // Voice Config
     voice_type: 'junnu' as 'junnu' | 'munnu', // Deprecated but kept for type safety if needed temporarily
@@ -193,27 +190,33 @@ export default function MockInterviewForm() {
           ai_generation_mode: data.ai_generation_mode || 'full_ai',
           ai_percentage: data.ai_percentage || 100,
           ai_context: (() => {
-            if (Array.isArray(data.ai_context)) {
-              // Backward compatibility
-              const oldStr = data.ai_context.join(', ');
+            const defaultCodingCount = data.ai_coding_question_count ?? 1;
+            
+            if (typeof data.ai_context === 'object' && data.ai_context !== null && !Array.isArray(data.ai_context)) {
+              // Handle new flat structure or old nested structure
+              if (data.ai_context.intern || data.ai_context.beginner) {
+                // Backward compatibility: take beginner as default for flat view if it's nested
+                const levelData = data.ai_context.beginner || data.ai_context.intern || {};
+                return {
+                  context: Array.isArray(levelData.context) ? levelData.context.join(', ') : (levelData.context_str || ''),
+                  predefined_questions: levelData.predefined_questions || [],
+                  coding_questions_count: levelData.coding_questions_count || defaultCodingCount
+                };
+              }
+              
               return {
-                intern: oldStr,
-                beginner: oldStr,
-                '1_3_years': oldStr,
-                '3_plus_years': oldStr
-              };
-            } else if (typeof data.ai_context === 'object' && data.ai_context !== null) {
-              return {
-                intern: Array.isArray(data.ai_context.intern) ? data.ai_context.intern.join(', ') : '',
-                beginner: Array.isArray(data.ai_context.beginner) ? data.ai_context.beginner.join(', ') : '',
-                '1_3_years': Array.isArray(data.ai_context['1_3_years']) ? data.ai_context['1_3_years'].join(', ') : '',
-                '3_plus_years': Array.isArray(data.ai_context['3_plus_years']) ? data.ai_context['3_plus_years'].join(', ') : ''
+                context: Array.isArray(data.ai_context.context) ? data.ai_context.context.join(', ') : (data.ai_context.context || ''),
+                predefined_questions: data.ai_context.predefined_questions || [],
+                coding_questions_count: data.ai_context.coding_questions_count || defaultCodingCount
               };
             }
-            return { intern: '', beginner: '', '1_3_years': '', '3_plus_years': '' };
+            
+            return {
+              context: Array.isArray(data.ai_context) ? data.ai_context.join(', ') : '',
+              predefined_questions: [],
+              coding_questions_count: defaultCodingCount
+            };
           })(),
-          ai_verbal_question_count: data.ai_verbal_question_count || 5,
-          ai_coding_question_count: data.ai_coding_question_count || 1,
 
           voice_type: data.voice_type || 'junnu',
           interviewer_name: data.interviewer_name || 'Junnu',
@@ -275,13 +278,10 @@ export default function MockInterviewForm() {
         ai_generation_mode: formData.ai_generation_mode,
         ai_percentage: formData.ai_percentage,
         ai_context: {
-          intern: formData.ai_context.intern.split(',').map(s => s.trim()).filter(Boolean),
-          beginner: formData.ai_context.beginner.split(',').map(s => s.trim()).filter(Boolean),
-          '1_3_years': formData.ai_context['1_3_years'].split(',').map(s => s.trim()).filter(Boolean),
-          '3_plus_years': formData.ai_context['3_plus_years'].split(',').map(s => s.trim()).filter(Boolean),
+          context: formData.ai_context.context,
+          predefined_questions: formData.ai_context.predefined_questions.map(q => q.trim()).filter(Boolean),
+          coding_questions_count: Number(formData.ai_context.coding_questions_count)
         },
-        ai_verbal_question_count: Number(formData.ai_verbal_question_count),
-        ai_coding_question_count: Number(formData.ai_coding_question_count),
 
         voice_type: formData.voice_type,
         interviewer_name: formData.interviewer_name,
@@ -339,20 +339,21 @@ export default function MockInterviewForm() {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={getHeaderTitle()}
-            subtitle={getHeaderSubtitle()}
-            actions={
-              <button
-                type="button"
-                onClick={() => navigate('/admin/mock-interview')}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                ← Back to List
-              </button>
-            }
-          />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={getHeaderTitle()}
+              subtitle={getHeaderSubtitle()}
+              actions={
+                <Button
+                  onClick={() => navigate('/admin/mock-interview')}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to List
+                </Button>
+              }
+            />
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 mb-6 bg-gray-100 p-1 rounded-lg">
@@ -461,54 +462,77 @@ export default function MockInterviewForm() {
                         </div>
                       )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Verbal Questions Count</label>
-                          <Input type="number" value={formData.ai_verbal_question_count} onChange={e => setFormData({ ...formData, ai_verbal_question_count: parseInt(e.target.value) })} min={0} />
-                          <p className="text-xs text-gray-500 mt-1">Number of verbal/theory questions AI should generate.</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Coding Questions Count</label>
-                          <Input type="number" value={formData.ai_coding_question_count} onChange={e => setFormData({ ...formData, ai_coding_question_count: parseInt(e.target.value) })} min={0} />
-                          <p className="text-xs text-gray-500 mt-1">Number of coding challenges AI should generate.</p>
-                        </div>
-                      </div>
-
                       <div className="mt-4 border-t pt-4 border-gray-100">
-                        <h3 className="text-sm font-medium mb-3">AI Context by Experience Level</h3>
-                        <p className="text-xs text-gray-500 mb-4">Provide comma-separated specific focus areas or roles for the AI based on candidate's experience.</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Intern</label>
-                            <Textarea 
-                              value={formData.ai_context.intern} 
-                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, intern: e.target.value } })} 
-                              placeholder="e.g. Focus on fundamentals, algorithms" 
-                            />
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-medium">AI Interview Context</h3>
+                          <div className="flex items-center gap-3">
+                            <label className="text-xs font-medium text-gray-500">Coding Questions Count:</label>
+                            <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = formData.ai_context.coding_questions_count;
+                                  if (current > 0) {
+                                    setFormData({
+                                      ...formData,
+                                      ai_context: { ...formData.ai_context, coding_questions_count: current - 1 }
+                                    });
+                                  }
+                                }}
+                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
+                                {formData.ai_context.coding_questions_count}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = formData.ai_context.coding_questions_count;
+                                  setFormData({
+                                    ...formData,
+                                    ai_context: { ...formData.ai_context, coding_questions_count: current + 1 }
+                                  });
+                                }}
+                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Beginner (0-1 yrs)</label>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">General AI Focus/Context</label>
                             <Textarea 
-                              value={formData.ai_context.beginner} 
-                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, beginner: e.target.value } })} 
-                              placeholder="e.g. Junior developer projects" 
+                              className="min-h-[100px] text-sm"
+                              value={formData.ai_context.context} 
+                              onChange={e => setFormData({ 
+                                ...formData, 
+                                ai_context: { ...formData.ai_context, context: e.target.value } 
+                              })} 
+                              placeholder="e.g. Focus on React hooks, system design, and behavioral questions related to teamwork." 
                             />
+                            <p className="text-xs text-gray-500">General instructions for the AI on what areas to focus on during the interview.</p>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Intermediate (1-3 yrs)</label>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">Predefined Questions (One per line)</label>
                             <Textarea 
-                              value={formData.ai_context['1_3_years']} 
-                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '1_3_years': e.target.value } })} 
-                              placeholder="e.g. System design basics, architecture" 
+                              className="min-h-[200px] text-sm font-mono"
+                              value={formData.ai_context.predefined_questions.join('\n')} 
+                              onChange={e => setFormData({ 
+                                ...formData, 
+                                ai_context: { 
+                                  ...formData.ai_context, 
+                                  predefined_questions: e.target.value.split('\n') 
+                                } 
+                              })} 
+                              placeholder="Question 1...&#10;Question 2..." 
                             />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Experienced (3+ yrs)</label>
-                            <Textarea 
-                              value={formData.ai_context['3_plus_years']} 
-                              onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '3_plus_years': e.target.value } })} 
-                              placeholder="e.g. Scalability, advanced microservices" 
-                            />
+                            <p className="text-xs text-gray-500">The AI will ask these questions in the exact order provided. Leave empty for dynamic AI generation.</p>
                           </div>
                         </div>
                       </div>

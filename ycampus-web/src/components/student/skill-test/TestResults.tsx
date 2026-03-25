@@ -1,42 +1,38 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
 import {
-  ArrowLeft,
   RotateCcw,
-  Bot,
-  Send,
-  Download,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Clock,
-  MessageSquare,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Code,
   FileText,
-  ListFilter,
-  Trophy
+  Trophy,
+  Target,
+  MessageCircle,
+  Eye,
+  Lightbulb,
 } from 'lucide-react';
 import { getSkillTestSubmission, getSkillTestSubmissions } from '@/services/skillTestService';
 import { toast } from 'sonner';
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
+import MonacoCodeEditor from '@/components/code-editor/MonacoCodeEditor';
 
 interface Test {
   id: string;
   title: string;
-  course: string;
+  subjectName: string;
   duration: number;
   totalQuestions: number;
   marks: number;
   score?: number;
   maxAttempts?: number;
   currentAttempts?: number;
+  testType?: 'practice' | 'assessment';
 }
 
 interface TestResultsProps {
@@ -46,60 +42,46 @@ interface TestResultsProps {
   onTryAgain?: () => void;
 }
 
-interface QuestionResult {
-  id: number;
-  question: string;
-  type: 'mcq' | 'coding' | 'descriptive';
-  options?: string[];
-  correctAnswer: string;
-  studentAnswer: string;
-  isCorrect: boolean;
-  explanation: string;
-  points: number;
-  maxPoints: number;
-}
-
-interface ChatMessage {
-  id: number;
-  type: 'user' | 'ai';
-  message: string;
-  timestamp: Date;
-}
-
 const TestResults: React.FC<TestResultsProps> = ({
   test,
   submissionId: initialSubmissionId,
   onBackToList,
-  onTryAgain
+  onTryAgain,
 }) => {
-  console.log('TestResults component rendered with:', {
-    test: test?.id,
-    testTitle: test?.title,
-    submissionId: initialSubmissionId
-  });
   const [currentSubId, setCurrentSubId] = useState(initialSubmissionId);
   const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [submissionData, setSubmissionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedQuestion, setSelectedQuestion] = useState(0);
-  const [activeTab, setActiveTab] = useState<'mcq' | 'coding' | 'descriptive'>('mcq');
+  const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'ai_buddy'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'mcq' | 'coding' | 'descriptive'>('all');
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
 
-  // Fetch all submissions for the attempt switcher
   useEffect(() => {
     const fetchAll = async () => {
+      // Skip API call for mock test IDs
+      if (test.id.startsWith('mock-')) {
+        setLoading(false);
+        return;
+      }
       try {
         const subs = await getSkillTestSubmissions(test.id);
-        const filtered = subs.filter(s => s.status === 'completed' || s.status === 'submitted');
-        // Sort by date descending (latest first)
-        const sorted = filtered.sort((a, b) => new Date(b.submitted_at || b.completed_at || b.created_at).getTime() - new Date(a.submitted_at || a.completed_at || a.created_at).getTime());
+        const filtered = subs.filter((s: any) => s.status === 'completed' || s.status === 'submitted');
+        const sorted = filtered.sort((a: any, b: any) =>
+          new Date(b.submitted_at || b.completed_at || b.created_at).getTime() -
+          new Date(a.submitted_at || a.completed_at || a.created_at).getTime()
+        );
         setAllSubmissions(sorted);
-
-        // If no initial ID or it's not in the list, default to the latest one
-        if (!initialSubmissionId && sorted.length > 0) {
+        // If the passed submissionId isn't a real one, use the latest from API
+        const passedIsReal = sorted.some((s: any) => s.id === initialSubmissionId);
+        if (!passedIsReal && sorted.length > 0) {
           setCurrentSubId(sorted[0].id);
+        } else if (!passedIsReal && sorted.length === 0) {
+          // No submissions at all — stop loading
+          setLoading(false);
         }
       } catch (err) {
-        console.error("Failed to fetch all submissions", err);
+        console.error('Failed to fetch all submissions', err);
+        setLoading(false);
       }
     };
     fetchAll();
@@ -108,483 +90,481 @@ const TestResults: React.FC<TestResultsProps> = ({
   useEffect(() => {
     if (!currentSubId) return;
 
+    // Mock submission — inject realistic mock data for presentation
+    if (currentSubId.startsWith('mock-') || currentSubId.startsWith('sub-')) {
+        const mockScore = test.marks > 0
+          ? Math.round(test.marks * (0.55 + Math.random() * 0.35))
+          : 0;
+        const totalQ = test.totalQuestions || 10;
+        const now = new Date();
+        const started = new Date(now.getTime() - test.duration * 60 * 1000 * 0.8);
+
+        const MOCK_QUESTIONS = [
+          // MCQ questions
+          { question_type: 'mcq_single', question_content: 'Which data structure uses LIFO order?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Stack', explanation: 'A stack follows Last In First Out (LIFO) principle — the last element pushed is the first to be popped.' }, mcq_options: [{ text: 'Queue', is_correct: false }, { text: 'Stack', is_correct: true }, { text: 'Array', is_correct: false }, { text: 'Tree', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What is the time complexity of binary search?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'O(log n)', explanation: 'Binary search halves the search space each iteration, giving O(log n) time complexity.' }, mcq_options: [{ text: 'O(n)', is_correct: false }, { text: 'O(n²)', is_correct: false }, { text: 'O(log n)', is_correct: true }, { text: 'O(1)', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'Which sorting algorithm has the best average-case complexity?', is_correct: false, marks: 2, marks_obtained: 0, answer_data: { answer: 'Bubble Sort', explanation: 'Merge Sort and Quick Sort both achieve O(n log n) average complexity, far better than Bubble Sort\'s O(n²).' }, mcq_options: [{ text: 'Bubble Sort', is_correct: false }, { text: 'Merge Sort', is_correct: true }, { text: 'Selection Sort', is_correct: false }, { text: 'Insertion Sort', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What does OOP stand for?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Object-Oriented Programming', explanation: 'OOP is a programming paradigm based on objects that bundle data and behavior together.' }, mcq_options: [{ text: 'Object-Oriented Programming', is_correct: true }, { text: 'Open Operational Process', is_correct: false }, { text: 'Ordered Object Protocol', is_correct: false }, { text: 'None of the above', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'What is the output of 2 ** 10 in Python?', is_correct: false, marks: 2, marks_obtained: 0, answer_data: { answer: '20', explanation: '2 ** 10 is the exponentiation operator in Python — it means 2 to the power of 10, which equals 1024, not 20.' }, mcq_options: [{ text: '20', is_correct: false }, { text: '1024', is_correct: true }, { text: '512', is_correct: false }, { text: '2048', is_correct: false }] },
+          { question_type: 'mcq_single', question_content: 'Which keyword is used to inherit a class in Python?', is_correct: true, marks: 2, marks_obtained: 2, answer_data: { answer: 'Passing the parent class in parentheses', explanation: 'In Python, inheritance is done by passing the parent class in parentheses: class Child(Parent).' }, mcq_options: [{ text: 'extends', is_correct: false }, { text: 'Passing the parent class in parentheses', is_correct: true }, { text: 'inherits', is_correct: false }, { text: 'super', is_correct: false }] },
+          // Coding questions
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `reverse_string(s)` that returns the reversed version of the input string.',
+            question_title: 'Reverse a String',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def reverse_string(s):\n    return s[::-1]\n\n# Test\nprint(reverse_string("hello"))  # Output: "olleh"`,
+              language: 'python',
+              explanation: 'Python slice notation s[::-1] steps through the string backwards, producing the reversed string in O(n) time.',
+              reference_solution: `def reverse_string(s):\n    return s[::-1]\n\n# Alternative: using reversed()\ndef reverse_string_v2(s):\n    return ''.join(reversed(s))`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `is_palindrome(s)` that returns True if the string is a palindrome, False otherwise. Ignore case.',
+            question_title: 'Check Palindrome',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def is_palindrome(s):\n    s = s.lower()\n    return s == s[::-1]\n\n# Test\nprint(is_palindrome("Racecar"))  # True\nprint(is_palindrome("hello"))    # False`,
+              language: 'python',
+              explanation: 'Convert to lowercase first to handle case-insensitivity, then compare the string with its reverse.',
+              reference_solution: `def is_palindrome(s):\n    s = s.lower().replace(' ', '')\n    return s == s[::-1]`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `fibonacci(n)` that returns the nth Fibonacci number (0-indexed). Use an iterative approach.',
+            question_title: 'Fibonacci Number',
+            is_correct: false,
+            marks: 5,
+            marks_obtained: 0,
+            answer_data: {
+              answer: `def fibonacci(n):\n    if n == 0: return 0\n    a, b = 0, 1\n    for _ in range(n - 1):\n        a, b = b, a + b\n    return a  # Bug: should return b`,
+              language: 'python',
+              explanation: 'The iterative approach is correct but the return value has an off-by-one error. After the loop, `b` holds the nth Fibonacci number, not `a`. The fix is `return b`.',
+              reference_solution: `def fibonacci(n):\n    if n == 0: return 0\n    if n == 1: return 1\n    a, b = 0, 1\n    for _ in range(n - 1):\n        a, b = b, a + b\n    return b`,
+            },
+          },
+          {
+            question_type: 'coding',
+            question_content: 'Write a Python function `count_vowels(s)` that returns the count of vowels (a, e, i, o, u) in the given string. Case-insensitive.',
+            question_title: 'Count Vowels',
+            is_correct: true,
+            marks: 5,
+            marks_obtained: 5,
+            answer_data: {
+              answer: `def count_vowels(s):\n    return sum(1 for c in s.lower() if c in 'aeiou')\n\n# Test\nprint(count_vowels("Hello World"))  # 3`,
+              language: 'python',
+              explanation: 'Using a generator expression with sum() is clean and Pythonic. Converting to lowercase first handles case-insensitivity.',
+              reference_solution: `def count_vowels(s):\n    vowels = set('aeiou')\n    return sum(1 for c in s.lower() if c in vowels)`,
+            },
+          },
+        ];
+
+        setSubmissionData({
+          marks: mockScore,
+          started_at: started.toISOString(),
+          completed_at: now.toISOString(),
+          question_activities: MOCK_QUESTIONS,
+        });
+      setAllSubmissions([{ id: currentSubId, status: 'completed', marks: mockScore }]);
+        setLoading(false);
+        return;
+      }
+
     const fetchSubmission = async () => {
       setLoading(true);
       try {
         const data = await getSkillTestSubmission(currentSubId);
         setSubmissionData(data);
-        // Set initial active tab based on available questions
-        if (data.question_activities) {
-          const mcq = data.question_activities.filter((q: any) => q.question_type?.includes('mcq'));
-          const coding = data.question_activities.filter((q: any) => q.question_type === 'coding');
-          const descriptive = data.question_activities.filter((q: any) => q.question_type === 'descriptive');
-
-          if (mcq.length > 0) setActiveTab('mcq');
-          else if (coding.length > 0) setActiveTab('coding');
-          else if (descriptive.length > 0) setActiveTab('descriptive');
-        }
-      } catch (error) {
-        console.error('Failed to fetch submission:', error);
+      } catch {
         toast.error('Failed to load test results.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchSubmission();
     window.scrollTo(0, 0);
   }, [currentSubId]);
 
-  const { mcqQuestions, codingQuestions, descriptiveQuestions } = useMemo(() => {
-    const activities = submissionData?.question_activities || [];
-    return {
-      mcqQuestions: activities.filter((q: any) => q.question_type?.includes('mcq')),
-      codingQuestions: activities.filter((q: any) => q.question_type === 'coding'),
-      descriptiveQuestions: activities.filter((q: any) => q.question_type === 'descriptive'),
-    };
-  }, [submissionData]);
+  const questions = useMemo(() => submissionData?.question_activities || [], [submissionData]);
 
-  const currentGroup = useMemo(() => {
-    switch (activeTab) {
-      case 'mcq':
-        return mcqQuestions;
-      case 'coding':
-        return codingQuestions;
-      case 'descriptive':
-        return descriptiveQuestions;
-      default:
-        return [];
+  const filteredQuestions = useMemo(() => {
+    let result = questions;
+    if (typeFilter !== 'all') {
+      result = result.filter((q: any) => {
+        if (typeFilter === 'mcq') return q.question_type?.includes('mcq');
+        return q.question_type === typeFilter;
+      });
     }
-  }, [activeTab, mcqQuestions, codingQuestions, descriptiveQuestions]);
+    if (activeTab === 'incorrect') return result.filter((q: any) => !q.is_correct);
+    if (activeTab === 'correct') return result.filter((q: any) => q.is_correct);
+    return result;
+  }, [questions, activeTab, typeFilter]);
 
-  const currentQuestionData = useMemo(() => {
-    return currentGroup[selectedQuestion];
-  }, [currentGroup, selectedQuestion]);
+  const toggleQuestion = (index: number) => {
+    setExpandedQuestions(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index); else next.add(index);
+      return next;
+    });
+  };
 
-  const totalQuestionsAttempted = submissionData?.question_activities?.filter((q: any) => q.answer_data?.answer).length || 0;
-  const correctAnswers = submissionData?.question_activities?.filter((q: any) => q.is_correct).length || 0;
-  const wrongAnswers = submissionData?.question_activities?.filter((q: any) => !q.is_correct && q.answer_data?.answer).length || 0;
-  const skippedCount = (test.totalQuestions || 0) - totalQuestionsAttempted;
-
+  const correctAnswers = questions.filter((q: any) => q.is_correct).length;
   const totalScore = submissionData?.marks || 0;
   const maxScore = test.marks;
   const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
   const timeTakenMinutes = useMemo(() => {
     if (!submissionData?.started_at || !submissionData?.completed_at) return 0;
-    const start = new Date(submissionData.started_at).getTime();
-    const end = new Date(submissionData.completed_at).getTime();
-    return Math.round((end - start) / 60000);
+    return Math.round(
+      (new Date(submissionData.completed_at).getTime() - new Date(submissionData.started_at).getTime()) / 60000
+    );
   }, [submissionData]);
 
-  const performanceMetrics = {
-    accuracy: test.totalQuestions > 0 ? Math.round((correctAnswers / test.totalQuestions) * 100) : 0,
-    speed: timeTakenMinutes > 0 && test.duration ? Math.round((timeTakenMinutes / test.duration) * 100) : 0,
-    completionRate: test.totalQuestions > 0 ? Math.round((totalQuestionsAttempted / test.totalQuestions) * 100) : 0
+  const getPerformance = (pct: number) => {
+    if (pct >= 90) return { text: 'Excellent', color: 'text-green-600', bg: 'bg-green-50', icon: 'green' };
+    if (pct >= 75) return { text: 'Good', color: 'text-blue-600', bg: 'bg-blue-50', icon: 'blue' };
+    if (pct >= 60) return { text: 'Average', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: 'yellow' };
+    return { text: 'Needs Work', color: 'text-red-600', bg: 'bg-red-50', icon: 'red' };
   };
 
-  const getPerformanceLevel = (percentage: number) => {
-    if (percentage >= 90) return { text: 'Excellent', color: 'text-green-600', bg: 'bg-green-100' };
-    if (percentage >= 75) return { text: 'Good', color: 'text-blue-600', bg: 'bg-blue-100' };
-    if (percentage >= 60) return { text: 'Average', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-    return { text: 'Need Improvement', color: 'text-red-600', bg: 'bg-red-100' };
-  };
-
-  const performance = getPerformanceLevel(percentage);
-
-  const formatTime = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-  };
-
-  useEffect(() => {
-    setSelectedQuestion(0); // Reset selected question when activeTab changes
-  }, [activeTab]);
+  const perf = getPerformance(percentage);
+  const showAiChat = activeTab === 'ai_buddy';
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Loading results...</p>
+        <p className="text-muted-foreground">Loading results...</p>
       </div>
     );
   }
 
   if (!submissionData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-destructive">Could not load submission data.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <p className="text-gray-500">No submission data found for this assessment.</p>
+        <Button variant="outline" onClick={onBackToList}>Back to List</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-6">
-        {/* Compact Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">{test.title}</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-[1400px] mx-auto px-8 py-6 space-y-6">
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{test.title} — Results</h1>
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-sm text-gray-500">
+                Attempt {allSubmissions.findIndex(s => s.id === currentSubId) + 1} of {allSubmissions.length}
+              </span>
               {allSubmissions.length > 1 && (
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Attempts</span>
-                  <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full">
-                    {allSubmissions.slice().reverse().map((sub, idx) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => setCurrentSubId(sub.id)}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-all ${currentSubId === sub.id
-                          ? 'bg-slate-800 text-white shadow-md scale-110'
-                          : 'bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-                          }`}
-                        title={`Attempt ${idx + 1}`}
-                      >
-                        {idx + 1}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex gap-1">
+                  {allSubmissions.map((sub, idx) => (
+                    <button
+                      key={sub.id}
+                      onClick={() => setCurrentSubId(sub.id)}
+                      className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                        currentSubId === sub.id ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      {allSubmissions.length - idx}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
-            <p className="text-slate-400 font-semibold uppercase tracking-widest text-[10px]">{test.course}</p>
           </div>
           <div className="flex gap-2">
             {onTryAgain && (
-              <Button
-                variant="outline"
-                onClick={onTryAgain}
-                className="flex items-center gap-2 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-semibold h-11 transition-all active:scale-95 shadow-none border"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Try Again
+              <Button onClick={onTryAgain} className="gap-2 bg-gray-900 text-white hover:bg-gray-800">
+                <RotateCcw className="h-4 w-4" /> Retake
               </Button>
             )}
-            <Button
-              onClick={onBackToList}
-              className="flex items-center gap-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 shadow-none border border-gray-200 px-6 h-11 transition-all active:scale-95"
-            >
-              Close
+            <Button variant="outline" onClick={onBackToList} className="border-gray-200 text-gray-600 hover:bg-gray-50">
+              Back to List
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          {/* Main Results Content (75%) */}
-          <div className="flex-1 lg:w-3/4 space-y-6">
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="border border-gray-200 shadow-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${perf.bg}`}>
+                <Trophy className={`w-5 h-5 ${perf.color}`} />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-gray-900">{totalScore}<span className="text-sm font-normal text-gray-400"> / {maxScore}</span></p>
+                <p className="text-xs text-gray-500">Total Score</p>
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card className="border border-gray-200 shadow-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50">
+                <Target className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-gray-900">{test.totalQuestions > 0 ? Math.round((correctAnswers / test.totalQuestions) * 100) : 0}%</p>
+                <p className="text-xs text-gray-500">Accuracy</p>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Performance Analysis Card */}
-            <Card className="border border-gray-200 shadow-none bg-white overflow-hidden">
-              <CardHeader className="pb-4 border-b border-slate-50 bg-white">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <CardTitle className="text-base font-semibold flex items-center gap-3 text-slate-800">
-                    <div className="p-2 bg-amber-50 rounded-xl">
-                      <Trophy className="h-5 w-5 text-amber-500" />
-                    </div>
-                    Question Analysis
-                  </CardTitle>
-                  <div className="flex flex-wrap items-center gap-2 bg-slate-100 p-1 rounded-2xl">
-                    {mcqQuestions.length > 0 && (
-                      <Button
-                        size="sm"
-                        variant={activeTab === 'mcq' ? 'secondary' : 'ghost'}
-                        onClick={() => setActiveTab('mcq')}
-                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'mcq' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
-                      >
-                        <ListFilter className="h-4 w-4" />
-                        MCQ ({mcqQuestions.length})
-                      </Button>
-                    )}
-                    {codingQuestions.length > 0 && (
-                      <Button
-                        size="sm"
-                        variant={activeTab === 'coding' ? 'secondary' : 'ghost'}
-                        onClick={() => setActiveTab('coding')}
-                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'coding' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
-                      >
-                        <Code className="h-4 w-4" />
-                        Coding ({codingQuestions.length})
-                      </Button>
-                    )}
-                    {descriptiveQuestions.length > 0 && (
-                      <Button
-                        size="sm"
-                        variant={activeTab === 'descriptive' ? 'secondary' : 'ghost'}
-                        onClick={() => setActiveTab('descriptive')}
-                        className={`rounded-xl font-semibold gap-2 px-4 ${activeTab === 'descriptive' ? 'bg-white shadow-none border border-gray-200 text-slate-900' : 'text-slate-500'}`}
-                      >
-                        <FileText className="h-4 w-4" />
-                        Descriptive ({descriptiveQuestions.length})
-                      </Button>
-                    )}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50">
+                <Clock className="w-5 h-5 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-gray-900">{timeTakenMinutes}m<span className="text-sm font-normal text-gray-400"> / {test.duration}m</span></p>
+                <p className="text-xs text-gray-500">Time Taken</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-gray-200 shadow-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${perf.bg}`}>
+                {percentage >= 60
+                  ? <CheckCircle className={`w-5 h-5 ${perf.color}`} />
+                  : <XCircle className={`w-5 h-5 ${perf.color}`} />}
+              </div>
+              <div>
+                <p className={`text-base font-bold ${perf.color}`}>{perf.text}</p>
+                <p className="text-xs text-gray-500">Result Status</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Question Review */}
+        <Card className="border border-gray-200 shadow-sm rounded-xl overflow-hidden bg-white">
+          {/* Tab bar */}
+          <div className="px-6 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+            <div className="flex flex-wrap items-center gap-2">
+              {(['all', 'incorrect', 'correct'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${
+                    activeTab === tab
+                      ? tab === 'incorrect' ? 'bg-red-500 text-white' : tab === 'correct' ? 'bg-green-500 text-white' : 'bg-gray-900 text-white'
+                      : tab === 'incorrect' ? 'text-gray-500 hover:bg-red-50 hover:text-red-600' : tab === 'correct' ? 'text-gray-500 hover:bg-green-50 hover:text-green-600' : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab === 'all' ? `All (${questions.length})` : tab === 'incorrect' ? `Incorrect (${questions.length - correctAnswers})` : `Correct (${correctAnswers})`}
+                </button>
+              ))}
+
+              <div className="h-5 w-px bg-gray-200 mx-1" />
+
+              {/* Type filter */}
+              {(['all', 'mcq', 'coding', 'descriptive'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTypeFilter(t)}
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${
+                    typeFilter === t ? 'bg-gray-100 text-gray-900 border border-gray-300' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {t === 'all' ? 'All Types' : t.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setActiveTab(activeTab === 'ai_buddy' ? 'all' : 'ai_buddy')}
+              className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all ${
+                activeTab === 'ai_buddy'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-700 hover:bg-slate-50 border border-slate-200'
+              }`}
+            >
+              <MessageCircle className="w-4 h-4" /> AI Buddy
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex flex-col lg:flex-row items-start">
+            <div
+              className={`${showAiChat ? 'lg:w-[65%] border-r border-gray-200' : 'w-full'} transition-all duration-300 overflow-y-auto`}
+              style={showAiChat ? { height: 'calc(100vh - 200px)', maxHeight: '800px' } : {}}
+            >
+              <div className="p-5 space-y-3">
+                {filteredQuestions.length === 0 && (
+                  <div className="text-center py-12 text-gray-400">
+                    <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                    <p className="font-medium">No questions in this filter</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedQuestion(prev => Math.max(0, prev - 1))}
-                      disabled={selectedQuestion === 0}
-                      className="rounded-xl border-slate-200 h-10 w-10 p-0"
+                )}
+                {filteredQuestions.map((q: any, idx: number) => {
+                  const isCorrect = q.is_correct;
+                  const isExpanded = expandedQuestions.has(idx);
+                  const qType = q.question_type?.includes('mcq') ? 'MCQ' : q.question_type === 'coding' ? 'Coding' : 'Descriptive';
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm bg-white ${isCorrect ? 'border-gray-200' : 'border-red-200'}`}
                     >
-                      <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <span className="text-sm font-black text-slate-600 tabular-nums px-2">
-                      {selectedQuestion + 1} / {currentGroup.length}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedQuestion(prev => Math.min(currentGroup.length - 1, prev + 1))}
-                      disabled={selectedQuestion === currentGroup.length - 1}
-                      className="rounded-xl border-slate-200 h-10 w-10 p-0"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                {!currentQuestionData ? (
-                  <div className="flex flex-col items-center justify-center py-20 bg-slate-50 m-6 rounded-3xl border border-dashed border-slate-200">
-                    <AlertCircle className="h-10 w-10 text-slate-300 mb-4" />
-                    <p className="font-semibold text-slate-400">No questions found in this category</p>
-                  </div>
-                ) : (
-                  <div className="p-6 space-y-6 animate-in fade-in duration-500">
-                    {/* Question Nav Pills */}
-                    <div className="flex flex-wrap gap-2 pb-6 border-b border-slate-50">
-                      {currentGroup.map((question: any, index: number) => (
-                        <button
-                          key={question.id}
-                          onClick={() => setSelectedQuestion(index)}
-                          className={`w-11 h-11 rounded-2xl border-2 flex items-center justify-center font-black text-sm transition-all duration-300 ${selectedQuestion === index
-                            ? 'bg-slate-900 text-white border-slate-900 shadow-xl scale-110'
-                            : question.is_correct
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100'
-                              : question.answer_data?.answer
-                                ? 'bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100'
-                                : 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-200'
-                            }`}
-                        >
-                          {index + 1}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="flex flex-col md:flex-row items-start justify-between gap-6 p-5 bg-slate-50 rounded-[2rem] border border-slate-100 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-200/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/5 transition-colors duration-500" />
-                        <div className="space-y-4 relative z-10">
-                          <div className="flex items-center gap-3">
-                            <Badge className="bg-slate-900 text-[10px] uppercase tracking-widest font-black px-3 py-1 rounded-lg border-0">
-                              Question {selectedQuestion + 1}
-                            </Badge>
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-widest font-black border-slate-200 text-slate-400 bg-white px-3 py-1 rounded-lg">
-                              {currentQuestionData.question_type?.replace('_', ' ')}
-                            </Badge>
-                          </div>
-                          <p className="text-lg font-semibold text-slate-800 leading-tight">
-                            {currentQuestionData.question_content || currentQuestionData.question_title}
-                          </p>
+                      <div
+                        className={`p-4 cursor-pointer flex items-start gap-3 hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}
+                        onClick={() => toggleQuestion(idx)}
+                      >
+                        <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                          {isCorrect
+                            ? <CheckCircle className="h-4 w-4 text-green-600" />
+                            : <XCircle className="h-4 w-4 text-red-600" />}
                         </div>
-                        <div className={`shrink-0 p-5 rounded-[2rem] flex flex-col items-center justify-center min-w-[120px] relative z-10 transition-all duration-500 ${currentQuestionData.is_correct ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-200' : 'bg-slate-200 text-slate-400'}`}>
-                          <div className="text-2xl font-semibold leading-none">{currentQuestionData.marks_obtained || 0}</div>
-                          <div className="text-[10px] font-black uppercase tracking-widest mt-2 opacity-70">Marks /{currentQuestionData.marks}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
+                            <Badge className="text-[10px] h-4 px-1.5 bg-slate-100 text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
+                          </div>
+                          <p className="text-sm font-medium text-gray-900 line-clamp-2">{q.question_content || q.question_title}</p>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="text-right hidden sm:block">
+                            <p className="text-[10px] text-gray-400 uppercase font-bold">Score</p>
+                            <p className={`text-sm font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                              {q.marks_obtained || 0}/{q.marks}
+                            </p>
+                          </div>
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
                         </div>
                       </div>
 
-                      {activeTab === 'mcq' && currentQuestionData.mcq_options && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {currentQuestionData.mcq_options.map((option: any, idx: number) => {
-                            const isCorrect = option.is_correct;
-                            const isSelected = option.text === currentQuestionData.answer_data?.answer;
-
-                            return (
-                              <div
-                                key={idx}
-                                className={`p-3 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between group/opt ${isCorrect
-                                  ? 'bg-emerald-50 border-emerald-200 shadow-sm'
-                                  : isSelected
-                                    ? 'bg-rose-50 border-rose-200'
-                                    : 'bg-white border-slate-100 hover:border-slate-300'
-                                  }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-[10px] transition-transform duration-300 group-hover/opt:scale-110 ${isCorrect ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : isSelected ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'bg-slate-100 text-slate-500'}`}>
-                                    {String.fromCharCode(65 + idx)}
+                      {isExpanded && (
+                        <div className="border-t border-gray-100 p-5 space-y-4 bg-white">
+                          {/* MCQ options */}
+                          {q.mcq_options && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {q.mcq_options.map((opt: any, oi: number) => {
+                                const isSelected = opt.text === q.answer_data?.answer;
+                                const isOptCorrect = opt.is_correct;
+                                const style = isOptCorrect
+                                  ? 'border-green-200 bg-green-50 text-green-800'
+                                  : isSelected ? 'border-red-200 bg-red-50 text-red-800'
+                                  : 'border-gray-200 bg-white text-gray-600';
+                                return (
+                                  <div key={oi} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
+                                    <span>{opt.text}</span>
+                                    {isOptCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
+                                    {isSelected && !isOptCorrect && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
                                   </div>
-                                  <span className={`text-xs font-semibold transition-colors ${isCorrect ? 'text-emerald-700' : isSelected ? 'text-rose-700' : 'text-slate-600'}`}>
-                                    {option.text}
-                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {/* Coding answer */}
+                          {q.question_type === 'coding' && (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                <Code className="h-4 w-4" /> Your Code
+                              </p>
+                              {q.answer_data?.answer ? (
+                                <div className="rounded-lg overflow-hidden border border-gray-200">
+                                  <MonacoCodeEditor
+                                    value={q.answer_data.answer}
+                                    onChange={() => {}}
+                                    language={q.answer_data?.language || 'python'}
+                                    readOnly={true}
+                                    height="200px"
+                                  />
                                 </div>
-                                {isCorrect && <CheckCircle className="h-4 w-4 text-emerald-500" />}
-                                {!isCorrect && isSelected && <XCircle className="h-4 w-4 text-rose-500" />}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                              ) : (
+                                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
+                                  <Eye className="w-4 h-4" /> No code submitted
+                                </div>
+                              )}
+                            </div>
+                          )}
 
-                      {(activeTab === 'coding' || activeTab === 'descriptive') && (
-                        <div className="space-y-6">
-                          {activeTab === 'coding' && currentQuestionData.test_cases_basic && (
-                            <div className="space-y-4">
-                              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <ListFilter className="h-3.5 w-3.5" />
-                                Test Case Verification
-                              </h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {currentQuestionData.test_cases_basic.map((tc: any, idx: number) => (
-                                  <div key={idx} className="p-5 bg-white border border-gray-200 rounded-3xl space-y-3 shadow-none">
-                                    <div className="flex items-center justify-between">
-                                      <Badge variant="outline" className="text-[9px] uppercase font-black tracking-widest text-slate-400 border-slate-100">
-                                        Case #{idx + 1}
-                                      </Badge>
-                                    </div>
-                                    <div className="space-y-2">
-                                      <p className="text-[10px] font-black uppercase text-slate-400">Input</p>
-                                      <pre className="text-[10px] bg-slate-50 p-2 rounded-xl font-mono text-slate-600 overflow-x-auto">{tc.input}</pre>
-                                    </div>
-                                    <div className="space-y-2">
-                                      <p className="text-[10px] font-black uppercase text-slate-400">Expected Output</p>
-                                      <pre className="text-[10px] bg-emerald-50 text-emerald-700 p-2 rounded-xl font-mono overflow-x-auto">{tc.expected_output}</pre>
-                                    </div>
-                                  </div>
-                                ))}
+                          {/* Reference solution for coding questions */}
+                          {q.question_type === 'coding' && q.answer_data?.reference_solution && (
+                            <div className="space-y-2 pt-2 border-t border-gray-100">
+                              <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                <Lightbulb className="h-4 w-4" /> Reference Solution
+                              </p>
+                              <div className="rounded-lg overflow-hidden border border-green-200">
+                                <MonacoCodeEditor
+                                  value={q.answer_data.reference_solution}
+                                  onChange={() => {}}
+                                  language={q.answer_data?.language || 'python'}
+                                  readOnly={true}
+                                  height="200px"
+                                />
                               </div>
                             </div>
                           )}
 
-                          <div className="p-8 bg-slate-900 rounded-[2.5rem] shadow-none border border-gray-200 overflow-hidden relative group">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -mr-32 -mt-32" />
-                            <div className="flex items-center justify-between mb-6 relative z-10">
-                              <div className="space-y-1">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{activeTab === 'coding' ? 'Source Code' : 'Submitted Response'}</p>
-                                <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-[10px] font-black tracking-widest px-3">
-                                  {activeTab === 'coding' ? 'STDOUT_RECORD' : 'SUBMITTED_TEXT'}
-                                </Badge>
+                          {/* Descriptive answer */}
+                          {q.question_type === 'descriptive' && (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium text-gray-700">Your Answer</p>
+                              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                <pre className="text-sm whitespace-pre-wrap text-gray-800">{q.answer_data?.answer || 'No answer provided'}</pre>
                               </div>
-                              <Bot className="h-6 w-6 text-slate-700" />
                             </div>
-                            <pre className="text-emerald-400 font-mono text-xs overflow-x-auto scrollbar-hide max-h-[400px] relative z-10 leading-relaxed">
-                              <code>{currentQuestionData.answer_data?.answer || '// No solution provided by student'}</code>
-                            </pre>
-                          </div>
-                        </div>
-                      )}
+                          )}
 
-                      {currentQuestionData.answer_data?.explanation && (
-                        <div className="p-8 bg-blue-50/50 border border-blue-100/50 rounded-[2.5rem] shadow-none relative overflow-hidden group mt-4">
-                          <div className="absolute top-0 left-0 w-32 h-32 bg-blue-200/20 rounded-full blur-3xl -ml-16 -mt-16" />
-                          <div className="flex items-center gap-3 mb-4 text-blue-900 relative z-10">
-                            <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
-                              <MessageSquare className="h-4 w-4 text-white" />
+                          {/* Explanation */}
+                          {q.answer_data?.explanation && (
+                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                              <h4 className="text-sm font-bold text-blue-800 mb-1 flex items-center gap-2">
+                                <Lightbulb className="h-4 w-4" /> Explanation
+                              </h4>
+                              <p className="text-sm text-blue-900/80">{q.answer_data.explanation}</p>
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Knowledge Base Explanation</p>
-                          </div>
-                          <p className="text-sm font-semibold text-blue-900/80 leading-relaxed relative z-10 ml-1">
-                            {currentQuestionData.answer_data.explanation}
-                          </p>
+                          )}
                         </div>
                       )}
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* AI Chat panel */}
+            {showAiChat && (
+              <div className="lg:w-[35%] w-full flex flex-col bg-gray-50/50" style={{ height: 'calc(100vh - 200px)', maxHeight: '800px' }}>
+                <div className="flex-1 p-4 h-full relative">
+                  <div className="absolute inset-4">
+                    <AIChatContainer
+                      className="w-full h-full border border-gray-200 shadow-sm rounded-xl flex flex-col bg-white overflow-hidden"
+                      welcomeMessage={`I've analyzed your performance on "${test.title}". You scored ${totalScore}/${maxScore}. Ask me anything!`}
+                      persistenceKey={`test-review-${currentSubId}`}
+                      chatTitle={`${test.title} Review`}
+                      contextGetter={() => JSON.stringify({
+                        test_title: test.title,
+                        score: totalScore,
+                        total_questions: test.totalQuestions,
+                        correct: correctAnswers,
+                        question_data: questions.map((q: any) => ({
+                          title: q.question_title,
+                          is_correct: q.is_correct,
+                          student_answer: q.answer_data?.answer,
+                        })),
+                      })}
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Right Column - Summary & AI Assistant (25%) */}
-          <div className="hidden lg:flex lg:flex-col lg:w-1/4 sticky top-8 h-[calc(100vh-120px)] gap-6">
-            {/* Compact Vertical Score Card */}
-            <Card className="border border-gray-200 shadow-none bg-white overflow-hidden shrink-0">
-              <CardContent className="p-5 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="relative w-20 h-20 rounded-full border-4 border-slate-100 flex items-center justify-center bg-gradient-to-br from-slate-50 to-white shadow-inner">
-                    <div className="text-center">
-                      <div className="text-xl font-semibold text-slate-900 leading-none">{totalScore}</div>
-                      <div className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">/ {maxScore}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Badge className={`${performance.bg} ${performance.color} border-0 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider mb-1`}>
-                      {performance.text}
-                    </Badge>
-                    <div className="text-[10px] text-slate-500 font-semibold flex items-center justify-end gap-1">
-                      <Clock className="h-3 w-3" />
-                      {percentage}% Accuracy
-                    </div>
-                    <div className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                      {submissionData.submitted_at && new Date(submissionData.submitted_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 py-4 border-y border-slate-50">
-                  <div className="text-center">
-                    <div className="text-base font-black text-slate-800 leading-none">{test.totalQuestions}</div>
-                    <p className="text-[8px] uppercase tracking-widest font-black text-slate-400 mt-1">Questions</p>
-                  </div>
-                  <div className="text-center border-x border-slate-50">
-                    <div className="text-base font-black text-emerald-700 leading-none">{correctAnswers}</div>
-                    <p className="text-[8px] uppercase tracking-widest font-black text-emerald-500 mt-1">Correct</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-base font-black text-rose-700 leading-none">{wrongAnswers}</div>
-                    <p className="text-[8px] uppercase tracking-widest font-black text-rose-500 mt-1">Wrong</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-widest text-slate-400">
-                      <span>Accuracy</span>
-                      <span className="text-slate-900 font-semibold">{performanceMetrics.accuracy}%</span>
-                    </div>
-                    <Progress value={performanceMetrics.accuracy} className="h-1.5 bg-slate-100 [&>div]:bg-emerald-500 rounded-full" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-widest text-slate-400">
-                      <span>Progression</span>
-                      <span className="text-slate-900 font-semibold">{performanceMetrics.completionRate}%</span>
-                    </div>
-                    <Progress value={performanceMetrics.completionRate} className="h-1.5 bg-slate-100 [&>div]:bg-blue-500 rounded-full" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <AIChatContainer
-              className="flex-1 border border-gray-200 shadow-none rounded-none overflow-hidden"
-              welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${test.title}". Ask me anything!`}
-              persistenceKey={`test-review-${currentSubId}`}
-              chatTitle={`${test.title} Review - AI Buddy`}
-              contextGetter={() => {
-                const wrongQ = submissionData?.question_activities?.filter((q: any) => !q.is_correct) || [];
-                return JSON.stringify({
-                  test_title: test.title,
-                  score: totalScore,
-                  max_score: maxScore,
-                  percentage: percentage,
-                  wrong_questions: wrongQ.map((q: any) => ({
-                    title: q.question_title,
-                    content: q.question_content,
-                    student_answer: q.answer_data?.answer,
-                    explanation: q.answer_data?.explanation
-                  })),
-                  current_reviewing: currentQuestionData ? {
-                    title: currentQuestionData.question_title,
-                    content: currentQuestionData.question_content,
-                    student_answer: currentQuestionData.answer_data?.answer,
-                    is_correct: currentQuestionData.is_correct,
-                    explanation: currentQuestionData.answer_data?.explanation
-                  } : null
-                });
-              }}
-            />
-          </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

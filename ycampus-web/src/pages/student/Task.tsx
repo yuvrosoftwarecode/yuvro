@@ -17,13 +17,17 @@ import {
     Calendar, Clock, CheckCircle2, AlertCircle,
     Search, Paperclip, Download, PlayCircle,
     FileText, Code, Send, LayoutGrid, MessageSquare,
-    Eye, Trash2, X
+    Eye, Trash2, X, FolderOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Editor from '@monaco-editor/react';
+import axios from 'axios';
+import RoleSidebar from '@/components/common/RoleSidebar';
 
 import { CodeEditorWithAI } from '@/components/code-editor';
 import type { Subject as EditorSubject, Unit as EditorUnit, CodingProblem } from './CodePractice';
+import RoleHeader from '@/components/common/RoleHeader';
+import RoleSidebar from '@/components/common/RoleSidebar';
 
 const StudentTask: React.FC = () => {
     const { user } = useAuth();
@@ -31,6 +35,8 @@ const StudentTask: React.FC = () => {
     const [submissions, setSubmissions] = useState<Record<string, TaskSubmission>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [subjectFilter, setSubjectFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     // Submission form state
     const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -58,6 +64,7 @@ const StudentTask: React.FC = () => {
     const chatEndRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<any>(null);
     const decorationsRef = useRef<string[]>([]);
+    const pendingNavRef = useRef<{ filename: string, lineNumber: number } | null>(null);
 
 
 
@@ -97,11 +104,25 @@ const StudentTask: React.FC = () => {
         return () => clearInterval(interval);
     }, [isDialogOpen, activeTask]);
 
-    // Polling for task list updates (background)
+    // Silent background refresh — does NOT reset isLoading to avoid UI flicker
+    const silentRefresh = async () => {
+        try {
+            const data = await taskService.getTasks();
+            setTasks(data);
+            const submissionMap: Record<string, TaskSubmission> = {};
+            await Promise.all(data.map(async (task) => {
+                const subs = await taskService.getTaskSubmissions(task.id);
+                if (subs.length > 0) submissionMap[task.id] = subs[0];
+            }));
+            setSubmissions(submissionMap);
+        } catch {
+            // silently ignore background refresh errors
+        }
+    };
+
+    // Polling for task list updates (background) — silent, no loader flash
     useEffect(() => {
-        const interval = setInterval(() => {
-            loadTasks();
-        }, 15000); // Check for new tasks every 15s
+        const interval = setInterval(silentRefresh, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -243,8 +264,25 @@ const StudentTask: React.FC = () => {
     };
 
     const isTextFile = (filename: string) => {
-        const ext = filename.split('.').pop()?.toLowerCase();
-        return ['js', 'ts', 'tsx', 'jsx', 'py', 'java', 'c', 'cpp', 'cs', 'html', 'css', 'json', 'md', 'txt', 'sql', 'sh'].includes(ext || '');
+        const ext = filename.split('.').pop()?.toLowerCase() || '';
+        const textExtensions = [
+            'js', 'ts', 'tsx', 'jsx', 'py', 'java', 'c', 'cpp', 'cs',
+            'html', 'css', 'json', 'md', 'txt', 'sql', 'sh',
+            'xml', 'yaml', 'yml', 'csv', 'env', 'log', 'dockerfile', 'makefile', 'gitignore'
+        ];
+        return textExtensions.includes(ext) || filename.toLowerCase().includes('makefile') || filename.toLowerCase().includes('dockerfile');
+    };
+
+    const getAccessibleUrl = (url: string | null | undefined) => {
+        if (!url) return '';
+        let accessibleUrl = url;
+        if (accessibleUrl.includes('://ycampus-backend') || accessibleUrl.includes('://localhost:8001')) {
+            try {
+                const urlObj = new URL(accessibleUrl);
+                return `http://localhost:8001${urlObj.pathname}${urlObj.search}`;
+            } catch (e) {}
+        }
+        return accessibleUrl;
     };
 
     const isImageFile = (filename: string) => {
@@ -272,12 +310,35 @@ const StudentTask: React.FC = () => {
 
             setFileViewerLoading(true);
             try {
-                const response = await fetch(fileViewerUrl);
-                const blob = await response.blob();
+                // Use relative URL to leverage Vite proxy and avoid CORS issues
+                const relativeUrl = fileViewerUrl.includes('://') 
+                    ? new URL(fileViewerUrl).pathname + new URL(fileViewerUrl).search 
+                    : fileViewerUrl;
                 const filename = fileViewerUrl.split('/').pop()?.split('?')[0] || '';
 
                 if (filename.toLowerCase().endsWith('.zip')) {
-                    const jszipModule = await import(/* @vite-ignore */ 'https://esm.run/jszip');
+                    try {
+                        const headResp = await axios.head(relativeUrl);
+                        const contentLength = headResp.headers['content-length'];
+                        if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
+                            toast.info(`ZIP file is too large (${(parseInt(contentLength, 10) / 1024 / 1024).toFixed(1)}MB) for in-browser preview. Please download to review.`);
+                            setFileViewerContent("");
+                            setZipFiles([]);
+                            setFileViewerLoading(false);
+                            return;
+                        }
+                    } catch (e) {
+                         // Silently ignore HEAD errors, will try to fetch anyway
+                    }
+                }
+                
+                console.log("Attempting to preview file (via proxy):", relativeUrl);
+                const axiosResp = await axios.get(relativeUrl, { responseType: 'blob' });
+                const blob = axiosResp.data;
+
+                if (filename.toLowerCase().endsWith('.zip')) {
+                    // @ts-expect-error Types for remote CDN are not locally configured
+                    const jszipModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
                     const JSZip = jszipModule.default || jszipModule;
                     const zip = new JSZip();
                     const contents = await zip.loadAsync(blob);
@@ -286,24 +347,54 @@ const StudentTask: React.FC = () => {
                     for (const [name, file] of Object.entries(contents.files)) {
                         const anyFile = file as any;
                         if (!anyFile.dir) {
-                            if (isTextFile(name)) {
-                                const content = await anyFile.async('string');
-                                files.push({ name, content, type: 'text' });
-                            } else if (isImageFile(name)) {
+                            if (isImageFile(name)) {
                                 const base64 = await anyFile.async('base64');
                                 const ext = name.split('.').pop()?.toLowerCase();
                                 files.push({ name, content: `data:image/${ext};base64,${base64}`, type: 'image' });
                             } else {
-                                files.push({ name, content: '', type: 'other' });
+                                // Default all other files to text preview
+                                const content = await anyFile.async('string');
+                                files.push({ name, content, type: 'text' });
                             }
                         }
                     }
+                    
                     setZipFiles(files);
                     if (files.length > 0) {
-                        const firstPreviewable = files.find(f => f.type !== 'other') || files[0];
-                        setSelectedZipFile(firstPreviewable.name);
-                        setFileViewerContent(firstPreviewable.content);
-                        setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                        const pendingNav = pendingNavRef.current;
+                        if (pendingNav) {
+                            const targetFile = files.find(f => f.name === pendingNav.filename);
+                            if (targetFile) {
+                                setSelectedZipFile(targetFile.name);
+                                setFileViewerContent(targetFile.content);
+                                setFileViewerLanguage(getLanguageFromExtension(targetFile.name));
+                                
+                                setTimeout(() => {
+                                    if (editorRef.current) {
+                                        editorRef.current.revealLineInCenter(pendingNav.lineNumber);
+                                        editorRef.current.setPosition({ lineNumber: pendingNav.lineNumber, column: 1 });
+                                        editorRef.current.focus();
+                                        try {
+                                            decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                                                {
+                                                    range: new (window as any).monaco.Range(pendingNav.lineNumber, 1, pendingNav.lineNumber, 1),
+                                                    options: { isWholeLine: true, className: 'bg-orange-100/50 block w-full border-l-[3px] border-orange-500' }
+                                                }
+                                            ]);
+                                        } catch (e) {}
+                                    }
+                                }, 300);
+                            }
+                            pendingNavRef.current = null;
+                        } else {
+                            const firstPreviewable = files[0];
+                            setSelectedZipFile(firstPreviewable.name);
+                            setFileViewerContent(firstPreviewable.content);
+                            setFileViewerLanguage(getLanguageFromExtension(firstPreviewable.name));
+                        }
+                    } else {
+                        toast.info("ZIP is empty or contains no previewable files.");
+                        setFileViewerContent("");
                     }
                 } else if (isTextFile(filename)) {
                     const text = await blob.text();
@@ -315,9 +406,16 @@ const StudentTask: React.FC = () => {
                     setFileViewerContent(null);
                     setZipFiles([]);
                     setSelectedZipFile(null);
-                } else {
-                    setZipFiles([]);
+                } else if (filename.toLowerCase().endsWith('.pdf')) {
                     setFileViewerContent(null);
+                    setZipFiles([]);
+                    setSelectedZipFile(null);
+                } else {
+                    // Universal fallback to text preview
+                    const text = await blob.text();
+                    setFileViewerContent(text);
+                    setFileViewerLanguage(getLanguageFromExtension(filename));
+                    setZipFiles([]);
                     setSelectedZipFile(null);
                 }
             } catch (error) {
@@ -331,11 +429,36 @@ const StudentTask: React.FC = () => {
         processFile();
     }, [fileViewerUrl, isFileViewerOpen]);
 
-    const filteredTasks = tasks.filter(t =>
-        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.subject_details?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (t.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Helper: extract subject name from task regardless of backend field shape
+    const getSubjectName = (t: Task): string => {
+        const sd = t.subject_details;
+        if (!sd) return '';
+        // Try multiple possible field names the backend may return
+        return sd.name || sd.subject_name || sd.subject || sd.title || String(t.subject) || '';
+    };
+
+    // Unique subjects derived from task list
+    const uniqueSubjects = Array.from(
+        new Set(tasks.map(getSubjectName).filter(Boolean))
+    ) as string[];
+
+    const getTaskStatus = (taskId: string): 'pending' | 'in_progress' | 'completed' => {
+        const sub = submissions[taskId];
+        if (!sub) return 'pending';             // no submission record at all
+        if (sub.is_submitted) return 'completed'; // student submitted — done from their perspective
+        return 'in_progress';                   // draft exists but not yet submitted
+    };
+
+    const filteredTasks = tasks.filter(t => {
+        const subjectName = getSubjectName(t);
+        const matchesSearch =
+            t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            subjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (t.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSubject = subjectFilter === 'all' || subjectName === subjectFilter;
+        const matchesStatus = statusFilter === 'all' || getTaskStatus(t.id) === statusFilter;
+        return matchesSearch && matchesSubject && matchesStatus;
+    });
 
     const getStatusInfo = (taskId: string) => {
         const sub = submissions[taskId];
@@ -396,7 +519,11 @@ const StudentTask: React.FC = () => {
             // First, ensure file viewer is open
             if (!isFileViewerOpen) {
                 const url = activeSub?.file;
-                if (url) openFileViewer(url);
+                if (url) {
+                    pendingNavRef.current = { filename, lineNumber };
+                    openFileViewer(url);
+                    return; // The useEffect will handle the rest once loaded
+                }
             }
 
             // If it's a file inside a ZIP, switch to it
@@ -410,155 +537,188 @@ const StudentTask: React.FC = () => {
             }
 
             // Scroll the editor to the line
-            if (editorRef.current) {
-                // Small delay to ensure content is loaded if we switched files
-                setTimeout(() => {
+            setTimeout(() => {
+                if (editorRef.current) {
                     editorRef.current.revealLineInCenter(lineNumber);
                     editorRef.current.setPosition({ lineNumber, column: 1 });
                     editorRef.current.focus();
 
-                    // Apply visual highlight
-                    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
-                        {
-                            range: { startLineNumber: lineNumber, startColumn: 1, endLineNumber: lineNumber, endColumn: 1 },
-                            options: {
-                                isWholeLine: true,
-                                className: 'line-highlight',
-                                marginClassName: 'line-highlight-margin'
+                    try {
+                        decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, [
+                            {
+                                range: new (window as any).monaco.Range(lineNumber, 1, lineNumber, 1),
+                                options: { isWholeLine: true, className: 'bg-orange-100/50 block w-full border-l-[3px] border-orange-500' }
                             }
-                        }
-                    ]);
-                }, 200);
-            }
+                        ]);
+                    } catch (e) {}
+                }
+            }, 300);
         }
     };
 
 
     // Filter inline comments (from faculty file review)
-    const inlineComments = (activeSub?.comments || []).filter(
-        c => c.comment.startsWith('[') && c.comment.includes(']')
-    );
+    const inlineComments = (activeSub?.comments || []).filter(c => {
+        const bracketEnd = c.comment.indexOf(']');
+        if (bracketEnd === -1 || !c.comment.startsWith('[')) return false;
+        const tag = c.comment.substring(1, bracketEnd);
+        
+        if (selectedZipFile) {
+            // We are viewing a file inside a ZIP
+            return tag.startsWith(`${selectedZipFile} |`);
+        } else {
+            // We are viewing a standalone file
+            return tag.startsWith('Line:') || tag === 'File Review';
+        }
+    });
 
     return (
-        <div className="p-4 md:p-8 min-h-screen bg-[#F8FAFC]">
-            <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-3xl font-normal text-slate-900 tracking-tight flex items-center gap-3">
-                            <LayoutGrid className="w-8 h-8 text-orange-500" />
-                            Academic Tasks
-                        </h1>
-                        <p className="text-slate-500 font-normal mt-1">Submit your assignments and track your progress</p>
+        <div className="flex h-screen bg-white font-sans overflow-hidden">
+            <RoleSidebar />
+            <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+                <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+                    {/* Header Section */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                                Tasks
+                            </h1>
+                            <p className="text-slate-500 font-medium mt-1">View and complete your assigned tasks</p>
+                        </div>
+                        <div className="relative w-full sm:w-72">
+                            <input
+                                type="text"
+                                placeholder="Search tasks..."
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none transition-all placeholder:text-gray-400 focus:border-slate-800 focus:ring-4 focus:ring-slate-800/10 shadow-sm"
+                            />
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        </div>
                     </div>
-                    <div className="relative w-full md:w-96 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 transition-colors group-focus-within:text-indigo-600" />
-                        <Input
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Find a task or subject..."
-                            className="pl-12 h-13 bg-white border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-orange-100 transition-all outline-none"
-                        />
-                    </div>
-                </div>
 
-                {/* Tasks Grid */}
+                    {/* Filters — single outer card, two inner select boxes */}
+                    <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4 mb-4 shadow-sm">
+                        <div className="flex gap-6">
+                            {/* Subjects */}
+                            <div className="flex-1 space-y-2">
+                                <span className="text-[13px] font-bold text-gray-900">Subjects</span>
+                                <div className="relative">
+                                    <select
+                                        value={subjectFilter}
+                                        onChange={e => setSubjectFilter(e.target.value)}
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium outline-none cursor-pointer pr-8"
+                                    >
+                                        <option value="all">All Subjects</option>
+                                        {uniqueSubjects.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Status */}
+                            <div className="flex-1 space-y-2">
+                                <span className="text-[13px] font-bold text-gray-900">Status</span>
+                                <div className="relative">
+                                    <select
+                                        value={statusFilter}
+                                        onChange={e => setStatusFilter(e.target.value)}
+                                        className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium outline-none cursor-pointer pr-8"
+                                    >
+                                        <option value="all">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {/* Tasks List */}
                 {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-4">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="h-64 rounded-[2.5rem] bg-slate-100 animate-pulse" />
+                            <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
                         ))}
                     </div>
                 ) : filteredTasks.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+                    <div className="space-y-4 pb-12">
                         {filteredTasks.map((task) => {
                             const status = getStatusInfo(task.id);
-                            const isSubmitted = submissions[task.id]?.is_submitted;
-
+                            
+                            // Determine status label and strict layout styling
+                            const taskStatus = getTaskStatus(task.id);
+                            const statusText = taskStatus === 'completed' ? 'Completed' : taskStatus === 'in_progress' ? 'In Progress' : 'Pending';
+                            const badgeStyle = taskStatus === 'pending'
+                                ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                                : 'bg-[#0F172A] text-white border-none shadow-sm';
+                            
                             return (
-                                <Card key={task.id} className="group rounded-[2.5rem] border-none bg-white shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-600/10 transition-all duration-300 overflow-hidden flex flex-col">
-                                    <CardHeader className="p-6 pb-2 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <Badge variant="outline" className={`rounded-full px-4 py-1 text-[10px] font-normal uppercase tracking-wider border-none ${task.task_type === 'coding' ? 'bg-orange-50 text-orange-600' : 'bg-rose-50 text-rose-600'
-                                                }`}>
-                                                {task.task_type === 'coding' ? <Code className="w-3 h-3 mr-1" /> : <FileText className="w-3 h-3 mr-1" />}
-                                                {task.task_type}
+                                <div
+                                    key={task.id}
+                                    onClick={() => handleStartTask(task)}
+                                    className="bg-white rounded-2xl border border-gray-300 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer shadow-sm transition-shadow hover:shadow-lg group"
+                                >
+                                    {/* Left: info */}
+                                    <div className="flex-1 space-y-2 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <Badge className={`rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-slate-200 bg-white text-slate-700`}>
+                                                {task.task_type === 'coding' ? <Code className="w-3 h-3 mr-1 inline text-slate-500" /> : <FileText className="w-3 h-3 mr-1 inline text-slate-500" />}
+                                                {task.task_type || 'Task'}
                                             </Badge>
-                                            <Badge variant="outline" className={`rounded-full px-4 py-1 font-normal border-none ${status.color}`}>
-                                                <span className="mr-1">{status.icon}</span>
-                                                {status.label}
-                                            </Badge>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-normal text-slate-900 group- transition-colors line-clamp-2">
-                                                {task.title}
-                                            </h3>
-                                            <p className="text-sm font-normal text-slate-400 mt-1">{task.subject_details?.name}</p>
-                                        </div>
-                                    </CardHeader>
-
-                                    <CardContent className="p-6 flex-1 flex flex-col justify-between">
-                                        <div className="space-y-4 mb-6">
-                                            <div className="flex items-center gap-4 text-sm font-normal text-slate-500 bg-slate-50 p-3 rounded-2xl ring-1 ring-slate-100">
-                                                <Calendar className="w-4 h-4 text-orange-500" />
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] uppercase tracking-widest text-slate-400">Created On</span>
-                                                    <span className="text-slate-700">{format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-sm font-normal text-slate-500 bg-orange-50 p-3 rounded-2xl ring-1 ring-orange-100">
-                                                <Clock className="w-4 h-4 text-orange-500" />
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] uppercase tracking-widest text-orange-400">Due Date</span>
-                                                    <span className="text-orange-900">{task.due_date ? format(new Date(task.due_date), 'MMM dd, yyyy') : 'No Deadline'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <Button
-                                            onClick={() => handleStartTask(task)}
-                                            className={`w-full h-14 rounded-3xl font-normal text-lg gap-3 transition-all ${isSubmitted
-                                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-50 shadow-none border border-orange-100'
-                                                : 'bg-orange-500 text-white  shadow-xl shadow-orange-100'
-                                                }`}
-                                        >
-                                            {isSubmitted ? (
-                                                <>
-                                                    {submissions[task.id]?.status === 'accepted' ? (
-                                                        <CheckCircle2 className="w-6 h-6" />
-                                                    ) : submissions[task.id]?.status === 'rejected' ? (
-                                                        <AlertCircle className="w-6 h-6" />
-                                                    ) : (
-                                                        <CheckCircle2 className="w-6 h-6" />
-                                                    )}
-                                                    {(!submissions[task.id]?.status || submissions[task.id]?.status === 'pending')
-                                                        ? 'View Submission'
-                                                        : submissions[task.id]?.status.charAt(0).toUpperCase() + submissions[task.id]?.status.slice(1)}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <PlayCircle className="w-6 h-6" />
-                                                    Start Task
-                                                </>
+                                            {getSubjectName(task) && (
+                                                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{getSubjectName(task)}</span>
                                             )}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                                        </div>
+                                        <h3 className="text-[16px] font-bold text-[#0F172A] group-hover:text-slate-700 transition-colors truncate pr-4">
+                                            {task.title}
+                                        </h3>
+                                        <p className="text-[13px] text-slate-500 line-clamp-1 leading-relaxed font-medium pr-4">
+                                            {task.description || 'No description provided.'}
+                                        </p>
+                                        <div className="flex items-center gap-4 text-[12px] text-slate-400 font-medium pt-0.5">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                Created {format(new Date(task.created_at), 'M/d/yyyy')}
+                                            </span>
+                                            {task.due_date && (
+                                                <span className="flex items-center gap-1 text-orange-500 font-semibold">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    Due {format(new Date(task.due_date), 'M/d/yyyy')}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Right: status badge */}
+                                    <div className="shrink-0">
+                                        <Badge variant="outline" className={`rounded-full px-4 py-1.5 text-[12px] font-bold shadow-none ${badgeStyle}`}>
+                                            {statusText}
+                                        </Badge>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
                 ) : (
-                    <div className="h-[60vh] flex flex-col items-center justify-center text-center p-10 bg-white rounded-[4rem] border-4 border-dashed border-slate-100">
-                        <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                            <LayoutGrid className="w-16 h-16 text-slate-200" />
+                    <div className="h-[60vh] flex flex-col items-center justify-center text-center p-10">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                            <LayoutGrid className="w-12 h-12 text-slate-200" />
                         </div>
-                        <h2 className="text-3xl font-normal text-slate-900 mb-2">No Tasks Found</h2>
-                        <p className="text-slate-400 font-normal max-w-sm">There are no tasks available for your section at this moment. Check back later!</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">No Tasks Found</h2>
+                        <p className="text-slate-400 font-medium max-w-sm">There are no tasks available for your section at this moment. Check back later!</p>
                     </div>
                 )}
+                </div>
             </div>
-
-            {/* Submission Modal */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-7xl max-h-[85vh] w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
                     <DialogTitle className="sr-only">Task Submission</DialogTitle>
@@ -573,10 +733,10 @@ const StudentTask: React.FC = () => {
 
                     <div className="flex flex-col md:flex-row flex-1 min-h-0">
                         {/* Main Submission Area */}
-                        <div className="w-full md:w-[68%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
+                        <div className="w-full md:w-[75%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3 flex-wrap">
-                                    <Badge className="bg-orange-50 hover:bg-orange-50 text-orange-600 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
+                                    <Badge className="bg-slate-100 hover:bg-slate-200 text-slate-900 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
                                         {activeTask?.task_type} Task
                                     </Badge>
                                     <div className="flex items-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
@@ -620,7 +780,7 @@ const StudentTask: React.FC = () => {
                                                     difficulty: 'Medium',
                                                     score: 0,
                                                     description: activeTask.description || '',
-                                                    test_cases_basic: activeTask.question_details?.flatMap(q => q.test_cases_basic || []) || [],
+                                                    test_cases_basic: activeTask.question_details?.flatMap((q: any) => q.test_cases_basic || []) || [],
                                                     test_cases_advanced: []
                                                 } as CodingProblem}
                                                 subject={{
@@ -639,7 +799,7 @@ const StudentTask: React.FC = () => {
                                                 codeSubmissionType="practice"
                                                 initialEditorOpen={true}
                                                 initialCode={answerText || activeSub?.answer || ''}
-                                                onCodeChange={(newCode) => setAnswerText(newCode)}
+                                                onCodeChange={(newCode: string) => setAnswerText(newCode)}
                                                 hideSubmitButton={true}
                                             />
                                         </div>
@@ -647,7 +807,7 @@ const StudentTask: React.FC = () => {
                                         <Textarea
                                             ref={textareaRef}
                                             value={answerText}
-                                            onChange={(e) => setAnswerText(e.target.value)}
+                                            onChange={(e: any) => setAnswerText(e.target.value)}
                                             placeholder="Explain your answer in detail..."
                                             className="min-h-[120px] max-h-[400px] overflow-y-auto bg-slate-50/50 border border-gray-300 rounded-2xl p-6 focus:ring-4 focus:ring-orange-100 transition-all text-base font-medium resize-none leading-relaxed"
                                             disabled={activeSub?.status === 'accepted'}
@@ -668,7 +828,7 @@ const StudentTask: React.FC = () => {
                                                             className="hidden"
                                                             accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c,.cs,.html,.css,.json,.xml,.sh"
                                                             disabled={activeSub?.status === 'accepted'}
-                                                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                                            onChange={(e: any) => setSelectedFile(e.target.files?.[0] || null)}
                                                         />
                                                     <label
                                                         htmlFor="file-upload"
@@ -687,7 +847,7 @@ const StudentTask: React.FC = () => {
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-4 bg-slate-50 border-2 border-slate-100 rounded-3xl p-5">
-                                                <Paperclip className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                                                <Paperclip className="w-5 h-5 text-slate-400 flex-shrink-0" />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-bold text-slate-700 truncate">
                                                         {activeSub?.file?.split('/').pop()?.split('?')[0] || 'Uploaded File'}
@@ -698,7 +858,7 @@ const StudentTask: React.FC = () => {
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => openFileViewer(activeSub!.file!)}
-                                                    className="text-orange-600 rounded-xl font-bold gap-1.5 flex-shrink-0"
+                                                    className="text-slate-800 hover:bg-slate-100 rounded-xl font-bold gap-1.5 flex-shrink-0"
                                                 >
                                                     <Eye className="w-4 h-4" /> View
                                                 </Button>
@@ -710,7 +870,7 @@ const StudentTask: React.FC = () => {
                                 <Button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting || activeSub?.status === 'accepted' || (activeSub?.is_submitted && activeSub?.status !== 'rejected' && !selectedFile && activeSub?.answer === answerText)}
-                                    className="w-full h-14 bg-orange-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-orange-100 gap-4 transition-all"
+                                    className="w-full h-14 bg-slate-800 text-white hover:bg-slate-900 rounded-2xl font-bold text-lg shadow-xl shadow-slate-100 gap-4 transition-all"
                                 >
                                     {isSubmitting ? 'Processing...' : (
                                         <>
@@ -723,7 +883,7 @@ const StudentTask: React.FC = () => {
                         </div>
 
                         {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[32%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
+                        <div className="w-full md:w-[25%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
                             <div className="mb-6 flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
@@ -744,27 +904,27 @@ const StudentTask: React.FC = () => {
 
                             <div className="flex-1 overflow-y-auto min-h-0 space-y-4 pb-4 pr-1 custom-scrollbar">
                                 {activeSub?.comments && activeSub.comments.length > 0 ? (
-                                    activeSub.comments.map((comment, idx) => {
+                                    activeSub.comments.map((comment: any, idx: number) => {
                                         const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
                                         return (
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
                                                 <div 
                                                     onClick={() => isInline && handleAnnotationClick(comment.comment)}
                                                     className={`p-4 rounded-2xl max-w-[90%] text-sm leading-relaxed shadow-none ${isInline
-                                                        ? 'bg-orange-50 border border-orange-100 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-orange-100/50 transition-colors'
+                                                        ? 'bg-slate-100 border border-slate-200 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-slate-200/50 transition-colors'
                                                         : comment.faculty
                                                             ? 'bg-blue-50/50 text-blue-900 self-start rounded-bl-none'
-                                                            : 'bg-orange-50/50 text-orange-900 self-end rounded-br-none'
+                                                            : 'bg-slate-50/50 text-slate-900 self-end rounded-br-none'
                                                         }`}
                                                 >
                                                     {isInline && (
-                                                        <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
+                                                        <Badge className="bg-slate-200 text-slate-800 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                             {comment.comment.substring(1, comment.comment.indexOf(']'))}
                                                         </Badge>
                                                     )}
                                                     <div className={`flex items-center ${isInline ? 'justify-end' : 'justify-between'} gap-x-4 mb-1`}>
                                                         {!isInline && (
-                                                            <span className={`text-[11px] font-bold tracking-wide ${comment.faculty ? 'text-blue-600' : 'text-orange-600'}`}>
+                                                            <span className={`text-[11px] font-bold tracking-wide ${comment.faculty ? 'text-blue-600' : 'text-slate-600'}`}>
                                                                 {comment.faculty ? 'Faculty' : 'You'}
                                                             </span>
                                                         )}
@@ -795,8 +955,8 @@ const StudentTask: React.FC = () => {
                                 <div className="relative group">
                                     <Textarea
                                         value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        onKeyDown={(e) => {
+                                        onChange={(e: any) => setCommentText(e.target.value)}
+                                        onKeyDown={(e: any) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
                                                 handleAddComment();
@@ -809,7 +969,7 @@ const StudentTask: React.FC = () => {
                                         onClick={handleAddComment}
                                         disabled={isSendingComment || !commentText.trim()}
                                         size="icon"
-                                        className="absolute bottom-4 right-4 h-10 w-10 rounded-2xl bg-orange-500  shadow-xl shadow-orange-100 transition-all active:scale-90"
+                                        className="absolute bottom-4 right-4 h-10 w-10 rounded-2xl bg-slate-800 hover:bg-slate-900 shadow-xl shadow-slate-100 transition-all active:scale-90"
                                     >
                                         <Send className="w-5 h-5 text-white" />
                                     </Button>
@@ -822,7 +982,7 @@ const StudentTask: React.FC = () => {
 
             {/* File Viewer Modal */}
             <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
-                <DialogContent className="max-w-5xl w-[95vw] h-[85vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
+                <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white flex flex-col [&>button.absolute.right-4]:hidden">
                     <DialogHeader className="p-6 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between shrink-0">
                         <div>
                             <DialogTitle className="text-xl font-black text-gray-900">Submitted File</DialogTitle>
@@ -851,11 +1011,14 @@ const StudentTask: React.FC = () => {
                         {/* File Explorer Sidebar (for ZIP) */}
                         {zipFiles.length > 0 && (
                             <div className="w-full md:w-64 border-r border-gray-200 bg-white overflow-y-auto shrink-0 custom-scrollbar">
-                                <div className="p-4 border-b border-gray-50 bg-gray-50/30">
-                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Files in ZIP</h4>
+                                <div className="p-4 border-b border-gray-100/50 bg-white">
+                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] flex items-center gap-2">
+                                        <FolderOpen className="h-3 w-3" />
+                                        Files in ZIP
+                                    </h4>
                                 </div>
-                                <div className="p-2 space-y-1">
-                                    {zipFiles.map((file) => (
+                                <div className="p-3 space-y-1.5">
+                                    {zipFiles.map((file: any) => (
                                         <button
                                             key={file.name}
                                             onClick={() => {
@@ -868,11 +1031,11 @@ const StudentTask: React.FC = () => {
                                                 }
                                             }}
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${selectedZipFile === file.name
-                                                ? 'bg-orange-50 text-orange-600 font-bold shadow-sm ring-1 ring-orange-100'
+                                                ? 'bg-slate-100 text-slate-900 font-bold shadow-sm ring-1 ring-slate-200'
                                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium'
                                                 }`}
                                         >
-                                            <Paperclip className={`h-4 w-4 shrink-0 ${selectedZipFile === file.name ? 'text-orange-500' : 'text-gray-400'}`} />
+                                            <Paperclip className={`h-4 w-4 shrink-0 ${selectedZipFile === file.name ? 'text-slate-800' : 'text-gray-400'}`} />
                                             <span className="text-sm truncate leading-tight">{file.name}</span>
                                         </button>
                                     ))}
@@ -885,7 +1048,7 @@ const StudentTask: React.FC = () => {
                             {fileViewerLoading ? (
                                 <div className="h-full flex items-center justify-center">
                                     <div className="text-center">
-                                        <div className="h-12 w-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                        <div className="h-12 w-12 border-4 border-slate-800 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                                         <p className="text-gray-500 font-medium">Loading file...</p>
                                     </div>
                                 </div>
@@ -896,7 +1059,7 @@ const StudentTask: React.FC = () => {
                                         language={fileViewerLanguage}
                                         value={fileViewerContent}
                                         theme="vs-light"
-                                        onMount={(editor) => {
+                                        onMount={(editor: any) => {
                                             editorRef.current = editor;
                                         }}
                                         options={{
@@ -920,16 +1083,25 @@ const StudentTask: React.FC = () => {
                                     <img src={fileViewerUrl} alt="Submitted" className="max-w-full h-auto rounded-2xl shadow-md border border-gray-100" />
                                 </div>
                             ) : !zipFiles.length && fileViewerUrl?.toLowerCase().endsWith('.pdf') ? (
-                                <iframe src={`${fileViewerUrl}#toolbar=0`} className="w-full h-full min-h-[60vh] rounded-2xl" title="PDF Viewer" />
-                            ) : (
-                                <div className="h-full flex flex-col items-center justify-center text-center py-20">
-                                    <Paperclip className="h-12 w-12 text-gray-200 mb-4" />
-                                    <h4 className="text-xl font-bold text-gray-900 mb-2">Preview Not Available</h4>
-                                    <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
-                                        This file type cannot be previewed directly.
-                                    </p>
-                                </div>
-                            )}
+                                <iframe src={`${fileViewerUrl}#toolbar=0`} className="w-full h-full min-h-[60vh] rounded-2xl" title="PDF Viewer" />                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-center py-20">
+                                        <Paperclip className="h-12 w-12 text-gray-200 mb-4" />
+                                        <h4 className="text-xl font-bold text-gray-900 mb-2">Preview Not Available</h4>
+                                        <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
+                                            This file type (.{fileViewerUrl?.split('.').pop()?.split('?')[0]}) cannot be previewed directly. You can download it to review locally.
+                                        </p>
+                                        <div className="flex items-center gap-3 mt-6">
+                                            <Button
+                                                onClick={() => fileViewerUrl && window.open(getAccessibleUrl(fileViewerUrl))}
+                                                className="bg-orange-500 text-white font-bold h-10 px-6 rounded-xl shadow-lg shadow-orange-100"
+                                            >
+                                                <Download className="h-4 w-4 mr-2" /> Download
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+
                         </div>
 
                         {/* Inline Annotations Panel */}
@@ -944,9 +1116,9 @@ const StudentTask: React.FC = () => {
                                         <div 
                                             key={i} 
                                             onClick={() => handleAnnotationClick(c.comment)}
-                                            className="p-4 bg-orange-50/60 border border-orange-100 rounded-2xl cursor-pointer hover:bg-orange-100/80 transition-all "
+                                            className="p-4 bg-slate-50 border border-slate-100 rounded-2xl cursor-pointer hover:bg-slate-100 transition-all "
                                         >
-                                            <Badge className="bg-orange-100 text-orange-700 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
+                                            <Badge className="bg-slate-100 text-slate-800 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
                                                 {c.comment.substring(1, c.comment.indexOf(']'))}
                                             </Badge>
                                             <p className="text-sm font-medium text-gray-800 leading-relaxed">
@@ -963,7 +1135,33 @@ const StudentTask: React.FC = () => {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <style>{`
+                .line-highlight {
+                    background: rgba(255, 165, 0, 0.25) !important;
+                    border-left: 4px solid #f97316 !important;
+                    width: 100% !important;
+                }
+                .line-highlight-margin {
+                    background: rgba(255, 165, 0, 0.4) !important;
+                    border-right: 2px solid #f97316 !important;
+                }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #e2e8f0;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #cbd5e1;
+                }
+            `}</style>
         </div>
+    </div>
     );
 };
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import RoleSidebar from '../../components/common/RoleSidebar';
-import RoleHeader from '../../components/common/RoleHeader';
+import PageHeader from '../../components/common/PageHeader';
 import {
   BookOpen,
   Users,
@@ -97,7 +97,7 @@ const Dashboard: React.FC = () => {
         <div className="flex">
           <RoleSidebar />
           <div className="flex-1">
-            <RoleHeader
+            <PageHeader
               title="Loading..."
               subtitle="Please wait while we load your dashboard."
             />
@@ -121,11 +121,11 @@ const Dashboard: React.FC = () => {
       <div className="flex">
         <RoleSidebar />
         <div className="flex-1">
-          <RoleHeader
-            title={`Welcome back, ${user?.first_name || user?.username || 'Admin'}! 👋`}
-            subtitle={user?.college_name ? `${user.college_name} | Overview of college performance and administration.` : "Overview of college performance and administration."}
-          />
-          <div className="p-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageHeader
+              title={`Welcome back, ${user?.first_name || user?.username || 'Admin'}! 👋`}
+              subtitle={user?.college_name ? `${user.college_name} | Overview of college performance and administration.` : "Overview of college performance and administration."}
+            />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

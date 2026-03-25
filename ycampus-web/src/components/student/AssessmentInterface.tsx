@@ -45,7 +45,7 @@ import { useProctoring } from '@/hooks/useProctoring';
 interface Assessment {
   id: string;
   title: string;
-  course: string;
+  subjectName: string;
   duration: number;
   totalQuestions: number;
   topicId: string;
@@ -688,7 +688,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             </div>
             <div>
               <h1 className="text-xl font-bold">{assessment.title}</h1>
-              <Badge variant="outline">{assessment.course}</Badge>
+              <Badge variant="outline">{assessment.subjectName}</Badge>
             </div>
           </div>
 
