@@ -142,10 +142,9 @@ export default function MockInterviewForm() {
     ai_generation_mode: 'full_ai' as 'full_ai' | 'mixed' | 'predefined',
     ai_percentage: 100,
     ai_context: {
-      intern: { context_str: '', coding_questions_count: 0 },
-      beginner: { context_str: '', coding_questions_count: 1 },
-      '1_3_years': { context_str: '', coding_questions_count: 1 },
-      '3_plus_years': { context_str: '', coding_questions_count: 2 }
+      context: '',
+      predefined_questions: [] as string[],
+      coding_questions_count: 1
     },
 
     // Voice Config
@@ -193,42 +192,29 @@ export default function MockInterviewForm() {
           ai_context: (() => {
             const defaultCodingCount = data.ai_coding_question_count ?? 1;
             
-            if (Array.isArray(data.ai_context)) {
-              // Backward compatibility for flat array
-              const oldStr = data.ai_context.join(', ');
+            if (typeof data.ai_context === 'object' && data.ai_context !== null && !Array.isArray(data.ai_context)) {
+              // Handle new flat structure or old nested structure
+              if (data.ai_context.intern || data.ai_context.beginner) {
+                // Backward compatibility: take beginner as default for flat view if it's nested
+                const levelData = data.ai_context.beginner || data.ai_context.intern || {};
+                return {
+                  context: Array.isArray(levelData.context) ? levelData.context.join(', ') : (levelData.context_str || ''),
+                  predefined_questions: levelData.predefined_questions || [],
+                  coding_questions_count: levelData.coding_questions_count || defaultCodingCount
+                };
+              }
+              
               return {
-                intern: { context_str: oldStr, coding_questions_count: defaultCodingCount },
-                beginner: { context_str: oldStr, coding_questions_count: defaultCodingCount },
-                '1_3_years': { context_str: oldStr, coding_questions_count: defaultCodingCount },
-                '3_plus_years': { context_str: oldStr, coding_questions_count: defaultCodingCount }
-              };
-            } else if (typeof data.ai_context === 'object' && data.ai_context !== null) {
-              const safeParseLevel = (levelData: any) => {
-                   if (!levelData) return { context_str: '', coding_questions_count: defaultCodingCount };
-                  if (Array.isArray(levelData)) {
-                        return { context_str: levelData.join(', '), coding_questions_count: defaultCodingCount };
-                  }
-                  if (typeof levelData === 'object' && !Array.isArray(levelData)) {
-                       return {
-                            context_str: Array.isArray(levelData.context) ? levelData.context.join(', ') : '',
-                            coding_questions_count: typeof levelData.coding_questions_count === 'number' ? levelData.coding_questions_count : defaultCodingCount,
-                       };
-                  }
-                  return { context_str: '', coding_questions_count: defaultCodingCount };
-              };
-
-              return {
-                intern: safeParseLevel(data.ai_context.intern),
-                beginner: safeParseLevel(data.ai_context.beginner),
-                '1_3_years': safeParseLevel(data.ai_context['1_3_years']),
-                '3_plus_years': safeParseLevel(data.ai_context['3_plus_years'])
+                context: Array.isArray(data.ai_context.context) ? data.ai_context.context.join(', ') : (data.ai_context.context || ''),
+                predefined_questions: data.ai_context.predefined_questions || [],
+                coding_questions_count: data.ai_context.coding_questions_count || defaultCodingCount
               };
             }
+            
             return {
-              intern: { context_str: '', coding_questions_count: defaultCodingCount },
-              beginner: { context_str: '', coding_questions_count: defaultCodingCount },
-              '1_3_years': { context_str: '', coding_questions_count: defaultCodingCount },
-              '3_plus_years': { context_str: '', coding_questions_count: defaultCodingCount }
+              context: Array.isArray(data.ai_context) ? data.ai_context.join(', ') : '',
+              predefined_questions: [],
+              coding_questions_count: defaultCodingCount
             };
           })(),
 
@@ -292,22 +278,9 @@ export default function MockInterviewForm() {
         ai_generation_mode: formData.ai_generation_mode,
         ai_percentage: formData.ai_percentage,
         ai_context: {
-          intern: {
-             context: formData.ai_context.intern.context_str.split(',').map(s => s.trim()).filter(Boolean),
-             coding_questions_count: Number(formData.ai_context.intern.coding_questions_count),
-          },
-          beginner: {
-             context: formData.ai_context.beginner.context_str.split(',').map(s => s.trim()).filter(Boolean),
-             coding_questions_count: Number(formData.ai_context.beginner.coding_questions_count),
-          },
-          '1_3_years': {
-             context: formData.ai_context['1_3_years'].context_str.split(',').map(s => s.trim()).filter(Boolean),
-             coding_questions_count: Number(formData.ai_context['1_3_years'].coding_questions_count),
-          },
-          '3_plus_years': {
-             context: formData.ai_context['3_plus_years'].context_str.split(',').map(s => s.trim()).filter(Boolean),
-             coding_questions_count: Number(formData.ai_context['3_plus_years'].coding_questions_count),
-          },
+          context: formData.ai_context.context,
+          predefined_questions: formData.ai_context.predefined_questions.map(q => q.trim()).filter(Boolean),
+          coding_questions_count: Number(formData.ai_context.coding_questions_count)
         },
 
         voice_type: formData.voice_type,
@@ -490,215 +463,76 @@ export default function MockInterviewForm() {
                       )}
 
                       <div className="mt-4 border-t pt-4 border-gray-100">
-                        <h3 className="text-sm font-medium mb-3">AI Context by Experience Level</h3>
-                        <p className="text-xs text-gray-500 mb-4">Provide comma-separated specific focus areas or roles for the AI based on candidate's experience.</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {/* Intern */}
-                          <div className="space-y-3 p-4 border rounded-lg bg-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                              <label className="text-sm font-semibold text-gray-700">Intern</label>
-                          <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context.intern.coding_questions_count;
-                                if (current > 0) {
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-medium">AI Interview Context</h3>
+                          <div className="flex items-center gap-3">
+                            <label className="text-xs font-medium text-gray-500">Coding Questions Count:</label>
+                            <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = formData.ai_context.coding_questions_count;
+                                  if (current > 0) {
+                                    setFormData({
+                                      ...formData,
+                                      ai_context: { ...formData.ai_context, coding_questions_count: current - 1 }
+                                    });
+                                  }
+                                }}
+                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
+                                {formData.ai_context.coding_questions_count}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = formData.ai_context.coding_questions_count;
                                   setFormData({
                                     ...formData,
-                                    ai_context: {
-                                      ...formData.ai_context,
-                                      intern: { ...formData.ai_context.intern, coding_questions_count: current - 1 }
-                                    }
+                                    ai_context: { ...formData.ai_context, coding_questions_count: current + 1 }
                                   });
-                                }
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
-                              {formData.ai_context.intern.coding_questions_count}
+                                }}
+                                className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context.intern.coding_questions_count;
-                                setFormData({
-                                  ...formData,
-                                  ai_context: {
-                                    ...formData.ai_context,
-                                    intern: { ...formData.ai_context.intern, coding_questions_count: current + 1 }
-                                  }
-                                });
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
                           </div>
-                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">General AI Focus/Context</label>
                             <Textarea 
-                               className="min-h-[100px] text-sm"
-                               value={formData.ai_context.intern.context_str} 
-                               onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, intern: { ...formData.ai_context.intern, context_str: e.target.value } } })} 
-                               placeholder="e.g. Focus on fundamentals, algorithms" 
+                              className="min-h-[100px] text-sm"
+                              value={formData.ai_context.context} 
+                              onChange={e => setFormData({ 
+                                ...formData, 
+                                ai_context: { ...formData.ai_context, context: e.target.value } 
+                              })} 
+                              placeholder="e.g. Focus on React hooks, system design, and behavioral questions related to teamwork." 
                             />
+                            <p className="text-xs text-gray-500">General instructions for the AI on what areas to focus on during the interview.</p>
                           </div>
 
-                          {/* Beginner */}
-                          <div className="space-y-3 p-4 border rounded-lg bg-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                              <label className="text-sm font-semibold text-gray-700">Beginner (0-1 yrs)</label>
-                          <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context.beginner.coding_questions_count;
-                                if (current > 0) {
-                                  setFormData({
-                                    ...formData,
-                                    ai_context: {
-                                      ...formData.ai_context,
-                                      beginner: { ...formData.ai_context.beginner, coding_questions_count: current - 1 }
-                                    }
-                                  });
-                                }
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
-                              {formData.ai_context.beginner.coding_questions_count}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context.beginner.coding_questions_count;
-                                setFormData({
-                                  ...formData,
-                                  ai_context: {
-                                    ...formData.ai_context,
-                                    beginner: { ...formData.ai_context.beginner, coding_questions_count: current + 1 }
-                                  }
-                                });
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                            </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">Predefined Questions (One per line)</label>
                             <Textarea 
-                               className="min-h-[100px] text-sm"
-                               value={formData.ai_context.beginner.context_str} 
-                               onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, beginner: { ...formData.ai_context.beginner, context_str: e.target.value } } })} 
-                               placeholder="e.g. Junior developer projects" 
+                              className="min-h-[200px] text-sm font-mono"
+                              value={formData.ai_context.predefined_questions.join('\n')} 
+                              onChange={e => setFormData({ 
+                                ...formData, 
+                                ai_context: { 
+                                  ...formData.ai_context, 
+                                  predefined_questions: e.target.value.split('\n') 
+                                } 
+                              })} 
+                              placeholder="Question 1...&#10;Question 2..." 
                             />
-                          </div>
-
-                          {/* 1-3 years */}
-                          <div className="space-y-3 p-4 border rounded-lg bg-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                              <label className="text-sm font-semibold text-gray-700">Intermediate (1-3 yrs)</label>
-                          <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context['1_3_years'].coding_questions_count;
-                                if (current > 0) {
-                                  setFormData({
-                                    ...formData,
-                                    ai_context: {
-                                      ...formData.ai_context,
-                                      '1_3_years': { ...formData.ai_context['1_3_years'], coding_questions_count: current - 1 }
-                                    }
-                                  });
-                                }
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
-                              {formData.ai_context['1_3_years'].coding_questions_count}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context['1_3_years'].coding_questions_count;
-                                setFormData({
-                                  ...formData,
-                                  ai_context: {
-                                    ...formData.ai_context,
-                                    '1_3_years': { ...formData.ai_context['1_3_years'], coding_questions_count: current + 1 }
-                                  }
-                                });
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                            </div>
-                            <Textarea 
-                               className="min-h-[100px] text-sm"
-                               value={formData.ai_context['1_3_years'].context_str} 
-                               onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '1_3_years': { ...formData.ai_context['1_3_years'], context_str: e.target.value } } })} 
-                               placeholder="e.g. System design basics, architecture" 
-                            />
-                          </div>
-
-                          {/* 3+ years */}
-                          <div className="space-y-3 p-4 border rounded-lg bg-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                              <label className="text-sm font-semibold text-gray-700">Experienced (3+ yrs)</label>
-                          <div className="flex items-center gap-0 bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm h-8">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context['3_plus_years'].coding_questions_count;
-                                if (current > 0) {
-                                  setFormData({
-                                    ...formData,
-                                    ai_context: {
-                                      ...formData.ai_context,
-                                      '3_plus_years': { ...formData.ai_context['3_plus_years'], coding_questions_count: current - 1 }
-                                    }
-                                  });
-                                }
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-r"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <div className="px-3 min-w-[32px] text-center text-sm font-bold text-gray-700">
-                              {formData.ai_context['3_plus_years'].coding_questions_count}
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const current = formData.ai_context['3_plus_years'].coding_questions_count;
-                                setFormData({
-                                  ...formData,
-                                  ai_context: {
-                                    ...formData.ai_context,
-                                    '3_plus_years': { ...formData.ai_context['3_plus_years'], coding_questions_count: current + 1 }
-                                  }
-                                });
-                              }}
-                              className="px-2 h-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500 border-l"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                            </div>
-                            <Textarea 
-                               className="min-h-[100px] text-sm"
-                               value={formData.ai_context['3_plus_years'].context_str} 
-                               onChange={e => setFormData({ ...formData, ai_context: { ...formData.ai_context, '3_plus_years': { ...formData.ai_context['3_plus_years'], context_str: e.target.value } } })} 
-                               placeholder="e.g. Scalability, advanced microservices" 
-                            />
+                            <p className="text-xs text-gray-500">The AI will ask these questions in the exact order provided. Leave empty for dynamic AI generation.</p>
                           </div>
                         </div>
                       </div>

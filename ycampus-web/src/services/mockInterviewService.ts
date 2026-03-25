@@ -132,11 +132,11 @@ class MockInterviewService {
   }
 
 
-  async startInterview(id: string, experience_level: string, selected_duration: number, resume?: File): Promise<any> {
+  async startInterview(id: string, experience_level?: string, selected_duration?: number, resume?: File): Promise<any> {
     try {
       const formData = new FormData();
-      formData.append('experience_level', experience_level);
-      formData.append('selected_duration', selected_duration.toString());
+      formData.append('experience_level', experience_level || 'beginner');
+      formData.append('selected_duration', (selected_duration || 0).toString());
       if (resume) {
         formData.append('resume', resume);
       }

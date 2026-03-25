@@ -159,14 +159,7 @@ const AIInsights = ({ onBack }: AIInsightsProps) => {
   }
 
   return (
-    <div className="w-full px-6 py-8 space-y-10">
-      {/* Navigation */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-        <Button variant="ghost" size="sm" onClick={onBack} className="hover:bg-background/80 -ml-2 gap-1">
-          <ChevronLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Button>
-      </div>
+    <div className="w-full flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
 
       {/* Hero / Pulse Section */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600/10 via-blue-600/5 to-transparent border border-white/10 p-8 md:p-10 backdrop-blur-xl">

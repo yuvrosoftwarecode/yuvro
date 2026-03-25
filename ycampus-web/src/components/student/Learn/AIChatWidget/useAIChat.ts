@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 // Use crypto.randomUUID() instead of uuid package
@@ -27,7 +27,7 @@ export type SessionResponse = {
 
 export type Agent = { id: string; name: string; provider?: string };
 
-const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string; chatTitle?: string }) => {
+const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string; chatTitle?: string; userName?: string }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -37,10 +37,12 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   const [activeKey, setActiveKey] = useState<string | null>(config?.persistenceKey || null);
   const [history, setHistory] = useState<{ key: string; title: string; date: string }[]>([]);
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+  const [activeStream, setActiveStream] = useState<{ id: string; content: string } | null>(null);
 
   const persistenceKey = config?.persistenceKey;
   const getContext = config?.getContext;
   const chatTitle = config?.chatTitle || 'Chat Session';
+  const userName = config?.userName || 'Student';
 
   // Sync activeKey with persistenceKey prop changes (e.g. switching problems)
   useEffect(() => {
@@ -250,148 +252,196 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   }, [sessionId, selectedAgent, agents]);
 
   const sendMessage = useCallback(async (content: string) => {
+    // 0ms Perception: Immediate UI feedback
     const id = `local-${uuidv4()}`;
+    const assistantMsgId = `srv-${uuidv4()}`;
     const userMsg: ChatMessage = { id, message_type: 'user', content, created_at: new Date().toISOString() };
-    setMessages((m) => [...m, userMsg]);
+    
+      // UX Illusion: Starter response with loading animation
+      const context = getPageContentSnippet();
+      const isTestCaseContext = context.toLowerCase().includes('test case');
 
-    setIsLoading(true);
-    try {
-      const sid = await ensureSession();
+      const placeholderMsg: ChatMessage = {
+        id: assistantMsgId,
+        message_type: 'assistant',
+        content: '',
+        created_at: new Date().toISOString()
+      };
 
-      // If we have a real session id (not client-local), use session send_message action
-      if (sid && !sid.startsWith('local-')) {
-        try {
-          const page_content = getPageContentSnippet();
-          const payload = { message: content, temperature: 0.7, max_tokens: 4096, page_content };
-          
-          // Create a placeholder message for the assistant
-          const assistantMsgId = `srv-${uuidv4()}`;
-          setMessages((m) => [...m, { id: assistantMsgId, message_type: 'assistant', content: '', created_at: new Date().toISOString() }]);
-          // VITE_BACKEND_API_BASE_URL already includes '/api', so we construct the URL accordingly
-          const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
-          
-          // Use fetch directly for streaming support
-          const response = await fetch(`${baseUrl}/sessions/${sid}/send_message/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('access')}`
-            },
-            body: JSON.stringify(payload)
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          if (!response.body) {
-            throw new Error('ReadableStream not yet supported in this browser.');
-          }
-          
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder('utf-8');
-          let buffer = '';
-          
-          while (!done) {
-            const { value, done: readerDone } = await reader.read();
-            done = readerDone;
-            
-            if (value) {
-              const chunk = decoder.decode(value, { stream: true });
-              buffer += chunk;
-              
-              // Process complete messages in the buffer
-              // SSE messages are separated by double newlines \n\n
-              let newlineIndex;
-              while ((newlineIndex = buffer.indexOf('\n\n')) >= 0) {
-                const message = buffer.slice(0, newlineIndex).trim();
-                buffer = buffer.slice(newlineIndex + 2); // Remove the processed chunk from buffer
-                
-                if (message.startsWith('data: ')) {
-                  try {
-                    const dataStr = message.substring(6).trim();
-                    if (dataStr === '[DONE]') continue; // Standard SSE finish signal, though we use our own {"done": true}
-                    
-                    const data = JSON.parse(dataStr);
-                    
-                    if (data.chunk) {
-                      fullResponse += data.chunk;
-                      // Update the message in state incrementally
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, content: fullResponse } : msg
-                        )
-                      );
-                    } else if (data.error) {
-                      console.error("Stream error:", data.error);
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, content: fullResponse + `\n\n[Error: ${data.error}]` } : msg
-                        )
-                      );
-                    } else if (data.done) {
-                      // Final message metadata received
-                      setMessages((m) => 
-                        m.map((msg) => 
-                          msg.id === assistantMsgId ? { ...msg, id: data.message_id || msg.id } : msg
-                        )
-                      );
-                    }
-                  } catch (e) {
-                    console.error("JSON parse error on SSE chunk:", e, message);
-                  }
-                }
-              }
-            }
-          }
-        } catch (err) {
-          console.error('Backend session message send failed', err);
-          // Delete the temporary empty message
-          setMessages((m) => m.filter(msg => msg.message_type !== 'assistant' || msg.content !== ''));
-          
-          // fallback to quick chat
-          const agentId = selectedAgent ?? agents[0]?.id ?? null;
-          if (agentId) {
-            try {
-              const page_content = getPageContentSnippet();
-              const resp = await restApiAuthUtil.post<ChatResponse>('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
-              if (resp && resp.response) {
-                setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: resp.response, created_at: new Date().toISOString() }]);
-              }
-            } catch (err2) {
-              console.error('Quick chat fallback failed', err2);
-              const errorMsg = (err2 instanceof Error) ? err2.message : 'Service unavailable. Try again later.';
-              setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: errorMsg, created_at: new Date().toISOString() }]);
-            }
+      setMessages((m) => [...m, userMsg, placeholderMsg]);
+      setIsLoading(true);
+
+      try {
+        const sid = await ensureSession();
+        const baseUrl = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
+        const endpoint = (sid && !sid.startsWith('local-'))
+          ? `${baseUrl}/sessions/${sid}/send_message/`
+          : `${baseUrl}/chat/quick_chat/`;
+
+        const payload = {
+          message: content,
+          temperature: 0.7,
+          max_tokens: 4096,
+          page_content: getPageContentSnippet(),
+          stream: true,
+          ...(sid && !sid.startsWith('local-') ? {} : { ai_agent_id: selectedAgent ?? agents[0]?.id ?? null })
+        };
+
+        // Animation State Refs
+        const streamingBufferRef = { current: '' };
+        const displayedBufferRef = { current: '' };
+        let isStreamingDone = false;
+        let hasReceivedFirstToken = false;
+        let typingTimer: any = null;
+        let finalData: any = null;
+
+        // Loading Animation Sequence
+        const testCaseLoadingMessages = [
+          `Hi ${userName}! Let me see......`,
+          "Just a moment, analyzing your code......",
+          "Checking for any potential issues......",
+          "Running through test cases......",
+          "Evaluating logic and efficiency......",
+          "Almost done, putting it all together......",
+          "Finalizing my thoughts for you......"
+        ];
+
+        let isLoadingAnimationActive = true; // Active while waiting for first token
+        let currentLoadingMsgIndex = 0;
+        let loadingCharIndex = 0;
+
+        const runLoadingAnimation = () => {
+          if (!isLoadingAnimationActive || hasReceivedFirstToken) return;
+
+          const currentMsg = testCaseLoadingMessages[currentLoadingMsgIndex];
+          if (loadingCharIndex < currentMsg.length) {
+            loadingCharIndex++;
+            const typedText = currentMsg.slice(0, loadingCharIndex);
+            setActiveStream({ id: assistantMsgId, content: typedText });
+            setMessages((m) => m.map(msg => msg.id === assistantMsgId ? { ...msg, content: typedText } : msg));
+
+            setTimeout(runLoadingAnimation, 40);
           } else {
-            setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'No AI agent available.', created_at: new Date().toISOString() }]);
+            // Pause then move to next
+            setTimeout(() => {
+              if (!isLoadingAnimationActive || hasReceivedFirstToken) return;
+              currentLoadingMsgIndex = (currentLoadingMsgIndex + 1) % testCaseLoadingMessages.length;
+              loadingCharIndex = 0;
+              runLoadingAnimation();
+            }, 2000);
           }
-        }
-      } else {
-        // No persistent session - use quick_chat endpoint if agent available
-        const agentId = selectedAgent ?? agents[0]?.id ?? null;
-        if (agentId) {
-          try {
-            const page_content = getPageContentSnippet();
-            const resp = await restApiAuthUtil.post<ChatResponse>('/chat/quick_chat/', { ai_agent_id: agentId, message: content, temperature: 0.7, max_tokens: 4096, page_content });
-            if (resp && resp.response) {
-              setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: resp.response, created_at: new Date().toISOString() }]);
-            } else {
-              setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'No response from AI.', created_at: new Date().toISOString() }]);
+        };
+
+        // Start typing the first message immediately
+        runLoadingAnimation();
+
+      const finishAnimation = () => {
+        if (!finalData) return;
+        setMessages((m) =>
+          m.map((msg) =>
+            msg.id === assistantMsgId ? { ...msg, id: finalData.message_id || msg.id, content: streamingBufferRef.current } : msg
+          )
+        );
+        setActiveStream(null);
+        typingTimer = null;
+      };
+
+      const processTyping = () => {
+        if (typingTimer) return;
+
+        const tick = () => {
+          const target = streamingBufferRef.current;
+          const current = displayedBufferRef.current;
+
+          if (current.length < target.length) {
+            const backlog = target.length - current.length;
+            const increment = backlog > 300 ? 12 : (backlog > 100 ? 4 : (backlog > 20 ? 2 : 1));
+            const next = target.slice(0, current.length + increment);
+            
+            displayedBufferRef.current = next;
+            setActiveStream({ id: assistantMsgId, content: next });
+            
+            const delay = backlog > 100 ? 5 : 20;
+            typingTimer = setTimeout(tick, delay);
+          } else {
+            typingTimer = null;
+            if (isStreamingDone) finishAnimation();
+          }
+        };
+        tick();
+      };
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access')}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.body) throw new Error('ReadableStream not supported.');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { value, done: readerDone } = await reader.read();
+          if (readerDone) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+
+          let newlineIndex;
+          while ((newlineIndex = buffer.indexOf('\n\n')) >= 0) {
+            const rawMessage = buffer.slice(0, newlineIndex).trim();
+            buffer = buffer.slice(newlineIndex + 2);
+
+            if (rawMessage.startsWith('data: ')) {
+              try {
+                const dataStr = rawMessage.substring(6).trim();
+                if (dataStr === '[DONE]') continue;
+
+                const data = JSON.parse(dataStr);
+
+                if (data.chunk) {
+                  if (!hasReceivedFirstToken) {
+                    isLoadingAnimationActive = false;
+                    hasReceivedFirstToken = true;
+                    streamingBufferRef.current = data.chunk;
+                    processTyping();
+                  } else {
+                    streamingBufferRef.current += data.chunk;
+                    if (!typingTimer) processTyping();
+                  }
+                } else if (data.done) {
+                  isStreamingDone = true;
+                  finalData = data;
+                  if (!typingTimer) finishAnimation();
+                }
+              } catch (e) {
+                console.error("Parse error:", e);
+              }
             }
-          } catch (err) {
-            console.error('Quick chat failed', err);
-            const errorMsg = (err instanceof Error) ? err.message : 'Service unavailable. Try again later.';
-            setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: errorMsg, created_at: new Date().toISOString() }]);
           }
-        } else {
-          setMessages((m) => [...m, { id: `srv-${uuidv4()}`, message_type: 'assistant', content: 'No AI agent available.', created_at: new Date().toISOString() }]);
         }
+      } catch (err) {
+        console.error('Streaming failed', err);
+        isLoadingAnimationActive = false;
+        setMessages((m) =>
+          m.map((msg) =>
+            msg.id === assistantMsgId ? { ...msg, content: `Error: ${err instanceof Error ? err.message : 'Unknown error'}` } : msg
+          )
+        );
+        setActiveStream(null);
       }
     } finally {
       setIsLoading(false);
     }
-  }, [ensureSession]);
+  }, [ensureSession, selectedAgent, agents]);
 
   const clearMessages = useCallback(() => setMessages([]), []);
 
@@ -423,6 +473,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     loadSession,
     suggestedPrompts,
     provideFeedback,
+    activeStream,
   } as const;
 };
 

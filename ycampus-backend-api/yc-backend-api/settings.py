@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "job",
     "assessment",
     "django_filters",
+    "community",
 ]
 
 MIDDLEWARE = [
