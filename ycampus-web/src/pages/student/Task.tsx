@@ -27,7 +27,6 @@ import RoleSidebar from '@/components/common/RoleSidebar';
 import { CodeEditorWithAI } from '@/components/code-editor';
 import type { Subject as EditorSubject, Unit as EditorUnit, CodingProblem } from './CodePractice';
 import RoleHeader from '@/components/common/RoleHeader';
-import RoleSidebar from '@/components/common/RoleSidebar';
 
 const StudentTask: React.FC = () => {
     const { user } = useAuth();
@@ -1161,7 +1160,6 @@ const StudentTask: React.FC = () => {
                 }
             `}</style>
         </div>
-    </div>
     );
 };
 
