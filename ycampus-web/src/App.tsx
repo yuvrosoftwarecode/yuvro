@@ -23,7 +23,7 @@ import StudentLearn from './pages/student/StudentLearn';
 import SubjectDetail from './components/student/SubjectDetail';
 import SkillTest from './pages/student/PracticeTest';
 import MockInterview from './pages/student/MockInterview';
-import Jobs from './pages/student/Jobs';
+import StudentJobs from './pages/student/Jobs';
 import JobDetails from './pages/student/JobDetails';
 import Contest from './pages/student/Contest';
 import ContestAttempt from './pages/student/ContestAttempt';
@@ -381,14 +381,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/student/jobs"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <Jobs />
-                  </ProtectedRoute>
-                }
-              />
+
               <Route
                 path="/student/code-practice/subjects/:subjectId"
                 element={
