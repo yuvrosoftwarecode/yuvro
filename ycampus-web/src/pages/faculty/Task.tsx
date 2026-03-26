@@ -115,6 +115,7 @@ const FacultyTask: React.FC = () => {
     const [previewType, setPreviewType] = useState<'text' | 'image' | 'pdf' | 'other' | null>(null);
     const [previewLanguage, setPreviewLanguage] = useState<string>("plaintext");
     const [loadingFile, setLoadingFile] = useState(false);
+    const [fileSizeError, setFileSizeError] = useState(false);
     const [selectedLineNumber, setSelectedLineNumber] = useState<number | null>(null);
 
     useEffect(() => {
@@ -222,6 +223,7 @@ const FacultyTask: React.FC = () => {
             }
 
             setLoadingFile(true);
+            setFileSizeError(false);
             try {
                 // Use relative URL to leverage Vite proxy and avoid CORS issues
                 const relativeUrl = reviewingFile.includes('://') 
@@ -229,21 +231,19 @@ const FacultyTask: React.FC = () => {
                     : reviewingFile;
                 const filename = reviewingFile.split('/').pop()?.split('?')[0] || '';
 
-                if (filename.toLowerCase().endsWith('.zip')) {
-                    try {
-                        const headResp = await axios.head(relativeUrl);
-                        const contentLength = headResp.headers['content-length'];
-                        if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
-                            toast.info(`ZIP file is too large (${(parseInt(contentLength, 10) / 1024 / 1024).toFixed(1)}MB) for in-browser preview. Please download to review.`);
-                            setPreviewContent("");
-                            setPreviewType('other');
-                            setZipFiles([]);
-                            setLoadingFile(false);
-                            return;
-                        }
-                    } catch (e) {
-                         // Silently ignore HEAD errors, will try to fetch anyway
+                try {
+                    const headResp = await axios.head(relativeUrl);
+                    const contentLength = headResp.headers['content-length'];
+                    if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
+                        setFileSizeError(true);
+                        setPreviewContent("");
+                        setPreviewType('other');
+                        setZipFiles([]);
+                        setLoadingFile(false);
+                        return;
                     }
+                } catch (e) {
+                     // Silently ignore HEAD errors, will try to fetch anyway
                 }
 
                 console.log("Attempting to preview file (via proxy):", relativeUrl);
@@ -1191,13 +1191,8 @@ const FacultyTask: React.FC = () => {
                                         <div className="flex justify-end pt-4">
                                             <Button
                                                 onClick={() => {
-                                                    const url = getAccessibleUrl(selectedSubmission.file);
-                                                    if(url.toLowerCase().endsWith('.zip')) {
-                                                        setReviewingFile(selectedSubmission.file || null);
-                                                        setIsFileViewerOpen(true);
-                                                    } else {
-                                                        window.open(url, '_blank');
-                                                    }
+                                                    setReviewingFile(selectedSubmission.file || null);
+                                                    setIsFileViewerOpen(true);
                                                 }}
                                                 size="sm"
                                                 className="bg-orange-500  text-white"
@@ -1710,9 +1705,14 @@ const FacultyTask: React.FC = () => {
                                                     <div className="h-24 w-24 rounded-full bg-orange-50 flex items-center justify-center mb-6">
                                                         <Paperclip className="h-10 w-10 text-orange-500" />
                                                     </div>
-                                                    <h4 className="text-2xl font-black text-gray-900 mb-2">Preview Not Available</h4>
+                                                    <h4 className="text-2xl font-black text-gray-900 mb-2">
+                                                        {fileSizeError ? "File Exceeds 50MB" : "Preview Not Available"}
+                                                    </h4>
                                                     <p className="text-gray-500 max-w-sm font-medium leading-relaxed">
-                                                        This file type (.{reviewingFile.split('.').pop()?.split('?')[0]}) cannot be previewed directly. You can download it to review locally.
+                                                        {fileSizeError 
+                                                            ? "This file exceeds 50MB limit for in-browser preview. Please download it to review."
+                                                            : `This file type (.${reviewingFile.split('.').pop()?.split('?')[0]}) cannot be previewed directly. You can download it to review locally.`
+                                                        }
                                                     </p>
                                                     <div className="flex items-center gap-4 mt-8">
                                                         <Button
