@@ -7,58 +7,20 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Upload, Send, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
+import { taskService, Task, TaskSubmission, TaskComment } from '@/services/taskService';
+import { CodeEditor } from '@/components/ui/code-editor';
+import { format } from 'date-fns';
 
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-
-interface Course {
-  id: string;
-  name: string;
-}
-
-interface Batch {
-  id: string;
-  name: string;
-  courseId: string;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'Not Started' | 'In Progress' | 'Submitted';
-  createdDate: string;
-  courseId: string;
-  batchId: string;
-}
-
-interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  timestamp: string;
-  type: 'faculty' | 'student';
-}
-
-interface TaskSubmission {
-  id: string;
-  taskId: string;
-  content: string;
-  comments: Comment[];
-}
-
-interface UploadedFile {
-  name: string;
-  timestamp: string;
-  content: string;
-}
+// Helper to extract subject name from task
+const getSubjectName = (t: Task): string => {
+  const sd = t.subject_details;
+  if (!sd) return '';
+  return sd.name || sd.subject_name || sd.subject || sd.title || String(t.subject) || '';
+};
 
 const StudentTask: React.FC = () => {
   const { toast } = useToast();
@@ -74,155 +36,96 @@ const StudentTask: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [submissions, setSubmissions] = useState<Record<string, TaskSubmission>>({});
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
   const [taskContent, setTaskContent] = useState<string>('');
   const [newComment, setNewComment] = useState<string>('');
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTaskView, setShowTaskView] = useState<boolean>(false);
-  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Initialize state from URL parameters
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  // Sync with URL parameters after tasks are loaded
   useEffect(() => {
     const view = searchParams.get('view');
     const taskId = searchParams.get('taskId');
-    
-    if (view === 'task' && taskId) {
-      const task = mockTasks.find(t => t.id === taskId);
+    if (view === 'task' && taskId && tasks.length > 0) {
+      const task = tasks.find(t => t.id === taskId);
       if (task) {
-        setCurrentTask(task);
-        setShowTaskView(true);
-        setComments(mockComments);
-        
-        // Load existing content based on task status
-        if (task.status === 'In Progress') {
-          setTaskContent('This is my current work on the ' + task.title + '...');
-        } else if (task.status === 'Submitted') {
-          setTaskContent('This is my submitted work for ' + task.title + '.\n\nI have completed the database design with the following entities:\n1. Users\n2. Products\n3. Orders\n4. Categories\n\nThe normalized schema follows 3NF principles and includes proper relationships between entities.');
-        } else {
-          setTaskContent('');
-        }
-        
-        // Set the course for the task
-        setSelectedCourse(task.courseId);
+        handleTaskClick(task);
       }
     }
-    
-    // Scroll to top on page load
-    window.scrollTo(0, 0);
-  }, []);
+  }, [tasks]);
 
-  // Auto-scroll to bottom when comments change
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+  const loadInitialData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await taskService.getTasks();
+      setTasks(data);
+
+      const submissionMap: Record<string, TaskSubmission> = {};
+      await Promise.all(data.map(async (task) => {
+        const subs = await taskService.getTaskSubmissions(task.id);
+        if (subs.length > 0) submissionMap[task.id] = subs[0];
+      }));
+      setSubmissions(submissionMap);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load tasks.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [comments]);
-
-  // Mock data
-  const courses: Course[] = [
-    { id: '1', name: 'Computer Science' },
-    { id: '2', name: 'Mathematics' },
-    { id: '3', name: 'Physics' },
-  ];
-
-  const batches: Batch[] = [
-    { id: '1', name: 'Batch A - Morning', courseId: '1' },
-    { id: '2', name: 'Batch B - Evening', courseId: '1' },
-    { id: '3', name: 'Batch A - Morning', courseId: '2' },
-    { id: '4', name: 'Batch B - Afternoon', courseId: '2' },
-    { id: '5', name: 'Batch A - Morning', courseId: '3' },
-  ];
-
-  const mockTasks: Task[] = [
-    {
-      id: '1',
-      title: 'Database Design Assignment',
-      description: 'Design a normalized database schema for an e-commerce system. Include entity-relationship diagrams and explain your design choices.',
-      status: 'Not Started',
-      createdDate: '2024-01-15',
-      courseId: '1',
-      batchId: '1',
-    },
-    {
-      id: '2',
-      title: 'Algorithm Analysis Report',
-      description: 'Analyze the time and space complexity of different sorting algorithms. Provide implementation examples and performance comparisons.',
-      status: 'In Progress',
-      createdDate: '2024-01-10',
-      courseId: '1',
-      batchId: '1',
-    },
-    {
-      id: '3',
-      title: 'Web Development Project',
-      description: 'Create a responsive web application using React and Node.js. Include user authentication and data persistence.',
-      status: 'Submitted',
-      createdDate: '2024-01-05',
-      courseId: '1',
-      batchId: '1',
-    },
-  ];
-
-  const mockComments: Comment[] = [
-    {
-      id: '1',
-      text: 'Good start! Consider adding more details about the normalization process.',
-      author: 'Dr. Smith',
-      timestamp: '2024-01-16T10:30:00Z',
-      type: 'faculty',
-    },
-    {
-      id: '2',
-      text: 'Thank you for the feedback. I will revise the section on 3NF.',
-      author: 'Student',
-      timestamp: '2024-01-16T14:15:00Z',
-      type: 'student',
-    },
-  ];
-
-  // Effects
-  useEffect(() => {
-    let filteredTasks = mockTasks;
-    
-    // Filter by course if not "all"
-    if (selectedCourse && selectedCourse !== 'all') {
-      filteredTasks = filteredTasks.filter(
-        task => task.courseId === selectedCourse
-      );
-    }
-    
-    // Filter by status if selected and not "all"
-    if (selectedStatus && selectedStatus !== 'all') {
-      const statusMapping = {
-        'pending': 'Not Started',
-        'in-progress': 'In Progress',
-        'completed': 'Submitted'
-      };
-      filteredTasks = filteredTasks.filter(task => task.status === statusMapping[selectedStatus as keyof typeof statusMapping]);
-    }
-    
-    setTasks(filteredTasks);
-  }, [selectedCourse, selectedStatus]);
-
-  // Handlers
-  const handleCourseChange = (courseId: string) => {
-    setSelectedCourse(courseId);
   };
 
+  // Polling for updates when a task is active
+  useEffect(() => {
+    let interval: any;
+    if (showTaskView && currentTask) {
+      interval = setInterval(async () => {
+        try {
+          const subs = await taskService.getTaskSubmissions(currentTask.id);
+          if (subs.length > 0) {
+            setSubmissions(prev => ({ ...prev, [currentTask.id]: subs[0] }));
+          }
+        } catch (err) {
+          console.error("Polling failed", err);
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [showTaskView, currentTask]);
+
+  const uniqueSubjects = Array.from(
+    new Set(tasks.map(getSubjectName).filter(Boolean))
+  ) as string[];
+
+  const getTaskStatus = (taskId: string): string => {
+    const sub = submissions[taskId];
+    if (!sub) return 'pending';
+    if (sub.is_submitted) return 'completed';
+    return 'in_progress';
+  };
+
+  const filteredTasks = tasks.filter(t => {
+    const subjectName = getSubjectName(t);
+    const matchesSubject = selectedCourse === 'all' || subjectName === selectedCourse;
+    const matchesStatus = selectedStatus === 'all' || getTaskStatus(t.id) === selectedStatus;
+    return matchesSubject && matchesStatus;
+  });
+  // Handlers
   const handleTaskClick = (task: Task) => {
     setCurrentTask(task);
+    const sub = submissions[task.id];
+    setTaskContent(sub?.answer || '');
+    setSelectedFile(null);
     setShowTaskView(true);
-    setComments(mockComments);
-    
-    // Load existing content based on task status
-    if (task.status === 'In Progress') {
-      setTaskContent('This is my current work on the ' + task.title + '...');
-    } else if (task.status === 'Submitted') {
-      setTaskContent('This is my submitted work for ' + task.title + '.\n\nI have completed the database design with the following entities:\n1. Users\n2. Products\n3. Orders\n4. Categories\n\nThe normalized schema follows 3NF principles and includes proper relationships between entities.');
-    } else {
-      setTaskContent('');
-    }
-    
     // Update URL to persist state
     setSearchParams({ view: 'task', taskId: task.id });
   };
@@ -231,93 +134,15 @@ const StudentTask: React.FC = () => {
     setShowTaskView(false);
     setCurrentTask(null);
     setTaskContent('');
-    setComments([]);
     setNewComment('');
-    // Clear URL parameters
+    setSelectedFile(null);
     setSearchParams({});
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const supportedTypes = [
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/msword',
-        'application/pdf'
-      ];
-      
-      if (!supportedTypes.includes(file.type)) {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload a PDF or Word document (.pdf, .doc, .docx).",
-          variant: "destructive",
-        });
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        return;
-      }
-
-      try {
-        let extractedText = '';
-        
-        if (file.type === 'application/pdf') {
-          // Handle PDF files
-          const arrayBuffer = await file.arrayBuffer();
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          let fullText = '';
-          
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items
-              .map((item: any) => item.str)
-              .join(' ');
-            fullText += pageText + '\n';
-          }
-          
-          extractedText = fullText.trim();
-        } else {
-          // Handle Word documents
-          const arrayBuffer = await file.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          extractedText = result.value;
-        }
-        
-        if (extractedText.trim()) {
-          const fileInfo: UploadedFile = {
-            name: file.name,
-            timestamp: new Date().toISOString(),
-            content: extractedText
-          };
-          
-          setUploadedFile(fileInfo);
-          setTaskContent(extractedText);
-          
-          toast({
-            title: "Document uploaded successfully",
-            description: `Text extracted from ${file.name}`,
-          });
-        } else {
-          toast({
-            title: "No content found",
-            description: "The uploaded document appears to be empty or unreadable.",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Error extracting text from document:', error);
-        toast({
-          title: "Extraction error",
-          description: "Failed to extract text from the document.",
-          variant: "destructive",
-        });
-      }
-      
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setSelectedFile(file);
     }
   };
 
@@ -325,76 +150,92 @@ const StudentTask: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const comment: Comment = {
-        id: Date.now().toString(),
-        text: newComment,
-        author: 'Student',
-        timestamp: new Date().toISOString(),
-        type: 'student',
-      };
-      setComments(prev => [...prev, comment]);
+  const handleAddComment = async () => {
+    if (!currentTask || !newComment.trim()) return;
+    let sub = submissions[currentTask.id];
+
+    try {
+      if (!sub) {
+        const formData = new FormData();
+        formData.append('task', currentTask.id);
+        formData.append('answer', '');
+        formData.append('is_submitted', 'false');
+        sub = await taskService.createTaskSubmission(formData);
+        setSubmissions(prev => ({ ...prev, [currentTask.id]: sub }));
+      }
+
+      const addedComment = await taskService.addCommentToSubmission(sub.id, newComment);
+      setSubmissions(prev => ({
+        ...prev,
+        [currentTask.id]: {
+          ...sub,
+          comments: [...(sub.comments || []), addedComment]
+        }
+      }));
       setNewComment('');
-      toast({
-        title: "Comment added",
-        description: "Your comment has been added to the discussion.",
-      });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to add comment.", variant: "destructive" });
     }
   };
 
-  const handleSubmitTask = () => {
-    if (currentTask && taskContent.trim()) {
-      // Update task status to submitted
-      setTasks(prev => prev.map(task => 
-        task.id === currentTask.id 
-          ? { ...task, status: 'Submitted' as const }
-          : task
-      ));
-      
-      toast({
-        title: "Task submitted",
-        description: "Your task has been submitted successfully.",
-      });
-      
+  const handleSubmitTask = async () => {
+    if (!currentTask) return;
+
+    try {
+      setIsSubmitting(true);
+      const sub = submissions[currentTask.id];
+      const formData = new FormData();
+      formData.append('answer', taskContent);
+      formData.append('is_submitted', 'true');
+      formData.append('task', currentTask.id);
+
+      if (selectedFile && !sub?.file) {
+        formData.append('file', selectedFile);
+      }
+
+      let updatedSub;
+      if (sub) {
+        updatedSub = await taskService.submitTask(sub.id, formData);
+      } else {
+        updatedSub = await taskService.createTaskSubmission(formData);
+      }
+
+      setSubmissions(prev => ({ ...prev, [currentTask.id]: updatedSub }));
+      toast({ title: "Success", description: "Task submitted successfully!" });
       handleBackToTasks();
-    } else {
-      toast({
-        title: "Cannot submit",
-        description: "Please add content to your task before submitting.",
-        variant: "destructive",
-      });
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to submit task.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusBadgeVariant = (taskId: string) => {
+    const status = getTaskStatus(taskId);
     switch (status) {
-      case 'Not Started':
+      case 'pending':
         return 'secondary';
-      case 'In Progress':
+      case 'in_progress':
         return 'default';
-      case 'Submitted':
+      case 'completed':
+        const sub = submissions[taskId];
+        if (sub?.status === 'accepted') return 'default';
+        if (sub?.status === 'rejected') return 'destructive';
         return 'default';
       default:
         return 'secondary';
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'Not Started':
-        return 'Pending';
-      case 'In Progress':
-        return 'In Progress';
-      case 'Submitted':
-        return 'Completed';
-      default:
-        return status;
+  const getStatusLabelText = (taskId: string) => {
+    const status = getTaskStatus(taskId);
+    const sub = submissions[taskId];
+    if (status === 'completed') {
+      if (sub?.status === 'accepted') return 'Accepted';
+      if (sub?.status === 'rejected') return 'Rejected';
+      return 'Submitted';
     }
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
+    return status === 'in_progress' ? 'In Progress' : 'Pending';
   };
 
   if (showTaskView && currentTask) {
@@ -426,15 +267,27 @@ const StudentTask: React.FC = () => {
           />
 
           {/* File upload info */}
-          {uploadedFile && (
+          {submissions[currentTask.id]?.file && (
             <Card className="mb-6">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    <span>Uploaded: {uploadedFile.name}</span>
+                    <span>Submitted File: <a href={submissions[currentTask.id].file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View Attachment</a></span>
                   </div>
-                  <span>{new Date(uploadedFile.timestamp).toLocaleString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {selectedFile && (
+            <Card className="mb-6 border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between text-sm text-primary font-medium">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    <span>Selected for upload: {selectedFile.name}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)} className="h-8 text-xs">Remove</Button>
                 </div>
               </CardContent>
             </Card>
@@ -447,39 +300,55 @@ const StudentTask: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     Your Work
-                    {currentTask?.status !== 'Submitted' && (
-                      <Button onClick={handleUploadClick} variant="outline">
+                    {getTaskStatus(currentTask.id) !== 'completed' && (
+                      <Button onClick={handleUploadClick} variant="outline" size="sm">
                         <Upload className="h-4 w-4 mr-2" />
-                        Upload Task
+                        {selectedFile ? 'Change File' : 'Upload File'}
                       </Button>
                     )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[520px] w-full rounded-md border">
-                    <Textarea
-                      value={taskContent}
-                      onChange={(e) => setTaskContent(e.target.value)}
-                      placeholder={currentTask?.status === 'Submitted' 
-                        ? 'No content available for this task.' 
-                        : 'Upload a document or start writing your solution here...'
-                      }
-                      className="h-full resize-none border-0 focus-visible:ring-0 text-sm"
-                      disabled={currentTask?.status === 'Submitted'}
-                    />
+                  <div className="h-[520px] w-full rounded-md border overflow-hidden">
+                    {currentTask?.task_type === 'coding' ? (
+                      <CodeEditor 
+                        initialCode={taskContent}
+                        onCodeChange={setTaskContent}
+                        readOnly={getTaskStatus(currentTask.id) === 'completed'}
+                        className="h-full border-0"
+                      />
+                    ) : (
+                      <Textarea
+                        value={taskContent}
+                        onChange={(e) => setTaskContent(e.target.value)}
+                        placeholder={getTaskStatus(currentTask.id) === 'completed' 
+                          ? 'No content available for this task.' 
+                          : 'Type your solution here...'
+                        }
+                        className="h-full resize-none border-0 focus-visible:ring-0 text-sm p-4"
+                        disabled={getTaskStatus(currentTask.id) === 'completed'}
+                      />
+                    )}
                   </div>
                   
-                  {currentTask?.status !== 'Submitted' && (
+                  {getTaskStatus(currentTask.id) !== 'completed' && (
                     <div className="flex justify-end mt-4">
-                      <Button onClick={handleSubmitTask}>
-                        <Send className="h-4 w-4 mr-2" />
+                      <Button onClick={handleSubmitTask} disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        ) : (
+                          <Send className="h-4 w-4 mr-2" />
+                        )}
                         Submit Task
                       </Button>
                     </div>
                   )}
-                  {currentTask?.status === 'Submitted' && (
+                  {getTaskStatus(currentTask.id) === 'completed' && (
                     <div className="flex justify-end mt-4">
-                      <p className="text-sm text-muted-foreground">Task has been submitted</p>
+                      <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        Task submitted
+                      </p>
                     </div>
                   )}
                 </CardContent>
@@ -495,23 +364,29 @@ const StudentTask: React.FC = () => {
                 <CardContent>
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
-                      {comments.map((comment) => (
-                        <div key={comment.id} className={`p-3 rounded-lg ${
-                          comment.type === 'faculty' 
-                            ? 'bg-blue-50 border-l-4 border-blue-400' 
-                            : 'bg-green-50 border-l-4 border-green-400'
+                      {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
+                        <div key={comment.id} className={`p-3 rounded-xl border ${
+                          comment.faculty 
+                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4' 
+                            : 'bg-slate-50 border-slate-100 ml-4 mr-0'
                         }`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">
-                              {comment.author}
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-[11px] uppercase tracking-wider text-slate-500">
+                              {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatTimestamp(comment.timestamp)}
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {format(new Date(comment.created_at), 'HH:mm')}
                             </span>
                           </div>
-                          <p className="text-sm">{comment.text}</p>
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium">{comment.comment}</p>
                         </div>
                       ))}
+                      {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
+                        <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
+                          <Send className="h-10 w-10 mb-2" />
+                          <p className="text-sm font-bold uppercase tracking-widest">No messages yet</p>
+                        </div>
+                      )}
                     </div>
                   </ScrollArea>
                   
@@ -527,7 +402,7 @@ const StudentTask: React.FC = () => {
                     <div className="flex justify-end">
                       <Button onClick={handleAddComment} disabled={!newComment.trim()}>
                         <Send className="h-4 w-4 mr-2" />
-                        Add Comment
+                        Send
                       </Button>
                     </div>
                   </div>
@@ -542,46 +417,46 @@ const StudentTask: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Tasks</h1>
-          <p className="text-muted-foreground">View and complete your assigned tasks</p>
+          <h1 className="text-3xl font-bold text-foreground mb-1 tracking-tight">Tasks</h1>
+          <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-6">
+        <Card className="mb-8 border-slate-200 shadow-sm">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <label className="text-sm font-medium text-foreground mb-2 block">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="flex-1 space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
                   Subjects
                 </label>
-                <Select value={selectedCourse} onValueChange={handleCourseChange}>
-                  <SelectTrigger>
+                <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
                     <SelectValue placeholder="All Subjects" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Subjects</SelectItem>
-                    {courses.map((course) => (
-                      <SelectItem key={course.id} value={course.id}>
-                        {course.name}
+                    {uniqueSubjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               
-              <div className="flex-1">
-                <label className="text-sm font-medium text-foreground mb-2 block">
+              <div className="flex-1 space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -590,40 +465,66 @@ const StudentTask: React.FC = () => {
           </CardContent>
         </Card>
 
-        {tasks.length > 0 ? (
+        {isLoading ? (
+          <div className="grid gap-4">
+             {[1, 2, 3].map(i => (
+                <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
+            ))}
+          </div>
+        ) : filteredTasks.length > 0 ? (
             <div className="grid gap-4">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <Card 
                   key={task.id} 
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
                   onClick={() => handleTaskClick(task)}
                 >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">{task.title}</CardTitle>
-                        <CardDescription className="line-clamp-2">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
+                             {task.task_type || 'Task'}
+                           </Badge>
+                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                             {getSubjectName(task)}
+                           </span>
+                        </div>
+                        <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors truncate">
+                          {task.title}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
                           {task.description}
                         </CardDescription>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.status)}>
-                        {getStatusLabel(task.status)}
+                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
+                        {getStatusLabelText(task.id)}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-muted-foreground">
-                      Created: {new Date(task.createdDate).toLocaleDateString()}
+                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
+                      </div>
+                      {task.due_date && (
+                        <div className="flex items-center gap-1.5 text-orange-400">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No tasks found for the selected filters.</p>
+            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+              <CardContent>
+                <div className="text-center">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+                  <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No tasks found</p>
                 </div>
               </CardContent>
             </Card>
