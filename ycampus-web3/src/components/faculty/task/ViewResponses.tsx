@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Download, Search } from 'lucide-react';
+import { ArrowLeft, Search, Users, CheckCircle, Clock, XCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -12,211 +12,178 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { TaskSubmission } from '@/services/taskService';
 
 interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'Draft' | 'Sent';
-  createdDate: string;
-  courseId: string;
-}
-
-interface Student {
-  id: string;
-  rollNo: string;
-  name: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
 }
 
 interface ViewResponsesProps {
   task: Task;
-  students: Student[];
+  submissions: TaskSubmission[];
   onBack: () => void;
-  onViewStudentResponse: (studentId: string) => void;
+  onViewStudentResponse: (submissionId: string) => void;
 }
 
 const ViewResponses: React.FC<ViewResponsesProps> = ({
   task,
-  students,
+  submissions,
   onBack,
   onViewStudentResponse
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredStudents = students.filter(student =>
-    student.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSubmissions = submissions.filter(s => {
+    const student = s.student_details || {};
+    const user = student.user_details || {};
+    const name = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+    const roll = (student.roll_number || '').toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return name.includes(query) || roll.includes(query);
+  });
 
-  const getStatusBadgeVariant = (status: Student['status']) => {
+  const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'Completed':
-        return 'default';
-      case 'In Progress':
-        return 'secondary';
-      case 'Pending':
-        return 'outline';
-      default:
-        return 'outline';
+      case 'accepted': return 'default';
+      case 'rejected': return 'destructive';
+      case 'pending': return 'secondary';
+      default: return 'outline';
     }
   };
 
-  const isRowClickable = (status: Student['status']) => {
-    return status === 'In Progress' || status === 'Completed';
-  };
-
-  const handleDownloadReport = () => {
-    // TODO: Implement API call to download report
-    console.log('Downloading report for task:', task.id);
-    // Mock download functionality
-    const element = document.createElement('a');
-    const file = new Blob(['Task Response Report'], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${task.title}_responses.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
-
   const getStatusCounts = () => {
-    const counts = students.reduce((acc, student) => {
-      acc[student.status] = (acc[student.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
     return {
-      total: students.length,
-      completed: counts['Completed'] || 0,
-      inProgress: counts['In Progress'] || 0,
-      pending: counts['Pending'] || 0
+      total: submissions.length,
+      accepted: submissions.filter(s => s.status === 'accepted').length,
+      pending: submissions.filter(s => s.status === 'pending').length,
+      rejected: submissions.filter(s => s.status === 'rejected').length,
     };
   };
 
-  const statusCounts = getStatusCounts();
+  const counts = getStatusCounts();
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Tasks
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-foreground">{task.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">View student responses</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Tasks
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{task.title}</h1>
+            <p className="text-muted-foreground text-sm">Review student submissions across all sections</p>
+          </div>
         </div>
-        <Button onClick={handleDownloadReport}>
-          <Download className="h-4 w-4 mr-2" />
-          Download Report
-        </Button>
       </div>
 
-      {/* Task Description */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Task Description</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground leading-relaxed">{task.description}</p>
+      {/* Task Info Summary */}
+      <Card className="bg-slate-50/50 border-slate-200">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500">
+                <Users className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Total</span>
+              </div>
+              <div className="text-2xl font-black">{counts.total}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-emerald-600">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Accepted</span>
+              </div>
+              <div className="text-2xl font-black text-emerald-600">{counts.accepted}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-amber-500">
+                <Clock className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Pending</span>
+              </div>
+              <div className="text-2xl font-black text-amber-500">{counts.pending}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-rose-500">
+                <XCircle className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Rejected</span>
+              </div>
+              <div className="text-2xl font-black text-rose-500">{counts.rejected}</div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Status Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{statusCounts.total}</div>
-            <div className="text-sm text-muted-foreground">Total Students</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{statusCounts.completed}</div>
-            <div className="text-sm text-muted-foreground">Completed</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{statusCounts.inProgress}</div>
-            <div className="text-sm text-muted-foreground">In Progress</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">{statusCounts.pending}</div>
-            <div className="text-sm text-muted-foreground">Pending</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search and Student Table */}
+      {/* Main Table */}
       <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-lg">Student Responses</CardTitle>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <CardHeader className="pb-3 border-b">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="text-lg font-bold">Student Submissions</CardTitle>
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Search by roll no or name"
+                placeholder="Search by name or roll no..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10 border-slate-200 focus:ring-primary/20"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-slate-50">
               <TableRow>
-                <TableHead>Roll No</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
+                <TableHead className="font-bold py-4">Roll No</TableHead>
+                <TableHead className="font-bold">Student Name</TableHead>
+                <TableHead className="font-bold">Status</TableHead>
+                <TableHead className="font-bold text-right px-6">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredStudents.map((student) => (
-                <TableRow
-                  key={student.id}
-                  className={isRowClickable(student.status) ? 'cursor-pointer hover:bg-muted/50' : ''}
-                  onClick={isRowClickable(student.status) ? () => onViewStudentResponse(student.id) : undefined}
-                >
-                  <TableCell className="font-medium">{student.rollNo}</TableCell>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadgeVariant(student.status)}>
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {isRowClickable(student.status) ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onViewStudentResponse(student.id);
-                        }}
-                      >
-                        View Details
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Not available</span>
-                    )}
+              {filteredSubmissions.length > 0 ? (
+                filteredSubmissions.map((s) => {
+                  const student = s.student_details || {};
+                  const user = student.user_details || {};
+                  return (
+                    <TableRow key={s.id} className="hover:bg-slate-50 group">
+                      <TableCell className="font-bold text-slate-600 py-4 italic">
+                        {student.roll_number || 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-semibold text-slate-800">
+                          {user.first_name} {user.last_name}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusBadgeVariant(s.status)} className="capitalize px-3">
+                          {s.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right px-6">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="font-bold text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
+                          onClick={() => onViewStudentResponse(s.id)}
+                        >
+                          Review Submission
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-32 text-center text-slate-400 italic font-medium">
+                    No matching submissions found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
-
-          {filteredStudents.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No students found matching your search.</p>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

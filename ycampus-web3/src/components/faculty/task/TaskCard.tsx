@@ -21,9 +21,12 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'Draft' | 'Sent';
-  createdDate: string;
-  courseId: string;
+  is_sent: boolean;
+  created_at: string;
+  task_type: 'descriptive' | 'coding';
+  due_date?: string;
+  unit?: string;
+  sub_unit?: string;
 }
 
 interface TaskCardProps {
@@ -78,8 +81,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
           ) : (
             <CardTitle className="text-lg leading-tight">{task.title}</CardTitle>
           )}
-          <Badge variant={task.status === 'Draft' ? 'secondary' : 'default'}>
-            {task.status}
+          <Badge variant={!task.is_sent ? 'secondary' : 'default'}>
+            {task.is_sent ? 'Sent' : 'Draft'}
           </Badge>
         </div>
       </CardHeader>
@@ -100,7 +103,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           )}
 
           <p className="text-xs text-muted-foreground">
-            Created: {formatDate(task.createdDate)}
+            Created: {formatDate(task.created_at)}
           </p>
         </div>
 
@@ -116,7 +119,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             </div>
           ) : (
             <>
-              {task.status === 'Draft' ? (
+              {!task.is_sent ? (
                 <div className="flex gap-2">
                   <Button
                     size="sm"
@@ -161,7 +164,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 </Button>
               )}
 
-              {task.status === 'Draft' && (
+              {!task.is_sent && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size="sm" className="w-full">
