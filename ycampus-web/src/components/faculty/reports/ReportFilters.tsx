@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Loader2 } from 'lucide-react';
-import type { DepartmentOption, CourseOption, BatchOption, BatchStudent } from '@/hooks/useStudentReport';
+import type { DepartmentOption, CourseOption, BatchOption, BatchStudent, SemesterOption } from '@/hooks/useStudentReport';
 
 interface SectionOption {
   name: string;
@@ -16,6 +16,7 @@ interface ReportFiltersProps {
   students: BatchStudent[];
   allStudents: BatchStudent[];
   sections: SectionOption[];
+  semesters: SemesterOption[];
   selectedDepartment: string;
   selectedSemester: string;
   selectedBatch: string;
@@ -35,12 +36,12 @@ interface ReportFiltersProps {
 }
 
 const ReportFilters: React.FC<ReportFiltersProps> = ({
-  departments, courses, batches, students, allStudents, sections,
+  departments, courses, batches, students, allStudents, sections, semesters,
   selectedDepartment, selectedSemester, selectedBatch, selectedStudent, selectedSubject, selectedSection,
   studentSearch, studentsLoading,
   onDepartmentChange, onSemesterChange, onBatchChange, onStudentChange, onSubjectChange, onSectionChange,
   onStudentSearchChange, onSearchTriggered,
-}) => {
+}: ReportFiltersProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +93,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             <Input
               placeholder="Type student name, roll number, or email and press Enter..."
               value={studentSearch}
-              onChange={e => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onStudentSearchChange(e.target.value);
                 setShowDropdown(true);
                 if (!e.target.value) onStudentChange('');
@@ -130,11 +131,12 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* 1. Department */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Department</label>
             <Select value={selectedDepartment || undefined} onValueChange={onDepartmentChange}>
               <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select department" />
+                <SelectValue placeholder="Select dept" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {departments.map(d => (
@@ -144,20 +146,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             </Select>
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
-            <Select value={selectedSemester || undefined} onValueChange={onSemesterChange} disabled={!selectedDepartment}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select semester" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                  <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* 2. Batch */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
             <Select value={selectedBatch || undefined} onValueChange={onBatchChange} disabled={!selectedDepartment}>
@@ -166,11 +155,11 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {batches.length === 0 ? (
-                  <SelectItem value="__none" disabled>No batches available</SelectItem>
+                  <SelectItem value="__none" disabled>No batches</SelectItem>
                 ) : (
                   batches.map(b => (
                     <SelectItem key={b.id} value={b.id}>
-                      {b.name} {b.startYear && b.endYear ? `(${b.startYear}-${b.endYear})` : ''}
+                      {b.name}
                     </SelectItem>
                   ))
                 )}
@@ -178,9 +167,29 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             </Select>
           </div>
 
+          {/* 3. Semester */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
+            <Select value={selectedSemester || undefined} onValueChange={onSemesterChange} disabled={!selectedBatch}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Select sem" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {semesters.length === 0 ? (
+                  <SelectItem value="__none" disabled>No semesters</SelectItem>
+                ) : (
+                  semesters.map(s => (
+                    <SelectItem key={s.id} value={s.id}>Semester {s.number}</SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 4. Subject */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Subject</label>
-            <Select value={selectedSubject} onValueChange={onSubjectChange}>
+            <Select value={selectedSubject} onValueChange={onSubjectChange} disabled={!selectedSemester}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="All Subjects" />
               </SelectTrigger>
@@ -193,6 +202,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             </Select>
           </div>
 
+          {/* 5. Section */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Section</label>
             <Select value={selectedSection} onValueChange={onSectionChange} disabled={!selectedSemester}>

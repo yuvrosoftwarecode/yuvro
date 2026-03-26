@@ -1,4 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { departmentService } from '@/services/departmentService';
+import { batchService } from '@/services/batchService';
+import { semesterService, Semester } from '@/services/semesterService';
+import { studentService } from '@/services/studentService';
+import subjectService, { SectionSubjectFaculty, getFacultyAssignments } from '@/services/subjectService';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Stub for adminApiService — replace with real service when available
 const adminApiService = {
@@ -81,6 +87,7 @@ export interface BatchStudent {
   name: string;
   rollNo: string;
   email: string;
+  section?: string;
 }
 
 export interface DepartmentOption {
@@ -99,33 +106,26 @@ export interface CourseOption {
 export interface BatchOption {
   id: string;
   name: string;
-  startYear: number;
-  endYear: number;
+  startYear?: number;
+  endYear?: number;
+}
+
+export interface SemesterOption {
+  id: string;
+  number: number;
+}
+
+export interface SectionOption {
+  name: string;
 }
 
 // ── Dummy data ──────────────────────────────────────────────────────
 
-const DUMMY_STUDENTS: BatchStudent[] = [
-  { id: 'demo-1', name: 'Aarav Sharma', rollNo: 'CSE2101', email: 'aarav.sharma@yuvro.edu' },
-  { id: 'demo-2', name: 'Priya Patel', rollNo: 'CSE2102', email: 'priya.patel@yuvro.edu' },
-  { id: 'demo-3', name: 'Rohan Gupta', rollNo: 'CSE2103', email: 'rohan.gupta@yuvro.edu' },
-  { id: 'demo-4', name: 'Ananya Reddy', rollNo: 'CSE2104', email: 'ananya.reddy@yuvro.edu' },
-  { id: 'demo-5', name: 'Vikram Singh', rollNo: 'CSE2105', email: 'vikram.singh@yuvro.edu' },
-  { id: 'demo-6', name: 'Sneha Iyer', rollNo: 'CSE2106', email: 'sneha.iyer@yuvro.edu' },
-  { id: 'demo-7', name: 'Karthik Nair', rollNo: 'CSE2107', email: 'karthik.nair@yuvro.edu' },
-  { id: 'demo-8', name: 'Divya Menon', rollNo: 'CSE2108', email: 'divya.menon@yuvro.edu' },
-];
+const DUMMY_STUDENTS: BatchStudent[] = [];
 
-const DUMMY_SUBJECTS: { name: string; code: string }[] = [
-  { name: 'Data Structures & Algorithms', code: 'CS301' },
-  { name: 'Database Management Systems', code: 'CS302' },
-  { name: 'Operating Systems', code: 'CS303' },
-  { name: 'Computer Networks', code: 'CS304' },
-  { name: 'Software Engineering', code: 'CS305' },
-  { name: 'Discrete Mathematics', code: 'MA301' },
-];
+const DUMMY_SUBJECTS: { name: string; code: string }[] = [];
 
-function generateDummySubject(name: string, code: string, idx: number): SubjectPerformance {
+function generateDummySubject(id: string, name: string, code: string, idx: number): SubjectPerformance {
   const seeds = [
     { notes: 82, test: 78, assess: 85, taskT: 8, taskS: 7, attend: 91, easy: 88, med: 76, hard: 62, streak: 5, testsA: 4 },
     { notes: 65, test: 62, assess: 58, taskT: 10, taskS: 6, attend: 78, easy: 72, med: 55, hard: 40, streak: 2, testsA: 3 },
@@ -145,7 +145,7 @@ function generateDummySubject(name: string, code: string, idx: number): SubjectP
   const classesAttended = Math.round((s.attend / 100) * classesHeld);
 
   return {
-    id: `subj-${idx}`,
+    id,
     name,
     code,
     notesCompletion: s.notes,
@@ -186,8 +186,17 @@ function generateDummySubject(name: string, code: string, idx: number): SubjectP
   };
 }
 
-function generateDummyReport(student: BatchStudent): StudentReport {
-  const subjects = DUMMY_SUBJECTS.map((s, i) => generateDummySubject(s.name, s.code, i));
+function generateDummyReport(student: BatchStudent, subjectsList: { id: string; name: string; code: string }[]): StudentReport {
+  const subjects = subjectsList.length > 0
+    ? subjectsList.map((s, i) => generateDummySubject(s.id, s.name, s.code, i))
+    : [
+      { id: 'subj-1', name: 'Data Structures & Algorithms', code: 'CS301' },
+      { id: 'subj-2', name: 'Database Management Systems', code: 'CS302' },
+      { id: 'subj-3', name: 'Operating Systems', code: 'CS303' },
+      { id: 'subj-4', name: 'Computer Networks', code: 'CS304' },
+      { id: 'subj-5', name: 'Software Engineering', code: 'CS305' },
+      { id: 'subj-6', name: 'Discrete Mathematics', code: 'MA301' },
+    ].map((s, i) => generateDummySubject(s.id, s.name, s.code, i));
 
   const totalPerf = Math.round(
     subjects.reduce((sum, s) => {
@@ -259,70 +268,254 @@ function generateDummyReport(student: BatchStudent): StudentReport {
 // ── Hook ────────────────────────────────────────────────────────────
 
 export function useStudentReport() {
+  const { user } = useAuth();
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [batches, setBatches] = useState<BatchOption[]>([]);
+  const [semesters, setSemesters] = useState<SemesterOption[]>([]);
+  const [sections, setSections] = useState<SectionOption[]>([]);
   const [students, setStudents] = useState<BatchStudent[]>([]);
   const [allStudents, setAllStudents] = useState<BatchStudent[]>([]);
   const [report, setReport] = useState<StudentReport | null>(null);
+  const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
   const [loading, setLoading] = useState(false);
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
 
   useEffect(() => {
     const init = async () => {
-      // Dummy departments
-      setDepartments([
-        { id: 'dept-1', name: 'Computer Science', code: 'CSE' },
-        { id: 'dept-2', name: 'Electronics', code: 'ECE' },
-        { id: 'dept-3', name: 'Mechanical', code: 'MECH' },
-      ]);
-      setAllStudents([...DUMMY_STUDENTS]);
-      setFiltersLoading(false);
-    };
-    init();
-  }, []);
+      try {
+        setFiltersLoading(true);
+        const collegeId = (user as any)?.college_id;
+        
+        // Fetch specific faculty assignments
+        const assignmentsData = await getFacultyAssignments();
+        setAssignments(assignmentsData);
 
-  const loadCourses = useCallback(async (departmentId: string, semester?: string) => {
-    // Dummy courses
-    setCourses(DUMMY_SUBJECTS.map((s, i) => ({
-      id: `course-${i}`,
-      name: s.name,
-      code: s.code,
-      semester: semester ? parseInt(semester) : 5,
-    })));
-  }, []);
+        // Extract unique departments from assignments
+        const depts: DepartmentOption[] = [];
+        assignmentsData.forEach((a: SectionSubjectFaculty) => {
+          const deptId = a.semester_subject_details?.department_id;
+          const deptName = a.semester_subject_details?.department_name;
+          const deptCode = a.semester_subject_details?.department_short_form || '';
+          if (deptId && deptName && !depts.find((d: DepartmentOption) => d.id === String(deptId))) {
+            depts.push({ id: String(deptId), name: deptName, code: deptCode });
+          }
+        });
+        setDepartments(depts);
+
+        // Fetch all students for search
+        const studentsResp = await studentService.getStudents({ college: collegeId });
+        const allFetched = studentsResp.results || (Array.isArray(studentsResp) ? studentsResp : []);
+        setAllStudents(allFetched.map((s: any) => ({
+          id: String(s.id),
+          name: `${s.user_details.first_name} ${s.user_details.last_name}`,
+          rollNo: s.roll_number,
+          email: s.user_details.email,
+          section: s.section_name || s.section_details?.name || 'N/A'
+        })));
+      } catch (err) {
+        console.error('Failed to init report filters:', err);
+      } finally {
+        setFiltersLoading(false);
+      }
+    };
+    if (user) init();
+  }, [user]);
 
   const loadBatches = useCallback(async (departmentId: string) => {
-    // Dummy batches
-    setBatches([
-      { id: 'batch-1', name: '2022-2026', startYear: 2022, endYear: 2026 },
-      { id: 'batch-2', name: '2023-2027', startYear: 2023, endYear: 2027 },
-    ]);
+    try {
+      const resp = await batchService.getBatches(departmentId);
+      const results = (resp as any).results || (Array.isArray(resp) ? resp : []);
+      
+      // Filter batches by those present in faculty assignments for this department
+      const assignedBatchData = assignments
+        .filter((a: SectionSubjectFaculty) => String(a.semester_subject_details?.department_id) === departmentId)
+        .map((a: SectionSubjectFaculty) => ({
+          name: a.semester_subject_details?.batch_name?.trim(),
+          id: (a.semester_subject_details as any)?.batch // Try to get batch ID if present
+        }));
+
+      const assignedNames = assignedBatchData.map((d: any) => d.name).filter(Boolean);
+      const assignedIds = assignedBatchData.map((d: any) => String(d.id)).filter((id: string) => id !== 'undefined');
+
+      // Filter by assignments - match by ID or Name
+      let finalBatches = results.filter((b: any) => 
+        assignedIds.includes(String(b.id)) || 
+        assignedNames.includes(b.name?.trim())
+      );
+
+      // Fallback: If filtering resulted in nothing but results were returned from API, 
+      // it might be a data mismatch. Show all results as a fallback for usability.
+      if (finalBatches.length === 0 && results.length > 0) {
+        finalBatches = results;
+      }
+
+      setBatches(finalBatches.map((b: any) => ({
+        id: String(b.id),
+        name: b.name
+      })));
+    } catch (err) {
+      console.error('Failed to load batches:', err);
+    }
   }, []);
 
-  const loadStudents = useCallback(async (departmentId: string, semester?: string) => {
+  const loadSemesters = useCallback(async (batchId: string) => {
+    try {
+      const resp = await semesterService.getSemesters(batchId);
+      const results = (resp as any).results || (Array.isArray(resp) ? resp : []);
+      
+      // Filter semesters by those assigned to faculty
+      const assignedSemNumbers = assignments
+        .map((a: SectionSubjectFaculty) => a.semester_subject_details?.semester_number)
+        .filter(Boolean);
+
+      let finalSemesters = results.filter((s: any) => assignedSemNumbers.includes(s.number));
+
+      // Fallback to all if filtering by assigned numbers is too strict
+      if (finalSemesters.length === 0 && results.length > 0) {
+        finalSemesters = results;
+      }
+
+      setSemesters(finalSemesters.map((s: any) => ({
+        id: String(s.id),
+        number: s.number
+      })));
+    } catch (err) {
+      console.error('Failed to load semesters:', err);
+    }
+  }, [assignments]);
+
+  const loadCourses = useCallback(async (semesterId: string) => {
+    try {
+      // Find the assignments that match the current context
+      // Note: Comparing by semester number since semesterId is the ID of the Semester object
+      // But SectionSubjectFaculty has semester_number.
+      const currentSemester = semesters.find((s: SemesterOption) => s.id === semesterId);
+      if (!currentSemester) return;
+
+      const filteredAssignments = assignments.filter((a: SectionSubjectFaculty) => 
+        a.semester_subject_details?.semester_number === currentSemester.number
+      );
+
+      const subjects = filteredAssignments.map((a: SectionSubjectFaculty) => ({
+        id: String(a.semester_subject_details?.subject_details.id),
+        name: a.semester_subject_details?.subject_details.subject_name || 'Unknown',
+        code: a.semester_subject_details?.subject_details.short_code || '',
+        semester: a.semester_subject_details?.semester_number || 0
+      }));
+
+      // Unique subjects only
+      const uniqueSubjects = subjects.filter((s: any, index: number, self: any[]) =>
+        index === self.findIndex((t: any) => t.id === s.id)
+      );
+
+      setCourses(uniqueSubjects);
+      
+      // Clear sections when subject changes
+      setSections([]);
+    } catch (err) {
+      console.error('Failed to load courses:', err);
+    }
+  }, [assignments, semesters]);
+
+  const loadSections = useCallback(async (semesterId: string, subjectId: string) => {
+    try {
+      if (!semesterId || !subjectId) {
+        setSections([]);
+        return;
+      }
+
+      const currentSemester = semesters.find((s: SemesterOption) => s.id === semesterId);
+      if (!currentSemester) return;
+
+      // Filter assignments by semester number AND subject ID
+      const filteredAssignments = assignments.filter((a: SectionSubjectFaculty) => 
+        a.semester_subject_details?.semester_number === currentSemester.number &&
+        String(a.semester_subject_details?.subject_details.id) === subjectId
+      );
+
+      const sectionOptions = filteredAssignments
+        .map((a: SectionSubjectFaculty) => ({
+          name: a.section_name || a.semester_subject_details?.batch_name || 'Unknown Section'
+        }))
+        .filter((s: SectionOption, index: number, self: SectionOption[]) => 
+          index === self.findIndex((t: SectionOption) => t.name === s.name)
+        );
+
+      setSections(sectionOptions);
+    } catch (err) {
+      console.error('Failed to load sections:', err);
+    }
+  }, [assignments, semesters]);
+
+  const loadStudents = useCallback(async (filters: { department?: string; batch?: string; semester?: string; section?: string }) => {
     setStudentsLoading(true);
-    await new Promise(r => setTimeout(r, 400));
-    setStudents([...DUMMY_STUDENTS]);
-    setStudentsLoading(false);
+    try {
+      const params: any = {};
+      if (filters.department) params.department = filters.department;
+      if (filters.batch) params.batch = filters.batch;
+      if (filters.semester) params.semester = filters.semester;
+      if (filters.section) params.section_name = filters.section; 
+
+      const resp = await studentService.getStudents(params);
+      const results = resp.results || (Array.isArray(resp) ? resp : []);
+      setStudents(results.map((s: any) => ({
+        id: String(s.id),
+        name: `${s.user_details.first_name} ${s.user_details.last_name}`,
+        rollNo: s.roll_number,
+        email: s.user_details.email,
+        section: s.section_name || s.section_details?.name || 'N/A'
+      })));
+    } catch (err) {
+      console.error('Failed to load students:', err);
+    } finally {
+      setStudentsLoading(false);
+    }
   }, []);
 
   const loadReport = useCallback(async (studentId: string, filters: Partial<ReportFilters>, externalStudent?: BatchStudent) => {
     setLoading(true);
     try {
-      const student = externalStudent || allStudents.find(s => s.id === studentId) || DUMMY_STUDENTS[0];
-      await new Promise(r => setTimeout(r, 400)); // simulate loading
-      setReport(generateDummyReport(student));
-      setLoading(false);
+      // Find the real student data
+      let student = externalStudent || allStudents.find((s: BatchStudent) => s.id === studentId);
+
+      if (!student) {
+        const s = await studentService.getStudent(studentId);
+        student = {
+          id: String(s.id),
+          name: `${s.user_details.first_name} ${s.user_details.last_name}`,
+          rollNo: s.roll_number,
+          email: s.user_details.email,
+          section: (s as any).section_name || (s as any).section_details?.name || 'N/A'
+        };
+      }
+
+      // Get subjects for the student's current semester if possible
+      const subjectsList = courses.map((c: CourseOption) => ({ id: c.id, name: c.name, code: c.code }));
+
+      // Simulate some processing time
+      await new Promise(r => setTimeout(r, 400));
+      setReport(generateDummyReport(student, subjectsList));
     } catch (err) {
       console.error('Error loading report:', err);
+    } finally {
       setLoading(false);
     }
   }, [allStudents, courses]);
 
   return {
-    departments, courses, batches, students, allStudents, report, loading, filtersLoading, studentsLoading,
-    loadCourses, loadBatches, loadStudents, loadReport,
+    departments, courses, batches, semesters, students,    allStudents,
+    sections,
+    report,
+    loading,
+    filtersLoading,
+    studentsLoading,
+    loadBatches,
+    loadSemesters,
+    loadCourses,
+    loadSections,
+    loadStudents,
+    loadReport
   };
 }
