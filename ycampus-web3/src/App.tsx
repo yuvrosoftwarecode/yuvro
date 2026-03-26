@@ -145,6 +145,7 @@ const App = () => (
                       <Route path="dashboard" element={<StudentDashboard />} />
                       <Route path="task" element={<StudentTask />} />
                       <Route path="notes" element={<StudentNotes />} />
+                      <Route path="notes/:subjectId" element={<SubjectDetail />} />
                       <Route path="test" element={<StudentTest />} />
                       <Route path="assessment" element={<StudentAssessment />} />
                       <Route path="jobs" element={<StudentJobs />} />

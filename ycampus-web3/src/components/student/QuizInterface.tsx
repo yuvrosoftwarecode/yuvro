@@ -25,6 +25,7 @@ interface QuizInterfaceProps {
   onToggleCodeEditor: () => void;
   code: string;
   onCodeChange: (code: string) => void;
+  backendQuestions?: Question[];
 }
 
 const mockQuestions: Question[] = [
@@ -63,17 +64,29 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   showCodeEditor, 
   onToggleCodeEditor,
   code,
-  onCodeChange 
+  onCodeChange,
+  backendQuestions
 }) => {
+  const questions = backendQuestions && backendQuestions.length > 0 ? backendQuestions : mockQuestions;
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>(Array(mockQuestions.length).fill(null));
-  const [submittedAnswers, setSubmittedAnswers] = useState<boolean[]>(Array(mockQuestions.length).fill(false));
+  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
+  const [submittedAnswers, setSubmittedAnswers] = useState<boolean[]>(Array(questions.length).fill(false));
   const [showResults, setShowResults] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
   const [activeTab, setActiveTab] = useState('statement');
 
-  const currentQuestion = mockQuestions[currentQuestionIndex];
-  const totalQuestions = mockQuestions.length;
+  React.useEffect(() => {
+    setCurrentQuestionIndex(0);
+    setSelectedAnswers(Array(questions.length).fill(null));
+    setSubmittedAnswers(Array(questions.length).fill(false));
+    setShowResults(false);
+    setShowThankYou(false);
+    setActiveTab('statement');
+  }, [backendQuestions]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length;
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
   const handleAnswerSelect = (optionIndex: number) => {
@@ -115,7 +128,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const getScore = () => {
     let correct = 0;
     selectedAnswers.forEach((answer, index) => {
-      if (answer === mockQuestions[index].correctAnswer) {
+      if (answer === questions[index].correctAnswer) {
         correct++;
       }
     });
@@ -124,8 +137,8 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
 
   const handleRetake = () => {
     setCurrentQuestionIndex(0);
-    setSelectedAnswers(Array(mockQuestions.length).fill(null));
-    setSubmittedAnswers(Array(mockQuestions.length).fill(false));
+    setSelectedAnswers(Array(questions.length).fill(null));
+    setSubmittedAnswers(Array(questions.length).fill(false));
     setShowResults(false);
     setShowThankYou(false);
     setActiveTab('statement');
@@ -136,7 +149,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   };
 
   const isAnswerCorrect = (questionIndex: number) => {
-    return selectedAnswers[questionIndex] === mockQuestions[questionIndex].correctAnswer;
+    return selectedAnswers[questionIndex] === questions[questionIndex].correctAnswer;
   };
 
   if (showThankYou) {
@@ -208,7 +221,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
                 <div className="p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm text-muted-foreground">Correct Answers</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {selectedAnswers.filter((ans, idx) => ans === mockQuestions[idx].correctAnswer).length}
+                    {selectedAnswers.filter((ans, idx) => ans === questions[idx].correctAnswer).length}
                   </p>
                 </div>
               </div>
@@ -278,7 +291,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
                     onValueChange={(value) => handleAnswerSelect(parseInt(value))}
                     disabled={submittedAnswers[currentQuestionIndex]}
                   >
-                    {currentQuestion.options.map((option, index) => (
+                    {currentQuestion.options?.map((option, index) => (
                       <div 
                         key={index}
                         className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all ${
