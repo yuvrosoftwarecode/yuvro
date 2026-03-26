@@ -57,6 +57,7 @@ import AIInterviewPlanner from "./pages/student/AIInterviewPlanner";
 import InterviewPreparation from "./pages/student/InterviewPreparation";
 import MockInterviewSelect from "./pages/student/MockInterviewSelect";
 import StudentJobs from "./pages/student/Jobs";
+import CodePractice from "./pages/student/CodePractice";
 import PlacementDashboard from "./pages/placement/PlacementDashboard";
 import JobApprovals from "./pages/placement/JobApprovals";
 import LiveJobs from "./pages/placement/LiveJobs";
@@ -154,6 +155,10 @@ const App = () => (
                       <Route path="ai-interview-planner" element={<AIInterviewPlanner />} />
                       <Route path="interview-preparation" element={<InterviewPreparation />} />
                       <Route path="mock-interview" element={<MockInterviewSelect />} />
+                      <Route path="code-practice" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId/questions/:problemId" element={<CodePractice />} />
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
                     </Routes>

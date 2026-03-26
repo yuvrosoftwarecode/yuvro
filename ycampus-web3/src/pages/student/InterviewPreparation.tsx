@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
   Code,
   Brain,
@@ -316,6 +316,8 @@ const InterviewPreparation = () => {
                     onClick={() => {
                       if (mod.cta === 'Start Mock Interview') {
                         navigate('/student/mock-interview-select');
+                      } else if (mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') {
+                        navigate('/student/code-practice');
                       }
                     }}
                   >
