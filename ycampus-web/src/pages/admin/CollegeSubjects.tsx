@@ -173,21 +173,17 @@ const CollegeSubjects: React.FC = () => {
         );
     });
 
-    const headerActions = (
+    const isMainAdmin = user?.role === 'admin' || user?.role === 'instructor';
+
+    const headerActions = isMainAdmin ? (
         <div className="flex gap-3">
             <Button
                 variant="outline"
-                onClick={() => {
-                    if (user?.role === 'admin' || user?.role === 'instructor') {
-                        navigate("/admin/subjects/colleges");
-                    } else {
-                        navigate("/college-admin/dashboard");
-                    }
-                }}
+                onClick={() => navigate("/admin/subjects/colleges")}
                 className="cursor-pointer"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                {user?.role === 'admin' || user?.role === 'instructor' ? "Back to Colleges" : "Back to Dashboard"}
+                Back to Colleges
             </Button>
             <Button
                 onClick={() => {
@@ -200,7 +196,7 @@ const CollegeSubjects: React.FC = () => {
                 Assign Subject
             </Button>
         </div>
-    );
+    ) : null;
 
     return (
         <div className="min-h-screen bg-white">

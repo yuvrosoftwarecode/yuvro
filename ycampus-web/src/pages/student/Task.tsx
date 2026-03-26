@@ -79,16 +79,16 @@ const StudentTask: React.FC = () => {
     // Scroll chat to bottom
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [submissions, isDialogOpen]);
+    }, [submissions, activeTask]);
 
     useEffect(() => {
         loadTasks();
     }, []);
 
-    // Polling for updates when dialog is open
+    // Polling for updates when task detail is open
     useEffect(() => {
         let interval: any;
-        if (isDialogOpen && activeTask) {
+        if (activeTask) {
             interval = setInterval(async () => {
                 try {
                     const subs = await taskService.getTaskSubmissions(activeTask.id);
@@ -101,7 +101,7 @@ const StudentTask: React.FC = () => {
             }, 5000);
         }
         return () => clearInterval(interval);
-    }, [isDialogOpen, activeTask]);
+    }, [activeTask]);
 
     // Silent background refresh — does NOT reset isLoading to avoid UI flicker
     const silentRefresh = async () => {
@@ -152,7 +152,6 @@ const StudentTask: React.FC = () => {
         setAnswerText(sub?.answer || '');
         setSelectedFile(null);
         setCommentText('');
-        setIsDialogOpen(true);
     };
 
     const handleSubmit = async () => {
@@ -186,7 +185,7 @@ const StudentTask: React.FC = () => {
 
             setSubmissions(prev => ({ ...prev, [activeTask.id]: updatedSub }));
             toast.success('Task submitted successfully!');
-            setIsDialogOpen(false);
+            setActiveTask(null);
         } catch (err) {
             toast.error('Failed to submit task');
         } finally {
@@ -718,271 +717,197 @@ const StudentTask: React.FC = () => {
                 )}
                 </div>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-7xl max-h-[85vh] w-[95vw] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col bg-white [&>button.absolute.right-4]:hidden">
-                    <DialogTitle className="sr-only">Task Submission</DialogTitle>
-                    <DialogDescription className="sr-only">View and submit your task details</DialogDescription>
-                    {/* Custom close button */}
-                    <button
-                        onClick={() => setIsDialogOpen(false)}
-                        className="absolute top-6 right-6 z-10 h-9 w-9 flex items-center justify-center rounded-xl bg-white/80 text-gray-500 shadow-sm"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
 
-                    <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                        {/* Main Submission Area */}
-                        <div className="w-full md:w-[75%] border-r border-slate-50 p-8 flex flex-col gap-6 overflow-y-auto custom-scrollbar min-h-0">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    <Badge className="bg-white hover:bg-slate-200 text-slate-900 border-none px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-[10px]">
-                                        {activeTask?.task_type} Task
-                                    </Badge>
-                                    <div className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-slate-100">
-                                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
-                                            Due: {activeTask?.due_date ? format(new Date(activeTask?.due_date), 'MMM dd, yyyy') : 'No Deadline'}
+            {/* ====== TASK DETAIL FULL PAGE ====== */}
+            {activeTask && (
+                <div className="fixed inset-0 z-40 flex bg-white font-sans overflow-hidden">
+                    <RoleSidebar />
+
+                    {/* Detail column */}
+                    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+
+                        {/* Top bar */}
+                        <div className="flex items-center gap-4 px-8 py-4 bg-white border-b border-gray-200 shrink-0">
+                            <button
+                                onClick={() => setActiveTask(null)}
+                                className="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 font-semibold text-sm transition-colors group shrink-0"
+                            >
+                                <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                Back to Tasks
+                            </button>
+                            <div className="w-px h-5 bg-gray-300" />
+                            <h1 className="text-xl font-bold text-slate-900 truncate">{activeTask.title}</h1>
+                            {activeSub?.is_submitted && (
+                                <Badge className={`ml-auto shrink-0 border-none px-3 py-1 rounded-full font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5 ${activeSub?.status === 'accepted' ? 'bg-emerald-50 text-emerald-600' : activeSub?.status === 'rejected' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
+                                    {activeSub?.status === 'accepted' ? <CheckCircle2 className="w-3 h-3" /> : activeSub?.status === 'rejected' ? <AlertCircle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                                    {activeSub?.status}
+                                </Badge>
+                            )}
+                        </div>
+
+                        {/* Scrollable body */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                            <div className="max-w-7xl mx-auto px-8 py-6 space-y-5">
+
+                                {/* Task Details card */}
+                                <div className="bg-white border border-gray-200 rounded-2xl px-6 py-5">
+                                    <h2 className="text-sm font-bold text-slate-800 mb-1">Task Details</h2>
+                                    <p className="text-sm text-slate-500 leading-relaxed">
+                                        {activeTask.description || 'No specific instructions provided.'}
+                                    </p>
+                                    <div className="flex items-center gap-4 mt-3">
+                                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            Due: {activeTask.due_date ? format(new Date(activeTask.due_date), 'MMM dd, yyyy') : 'No Deadline'}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase">
+                                            {activeTask.task_type === 'coding' ? <Code className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                                            {activeTask.task_type} Task
                                         </span>
                                     </div>
                                 </div>
-                                <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{activeTask?.title}</h2>
-                                <p className="text-slate-500 text-base leading-relaxed max-w-2xl font-medium">
-                                    {activeTask?.description || "No specific instructions provided. Please ensure all requirements are met."}
-                                </p>
-                            </div>
 
-                            <div className="space-y-10">
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                                            {activeTask?.task_type === 'coding' ? 'Source Code Editor' : 'Your Answer Content'}
-                                        </Label>
-                                        {activeSub?.is_submitted && (
-                                            <Badge className={`border-none px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${activeSub?.status === 'accepted'
-                                                ? 'bg-emerald-50 text-emerald-600'
-                                                : activeSub?.status === 'rejected'
-                                                    ? 'bg-rose-50 text-rose-600'
-                                                    : 'bg-blue-50 text-blue-600'
-                                                }`}>
-                                                {activeSub?.status === 'accepted' ? <CheckCircle2 className="w-3 h-3" /> : activeSub?.status === 'rejected' ? <AlertCircle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-                                                {activeSub?.status}
-                                            </Badge>
-                                        )}
-                                    </div>
+                                {/* Two-column: Your Work | Discussion */}
+                                <div className="flex flex-col lg:flex-row gap-5 items-start">
 
-                                    {activeTask?.task_type === 'coding' ? (
-                                        <div className="h-[380px] border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
-                                            <CodeEditorWithAI
-                                                problem={{
-                                                    id: activeTask.id,
-                                                    title: activeTask.title,
-                                                    difficulty: 'Medium',
-                                                    score: 0,
-                                                    description: activeTask.description || '',
-                                                    test_cases_basic: activeTask.question_details?.flatMap((q: any) => q.test_cases_basic || []) || [],
-                                                    test_cases_advanced: []
-                                                } as CodingProblem}
-                                                subject={{
-                                                    id: String(activeTask.subject),
-                                                    name: activeTask.subject_details?.name || 'Subject',
-                                                    category: 'programming_languages'
-                                                } as any}
-                                                unit={{
-                                                    id: activeTask.unit || '1',
-                                                    name: activeTask.unit_name || 'Unit'
-                                                } as any}
-                                                onBack={() => setIsDialogOpen(false)}
-                                                isEmbedded={true}
-                                                showBreadcrumb={false}
-                                                showProblemDescription={false}
-                                                codeSubmissionType="practice"
-                                                initialEditorOpen={true}
-                                                initialCode={answerText || activeSub?.answer || ''}
-                                                onCodeChange={(newCode: string) => setAnswerText(newCode)}
-                                                hideSubmitButton={true}
-                                            />
+                                    {/* Your Work */}
+                                    <div className="flex-1 bg-white border border-gray-200 rounded-2xl p-6 flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-sm font-bold text-slate-800">Your Work</h2>
+                                            {activeTask.task_type === 'descriptive' && !fileAlreadyUploaded && (
+                                                <label htmlFor="file-upload" className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl border border-gray-200 cursor-pointer transition-colors ${activeSub?.status === 'accepted' ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-50 text-slate-600'}`}>
+                                                    <Paperclip className="w-4 h-4" /> Upload Task
+                                                    <input type="file" id="file-upload" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c,.cs,.html,.css,.json,.xml,.sh" disabled={activeSub?.status === 'accepted'} onChange={(e: any) => setSelectedFile(e.target.files?.[0] || null)} />
+                                                </label>
+                                            )}
                                         </div>
-                                    ) : (
-                                        <Textarea
-                                            ref={textareaRef}
-                                            value={answerText}
-                                            onChange={(e: any) => setAnswerText(e.target.value)}
-                                            placeholder="Explain your answer in detail..."
-                                            className="min-h-[120px] max-h-[400px] overflow-y-auto bg-white border border-gray-300 rounded-2xl p-6 focus:ring-4 focus:ring-orange-100 transition-all text-base font-medium resize-none leading-relaxed"
-                                            disabled={activeSub?.status === 'accepted'}
-                                        />
-                                    )}
-                                </div>
 
-                                {activeTask?.task_type === 'descriptive' && (
-                                    <div className="space-y-4">
-                                        <Label className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Supporting Documents</Label>
-                                        {/* File upload only shown if student never uploaded a file before */}
-                                        {!fileAlreadyUploaded ? (
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative flex-1">
-                                                        <input
-                                                            type="file"
-                                                            id="file-upload"
-                                                            className="hidden"
-                                                            accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.txt,.py,.js,.ts,.java,.cpp,.c,.cs,.html,.css,.json,.xml,.sh"
-                                                            disabled={activeSub?.status === 'accepted'}
-                                                            onChange={(e: any) => setSelectedFile(e.target.files?.[0] || null)}
-                                                        />
-                                                    <label
-                                                        htmlFor="file-upload"
-                                                        className={`flex items-center gap-4 w-full p-6 rounded-3xl cursor-pointer border-2 border-dashed transition-all font-bold ${activeSub?.status === 'accepted'
-                                                            ? 'bg-white border-slate-200 cursor-not-allowed text-slate-400'
-                                                            : 'bg-white border-slate-200 text-slate-500'}`}
-                                                    >
-                                                        <Paperclip className="w-5 h-5 text-orange-500" />
-                                                        {selectedFile ? (
-                                                            <span className="text-slate-900 truncate">{selectedFile.name}</span>
-                                                        ) : (
-                                                            'Add Attachment (PDF / Image / ZIP / RAR / Code Files)'
-                                                        )}
-                                                    </label>
-                                                </div>
+                                        {selectedFile && (
+                                            <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 rounded-xl px-4 py-2 border border-slate-100">
+                                                <Paperclip className="w-4 h-4 text-orange-500 shrink-0" />
+                                                <span className="truncate font-medium">{selectedFile.name}</span>
                                             </div>
-                                        ) : (
-                                            <div className="flex items-center gap-4 bg-white border-2 border-slate-100 rounded-3xl p-5">
-                                                <Paperclip className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                                        )}
+
+                                        {fileAlreadyUploaded && (
+                                            <div className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl px-5 py-3">
+                                                <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-slate-700 truncate">
-                                                        {activeSub?.file?.split('/').pop()?.split('?')[0] || 'Uploaded File'}
-                                                    </p>
-                                                    <p className="text-xs text-slate-400 font-medium">File already submitted — cannot change</p>
+                                                    <p className="text-sm font-bold text-slate-700 truncate">{activeSub?.file?.split('/').pop()?.split('?')[0] || 'Uploaded File'}</p>
+                                                    <p className="text-xs text-slate-400">File already submitted — cannot change</p>
                                                 </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => openFileViewer(activeSub!.file!)}
-                                                    className="text-slate-800 hover:bg-slate-100 rounded-xl font-bold gap-1.5 flex-shrink-0"
-                                                >
+                                                <Button variant="ghost" size="sm" onClick={() => openFileViewer(activeSub!.file!)} className="text-slate-700 hover:bg-slate-100 rounded-xl font-bold gap-1.5 shrink-0">
                                                     <Eye className="w-4 h-4" /> View
                                                 </Button>
                                             </div>
                                         )}
-                                    </div>
-                                )}
 
-                                <Button
-                                    onClick={handleSubmit}
-                                    disabled={isSubmitting || activeSub?.status === 'accepted' || (activeSub?.is_submitted && activeSub?.status !== 'rejected' && !selectedFile && activeSub?.answer === answerText)}
-                                    className="w-full h-14 bg-slate-800 text-white hover:bg-slate-900 rounded-2xl font-bold text-lg shadow-xl shadow-slate-100 gap-4 transition-all"
-                                >
-                                    {isSubmitting ? 'Processing...' : (
-                                        <>
-                                            <Send className="w-6 h-6" />
-                                            {activeSub?.status === 'rejected' ? 'Resubmit My Work' : activeSub?.is_submitted ? 'Update Submission' : 'Submit My Work'}
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[25%] bg-[#F8FAFC] p-8 flex flex-col h-full">
-                            <div className="mb-6 flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
-                                    <p className="text-slate-400 text-sm font-medium mt-1">Comments and feedback from faculty</p>
-                                </div>
-                                {/* 
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleClearChat}
-                                    disabled={isClearingChat}
-                                    className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl h-9 px-3 font-bold gap-1.5 flex-shrink-0"
-                                >
-                                    <Trash2 className="h-4 w-4" /> Clear
-                                </Button>
-                                */}
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto min-h-0 space-y-4 pb-4 pr-1 custom-scrollbar">
-                                {activeSub?.comments && activeSub.comments.length > 0 ? (
-                                    activeSub.comments.map((comment: any, idx: number) => {
-                                        const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
-                                        return (
-                                            <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
-                                                <div 
-                                                    onClick={() => isInline && handleAnnotationClick(comment.comment)}
-                                                    className={`p-4 rounded-2xl max-w-[90%] text-sm leading-relaxed ${
-                                                        isInline
-                                                        ? 'rounded-bl-none shadow-sm w-full cursor-pointer transition-colors'
-                                                        : comment.faculty
-                                                            ? 'self-start rounded-bl-none'
-                                                            : 'self-end rounded-br-none'
-                                                    }`}
-                                                    style={{
-                                                        backgroundColor: comment.faculty || isInline ? '#EFF6FF' : '#F0FDF4',
-                                                        color: '#020817'
-                                                    }}
-                                                >
-                                                    {isInline && (
-                                                        <span className="inline-block text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 whitespace-normal text-left leading-normal" style={{ backgroundColor: '#DBEAFE', color: '#1e40af' }}>
-                                                            {comment.comment.substring(1, comment.comment.indexOf(']'))}
-                                                        </span>
-                                                    )}
-                                                    <div className={`flex items-center ${isInline ? 'justify-end' : 'justify-between'} gap-x-4 mb-1`}>
-                                                        {!isInline && (
-                                                            <span className="text-[11px] font-bold tracking-wide" style={{ color: comment.faculty ? '#1d4ed8' : '#15803d' }}>
-                                                                {comment.faculty ? 'Faculty' : 'You'}
-                                                            </span>
-                                                        )}
-                                                        <span className="text-[10px] text-slate-400 font-semibold">
-                                                            {format(new Date(comment.created_at), 'M/dd, hh:mm a')}
-                                                        </span>
-                                                    </div>
-                                                    <p className="whitespace-pre-wrap font-medium" style={{ color: '#020817' }}>
-                                                        {isInline
-                                                            ? comment.comment.substring(comment.comment.indexOf(']') + 1).trim()
-                                                            : comment.comment
-                                                        }
-                                                    </p>
-                                                </div>
+                                        {activeTask.task_type === 'coding' ? (
+                                            <div className="h-[360px] border border-slate-100 rounded-2xl overflow-hidden">
+                                                <CodeEditorWithAI
+                                                    problem={{ id: activeTask.id, title: activeTask.title, difficulty: 'Medium', score: 0, description: activeTask.description || '', test_cases_basic: activeTask.question_details?.flatMap((q: any) => q.test_cases_basic || []) || [], test_cases_advanced: [] } as CodingProblem}
+                                                    subject={{ id: String(activeTask.subject), name: activeTask.subject_details?.name || 'Subject', category: 'programming_languages' } as any}
+                                                    unit={{ id: activeTask.unit || '1', name: activeTask.unit_name || 'Unit' } as any}
+                                                    onBack={() => setActiveTask(null)}
+                                                    isEmbedded={true} showBreadcrumb={false} showProblemDescription={false}
+                                                    codeSubmissionType="practice" initialEditorOpen={true}
+                                                    initialCode={answerText || activeSub?.answer || ''}
+                                                    onCodeChange={(newCode: string) => setAnswerText(newCode)}
+                                                    hideSubmitButton={true}
+                                                />
                                             </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center text-center py-12 opacity-30">
-                                        <MessageSquare className="w-12 h-12 text-slate-300 mb-3" />
-                                        <p className="text-xs font-bold uppercase tracking-[0.2em]">No conversation started</p>
-                                    </div>
-                                )}
-                                <div ref={chatEndRef} />
-                            </div>
+                                        ) : (
+                                            <Textarea
+                                                ref={textareaRef}
+                                                value={answerText}
+                                                onChange={(e: any) => setAnswerText(e.target.value)}
+                                                placeholder="Upload a document or start writing your solution here..."
+                                                className="min-h-[200px] bg-white border border-gray-200 rounded-xl p-4 text-sm font-medium resize-none leading-relaxed text-slate-700 placeholder:text-slate-400"
+                                                disabled={activeSub?.status === 'accepted'}
+                                            />
+                                        )}
 
-                            <div className="pt-4 mt-auto">
-                                <div className="relative group">
-                                    <Textarea
-                                        value={commentText}
-                                        onChange={(e: any) => setCommentText(e.target.value)}
-                                        onKeyDown={(e: any) => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleAddComment();
-                                            }
-                                        }}
-                                        placeholder="Type your message here..."
-                                        className="min-h-[80px] bg-white border-slate-200 rounded-[2rem] p-5 pr-16 focus:ring-0 focus:border-orange-500 hover:border-orange-400 transition-all text-sm font-medium resize-none shadow-sm"
-                                    />
-                                    <Button
-                                        onClick={handleAddComment}
-                                        disabled={isSendingComment || !commentText.trim()}
-                                        size="icon"
-                                        className="absolute bottom-4 right-4 h-10 w-10 rounded-2xl bg-slate-800 hover:bg-slate-900 shadow-xl shadow-slate-100 transition-all active:scale-90"
-                                    >
-                                        <Send className="w-5 h-5 text-white" />
-                                    </Button>
+                                        <Button
+                                            onClick={handleSubmit}
+                                            disabled={isSubmitting || activeSub?.status === 'accepted' || (activeSub?.is_submitted && activeSub?.status !== 'rejected' && !selectedFile && activeSub?.answer === answerText)}
+                                            className="w-full h-12 bg-slate-800 text-white hover:bg-slate-900 rounded-xl font-bold text-sm gap-3 transition-all"
+                                        >
+                                            {isSubmitting ? 'Processing...' : (
+                                                <><Send className="w-4 h-4" />{activeSub?.status === 'rejected' ? 'Resubmit My Work' : activeSub?.is_submitted ? 'Update Submission' : 'Submit My Work'}</>
+                                            )}
+                                        </Button>
+                                    </div>
+
+                                    {/* Discussion */}
+                                    <div className="w-full lg:w-[360px] shrink-0 bg-white border border-gray-200 rounded-2xl p-6 flex flex-col" style={{ minHeight: '480px' }}>
+                                        <div className="mb-4">
+                                            <h2 className="text-sm font-bold text-slate-800">Discussion</h2>
+                                        </div>
+
+                                        <div className="flex-1 overflow-y-auto space-y-3 pb-3 custom-scrollbar">
+                                            {activeSub?.comments && activeSub.comments.length > 0 ? (
+                                                activeSub.comments.map((comment: any, idx: number) => {
+                                                    const isInline = comment.comment.startsWith('[') && comment.comment.includes(']');
+                                                    return (
+                                                        <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
+                                                            <div
+                                                                onClick={() => isInline && handleAnnotationClick(comment.comment)}
+                                                                className={`p-3 rounded-xl max-w-[95%] text-sm leading-relaxed ${isInline ? 'w-full cursor-pointer' : comment.faculty ? 'rounded-tl-sm' : 'rounded-tr-sm'}`}
+                                                                style={{ backgroundColor: comment.faculty || isInline ? '#EFF6FF' : '#F0FDF4', color: '#020817' }}
+                                                            >
+                                                                {isInline && (
+                                                                    <span className="inline-block text-[9px] font-black uppercase mb-1.5 rounded px-1.5 py-0.5" style={{ backgroundColor: '#DBEAFE', color: '#1e40af' }}>
+                                                                        {comment.comment.substring(1, comment.comment.indexOf(']'))}
+                                                                    </span>
+                                                                )}
+                                                                <div className={`flex items-center ${isInline ? 'justify-end' : 'justify-between'} gap-3 mb-1`}>
+                                                                    {!isInline && (
+                                                                        <span className="text-[11px] font-bold" style={{ color: comment.faculty ? '#1d4ed8' : '#15803d' }}>
+                                                                            {comment.faculty ? 'Faculty' : 'Student'}
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="text-[10px] text-slate-400">
+                                                                        {format(new Date(comment.created_at), 'M/d/yyyy, h:mm:ss aa')}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-sm whitespace-pre-wrap" style={{ color: '#020817' }}>
+                                                                    {isInline ? comment.comment.substring(comment.comment.indexOf(']') + 1).trim() : comment.comment}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center text-center py-10 opacity-30">
+                                                    <MessageSquare className="w-10 h-10 text-slate-300 mb-2" />
+                                                    <p className="text-xs font-bold uppercase tracking-widest">No conversation yet</p>
+                                                </div>
+                                            )}
+                                            <div ref={chatEndRef} />
+                                        </div>
+
+                                        <div className="pt-3 mt-2 border-t border-gray-100">
+                                            <div className="relative">
+                                                <Textarea
+                                                    value={commentText}
+                                                    onChange={(e: any) => setCommentText(e.target.value)}
+                                                    onKeyDown={(e: any) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }}
+                                                    placeholder="Add a comment..."
+                                                    className="min-h-[72px] bg-white border border-gray-200 rounded-xl p-3 pr-12 focus:ring-0 focus:border-orange-400 transition-all text-sm resize-none"
+                                                />
+                                                <Button onClick={handleAddComment} disabled={isSendingComment || !commentText.trim()} size="icon" className="absolute bottom-3 right-3 h-8 w-8 rounded-lg bg-orange-500 hover:bg-orange-600 transition-all">
+                                                    <Send className="w-4 h-4 text-white" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </DialogContent>
-            </Dialog>
+                </div>
+            )}
 
             {/* File Viewer Modal */}
             <Dialog open={isFileViewerOpen} onOpenChange={setIsFileViewerOpen}>
