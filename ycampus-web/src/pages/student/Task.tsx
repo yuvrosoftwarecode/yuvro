@@ -882,7 +882,7 @@ const StudentTask: React.FC = () => {
                         </div>
 
                         {/* Feedback & Chat Side */}
-                        <div className="w-full md:w-[25%] bg-[#F8FAFC] p-8 flex flex-col h-full max-h-[700px]">
+                        <div className="w-full md:w-[25%] bg-[#F8FAFC] p-8 flex flex-col h-full">
                             <div className="mb-6 flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Discussion</h3>
@@ -909,21 +909,26 @@ const StudentTask: React.FC = () => {
                                             <div key={comment.id || idx} className={`flex flex-col ${comment.faculty ? 'items-start' : 'items-end'}`}>
                                                 <div 
                                                     onClick={() => isInline && handleAnnotationClick(comment.comment)}
-                                                    className={`p-4 rounded-2xl max-w-[90%] text-sm leading-relaxed shadow-none ${isInline
-                                                        ? 'bg-white border border-slate-200 text-slate-900 rounded-bl-none shadow-sm w-full cursor-pointer hover:bg-slate-200/50 transition-colors'
+                                                    className={`p-4 rounded-2xl max-w-[90%] text-sm leading-relaxed ${
+                                                        isInline
+                                                        ? 'rounded-bl-none shadow-sm w-full cursor-pointer transition-colors'
                                                         : comment.faculty
-                                                            ? 'bg-blue-50/50 text-blue-900 self-start rounded-bl-none'
-                                                            : 'bg-white text-slate-900 self-end rounded-br-none'
-                                                        }`}
+                                                            ? 'self-start rounded-bl-none'
+                                                            : 'self-end rounded-br-none'
+                                                    }`}
+                                                    style={{
+                                                        backgroundColor: comment.faculty || isInline ? '#EFF6FF' : '#F0FDF4',
+                                                        color: '#020817'
+                                                    }}
                                                 >
                                                     {isInline && (
-                                                        <Badge className="bg-slate-200 text-slate-800 border-none text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 shadow-none whitespace-normal text-left leading-normal">
+                                                        <span className="inline-block text-[9px] font-black uppercase tracking-normal mb-2 rounded-md px-2 py-0.5 whitespace-normal text-left leading-normal" style={{ backgroundColor: '#DBEAFE', color: '#1e40af' }}>
                                                             {comment.comment.substring(1, comment.comment.indexOf(']'))}
-                                                        </Badge>
+                                                        </span>
                                                     )}
                                                     <div className={`flex items-center ${isInline ? 'justify-end' : 'justify-between'} gap-x-4 mb-1`}>
                                                         {!isInline && (
-                                                            <span className={`text-[11px] font-bold tracking-wide ${comment.faculty ? 'text-blue-600' : 'text-slate-600'}`}>
+                                                            <span className="text-[11px] font-bold tracking-wide" style={{ color: comment.faculty ? '#1d4ed8' : '#15803d' }}>
                                                                 {comment.faculty ? 'Faculty' : 'You'}
                                                             </span>
                                                         )}
@@ -931,7 +936,7 @@ const StudentTask: React.FC = () => {
                                                             {format(new Date(comment.created_at), 'M/dd, hh:mm a')}
                                                         </span>
                                                     </div>
-                                                    <p className="whitespace-pre-wrap font-medium text-slate-700">
+                                                    <p className="whitespace-pre-wrap font-medium" style={{ color: '#020817' }}>
                                                         {isInline
                                                             ? comment.comment.substring(comment.comment.indexOf(']') + 1).trim()
                                                             : comment.comment
