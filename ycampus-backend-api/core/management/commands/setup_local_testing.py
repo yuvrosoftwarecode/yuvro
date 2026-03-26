@@ -77,6 +77,10 @@ class Command(BaseCommand):
             call_command("seed_agents", verbosity=1)
             self.stdout.write("")
 
+            self.stdout.write("📚 Assigning subjects and tasks...")
+            call_command("assign_subjects_and_tasks", verbosity=1)
+            self.stdout.write("")
+
             self.stdout.write(
                 self.style.SUCCESS(
                     "🎉 Local testing environment setup completed successfully!"
