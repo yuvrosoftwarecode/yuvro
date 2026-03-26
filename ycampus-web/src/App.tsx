@@ -809,23 +809,7 @@ function App() {
                 path="/college-admin/subjects"
                 element={
                   <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <TPOScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/college-admin/subjects"
-                element={
-                  <ProtectedRoute allowedRoles={["college_admin"]}>
                     <CollegeSubjects />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/college-admin/announcements"
-                element={
-                  <ProtectedRoute allowedRoles={["college_admin"]}>
-                    <AnnouncementsScreen />
                   </ProtectedRoute>
                 }
               />
