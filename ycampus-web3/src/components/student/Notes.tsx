@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  SquareFunction, Atom, Code2, Zap, PenTool, 
+  SquareFunction, Atom,
   BookOpen, Code, Database, Globe, Cpu, Layers, 
   FlaskConical, BookMarked, PenLine, Sigma, 
   Pencil, Binary, BrainCircuit 
@@ -62,7 +62,7 @@ const Notes = () => {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Study Notes</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Learn</h2>
         <p className="text-muted-foreground">Select a subject to access your notes and study materials.</p>
       </div>
 
