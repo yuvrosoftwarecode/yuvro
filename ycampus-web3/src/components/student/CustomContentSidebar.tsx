@@ -4,10 +4,9 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { syllabus } from '@/data/syllabus';
 import { useSubtopicProgress } from '@/hooks/useSubtopicProgress';
 
-interface ContentItem {
+export interface ContentItem {
   id: string;
   title: string;
   children?: ContentItem[];
@@ -19,6 +18,7 @@ interface CustomContentSidebarProps {
   onTopicSelect: (topicId: string, title: string) => void;
   selectedTopic: string | null;
   onBackToNotes: () => void;
+  contentData?: ContentItem[];
 }
 
 // Function to generate abbreviation from title
@@ -214,13 +214,10 @@ const ContentMenuItem: React.FC<ContentMenuItemProps> = ({
   );
 };
 
-const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({ subjectName, subjectId, onTopicSelect, selectedTopic, onBackToNotes }) => {
+const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({ subjectName, subjectId, onTopicSelect, selectedTopic, onBackToNotes, contentData = [] }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Get syllabus data for the current subject
-  const contentData = syllabus[subjectId] || [];
   
   // Get progress tracking
   const { isCompleted, toggleCompletion, getTopicProgress } = useSubtopicProgress(subjectId);
