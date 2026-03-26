@@ -48,7 +48,7 @@ import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 
 const studentMenuItems = [
   { title: 'Dashboard', url: '/student/dashboard', icon: Home },
-  { title: 'Notes', url: '/student/notes', icon: StickyNote },
+  { title: 'Learning', url: '/student/notes', icon: StickyNote },
   { title: 'Practice Test', url: '/student/test', icon: ClipboardCheck },
   { title: 'Task', url: '/student/task', icon: MessageSquare },
   { title: 'Assessment', url: '/student/assessment', icon: BookOpen },
