@@ -43,7 +43,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
-  const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
+  const [layout, setLayout] = useState<'modern' | 'classic'>('modern');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
@@ -317,45 +317,35 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   return (
     <div className="h-screen overflow-hidden bg-white flex flex-col font-sans selection:bg-blue-100">
       {/* Top Bar */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-50 shadow-sm">
-        <div className="flex items-center gap-4 justify-self-start">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleEndInterview}
-            disabled={loadingExit}
-            className="text-slate-500 hover:text-slate-900"
-          >
-            {loadingExit ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
-            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
-          </Button>
-          <div className="h-4 w-px bg-slate-200" />
-          <div className="flex items-center gap-2">
-            <Badge className="bg-white text-slate-800 border-slate-200 font-mono hidden sm:inline-flex">{role.title}</Badge>
-            <Badge className="bg-blue-50 text-blue-700 border-blue-100">{difficulty}</Badge>
+      <div className="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-50 shadow-sm">
+        <div className="relative flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <Badge className="bg-white hover:bg-white text-slate-800 border-slate-200 text-xs font-semibold px-3 py-1 truncate max-w-[260px]">
+              {role.title}
+            </Badge>
+            <Badge className="bg-blue-50 hover:bg-blue-50 text-blue-700 border-blue-100 text-xs font-semibold px-3 py-1 capitalize">
+              {difficulty}
+            </Badge>
           </div>
-        </div>
 
-        <div className="justify-self-center flex justify-center w-full">
           {layout === 'classic' && (
-            <div className="w-20 h-10 bg-black rounded-md overflow-hidden border border-slate-200 shadow-sm relative">
+            <div className="absolute left-1/2 -translate-x-1/2 w-20 h-10 bg-black rounded-md overflow-hidden border border-slate-200 shadow-sm">
               <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
               <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full border border-white" />
             </div>
           )}
-        </div>
 
-        <div className="flex items-center gap-4 justify-self-end">
+          <div className="flex items-center gap-3">
           <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
             <button
               onClick={() => setLayout('modern')}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'modern' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${layout === 'modern' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
               Split
             </button>
             <button
               onClick={() => setLayout('classic')}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'classic' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${layout === 'classic' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
               Classic
             </button>
@@ -366,6 +356,18 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
             <span className={`font-mono font-bold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-slate-700'}`}>
               {formatTime(timeLeft)}
             </span>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleEndInterview}
+            disabled={loadingExit}
+            className="h-9 px-4 text-sm font-semibold border-slate-200"
+          >
+            {loadingExit ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
+            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
+          </Button>
           </div>
         </div>
       </div>

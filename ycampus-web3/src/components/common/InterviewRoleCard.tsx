@@ -42,23 +42,23 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
   buttonType = 'start', // ✅ default value
 }) => {
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group flex flex-col h-full">
-      <CardHeader className="pb-3">
+    <Card className="cursor-pointer hover:shadow-md transition-shadow border-slate-200 rounded-xl group flex flex-col h-full">
+      <CardHeader className="px-6 pt-6 pb-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1.5 flex-1 min-w-0">
+          <div className="space-y-2 flex-1 min-w-0">
             {/* Type + category badge row — same as Task */}
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1.5">
               <Badge
                 variant="outline"
-                className={`text-[9px]  tracking-widest font-bold border ${getCategoryBadgeClass(category)}`}
+                className={`text-[10px] tracking-wide font-semibold border px-2.5 py-0.5 ${getCategoryBadgeClass(category)}`}
               >
                 {category}
               </Badge>
             </div>
-            <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-snug">
+            <CardTitle className="text-[18px] font-semibold group-hover:text-primary transition-colors leading-tight line-clamp-2">
               {title}
             </CardTitle>
-            <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
+            <CardDescription className="line-clamp-2 text-sm font-normal text-slate-500 leading-relaxed min-h-[40px]">
               {description}
             </CardDescription>
           </div>
@@ -66,9 +66,9 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
         </div>
       </CardHeader>
 
-        <CardContent className="mt-auto">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-4 text-[11px] tracking-widest">
+        <CardContent className="px-6 pb-6 pt-0 mt-auto">
+  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+    <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
       <div className="flex items-center gap-1.5">
         <Clock className="h-3.5 w-3.5" />
         <span>{duration} mins</span>
@@ -84,7 +84,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
         size="sm"
         variant="outline"
         onClick={e => { e.stopPropagation(); onStart(); }}
-        className="gap-1.5 font-bold px-4 shrink-0"
+        className="gap-1.5 h-9 text-sm font-semibold px-4 shrink-0"
       >
         Show Report
       </Button>
@@ -92,7 +92,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
       <Button
         size="sm"
         onClick={e => { e.stopPropagation(); onStart(); }}
-        className="gap-1.5 font-bold px-4 shrink-0"
+        className="gap-1.5 h-9 text-sm font-semibold px-4 shrink-0"
       >
         <Play className="h-3.5 w-3.5 fill-current" />
         Start
