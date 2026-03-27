@@ -113,7 +113,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                   {response.status}
                 </Badge>
               </div>
-              <div className="flex gap-4 text-xs font-medium text-muted-foreground mt-0.5">
+              <div className="flex gap-4 text-xs  text-muted-foreground mt-0.5">
                 <span>Roll No: {student.roll_number || 'N/A'}</span>
                 <span>Submitted: {response.submitted_at ? format(new Date(response.submitted_at), 'MMM dd, HH:mm') : 'Not submitted'}</span>
               </div>
@@ -149,7 +149,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <div className="space-y-8">
               {response.answer && (
                 <div className="space-y-3">
-                  <h4 className="text-[13px] font-bold text-slate-400 px-1 italic">Submitted answer</h4>
+                  <h4 className="text-[13px] font-bold  px-1 ">Submitted answer</h4>
                   <CodeEditor 
                     initialCode={response.answer}
                     readOnly={true}
@@ -168,7 +168,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
 
               {response.file && (
                 <div className="space-y-3">
-                  <h4 className="text-[13px] font-bold text-slate-400 px-1 italic">Attachment</h4>
+                  <h4 className="text-[13px] font-bold px-1 ">Attachment</h4>
                   <div className="flex items-center justify-between p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4">
                       <div className="p-2.5 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
@@ -178,7 +178,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                         <p className="text-sm font-bold text-slate-800 truncate max-w-[240px]">
                           {response.file.split('/').pop()}
                         </p>
-                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Primary submission resource</p>
+                        <p className="text-[11px]  text-slate-400 mt-0.5">Primary submission resource</p>
                       </div>
                     </div>
                     <Button variant="outline" className="shadow-sm font-bold border-slate-200 h-10 px-5" onClick={() => setIsFileViewerOpen(true)}>
@@ -241,7 +241,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                               {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
                             </span>
                           </div>
-                          <p className="text-sm text-[#020817] leading-relaxed font-semibold whitespace-pre-wrap">
+                          <p className="text-sm text-[#020817] leading-relaxed whitespace-pre-wrap">
                             {(() => {
                               const regex = /^Answer_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
                               const parts = [];
@@ -261,7 +261,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                                       e.stopPropagation(); // Prevent double trigger with bubble click
                                       setActiveHighlight({ line: parseInt(lineStr), text: quotedText });
                                     }}
-                                    className="text-primary hover:underline font-black bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 inline-flex items-center gap-1 group transition-all mr-1"
+                                    className="text-primary hover:underline font-semibold bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 inline-flex items-center gap-1 group transition-all mr-1"
                                   >
                                     <FileText className="h-3 w-3" />
                                     Answer:{lineStr}

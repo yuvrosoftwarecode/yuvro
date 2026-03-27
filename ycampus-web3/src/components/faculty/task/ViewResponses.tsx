@@ -87,30 +87,30 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-slate-500">
                 <Users className="h-4 w-4" />
-                <span className="text-xs font-bold">Total</span>
+                <span className="text-xs ">Total</span>
               </div>
-              <div className="text-2xl font-black">{counts.total}</div>
+              <div className="text-xl font-black">{counts.total}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-emerald-600">
                 <CheckCircle className="h-4 w-4" />
-                <span className="text-xs font-bold">Accepted</span>
+                <span className="text-xs ">Accepted</span>
               </div>
-              <div className="text-2xl font-black text-emerald-600">{counts.accepted}</div>
+              <div className="text-xl font-black text-emerald-600">{counts.accepted}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-amber-500">
                 <Clock className="h-4 w-4" />
-                <span className="text-xs font-bold">Pending</span>
+                <span className="text-xs ">Pending</span>
               </div>
-              <div className="text-2xl font-black text-amber-500">{counts.pending}</div>
+              <div className="text-xl font-black text-amber-500">{counts.pending}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-rose-500">
                 <XCircle className="h-4 w-4" />
-                <span className="text-xs font-bold">Rejected</span>
+                <span className="text-xs ">Rejected</span>
               </div>
-              <div className="text-2xl font-black text-rose-500">{counts.rejected}</div>
+              <div className="text-xl font-black text-rose-500">{counts.rejected}</div>
             </div>
           </div>
         </CardContent>
@@ -139,7 +139,7 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
                 <TableHead className="font-bold py-4">Roll No</TableHead>
                 <TableHead className="font-bold">Student Name</TableHead>
                 <TableHead className="font-bold">Status</TableHead>
-                <TableHead className="font-bold text-right px-6">Action</TableHead>
+                <TableHead className="font-bold text-center px-6">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -149,24 +149,24 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
                   const user = student.user_details || {};
                   return (
                     <TableRow key={s.id} className="hover:bg-slate-50 group">
-                      <TableCell className="font-bold text-slate-600 py-4 italic">
+                      <TableCell className=" text-600 py-4">
                         {student.roll_number || 'N/A'}
                       </TableCell>
                       <TableCell>
-                        <div className="font-semibold text-slate-800">
+                        <div className=" text-slate-800">
                           {user.first_name} {user.last_name}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(s.status)} className="capitalize px-3">
-                          {s.status}
+                          {s.status || "In review"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right px-6">
+                      <TableCell className="text-center px-6">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="font-bold text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
+                          className=" text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
                           onClick={() => onViewStudentResponse(s.id)}
                         >
                           Review Submission
@@ -177,7 +177,7 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-32 text-center text-slate-400 italic font-medium">
+                  <TableCell colSpan={4} className="h-32 text-center text-slate-400  font-medium">
                     No matching submissions found
                   </TableCell>
                 </TableRow>
