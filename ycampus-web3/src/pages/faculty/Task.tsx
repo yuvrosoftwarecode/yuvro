@@ -16,7 +16,7 @@ import StudentResponseDetail from '@/components/faculty/task/StudentResponseDeta
 
 const TaskPage: React.FC = () => {
   const { toast } = useToast();
-  
+
   // Core Data State
   const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
   const [tasks, setTasks] = useState<BackendTask[]>([]);
@@ -59,7 +59,7 @@ const TaskPage: React.FC = () => {
       setTasks([]);
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const params = {
@@ -67,7 +67,7 @@ const TaskPage: React.FC = () => {
         subject: selectedSubject,
       };
       const data = await taskService.getTasks(params);
-      
+
       // Filter by batch if selected
       let filtered = data;
       if (selectedBatch !== 'all') {
@@ -81,7 +81,7 @@ const TaskPage: React.FC = () => {
       if (selectedSection !== 'all') {
         filtered = filtered.filter(t => t.sections.some(s => String(s) === selectedSection));
       }
-        
+
       setTasks(filtered);
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to fetch tasks.', variant: 'destructive' });
@@ -121,7 +121,7 @@ const TaskPage: React.FC = () => {
     if (selectedDept === 'all' || selectedSubject === 'all') return [];
     const batches = new Set<string>();
     assignments
-      .filter(a => 
+      .filter(a =>
         String(a.semester_subject_details?.department_id) === selectedDept &&
         String(a.semester_subject_details?.subject_details?.id) === selectedSubject
       )
@@ -136,7 +136,7 @@ const TaskPage: React.FC = () => {
   const availableSections = useMemo(() => {
     if (selectedDept === 'all' || selectedSubject === 'all') return [];
     return assignments
-      .filter(a => 
+      .filter(a =>
         String(a.semester_subject_details?.department_id) === selectedDept &&
         String(a.semester_subject_details?.subject_details?.id) === selectedSubject &&
         (selectedBatch === 'all' || a.semester_subject_details?.batch_name === selectedBatch)
@@ -344,7 +344,7 @@ const TaskPage: React.FC = () => {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">Department</label>
+                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Department</label>
                   <Select value={selectedDept} onValueChange={(v) => { setSelectedDept(v); setSelectedSubject('all'); setSelectedBatch('all'); setSelectedSection('all'); }}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="Select Department" />
@@ -357,7 +357,7 @@ const TaskPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">Subject</label>
+                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Subject</label>
                   <Select value={selectedSubject} onValueChange={(v) => { setSelectedSubject(v); setSelectedBatch('all'); setSelectedSection('all'); }} disabled={selectedDept === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="Select Subject" />
@@ -370,7 +370,7 @@ const TaskPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">Batch</label>
+                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Batch</label>
                   <Select value={selectedBatch} onValueChange={(v) => { setSelectedBatch(v); setSelectedSection('all'); }} disabled={selectedSubject === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="All Batches" />
@@ -383,7 +383,7 @@ const TaskPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">Section (Optional)</label>
+                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Section (optional)</label>
                   <Select value={selectedSection} onValueChange={setSelectedSection} disabled={selectedSubject === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="All Sections" />
@@ -408,59 +408,59 @@ const TaskPage: React.FC = () => {
                 .filter(a => selectedBatch === 'all' || a.semester_subject_details?.batch_name === selectedBatch)
                 .filter(a => selectedSection === 'all' || String(a.section) === selectedSection)
                 .map((assignment, index) => (
-                <Card key={assignment.id || index} className="group hover:border-primary/50 transition-all cursor-default shadow-sm hover:shadow-md">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4 gap-4">
-                      <div className="space-y-1 w-full overflow-hidden">
-                        <div className="flex items-center gap-2 text-primary font-medium text-sm mb-2">
-                           <BookOpen className="h-4 w-4 shrink-0" />
-                           <span className="truncate">{assignment.semester_subject_details?.subject_details?.subject_code || 'SUB'}</span>
+                  <Card key={assignment.id || index} className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4 gap-4">
+                        <div className="space-y-1 w-full overflow-hidden">
+                          <div className="flex items-center gap-2 text-slate-500/90 font-bold text-[11px] mb-4">
+                            <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{assignment.semester_subject_details?.subject_details?.subject_code || 'SUB'}</span>
+                          </div>
+                          <h3 className="font-bold text-lg leading-tight text-slate-800 line-clamp-2" title={assignment.semester_subject_details?.subject_details?.subject_name}>
+                            {assignment.semester_subject_details?.subject_details?.subject_name || 'Subject Name'}
+                          </h3>
+                          <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1 truncate" title={assignment.semester_subject_details?.department_name}>
+                            <Briefcase className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{assignment.semester_subject_details?.department_name || 'Department'}</span>
+                          </p>
                         </div>
-                        <h3 className="font-bold text-lg leading-tight text-slate-800 line-clamp-2" title={assignment.semester_subject_details?.subject_details?.subject_name}>
-                          {assignment.semester_subject_details?.subject_details?.subject_name || 'Subject Name'}
-                        </h3>
-                        <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1 truncate" title={assignment.semester_subject_details?.department_name}>
-                          <Briefcase className="h-3.5 w-3.5 shrink-0" />
-                          <span className="truncate">{assignment.semester_subject_details?.department_name || 'Department'}</span>
-                        </p>
+                        <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 shrink-0">
+                          {assignment.semester_subject_details?.batch_name || 'Batch'}
+                        </Badge>
                       </div>
-                      <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 shrink-0">
-                        {assignment.semester_subject_details?.batch_name || 'Batch'}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-6 border-t border-slate-100">
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-                        <Users className="h-4 w-4 text-slate-400" />
-                        <span className="text-sm font-semibold text-slate-700">
-                          Section {assignment.section_name || assignment.section}
-                        </span>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-6 border-t border-slate-100">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                          <Users className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm font-semibold text-slate-700">
+                            Section {assignment.section_name || assignment.section}
+                          </span>
+                        </div>
+
+                        <Button
+                          className="w-full sm:w-auto shadow-sm hover:shadow"
+                          onClick={() => {
+                            setSelectedDept(String(assignment.semester_subject_details?.department_id || 'all'));
+                            setSelectedSubject(String(assignment.semester_subject_details?.subject_details?.id || 'all'));
+                            setSelectedBatch(assignment.semester_subject_details?.batch_name || 'all');
+                            setSelectedSection(String(assignment.section || 'all'));
+                            setViewMode('tasks');
+                          }}
+                        >
+                          Open Tasks
+                        </Button>
                       </div>
-                      
-                      <Button 
-                        className="w-full sm:w-auto shadow-sm hover:shadow"
-                        onClick={() => {
-                          setSelectedDept(String(assignment.semester_subject_details?.department_id || 'all'));
-                          setSelectedSubject(String(assignment.semester_subject_details?.subject_details?.id || 'all'));
-                          setSelectedBatch(assignment.semester_subject_details?.batch_name || 'all');
-                          setSelectedSection(String(assignment.section || 'all'));
-                          setViewMode('tasks');
-                        }}
-                      >
-                        Open Tasks
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
               {assignments.length === 0 && !isLoading && (
-                 <div className="col-span-full py-20 text-center bg-white border border-dashed rounded-xl">
-                    <div className="bg-slate-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="h-8 w-8 text-slate-400" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-700">No assignments found</h3>
-                    <p className="text-slate-500 font-medium">You don't have any classes assigned to you right now.</p>
-                 </div>
+                <div className="col-span-full py-20 text-center bg-white border border-dashed rounded-xl">
+                  <div className="bg-slate-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <BookOpen className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-700">No assignments found</h3>
+                  <p className="text-slate-500 font-medium">You don't have any classes assigned to you right now.</p>
+                </div>
               )}
             </div>
           </div>
@@ -476,16 +476,16 @@ const TaskPage: React.FC = () => {
                     <h2 className="font-bold text-slate-800 text-lg">
                       {assignments.find(a => String(a.semester_subject_details?.subject_details?.id) === selectedSubject)?.semester_subject_details?.subject_details?.subject_name || "Tasks"}
                     </h2>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 flex items-center flex-wrap gap-2 mt-0.5">
-                       {assignments.find(a => String(a.semester_subject_details?.department_id) === selectedDept)?.semester_subject_details?.department_name || "Department"} 
-                       <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 
-                       {selectedBatch !== 'all' ? selectedBatch : 'All Batches'} 
-                       <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 
-                       Section {selectedSection !== 'all' ? selectedSection : 'All Sections'}
+                    <p className="text-xs font-semibold text-slate-500 flex items-center flex-wrap gap-2 mt-0.5">
+                      {assignments.find(a => String(a.semester_subject_details?.department_id) === selectedDept)?.semester_subject_details?.department_name || "Department"}
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      {selectedBatch !== 'all' ? selectedBatch : 'All Batches'}
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                      Section {selectedSection !== 'all' ? selectedSection : 'All Sections'}
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="relative w-full sm:w-72 shrink-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
@@ -501,7 +501,7 @@ const TaskPage: React.FC = () => {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-2xl border border-dashed">
                 <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading tasks...</p>
+                <p className="text-slate-500 font-bold text-xs">Loading tasks...</p>
               </div>
             ) : filteredTasks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
