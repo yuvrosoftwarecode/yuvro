@@ -63,7 +63,7 @@ const AssessmentInstructions: React.FC<AssessmentInstructionsProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 m-4">
       {/* Header - removed back button as requested */}
 
       {/* Assessment Info */}
