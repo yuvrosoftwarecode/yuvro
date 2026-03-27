@@ -626,11 +626,11 @@ const StudentTask: React.FC = () => {
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
                           <div 
-                            className={`p-4 shadow-sm border transition-all cursor-default ${
-                              comment.faculty 
-                                ? 'bg-blue-50/40 border-blue-100 ml-0 mr-4 rounded-2xl rounded-tl-sm hover:bg-blue-50/60' 
-                                : 'bg-white border-slate-200 ml-4 mr-0 rounded-2xl rounded-tr-sm hover:bg-slate-50/50'
-                            } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer border-blue-300' : ''}`}
+                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
+                            comment.faculty 
+                              ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto' 
+                              : 'bg-[#F0FDF4] border-emerald-200 border-l-4 border-l-emerald-500 ml-auto mr-0'
+                          } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer' : ''}`}
                             onClick={() => {
                               // Robust regex to match various formats: name_8, name_L8, name:8
                               const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
@@ -642,15 +642,15 @@ const StudentTask: React.FC = () => {
                               }
                             }}
                           >
-                            <div className="flex items-center justify-between mb-2">
-                            <span className={`font-black text-[10px] ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
-                              {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-medium">
-                              {format(new Date(comment.created_at), 'HH:mm')}
-                            </span>
-                          </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                            <div className="flex items-center justify-between gap-6 mb-2">
+                              <span className="font-bold text-[11px] text-[#020817]">
+                                {comment.faculty ? 'Faculty' : 'Student'}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-medium">
+                                {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-[#020817] leading-relaxed font-semibold">
                              {(() => {
                                 const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
                                 const parts = [];
