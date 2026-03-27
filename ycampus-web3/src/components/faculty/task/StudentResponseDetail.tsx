@@ -98,9 +98,26 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Responses
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Response Review</h1>
-            <p className="text-muted-foreground text-sm">Reviewing submission from {user.first_name || 'Student'}</p>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-10 w-10 border-2 border-primary/10">
+              <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                {(user.first_name?.[0] || '') + (user.last_name?.[0] || '')}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-foreground">
+                  {user.first_name} {user.last_name}
+                </h1>
+                <Badge variant={getStatusBadgeVariant(response.status)} className="capitalize px-3 text-[10px] h-5">
+                  {response.status}
+                </Badge>
+              </div>
+              <div className="flex gap-4 text-xs font-medium text-muted-foreground mt-0.5">
+                <span>Roll No: {student.roll_number || 'N/A'}</span>
+                <span>Submitted: {response.submitted_at ? format(new Date(response.submitted_at), 'MMM dd, HH:mm') : 'Not submitted'}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -127,47 +144,12 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Student Info */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12 border-2 border-primary/10">
-                  <AvatarFallback className="bg-primary/5 text-primary">
-                    {(user.first_name?.[0] || '') + (user.last_name?.[0] || '')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-bold text-lg text-foreground">
-                      {user.first_name} {user.last_name}
-                    </h3>
-                    <Badge variant={getStatusBadgeVariant(response.status)} className="capitalize px-3">
-                      {response.status}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-4 text-sm text-muted-foreground mt-1">
-                    <span>Roll No: {student.roll_number || 'N/A'}</span>
-                    <span>Submitted: {response.submitted_at ? format(new Date(response.submitted_at), 'MMM dd, HH:mm') : 'Not submitted'}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submission content */}
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-slate-50/50 border-b">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-lg">Student Submission</CardTitle>
-                  <CardDescription>Main answer and attached files</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6 space-y-6">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Submission Content Area */}
+            <div className="space-y-8">
               {response.answer && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-slate-500">Submitted answer</h4>
+                <div className="space-y-3">
+                  <h4 className="text-[13px] font-bold text-slate-400 px-1 italic">Submitted answer</h4>
                   <CodeEditor 
                     initialCode={response.answer}
                     readOnly={true}
@@ -176,7 +158,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                     onTextSelect={handleTextSelect}
                     highlightLine={activeHighlight?.line}
                     highlightText={activeHighlight?.text}
-                    className="border-slate-200 shadow-sm"
+                    className="border-slate-200 shadow-sm rounded-xl overflow-hidden"
                     showLanguageSelector={false}
                     showCopyButton={true}
                     showRunButton={false}
@@ -185,21 +167,21 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
               )}
 
               {response.file && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-slate-500">Attachment</h4>
-                  <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white rounded-lg border shadow-sm">
+                <div className="space-y-3">
+                  <h4 className="text-[13px] font-bold text-slate-400 px-1 italic">Attachment</h4>
+                  <div className="flex items-center justify-between p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
                         <FileText className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-700 truncate max-w-[200px]">
+                        <p className="text-sm font-bold text-slate-800 truncate max-w-[240px]">
                           {response.file.split('/').pop()}
                         </p>
-                        <p className="text-xs text-muted-foreground">Attached Document or Archive</p>
+                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Primary submission resource</p>
                       </div>
                     </div>
-                    <Button className="shadow-sm font-bold" onClick={() => setIsFileViewerOpen(true)}>
+                    <Button variant="outline" className="shadow-sm font-bold border-slate-200 h-10 px-5" onClick={() => setIsFileViewerOpen(true)}>
                       <Eye className="h-4 w-4 mr-2" />
                       Review Files
                     </Button>
@@ -208,12 +190,13 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
               )}
 
               {!response.answer && !response.file && (
-                <div className="py-12 text-center text-muted-foreground italic">
-                  No content submitted yet.
+                <div className="py-20 text-center bg-slate-50/50 border border-dashed rounded-2xl">
+                  <FileText className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 font-bold text-sm">No content submitted yet.</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Discussion Section */}
