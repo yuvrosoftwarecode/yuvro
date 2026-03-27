@@ -332,10 +332,10 @@ const StudentTask: React.FC = () => {
             <h1 className="text-2xl font-bold text-foreground">{currentTask.title}</h1>
           </div>
 
-          <Card className="mb-6 border-slate-200 shadow-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl">Task Details</CardTitle>
-              <CardDescription className="text-base text-slate-600 mt-2 font-medium leading-relaxed">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Task Details</CardTitle>
+              <CardDescription>
                 {currentTask.description || currentTask.unit_name || "No overview instructions provided."}
               </CardDescription>
             </CardHeader>
@@ -806,40 +806,40 @@ const StudentTask: React.FC = () => {
               {filteredTasks.map((task) => (
                 <Card 
                   key={task.id} 
-                  className="cursor-pointer hover:shadow-md transition-all border-slate-200 group bg-white rounded-2xl"
+                  className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
                   onClick={() => handleTaskClick(task)}
                 >
-                  <CardHeader className="pb-3 px-6 pt-6">
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-black text-slate-400 border-slate-200 bg-slate-50">
+                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
                              {task.task_type || 'Task'}
                            </Badge>
-                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
                              {getSubjectName(task)}
                            </span>
                         </div>
                         <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors truncate">
                           {task.title}
                         </CardTitle>
-                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed text-slate-500">
+                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
                           {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
                         </CardDescription>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1 shadow-sm rounded-lg uppercase tracking-wider text-[10px]">
+                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
                         {getStatusLabelText(task.id)}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="px-6 pb-6">
-                    <div className="flex items-center gap-4 text-[11px] font-black text-slate-400 uppercase tracking-widest pt-4 border-t border-slate-100 mt-2">
+                  <CardContent>
+                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
                       </div>
                       {task.due_date && (
-                        <div className="flex items-center gap-1.5 text-orange-400 bg-orange-50 px-2 py-0.5 rounded-md">
+                        <div className="flex items-center gap-1.5 text-orange-400">
                           <Clock className="h-3.5 w-3.5" />
                           <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
                         </div>
@@ -850,10 +850,10 @@ const StudentTask: React.FC = () => {
               ))}
             </div>
           ) : (
-            <Card className="border-dashed border-2 py-24 bg-slate-50/50 rounded-3xl">
-              <CardContent className="flex flex-col items-center justify-center h-full">
-                <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6">
-                  <FileText className="h-8 w-8 text-slate-300" />
+            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+              <CardContent>
+                <div className="text-center">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
                 <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
