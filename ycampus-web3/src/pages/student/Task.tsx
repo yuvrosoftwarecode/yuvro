@@ -322,17 +322,13 @@ const StudentTask: React.FC = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Tasks
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">{currentTask.title}</h1>
+            <h1 className="text-2xl font-semibold text-foreground">
+              {currentTask.title}
+              {currentTask.unit_name && (
+                <span className="text-2xl font-semibold text-foreground">- {currentTask.unit_name}</span>
+              )}
+            </h1>
           </div>
-
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Task Details</CardTitle>
-              <CardDescription>
-                {currentTask.description || currentTask.unit_name || "No overview instructions provided."}
-              </CardDescription>
-            </CardHeader>
-          </Card>
 
           {/* Submissions Download Alert */}
           {submissions[currentTask.id]?.file && (

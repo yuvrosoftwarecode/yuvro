@@ -115,7 +115,10 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
               <label className="text-sm font-semibold text-slate-700">Task Title <span className="text-red-500">*</span></label>
               <Input
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setTitle(val ? val.charAt(0).toUpperCase() + val.slice(1) : '');
+                }}
                 placeholder="e.g., Intro to React Hooks"
                 required
               />
