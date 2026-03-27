@@ -1061,15 +1061,15 @@ const Assessment: React.FC = () => {
           {/* Course and Batch Selection */}
           <Card>
             <CardHeader>
-              <CardTitle>Select Course & Batch</CardTitle>
+              <CardTitle>Select Subject & Batch</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">Course</label>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Subject</label>
                   <Select value={selectedCourse} onValueChange={handleCourseSelect}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a course" />
+                      <SelectValue placeholder="Select a Subject" />
                     </SelectTrigger>
                     <SelectContent>
                       {courses.map(course => (
@@ -1235,7 +1235,7 @@ const Assessment: React.FC = () => {
             <Card>
               <CardContent className="py-8 text-center">
                 <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-muted-foreground">No assessments found for this course and batch.</p>
+                <p className="text-muted-foreground">No assessments found for this Subject and batch.</p>
                 <p className="text-sm text-muted-foreground mt-2">Click "Create Assessment" to add your first assessment.</p>
               </CardContent>
             </Card>
