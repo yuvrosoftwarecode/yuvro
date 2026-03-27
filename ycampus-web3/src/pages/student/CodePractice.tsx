@@ -219,7 +219,7 @@ const CodePractice = () => {
   const handleViewInsights = () => setCurrentView('insights');
 
   return (
-    <StudentLayout>
+    <StudentLayout noPadding={currentView === 'problem'}>
       <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
         <div className="flex-1 flex flex-col min-h-0 w-full h-full">
           <div className="flex-1 transition-all duration-300 flex flex-col min-h-0 h-full">
@@ -251,7 +251,7 @@ const CodePractice = () => {
                 )}
 
                 {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
-                  <div className="flex-1 bg-background rounded-3xl border border-border shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                  <div className="flex-1 flex flex-col h-full bg-background overflow-hidden animate-in fade-in duration-300">
                     <CodeEditorWithAI
                       problem={selectedProblem}
                       subject={selectedSubject}

@@ -14,7 +14,8 @@ const AIChatContainer: React.FC<{
   onNewChat?: () => void;
   showHistory?: boolean;
   onClose?: () => void;
-}> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onClose }) => {
+  onInsertCode?: (code: string) => void;
+}> = ({ className, contextGetter, welcomeMessage, persistenceKey, chatTitle, onClose, onInsertCode }) => {
   const { user } = useAuth();
   const panelTitle = (chatTitle ? chatTitle.split('-')[0].trim() : 'AI Mentor') || 'AI Mentor';
 
@@ -52,7 +53,7 @@ const AIChatContainer: React.FC<{
           )}
         </div>
 
-        <ChatMessages messages={messages} isLoading={isLoading} welcomeMessage={welcomeMessage} />
+        <ChatMessages messages={messages} isLoading={isLoading} welcomeMessage={welcomeMessage} onInsertCode={onInsertCode} />
 
         <div className="px-3 pb-3 pt-2 bg-white shrink-0" style={{ borderTop: '1px solid #f3f4f6' }}>
           <ChatInput onSend={sendMessage} disabled={isLoading} suggestedPrompts={suggestedPrompts} />
