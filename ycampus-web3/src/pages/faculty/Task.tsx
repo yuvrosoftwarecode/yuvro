@@ -343,8 +343,8 @@ const TaskPage: React.FC = () => {
           <Card className="border-slate-200 shadow-sm bg-slate-50/50 mb-6">
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Department</label>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Department</label>
                   <Select value={selectedDept} onValueChange={(v) => { setSelectedDept(v); setSelectedSubject('all'); setSelectedBatch('all'); setSelectedSection('all'); }}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="Select Department" />
@@ -356,8 +356,8 @@ const TaskPage: React.FC = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Subject</label>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Subject</label>
                   <Select value={selectedSubject} onValueChange={(v) => { setSelectedSubject(v); setSelectedBatch('all'); setSelectedSection('all'); }} disabled={selectedDept === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="Select Subject" />
@@ -369,8 +369,8 @@ const TaskPage: React.FC = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Batch</label>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Batch</label>
                   <Select value={selectedBatch} onValueChange={(v) => { setSelectedBatch(v); setSelectedSection('all'); }} disabled={selectedSubject === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="All Batches" />
@@ -382,8 +382,8 @@ const TaskPage: React.FC = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-slate-400 block px-1">Section (optional)</label>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Section (optional)</label>
                   <Select value={selectedSection} onValueChange={setSelectedSection} disabled={selectedSubject === 'all'}>
                     <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors">
                       <SelectValue placeholder="All Sections" />

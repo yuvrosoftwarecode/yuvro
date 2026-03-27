@@ -740,8 +740,8 @@ const StudentTask: React.FC = () => {
         <Card className="mb-8 border-slate-200 shadow-sm">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 block px-1">
+              <div className="flex-1 space-y-1">
+                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -759,8 +759,8 @@ const StudentTask: React.FC = () => {
                 </Select>
               </div>
               
-              <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 block px-1">
+              <div className="flex-1 space-y-1">
+                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
