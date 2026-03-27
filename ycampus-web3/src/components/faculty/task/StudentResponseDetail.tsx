@@ -167,7 +167,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <CardContent className="pt-6 space-y-6">
               {response.answer && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Submitted Answer</h4>
+                  <h4 className="text-sm font-semibold text-slate-500">Submitted answer</h4>
                   <CodeEditor 
                     initialCode={response.answer}
                     readOnly={true}
@@ -186,7 +186,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
 
               {response.file && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Attachment</h4>
+                  <h4 className="text-sm font-semibold text-slate-500">Attachment</h4>
                   <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white rounded-lg border shadow-sm">
@@ -229,7 +229,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                    {response.comments.length === 0 ? (
                     <div className="h-80 flex flex-col items-center justify-center text-center opacity-40">
                       <Send className="h-10 w-10 mb-2" />
-                      <p className="text-sm font-bold uppercase tracking-widest text-slate-500">No messages yet</p>
+                      <p className="text-sm font-bold text-slate-500">No messages yet</p>
                     </div>
                   ) : (
                     response.comments.map((comment: TaskComment) => {
@@ -251,7 +251,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                           }}
                         >
                           <div className="flex justify-between items-center gap-4 mb-2">
-                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500">
+                            <span className="font-bold text-[10px] text-slate-500">
                               {comment.faculty ? 'Faculty' : 'Student'}
                             </span>
                             <span className="text-[10px] text-slate-400">

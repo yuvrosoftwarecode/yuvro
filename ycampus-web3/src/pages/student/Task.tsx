@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, X, Paperclip } from 'lucide-react';
+import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, Paperclip } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { taskService, Task, TaskSubmission, TaskComment } from '@/services/taskService';
 import { CodeEditor } from '@/components/ui/code-editor';
@@ -175,13 +175,6 @@ const StudentTask: React.FC = () => {
     }
   };
 
-  const removeFile = (questionIndex: number | 'general') => {
-    setSelectedFiles(prev => {
-      const newFiles = { ...prev };
-      delete newFiles[questionIndex];
-      return newFiles;
-    });
-  };
 
   const handleAddComment = async (commentText?: string) => {
     const textToSubmit = typeof commentText === 'string' ? commentText : newComment;
@@ -406,7 +399,7 @@ const StudentTask: React.FC = () => {
                                   <div className="flex gap-2">
                                     {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold shadow-none">{q.marks} Marks</Badge>}
                                     {q.difficulty_level && (
-                                      <Badge className={`text-[10px] shadow-none font-bold uppercase tracking-widest ${
+                                      <Badge className={`text-[10px] shadow-none font-bold ${
                                         q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
                                         q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
                                         'bg-emerald-50 text-emerald-600'
@@ -420,7 +413,7 @@ const StudentTask: React.FC = () => {
                                   {q.question_text || q.title || 'Untitled Question'}
                                 </p>
                                 {(isAnswered || hasFile) && (
-                                  <p className="mt-3 text-xs font-semibold text-emerald-600 tracking-wide uppercase">
+                                  <p className="mt-3 text-xs font-semibold text-emerald-600">
                                     {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
                                   </p>
                                 )}
@@ -431,7 +424,7 @@ const StudentTask: React.FC = () => {
                         
                         {getTaskStatus(currentTask.id) !== 'completed' && (
                           <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                            <p className="text-sm font-bold text-slate-500">
                               Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
                             </p>
                             <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
@@ -446,7 +439,7 @@ const StudentTask: React.FC = () => {
                         )}
                         {getTaskStatus(currentTask.id) === 'completed' && (
                           <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                            <p className="text-sm font-bold text-slate-500">
                               Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
                             </p>
                             <p className="text-sm text-emerald-600 font-bold flex items-center gap-2">
@@ -536,30 +529,34 @@ const StudentTask: React.FC = () => {
                                            <span className="text-sm font-bold text-slate-800">
                                              {currentlySelectedFile ? currentlySelectedFile.name : 'No attachment'}
                                            </span>
-                                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                              Supplemental File
+                                           <span className="text-[10px] font-black text-slate-400">
+                                              Supplemental file
                                            </span>
                                         </div>
                                      </div>
                                      <div className="flex items-center gap-2">
-                                        {currentlySelectedFile && (
-                                           <Button variant="ghost" size="icon" onClick={() => removeFile(currentFileKey)} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0">
-                                              <X className="h-4 w-4" />
-                                           </Button>
+                                        {!currentlySelectedFile ? (
+                                           <>
+                                              <input
+                                                type="file"
+                                                className="hidden"
+                                                id={`file-upload-${currentFileKey}`}
+                                                accept="*/*"
+                                                onChange={(e) => handleFileUpload(e, currentFileKey)}
+                                              />
+                                              <label htmlFor={`file-upload-${currentFileKey}`}>
+                                                <div className="h-9 px-4 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors hover:bg-slate-100 border border-slate-200 cursor-pointer text-slate-700 bg-white shadow-sm active:scale-95 transition-all">
+                                                  <Upload className="h-4 w-4 mr-2 text-primary" />
+                                                  Upload file
+                                                </div>
+                                              </label>
+                                           </>
+                                        ) : (
+                                           <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm animate-in fade-in zoom-in duration-300">
+                                              <CheckCircle2 className="h-3.5 w-3.5" />
+                                              <span className="text-xs font-black">Locked</span>
+                                           </div>
                                         )}
-                                        <input
-                                          type="file"
-                                          className="hidden"
-                                          id={`file-upload-${currentFileKey}`}
-                                          accept="*/*"
-                                          onChange={(e) => handleFileUpload(e, currentFileKey)}
-                                        />
-                                        <label htmlFor={`file-upload-${currentFileKey}`}>
-                                          <div className="h-9 px-4 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-slate-100 border border-slate-200 cursor-pointer text-slate-700 bg-white">
-                                            <Upload className="h-4 w-4 mr-2" />
-                                            {currentlySelectedFile ? 'Replace' : 'Upload'}
-                                          </div>
-                                        </label>
                                      </div>
                                   </div>
                                 )
@@ -650,7 +647,7 @@ const StudentTask: React.FC = () => {
                             }}
                           >
                             <div className="flex items-center justify-between mb-2">
-                            <span className={`font-black text-[10px] uppercase tracking-widest ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
+                            <span className={`font-black text-[10px] ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
                             <span className="text-[10px] text-slate-400 font-medium">
@@ -695,7 +692,7 @@ const StudentTask: React.FC = () => {
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
                         <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
                           <Send className="h-10 w-10 mb-2" />
-                          <p className="text-sm font-bold tracking-widest">No messages yet</p>
+                          <p className="text-sm font-bold">No messages yet</p>
                         </div>
                       )}
                     </div>
@@ -748,7 +745,7 @@ const StudentTask: React.FC = () => {
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+                <label className="text-[11px] font-bold text-slate-400 block px-1">
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -767,7 +764,7 @@ const StudentTask: React.FC = () => {
               </div>
               
               <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+                <label className="text-[11px] font-bold text-slate-400 block px-1">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -811,10 +808,10 @@ const StudentTask: React.FC = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
+                           <Badge variant="outline" className="text-[9px] font-bold text-slate-400">
                              {task.task_type || 'Task'}
                            </Badge>
-                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                           <span className="text-[10px] font-bold text-slate-300">
                              {getSubjectName(task)}
                            </span>
                         </div>
@@ -831,7 +828,7 @@ const StudentTask: React.FC = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>

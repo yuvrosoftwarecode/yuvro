@@ -87,28 +87,28 @@ const ViewResponses: React.FC<ViewResponsesProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-slate-500">
                 <Users className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Total</span>
+                <span className="text-xs font-bold">Total</span>
               </div>
               <div className="text-2xl font-black">{counts.total}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-emerald-600">
                 <CheckCircle className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Accepted</span>
+                <span className="text-xs font-bold">Accepted</span>
               </div>
               <div className="text-2xl font-black text-emerald-600">{counts.accepted}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-amber-500">
                 <Clock className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Pending</span>
+                <span className="text-xs font-bold">Pending</span>
               </div>
               <div className="text-2xl font-black text-amber-500">{counts.pending}</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-rose-500">
                 <XCircle className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Rejected</span>
+                <span className="text-xs font-bold">Rejected</span>
               </div>
               <div className="text-2xl font-black text-rose-500">{counts.rejected}</div>
             </div>

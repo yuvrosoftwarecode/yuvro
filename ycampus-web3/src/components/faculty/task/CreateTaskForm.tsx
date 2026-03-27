@@ -217,8 +217,8 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
                 <label className="text-sm font-semibold text-slate-700">
                   Select Questions <span className="text-red-500">*</span>
                 </label>
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 bg-primary/10 text-primary rounded-full">
-                  {selectedQuestions.length} Selected
+                <span className="text-[11px] font-bold px-2.5 py-1 bg-primary/10 text-primary rounded-full">
+                  {selectedQuestions.length} selected
                 </span>
               </div>
               
@@ -250,12 +250,12 @@ const CreateTaskForm: React.FC<CreateTaskFormProps> = ({ subjectId, sections, on
                           </p>
                           <div className="flex flex-wrap items-center gap-2">
                             {q.marks && (
-                              <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded-sm">
-                                {q.marks} Marks
+                              <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-sm">
+                                {q.marks} marks
                               </span>
                             )}
                             {q.difficulty_level && (
-                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm ${
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm ${
                                 q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
                                 q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
                                 'bg-green-50 text-green-600'
