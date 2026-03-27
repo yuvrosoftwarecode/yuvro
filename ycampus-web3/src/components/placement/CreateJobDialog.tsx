@@ -68,7 +68,7 @@ const CreateJobDialog = ({ open, onOpenChange }: CreateJobDialogProps) => {
         recruiterId = existing[0].id;
       } else {
         const { data: newRec, error: recErr } = await supabase.from('recruiters').insert({
-          name: 'TPO Created', email: 'internal@campus.edu', company_name: form.companyName.trim(),
+          name: 'Placement Officer Created', email: 'internal@campus.edu', company_name: form.companyName.trim(),
           company_location: form.location || null, is_verified: true, trust_score: 100,
         }).select('id').single();
         if (recErr) throw recErr;
@@ -118,7 +118,7 @@ const CreateJobDialog = ({ open, onOpenChange }: CreateJobDialogProps) => {
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Create New Job</DialogTitle>
-          <DialogDescription>Jobs created by TPO go directly to Live Jobs.</DialogDescription>
+          <DialogDescription>Jobs created by Placement Officer go directly to Live Jobs.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">

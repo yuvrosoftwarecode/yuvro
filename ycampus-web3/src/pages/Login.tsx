@@ -111,7 +111,7 @@ const Login = () => {
               <div><span className="font-medium text-foreground/80">College Admin:</span> admin@jntu.edu</div>
               <div><span className="font-medium text-foreground/80">Faculty:</span> faculty1@jntu.edu</div>
               <div><span className="font-medium text-foreground/80">Student:</span> student_jntucse2024a1@gmail.com</div>
-              <div><span className="font-medium text-foreground/80">TPO:</span> tpo@jntu.edu</div>
+              <div><span className="font-medium text-foreground/80">Placement Officer:</span> tpo@jntu.edu</div>
             </div>
             <p className="mt-3 italic">Password for all accounts is: <span className="text-primary font-mono font-bold not-italic">password123</span></p>
           </div>

@@ -6,6 +6,7 @@ import { usePlacementStats } from '@/hooks/usePlacement';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, FunnelChart } from 'recharts';
+import { FixRoleTool } from '@/components/placement/FixRoleTool';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
@@ -51,6 +52,7 @@ const PlacementDashboard = () => {
 
   return (
     <PlacementLayout title="Dashboard">
+      <FixRoleTool />
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {statCards.map((s) => (

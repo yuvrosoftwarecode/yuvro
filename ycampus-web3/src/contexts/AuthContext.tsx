@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import authService from '../services/authService';
 import { ApiError } from '../utils/RestApiUtil';
 
-export type UserRole = 'admin' | 'instructor' | 'college_admin' | 'principal' | 'hod' | 'faculty' | 'recruiter' | 'tpo' | 'placement' | 'placement_officer' | 'student';
+export type UserRole = 'admin' | 'instructor' | 'college_admin' | 'principal' | 'hod' | 'faculty' | 'recruiter' | 'placement_officer' | 'student';
 
 export interface User {
   id: string;

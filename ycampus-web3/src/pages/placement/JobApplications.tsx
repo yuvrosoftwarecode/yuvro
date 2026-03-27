@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import PlacementLayout from '@/components/placement/PlacementLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,28 +13,14 @@ import { toast } from '@/hooks/use-toast';
 import { Search, Download, CheckCircle2, XCircle, Users, UserCheck, UserX, Filter, Lightbulb, TrendingUp, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { MOCK_PLACEMENT_JOBS, MOCK_STUDENT_APPLICATIONS } from '@/services/mockPlacementData';
 
 const VIOLET = 'hsl(249, 60%, 69%)';
 const TEAL = 'hsl(165, 64%, 50%)';
 
 // Dummy data with previous offers info
-const DUMMY_APPLICATIONS = [
-  { id: '1', student_name: 'Rahul Sharma', student_id: 'CS2021001', branch: 'CSE', cgpa: 8.5, previous_offer: false, highest_ctc: 0 },
-  { id: '2', student_name: 'Priya Patel', student_id: 'CS2021002', branch: 'CSE', cgpa: 9.1, previous_offer: true, highest_ctc: 600000 },
-  { id: '3', student_name: 'Amit Kumar', student_id: 'EC2021003', branch: 'ECE', cgpa: 7.8, previous_offer: false, highest_ctc: 0 },
-  { id: '4', student_name: 'Sneha Reddy', student_id: 'CS2021004', branch: 'CSE', cgpa: 8.9, previous_offer: true, highest_ctc: 800000 },
-  { id: '5', student_name: 'Vikram Singh', student_id: 'ME2021005', branch: 'MECH', cgpa: 7.2, previous_offer: false, highest_ctc: 0 },
-  { id: '6', student_name: 'Ananya Gupta', student_id: 'CS2021006', branch: 'CSE', cgpa: 9.4, previous_offer: true, highest_ctc: 1200000 },
-  { id: '7', student_name: 'Karthik Nair', student_id: 'IT2021007', branch: 'IT', cgpa: 8.0, previous_offer: true, highest_ctc: 550000 },
-  { id: '8', student_name: 'Divya Menon', student_id: 'CS2021008', branch: 'CSE', cgpa: 8.7, previous_offer: false, highest_ctc: 0 },
-  { id: '9', student_name: 'Rohan Das', student_id: 'EC2021009', branch: 'ECE', cgpa: 7.5, previous_offer: false, highest_ctc: 0 },
-  { id: '10', student_name: 'Meera Joshi', student_id: 'CS2021010', branch: 'CSE', cgpa: 9.2, previous_offer: true, highest_ctc: 1000000 },
-  { id: '11', student_name: 'Arjun Rao', student_id: 'IT2021011', branch: 'IT', cgpa: 8.3, previous_offer: false, highest_ctc: 0 },
-  { id: '12', student_name: 'Pooja Iyer', student_id: 'CS2021012', branch: 'CSE', cgpa: 8.1, previous_offer: true, highest_ctc: 700000 },
-  { id: '13', student_name: 'Siddharth Verma', student_id: 'ME2021013', branch: 'MECH', cgpa: 7.0, previous_offer: false, highest_ctc: 0 },
-  { id: '14', student_name: 'Kavya Bhatt', student_id: 'CS2021014', branch: 'CSE', cgpa: 9.0, previous_offer: true, highest_ctc: 350000 },
-  { id: '15', student_name: 'Nikhil Saxena', student_id: 'EC2021015', branch: 'ECE', cgpa: 7.9, previous_offer: false, highest_ctc: 0 },
-];
+// Mock data source
+// Using MOCK_STUDENT_APPLICATIONS directly below to optimize bundle and reduce complexity
 
 const generateStudentMetrics = (name: string) => {
   const seed = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -72,6 +58,11 @@ const JobApplicationsPage = () => {
     queryKey: ['placement-job-detail', jobId],
     queryFn: async () => {
       if (!jobId) return null;
+      // Search in mock jobs
+      const found = MOCK_PLACEMENT_JOBS.find(j => j.id === jobId);
+      if (found) return found;
+
+      // Fallback to Supabase if not in mocks
       const { data, error } = await supabase.from('placement_jobs')
         .select('*, recruiter:recruiters(*)')
         .eq('id', jobId).single();
@@ -84,23 +75,33 @@ const JobApplicationsPage = () => {
   const { data: realApplications } = useQuery({
     queryKey: ['job-applications', jobId],
     queryFn: async () => {
-      if (!jobId) return [];
-      const { data, error } = await supabase.from('student_applications')
-        .select('*').eq('job_id', jobId).order('created_at', { ascending: false });
-      if (error) return [];
-      return data || [];
+      // For now, always prefer mock applications to ensure consistency with design
+      return MOCK_STUDENT_APPLICATIONS;
     },
     enabled: !!jobId,
   });
 
   const applications = useMemo(() => {
-    if (realApplications && realApplications.length > 0) return realApplications;
-    return DUMMY_APPLICATIONS;
+    return realApplications || [];
   }, [realApplications]);
 
   const enrichedApps = useMemo(() => {
     return applications.map((app: any) => {
-      const metrics = generateStudentMetrics(app.student_name);
+      // Use existing metrics from mock data if available
+      const metrics = {
+        pi: app.pi || 0,
+        ps: app.ps || 0,
+        pri: app.pri || 0
+      };
+      
+      // If mock data doesn't have metrics, generate them
+      if (!metrics.pri) {
+        const generated = generateStudentMetrics(app.student_name);
+        metrics.pi = generated.pi;
+        metrics.ps = generated.ps;
+        metrics.pri = generated.pri;
+      }
+
       const hasPrevOffer = app.previous_offer ?? (app.ctc_offered && app.ctc_offered > 0);
       const highestCtc = app.highest_ctc ?? (app.ctc_offered || 0);
       return { ...app, ...metrics, previous_offer: !!hasPrevOffer, highest_ctc: highestCtc };

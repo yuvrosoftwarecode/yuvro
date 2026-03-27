@@ -5,12 +5,21 @@ import { usePlacementJobs } from '@/hooks/usePlacement';
 import { Building2, Users, UserCheck, Clock, CheckCircle2 } from 'lucide-react';
 
 const LiveJobs = () => {
-  const { data: jobs, isLoading } = usePlacementJobs('approved');
+  const { data: jobs, isLoading, isError, error } = usePlacementJobs('approved');
 
   return (
     <PlacementLayout title="Live Jobs">
-      {isLoading ? <p className="text-muted-foreground">Loading...</p> : !jobs?.length ? (
-        <p className="text-muted-foreground text-center py-12">No live jobs currently</p>
+      {isError ? (
+        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+          <p className="text-destructive font-semibold text-lg">Failed to Load Jobs</p>
+          <p className="text-muted-foreground mt-2">{(error as any)?.message || 'Something went wrong while fetching jobs.'}</p>
+        </div>
+      ) : isLoading ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : !jobs?.length ? (
+        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+          <p className="text-muted-foreground">No live jobs currently available</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {jobs.map(job => (
