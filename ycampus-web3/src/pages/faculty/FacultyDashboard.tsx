@@ -106,7 +106,7 @@ const FacultyDashboard = () => {
   };
 
   const stats = [
-    { title: 'My Courses', value: '8', icon: BookOpen, change: 'Active' },
+    { title: 'Subjects', value: '8', icon: BookOpen, change: 'Active' },
     { title: 'Students', value: selectedBatch ? '45' : '156', icon: Users, change: 'Enrolled' },
     { title: 'Assessments', value: selectedBatch ? '3' : '12', icon: ClipboardCheck, change: 'Pending' },
     { title: 'Attendance', value: selectedBatch ? '92%' : '87%', icon: CheckSquare, change: 'Average' },
@@ -158,13 +158,13 @@ const FacultyDashboard = () => {
       {/* Course and Batch Dropdowns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Select Course</label>
+          <label className="text-sm font-medium text-foreground">Select Subject</label>
           <Select value={selectedCourse} onValueChange={(value) => {
             setSelectedCourse(value);
             setSelectedBatch(''); // Reset batch when course changes
           }}>
             <SelectTrigger>
-              <SelectValue placeholder="Choose a course" />
+              <SelectValue placeholder="Choose a Subject" />
             </SelectTrigger>
             <SelectContent>
               {courses.map((course) => (
@@ -247,11 +247,11 @@ const FacultyDashboard = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Topics Progress Stepper</CardTitle>
+                <CardTitle>Sub-Units Progress Stepper</CardTitle>
             <CardDescription>
               {selectedCourse && selectedBatch 
                     ? `Step ${selectedCourseData?.currentStep} of ${selectedCourseData?.totalSteps} - ${courses.find(c => c.id === selectedCourse)?.name}`
-                : 'Select course and batch to view progress'
+                : 'Select Subject and batch to view progress'
               }
             </CardDescription>
               </div>
@@ -270,7 +270,7 @@ const FacultyDashboard = () => {
               <Tabs defaultValue="stepper" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="stepper">Stepper View</TabsTrigger>
-                  <TabsTrigger value="modules">Modules</TabsTrigger>
+                  <TabsTrigger value="modules">Units</TabsTrigger>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                 </TabsList>
                 
@@ -278,7 +278,7 @@ const FacultyDashboard = () => {
                   {/* Main Stepper */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold">Course Progress Stepper</h3>
+                      <h3 className="font-semibold">Subject Progress Stepper</h3>
                       <Badge variant="outline">
                         Step {selectedCourseData.currentStep} of {selectedCourseData.totalSteps}
                       </Badge>
@@ -407,7 +407,7 @@ const FacultyDashboard = () => {
                   {/* Overall Progress Bar */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Course Progress</span>
+                      <span className="text-sm font-medium">Subject Progress</span>
                       <span className="text-sm text-muted-foreground">{selectedCourseData.overallProgress}%</span>
                     </div>
                     <Progress 
@@ -439,7 +439,7 @@ const FacultyDashboard = () => {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Select a course to view topic progress stepper</p>
+                <p>Select a Subject to view Sub-Unit progress stepper</p>
               </div>
             )}
           </CardContent>
@@ -450,7 +450,7 @@ const FacultyDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates from your courses</CardDescription>
+          <CardDescription>Latest updates from your Subjects</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

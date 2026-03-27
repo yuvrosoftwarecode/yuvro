@@ -100,8 +100,8 @@ const Syllabus = () => {
     }));
 
     toast({
-      title: "Topic Updated",
-      description: `Topic status changed to ${newStatus}`,
+      title: "Sub-Unit Updated",
+      description: `Sub-Unit status changed to ${newStatus}`,
     });
   };
 
@@ -169,10 +169,10 @@ const Syllabus = () => {
           {/* Dependent Dropdowns */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="course">Course</Label>
+              <Label htmlFor="course">Subject</Label>
               <Select value={selectedCourse} onValueChange={handleCourseChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select course" />
+                  <SelectValue placeholder="Select Subject" />
                 </SelectTrigger>
                 <SelectContent>
                   {courses.map(course => (
@@ -201,14 +201,14 @@ const Syllabus = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="module">Module</Label>
+              <Label htmlFor="module">Unit</Label>
               <Select 
                 value={selectedModule} 
                 onValueChange={setSelectedModule}
                 disabled={!selectedCourse}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select module" />
+                  <SelectValue placeholder="Select Unit" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableModules.map(module => (
@@ -225,7 +225,7 @@ const Syllabus = () => {
           {selectedModuleData && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Topics in {selectedModuleData.name}</h3>
+                <h3 className="text-lg font-semibold">Sub-Units in {selectedModuleData.name}</h3>
                 <Badge variant="outline">
                   {selectedCourseData?.name} - {selectedModuleData.name}
                 </Badge>
@@ -236,7 +236,7 @@ const Syllabus = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Search topics..."
+                  placeholder="Search Sub-Units..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -275,7 +275,7 @@ const Syllabus = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Confirm Topic Status Change</AlertDialogTitle>
+                                <AlertDialogTitle>Confirm Sub-Unit Status Change</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   Are you sure you want to mark "{topicToConfirm?.name}" as {topicToConfirm?.currentStatus === 'pending' ? 'finished' : 'pending'}?
                                   This action cannot be undone.
@@ -298,7 +298,7 @@ const Syllabus = () => {
               
               {filteredTopics.length === 0 && searchQuery && (
                 <div className="text-center text-muted-foreground py-4">
-                  No topics found matching "{searchQuery}"
+                  No Sub-Units found matching "{searchQuery}"
                 </div>
               )}
             </div>
@@ -306,13 +306,13 @@ const Syllabus = () => {
 
           {!selectedModule && selectedCourse && (
             <div className="text-center text-muted-foreground py-8">
-              Please select a module to view topics
+              Please select a Unit to view Sub-Units
             </div>
           )}
 
           {!selectedCourse && (
             <div className="text-center text-muted-foreground py-8">
-              Please select a course to get started
+              Please select a Subject to get started
             </div>
           )}
         </CardContent>
