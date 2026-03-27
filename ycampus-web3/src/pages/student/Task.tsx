@@ -24,6 +24,18 @@ const getSubjectName = (t: Task): string => {
   return sd.name || sd.subject_name || sd.subject || sd.title || String(t.subject) || '';
 };
 
+const formatTaskTypeLabel = (taskType?: string | null): string => {
+  const value = (taskType || 'Task').trim();
+  if (!value) return 'Task';
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
+const capitalizeFirstLetter = (value: string): string => {
+  const normalized = value.trim();
+  if (!normalized) return '';
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
 // Ensure URLs are secure, helpful for iframe display
 const getAccessibleUrl = (url: string | null) => {
   if (!url) return '';
@@ -288,7 +300,7 @@ const StudentTask: React.FC = () => {
     if (status === 'completed') {
       if (sub?.status === 'accepted') return 'Accepted';
       if (sub?.status === 'rejected') return 'Rejected';
-      return 'Submitted';
+      return 'Completed';
     }
     return status === 'in_progress' ? 'In Progress' : 'Pending';
   };
@@ -313,6 +325,12 @@ const StudentTask: React.FC = () => {
     const isMultiQuestion = currentTask.question_details && currentTask.question_details.length > 1;
     const isDescriptive = currentTask.task_type === 'descriptive';
     const isCoding = currentTask.task_type === 'coding';
+    const currentFileKey = isMultiQuestion && activeQuestionIndex !== null ? activeQuestionIndex : 'general';
+    const currentSelectedFile = selectedFiles[currentFileKey];
+    const canShowHeaderUpload =
+      isDescriptive &&
+      getTaskStatus(currentTask.id) !== 'completed' &&
+      (!isMultiQuestion || activeQuestionIndex !== null);
 
     return (
       <div className="min-h-screen bg-background">
@@ -322,10 +340,10 @@ const StudentTask: React.FC = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Tasks
             </Button>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground">
               {currentTask.title}
               {currentTask.unit_name && (
-                <span className="text-2xl font-semibold text-foreground">- {currentTask.unit_name}</span>
+                <span className="text-2xl font-bold text-foreground"> - {currentTask.unit_name}</span>
               )}
             </h1>
           </div>
@@ -359,50 +377,118 @@ const StudentTask: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Side - Content Area */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Your Work
-                    {getTaskStatus(currentTask.id) !== 'completed' && (
-                      <Button onClick={handleUploadClick} variant="outline" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {selectedFile ? 'Change File' : 'Upload File'}
-                      </Button>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[520px] w-full rounded-md border overflow-hidden">
-                    {currentTask?.task_type === 'coding' ? (
-                      <CodeEditor
-                        initialCode={taskContent}
-                        onCodeChange={setTaskContent}
-                        readOnly={getTaskStatus(currentTask.id) === 'completed'}
-                        className="h-full border-0"
-                      />
-                    ) : (
-                      <Textarea
-                        value={taskContent}
-                        onChange={(e) => setTaskContent(e.target.value)}
-                        placeholder={getTaskStatus(currentTask.id) === 'completed'
-                          ? 'No content available for this task.'
-                          : 'Type your solution here...'
-                        }
-                        className="h-full resize-none border-0 focus-visible:ring-0 text-sm p-4"
-                        disabled={getTaskStatus(currentTask.id) === 'completed'}
-                      />
-                    )}
-                  </div>
-
-                  {getTaskStatus(currentTask.id) !== 'completed' && (
-                    <div className="flex justify-end mt-4">
-                      <Button onClick={handleSubmitTask} disabled={isSubmitting}>
-                        {isSubmitting ? (
-                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        ) : (
-                          <Send className="h-4 w-4 mr-2" />
+             {/* Left Side - Content Area */}
+             <div className="lg:col-span-2">
+               <Card>
+                 <CardHeader>
+                   <CardTitle className="flex items-center justify-between">
+                     <div className="flex items-center justify-between w-full gap-4">
+                       <span>
+                         {isMultiQuestion
+                           ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List')
+                           : 'Your Work'}
+                       </span>
+                       {canShowHeaderUpload && (
+                         <div className="flex items-center gap-2">
+                           {!currentSelectedFile ? (
+                             <>
+                               <input
+                                 type="file"
+                                 className="hidden"
+                                 id={`file-upload-${currentFileKey}`}
+                                 accept="*/*"
+                                 onChange={(e) => handleFileUpload(e, currentFileKey)}
+                               />
+                               <Button
+                                 type="button"
+                                 variant="outline"
+                                 className="font-semibold"
+                                 onClick={() => {
+                                   const inputEl = document.getElementById(`file-upload-${currentFileKey}`) as HTMLInputElement | null;
+                                   inputEl?.click();
+                                 }}
+                               >
+                                 <Upload className="h-4 w-4 mr-2" />
+                                 Upload Task
+                               </Button>
+                             </>
+                           ) : (
+                             <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm max-w-[320px]">
+                               <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                               <span className="text-xs font-semibold truncate" title={currentSelectedFile.name}>
+                                 {currentSelectedFile.name}
+                               </span>
+                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                             </div>
+                           )}
+                         </div>
+                       )}
+                     </div>
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    
+                    {/* Master List View */}
+                    {isMultiQuestion && activeQuestionIndex === null ? (
+                      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="grid grid-cols-1 gap-4">
+                          {currentTask.question_details?.map((q: any, idx: number) => {
+                            const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
+                            const hasFile = !!selectedFiles[idx];
+                            return (
+                              <div 
+                                key={idx} 
+                                onClick={() => setActiveQuestionIndex(idx)}
+                                className={`p-6 rounded-xl border transition-all cursor-pointer min-h-[132px] ${
+                                  (isAnswered || hasFile) ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
+                                }`}
+                              >
+                                <div className="flex justify-between items-start gap-4 mb-2">
+                                  <h4 className="font-semibold text-slate-800 text-sm flex items-center gap-2">
+                                    Question {idx + 1}
+                                    {(isAnswered || hasFile) && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                    {hasFile && <Paperclip className="h-3 w-3 text-emerald-600" />}
+                                  </h4>
+                                  <div className="flex gap-2">
+                                    {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-semibold shadow-none">{q.marks} Marks</Badge>}
+                                    {q.difficulty_level && (
+                                      <Badge className={`text-[10px] shadow-none font-semibold ${
+                                        q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
+                                        q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
+                                        'bg-emerald-50 text-emerald-600'
+                                      }`}>
+                                        {q.difficulty_level}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-sm font-normal text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
+                                  {q.question_text || q.title || 'Untitled Question'}
+                                </p>
+                                {(isAnswered || hasFile) && (
+                                  <p className="mt-3 text-xs font-medium text-emerald-600">
+                                    {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {getTaskStatus(currentTask.id) !== 'completed' && (
+                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                            <p className="text-sm font-medium text-slate-500">
+                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
+                            </p>
+                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
+                              {isSubmitting ? (
+                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              ) : (
+                                <Send className="h-4 w-4 mr-2" />
+                              )}
+                              Submit Entire Task
+                            </Button>
+                          </div>
                         )}
                         {getTaskStatus(currentTask.id) === 'completed' && (
                           <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
@@ -444,7 +530,7 @@ const StudentTask: React.FC = () => {
                           </div>
                         )}
 
-                        <div className="h-[400px] w-full rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div className="h-[520px] w-full rounded-md border">
                           {isCoding ? (
                             <CodeEditor 
                               initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
@@ -472,67 +558,14 @@ const StudentTask: React.FC = () => {
                                 ? 'No content available for this task.' 
                                 : 'Explain your answer in detail...'
                               }
-                              className="h-full resize-none border-0 focus-visible:ring-0 text-base font-medium p-5 bg-slate-50/30"
+                              className="h-full resize-none border-0 focus-visible:ring-0 text-sm"
                               disabled={getTaskStatus(currentTask.id) === 'completed'}
                             />
                           )}
                         </div>
                         
-                        {/* File Upload UI directly in Workspace (Only for Descriptive types and not completed) */}
-                        {isDescriptive && getTaskStatus(currentTask.id) !== 'completed' && (
-                          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3">
-                             {/* The identifier index for this specific map key */}
-                             {(() => {
-                                const currentFileKey = isMultiQuestion && activeQuestionIndex !== null ? activeQuestionIndex : 'general';
-                                const currentlySelectedFile = selectedFiles[currentFileKey];
-                                
-                                return (
-                                  <div className="flex items-center justify-between bg-primary/5 rounded-xl border border-primary/20 p-4">
-                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
-                                           <Paperclip className="h-4 w-4 text-primary" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                           <span className="text-sm font-bold text-slate-800">
-                                             {currentlySelectedFile ? currentlySelectedFile.name : 'No attachment'}
-                                           </span>
-                                           <span className="text-[10px] font-black text-slate-400">
-                                              Supplemental file
-                                           </span>
-                                        </div>
-                                     </div>
-                                     <div className="flex items-center gap-2">
-                                        {!currentlySelectedFile ? (
-                                           <>
-                                              <input
-                                                type="file"
-                                                className="hidden"
-                                                id={`file-upload-${currentFileKey}`}
-                                                accept="*/*"
-                                                onChange={(e) => handleFileUpload(e, currentFileKey)}
-                                              />
-                                              <label htmlFor={`file-upload-${currentFileKey}`}>
-                                                <div className="h-9 px-4 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors hover:bg-slate-100 border border-slate-200 cursor-pointer text-slate-700 bg-white shadow-sm active:scale-95 transition-all">
-                                                  <Upload className="h-4 w-4 mr-2 text-primary" />
-                                                  Upload file
-                                                </div>
-                                              </label>
-                                           </>
-                                        ) : (
-                                           <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm animate-in fade-in zoom-in duration-300">
-                                              <CheckCircle2 className="h-3.5 w-3.5" />
-                                              <span className="text-xs font-black">Locked</span>
-                                           </div>
-                                        )}
-                                     </div>
-                                  </div>
-                                )
-                             })()}
-                          </div>
-                        )}
-
                         {getTaskStatus(currentTask.id) !== 'completed' && (
-                          <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
+                          <div className="flex justify-end mt-5 pt-5 border-t border-slate-50">
                             {isMultiQuestion && activeQuestionIndex !== null ? (
                               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                                 <Button 
@@ -586,35 +619,80 @@ const StudentTask: React.FC = () => {
 
             {/* Right Side - Comments */}
             <div>
-              <Card className="shadow-sm border-slate-200">
-                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
-                  <CardTitle className="text-lg flex items-center gap-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
                     Discussion
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent>
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                        <div key={comment.id} className={`p-3 rounded-xl border ${comment.faculty
-                          ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4'
-                          : 'bg-slate-50 border-slate-100 ml-4 mr-0'
-                          }`}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-[11px]  tracking-wider text-slate-500">
-                              {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
-                            </span>
-                            <span className="text-[10px]  font-medium">
-                              {format(new Date(comment.created_at), 'HH:mm')}
-                            </span>
-                          </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium">{comment.comment}</p>
+                          <div 
+                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
+                            comment.faculty 
+                              ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto' 
+                              : 'bg-[#F0FDF4] border-emerald-200 border-l-4 border-l-emerald-500 ml-auto mr-0'
+                          } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer' : ''}`}
+                            onClick={() => {
+                              // Robust regex to match various formats: name_8, name_L8, name:8
+                              const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
+                              if (match) {
+                                const [, filename, lineStr] = match;
+                                // Also try to get quoted text if it exists later in the string
+                                const quoteMatch = comment.comment.match(/"([^"]*)"/);
+                                handleAnnotationLinkClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-6 mb-2">
+                              <span className="font-semibold text-[11px] text-[#020817]">
+                                {comment.faculty ? 'Faculty' : 'Student'}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-medium">
+                                {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
+                              </span>
+                            </div>
+                            <p className="text-sm text-[#020817] leading-relaxed font-normal">
+                             {(() => {
+                                const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
+                                const parts = [];
+                                let lastIndex = 0;
+                                let match;
+
+                                while ((match = regex.exec(comment.comment)) !== null) {
+                                   if (match.index > lastIndex) {
+                                      parts.push(comment.comment.substring(lastIndex, match.index));
+                                   }
+
+                                   const [, filename, lineStr, quotedText] = match;
+                                   parts.push(
+                                      <button
+                                         key={match.index}
+                                         onClick={() => handleAnnotationLinkClick(filename, parseInt(lineStr), quotedText)}
+                                        className="text-primary hover:underline font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-1 group transition-all mr-1"
+                                      >
+                                         <FileText className="h-3 w-3" />
+                                         {filename}:{lineStr}
+                                      </button>
+                                   );
+                                   lastIndex = regex.lastIndex;
+                                }
+
+                                if (lastIndex < comment.comment.length) {
+                                   parts.push(comment.comment.substring(lastIndex));
+                                }
+
+                                return parts.length > 0 ? parts : comment.comment;
+                             })()}
+                          </p>
                         </div>
                       ))}
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
                         <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
                           <Send className="h-10 w-10 mb-2" />
-                          <p className="text-sm font-bold  tracking-widest">No messages yet</p>
+                          <p className="text-sm font-semibold">No messages yet</p>
                         </div>
                       )}
                     </div>
@@ -627,12 +705,12 @@ const StudentTask: React.FC = () => {
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add a comment or ask a question..."
-                      className="min-h-[90px] bg-slate-50/50 focus:bg-white transition-colors border-slate-200 rounded-xl resize-none font-medium text-sm"
+                      className="min-h-[80px]"
                     />
                     <div className="flex justify-end">
-                      <Button onClick={() => handleAddComment()} disabled={!newComment.trim()} className="font-bold shadow-sm rounded-xl px-6">
+                      <Button onClick={() => handleAddComment()} disabled={!newComment.trim()}>
                         <Send className="h-4 w-4 mr-2" />
-                        Send
+                        Add Comment
                       </Button>
                     </div>
                   </div>
@@ -657,7 +735,7 @@ const StudentTask: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">Tasks</h1>
           <p className="text-muted-foreground">View and complete your assigned tasks</p>
@@ -671,7 +749,7 @@ const StudentTask: React.FC = () => {
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger>
                     <SelectValue placeholder="All Subjects" />
                   </SelectTrigger>
                   <SelectContent>
@@ -706,63 +784,90 @@ const StudentTask: React.FC = () => {
         </Card>
 
         {isLoading ? (
-          <div className="grid gap-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
+           <div className="grid gap-4">
+             {[1, 2, 3].map(i => (
+                <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 flex p-6 gap-6 items-center shadow-sm">
+                   <div className="space-y-3 flex-1">
+                      <div className="h-3 bg-slate-100 rounded-full w-20 animate-pulse"></div>
+                      <div className="h-6 bg-slate-100 rounded-full w-1/3 animate-pulse"></div>
+                      <div className="h-3 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
+                   </div>
+                   <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse"></div>
+                </div>
             ))}
           </div>
         ) : filteredTasks.length > 0 ? (
-          <div className="grid gap-4">
-            {filteredTasks.map((task) => (
-              <Card
-                key={task.id}
-                className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
-                onClick={() => handleTaskClick(task)}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0 space-y-2">
-
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[9px] capitalize tracking-widest">
-                          {task.task_type || 'Task'}
-                        </Badge>
-                        <span className="text-[10px] tracking-widest">
-                          {getSubjectName(task)}
-                        </span>
+            <div className="grid gap-4">
+              {filteredTasks.map((task) => (
+                <Card 
+                  key={task.id} 
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleTaskClick(task)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm ${
+                              (task.task_type || '').toLowerCase() === 'descriptive'
+                                ? 'bg-black text-white border-black'
+                                : 'text-slate-600 border-slate-300 bg-white'
+                            }`}
+                          >
+                            {formatTaskTypeLabel(task.task_type)}
+                          </Badge>
+                          <span className="text-sm text-slate-500 tracking-wide">
+                            {capitalizeFirstLetter(getSubjectName(task))}
+                          </span>
+                        </div>
+                        <CardTitle className="text-lg">
+                          {task.title}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
+                        </CardDescription>
                       </div>
 
                       <Badge
                         variant={getStatusBadgeVariant(task.id) as any}
-                        className="shrink-0 font-bold px-3 py-1"
+                        className={`py-1 ${getTaskStatus(task.id) === 'pending' ? 'px-4' : 'px-3'}`}
                       >
                         {getStatusLabelText(task.id)}
                       </Badge>
                     </div>
-
-                    {task.due_date && (
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>
                           Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
                         </span>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="border-dashed border-2 py-20 bg-slate-50/50">
-            <CardContent>
-              <div className="text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
-                <p className=" font-bold  tracking-widest text-sm">No tasks found</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                      {task.due_date && (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+              <CardContent>
+                <div className="text-center">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
+                <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
+              </CardContent>
+            </Card>
+          )}
       </div>
     </StudentLayout>
   );
