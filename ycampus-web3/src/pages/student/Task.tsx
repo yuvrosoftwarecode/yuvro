@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Upload, Send, FileText, CheckCircle2, Calendar, Clock, X, Paperclip } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { taskService, Task, TaskSubmission, TaskComment } from '@/services/taskService';
 import { CodeEditor } from '@/components/ui/code-editor';
 import { format } from 'date-fns';
+import JSZip from 'jszip';
+import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
 
 // Helper to extract subject name from task
 const getSubjectName = (t: Task): string => {
@@ -22,11 +24,15 @@ const getSubjectName = (t: Task): string => {
   return sd.name || sd.subject_name || sd.subject || sd.title || String(t.subject) || '';
 };
 
+// Ensure URLs are secure, helpful for iframe display
+const getAccessibleUrl = (url: string | null) => {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `http://${url}`;
+};
+
 const StudentTask: React.FC = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   // State management
@@ -40,11 +46,17 @@ const StudentTask: React.FC = () => {
   const [answersData, setAnswersData] = useState<Record<number, string>>({});
   const [activeQuestionIndex, setActiveQuestionIndex] = useState<number | null>(null);
   
+  // File Upload State: maps index (or 'general') to File
+  const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
+  
   const [newComment, setNewComment] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTaskView, setShowTaskView] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // File Viewer State
+  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+  const [fileViewerUrl, setFileViewerUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadInitialData();
@@ -139,7 +151,7 @@ const StudentTask: React.FC = () => {
     }
 
     setActiveQuestionIndex(null);
-    setSelectedFile(null);
+    setSelectedFiles({});
     setShowTaskView(true);
     setSearchParams({ view: 'task', taskId: task.id });
   };
@@ -151,23 +163,28 @@ const StudentTask: React.FC = () => {
     setAnswersData({});
     setActiveQuestionIndex(null);
     setNewComment('');
-    setSelectedFile(null);
+    setSelectedFiles({});
     setSearchParams({});
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, questionIndex: number | 'general') => {
     const file = event.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
+      setSelectedFiles(prev => ({ ...prev, [questionIndex]: file }));
     }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  const removeFile = (questionIndex: number | 'general') => {
+    setSelectedFiles(prev => {
+      const newFiles = { ...prev };
+      delete newFiles[questionIndex];
+      return newFiles;
+    });
   };
 
-  const handleAddComment = async () => {
-    if (!currentTask || !newComment.trim()) return;
+  const handleAddComment = async (commentText?: string) => {
+    const textToSubmit = typeof commentText === 'string' ? commentText : newComment;
+    if (!currentTask || !textToSubmit.trim()) return;
     let sub = submissions[currentTask.id];
 
     try {
@@ -180,7 +197,7 @@ const StudentTask: React.FC = () => {
         setSubmissions(prev => ({ ...prev, [currentTask.id]: sub }));
       }
 
-      const addedComment = await taskService.addCommentToSubmission(sub.id, newComment);
+      const addedComment = await taskService.addCommentToSubmission(sub.id, textToSubmit);
       setSubmissions(prev => ({
         ...prev,
         [currentTask.id]: {
@@ -188,7 +205,7 @@ const StudentTask: React.FC = () => {
           comments: [...(sub.comments || []), addedComment]
         }
       }));
-      setNewComment('');
+      if (typeof commentText !== 'string') setNewComment('');
     } catch (err) {
       toast({ title: "Error", description: "Failed to add comment.", variant: "destructive" });
     }
@@ -222,8 +239,22 @@ const StudentTask: React.FC = () => {
       formData.append('is_submitted', 'true');
       formData.append('task', currentTask.id);
 
-      if (selectedFile && !sub?.file) {
-        formData.append('file', selectedFile);
+      // JSZip Multiple File Logic
+      if (Object.keys(selectedFiles).length > 0 && !sub?.file) {
+        if (Object.keys(selectedFiles).length === 1 && selectedFiles['general']) {
+          // Exactly one file for a general task, just upload it natively
+          formData.append('file', selectedFiles['general']);
+        } else {
+          // Multiple files (from multiple questions). Zip them together.
+          const zip = new JSZip();
+          toast({ title: "Processing", description: "Zipping files before upload..." });
+          for (const [key, file] of Object.entries(selectedFiles)) {
+             const fileNamePrefix = key === 'general' ? `Main_` : `Q${parseInt(key) + 1}_`;
+             zip.file(`${fileNamePrefix}${file.name}`, file);
+          }
+          const zipBlob = await zip.generateAsync({ type: 'blob' });
+          formData.append('file', zipBlob, `${currentTask.title.replace(/[^a-zA-Z0-9]/g, '_')}_Files.zip`);
+        }
       }
 
       let updatedSub;
@@ -246,17 +277,14 @@ const StudentTask: React.FC = () => {
   const getStatusBadgeVariant = (taskId: string) => {
     const status = getTaskStatus(taskId);
     switch (status) {
-      case 'pending':
-        return 'secondary';
-      case 'in_progress':
-        return 'default';
+      case 'pending': return 'secondary';
+      case 'in_progress': return 'default';
       case 'completed':
         const sub = submissions[taskId];
         if (sub?.status === 'accepted') return 'default';
         if (sub?.status === 'rejected') return 'destructive';
         return 'default';
-      default:
-        return 'secondary';
+      default: return 'secondary';
     }
   };
 
@@ -271,8 +299,15 @@ const StudentTask: React.FC = () => {
     return status === 'in_progress' ? 'In Progress' : 'Pending';
   };
 
+  const openFileViewer = (url: string) => {
+    setFileViewerUrl(url);
+    setIsFileViewerOpen(true);
+  };
+
   if (showTaskView && currentTask) {
     const isMultiQuestion = currentTask.question_details && currentTask.question_details.length > 1;
+    const isDescriptive = currentTask.task_type === 'descriptive';
+    const isCoding = currentTask.task_type === 'coding';
 
     return (
       <div className="min-h-screen bg-background">
@@ -294,37 +329,29 @@ const StudentTask: React.FC = () => {
             </CardHeader>
           </Card>
 
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.doc,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,image/*,.py,.js,.java,.cpp,.c"
-            onChange={handleFileUpload}
-            style={{ display: 'none' }}
-          />
-
-          {/* File upload info */}
+          {/* Submissions Download Alert */}
           {submissions[currentTask.id]?.file && (
-            <Card className="mb-6">
+            <Card className="mb-6 bg-slate-50 border-slate-200 shadow-sm">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    <span>Submitted File: <a href={submissions[currentTask.id].file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">View Attachment</a></span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center shrink-0">
+                       <FileText className="h-5 w-5 text-slate-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">
+                        {submissions[currentTask.id].file?.split('/').pop()?.split('?')[0] || 'Task Attachment'}
+                      </p>
+                      <p className="text-xs font-semibold text-slate-400 mt-0.5">File already submitted — cannot change natively.</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          {selectedFile && (
-            <Card className="mb-6 border-primary/20 bg-primary/5">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between text-sm text-primary font-medium">
-                  <div className="flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
-                    <span>Selected for upload: <span className="font-bold">{selectedFile.name}</span></span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)} className="h-8 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-red-500 hover:bg-red-50">Remove</Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => openFileViewer(getAccessibleUrl(submissions[currentTask.id].file!))}
+                    className="font-bold border-slate-200"
+                  >
+                    View File
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -339,33 +366,30 @@ const StudentTask: React.FC = () => {
                      {isMultiQuestion 
                        ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List') 
                        : 'Your Work'}
-                     {getTaskStatus(currentTask.id) !== 'completed' && activeQuestionIndex === null && (
-                       <Button onClick={handleUploadClick} variant="outline" size="sm" className="font-bold border-slate-200 hover:bg-slate-50">
-                         <Upload className="h-4 w-4 mr-2" />
-                         {selectedFile ? 'Change File' : 'Upload File'}
-                       </Button>
-                     )}
                    </CardTitle>
                  </CardHeader>
                  <CardContent>
                     
+                    {/* Master List View */}
                     {isMultiQuestion && activeQuestionIndex === null ? (
                       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="grid grid-cols-1 gap-4">
                           {currentTask.question_details?.map((q: any, idx: number) => {
                             const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
+                            const hasFile = !!selectedFiles[idx];
                             return (
                               <div 
                                 key={idx} 
                                 onClick={() => setActiveQuestionIndex(idx)}
                                 className={`p-5 rounded-xl border transition-all cursor-pointer ${
-                                  isAnswered ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
+                                  (isAnswered || hasFile) ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
                                 }`}
                               >
                                 <div className="flex justify-between items-start gap-4 mb-2">
                                   <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
                                     Question {idx + 1}
-                                    {isAnswered && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                    {(isAnswered || hasFile) && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                    {hasFile && <Paperclip className="h-3 w-3 text-emerald-600" />}
                                   </h4>
                                   <div className="flex gap-2">
                                     {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold shadow-none">{q.marks} Marks</Badge>}
@@ -383,8 +407,10 @@ const StudentTask: React.FC = () => {
                                 <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
                                   {q.question_text || q.title || 'Untitled Question'}
                                 </p>
-                                {isAnswered && (
-                                  <p className="mt-3 text-xs font-semibold text-emerald-600 tracking-wide uppercase">Answer saved locally</p>
+                                {(isAnswered || hasFile) && (
+                                  <p className="mt-3 text-xs font-semibold text-emerald-600 tracking-wide uppercase">
+                                    {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
+                                  </p>
                                 )}
                               </div>
                             );
@@ -447,7 +473,7 @@ const StudentTask: React.FC = () => {
                         )}
 
                         <div className="h-[400px] w-full rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                          {currentTask?.task_type === 'coding' ? (
+                          {isCoding ? (
                             <CodeEditor 
                               initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
                               onCodeChange={(code: string) => {
@@ -480,6 +506,55 @@ const StudentTask: React.FC = () => {
                           )}
                         </div>
                         
+                        {/* File Upload UI directly in Workspace (Only for Descriptive types and not completed) */}
+                        {isDescriptive && getTaskStatus(currentTask.id) !== 'completed' && (
+                          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-3">
+                             {/* The identifier index for this specific map key */}
+                             {(() => {
+                                const currentFileKey = isMultiQuestion && activeQuestionIndex !== null ? activeQuestionIndex : 'general';
+                                const currentlySelectedFile = selectedFiles[currentFileKey];
+                                
+                                return (
+                                  <div className="flex items-center justify-between bg-primary/5 rounded-xl border border-primary/20 p-4">
+                                     <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                                           <Paperclip className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                           <span className="text-sm font-bold text-slate-800">
+                                             {currentlySelectedFile ? currentlySelectedFile.name : 'No attachment'}
+                                           </span>
+                                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                              Supplemental File
+                                           </span>
+                                        </div>
+                                     </div>
+                                     <div className="flex items-center gap-2">
+                                        {currentlySelectedFile && (
+                                           <Button variant="ghost" size="icon" onClick={() => removeFile(currentFileKey)} className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0">
+                                              <X className="h-4 w-4" />
+                                           </Button>
+                                        )}
+                                        <input
+                                          type="file"
+                                          className="hidden"
+                                          id={`file-upload-${currentFileKey}`}
+                                          accept="*/*"
+                                          onChange={(e) => handleFileUpload(e, currentFileKey)}
+                                        />
+                                        <label htmlFor={`file-upload-${currentFileKey}`}>
+                                          <div className="h-9 px-4 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-slate-100 border border-slate-200 cursor-pointer text-slate-700 bg-white">
+                                            <Upload className="h-4 w-4 mr-2" />
+                                            {currentlySelectedFile ? 'Replace' : 'Upload'}
+                                          </div>
+                                        </label>
+                                     </div>
+                                  </div>
+                                )
+                             })()}
+                          </div>
+                        )}
+
                         {getTaskStatus(currentTask.id) !== 'completed' && (
                           <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
                             {isMultiQuestion && activeQuestionIndex !== null ? (
@@ -582,7 +657,7 @@ const StudentTask: React.FC = () => {
                       className="min-h-[90px] bg-slate-50/50 focus:bg-white transition-colors border-slate-200 rounded-xl resize-none font-medium text-sm"
                     />
                     <div className="flex justify-end">
-                      <Button onClick={handleAddComment} disabled={!newComment.trim()} className="font-bold shadow-sm rounded-xl px-6">
+                      <Button onClick={() => handleAddComment()} disabled={!newComment.trim()} className="font-bold shadow-sm rounded-xl px-6">
                         <Send className="h-4 w-4 mr-2" />
                         Send
                       </Button>
@@ -593,6 +668,15 @@ const StudentTask: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* 3-Pane File Viewer Modal */}
+        <TaskFileViewer 
+          isOpen={isFileViewerOpen}
+          onClose={() => setIsFileViewerOpen(false)}
+          fileUrl={fileViewerUrl}
+          comments={submissions[currentTask.id]?.comments || []}
+          onAddComment={handleAddComment}
+        />
       </div>
     );
   }

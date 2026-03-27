@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Send, CheckCircle, XCircle, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle, XCircle, FileText, Eye } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskSubmission, TaskComment } from '@/services/taskService';
 import { format } from 'date-fns';
+import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
 
 interface StudentResponseDetailProps {
   response: TaskSubmission;
@@ -25,6 +26,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
   submitting = false
 }) => {
   const [newComment, setNewComment] = useState('');
+  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const student = response.student_details || {};
   const user = student.user_details || {};
@@ -153,14 +155,12 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                         <p className="text-sm font-bold text-slate-700 truncate max-w-[200px]">
                           {response.file.split('/').pop()}
                         </p>
-                        <p className="text-xs text-muted-foreground">Attached Document</p>
+                        <p className="text-xs text-muted-foreground">Attached Document or Archive</p>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={response.file} target="_blank" rel="noopener noreferrer">
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </a>
+                    <Button className="shadow-sm font-bold" onClick={() => setIsFileViewerOpen(true)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Review Files
                     </Button>
                   </div>
                 </div>
@@ -237,6 +237,16 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
           </Card>
         </div>
       </div>
+      
+      {/* 3-Pane File Viewer Integration */}
+      <TaskFileViewer 
+        isOpen={isFileViewerOpen}
+        onClose={() => setIsFileViewerOpen(false)}
+        fileUrl={response.file || null}
+        comments={response.comments}
+        onAddComment={onAddComment}
+        submitting={submitting}
+      />
     </div>
   );
 };
