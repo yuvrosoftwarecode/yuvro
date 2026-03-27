@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Play, Clock, HelpCircle } from 'lucide-react';
 
+
 interface InterviewRoleCardProps {
   title: string;
   description: string;
@@ -13,6 +14,8 @@ interface InterviewRoleCardProps {
   questionCount: number;
   category: string;
   onStart: () => void;
+  buttonType?: 'start' | 'report';
+
 }
 
 const getCategoryBadgeClass = (category: string) => {
@@ -36,6 +39,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
   questionCount,
   category,
   onStart,
+  buttonType = 'start', // ✅ default value
 }) => {
   return (
     <Card className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group flex flex-col h-full">
@@ -46,7 +50,7 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
             <div className="flex items-center gap-2 mb-1">
               <Badge
                 variant="outline"
-                className={`text-[9px] uppercase tracking-widest font-bold border ${getCategoryBadgeClass(category)}`}
+                className={`text-[9px]  tracking-widest font-bold border ${getCategoryBadgeClass(category)}`}
               >
                 {category}
               </Badge>
@@ -58,35 +62,49 @@ const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
               {description}
             </CardDescription>
           </div>
-          {/* Icon floated top-right like Task page's status badge */}
-          <div className="text-2xl shrink-0 mt-0.5">{icon}</div>
+  
         </div>
       </CardHeader>
 
-      <CardContent className="mt-auto">
-        {/* Meta row — same style as Task's date/due row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" />
-              <span>{duration} mins</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <HelpCircle className="h-3.5 w-3.5" />
-              <span>{questionCount} questions</span>
-            </div>
-          </div>
-          <Button
-            size="sm"
-            onClick={e => { e.stopPropagation(); onStart(); }}
-            className="gap-1.5 font-bold px-4 shrink-0"
-          >
-            <Play className="h-3.5 w-3.5 fill-current" />
-            Start
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent className="mt-auto">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-4 text-[11px] tracking-widest">
+      <div className="flex items-center gap-1.5">
+        <Clock className="h-3.5 w-3.5" />
+        <span>{duration} mins</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <HelpCircle className="h-3.5 w-3.5" />
+        <span>{questionCount} questions</span>
+      </div>
+    </div>
+
+    {buttonType === 'report' ? (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={e => { e.stopPropagation(); onStart(); }}
+        className="gap-1.5 font-bold px-4 shrink-0"
+      >
+        Show Report
+      </Button>
+    ) : (
+      <Button
+        size="sm"
+        onClick={e => { e.stopPropagation(); onStart(); }}
+        className="gap-1.5 font-bold px-4 shrink-0"
+      >
+        <Play className="h-3.5 w-3.5 fill-current" />
+        Start
+      </Button>
+    )}
+  </div>
+</CardContent>
+      </Card>
+    
+    
+    
+    
   );
 };
 
