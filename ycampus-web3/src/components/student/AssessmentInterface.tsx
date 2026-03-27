@@ -292,6 +292,8 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
   const streamRef = useRef<MediaStream | null>(null);
+  const managedStreamsRef = useRef<Set<MediaStream>>(new Set());
+  const isSubmittingRef = useRef(false);
   const playbackRetryTimerRef = useRef<number | null>(null);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [questionPage, setQuestionPage] = useState(0); // For pagination
@@ -317,14 +319,43 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     }, delayMs);
   };
 
+  const stopMediaMonitoring = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    managedStreamsRef.current.forEach((stream) => {
+      stream.getTracks().forEach((track) => track.stop());
+    });
+    managedStreamsRef.current.clear();
+
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+
+    setVideoTrackEnabled(false);
+    setAudioTrackEnabled(false);
+  };
+
   // Initialize camera and microphone with better permission handling
   useEffect(() => {
     const initializeMedia = async () => {
+      if (isSubmittingRef.current) return;
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true
         });
+
+        if (isSubmittingRef.current) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        managedStreamsRef.current.add(stream);
         
         streamRef.current = stream;
         setHasMediaAccess(true);
@@ -421,12 +452,20 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
     // Check for permission changes periodically (only when access is lost)
     const permissionCheck = setInterval(async () => {
-      if (!hasMediaAccess) {
+      if (!hasMediaAccess && !isSubmittingRef.current) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
           });
+
+          if (isSubmittingRef.current) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
+          managedStreamsRef.current.add(stream);
+
           streamRef.current = stream;
           setHasMediaAccess(true);
           setCameraAlert(false);
@@ -442,9 +481,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
     return () => {
       clearInterval(permissionCheck);
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
+      stopMediaMonitoring();
       if (playbackRetryTimerRef.current) {
         clearInterval(playbackRetryTimerRef.current);
         playbackRetryTimerRef.current = null;
@@ -502,12 +539,19 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   // Re-initialize media when tracks are re-enabled
   useEffect(() => {
     const reinitializeMedia = async () => {
-      if (!hasMediaAccess && !cameraAlert) {
+      if (!hasMediaAccess && !cameraAlert && !isSubmittingRef.current) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
           });
+
+          if (isSubmittingRef.current) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
+          managedStreamsRef.current.add(stream);
           
           streamRef.current = stream;
           setHasMediaAccess(true);
@@ -645,10 +689,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
         scheduleStableStatusUpdate('audio', false, 0);
         setCameraAlert(true);
         // Stop any active tracks
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(t => t.stop());
-          streamRef.current = null;
-        }
+        stopMediaMonitoring();
       }
     };
 
@@ -723,6 +764,11 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   };
 
   const handleSubmitAssessment = () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    stopMediaMonitoring();
+
     const answeredCount = mockQuestions.filter(q => {
       if (q.type === 'descriptive') {
         return answers[q.id]?.trim();
@@ -873,7 +919,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                 placeholder="Explain why you chose this answer..."
                 value={explanations[question.id] || ''}
                 onChange={(e) => handleExplanationChange(question.id, e.target.value)}
-                className="mt-2 min-h-20"
+                className="mt-4 min-h-20"
               />
             </div>
           </div>
@@ -929,7 +975,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
                 placeholder="Explain your coding approach, algorithm choice, time/space complexity..."
                 value={explanations[question.id] || ''}
                 onChange={(e) => handleExplanationChange(question.id, e.target.value)}
-                className="mt-2 min-h-24"
+                className="mt-4 min-h-24"
               />
             </div>
           </div>
@@ -941,7 +987,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             placeholder="Type your answer here..."
             value={answers[question.id] || ''}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            className="min-h-32"
+            className="mt-4 min-h-32"
           />
         );
 
@@ -951,6 +997,41 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   };
 
   const currentQuestionData = mockQuestions[currentQuestion];
+
+  // Prevent copy/paste/cut for MCQ explanation, coding, and descriptive questions.
+  useEffect(() => {
+    if (
+      currentQuestionData.type !== 'mcq' &&
+      currentQuestionData.type !== 'coding' &&
+      currentQuestionData.type !== 'descriptive'
+    ) {
+      return;
+    }
+
+    const blockClipboard = (event: ClipboardEvent) => {
+      event.preventDefault();
+    };
+
+    const blockShortcutKeys = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && (key === 'c' || key === 'v' || key === 'x')) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('copy', blockClipboard);
+    document.addEventListener('paste', blockClipboard);
+    document.addEventListener('cut', blockClipboard);
+    document.addEventListener('keydown', blockShortcutKeys);
+
+    return () => {
+      document.removeEventListener('copy', blockClipboard);
+      document.removeEventListener('paste', blockClipboard);
+      document.removeEventListener('cut', blockClipboard);
+      document.removeEventListener('keydown', blockShortcutKeys);
+    };
+  }, [currentQuestionData.type]);
+
   const progress = ((currentQuestion + 1) / mockQuestions.length) * 100;
   const answeredCount = mockQuestions.filter(q => {
     if (q.type === 'descriptive') {
@@ -986,12 +1067,14 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="flex justify-center">
         {tabSwitchAlert && (
           <Alert className="m-4 w-[60%] border-orange-200 bg-orange-50">
-            <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
+              <AlertTriangle className="h-4 w-4" />
+              <div className='flex items-center justify-between flex-1 ml-4'>
               <span>Tab switching detected! This action has been logged. ({tabSwitchCount} violations)</span>
               <Button variant="ghost" size="sm" onClick={() => setTabSwitchAlert(false)}>
                 <X className="h-4 w-4" />
               </Button>
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -1050,7 +1133,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             {/* Submit Button */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-black text-white hover:bg-black/90">
+                <Button variant="outline" size="sm" className="bg-black text-white hover:bg-black/90 hover:text-white">
                   Submit
                 </Button>
               </AlertDialogTrigger>

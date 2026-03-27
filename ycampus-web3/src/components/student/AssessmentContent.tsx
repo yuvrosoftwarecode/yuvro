@@ -127,7 +127,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     timeSpent: number;
   } | null>(null);
 
-  // Initialize state from URL parameters on mount
+  // Initialize state from URL parameters on mount only
   useEffect(() => {
     const view = searchParams.get('view') as 'list' | 'instructions' | 'assessment' | 'results' | 'thankyou' || 'list';
     const assessmentId = searchParams.get('assessmentId');
@@ -145,9 +145,9 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
       }
     }
 
-    // Scroll to top on component mount
+    // Scroll to top on initial load
     window.scrollTo(0, 0);
-  }, [searchParams]);
+  }, []);
 
   const updateUrlParams = (params: Record<string, string | null>) => {
     const newParams = new URLSearchParams(searchParams);
@@ -169,6 +169,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
 
   const handleStartAssessment = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
+    setAssessmentStats(null);
     setCurrentView('instructions');
     updateUrlParams({ view: 'instructions', assessmentId: assessment.id });
   };
@@ -184,12 +185,10 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     updateUrlParams({ view: 'assessment' });
   };
 
-  const handleAssessmentComplete = (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
-    if (stats) {
-      setAssessmentStats(stats);
-    }
+  const handleAssessmentComplete = (stats: { answeredCount: number; totalQuestions: number; timeSpent: number }) => {
+    setAssessmentStats(stats);
     setCurrentView('thankyou');
-    updateUrlParams({ view: 'thankyou' });
+    updateUrlParams({ view: 'thankyou', assessmentId: selectedAssessment?.id || null });
   };
 
   const handleThankYouComplete = () => {
@@ -245,13 +244,19 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
     );
   }
 
-  if (currentView === 'thankyou' && selectedAssessment && assessmentStats) {
+  if (currentView === 'thankyou' && selectedAssessment) {
+    const stats = assessmentStats || {
+      answeredCount: 0,
+      totalQuestions: selectedAssessment.totalQuestions,
+      timeSpent: 0,
+    };
+
     return (
       <AssessmentThankYou
         assessment={selectedAssessment}
-        answeredCount={assessmentStats.answeredCount}
-        totalQuestions={assessmentStats.totalQuestions}
-        timeSpent={assessmentStats.timeSpent}
+        answeredCount={stats.answeredCount}
+        totalQuestions={stats.totalQuestions}
+        timeSpent={stats.timeSpent}
         onBackToAssessment={handleThankYouComplete}
       />
     );
@@ -400,7 +405,7 @@ const AssessmentContent: React.FC<AssessmentContentProps> = () => {
                       {assessment.status === 'pending' ? (
                         <Button 
                           onClick={() => handleStartAssessment(assessment)}
-                          className="w-full bg-[image:var(--gradient-saffron)] text-white hover:opacity-90 hover:scale-105 transition-all duration-200 border-0 shadow-md hover:shadow-lg"
+                          className="w-full bg-black text-white hover:opacity-90 hover:scale-105 transition-all duration-200 border-0 shadow-md hover:shadow-lg"
                         >
                           <Play className="h-4 w-4 mr-2" />
                           Start Assessment

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -15,9 +16,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Camera,
-  Mic,
-  CameraOff,
-  MicOff,
+  AlertTriangle,
+  X,
   Eye,
   EyeOff
 } from 'lucide-react';
@@ -86,11 +86,18 @@ const mockQuestions: Question[] = [
   }
 ];
 
+const DEFAULT_CODING_TEMPLATES = [
+  '// Write your JavaScript code here\nfunction solution() {\n    // Your code\n}\n',
+  '# Write your Python code here\ndef solution():\n    # Your code\n    pass\n',
+  '// Write your Java code here\npublic class Solution {\n    public static void main(String[] args) {\n        // Your code\n    }\n}\n',
+  '// Write your C++ code here\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code\n    return 0;\n}\n',
+  '// Write your code here\n'
+].map((template) => template.trim());
+
 const TestInterface: React.FC<TestInterfaceProps> = ({
   topic,
   course,
-  onComplete,
-  onBack
+  onComplete
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [timeLeft, setTimeLeft] = useState(topic.duration * 60);
@@ -100,22 +107,63 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasMediaAccess, setHasMediaAccess] = useState(true);
+  const [hasMediaAccess, setHasMediaAccess] = useState(false);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
   const streamRef = useRef<MediaStream | null>(null);
+  const managedStreamsRef = useRef<Set<MediaStream>>(new Set());
+  const isSubmittingRef = useRef(false);
+  const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
+  const [showTabWarningDialog, setShowTabWarningDialog] = useState(false);
+  const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [questionPage, setQuestionPage] = useState(0);
 
+  const stopMediaMonitoring = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      streamRef.current = null;
+    }
+
+    managedStreamsRef.current.forEach((stream) => {
+      stream.getTracks().forEach((track) => track.stop());
+    });
+    managedStreamsRef.current.clear();
+
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+
+    setVideoTrackEnabled(false);
+    setAudioTrackEnabled(false);
+    setHasMediaAccess(false);
+  };
+
   // Initialize camera and microphone
   useEffect(() => {
+    let isActive = true;
+
     const initializeMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
         });
+
+        if (!isActive || isSubmittingRef.current) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        if (streamRef.current && streamRef.current !== stream) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          managedStreamsRef.current.delete(streamRef.current);
+        }
         
+        managedStreamsRef.current.add(stream);
         streamRef.current = stream;
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
@@ -136,22 +184,52 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
 
     initializeMedia();
 
-    // Tab switch detection
+    return () => {
+      isActive = false;
+      stopMediaMonitoring();
+    };
+  }, []);
+
+  // Tab switch detection with warning/termination flow.
+  useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setTabSwitchCount(prev => prev + 1);
-      }
+      if (!document.hidden) return;
+
+      setTabSwitchCount((prev) => {
+        const newCount = prev + 1;
+        setTabSwitchAlert(true);
+
+        if (newCount >= 2) {
+          setShowTabWarningDialog(false);
+          setShowTabSwitchDialog(true);
+        } else {
+          setShowTabWarningDialog(true);
+        }
+
+        return newCount;
+      });
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+
+  // Rebind stream when the video element mounts after permission/state changes.
+  useEffect(() => {
+    if (!hasMediaAccess || !streamRef.current || !videoRef.current) return;
+
+    const video = videoRef.current;
+    if (video.srcObject !== streamRef.current) {
+      video.srcObject = streamRef.current;
+    }
+
+    video.play().catch(() => {
+      // Retry once for browsers that delay autoplay after media permission prompts.
+      window.setTimeout(() => {
+        video.play().catch(console.error);
+      }, 150);
+    });
+  }, [hasMediaAccess]);
 
   // Timer effect
   useEffect(() => {
@@ -205,14 +283,12 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   };
 
   const handleSubmitTest = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    
-    const answeredCount = Object.keys(answers).filter(key => {
-      const answer = answers[key];
-      return answer !== null && answer !== undefined && answer !== '';
-    }).length;
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    stopMediaMonitoring();
+
+    const answeredCount = mockQuestions.filter(isQuestionAnswered).length;
     
     const timeSpent = (topic.duration * 60) - timeLeft;
     
@@ -221,6 +297,19 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       totalQuestions: mockQuestions.length,
       timeSpent
     });
+  };
+
+  const handleTabSwitchDialogClose = () => {
+    handleSubmitTest();
+  };
+
+  const handleContinueTest = () => {
+    setShowTabWarningDialog(false);
+  };
+
+  const handleCancelTest = () => {
+    setShowTabWarningDialog(false);
+    handleSubmitTest();
   };
 
   // Question navigation with pagination
@@ -239,30 +328,35 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
     setQuestionPage(newPage);
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestion < mockQuestions.length - 1) {
-      const newQuestion = currentQuestion + 1;
-      setCurrentQuestion(newQuestion);
-      const newPage = Math.floor(newQuestion / 10);
-      if (newPage !== questionPage) {
-        setQuestionPage(newPage);
-      }
-    }
+  const isCodingAnswered = (answer: any) => {
+    const normalizedAnswer = answer?.toString().trim() || '';
+    if (!normalizedAnswer) return false;
+    return !DEFAULT_CODING_TEMPLATES.includes(normalizedAnswer);
   };
 
-  const handlePreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      const newQuestion = currentQuestion - 1;
-      setCurrentQuestion(newQuestion);
-      const newPage = Math.floor(newQuestion / 10);
-      if (newPage !== questionPage) {
-        setQuestionPage(newPage);
-      }
+  const isQuestionAnswered = (question: Question) => {
+    const answer = answers[question.id];
+
+    if (question.type === 'mcq') {
+      const hasOptionSelected = Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+      const hasExplanation = Boolean(explanations[question.id]?.trim());
+      return hasOptionSelected && hasExplanation;
     }
+
+    if (question.type === 'coding') {
+      return isCodingAnswered(answer);
+    }
+
+    return Boolean(answer?.toString().trim());
   };
 
   const getQuestionStatus = (index: number, questionId: string) => {
-    if (answers[questionId]) return 'answered';
+    const question = mockQuestions.find((q) => q.id === questionId);
+
+    if (question && isQuestionAnswered(question)) {
+      return 'answered';
+    }
+
     if (flagged.has(questionId)) return 'flagged';
     if (index === currentQuestion) return 'current';
     return 'unanswered';
@@ -295,6 +389,34 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       handleAnswerChange(currentQ.id, getDefaultCodeForLanguage(selectedLanguage));
     }
   }, [selectedLanguage, currentQ.id, currentQ.type]);
+
+  // Prevent copy/paste/cut for MCQ explanation, descriptive, and coding questions.
+  useEffect(() => {
+    if (currentQ.type !== 'mcq' && currentQ.type !== 'coding' && currentQ.type !== 'descriptive') return;
+
+    const blockClipboard = (event: ClipboardEvent) => {
+      event.preventDefault();
+    };
+
+    const blockShortcutKeys = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && (key === 'c' || key === 'v' || key === 'x')) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('copy', blockClipboard);
+    document.addEventListener('paste', blockClipboard);
+    document.addEventListener('cut', blockClipboard);
+    document.addEventListener('keydown', blockShortcutKeys);
+
+    return () => {
+      document.removeEventListener('copy', blockClipboard);
+      document.removeEventListener('paste', blockClipboard);
+      document.removeEventListener('cut', blockClipboard);
+      document.removeEventListener('keydown', blockShortcutKeys);
+    };
+  }, [currentQ.type]);
 
   const renderQuestion = () => {
     switch (currentQ.type) {
@@ -339,20 +461,18 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
               </RadioGroup>
             )}
             
-            {currentQ.requiresExplanation && (
-              <div className="space-y-2">
-                <Label htmlFor="explanation" className="text-sm font-medium">
-                  Explain your answer {currentQ.requiresExplanation && '(required)'}
-                </Label>
-                <Textarea
-                  id="explanation"
-                  placeholder="Explain why you chose this answer..."
-                  value={explanations[currentQ.id] || ''}
-                  onChange={(e) => handleExplanationChange(currentQ.id, e.target.value)}
-                  className="min-h-32"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="explanation" className="text-sm font-medium">
+                Explain your answer (required)
+              </Label>
+              <Textarea
+                id="explanation"
+                placeholder="Explain why you chose this answer..."
+                value={explanations[currentQ.id] || ''}
+                onChange={(e) => handleExplanationChange(currentQ.id, e.target.value)}
+                className="min-h-32"
+              />
+            </div>
           </div>
         );
 
@@ -396,14 +516,27 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   };
 
   const progress = ((currentQuestion + 1) / mockQuestions.length) * 100;
-  const answeredCount = Object.keys(answers).filter(key => {
-    const answer = answers[key];
-    return answer !== null && answer !== undefined && answer !== '';
-  }).length;
+  const answeredCount = mockQuestions.filter(isQuestionAnswered).length;
   const flaggedCount = flagged.size;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex justify-center">
+        {tabSwitchAlert && (
+          <Alert className="m-4 w-[60%] border-orange-200 bg-orange-50">
+            <AlertDescription className="flex items-center justify-between">
+              <AlertTriangle className="h-4 w-4" />
+              <div className="flex items-center justify-between flex-1 ml-4">
+                <span>Tab switching detected! This action has been logged. ({tabSwitchCount} violations)</span>
+                <Button variant="ghost" size="sm" onClick={() => setTabSwitchAlert(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+
       {/* Header */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center justify-between">
@@ -642,13 +775,42 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-4">
                 {renderQuestion()}
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showTabWarningDialog} onOpenChange={() => {}}>
+        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tab Switch Detected</AlertDialogTitle>
+            <AlertDialogDescription>
+              You switched tabs during the test. Continuing may lead to test termination on repeated violations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleContinueTest}>Continue Test</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelTest}>Cancel Test</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showTabSwitchDialog} onOpenChange={() => {}}>
+        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Test Ended</AlertDialogTitle>
+            <AlertDialogDescription>
+              The test has been ended due to excessive tab switching. Your responses up to this point have been recorded.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleTabSwitchDialogClose}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

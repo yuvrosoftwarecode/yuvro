@@ -51,7 +51,7 @@ const SubjectDetail: React.FC = () => {
   const [selectedTopicTitle, setSelectedTopicTitle] = useState('');
 
   const [videoLayout, setVideoLayout] = useState<LayoutMode>('video');
-  const [sidebarCollapseSignal, setSidebarCollapseSignal] = useState(0);
+  const [sidebarCollapseSignal, setSidebarCollapseSignal] = useState<number | null>(null);
   const [chatSessionId, setChatSessionId] = useState(`subject-chat-${subjectId}-${crypto.randomUUID()}`);
 
   const [topicQuestions, setTopicQuestions] = useState<any>(null);
@@ -173,7 +173,7 @@ const SubjectDetail: React.FC = () => {
 
   const handleLayoutSelect = (layout: LayoutMode) => {
     setVideoLayout(layout);
-    setSidebarCollapseSignal((prev) => prev + 1);
+    setSidebarCollapseSignal((prev) => (prev ?? 0) + 1);
   };
 
   const renderQuizContent = () => {
