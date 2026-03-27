@@ -22,6 +22,8 @@ interface CodeEditorProps {
   showResetButton?: boolean;
   showFullscreenToggle?: boolean;
   maxHeight?: string;
+  highlightLine?: number;
+  highlightText?: string;
 }
 
 const SUPPORTED_LANGUAGES = [
@@ -117,14 +119,24 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   showCopyButton = true,
   showResetButton = true,
   showFullscreenToggle = true,
-  maxHeight = '400px'
+  maxHeight = '400px',
+  highlightLine,
+  highlightText
 }) => {
   const [code, setCode] = useState(initialCode || DEFAULT_CODE_TEMPLATES[language as keyof typeof DEFAULT_CODE_TEMPLATES] || '');
   const [selectedLanguage, setSelectedLanguage] = useState(language);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [lineNumbers, setLineNumbers] = useState<number[]>([]);
+  const [scrollTop, setScrollTop] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+
+  // Update internal code when initialCode prop changes
+  useEffect(() => {
+    if (initialCode !== undefined) {
+      setCode(initialCode || DEFAULT_CODE_TEMPLATES[selectedLanguage as keyof typeof DEFAULT_CODE_TEMPLATES] || '');
+    }
+  }, [initialCode, selectedLanguage]);
 
   // Update line numbers when code changes
   useEffect(() => {
@@ -132,10 +144,45 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     setLineNumbers(lines.map((_, index) => index + 1));
   }, [code]);
 
+  // Handle programmatic highlighting
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    
+    if (highlightLine) {
+      const lines = code.split('\n');
+      let charPos = 0;
+      for (let i = 0; i < highlightLine - 1; i++) {
+        charPos += lines[i].length + 1; // +1 for \n
+      }
+      
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(charPos, charPos);
+      
+      // Auto-scroll to that line
+      const lineHeight = 20; // from leading-5/text-sm in CSS
+      textareaRef.current.scrollTop = (highlightLine - 1) * lineHeight - 40; // offset for visibility
+    }
+
+    if (highlightText) {
+      const index = code.indexOf(highlightText);
+      if (index !== -1) {
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(index, index + highlightText.length);
+        
+        // Find line number of text to scroll
+        const textBefore = code.substring(0, index);
+        const lineNum = textBefore.split('\n').length;
+        const lineHeight = 20;
+        textareaRef.current.scrollTop = (lineNum - 1) * lineHeight - 40;
+      }
+    }
+  }, [highlightLine, highlightText, code]);
+
   // Sync scroll between textarea and line numbers
   const handleScroll = () => {
     if (textareaRef.current && lineNumbersRef.current) {
       lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
+      setScrollTop(textareaRef.current.scrollTop);
     }
   };
 
@@ -297,7 +344,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               {lineNumbers.map((lineNum) => (
                 <div 
                   key={lineNum} 
-                  className={`h-5 leading-5 text-right ${onLineClick ? 'cursor-pointer hover:text-primary transition-colors' : ''}`}
+                  className={cn(
+                    "h-5 leading-5 text-right pr-3 transition-colors",
+                    onLineClick ? 'cursor-pointer hover:text-primary transition-colors' : '',
+                    highlightLine === lineNum && "bg-yellow-200/50 text-blue-700 font-bold border-r-2 border-blue-500"
+                  )}
                   onClick={() => onLineClick?.(lineNum)}
                 >
                   {lineNum}
@@ -306,7 +357,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             </div>
 
             {/* Code Input */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative overflow-hidden">
+              {/* Visual Highlight Backdrop */}
+              {highlightLine && (
+                <div 
+                  className="absolute left-0 right-0 bg-primary/10 border-y border-primary/20 pointer-events-none z-0"
+                  style={{ 
+                    top: `calc(12px + ${(highlightLine - 1) * 20}px - ${scrollTop}px)`, 
+                    height: '20px'
+                  }}
+                />
+              )}
               <textarea
                 ref={textareaRef}
                 value={code}

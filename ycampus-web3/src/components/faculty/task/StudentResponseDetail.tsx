@@ -28,6 +28,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
 }) => {
   const [newComment, setNewComment] = useState('');
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+  const [activeHighlight, setActiveHighlight] = useState<{ line?: number; text?: string } | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const annotationInputRef = useRef<HTMLTextAreaElement>(null);
   const student = response.student_details || {};
@@ -173,6 +174,8 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                     language="markdown"
                     onLineClick={handleLineClick}
                     onTextSelect={handleTextSelect}
+                    highlightLine={activeHighlight?.line}
+                    highlightText={activeHighlight?.text}
                     className="border-slate-200 shadow-sm"
                     showLanguageSelector={false}
                     showCopyButton={true}
@@ -223,32 +226,77 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
               <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
-                  {response.comments.length === 0 ? (
+                   {response.comments.length === 0 ? (
                     <div className="h-80 flex flex-col items-center justify-center text-center opacity-40">
                       <Send className="h-10 w-10 mb-2" />
                       <p className="text-sm font-bold uppercase tracking-widest text-slate-500">No messages yet</p>
                     </div>
                   ) : (
-                    response.comments.map((comment: TaskComment) => (
-                      <div
-                        key={comment.id}
-                        className={`p-3 rounded-2xl max-w-[90%] border shadow-sm ${
-                          comment.faculty
-                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-auto'
-                            : 'bg-white border-slate-100 ml-auto mr-0'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center gap-4 mb-2">
-                          <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500">
-                            {comment.faculty ? 'Faculty' : 'Student'}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            {format(new Date(comment.created_at), 'HH:mm')}
-                          </span>
+                    response.comments.map((comment: TaskComment) => {
+                      const annotationMatch = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
+                      return (
+                        <div
+                          key={comment.id}
+                          className={`p-3 rounded-2xl max-w-[90%] border shadow-sm transition-all ${
+                            comment.faculty
+                              ? 'bg-blue-50/50 border-blue-100 ml-0 mr-auto hover:bg-blue-100/20'
+                              : 'bg-white border-slate-100 ml-auto mr-0 hover:bg-slate-50'
+                          } ${annotationMatch ? 'cursor-pointer border-blue-300/30' : ''}`}
+                          onClick={() => {
+                            if (annotationMatch) {
+                               const [, _filename, lineStr] = annotationMatch;
+                               const quoteMatch = comment.comment.match(/"([^"]*)"/);
+                               setActiveHighlight({ line: parseInt(lineStr), text: quoteMatch ? quoteMatch[1] : undefined });
+                            }
+                          }}
+                        >
+                          <div className="flex justify-between items-center gap-4 mb-2">
+                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500">
+                              {comment.faculty ? 'Faculty' : 'Student'}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {format(new Date(comment.created_at), 'HH:mm')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                            {(() => {
+                              const regex = /^Answer_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
+                              const parts = [];
+                              let lastIndex = 0;
+                              let match;
+
+                              while ((match = regex.exec(comment.comment)) !== null) {
+                                if (match.index > lastIndex) {
+                                  parts.push(comment.comment.substring(lastIndex, match.index));
+                                }
+
+                                const [, lineStr, quotedText] = match;
+                                parts.push(
+                                  <button
+                                    key={match.index}
+                                    onClick={(e) => {
+                                      e.stopPropagation(); // Prevent double trigger with bubble click
+                                      setActiveHighlight({ line: parseInt(lineStr), text: quotedText });
+                                    }}
+                                    className="text-primary hover:underline font-black bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 inline-flex items-center gap-1 group transition-all mr-1"
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    Answer:{lineStr}
+                                  </button>
+                                );
+                                lastIndex = regex.lastIndex;
+                              }
+
+                              if (lastIndex < comment.comment.length) {
+                                parts.push(comment.comment.substring(lastIndex));
+                              }
+
+                              return parts.length > 0 ? parts : comment.comment;
+                            })()}
+                          </p>
                         </div>
-                        <p className="text-sm text-slate-700 leading-relaxed font-medium">{comment.comment}</p>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </ScrollArea>
