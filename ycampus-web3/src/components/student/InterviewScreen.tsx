@@ -15,6 +15,7 @@ interface InterviewScreenProps {
   interviewer: string;
   mediaStream: MediaStream;
   resume?: File;
+  aiConfig?: any;
   onExit: () => void;
   onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
@@ -26,6 +27,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   interviewer,
   mediaStream,
   resume,
+  aiConfig,
   onExit,
   onInterviewComplete,
 }) => {
@@ -36,6 +38,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   const [isAITyping, setIsAITyping] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isInterviewCompleted, setIsInterviewCompleted] = useState(false);
   const [chatSessionId, setChatSessionId] = useState<string | null>(null);
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
@@ -160,6 +163,10 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   }, [role.id, difficulty, duration]);
 
   const handleEndInterview = async () => {
+    // Avoid repeated end flow
+    if (isInterviewCompleted) return;
+    setIsInterviewCompleted(true);
+
     try {
       setLoadingExit(true);
       if (recognitionRef.current) recognitionRef.current.stop();
@@ -243,6 +250,7 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   };
 
   const handleToggleRecording = async () => {
+    if (isInterviewCompleted) return;
     if (!chatSessionId) { alert('Interview not initialized yet.'); return; }
 
     if (!isRecording) {
@@ -287,6 +295,17 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         setConversation(prev => [...prev, aiMessage]);
         speakText(aiText);
         checkCodingQuestion(aiText);
+
+        const isPredefinedMode = aiConfig?.mode === 'predefined' || (aiConfig?.predefined_questions_count || 0) > 0;
+        const predefinedCount = aiConfig?.predefined_questions_count || 0;
+        const currentUserCount = conversation.filter(msg => msg.type === 'user').length + 1;
+
+        // If the AI clearly marks completion, terminate interview.
+        const isCompletionText = aiText.toLowerCase().includes('the interview is now complete') || aiText.toLowerCase().includes('thank you for your time');
+
+        if (isPredefinedMode && (isCompletionText || (predefinedCount > 0 && currentUserCount >= predefinedCount))) {
+          setTimeout(() => handleEndInterview(), 1200);
+        }
       } catch (err) {
         console.error('AI Error', err);
       } finally {
@@ -423,12 +442,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
               <Button
                 size="lg"
                 onClick={handleToggleRecording}
-                disabled={isAITyping}
+                disabled={isAITyping || isInterviewCompleted}
                 className={`rounded-full px-8 h-12 font-bold shadow-lg transition-all ${
                   isRecording
                     ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200'
                     : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200'
-                }`}
+                } ${isInterviewCompleted ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 {isRecording ? <><MicOff className="w-4 h-4 mr-2" /> Stop Recording</> : <><Mic className="w-4 h-4 mr-2" /> Start Answer</>}
               </Button>

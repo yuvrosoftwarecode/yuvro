@@ -7,6 +7,7 @@ import InterviewRoleCard from '@/components/common/InterviewRoleCard';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
 import { Role } from '@/types/mockInterview';
 import { getRoleIconConfig } from '@/utils/mockInterviewUtils';
+import { useNavigate } from "react-router-dom";
 
 interface MockInterviewLibraryProps {
   onStartPractice: (role: Role) => void;
@@ -17,6 +18,8 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [mockRoles, setMockRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+    const navigate = useNavigate(); // ✅ INSIDE component
+
 
   useEffect(() => {
     const fetchMockInterviews = async () => {
@@ -79,35 +82,35 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
     <div className="space-y-6">
       {/* Header — matches Task page exactly */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-1 tracking-tight">Mock Interviews</h1>
-        <p className="text-muted-foreground font-medium">Choose a domain and start your AI-powered mock interview.</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Mock Interviews</h1>
+        <p className="text-muted-foreground">Choose a domain and start your AI-powered mock interview.</p>
       </div>
 
       {/* Filters — matches Task page filter card */}
-      <Card className="border-slate-200 shadow-sm">
+      <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-6">
-            <div className="flex-1 space-y-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Search
               </label>
-              <div className="relative">
+              {/* <div className="relative">   */}
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
                   placeholder="Search by topic or keyword..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white hover:bg-slate-50 transition-colors h-11"
+                  className="bg-white hover:bg-slate-50 transition-colors"
                 />
-              </div>
+              {/* </div> */}
             </div>
 
-            <div className="flex-1 space-y-2">
-              <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+            <div className="flex-1">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Category
               </label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -132,23 +135,39 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartPrac
       )}
 
       {/* Cards Grid — 3 columns */}
-      {!loading && filteredRoles.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredRoles.map(role => (
-            <InterviewRoleCard
-              key={role.id}
-              title={role.title}
-              description={role.description}
-              icon={role.icon}
-              gradient={role.buttonGradient || 'from-slate-500 to-slate-700'}
-              duration={role.max_duration}
-              questionCount={(role as any).questionCount || 10}
-              category={role.category}
-              onStart={() => onStartPractice(role)}
-            />
-          ))}
-        </div>
-      )}
+{!loading && filteredRoles.length > 0 && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    
+    {/* Dynamic Cards */}
+    {filteredRoles.map(role => (
+      <InterviewRoleCard
+        key={role.id}
+        title={role.title}
+        description={role.description}
+        icon={role.icon}
+        gradient={role.buttonGradient || 'from-slate-500 to-slate-700'}
+        duration={role.max_duration}
+        questionCount={(role as any).questionCount || 10}
+        category={role.category}
+        onStart={() => onStartPractice(role)}
+      />
+    ))}
+
+    {/* Machine Learning Dummy Card */}
+    <InterviewRoleCard
+  title="Machine Learning"
+  description="Covers supervised and unsupervised learning, ML algorithms, model evaluation, feature engineering, and real-world AI problem solving."
+  icon={getRoleIconConfig("Machine Learning").icon}
+  gradient="from-indigo-500 to-purple-600"
+  duration={45}
+  questionCount={14}
+  category="Product Based"
+  buttonType="report"
+  onStart={() => navigate("/student/mock-interview/report/ml")}
+/>
+
+  </div>
+)}
 
       {/* Empty state */}
       {!loading && filteredRoles.length === 0 && (

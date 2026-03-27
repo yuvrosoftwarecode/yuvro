@@ -502,25 +502,57 @@ class ChatSessionViewSet(AIChatMixin, viewsets.ModelViewSet):
                     user=session_user,
                 )
             else:    
-                ai_service = AIServiceFactory.create_service(
-                    ai_agent.provider, ai_agent.model_name
+                import time
+                start_time = time.time()
+                context = chat_session.context or {}
+                is_predefined = (
+                    str(chat_session.page) == "mock_interview" and 
+                    (context.get("ai_generation_mode") == "predefined" or (isinstance(context.get("ai_context"), dict) and context.get("ai_context", {}).get("predefined_questions")))
                 )
                 
-                # Pre-fetch for service call
-                def get_full_name(u):
-                    if hasattr(u, 'profile') and u.profile.full_name:
-                        return u.profile.full_name
-                    return u.first_name or u.username
-                
-                full_user_name = await sync_to_async(get_full_name)(session_user)
+                if is_predefined:
+                    ai_context_data = context.get("ai_context", {})
+                    predefined_questions = []
+                    if isinstance(ai_context_data, dict):
+                        predefined_questions = ai_context_data.get("predefined_questions", [])
+                    
+                    if predefined_questions:
+                        ai_msg_count = await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").count())()
+                        if ai_msg_count < len(predefined_questions):
+                            full_response_text = predefined_questions[ai_msg_count]
+                        else:
+                            full_response_text = "The interview is now complete. Thank you for your time!"
+                        
+                        logger.info(f"Zero-latency mode (sync): Serving predefined question index {ai_msg_count}")
+                        response_data = {
+                            "response": full_response_text,
+                            "tokens_used": 0,
+                            "response_time_ms": int((time.time() - start_time) * 1000),
+                            "metadata": {"mode": "predefined_zero_latency"}
+                        }
+                    else:
+                        is_predefined = False
 
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=full_user_name,
-                )
+                if not is_predefined:
+                    ai_service = AIServiceFactory.create_service(
+                        ai_agent.provider, ai_agent.model_name
+                    )
+                    
+                    # Pre-fetch for service call
+                    def get_full_name(u):
+                        if hasattr(u, 'profile') and u.profile.full_name:
+                            return u.profile.full_name
+                        return u.first_name or u.username
+                    
+                    full_user_name = await sync_to_async(get_full_name)(session_user)
+
+                    response_data = await ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=full_user_name,
+                    )
 
                 # Create assistant message
                 assistant_message = await sync_to_async(ChatMessage.objects.create)(
