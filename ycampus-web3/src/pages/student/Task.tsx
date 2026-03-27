@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +57,7 @@ const StudentTask: React.FC = () => {
   // File Viewer State
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
   const [fileViewerUrl, setFileViewerUrl] = useState<string | null>(null);
+  const [initialHighlight, setInitialHighlight] = useState<{ line?: number; text?: string } | null>(null);
 
   useEffect(() => {
     loadInitialData();
@@ -302,6 +303,17 @@ const StudentTask: React.FC = () => {
   const openFileViewer = (url: string) => {
     setFileViewerUrl(url);
     setIsFileViewerOpen(true);
+    setInitialHighlight(null);
+  };
+
+  const handleAnnotationLinkClick = (_filename: string, lineNum: number, quotedText?: string) => {
+    if (!currentTask) return;
+    const sub = submissions[currentTask.id];
+    if (!sub?.file) return;
+
+    setFileViewerUrl(getAccessibleUrl(sub.file));
+    setIsFileViewerOpen(true);
+    setInitialHighlight({ line: lineNum, text: quotedText });
   };
 
   if (showTaskView && currentTask) {
@@ -620,12 +632,24 @@ const StudentTask: React.FC = () => {
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                        <div key={comment.id} className={`p-4 shadow-sm border ${
-                          comment.faculty 
-                            ? 'bg-blue-50/40 border-blue-100 ml-0 mr-4 rounded-2xl rounded-tl-sm' 
-                            : 'bg-white border-slate-200 ml-4 mr-0 rounded-2xl rounded-tr-sm'
-                        }`}>
-                          <div className="flex items-center justify-between mb-2">
+                          <div 
+                            className={`p-4 shadow-sm border transition-all cursor-default ${
+                              comment.faculty 
+                                ? 'bg-blue-50/40 border-blue-100 ml-0 mr-4 rounded-2xl rounded-tl-sm hover:bg-blue-50/60' 
+                                : 'bg-white border-slate-200 ml-4 mr-0 rounded-2xl rounded-tr-sm hover:bg-slate-50/50'
+                            } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer border-blue-300' : ''}`}
+                            onClick={() => {
+                              // Robust regex to match various formats: name_8, name_L8, name:8
+                              const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
+                              if (match) {
+                                const [, filename, lineStr] = match;
+                                // Also try to get quoted text if it exists later in the string
+                                const quoteMatch = comment.comment.match(/"([^"]*)"/);
+                                handleAnnotationLinkClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center justify-between mb-2">
                             <span className={`font-black text-[10px] uppercase tracking-widest ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
@@ -633,7 +657,39 @@ const StudentTask: React.FC = () => {
                               {format(new Date(comment.created_at), 'hh:mm a')}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{comment.comment}</p>
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                             {(() => {
+                                const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
+                                const parts = [];
+                                let lastIndex = 0;
+                                let match;
+
+                                while ((match = regex.exec(comment.comment)) !== null) {
+                                   if (match.index > lastIndex) {
+                                      parts.push(comment.comment.substring(lastIndex, match.index));
+                                   }
+
+                                   const [, filename, lineStr, quotedText] = match;
+                                   parts.push(
+                                      <button
+                                         key={match.index}
+                                         onClick={() => handleAnnotationLinkClick(filename, parseInt(lineStr), quotedText)}
+                                         className="text-primary hover:underline font-black bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-1 group transition-all mr-1"
+                                      >
+                                         <FileText className="h-3 w-3" />
+                                         {filename}:{lineStr}
+                                      </button>
+                                   );
+                                   lastIndex = regex.lastIndex;
+                                }
+
+                                if (lastIndex < comment.comment.length) {
+                                   parts.push(comment.comment.substring(lastIndex));
+                                }
+
+                                return parts.length > 0 ? parts : comment.comment;
+                             })()}
+                          </p>
                         </div>
                       ))}
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
@@ -676,6 +732,7 @@ const StudentTask: React.FC = () => {
           fileUrl={fileViewerUrl}
           comments={submissions[currentTask.id]?.comments || []}
           onAddComment={handleAddComment}
+          initialHighlight={initialHighlight}
         />
       </div>
     );
