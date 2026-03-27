@@ -29,16 +29,17 @@ const StudentTask: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
-  // Debug authentication
-  console.log('StudentTask component loaded, user:', user);
-  
   // State management
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [submissions, setSubmissions] = useState<Record<string, TaskSubmission>>({});
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  
   const [taskContent, setTaskContent] = useState<string>('');
+  const [answersData, setAnswersData] = useState<Record<number, string>>({});
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState<number | null>(null);
+  
   const [newComment, setNewComment] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,14 +120,27 @@ const StudentTask: React.FC = () => {
     const matchesStatus = selectedStatus === 'all' || getTaskStatus(t.id) === selectedStatus;
     return matchesSubject && matchesStatus;
   });
+
   // Handlers
   const handleTaskClick = (task: Task) => {
     setCurrentTask(task);
     const sub = submissions[task.id];
     setTaskContent(sub?.answer || '');
+    
+    // Parse answers_data if available
+    if (sub?.answers_data) {
+      try {
+        setAnswersData(typeof sub.answers_data === 'string' ? JSON.parse(sub.answers_data) : sub.answers_data);
+      } catch (e) {
+        setAnswersData({});
+      }
+    } else {
+       setAnswersData({});
+    }
+
+    setActiveQuestionIndex(null);
     setSelectedFile(null);
     setShowTaskView(true);
-    // Update URL to persist state
     setSearchParams({ view: 'task', taskId: task.id });
   };
 
@@ -134,6 +148,8 @@ const StudentTask: React.FC = () => {
     setShowTaskView(false);
     setCurrentTask(null);
     setTaskContent('');
+    setAnswersData({});
+    setActiveQuestionIndex(null);
     setNewComment('');
     setSelectedFile(null);
     setSearchParams({});
@@ -185,7 +201,24 @@ const StudentTask: React.FC = () => {
       setIsSubmitting(true);
       const sub = submissions[currentTask.id];
       const formData = new FormData();
-      formData.append('answer', taskContent);
+      
+      const hasMultipleQuestions = currentTask.question_details && currentTask.question_details.length > 1;
+
+      if (hasMultipleQuestions) {
+         formData.append('answers_data', JSON.stringify(answersData));
+         
+         // Fallback robust aggregation for `answer` field
+         let aggregatedAnswer = '';
+         Object.entries(answersData).forEach(([idxStr, text]) => {
+            const numIdx = parseInt(idxStr);
+            const questionTitle = currentTask.question_details?.[numIdx]?.question_text || `Question ${numIdx + 1}`;
+            aggregatedAnswer += `\n--- ${questionTitle} ---\n${text}\n`;
+         });
+         formData.append('answer', aggregatedAnswer.trim() || 'No text submitted.');
+      } else {
+         formData.append('answer', taskContent);
+      }
+
       formData.append('is_submitted', 'true');
       formData.append('task', currentTask.id);
 
@@ -239,6 +272,8 @@ const StudentTask: React.FC = () => {
   };
 
   if (showTaskView && currentTask) {
+    const isMultiQuestion = currentTask.question_details && currentTask.question_details.length > 1;
+
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto p-6">
@@ -253,32 +288,9 @@ const StudentTask: React.FC = () => {
           <Card className="mb-6 border-slate-200 shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl">Task Details</CardTitle>
-              {currentTask.description ? (
-                <CardDescription className="text-base text-slate-600 mt-2 font-medium leading-relaxed">
-                  {currentTask.description}
-                </CardDescription>
-              ) : currentTask.question_details && currentTask.question_details.length > 0 ? (
-                <div className="mt-4 space-y-4">
-                  {currentTask.question_details.map((q: any, idx: number) => (
-                    <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      <div className="flex justify-between items-start gap-4 mb-2">
-                        <h4 className="font-bold text-slate-800 text-sm">Question {idx + 1}</h4>
-                        <div className="flex gap-2">
-                          {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold">{q.marks} Marks</Badge>}
-                          {q.difficulty_level && <Badge className="text-[10px] bg-slate-200 text-slate-700 hover:bg-slate-300 shadow-none font-bold uppercase tracking-widest">{q.difficulty_level}</Badge>}
-                        </div>
-                      </div>
-                      <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
-                        {q.question_text || q.title || 'Untitled Question'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <CardDescription className="text-base text-slate-500 mt-2 italic">
-                  No specific instructions provided.
-                </CardDescription>
-              )}
+              <CardDescription className="text-base text-slate-600 mt-2 font-medium leading-relaxed">
+                {currentTask.description || currentTask.unit_name || "No overview instructions provided."}
+              </CardDescription>
             </CardHeader>
           </Card>
 
@@ -286,7 +298,7 @@ const StudentTask: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.doc,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+            accept=".pdf,.doc,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,image/*,.py,.js,.java,.cpp,.c"
             onChange={handleFileUpload}
             style={{ display: 'none' }}
           />
@@ -298,7 +310,7 @@ const StudentTask: React.FC = () => {
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    <span>Submitted File: <a href={submissions[currentTask.id].file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View Attachment</a></span>
+                    <span>Submitted File: <a href={submissions[currentTask.id].file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">View Attachment</a></span>
                   </div>
                 </div>
               </CardContent>
@@ -310,122 +322,267 @@ const StudentTask: React.FC = () => {
                 <div className="flex items-center justify-between text-sm text-primary font-medium">
                   <div className="flex items-center gap-2">
                     <Upload className="h-4 w-4" />
-                    <span>Selected for upload: {selectedFile.name}</span>
+                    <span>Selected for upload: <span className="font-bold">{selectedFile.name}</span></span>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)} className="h-8 text-xs">Remove</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedFile(null)} className="h-8 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-red-500 hover:bg-red-50">Remove</Button>
                 </div>
               </CardContent>
             </Card>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Side - Content Area */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Your Work
-                    {getTaskStatus(currentTask.id) !== 'completed' && (
-                      <Button onClick={handleUploadClick} variant="outline" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        {selectedFile ? 'Change File' : 'Upload File'}
-                      </Button>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[520px] w-full rounded-md border overflow-hidden">
-                    {currentTask?.task_type === 'coding' ? (
-                      <CodeEditor 
-                        initialCode={taskContent}
-                        onCodeChange={setTaskContent}
-                        readOnly={getTaskStatus(currentTask.id) === 'completed'}
-                        className="h-full border-0"
-                      />
-                    ) : (
-                      <Textarea
-                        value={taskContent}
-                        onChange={(e) => setTaskContent(e.target.value)}
-                        placeholder={getTaskStatus(currentTask.id) === 'completed' 
-                          ? 'No content available for this task.' 
-                          : 'Type your solution here...'
-                        }
-                        className="h-full resize-none border-0 focus-visible:ring-0 text-sm p-4"
-                        disabled={getTaskStatus(currentTask.id) === 'completed'}
-                      />
-                    )}
-                  </div>
-                  
-                  {getTaskStatus(currentTask.id) !== 'completed' && (
-                    <div className="flex justify-end mt-4">
-                      <Button onClick={handleSubmitTask} disabled={isSubmitting}>
-                        {isSubmitting ? (
-                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        ) : (
-                          <Send className="h-4 w-4 mr-2" />
+             {/* Left Side - Content Area */}
+             <div className="lg:col-span-2">
+               <Card>
+                 <CardHeader>
+                   <CardTitle className="flex items-center justify-between">
+                     {isMultiQuestion 
+                       ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List') 
+                       : 'Your Work'}
+                     {getTaskStatus(currentTask.id) !== 'completed' && activeQuestionIndex === null && (
+                       <Button onClick={handleUploadClick} variant="outline" size="sm" className="font-bold border-slate-200 hover:bg-slate-50">
+                         <Upload className="h-4 w-4 mr-2" />
+                         {selectedFile ? 'Change File' : 'Upload File'}
+                       </Button>
+                     )}
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    
+                    {isMultiQuestion && activeQuestionIndex === null ? (
+                      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="grid grid-cols-1 gap-4">
+                          {currentTask.question_details?.map((q: any, idx: number) => {
+                            const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
+                            return (
+                              <div 
+                                key={idx} 
+                                onClick={() => setActiveQuestionIndex(idx)}
+                                className={`p-5 rounded-xl border transition-all cursor-pointer ${
+                                  isAnswered ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
+                                }`}
+                              >
+                                <div className="flex justify-between items-start gap-4 mb-2">
+                                  <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    Question {idx + 1}
+                                    {isAnswered && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                                  </h4>
+                                  <div className="flex gap-2">
+                                    {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold shadow-none">{q.marks} Marks</Badge>}
+                                    {q.difficulty_level && (
+                                      <Badge className={`text-[10px] shadow-none font-bold uppercase tracking-widest ${
+                                        q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
+                                        q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
+                                        'bg-emerald-50 text-emerald-600'
+                                      }`}>
+                                        {q.difficulty_level}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
+                                  {q.question_text || q.title || 'Untitled Question'}
+                                </p>
+                                {isAnswered && (
+                                  <p className="mt-3 text-xs font-semibold text-emerald-600 tracking-wide uppercase">Answer saved locally</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {getTaskStatus(currentTask.id) !== 'completed' && (
+                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
+                            </p>
+                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
+                              {isSubmitting ? (
+                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              ) : (
+                                <Send className="h-4 w-4 mr-2" />
+                              )}
+                              Submit Entire Task
+                            </Button>
+                          </div>
                         )}
-                        Submit Task
-                      </Button>
-                    </div>
-                  )}
-                  {getTaskStatus(currentTask.id) === 'completed' && (
-                    <div className="flex justify-end mt-4">
-                      <p className="text-sm text-muted-foreground font-medium flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                        Task submitted
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                        {getTaskStatus(currentTask.id) === 'completed' && (
+                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
+                            </p>
+                            <p className="text-sm text-emerald-600 font-bold flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5" />
+                                Task submitted
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        {isMultiQuestion && activeQuestionIndex !== null && (
+                          <div className="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-xl relative shadow-sm">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl"></div>
+                            <div className="flex justify-between items-start gap-4 mb-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setActiveQuestionIndex(null)}
+                                className="text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 -ml-2 h-8 px-2 font-bold transition-colors"
+                              >
+                                <ArrowLeft className="h-4 w-4 mr-1" /> Back to list
+                              </Button>
+                              <div className="flex gap-2">
+                                {currentTask.question_details?.[activeQuestionIndex]?.marks && (
+                                  <Badge variant="outline" className="text-[10px] bg-white text-slate-600 font-bold shadow-none">
+                                    {currentTask.question_details[activeQuestionIndex].marks} Marks
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-sm font-semibold text-slate-700 leading-relaxed whitespace-pre-wrap pl-1">
+                              {currentTask.question_details?.[activeQuestionIndex]?.question_text || currentTask.question_details?.[activeQuestionIndex]?.title || 'Untitled Question'}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="h-[400px] w-full rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                          {currentTask?.task_type === 'coding' ? (
+                            <CodeEditor 
+                              initialCode={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
+                              onCodeChange={(code: string) => {
+                                if (isMultiQuestion && activeQuestionIndex !== null) {
+                                  setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: code }));
+                                } else {
+                                  setTaskContent(code);
+                                }
+                              }}
+                              readOnly={getTaskStatus(currentTask.id) === 'completed'}
+                              className="h-full border-0"
+                            />
+                          ) : (
+                            <Textarea
+                              value={isMultiQuestion && activeQuestionIndex !== null ? (answersData[activeQuestionIndex] || '') : taskContent}
+                              onChange={(e) => {
+                                if (isMultiQuestion && activeQuestionIndex !== null) {
+                                  setAnswersData(prev => ({ ...prev, [activeQuestionIndex]: e.target.value }));
+                                } else {
+                                  setTaskContent(e.target.value);
+                                }
+                              }}
+                              placeholder={getTaskStatus(currentTask.id) === 'completed' 
+                                ? 'No content available for this task.' 
+                                : 'Explain your answer in detail...'
+                              }
+                              className="h-full resize-none border-0 focus-visible:ring-0 text-base font-medium p-5 bg-slate-50/30"
+                              disabled={getTaskStatus(currentTask.id) === 'completed'}
+                            />
+                          )}
+                        </div>
+                        
+                        {getTaskStatus(currentTask.id) !== 'completed' && (
+                          <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
+                            {isMultiQuestion && activeQuestionIndex !== null ? (
+                              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                <Button 
+                                  variant="outline"
+                                  onClick={() => setActiveQuestionIndex(null)}
+                                  className="font-bold border-slate-200"
+                                >
+                                  Save & Return to List
+                                </Button>
+                                <Button 
+                                  onClick={() => {
+                                    const nextIdx = activeQuestionIndex + 1;
+                                    if (nextIdx < (currentTask.question_details?.length || 0)) {
+                                      setActiveQuestionIndex(nextIdx);
+                                    } else {
+                                      setActiveQuestionIndex(null); 
+                                      toast({ title: 'Saved', description: 'All questions reached. You can now submit.' });
+                                    }
+                                  }}
+                                  className="font-bold shadow-md hover:shadow-lg px-8"
+                                >
+                                  Save & Next Question
+                                </Button>
+                              </div>
+                            ) : !isMultiQuestion && (
+                              <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md w-full sm:w-auto px-8">
+                                {isSubmitting ? (
+                                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                ) : (
+                                  <Send className="h-4 w-4 mr-2" />
+                                )}
+                                Submit Work
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {getTaskStatus(currentTask.id) === 'completed' && !isMultiQuestion && (
+                          <div className="flex justify-end mt-4">
+                            <p className="text-sm text-emerald-600 font-bold flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-lg">
+                              <CheckCircle2 className="h-5 w-5" />
+                              Task fully submitted
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                 </CardContent>
+               </Card>
+             </div>
 
             {/* Right Side - Comments */}
             <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Discussion</CardTitle>
+              <Card className="shadow-sm border-slate-200">
+                <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    Discussion
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                        <div key={comment.id} className={`p-3 rounded-xl border ${
+                        <div key={comment.id} className={`p-4 shadow-sm border ${
                           comment.faculty 
-                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4 rounded-tl-sm' 
-                            : 'bg-slate-50 border-slate-100 ml-4 mr-0 rounded-tr-sm'
+                            ? 'bg-blue-50/40 border-blue-100 ml-0 mr-4 rounded-2xl rounded-tl-sm' 
+                            : 'bg-white border-slate-200 ml-4 mr-0 rounded-2xl rounded-tr-sm'
                         }`}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className={`font-bold text-[11px] uppercase tracking-wider ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`font-black text-[10px] uppercase tracking-widest ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">
-                              {format(new Date(comment.created_at), 'HH:mm')}
+                            <span className="text-[10px] text-slate-400 font-bold">
+                              {format(new Date(comment.created_at), 'hh:mm a')}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium">{comment.comment}</p>
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{comment.comment}</p>
                         </div>
                       ))}
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
-                        <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
-                          <Send className="h-10 w-10 mb-2" />
-                          <p className="text-sm font-bold uppercase tracking-widest">No messages yet</p>
+                        <div className="h-full flex flex-col items-center justify-center text-center py-24 opacity-30">
+                          <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                             <Send className="h-8 w-8 text-slate-400" />
+                          </div>
+                          <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">No messages yet</p>
                         </div>
                       )}
                     </div>
                   </ScrollArea>
                   
-                  <Separator className="my-4" />
+                  <Separator className="my-4 bg-slate-100" />
                   
                   <div className="space-y-3">
                     <Textarea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add a comment or ask a question..."
-                      className="min-h-[80px]"
+                      className="min-h-[90px] bg-slate-50/50 focus:bg-white transition-colors border-slate-200 rounded-xl resize-none font-medium text-sm"
                     />
                     <div className="flex justify-end">
-                      <Button onClick={handleAddComment} disabled={!newComment.trim()}>
+                      <Button onClick={handleAddComment} disabled={!newComment.trim()} className="font-bold shadow-sm rounded-xl px-6">
                         <Send className="h-4 w-4 mr-2" />
                         Send
                       </Button>
@@ -448,7 +605,7 @@ const StudentTask: React.FC = () => {
           <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-8 border-slate-200 shadow-sm">
+        <Card className="mb-8 border-slate-200 shadow-sm bg-white">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="flex-1 space-y-2">
@@ -456,7 +613,7 @@ const StudentTask: React.FC = () => {
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger className="bg-slate-50 hover:bg-slate-100 border-slate-200 transition-colors h-11 rounded-xl">
                     <SelectValue placeholder="All Subjects" />
                   </SelectTrigger>
                   <SelectContent>
@@ -475,7 +632,7 @@ const StudentTask: React.FC = () => {
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger className="bg-slate-50 hover:bg-slate-100 border-slate-200 transition-colors h-11 rounded-xl">
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -493,7 +650,14 @@ const StudentTask: React.FC = () => {
         {isLoading ? (
           <div className="grid gap-4">
              {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
+                <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 flex p-6 gap-6 items-center shadow-sm">
+                   <div className="space-y-3 flex-1">
+                      <div className="h-3 bg-slate-100 rounded-full w-20 animate-pulse"></div>
+                      <div className="h-6 bg-slate-100 rounded-full w-1/3 animate-pulse"></div>
+                      <div className="h-3 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
+                   </div>
+                   <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse"></div>
+                </div>
             ))}
           </div>
         ) : filteredTasks.length > 0 ? (
@@ -501,40 +665,40 @@ const StudentTask: React.FC = () => {
               {filteredTasks.map((task) => (
                 <Card 
                   key={task.id} 
-                  className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
+                  className="cursor-pointer hover:shadow-md transition-all border-slate-200 group bg-white rounded-2xl"
                   onClick={() => handleTaskClick(task)}
                 >
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-3 px-6 pt-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
+                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-black text-slate-400 border-slate-200 bg-slate-50">
                              {task.task_type || 'Task'}
                            </Badge>
-                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                           <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                              {getSubjectName(task)}
                            </span>
                         </div>
                         <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors truncate">
                           {task.title}
                         </CardTitle>
-                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
-                          {task.description}
+                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed text-slate-500">
+                          {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
                         </CardDescription>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
+                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1 shadow-sm rounded-lg uppercase tracking-wider text-[10px]">
                         {getStatusLabelText(task.id)}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                  <CardContent className="px-6 pb-6">
+                    <div className="flex items-center gap-4 text-[11px] font-black text-slate-400 uppercase tracking-widest pt-4 border-t border-slate-100 mt-2">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
                       </div>
                       {task.due_date && (
-                        <div className="flex items-center gap-1.5 text-orange-400">
+                        <div className="flex items-center gap-1.5 text-orange-400 bg-orange-50 px-2 py-0.5 rounded-md">
                           <Clock className="h-3.5 w-3.5" />
                           <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
                         </div>
@@ -545,12 +709,13 @@ const StudentTask: React.FC = () => {
               ))}
             </div>
           ) : (
-            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
-              <CardContent>
-                <div className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No tasks found</p>
+            <Card className="border-dashed border-2 py-24 bg-slate-50/50 rounded-3xl">
+              <CardContent className="flex flex-col items-center justify-center h-full">
+                <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6">
+                  <FileText className="h-8 w-8 text-slate-300" />
                 </div>
+                <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
+                <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
               </CardContent>
             </Card>
           )}
