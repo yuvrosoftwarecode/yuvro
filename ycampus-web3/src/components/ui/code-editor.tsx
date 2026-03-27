@@ -11,6 +11,8 @@ interface CodeEditorProps {
   language?: string;
   onCodeChange?: (code: string) => void;
   onRun?: (code: string, language: string) => void;
+  onLineClick?: (lineNum: number) => void;
+  onTextSelect?: (selectedText: string, startLine: number) => void;
   className?: string;
   placeholder?: string;
   readOnly?: boolean;
@@ -105,6 +107,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   language = 'javascript',
   onCodeChange,
   onRun,
+  onLineClick,
+  onTextSelect,
   className,
   placeholder = 'Start typing your code...',
   readOnly = false,
@@ -139,6 +143,35 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
     onCodeChange?.(newCode);
+  };
+
+  // Handle Text Selection
+  const handleSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    if (!onTextSelect) return;
+    const target = e.currentTarget;
+    const { selectionStart, selectionEnd, value } = target;
+    
+    if (selectionStart !== selectionEnd) {
+      const selectedText = value.substring(selectionStart, selectionEnd);
+      // Calculate start line
+      const textBefore = value.substring(0, selectionStart);
+      const startLine = textBefore.split('\n').length;
+      
+      onTextSelect(selectedText, startLine);
+    }
+  };
+
+  // Handle line click in textarea
+  const handleTextareaClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+    if (!readOnly || !onLineClick) return;
+    
+    const target = e.currentTarget;
+    // We only trigger line click if it's a simple click (not a selection)
+    if (target.selectionStart === target.selectionEnd) {
+      const textBefore = target.value.substring(0, target.selectionStart);
+      const lineNum = textBefore.split('\n').length;
+      onLineClick(lineNum);
+    }
   };
 
   // Handle language change
@@ -262,7 +295,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               style={{ maxHeight: isFullscreen ? 'calc(100vh - 200px)' : maxHeight }}
             >
               {lineNumbers.map((lineNum) => (
-                <div key={lineNum} className="h-5 leading-5 text-right">
+                <div 
+                  key={lineNum} 
+                  className={`h-5 leading-5 text-right ${onLineClick ? 'cursor-pointer hover:text-primary transition-colors' : ''}`}
+                  onClick={() => onLineClick?.(lineNum)}
+                >
                   {lineNum}
                 </div>
               ))}
@@ -276,6 +313,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                 onChange={(e) => handleCodeChange(e.target.value)}
                 onScroll={handleScroll}
                 onKeyDown={handleKeyDown}
+                onSelect={handleSelect}
+                onClick={handleTextareaClick}
                 placeholder={placeholder}
                 readOnly={readOnly}
                 className={cn(

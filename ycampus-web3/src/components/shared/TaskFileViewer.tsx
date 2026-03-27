@@ -61,6 +61,7 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
   const commentsEndRef = useRef<HTMLDivElement>(null);
+  const annotationInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (isOpen && fileUrl) {
@@ -127,10 +128,46 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
     }
   };
 
+  const handleLineClick = (lineNum: number) => {
+    if (!selectedFile) return;
+    const lineTag = `${selectedFile.name}_${lineNum} : `;
+    
+    // Check if tag is already in current comment to prevent duplicates
+    if (newComment.includes(lineTag.trim())) {
+      annotationInputRef.current?.focus();
+      return;
+    }
+    
+    setNewComment(prev => prev ? prev + '\n' + lineTag : lineTag);
+    // Focus the input so teacher can immediately type
+    setTimeout(() => annotationInputRef.current?.focus(), 10);
+  };
+
+  const handleTextSelect = (text: string, startLine: number) => {
+    if (!selectedFile) return;
+    const lineTag = `${selectedFile.name}_${startLine} : `;
+    const fullSnippet = `${lineTag}"${text}"\n`;
+    
+    if (newComment.includes(fullSnippet.trim())) {
+      annotationInputRef.current?.focus();
+      return;
+    }
+    
+    setNewComment(prev => prev ? prev + '\n' + fullSnippet : fullSnippet);
+    setTimeout(() => annotationInputRef.current?.focus(), 10);
+  };
+
   const handleSendComment = () => {
     if (newComment.trim()) {
       onAddComment(newComment.trim());
       setNewComment('');
+    }
+  };
+
+  const handleKeyDownToSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendComment();
     }
   };
 
@@ -262,6 +299,8 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                                  readOnly={true}
                                  language={selectedFile.name.split('.').pop() === 'py' ? 'python' : selectedFile.name.split('.').pop() === 'js' ? 'javascript' : 'markdown'}
                                  className="h-full border-none rounded-none"
+                                 onLineClick={handleLineClick}
+                                 onTextSelect={handleTextSelect}
                               />
                            </div>
                         )}
@@ -319,8 +358,10 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                
                <div className="p-4 bg-white border-t border-slate-100 shadow-[0_-10px_30px_rgba(0,0,0,0.02)] space-y-3">
                   <Textarea 
+                     ref={annotationInputRef}
                      value={newComment}
                      onChange={(e) => setNewComment(e.target.value)}
+                     onKeyDown={handleKeyDownToSubmit}
                      placeholder="Type an annotation or general feedback..."
                      className="min-h-[90px] bg-slate-50 focus:bg-white resize-none border-slate-200 rounded-xl"
                   />

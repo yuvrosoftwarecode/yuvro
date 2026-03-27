@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskSubmission, TaskComment } from '@/services/taskService';
 import { format } from 'date-fns';
 import { TaskFileViewer } from '@/components/shared/TaskFileViewer';
+import { CodeEditor } from '@/components/ui/code-editor';
 
 interface StudentResponseDetailProps {
   response: TaskSubmission;
@@ -28,6 +29,7 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
   const [newComment, setNewComment] = useState('');
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const annotationInputRef = useRef<HTMLTextAreaElement>(null);
   const student = response.student_details || {};
   const user = student.user_details || {};
 
@@ -43,6 +45,34 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
       onAddComment(newComment.trim());
       setNewComment('');
     }
+  };
+
+  const handleKeyDownToSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitComment();
+    }
+  };
+
+  const handleLineClick = (lineNum: number) => {
+    const lineTag = `Answer_${lineNum} : `;
+    if (newComment.includes(lineTag.trim())) {
+      annotationInputRef.current?.focus();
+      return;
+    }
+    setNewComment(prev => prev ? prev + '\n' + lineTag : lineTag);
+    setTimeout(() => annotationInputRef.current?.focus(), 10);
+  };
+
+  const handleTextSelect = (text: string, startLine: number) => {
+    const lineTag = `Answer_${startLine} : `;
+    const fullSnippet = `${lineTag}"${text}"\n`;
+    if (newComment.includes(fullSnippet.trim())) {
+      annotationInputRef.current?.focus();
+      return;
+    }
+    setNewComment(prev => prev ? prev + '\n' + fullSnippet : fullSnippet);
+    setTimeout(() => annotationInputRef.current?.focus(), 10);
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -136,10 +166,18 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
             <CardContent className="pt-6 space-y-6">
               {response.answer && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Text Answer</h4>
-                  <div className="p-4 bg-muted/20 rounded-xl border leading-relaxed whitespace-pre-wrap text-sm italic text-slate-700">
-                    {response.answer}
-                  </div>
+                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Submitted Answer</h4>
+                  <CodeEditor 
+                    initialCode={response.answer}
+                    readOnly={true}
+                    language="markdown"
+                    onLineClick={handleLineClick}
+                    onTextSelect={handleTextSelect}
+                    className="border-slate-200 shadow-sm"
+                    showLanguageSelector={false}
+                    showCopyButton={true}
+                    showRunButton={false}
+                  />
                 </div>
               )}
 
@@ -218,8 +256,10 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
               <div className="p-4 border-t bg-slate-50/50">
                 <div className="space-y-3">
                   <Textarea
+                    ref={annotationInputRef}
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={handleKeyDownToSubmit}
                     placeholder="Provide feedback..."
                     className="min-h-[80px] bg-white resize-none shadow-inner"
                   />
