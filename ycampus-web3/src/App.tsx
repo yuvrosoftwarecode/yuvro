@@ -231,6 +231,8 @@ const App = () => (
                       <Route path="analytics" element={<PlacementAnalytics />} />
                       <Route path="recruiter-insights" element={<RecruiterInsights />} />
                       <Route path="recruiter-company/:id" element={<RecruiterCompanyDetail />} />
+                      <Route path="recruiters" element={<RecruiterInsights />} />
+                      <Route path="recruiters/:id" element={<RecruiterCompanyDetail />} />
                       <Route path="drives" element={<DriveCalendar />} />
                       <Route path="notifications" element={<PlacementNotifications />} />
                       <Route path="settings" element={<PlacementSettings />} />
