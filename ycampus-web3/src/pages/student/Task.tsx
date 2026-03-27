@@ -28,10 +28,10 @@ const StudentTask: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
+
   // Debug authentication
   console.log('StudentTask component loaded, user:', user);
-  
+
   // State management
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -311,7 +311,7 @@ const StudentTask: React.FC = () => {
                 <CardContent>
                   <div className="h-[520px] w-full rounded-md border overflow-hidden">
                     {currentTask?.task_type === 'coding' ? (
-                      <CodeEditor 
+                      <CodeEditor
                         initialCode={taskContent}
                         onCodeChange={setTaskContent}
                         readOnly={getTaskStatus(currentTask.id) === 'completed'}
@@ -321,8 +321,8 @@ const StudentTask: React.FC = () => {
                       <Textarea
                         value={taskContent}
                         onChange={(e) => setTaskContent(e.target.value)}
-                        placeholder={getTaskStatus(currentTask.id) === 'completed' 
-                          ? 'No content available for this task.' 
+                        placeholder={getTaskStatus(currentTask.id) === 'completed'
+                          ? 'No content available for this task.'
                           : 'Type your solution here...'
                         }
                         className="h-full resize-none border-0 focus-visible:ring-0 text-sm p-4"
@@ -330,7 +330,7 @@ const StudentTask: React.FC = () => {
                       />
                     )}
                   </div>
-                  
+
                   {getTaskStatus(currentTask.id) !== 'completed' && (
                     <div className="flex justify-end mt-4">
                       <Button onClick={handleSubmitTask} disabled={isSubmitting}>
@@ -365,16 +365,15 @@ const StudentTask: React.FC = () => {
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                        <div key={comment.id} className={`p-3 rounded-xl border ${
-                          comment.faculty 
-                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4' 
-                            : 'bg-slate-50 border-slate-100 ml-4 mr-0'
-                        }`}>
+                        <div key={comment.id} className={`p-3 rounded-xl border ${comment.faculty
+                          ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4'
+                          : 'bg-slate-50 border-slate-100 ml-4 mr-0'
+                          }`}>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-[11px] uppercase tracking-wider text-slate-500">
+                            <span className="font-bold text-[11px]  tracking-wider text-slate-500">
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">
+                            <span className="text-[10px]  font-medium">
                               {format(new Date(comment.created_at), 'HH:mm')}
                             </span>
                           </div>
@@ -384,14 +383,14 @@ const StudentTask: React.FC = () => {
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
                         <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
                           <Send className="h-10 w-10 mb-2" />
-                          <p className="text-sm font-bold uppercase tracking-widest">No messages yet</p>
+                          <p className="text-sm font-bold  tracking-widest">No messages yet</p>
                         </div>
                       )}
                     </div>
                   </ScrollArea>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <div className="space-y-3">
                     <Textarea
                       value={newComment}
@@ -417,17 +416,17 @@ const StudentTask: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-1 tracking-tight">Tasks</h1>
-          <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Tasks</h1>
+          <p className="text-muted-foreground">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-8 border-slate-200 shadow-sm">
+        <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -444,19 +443,19 @@ const StudentTask: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="flex-1 space-y-2">
-                <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block px-1">
+
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger>
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -467,68 +466,82 @@ const StudentTask: React.FC = () => {
 
         {isLoading ? (
           <div className="grid gap-4">
-             {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
             ))}
           </div>
         ) : filteredTasks.length > 0 ? (
-            <div className="grid gap-4">
-              {filteredTasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
-                  onClick={() => handleTaskClick(task)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                           <Badge variant="outline" className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
-                             {task.task_type || 'Task'}
-                           </Badge>
-                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                             {getSubjectName(task)}
-                           </span>
-                        </div>
-                        <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors truncate">
-                          {task.title}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
-                          {task.description}
-                        </CardDescription>
+          <div className="grid gap-4">
+            {filteredTasks.map((task) => (
+              <Card
+                key={task.id}
+                className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
+                onClick={() => handleTaskClick(task)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0 space-y-2">
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[9px] capitalize tracking-widest">
+                          {task.task_type || 'Task'}
+                        </Badge>
+                        <span className="text-[10px] tracking-widest">
+                          {getSubjectName(task)}
+                        </span>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
-                        {getStatusLabelText(task.id)}
-                      </Badge>
+
+                      <CardTitle className="text-lg leading-none">
+                        {task.title}
+                      </CardTitle>
+
+                      <CardDescription className="line-clamp-2 text-sm mt-1">
+                        {task.description}
+                      </CardDescription>
+
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+
+                    <Badge
+                      variant={getStatusBadgeVariant(task.id) as any}
+                      className="shrink-0 font-bold px-3 py-1"
+                    >
+                      {getStatusLabelText(task.id)}
+                    </Badge>
+
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>
+                        Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                      </span>
+                    </div>
+
+                    {task.due_date && (
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>
+                          Due :{format(new Date(task.due_date), 'MMM dd, yyyy')}
+                        </span>
                       </div>
-                      {task.due_date && (
-                        <div className="flex items-center gap-1.5 text-orange-400">
-                          <Clock className="h-3.5 w-3.5" />
-                          <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
-              <CardContent>
-                <div className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No tasks found</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+            <CardContent>
+              <div className="text-center">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+                <p className=" font-bold  tracking-widest text-sm">No tasks found</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </StudentLayout>
   );
