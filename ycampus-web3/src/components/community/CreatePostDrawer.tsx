@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -28,8 +27,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCommunity, PostTag, PostAudience } from '@/hooks/useCommunity';
-import { useImageUpload } from '@/hooks/useImageUpload';
-import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Loader2, X, ImagePlus } from 'lucide-react';
@@ -60,9 +57,7 @@ export function CreatePostDrawer({
   onPostCreated,
 }: CreatePostDrawerProps) {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
   const { createPost, isCreatingPost } = useCommunity();
-  const { uploadImages, uploading, uploadProgress, deleteImage } = useImageUpload(user?.id);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [content, setContent] = useState('');
@@ -118,21 +113,16 @@ export function CreatePostDrawer({
     setPreviewUrls([]);
   };
 
+
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
     try {
-      // Upload images first
-      let uploadedImageUrls: string[] = [];
-      if (selectedImages.length > 0) {
-        uploadedImageUrls = await uploadImages(selectedImages);
-      }
-
       await createPost({
         content: content.trim(),
         tags: selectedTags,
         audience,
-        images: uploadedImageUrls,
+        images: selectedImages, // Pass File objects directly
       });
 
       resetForm();
@@ -147,7 +137,7 @@ export function CreatePostDrawer({
     onOpenChange(false);
   };
 
-  const isSubmitting = isCreatingPost || uploading;
+  const isSubmitting = isCreatingPost;
 
   const formContent = (
     <div className="space-y-4 px-4 sm:px-0">
@@ -210,16 +200,6 @@ export function CreatePostDrawer({
         </p>
       </div>
 
-      {/* Upload Progress */}
-      {uploading && (
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Uploading images...</span>
-            <span>{Math.round(uploadProgress)}%</span>
-          </div>
-          <Progress value={uploadProgress} className="h-1" />
-        </div>
-      )}
 
       <div className="space-y-2">
         <Label>Tags (optional)</Label>
@@ -275,7 +255,7 @@ export function CreatePostDrawer({
         {isSubmitting ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {uploading ? 'Uploading...' : 'Posting...'}
+            Posting...
           </>
         ) : (
           'Post'
