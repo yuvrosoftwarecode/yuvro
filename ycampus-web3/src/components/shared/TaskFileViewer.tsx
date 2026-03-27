@@ -22,22 +22,33 @@ interface TaskFileViewerProps {
 interface ExtractedFile {
   name: string;
   path: string;
-  type: 'image' | 'pdf' | 'text' | 'unknown';
+  type: 'image' | 'pdf' | 'text' | 'document' | 'unknown';
   blob?: Blob;
   text?: string;
   url?: string;
 }
+
+const MIME_TYPES: Record<string, string> = {
+  pdf: 'application/pdf',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml'
+};
 
 const getAccessibleUrl = (url: string | null) => {
   if (!url) return '';
   return url.startsWith('http') ? url : `http://${url}`;
 };
 
-const getFileType = (filename: string): 'image' | 'pdf' | 'text' | 'unknown' => {
+const getFileType = (filename: string): 'image' | 'pdf' | 'text' | 'document' | 'unknown' => {
   const ext = filename.split('.').pop()?.toLowerCase() || '';
-  if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) return 'image';
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
   if (['pdf'].includes(ext)) return 'pdf';
-  if (['txt', 'md', 'csv', 'py', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'java', 'c', 'cpp'].includes(ext)) return 'text';
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv'].includes(ext)) return 'document';
+  if (['txt', 'md', 'py', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'java', 'c', 'cpp', 'sql', 'sh', 'rb', 'php', 'go', 'xml', 'yaml', 'log'].includes(ext)) return 'text';
   return 'unknown';
 };
 
@@ -45,6 +56,7 @@ const FileIcon = ({ type, className = "h-5 w-5" }: { type: string; className?: s
   if (type === 'image') return <ImageIcon className={className} />;
   if (type === 'pdf') return <FileText className={className} />;
   if (type === 'text') return <FileCode className={className} />;
+  if (type === 'document') return <FileText className={className} />;
   return <FileArchive className={className} />;
 };
 
@@ -78,7 +90,6 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
     }
   }, [isOpen, fileUrl]);
 
-  // Handle external highlight triggers when extractedFiles change
   useEffect(() => {
     if (isOpen && initialHighlight && extractedFiles.length > 0) {
       if (initialHighlight.filename) {
@@ -117,11 +128,13 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
           if (!zipEntry.dir) {
              const type = getFileType(zipEntry.name);
              const fileData: ExtractedFile = { name: zipEntry.name, path, type };
+             const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
              
              if (type === 'text') {
                 fileData.text = await zipEntry.async('string');
              } else {
-                const fileBlob = await zipEntry.async('blob');
+                const data = await zipEntry.async('uint8array');
+                const fileBlob = new Blob([data.buffer as ArrayBuffer], { type: MIME_TYPES[ext] || 'application/octet-stream' });
                 fileData.blob = fileBlob;
                 fileData.url = URL.createObjectURL(fileBlob);
              }
@@ -131,7 +144,6 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
         const sorted = files.sort((a,b) => a.name.localeCompare(b.name));
         setExtractedFiles(sorted);
         
-        // Use first file as default only if no initial highlight
         if (sorted.length > 0 && !initialHighlight) {
           setSelectedFile(sorted[0]);
         }
@@ -205,7 +217,6 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-[100vw] h-[100vh] m-0 p-0 rounded-none border-none shadow-none flex flex-col bg-slate-50 gap-0 overflow-hidden [&>button.absolute.right-4]:hidden">
         
-        {/* Header */}
         <div className="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
            <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
@@ -221,10 +232,8 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
            </Button>
         </div>
 
-        {/* 3-Pane Body */}
         <div className="flex-1 flex overflow-hidden">
            
-           {/* Files list */}
            <div className="w-1/4 min-w-[280px] max-w-[350px] bg-white border-r border-slate-200 flex flex-col h-full shrink-0">
                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
                   <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">Extracted Files</h3>
@@ -259,7 +268,7 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                            </div>
                            <div className="flex-1 min-w-0">
                               <p className={`text-sm font-bold truncate ${selectedFile?.path === file.path ? 'text-white' : 'text-slate-700'}`}>{file.name}</p>
-                              <p className={`text-[10px] uppercase tracking-widest font-bold mt-0.5 ${selectedFile?.path === file.path ? 'text-primary-foreground/80' : 'text-slate-400'}`}>{file.type}</p>
+                              <p className={`text-[10px] uppercase tracking-widest font-bold mt-0.5 ${selectedFile?.path === file.path ? 'text-primary-foreground/80' : 'text-slate-400'}`}>{file.type === 'document' ? 'Office' : file.type}</p>
                            </div>
                         </button>
                      ))}
@@ -267,7 +276,6 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                </ScrollArea>
            </div>
 
-           {/* Content area */}
            <div className="flex-1 bg-slate-100/50 flex flex-col h-full relative p-6">
                {!selectedFile && !error && !isLoading ? (
                   <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
@@ -311,10 +319,10 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                               highlightText={activeHighlight?.text}
                            />
                         )}
-                        {selectedFile.type === 'unknown' && (
+                        {(selectedFile.type === 'document' || selectedFile.type === 'unknown') && (
                            <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50/50">
                               <FileText className="h-16 w-16 text-slate-300 mb-4" />
-                              <h3 className="text-lg font-bold text-slate-800">Preview not available</h3>
+                              <h3 className="text-lg font-bold text-slate-800">{selectedFile.type === 'document' ? 'Preview Unavailable for Office Files' : 'Preview not available'}</h3>
                               <p className="text-sm text-slate-500 mt-2 mb-6">Please download this file to view its content.</p>
                               <Button onClick={() => selectedFile.url && window.open(selectedFile.url)}>
                                  <Download className="h-4 w-4 mr-2" /> Download File
@@ -326,7 +334,6 @@ export const TaskFileViewer: React.FC<TaskFileViewerProps> = ({
                )}
            </div>
 
-           {/* Annotations area */}
            <div className="w-1/4 min-w-[300px] max-w-[400px] bg-white border-l border-slate-200 flex flex-col h-full shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] z-20">
                <div className="h-16 px-4 bg-slate-50/50 border-b border-slate-100 flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-emerald-500" />
