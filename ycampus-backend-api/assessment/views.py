@@ -926,7 +926,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                          status='started'
                      )
 
-            # Extract coding count for response
+            # Extract coding count and predefined questions count for response
             if isinstance(mock_interview.ai_context, dict):
                 if experience_level.lower() in mock_interview.ai_context:
                     raw_ai_context_resp = mock_interview.ai_context.get(experience_level.lower(), {})
@@ -936,6 +936,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 raw_ai_context_resp = mock_interview.ai_context
             
             coding_count_resp = raw_ai_context_resp.get('coding_questions_count', 1) if isinstance(raw_ai_context_resp, dict) else 1
+            predefined_questions_count = 0
+            if mock_interview.ai_generation_mode == MockInterview.AI_GEN_PREDEFINED and isinstance(raw_ai_context_resp, dict):
+                predefined_questions = raw_ai_context_resp.get('predefined_questions', [])
+                if isinstance(predefined_questions, list):
+                    predefined_questions_count = len(predefined_questions)
 
             return Response({
                 'submission_id': submission.id,
@@ -949,6 +954,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 'ai_config': {
                     'mode': mock_interview.ai_generation_mode,
                     'coding_count': coding_count_resp,
+                    'predefined_questions_count': predefined_questions_count,
                     'voice_type': mock_interview.voice_type,
                     'voice_speed': mock_interview.voice_speed,
                     'interviewer_name': mock_interview.interviewer_name,

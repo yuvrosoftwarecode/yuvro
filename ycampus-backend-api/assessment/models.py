@@ -189,7 +189,7 @@ class MockInterview(BaseModel):
         default=100, help_text="Percentage of AI generated questions (0-100)"
     )
     ai_context = models.JSONField(
-        default=dict, blank=True, help_text="Context or roles for the AI interviewer mapped by experience level. Ex: {'intern': ['Focus on basic algorithms'], 'beginner': ['Assess junior projects']}"
+        default=dict, blank=True, help_text='AI config: {"context": "Focus...", "predefined_questions": ["Q1", "Q2"], "coding_questions_count": 1}'
     )
 
     # Voice Configuration

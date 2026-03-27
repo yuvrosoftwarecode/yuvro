@@ -41,10 +41,10 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
   const completionPercentage = Math.round((answeredCount / totalQuestions) * 100);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="fixed inset-0 z-50 bg-background flex items-center justify-center p-6">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center pb-6">
-          <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="mx-auto mb-4 w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl text-green-600 mb-2">
@@ -88,13 +88,13 @@ const AssessmentThankYou: React.FC<AssessmentThankYouProps> = ({
           </div>
 
           {/* Next Steps */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-800 mb-2">What's Next?</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-800 dark:text-blue-100 mb-2">What's Next?</h3>
+            <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
               <li>• Your responses are being evaluated</li>
-              <li>• Results will be available in the Results section</li>
+              <li>• Results will be available shortly</li>
               <li>• You will receive feedback on your performance</li>
-              <li>• Check back later for detailed analytics</li>
+              <li>• Check the assessment card to view detailed analytics</li>
             </ul>
           </div>
 

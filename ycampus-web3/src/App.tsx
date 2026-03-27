@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -55,8 +55,9 @@ import StudentCommunity from "./pages/student/Community";
 import StudentAnnouncements from "./pages/student/Announcements";
 import AIInterviewPlanner from "./pages/student/AIInterviewPlanner";
 import InterviewPreparation from "./pages/student/InterviewPreparation";
-import MockInterviewSelect from "./pages/student/MockInterviewSelect";
+// MockInterviewSelect replaced by StudentMockInterview
 import StudentJobs from "./pages/student/Jobs";
+import CodePractice from "./pages/student/CodePractice";
 import PlacementDashboard from "./pages/placement/PlacementDashboard";
 import JobApprovals from "./pages/placement/JobApprovals";
 import LiveJobs from "./pages/placement/LiveJobs";
@@ -153,9 +154,14 @@ const App = () => (
                       <Route path="community" element={<StudentCommunity />} />
                       <Route path="ai-interview-planner" element={<AIInterviewPlanner />} />
                       <Route path="interview-preparation" element={<InterviewPreparation />} />
-                      <Route path="mock-interview" element={<MockInterviewSelect />} />
+                      <Route path="mock-interview" element={<StudentMockInterview />} />
+                      <Route path="code-practice" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId" element={<CodePractice />} />
+                      <Route path="code-practice/subjects/:subjectId/units/:unitId/questions/:problemId" element={<CodePractice />} />
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
+                      <Route path="test/:subjectId" element={<TestSubjectDetail />} />
                     </Routes>
                   </ProtectedRoute>
                 }
@@ -225,6 +231,8 @@ const App = () => (
                       <Route path="analytics" element={<PlacementAnalytics />} />
                       <Route path="recruiter-insights" element={<RecruiterInsights />} />
                       <Route path="recruiter-company/:id" element={<RecruiterCompanyDetail />} />
+                      <Route path="recruiters" element={<RecruiterInsights />} />
+                      <Route path="recruiters/:id" element={<RecruiterCompanyDetail />} />
                       <Route path="drives" element={<DriveCalendar />} />
                       <Route path="notifications" element={<PlacementNotifications />} />
                       <Route path="settings" element={<PlacementSettings />} />

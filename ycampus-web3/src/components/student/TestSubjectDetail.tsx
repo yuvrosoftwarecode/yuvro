@@ -815,7 +815,7 @@ const UnitSidebar = ({
 };
 
 const TestSubjectDetail = () => {
-  const { subject } = useParams<{ subject: string }>();
+  const { subject, id, subjectId } = useParams<{ subject?: string; id?: string; subjectId?: string }>();
   const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -831,9 +831,24 @@ const TestSubjectDetail = () => {
     timeSpent: number;
   } | null>(null);
 
-  const subjectName = subject || 'matrices-calculus';
+  const subjectName = subject || id || subjectId || 'matrices-calculus';
   const allProblems = subjectProblems[subjectName] || [];
   const units = unitsData[subjectName] || [];
+
+  // Mock pre-completed tests by subject (used for demoing View Results flow).
+  const mockPreCompletedBySubject: Record<string, string[]> = {
+    'matrices-calculus': ['mc2-u1'],
+  };
+
+  React.useEffect(() => {
+    const preCompleted = mockPreCompletedBySubject[subjectName] || [];
+    if (preCompleted.length === 0) return;
+
+    setCompletedTests((prev) => {
+      if (prev.size > 0) return prev;
+      return new Set(preCompleted);
+    });
+  }, [subjectName]);
 
   // Initialize with first unit
   React.useEffect(() => {

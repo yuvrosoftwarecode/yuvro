@@ -1,17 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code } from 'lucide-react';
-import { CodeEditor } from '@/components/ui/code-editor';
-
-interface Role {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-}
+import { Mic, MicOff, RotateCcw, LogOut, User, Bot, Code, Clock, Loader2 } from 'lucide-react';
+import CodeEditor from '@/components/code-editor/CodeEditor';
+import { mockInterviewService } from '@/services/mockInterviewService';
+import { aiAssistantService } from '@/services/aiAssistantService';
+import { Role, Message } from '@/types/mockInterview';
 
 interface InterviewScreenProps {
   role: Role;
@@ -19,22 +14,10 @@ interface InterviewScreenProps {
   duration: string;
   interviewer: string;
   mediaStream: MediaStream;
+  resume?: File;
+  aiConfig?: any;
   onExit: () => void;
-  onInterviewComplete: (role: Role, difficulty: string, duration: string) => void;
-}
-
-interface Question {
-  content: string;
-  type: 'behavioral' | 'coding';
-  language?: string;
-}
-
-interface Message {
-  type: 'ai' | 'user';
-  content: string;
-  timestamp: string;
-  questionType?: 'behavioral' | 'coding';
-  codeSubmission?: string;
+  onInterviewComplete: (role: Role, difficulty: string, duration: string, sessionId: string) => void;
 }
 
 const InterviewScreen: React.FC<InterviewScreenProps> = ({
@@ -43,89 +26,172 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
   duration,
   interviewer,
   mediaStream,
+  resume,
+  aiConfig,
   onExit,
-  onInterviewComplete
+  onInterviewComplete,
 }) => {
   const [timeLeft, setTimeLeft] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
+  const [loadingExit, setLoadingExit] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentUserAnswer, setCurrentUserAnswer] = useState('');
   const [isAITyping, setIsAITyping] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isInterviewCompleted, setIsInterviewCompleted] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState<string | null>(null);
+  const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [layout, setLayout] = useState<'modern' | 'classic'>('classic');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const initializedRef = useRef(false);
 
-  // Mock questions based on role (mix of behavioral and coding questions)
-  const questions: Question[] = [
-    {
-      content: `Tell me about your experience with ${role.title} and what interests you about this field.`,
-      type: 'behavioral' as const
-    },
-    {
-      content: "Can you write a function that reverses a string? Please code this solution.",
-      type: 'coding' as const,
-      language: 'javascript'
-    },
-    {
-      content: "How do you approach problem-solving in challenging situations?",
-      type: 'behavioral' as const
-    },
-    {
-      content: "Write a function to find the maximum element in an array. Show your implementation.",
-      type: 'coding' as const,
-      language: 'python'
-    },
-    {
-      content: "Describe a project you're proud of and your role in its success.",
-      type: 'behavioral' as const
+  const checkCodingQuestion = (text: string) => {
+    const aiText = text.toLowerCase();
+    const codingPrompts = [
+      'write code', 'coding question', 'write a function', 'please write',
+      'implement a', 'coding challenge', 'logic to solve', 'create a function',
+    ];
+    const hasCodingPrompt = codingPrompts.some(p => aiText.includes(p));
+    const hasCodeBlock = text.includes('```');
+    if (hasCodingPrompt || hasCodeBlock) {
+      setShowCodeEditor(true);
+      const codeBlockRegex = /```(?:javascript|js|python|java|cpp|typescript|ts)?\s*([\s\S]*?)```/i;
+      const match = text.match(codeBlockRegex);
+      if (match && match[1]) setCurrentCode(match[1].trim());
     }
-  ];
-
-  // Convert duration to seconds
-  const getDurationInSeconds = (durationStr: string): number => {
-    const match = durationStr.match(/(\d+)\s*mins?/i);
-    return match ? parseInt(match[1]) * 60 : 300; // Default 5 minutes
   };
 
-  // Initialize timer
+  const speakText = (text: string) => {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechRef.current = utterance;
+    const voices = window.speechSynthesis.getVoices();
+    let selectedVoice = null;
+    const targetVoiceName = role.interviewer_voice_id;
+
+    if (targetVoiceName) {
+      selectedVoice = voices.find(v => v.name === targetVoiceName) ||
+        voices.find(v => v.name.includes(targetVoiceName));
+    }
+
+    if (!selectedVoice) {
+      if (interviewer === 'Junnu') {
+        selectedVoice =
+          voices.find(v => v.name.includes('Microsoft Ravi')) ||
+          voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('male')) ||
+          voices.find(v => v.name.includes('Google UK English Male'));
+      } else {
+        selectedVoice =
+          voices.find(v => v.name.includes('Google US English')) ||
+          voices.find(v => v.name.includes('Microsoft Zira')) ||
+          voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('male'));
+      }
+    }
+
+    if (selectedVoice) utterance.voice = selectedVoice;
+    utterance.rate = role.voice_speed || 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    const loadVoices = () => window.speechSynthesis.getVoices();
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  const getDurationInSeconds = (durationStr: string): number => {
+    const match = durationStr.match(/(\d+)\s*mins?/i);
+    return match ? parseInt(match[1]) * 60 : 300;
+  };
+
   useEffect(() => {
     const seconds = getDurationInSeconds(duration);
     setTimeLeft(seconds);
-  }, [duration]);
 
-  const handleEndInterview = () => {
-    // Stop media stream
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
-    }
-    
-    // Stop speech recognition
-    if (recognitionRef.current) {
+    const initInterview = async () => {
+      if (initializedRef.current) return;
+      initializedRef.current = true;
+
       try {
-        recognitionRef.current.stop();
+        setIsAITyping(true);
+        const durationMatch = duration.match(/(\d+)/);
+        const durationMins = durationMatch ? parseInt(durationMatch[1]) : 30;
+
+        const response = await mockInterviewService.startInterview(
+          role.id,
+          difficulty,
+          durationMins,
+          resume,
+        );
+
+        if (response.id) setInterviewSessionId(response.id);
+
+        if (response.chat_session_id) {
+          setChatSessionId(response.chat_session_id);
+          const initialPrompt = 'The interview is starting now. Please introduce yourself and ask the first question.';
+          const aiResponse = await aiAssistantService.sendMessage(response.chat_session_id, initialPrompt);
+          const aiText = aiResponse.response || 'Welcome to the interview.';
+          setConversation([{
+            type: 'ai',
+            content: aiText,
+            timestamp: new Date().toLocaleTimeString(),
+            questionType: 'behavioral',
+          }]);
+          speakText(aiText);
+          checkCodingQuestion(aiText);
+        }
+        setIsAITyping(false);
       } catch (error) {
-        console.error('Error stopping speech recognition:', error);
+        console.error('Failed to start interview', error);
+        setIsAITyping(false);
       }
+    };
+
+    initInterview();
+  }, [role.id, difficulty, duration]);
+
+  const handleEndInterview = async () => {
+    // Avoid repeated end flow
+    if (isInterviewCompleted) return;
+    setIsInterviewCompleted(true);
+
+    try {
+      setLoadingExit(true);
+      if (recognitionRef.current) recognitionRef.current.stop();
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      window.speechSynthesis.cancel();
+
+      if (interviewSessionId) {
+        await mockInterviewService.endInterviewSession(interviewSessionId);
+        onInterviewComplete(role, difficulty, duration, interviewSessionId);
+      } else {
+        onExit();
+      }
+    } catch (error) {
+      console.error('Failed to end interview', error);
+      onExit();
+    } finally {
+      setLoadingExit(false);
     }
-    
-    onExit();
   };
 
-  // Timer countdown
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(prev => {
-          if (prev <= 1) {
-            handleEndInterview();
-            return 0;
-          }
+          if (prev <= 1) { handleEndInterview(); return 0; }
           return prev - 1;
         });
       }, 1000);
@@ -133,386 +199,328 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
     }
   }, [timeLeft]);
 
-  // Set up video feed
   useEffect(() => {
     if (mediaStream && videoRef.current) {
       videoRef.current.srcObject = mediaStream;
-      videoRef.current.play().catch(console.error);
+      videoRef.current.play().catch(e => console.log('Video playback failed', e));
     }
+  }, [mediaStream, layout]);
 
-    return () => {
-      // Cleanup will be handled by parent component
-    };
-  }, [mediaStream]);
-
-  // Initialize conversation
-  useEffect(() => {
-    if (questions.length > 0) {
-      const firstQuestion = questions[0];
-      setCurrentQuestion(firstQuestion);
-      setShowCodeEditor(firstQuestion.type === 'coding');
-      setConversation([{
-        type: 'ai',
-        content: firstQuestion.content,
-        timestamp: new Date().toLocaleTimeString(),
-        questionType: firstQuestion.type
-      }]);
-    }
-  }, []);
-
-  // Initialize speech recognition
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
+      const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SR();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
-      
+
       recognitionRef.current.onresult = (event: any) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
-        
+        let final = '';
+        let interim = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
-          }
+          const t = event.results[i][0].transcript;
+          if (event.results[i].isFinal) final += t;
+          else interim += t;
         }
-        
         setCurrentUserAnswer(prev => {
-          const baseText = prev.replace(/\[interim\].*$/, '');
-          return baseText + finalTranscript + (interimTranscript ? ` [interim]${interimTranscript}` : '');
+          const base = prev.split(' [interim]')[0];
+          return base + final + (interim ? ` [interim]${interim}` : '');
         });
       };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-      };
-      
+
       recognitionRef.current.onend = () => {
         if (isRecording) {
-          setTimeout(() => {
-            try {
-              recognitionRef.current?.start();
-            } catch (error) {
-              console.error('Error restarting speech recognition:', error);
-            }
-          }, 100);
+          try { recognitionRef.current?.start(); } catch (e) { }
         }
       };
     }
-
     return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (error) {
-          console.error('Error stopping speech recognition:', error);
-        }
-      }
+      if (recognitionRef.current) try { recognitionRef.current.stop(); } catch (e) { }
     };
   }, [isRecording]);
 
-  // Auto scroll conversation
   useEffect(() => {
     conversationEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversation, isUserTyping, isAITyping]);
 
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleToggleRecording = () => {
+  const handleToggleRecording = async () => {
+    if (isInterviewCompleted) return;
+    if (!chatSessionId) { alert('Interview not initialized yet.'); return; }
+
     if (!isRecording) {
-      // Start recording
+      window.speechSynthesis.cancel();
       setIsRecording(true);
       setIsUserTyping(true);
       setCurrentUserAnswer('');
-      
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (error) {
-          console.error('Error starting speech recognition:', error);
-          // Fallback for demo purposes
-          setTimeout(() => {
-            setCurrentUserAnswer('Thank you for the question. I believe...');
-            setIsUserTyping(false);
-          }, 2000);
-        }
-      }
+      if (recognitionRef.current) try { recognitionRef.current.start(); } catch (e) { }
     } else {
-      // Stop recording and submit answer
       setIsRecording(false);
       setIsUserTyping(false);
-      
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (error) {
-          console.error('Error stopping speech recognition:', error);
-        }
+      if (recognitionRef.current) try { recognitionRef.current.stop(); } catch (e) { }
+
+      let cleanAnswer = currentUserAnswer.replace(/ \[interim\].*$/, '').trim();
+      if (!cleanAnswer && showCodeEditor && currentCode) {
+        cleanAnswer = 'I have written the code in the editor.';
       }
-      
-      // Clean up answer and add to conversation
-      const cleanAnswer = currentUserAnswer.replace(/\[interim\].*$/, '').trim();
+
+      let combinedAnswer = cleanAnswer + (showCodeEditor && currentCode ? `\n\n[Code Submission]:\n${currentCode}` : '');
+      if (!combinedAnswer.trim()) combinedAnswer = '(No verbal answer provided)';
+
       const userMessage: Message = {
         type: 'user',
-        content: cleanAnswer || 'Thank you for the question. I appreciate the opportunity to share my thoughts.',
+        content: cleanAnswer || '(No verbal answer)',
         timestamp: new Date().toLocaleTimeString(),
-        questionType: currentQuestion?.type,
-        codeSubmission: showCodeEditor ? currentCode : undefined
+        codeSubmission: showCodeEditor ? currentCode : undefined,
       };
-      
       setConversation(prev => [...prev, userMessage]);
       setCurrentUserAnswer('');
       setCurrentCode('');
-      
-      // Show AI typing and generate next question
+
       setIsAITyping(true);
-      setTimeout(() => {
-        setIsAITyping(false);
-        const nextQuestionIndex = currentQuestionIndex + 1;
-        
-        if (nextQuestionIndex < questions.length) {
-          const nextQuestion = questions[nextQuestionIndex];
-          setCurrentQuestion(nextQuestion);
-          setShowCodeEditor(nextQuestion.type === 'coding');
-          
-          const aiMessage: Message = {
-            type: 'ai',
-            content: nextQuestion.content,
-            timestamp: new Date().toLocaleTimeString(),
-            questionType: nextQuestion.type
-          };
-          
-          setConversation(prev => [...prev, aiMessage]);
-          setCurrentQuestionIndex(nextQuestionIndex);
-        } else {
-          // Interview completed
-          const aiMessage: Message = {
-            type: 'ai',
-            content: 'Thank you for your responses. The interview is now complete.',
-            timestamp: new Date().toLocaleTimeString(),
-            questionType: 'behavioral'
-          };
-          
-          setConversation(prev => [...prev, aiMessage]);
-          setTimeout(() => {
-            onInterviewComplete(role, difficulty, duration);
-          }, 3000);
+      try {
+        const aiResp = await aiAssistantService.sendMessage(chatSessionId, combinedAnswer);
+        const aiText = aiResp.response || 'Could you provide more details?';
+        const aiMessage: Message = {
+          type: 'ai',
+          content: aiText,
+          timestamp: new Date().toLocaleTimeString(),
+          questionType: 'behavioral',
+        };
+        setConversation(prev => [...prev, aiMessage]);
+        speakText(aiText);
+        checkCodingQuestion(aiText);
+
+        const isPredefinedMode = aiConfig?.mode === 'predefined' || (aiConfig?.predefined_questions_count || 0) > 0;
+        const predefinedCount = aiConfig?.predefined_questions_count || 0;
+        const currentUserCount = conversation.filter(msg => msg.type === 'user').length + 1;
+
+        // If the AI clearly marks completion, terminate interview.
+        const isCompletionText = aiText.toLowerCase().includes('the interview is now complete') || aiText.toLowerCase().includes('thank you for your time');
+
+        if (isPredefinedMode && (isCompletionText || (predefinedCount > 0 && currentUserCount >= predefinedCount))) {
+          setTimeout(() => handleEndInterview(), 1200);
         }
-       }, 2000);
+      } catch (err) {
+        console.error('AI Error', err);
+      } finally {
+        setIsAITyping(false);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="flex items-center justify-between p-4">
-          <div>
-            <h1 className="text-xl font-semibold">Mock Interview - {role.title}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="secondary">{difficulty}</Badge>
-              <Badge variant="outline">{interviewer}</Badge>
-            </div>
+    <div className="h-screen overflow-hidden bg-white flex flex-col font-sans selection:bg-blue-100">
+      {/* Top Bar */}
+      <div className="bg-white border-b border-slate-200 px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-50 shadow-sm">
+        <div className="flex items-center gap-4 justify-self-start">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEndInterview}
+            disabled={loadingExit}
+            className="text-slate-500 hover:text-slate-900"
+          >
+            {loadingExit ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
+            {loadingExit ? 'Finishing...' : 'Finish & Exit'}
+          </Button>
+          <div className="h-4 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <Badge className="bg-white text-slate-800 border-slate-200 font-mono hidden sm:inline-flex">{role.title}</Badge>
+            <Badge className="bg-blue-50 text-blue-700 border-blue-100">{difficulty}</Badge>
           </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="text-lg font-mono">
-              {formatTime(timeLeft)}
+        </div>
+
+        <div className="justify-self-center flex justify-center w-full">
+          {layout === 'classic' && (
+            <div className="w-20 h-10 bg-black rounded-md overflow-hidden border border-slate-200 shadow-sm relative">
+              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+              <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-green-500 rounded-full border border-white" />
             </div>
-            <Button variant="destructive" onClick={handleEndInterview}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Exit Interview
-            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4 justify-self-end">
+          <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+            <button
+              onClick={() => setLayout('modern')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'modern' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Split
+            </button>
+            <button
+              onClick={() => setLayout('classic')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${layout === 'classic' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Classic
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-md border border-slate-200">
+            <Clock className="w-4 h-4 text-slate-500" />
+            <span className={`font-mono font-bold ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-slate-700'}`}>
+              {formatTime(timeLeft)}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-80px)]">
-        {/* Left Panel - Conversation */}
-        <div className="flex-1 flex flex-col bg-card m-4 rounded-lg border">
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Interview Conversation</h2>
-              <Button variant="ghost" size="sm">
-                <RotateCcw className="h-4 w-4" />
+      <div className="flex-1 w-full mx-auto p-6 flex gap-6 overflow-hidden max-w-[1800px]">
+        {/* Conversation Panel */}
+        <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? (showCodeEditor ? 'w-full lg:w-1/2' : 'w-full max-w-4xl mx-auto') : (showCodeEditor ? 'w-full lg:w-1/4' : 'w-full lg:w-3/4')}`}>
+          <Card className="flex-1 flex flex-col overflow-hidden shadow-sm border-slate-200 h-full">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold text-slate-800">Interview Conversation</h2>
+                {isRecording && <Badge variant="destructive" className="animate-pulse">Recording...</Badge>}
+              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                <RotateCcw className="w-4 h-4" />
               </Button>
             </div>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {conversation.map((message, index) => (
-              <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-lg p-3 ${
-                  message.type === 'ai' 
-                    ? 'bg-muted text-muted-foreground' 
-                    : 'bg-primary text-primary-foreground'
-                }`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    {message.type === 'ai' ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                   <span className="text-xs opacity-70">
-                      {message.type === 'ai' ? 'AI Interviewer' : 'You'} • {message.timestamp}
-                    </span>
-                    {message.questionType === 'coding' && (
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        <Code className="h-3 w-3 mr-1" />
-                        Coding
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-sm">{message.content}</p>
-                  
-                  {/* Show code submission for user messages */}
-                  {message.type === 'user' && message.codeSubmission && (
-                    <div className="mt-2 p-2 bg-background/20 rounded border">
-                      <div className="text-xs opacity-70 mb-1">Code Submission:</div>
-                      <pre className="text-xs overflow-x-auto">
-                        <code>{message.codeSubmission}</code>
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {/* User typing indicator */}
-            {isUserTyping && (
-              <div className="flex justify-end">
-                <div className="max-w-[80%] rounded-lg p-3 bg-primary text-primary-foreground">
-                  <div className="flex items-center gap-2 mb-1">
-                    <User className="h-4 w-4" />
-                    <span className="text-xs opacity-70">You • {new Date().toLocaleTimeString()}</span>
-                  </div>
-                  <div className="text-sm">
-                    {currentUserAnswer ? (
-                      <span>
-                        {currentUserAnswer.replace(/\[interim\].*$/, '')}
-                        {currentUserAnswer.includes('[interim]') && (
-                          <span className="opacity-60">
-                            {currentUserAnswer.match(/\[interim\](.*)/)?.[1] || ''}
-                          </span>
-                        )}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <span className="animate-pulse">●</span>
-                        <span className="animate-pulse">●</span>
-                        <span className="animate-pulse">●</span>
-                        Listening...
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* AI typing indicator */}
-            {isAITyping && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg p-3 bg-muted text-muted-foreground">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Bot className="h-4 w-4" />
-                    <span className="text-xs opacity-70">AI Interviewer • {new Date().toLocaleTimeString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="animate-pulse">●</span>
-                    <span className="animate-pulse">●</span>
-                    <span className="animate-pulse">●</span>
-                    <span className="text-sm">AI is thinking...</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={conversationEndRef} />
-          </div>
-          
-          {/* Code Editor for coding questions */}
-          {showCodeEditor && currentQuestion?.type === 'coding' && (
-            <div className="p-4 border-t">
-              <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-sm font-medium">Code Editor</h4>
-                <Badge variant="secondary" className="text-xs">
-                  {currentQuestion.language || 'javascript'}
-                </Badge>
-              </div>
-              <CodeEditor
-                language={currentQuestion.language || 'javascript'}
-                onCodeChange={setCurrentCode}
-                className="mb-3"
-                maxHeight="200px"
-                showLanguageSelector={false}
-                showRunButton={false}
-                showFullscreenToggle={false}
-              />
-            </div>
-          )}
 
-          {/* Recording Controls */}
-          <div className="p-4 border-t">
-            <Button 
-              onClick={handleToggleRecording}
-              className={`w-full ${isRecording ? 'bg-red-500 hover:bg-red-600' : ''}`}
-              size="lg"
-            >
-              {isRecording ? (
-                <>
-                  <MicOff className="h-4 w-4 mr-2" />
-                  End Answer
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4 mr-2" />
-                  {showCodeEditor ? 'Start Answer (Voice + Code)' : 'Start Answer'}
-                </>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
+              {conversation.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center opacity-60">
+                  <Bot className="w-12 h-12 text-slate-300 mb-3" />
+                  <p className="text-sm text-slate-500">The AI is preparing your first question...</p>
+                </div>
               )}
-            </Button>
-            {showCodeEditor && (
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                Provide verbal explanation while coding your solution
-              </p>
-            )}
-          </div>
+
+              {conversation.map((msg, i) => (
+                <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
+                    msg.type === 'user'
+                      ? 'bg-slate-900 text-white rounded-tr-sm'
+                      : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2 opacity-70 text-[10px] uppercase font-bold tracking-wider">
+                      {msg.type === 'ai' ? <><Bot className="w-3 h-3" /> AI Interviewer</> : <><User className="w-3 h-3" /> You</>}
+                      <span>• {msg.timestamp}</span>
+                    </div>
+                    {msg.content}
+                    {msg.codeSubmission && (
+                      <div className="mt-3 p-2 bg-white/10 rounded border border-white/20">
+                        <div className="text-[10px] opacity-70 mb-1">Code Submitted</div>
+                        <pre className="text-xs overflow-x-auto"><code>{msg.codeSubmission}</code></pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {isAITyping && (
+                <div className="flex items-center gap-2 text-xs text-slate-400 ml-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  AI is thinking...
+                </div>
+              )}
+              {isUserTyping && (
+                <div className="flex justify-end text-xs text-slate-400 mr-2">
+                  Listening... <span className="ml-1 animate-pulse">🎤</span>
+                </div>
+              )}
+              <div ref={conversationEndRef} />
+            </div>
+
+            <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-center gap-4">
+              {isRecording && (
+                <div className="flex items-center gap-1 h-8 px-4">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="w-1 bg-red-500 rounded-full animate-pulse" style={{ height: `${Math.random() * 100}%` }} />
+                  ))}
+                </div>
+              )}
+              <Button
+                size="lg"
+                onClick={handleToggleRecording}
+                disabled={isAITyping || isInterviewCompleted}
+                className={`rounded-full px-8 h-12 font-bold shadow-lg transition-all ${
+                  isRecording
+                    ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-200'
+                    : 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-200'
+                } ${isInterviewCompleted ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {isRecording ? <><MicOff className="w-4 h-4 mr-2" /> Stop Recording</> : <><Mic className="w-4 h-4 mr-2" /> Start Answer</>}
+              </Button>
+            </div>
+          </Card>
         </div>
 
-        {/* Right Panel - Video Feeds */}
-        <div className="w-80 p-4 space-y-4">
-          {/* AI Interviewer */}
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-2">AI Interviewer ({interviewer})</h3>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <div className="text-4xl">🤖</div>
+        {/* Code Editor Panel */}
+        {showCodeEditor && (
+          <div className={`gap-6 transition-all duration-500 flex flex-col ${layout === 'classic' ? 'w-full lg:w-1/2' : 'w-full lg:w-1/2'}`}>
+            <Card className="flex-1 h-full border-slate-200 overflow-hidden flex flex-col shadow-sm">
+              <div className="px-4 py-2 bg-white border-b border-slate-100 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-600 flex items-center gap-2">
+                  <Code className="w-3 h-3" /> Code Editor
+                </span>
+                <Badge variant="outline" className="text-[10px] bg-white">JavaScript</Badge>
               </div>
-            </CardContent>
-          </Card>
-          
-          {/* Student Video */}
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-2">You</h3>
-              <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
+              <div className="flex-1 relative">
+                <CodeEditor
+                  initialCode={currentCode}
+                  initialLanguage="javascript"
+                  onCodeChange={setCurrentCode}
+                  className="h-full border-none"
                 />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Modern Layout - Video Panels */}
+        {layout === 'modern' && (
+          <div className={`flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-500 ${showCodeEditor ? 'w-full lg:w-1/3' : 'w-full lg:w-1/4'}`}>
+            <Card className={`overflow-hidden shadow-sm transition-all duration-300 ${isAITyping ? 'ring-2 ring-blue-500 shadow-blue-200 scale-[1.02]' : 'border-slate-200'}`}>
+              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isAITyping ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
+                <span>AI Interviewer ({interviewer})</span>
+                {isAITyping && <span className="text-[10px] uppercase font-extrabold animate-pulse">Speaking...</span>}
+              </div>
+              <div className="aspect-video bg-white relative flex items-center justify-center overflow-hidden">
+                {isAITyping && (
+                  <>
+                    <div className="absolute inset-0 bg-blue-500/5 animate-pulse" />
+                    <div className="absolute w-40 h-40 bg-blue-400/20 rounded-full animate-ping [animation-duration:2s]" />
+                    <div className="absolute w-32 h-32 bg-blue-500/20 rounded-full animate-ping [animation-duration:1.5s]" />
+                  </>
+                )}
+                <div className={`relative w-24 h-24 flex items-center justify-center rounded-full bg-white shadow-sm transition-all duration-300 z-10 ${isAITyping ? 'scale-110 ring-4 ring-blue-100' : ''}`}>
+                  <Bot className={`w-12 h-12 ${isAITyping ? 'text-blue-600' : 'text-slate-400'}`} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className={`overflow-hidden shadow-sm flex-1 flex flex-col transition-all duration-300 ${isRecording ? 'ring-2 ring-green-500 shadow-green-200 scale-[1.02]' : 'border-slate-200'}`}>
+              <div className={`p-3 border-b flex justify-between items-center transition-colors ${isRecording ? 'bg-green-50 border-green-100 text-green-800' : 'bg-white border-slate-100 text-slate-800'} font-bold text-sm`}>
+                <span>You</span>
+                <span className={`flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border transition-all ${isRecording ? 'bg-green-500 text-white border-green-600' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-green-500 animate-pulse'}`} />
+                  {isRecording ? 'RECORDING' : 'LIVE'}
+                </span>
+              </div>
+              <div className="flex-1 bg-black relative overflow-hidden">
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                {isRecording && (
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 items-end h-12 px-8">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                      <div key={i} className="w-1.5 bg-green-400/80 rounded-t-full" style={{ height: '20%', animationDelay: `${i * 0.05}s` }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

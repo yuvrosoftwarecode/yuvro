@@ -3,11 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import CodeEditor from '@/components/ui/code-editor';
-import { Code, ChevronLeft, ChevronRight, CheckCircle, XCircle, RotateCcw, Check, ArrowLeft, MessageCircle } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChevronLeft, ChevronRight, CheckCircle, XCircle, RotateCcw, Check, ArrowLeft } from 'lucide-react';
 
 interface Question {
   id: number;
@@ -74,7 +72,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const [submittedAnswers, setSubmittedAnswers] = useState<boolean[]>(Array(questions.length).fill(false));
   const [showResults, setShowResults] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
-  const [activeTab, setActiveTab] = useState('statement');
 
   React.useEffect(() => {
     setCurrentQuestionIndex(0);
@@ -82,7 +79,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
     setSubmittedAnswers(Array(questions.length).fill(false));
     setShowResults(false);
     setShowThankYou(false);
-    setActiveTab('statement');
   }, [backendQuestions]);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -108,7 +104,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const handleNext = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setActiveTab('statement');
     } else if (submittedAnswers.every(submitted => submitted)) {
       calculateResults();
     }
@@ -117,7 +112,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setActiveTab('statement');
     }
   };
 
@@ -141,7 +135,6 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
     setSubmittedAnswers(Array(questions.length).fill(false));
     setShowResults(false);
     setShowThankYou(false);
-    setActiveTab('statement');
   };
 
   const handleFinish = () => {
@@ -246,7 +239,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
   }
 
   const renderQuestionCard = () => (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-muted-foreground">
@@ -262,95 +255,74 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
       </div>
 
       {/* Question Content */}
-      <Card className="shadow-md bg-white">
+      <Card className="shadow-md bg-white w-[80%] mx-auto ">
         <CardHeader>
           <CardTitle className="text-lg">{currentQuestion.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="statement" className="flex-1">Statement</TabsTrigger>
-              <TabsTrigger value="ai-help" className="flex-1">AI Help</TabsTrigger>
-            </TabsList>
+          <div className="space-y-4">
+            <p className="text-foreground">{currentQuestion.question}</p>
 
-            <TabsContent value="statement" className="space-y-4 mt-4">
-              <div className="space-y-4">
-                <p className="text-foreground">{currentQuestion.question}</p>
-                
-                {currentQuestion.code && (
-                  <div className="bg-muted/50 p-4 rounded-lg border border-border">
-                    <pre className="text-sm font-mono">
-                      <code>{currentQuestion.code}</code>
-                    </pre>
-                  </div>
-                )}
+            {currentQuestion.code && (
+              <div className="bg-muted/50 p-4 rounded-lg border border-border">
+                <pre className="text-sm font-mono">
+                  <code>{currentQuestion.code}</code>
+                </pre>
+              </div>
+            )}
 
-                <div className="space-y-3">
-                  <RadioGroup 
-                    value={selectedAnswers[currentQuestionIndex]?.toString()}
-                    onValueChange={(value) => handleAnswerSelect(parseInt(value))}
-                    disabled={submittedAnswers[currentQuestionIndex]}
+            <div className="space-y-3">
+              <RadioGroup 
+                key={`question-${currentQuestion.id}-${currentQuestionIndex}`}
+                value={selectedAnswers[currentQuestionIndex] !== null ? selectedAnswers[currentQuestionIndex]!.toString() : ''}
+                onValueChange={(value) => handleAnswerSelect(parseInt(value))}
+                disabled={submittedAnswers[currentQuestionIndex]}
+              >
+                {currentQuestion.options?.map((option, index) => (
+                  <div 
+                    key={index}
+                    className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all ${
+                      submittedAnswers[currentQuestionIndex]
+                        ? index === currentQuestion.correctAnswer
+                          ? 'border-green-500 bg-green-50'
+                          : selectedAnswers[currentQuestionIndex] === index
+                            ? 'border-red-500 bg-red-50'
+                            : 'border-border'
+                        : selectedAnswers[currentQuestionIndex] === index
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
+                    }`}
                   >
-                    {currentQuestion.options?.map((option, index) => (
-                      <div 
-                        key={index}
-                        className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all ${
-                          submittedAnswers[currentQuestionIndex]
-                            ? index === currentQuestion.correctAnswer
-                              ? 'border-green-500 bg-green-50'
-                              : selectedAnswers[currentQuestionIndex] === index
-                                ? 'border-red-500 bg-red-50'
-                                : 'border-border'
-                            : selectedAnswers[currentQuestionIndex] === index
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border hover:border-primary/50'
-                        }`}
-                      >
-                        <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                        <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                          {option}
-                        </Label>
-                        {submittedAnswers[currentQuestionIndex] && index === currentQuestion.correctAnswer && (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        )}
-                        {submittedAnswers[currentQuestionIndex] && 
-                         selectedAnswers[currentQuestionIndex] === index && 
-                         index !== currentQuestion.correctAnswer && (
-                          <XCircle className="h-5 w-5 text-red-600" />
-                        )}
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-
-                {submittedAnswers[currentQuestionIndex] && (
-                  <div className={`p-4 rounded-lg border-2 ${
-                    isAnswerCorrect(currentQuestionIndex)
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-red-500 bg-red-50'
-                  }`}>
-                    <p className="font-semibold mb-2" style={{ color: isAnswerCorrect(currentQuestionIndex) ? '#16a34a' : '#dc2626' }}>
-                      {isAnswerCorrect(currentQuestionIndex) ? '✓ Correct!' : '✗ Incorrect'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{currentQuestion.explanation}</p>
+                    <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                      {option}
+                    </Label>
+                    {submittedAnswers[currentQuestionIndex] && index === currentQuestion.correctAnswer && (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    )}
+                    {submittedAnswers[currentQuestionIndex] && 
+                     selectedAnswers[currentQuestionIndex] === index && 
+                     index !== currentQuestion.correctAnswer && (
+                      <XCircle className="h-5 w-5 text-red-600" />
+                    )}
                   </div>
-                )}
-              </div>
-            </TabsContent>
+                ))}
+              </RadioGroup>
+            </div>
 
-            <TabsContent value="ai-help" className="mt-4">
-              <div className="p-6 bg-muted/30 rounded-lg space-y-3">
-                <h4 className="font-semibold">AI Assistant Hint</h4>
-                <p className="text-sm text-muted-foreground">
-                  This question tests your understanding of {currentQuestion.title.toLowerCase()}. 
-                  Consider the basic syntax rules and common patterns used in programming.
+            {submittedAnswers[currentQuestionIndex] && (
+              <div className={`p-4 rounded-lg border-2 ${
+                isAnswerCorrect(currentQuestionIndex)
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-red-500 bg-red-50'
+              }`}>
+                <p className="font-semibold mb-2" style={{ color: isAnswerCorrect(currentQuestionIndex) ? '#16a34a' : '#dc2626' }}>
+                  {isAnswerCorrect(currentQuestionIndex) ? '✓ Correct!' : '✗ Incorrect'}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {currentQuestion.explanation}
-                </p>
+                <p className="text-sm text-muted-foreground">{currentQuestion.explanation}</p>
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
 
           {!submittedAnswers[currentQuestionIndex] ? (
             <Button 
@@ -384,7 +356,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
     return (
       <div className="space-y-6">
         {/* Code Editor Button */}
-        <div className="flex justify-between items-center">
+        {/* <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Quiz Assessment</h2>
           <Button
             onClick={onToggleCodeEditor}
@@ -394,12 +366,12 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
             <Code className="h-4 w-4" />
             <span>Show Code Editor</span>
           </Button>
-        </div>
+        </div> */}
         
         {renderQuestionCard()}
 
         {/* AI Assistant Card */}
-        <Card className="border-border bg-white">
+        {/* <Card className="border-border bg-white">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center space-x-2 text-lg">
               <MessageCircle className="h-5 w-5" />
@@ -414,7 +386,7 @@ const QuizInterface: React.FC<QuizInterfaceProps> = ({
               </p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     );
   }

@@ -34,7 +34,10 @@ const StudentTask: React.FC = () => {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
+
+  // Debug authentication
+  console.log('StudentTask component loaded, user:', user);
+
   // State management
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -693,9 +696,9 @@ const StudentTask: React.FC = () => {
                       )}
                     </div>
                   </ScrollArea>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <div className="space-y-3">
                     <Textarea
                       value={newComment}
@@ -731,17 +734,17 @@ const StudentTask: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-1 tracking-tight">Tasks</h1>
-          <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Tasks</h1>
+          <p className="text-muted-foreground">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-8 border-slate-200 shadow-sm">
+        <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -758,19 +761,19 @@ const StudentTask: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
+
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger>
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -818,16 +821,42 @@ const StudentTask: React.FC = () => {
                           {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
                         </CardDescription>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
-                        {getStatusLabelText(task.id)}
-                      </Badge>
+
+                      <CardTitle className="text-lg leading-none">
+                        {task.title}
+                      </CardTitle>
+
+                      <CardDescription className="line-clamp-2 text-sm mt-1">
+                        {task.description}
+                      </CardDescription>
+
+                    </div>
+
+                    <Badge
+                      variant={getStatusBadgeVariant(task.id) as any}
+                      className="shrink-0 font-bold px-3 py-1"
+                    >
+                      {getStatusLabelText(task.id)}
+                    </Badge>
+
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>
+                        Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>
+                          Due :{format(new Date(task.due_date), 'MMM dd, yyyy')}
+                        </span>
                       </div>
                       {task.due_date && (
                         <div className="flex items-center gap-1.5 text-orange-400">
