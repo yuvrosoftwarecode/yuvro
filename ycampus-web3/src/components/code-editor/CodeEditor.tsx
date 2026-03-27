@@ -468,15 +468,15 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <ResizablePanelGroup 
-            key={showOutput ? 'split' : 'single'} 
+            key={showOutput ? 'split' : 'single'}
             direction="vertical" 
-            className="flex-1 overflow-hidden"
+            className="flex-1 h-full overflow-hidden"
           >
             {/* Editor Panel */}
             <ResizablePanel
               id="code-editor-main-panel"
               order={1}
-              defaultSize={showOutput ? 50 : 100}
+              defaultSize={showOutput ? 70 : 100}
               minSize={30}
             >
               <div className="h-full bg-white">
@@ -511,8 +511,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
               <ResizablePanel
                 id="code-editor-output-panel"
                 order={2}
-                defaultSize={50}
-                minSize={20}
+                defaultSize={30}
+                minSize={15}
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">

@@ -562,7 +562,7 @@ ${codeEditorRef.current?.getCode() || ''}
       {editorOpen && !isEditorFullscreen && (
         <div
           ref={containerRef}
-          className={`flex-1 min-h-0 overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
+          className={`h-[calc(100vh-160px)] min-h-[400px] overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
         >
           {/* Collapsed Sidebar — vertical tab buttons */}
           {showProblemDescription && isSidebarCollapsed && (
@@ -656,7 +656,7 @@ ${codeEditorRef.current?.getCode() || ''}
           <div
             className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
           >
-            <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full min-h-[400px]">
+            <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
               <CodeEditor
                   ref={codeEditorRef}
                   initialCode={code}

@@ -220,9 +220,9 @@ const CodePractice = () => {
 
   return (
     <StudentLayout>
-      <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative">
-        <div className="flex-1 flex flex-col min-h-0 w-full">
-          <div className="flex-1 transition-all duration-300 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
+        <div className="flex-1 flex flex-col min-h-0 w-full h-full">
+          <div className="flex-1 transition-all duration-300 flex flex-col min-h-0 h-full">
             {isHydrating ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
