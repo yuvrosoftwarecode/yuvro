@@ -35,7 +35,14 @@ const SUPPORTED_LANGUAGES = [
   { value: 'c', label: 'C', extension: 'c' },
   { value: 'html', label: 'HTML', extension: 'html' },
   { value: 'css', label: 'CSS', extension: 'css' },
-  { value: 'sql', label: 'SQL', extension: 'sql' }
+  { value: 'sql', label: 'SQL', extension: 'sql' },
+  { value: 'shell', label: 'Shell', extension: 'sh' },
+  { value: 'ruby', label: 'Ruby', extension: 'rb' },
+  { value: 'php', label: 'PHP', extension: 'php' },
+  { value: 'go', label: 'Go', extension: 'go' },
+  { value: 'xml', label: 'XML', extension: 'xml' },
+  { value: 'yaml', label: 'YAML', extension: 'yaml' },
+  { value: 'markdown', label: 'Markdown', extension: 'md' }
 ];
 
 const DEFAULT_CODE_TEMPLATES = {
