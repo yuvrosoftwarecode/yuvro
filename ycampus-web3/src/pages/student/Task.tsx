@@ -34,7 +34,10 @@ const StudentTask: React.FC = () => {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  
+
+  // Debug authentication
+  console.log('StudentTask component loaded, user:', user);
+
   // State management
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -148,7 +151,7 @@ const StudentTask: React.FC = () => {
         setAnswersData({});
       }
     } else {
-       setAnswersData({});
+        setAnswersData({});
     }
 
     setActiveQuestionIndex(null);
@@ -216,18 +219,18 @@ const StudentTask: React.FC = () => {
       const hasMultipleQuestions = currentTask.question_details && currentTask.question_details.length > 1;
 
       if (hasMultipleQuestions) {
-         formData.append('answers_data', JSON.stringify(answersData));
-         
+          formData.append('answers_data', JSON.stringify(answersData));
+        
          // Fallback robust aggregation for `answer` field
-         let aggregatedAnswer = '';
-         Object.entries(answersData).forEach(([idxStr, text]) => {
+          let aggregatedAnswer = '';
+          Object.entries(answersData).forEach(([idxStr, text]) => {
             const numIdx = parseInt(idxStr);
             const questionTitle = currentTask.question_details?.[numIdx]?.question_text || `Question ${numIdx + 1}`;
             aggregatedAnswer += `\n--- ${questionTitle} ---\n${text}\n`;
-         });
-         formData.append('answer', aggregatedAnswer.trim() || 'No text submitted.');
+          });
+          formData.append('answer', aggregatedAnswer.trim() || 'No text submitted.');
       } else {
-         formData.append('answer', taskContent);
+          formData.append('answer', taskContent);
       }
 
       formData.append('is_submitted', 'true');
@@ -243,8 +246,8 @@ const StudentTask: React.FC = () => {
           const zip = new JSZip();
           toast({ title: "Processing", description: "Zipping files before upload..." });
           for (const [key, file] of Object.entries(selectedFiles)) {
-             const fileNamePrefix = key === 'general' ? `Main_` : `Q${parseInt(key) + 1}_`;
-             zip.file(`${fileNamePrefix}${file.name}`, file);
+              const fileNamePrefix = key === 'general' ? `Main_` : `Q${parseInt(key) + 1}_`;
+              zip.file(`${fileNamePrefix}${file.name}`, file);
           }
           const zipBlob = await zip.generateAsync({ type: 'blob' });
           formData.append('file', zipBlob, `${currentTask.title.replace(/[^a-zA-Z0-9]/g, '_')}_Files.zip`);
@@ -337,7 +340,7 @@ const StudentTask: React.FC = () => {
                 <div className="flex items-center justify-between text-sm text-primary font-medium">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center shrink-0">
-                       <FileText className="h-5 w-5 text-slate-500" />
+                        <FileText className="h-5 w-5 text-slate-500" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">
@@ -359,79 +362,50 @@ const StudentTask: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-             {/* Left Side - Content Area */}
-             <div className="lg:col-span-2">
-               <Card>
-                 <CardHeader>
-                   <CardTitle className="flex items-center justify-between">
-                     {isMultiQuestion 
-                       ? (activeQuestionIndex !== null ? `Question ${activeQuestionIndex + 1}` : 'Questions List') 
-                       : 'Your Work'}
-                   </CardTitle>
-                 </CardHeader>
-                 <CardContent>
-                    
-                    {/* Master List View */}
-                    {isMultiQuestion && activeQuestionIndex === null ? (
-                      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="grid grid-cols-1 gap-4">
-                          {currentTask.question_details?.map((q: any, idx: number) => {
-                            const isAnswered = !!answersData[idx] && answersData[idx].trim().length > 0;
-                            const hasFile = !!selectedFiles[idx];
-                            return (
-                              <div 
-                                key={idx} 
-                                onClick={() => setActiveQuestionIndex(idx)}
-                                className={`p-5 rounded-xl border transition-all cursor-pointer ${
-                                  (isAnswered || hasFile) ? 'border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 shadow-[0_4px_12px_rgba(16,185,129,0.05)]' : 'border-slate-200 bg-white hover:border-primary/50 hover:shadow-md'
-                                }`}
-                              >
-                                <div className="flex justify-between items-start gap-4 mb-2">
-                                  <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                                    Question {idx + 1}
-                                    {(isAnswered || hasFile) && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
-                                    {hasFile && <Paperclip className="h-3 w-3 text-emerald-600" />}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold shadow-none">{q.marks} Marks</Badge>}
-                                    {q.difficulty_level && (
-                                      <Badge className={`text-[10px] shadow-none font-bold ${
-                                        q.difficulty_level.toLowerCase() === 'hard' ? 'bg-red-50 text-red-600' :
-                                        q.difficulty_level.toLowerCase() === 'medium' ? 'bg-orange-50 text-orange-600' :
-                                        'bg-emerald-50 text-emerald-600'
-                                      }`}>
-                                        {q.difficulty_level}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-2">
-                                  {q.question_text || q.title || 'Untitled Question'}
-                                </p>
-                                {(isAnswered || hasFile) && (
-                                  <p className="mt-3 text-xs font-semibold text-emerald-600">
-                                    {isAnswered && "Answer saved "} {isAnswered && hasFile && " & "} {hasFile && "File attached"}
-                                  </p>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        
-                        {getTaskStatus(currentTask.id) !== 'completed' && (
-                          <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
-                            <p className="text-sm font-bold text-slate-500">
-                              Answered: <span className="text-slate-800">{Object.keys(answersData).filter(k => answersData[parseInt(k)]?.trim().length > 0).length}</span> / {currentTask.question_details?.length}
-                            </p>
-                            <Button onClick={handleSubmitTask} disabled={isSubmitting} size="lg" className="font-bold shadow-md hover:shadow-lg h-12 px-8">
-                              {isSubmitting ? (
-                                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              ) : (
-                                <Send className="h-4 w-4 mr-2" />
-                              )}
-                              Submit Entire Task
-                            </Button>
-                          </div>
+            {/* Left Side - Content Area */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    Your Work
+                    {getTaskStatus(currentTask.id) !== 'completed' && (
+                      <Button onClick={handleUploadClick} variant="outline" size="sm">
+                        <Upload className="h-4 w-4 mr-2" />
+                        {selectedFile ? 'Change File' : 'Upload File'}
+                      </Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[520px] w-full rounded-md border overflow-hidden">
+                    {currentTask?.task_type === 'coding' ? (
+                      <CodeEditor
+                        initialCode={taskContent}
+                        onCodeChange={setTaskContent}
+                        readOnly={getTaskStatus(currentTask.id) === 'completed'}
+                        className="h-full border-0"
+                      />
+                    ) : (
+                      <Textarea
+                        value={taskContent}
+                        onChange={(e) => setTaskContent(e.target.value)}
+                        placeholder={getTaskStatus(currentTask.id) === 'completed'
+                          ? 'No content available for this task.'
+                          : 'Type your solution here...'
+                        }
+                        className="h-full resize-none border-0 focus-visible:ring-0 text-sm p-4"
+                        disabled={getTaskStatus(currentTask.id) === 'completed'}
+                      />
+                    )}
+                  </div>
+
+                  {getTaskStatus(currentTask.id) !== 'completed' && (
+                    <div className="flex justify-end mt-4">
+                      <Button onClick={handleSubmitTask} disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        ) : (
+                          <Send className="h-4 w-4 mr-2" />
                         )}
                         {getTaskStatus(currentTask.id) === 'completed' && (
                           <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-100 bg-slate-50/50 -mx-6 -mb-6 p-6 rounded-b-xl">
@@ -625,77 +599,32 @@ const StudentTask: React.FC = () => {
                   <ScrollArea ref={scrollAreaRef} className="h-[400px] pr-4">
                     <div className="space-y-4">
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
-                          <div 
-                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
-                            comment.faculty 
-                              ? 'bg-[#EFF6FF] border-blue-200 border-r-4 border-r-blue-500 ml-0 mr-auto' 
-                              : 'bg-[#F0FDF4] border-emerald-200 border-l-4 border-l-emerald-500 ml-auto mr-0'
-                          } ${comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/) ? 'cursor-pointer' : ''}`}
-                            onClick={() => {
-                              // Robust regex to match various formats: name_8, name_L8, name:8
-                              const match = comment.comment.match(/([a-zA-Z0-9._-]+)[_:]L?(\d+)/);
-                              if (match) {
-                                const [, filename, lineStr] = match;
-                                // Also try to get quoted text if it exists later in the string
-                                const quoteMatch = comment.comment.match(/"([^"]*)"/);
-                                handleAnnotationLinkClick(filename, parseInt(lineStr), quoteMatch ? quoteMatch[1] : undefined);
-                              }
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-6 mb-2">
-                              <span className="font-bold text-[11px] text-[#020817]">
-                                {comment.faculty ? 'Faculty' : 'Student'}
-                              </span>
-                              <span className="text-[10px] text-slate-500 font-medium">
-                                {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
-                              </span>
-                            </div>
-                            <p className="text-sm text-[#020817] leading-relaxed font-semibold">
-                             {(() => {
-                                const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
-                                const parts = [];
-                                let lastIndex = 0;
-                                let match;
-
-                                while ((match = regex.exec(comment.comment)) !== null) {
-                                   if (match.index > lastIndex) {
-                                      parts.push(comment.comment.substring(lastIndex, match.index));
-                                   }
-
-                                   const [, filename, lineStr, quotedText] = match;
-                                   parts.push(
-                                      <button
-                                         key={match.index}
-                                         onClick={() => handleAnnotationLinkClick(filename, parseInt(lineStr), quotedText)}
-                                         className="text-primary hover:underline font-black bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-1 group transition-all mr-1"
-                                      >
-                                         <FileText className="h-3 w-3" />
-                                         {filename}:{lineStr}
-                                      </button>
-                                   );
-                                   lastIndex = regex.lastIndex;
-                                }
-
-                                if (lastIndex < comment.comment.length) {
-                                   parts.push(comment.comment.substring(lastIndex));
-                                }
-
-                                return parts.length > 0 ? parts : comment.comment;
-                             })()}
-                          </p>
+                        <div key={comment.id} className={`p-3 rounded-xl border ${comment.faculty
+                          ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4'
+                          : 'bg-slate-50 border-slate-100 ml-4 mr-0'
+                          }`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-[11px]  tracking-wider text-slate-500">
+                              {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
+                            </span>
+                            <span className="text-[10px]  font-medium">
+                              {format(new Date(comment.created_at), 'HH:mm')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium">{comment.comment}</p>
                         </div>
                       ))}
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
                         <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
                           <Send className="h-10 w-10 mb-2" />
-                          <p className="text-sm font-bold">No messages yet</p>
+                          <p className="text-sm font-bold  tracking-widest">No messages yet</p>
                         </div>
                       )}
                     </div>
                   </ScrollArea>
-                  
+
                   <Separator className="my-4" />
-                  
+
                   <div className="space-y-3">
                     <Textarea
                       value={newComment}
@@ -731,17 +660,17 @@ const StudentTask: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-1 tracking-tight">Tasks</h1>
-          <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Tasks</h1>
+          <p className="text-muted-foreground">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-8 border-slate-200 shadow-sm">
+        <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -758,19 +687,19 @@ const StudentTask: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="flex-1 space-y-1">
-                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">
+
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
+                  <SelectTrigger>
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -781,76 +710,82 @@ const StudentTask: React.FC = () => {
 
         {isLoading ? (
           <div className="grid gap-4">
-             {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 rounded-2xl bg-white border border-slate-100 flex p-6 gap-6 items-center shadow-sm">
-                   <div className="space-y-3 flex-1">
-                      <div className="h-3 bg-slate-100 rounded-full w-20 animate-pulse"></div>
-                      <div className="h-6 bg-slate-100 rounded-full w-1/3 animate-pulse"></div>
-                      <div className="h-3 bg-slate-100 rounded-full w-2/3 animate-pulse"></div>
-                   </div>
-                   <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse"></div>
-                </div>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 rounded-2xl bg-slate-50 animate-pulse border border-slate-100" />
             ))}
           </div>
         ) : filteredTasks.length > 0 ? (
-            <div className="grid gap-4">
-              {filteredTasks.map((task) => (
-                <Card 
-                  key={task.id} 
-                  className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
-                  onClick={() => handleTaskClick(task)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                           <Badge variant="outline" className="text-[9px] font-bold text-slate-400">
-                             {task.task_type || 'Task'}
-                           </Badge>
-                           <span className="text-[10px] font-bold text-slate-300">
-                             {getSubjectName(task)}
-                           </span>
-                        </div>
-                        <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors truncate">
-                          {task.title}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-2 text-sm font-medium leading-relaxed">
-                          {task.description || (task.question_details && task.question_details.length > 0 ? `${task.question_details.length} structured questions assigned.` : "No instructions provided.")}
-                        </CardDescription>
+          <div className="grid gap-4">
+            {filteredTasks.map((task) => (
+              <Card
+                key={task.id}
+                className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group"
+                onClick={() => handleTaskClick(task)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0 space-y-2">
+
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[9px] capitalize tracking-widest">
+                          {task.task_type || 'Task'}
+                        </Badge>
+                        <span className="text-[10px] tracking-widest">
+                          {getSubjectName(task)}
+                        </span>
                       </div>
-                      <Badge variant={getStatusBadgeVariant(task.id) as any} className="shrink-0 font-bold px-3 py-1">
-                        {getStatusLabelText(task.id)}
-                      </Badge>
+
+                      <CardTitle className="text-lg leading-none">
+                        {task.title}
+                      </CardTitle>
+
+                      <CardDescription className="line-clamp-2 text-sm mt-1">
+                        {task.description}
+                      </CardDescription>
+
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400">
+
+                    <Badge
+                      variant={getStatusBadgeVariant(task.id) as any}
+                      className="shrink-0 font-bold px-3 py-1"
+                    >
+                      {getStatusLabelText(task.id)}
+                    </Badge>
+
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>
+                        Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
+                      </span>
+                    </div>
+
+                    {task.due_date && (
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>Created {format(new Date(task.created_at), 'MMM dd, yyyy')}</span>
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>
+                          Due :{format(new Date(task.due_date), 'MMM dd, yyyy')}
+                        </span>
                       </div>
-                      {task.due_date && (
-                        <div className="flex items-center gap-1.5 text-orange-400">
-                          <Clock className="h-3.5 w-3.5" />
-                          <span>Due {format(new Date(task.due_date), 'MMM dd, yyyy')}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="border-dashed border-2 py-20 bg-slate-50/50">
-              <CardContent>
-                <div className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-700 mb-2">You're all caught up!</h3>
-                <p className="text-slate-500 font-medium text-center max-w-sm">No tasks match your current filters. Check back later or adjust your filters.</p>
-              </CardContent>
-            </Card>
-          )}
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-dashed border-2 py-20 bg-slate-50/50">
+            <CardContent>
+              <div className="text-center">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-slate-200" />
+                <p className=" font-bold  tracking-widest text-sm">No tasks found</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </StudentLayout>
   );
