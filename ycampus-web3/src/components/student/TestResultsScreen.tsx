@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import AIChatContainer from './ai-buddy/AIChatContainer';
 import { 
   ArrowLeft, 
-  RotateCcw, 
   TrendingUp, 
   TrendingDown, 
-  MessageSquare,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
   Code,
-  Clock,
   Target,
   Star,
-  Bot,
-  Send,
-  FileText,
-  Award,
-  Calendar,
-  User,
   CheckCircle,
   XCircle,
   AlertCircle,
-  BookOpen
+  BookOpen,
+  Eye,
+  Lightbulb,
 } from 'lucide-react';
 
 interface TestResultsScreenProps {
@@ -51,33 +46,18 @@ interface QuestionResult {
   maxPoints: number;
 }
 
-interface ChatMessage {
-  id: number;
-  type: 'user' | 'ai';
-  message: string;
-  timestamp: Date;
-}
-
 const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
   testName,
   subject,
   difficulty,
   totalQuestions,
   timeTaken,
-  onTryAgain,
   onBackToTests
 }) => {
-  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(0);
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      type: 'ai',
-      message: "Hello! I'm your AI assistant. I can help clarify doubts about any question or explain concepts you found challenging. What would you like to know?",
-      timestamp: new Date()
-    }
-  ]);
-  const [newMessage, setNewMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'ai_buddy'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'mcq' | 'coding' | 'descriptive'>('all');
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
+  const [showAiChat, setShowAiChat] = useState(false);
 
   // Mock test results data
   const testData = {
@@ -98,66 +78,69 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
   const questionResults: QuestionResult[] = [
     {
       id: 1,
-      question: "What is the time complexity of binary search algorithm?",
+      question: 'For the system Ax = b, what condition guarantees a unique solution?',
       type: 'mcq',
-      options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
-      correctAnswer: "O(log n)",
-      studentAnswer: "O(log n)",
+      options: ['det(A) = 0', 'det(A) != 0', 'A is a zero matrix', 'A is singular'],
+      correctAnswer: 'det(A) != 0',
+      studentAnswer: 'det(A) != 0',
       isCorrect: true,
-      explanation: "Binary search divides the search space in half with each iteration, resulting in logarithmic time complexity O(log n).",
+      explanation: 'A square system has a unique solution when A is invertible, which is equivalent to det(A) != 0.',
       points: 2,
       maxPoints: 2
     },
     {
       id: 2,
-      question: "Which data structure uses LIFO (Last In First Out) principle?",
+      question: 'After reducing an augmented matrix, what does a row [0 0 0 | c] with c != 0 indicate?',
       type: 'mcq',
-      options: ["Queue", "Stack", "Array", "Linked List"],
-      correctAnswer: "Stack",
-      studentAnswer: "Queue",
+      options: ['Infinite solutions', 'No solution (inconsistent system)', 'Unique solution', 'Dependent equations only'],
+      correctAnswer: 'No solution (inconsistent system)',
+      studentAnswer: 'Infinite solutions',
       isCorrect: false,
-      explanation: "Stack follows LIFO principle where the last element added is the first one to be removed. Queue follows FIFO (First In First Out) principle.",
+      explanation: 'A contradictory row means the equations are inconsistent, so the system has no solution.',
       points: 0,
       maxPoints: 2
     },
     {
       id: 3,
-      question: "Explain the difference between abstract class and interface in Java.",
+      question: 'Explain when a linear system is called underdetermined and what that implies about solutions.',
       type: 'short-answer',
-      correctAnswer: "Abstract classes can have both abstract and concrete methods, while interfaces can only have abstract methods (prior to Java 8). Abstract classes are inherited using 'extends', interfaces are implemented using 'implements'.",
-      studentAnswer: "Abstract classes have some methods implemented, interfaces don't have any implementation.",
+      correctAnswer: 'An underdetermined system has fewer independent equations than unknowns (rank < number of variables). If consistent, it usually has infinitely many solutions with one or more free variables.',
+      studentAnswer: 'Underdetermined means fewer equations than variables, so there are many answers.',
       isCorrect: false,
-      explanation: "Your answer is partially correct but incomplete. Abstract classes can contain both abstract and concrete methods, constructors, and instance variables. Interfaces (prior to Java 8) could only contain abstract methods and constants. From Java 8+, interfaces can have default and static methods.",
+      explanation: 'Partially correct. You should mention consistency and free variables explicitly. Not every underdetermined system is automatically solvable.',
       points: 1,
       maxPoints: 3
     },
     {
       id: 4,
-      question: "What is polymorphism in object-oriented programming?",
+      question: 'What is the geometric interpretation of two independent linear equations in two variables?',
       type: 'short-answer',
-      correctAnswer: "Polymorphism allows objects of different types to be treated as objects of a common base type. It enables a single interface to represent different underlying forms (data types).",
+      correctAnswer: 'Each equation represents a line. If the lines intersect at one point, the system has a unique solution; if parallel, no solution; if coincident, infinitely many solutions.',
       studentAnswer: "",
       isCorrect: false,
-      explanation: "This question was not attempted. Polymorphism is a fundamental OOP concept that allows one interface to be used for different underlying data types.",
+      explanation: 'Not attempted. This question checks conceptual understanding of solution cases using line intersections.',
       points: 0,
       maxPoints: 3
     },
     {
       id: 5,
-      question: "Write a function to reverse a string in Java.",
+      question: 'Write a function to solve a 2x2 linear system using Cramer\'s rule.',
       type: 'coding',
-      correctAnswer: `public String reverseString(String str) {
-    return new StringBuilder(str).reverse().toString();
+      correctAnswer: `function solve2x2(a1, b1, c1, a2, b2, c2) {
+  const det = a1 * b2 - a2 * b1;
+  if (det === 0) return null;
+  const x = (c1 * b2 - c2 * b1) / det;
+  const y = (a1 * c2 - a2 * c1) / det;
+  return { x, y };
 }`,
-      studentAnswer: `public String reverseString(String str) {
-    String result = "";
-    for(int i = str.length()-1; i >= 0; i--) {
-        result += str.charAt(i);
-    }
-    return result;
+      studentAnswer: `function solve2x2(a1, b1, c1, a2, b2, c2) {
+  const det = a1 * b2 - a2 * b1;
+  const x = (c1 * b2 - c2 * b1) / det;
+  const y = (a1 * c2 - a2 * c1) / det;
+  return { x, y };
 }`,
       isCorrect: true,
-      explanation: "Your solution is correct and demonstrates a good understanding of string manipulation. However, string concatenation in loops is inefficient. Consider using StringBuilder for better performance.",
+      explanation: 'Your determinant-based formula is correct. Add a det === 0 check to handle singular systems safely.',
       points: 4,
       maxPoints: 5
     }
@@ -177,49 +160,54 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
     completionRate: Math.round(((totalQuestions - notAttempted) / totalQuestions) * 100)
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+  const filteredQuestions = useMemo(() => {
+    let result = questionResults;
 
-    const userMessage: ChatMessage = {
-      id: chatMessages.length + 1,
-      type: 'user',
-      message: newMessage,
-      timestamp: new Date()
-    };
+    if (typeFilter !== 'all') {
+      result = result.filter((q) => {
+        if (typeFilter === 'descriptive') {
+          return q.type === 'short-answer';
+        }
+        return q.type === typeFilter;
+      });
+    }
 
-    setChatMessages(prev => [...prev, userMessage]);
+    if (activeTab === 'incorrect') {
+      return result.filter((q) => !q.isCorrect);
+    }
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: chatMessages.length + 2,
-        type: 'ai',
-        message: generateAIResponse(newMessage),
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+    if (activeTab === 'correct') {
+      return result.filter((q) => q.isCorrect);
+    }
 
-    setNewMessage('');
+    return result;
+  }, [questionResults, activeTab, typeFilter]);
+
+  const toggleQuestion = (index: number) => {
+    setExpandedQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   };
 
-  const generateAIResponse = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    const currentQuestion = selectedQuestion !== null ? questionResults[selectedQuestion] : null;
-    
-    if (lowerMessage.includes('explain') && currentQuestion) {
-      return `Let me explain question ${currentQuestion.id}: ${currentQuestion.explanation}. Would you like me to elaborate on any specific part?`;
-    } else if (lowerMessage.includes('why') && lowerMessage.includes('wrong') && currentQuestion) {
-      if (!currentQuestion.isCorrect) {
-        return `Your answer was incorrect because: ${currentQuestion.explanation}. The correct answer is: ${currentQuestion.correctAnswer}`;
-      }
-    } else if (lowerMessage.includes('improve') || lowerMessage.includes('study')) {
-      return "Based on your performance, I recommend focusing on: 1) OOP concepts (polymorphism, abstract classes vs interfaces), 2) Algorithm time complexity analysis, 3) String manipulation best practices. Practice more coding problems and review theoretical concepts.";
-    } else if (lowerMessage.includes('score') || lowerMessage.includes('performance')) {
-      return `You scored ${totalScore}/${maxScore} points (${percentage}%). Your accuracy was ${performanceMetrics.accuracy}% with ${correctAnswers} correct answers out of ${totalQuestions} questions.`;
-    }
-    
-    return "I'm here to help! You can ask me about specific questions, concepts, or how to improve your performance. What would you like to know?";
+  const getTestContext = () => {
+    const incorrect = questionResults.filter((q) => !q.isCorrect);
+    const focusQuestion = incorrect[0] || questionResults[0];
+    return [
+      `Test: ${testName}`,
+      `Subject: ${subject}`,
+      `Difficulty: ${difficulty}`,
+      `Score: ${totalScore}/${maxScore} (${percentage}%)`,
+      `Correct: ${correctAnswers}/${totalQuestions}`,
+      `Incorrect: ${wrongAnswers}`,
+      `Not attempted: ${notAttempted}`,
+      focusQuestion ? `Focus question: ${focusQuestion.question}` : '',
+    ].filter(Boolean).join('\n');
   };
 
   const getScoreColor = (score: number) => {
@@ -244,32 +232,18 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with Back Button */}
-        <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={onBackToTests}>
+        <div className="flex items-center">
+        <div className="flex-1">
+          <Button className="inline-flex items-center gap-2 bg-white text-black hover:bg-slate-100" onClick={onBackToTests}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Tests
           </Button>
-          <Button onClick={onTryAgain} className="bg-blue-600 hover:bg-blue-700">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Try Again
-          </Button>
+          </div>
+          <div className="flex-1 text-center">  
+            <h2 className="text-xl font-semibold text-foreground">Test Report</h2>
+          </div>
+          <div className="flex-1"></div>
         </div>
-
-        {/* Report Download Section */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">Test Report</h2>
-                <p className="text-sm text-muted-foreground mt-1">Your detailed test analysis and performance</p>
-              </div>
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                <FileText className="w-4 h-4 mr-2" />
-                Download Report
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Main Tabs */}
         <Tabs defaultValue="overall" className="space-y-6">
@@ -481,190 +455,235 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
             </div>
           </TabsContent>
 
-          {/* Question-wise Analysis Tab */}
           <TabsContent value="questions">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              {/* Question Analysis */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card className="h-[700px] flex flex-col">
-                  <CardContent className="p-6 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-6 flex-wrap">
-                      {questionResults.map((result, index) => (
-                        <Button
-                          key={index}
-                          variant={selectedQuestion === index ? "default" : "outline"}
-                          onClick={() => setSelectedQuestion(index)}
-                          className="w-12 h-12 rounded-full relative"
-                        >
-                          <span className="text-sm font-medium">Q{index + 1}</span>
-                          {result.isCorrect ? (
-                            <CheckCircle className="w-3 h-3 text-green-600 absolute -top-1 -right-1" />
-                          ) : result.studentAnswer.trim() === '' ? (
-                            <AlertCircle className="w-3 h-3 text-orange-600 absolute -top-1 -right-1" />
-                          ) : (
-                            <XCircle className="w-3 h-3 text-red-600 absolute -top-1 -right-1" />
-                          )}
-                        </Button>
-                      ))}
-                    </div>
+            <Card className="border border-gray-200 shadow-sm rounded-xl overflow-hidden bg-white">
+              <div className="px-6 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+                <div className="flex flex-wrap items-center gap-2">
+                  {(['all', 'incorrect', 'correct'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        setActiveTab(tab);
+                        setShowAiChat(false);
+                      }}
+                      className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${
+                        activeTab === tab
+                          ? tab === 'incorrect'
+                            ? 'bg-red-500 text-white'
+                            : tab === 'correct'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-900 text-white'
+                          : tab === 'incorrect'
+                            ? 'text-black hover:bg-red-50 hover:text-red-600'
+                            : tab === 'correct'
+                              ? 'text-black hover:bg-green-50 hover:text-green-600'
+                              : 'text-black hover:bg-gray-100'
+                      }`}
+                    >
+                      {tab === 'all'
+                        ? `All (${questionResults.length})`
+                        : tab === 'incorrect'
+                          ? `Incorrect (${questionResults.length - correctAnswers})`
+                          : `Correct (${correctAnswers})`}
+                    </button>
+                  ))}
 
-                    <ScrollArea className="flex-1 pr-2">
-                      {selectedQuestion !== null && (
-                        <div className="space-y-6">
-                          <div>
-                            <h3 className="font-semibold mb-2">Question {selectedQuestion + 1}</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              {questionResults[selectedQuestion].question}
-                            </p>
-                            
-                            {questionResults[selectedQuestion].options && (
-                              <div className="mb-4">
-                                <p className="font-medium text-sm mb-2">Options:</p>
-                                <ul className="space-y-1">
-                                  {questionResults[selectedQuestion].options!.map((option, idx) => (
-                                    <li key={idx} className="text-sm text-muted-foreground">
-                                      {String.fromCharCode(65 + idx)}. {option}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
+                  <div className="h-5 w-px bg-gray-200 mx-1" />
 
-                          <Tabs defaultValue="answer" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
-                              <TabsTrigger value="answer">Your Answer</TabsTrigger>
-                              <TabsTrigger value="correct">Correct Answer</TabsTrigger>
-                              <TabsTrigger value="explanation">Explanation</TabsTrigger>
-                            </TabsList>
+                  {(['all', 'mcq', 'coding', 'descriptive'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setTypeFilter(type)}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${
+                        typeFilter === type
+                          ? 'bg-white text-black border border-gray-300'
+                          : 'text-black hover:text-black hover:bg-white'
+                      }`}
+                    >
+                      {type === 'all' ? 'All Types' : type.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
 
-                            <TabsContent value="answer" className="space-y-4">
-                              <div className="p-4 bg-muted/50 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                  {questionResults[selectedQuestion].isCorrect ? (
-                                    <CheckCircle className="w-4 h-4 text-green-600" />
-                                  ) : questionResults[selectedQuestion].studentAnswer.trim() === '' ? (
-                                    <AlertCircle className="w-4 h-4 text-orange-600" />
-                                  ) : (
-                                    <XCircle className="w-4 h-4 text-red-600" />
-                                  )}
-                                  <span className="font-medium text-sm">
-                                    {questionResults[selectedQuestion].isCorrect
-                                      ? 'Correct'
-                                      : questionResults[selectedQuestion].studentAnswer.trim() === ''
-                                      ? 'Not Attempted'
-                                      : 'Incorrect'}
-                                  </span>
-                                </div>
-                                <p className="text-sm">
-                                  {questionResults[selectedQuestion].studentAnswer || 'No answer provided'}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  Points: {questionResults[selectedQuestion].points}/{questionResults[selectedQuestion].maxPoints}
-                                </p>
-                              </div>
-                            </TabsContent>
-
-                            <TabsContent value="correct" className="space-y-4">
-                              <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <CheckCircle className="w-4 h-4 text-green-600" />
-                                  <span className="font-medium text-sm">Correct Answer</span>
-                                </div>
-                                <p className="text-sm">
-                                  {questionResults[selectedQuestion].correctAnswer}
-                                </p>
-                              </div>
-                            </TabsContent>
-
-                            <TabsContent value="explanation" className="space-y-4">
-                              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <BookOpen className="w-4 h-4 text-blue-600" />
-                                  <span className="font-medium text-sm">Explanation</span>
-                                </div>
-                                <p className="text-sm">
-                                  {questionResults[selectedQuestion].explanation}
-                                </p>
-                              </div>
-                            </TabsContent>
-                          </Tabs>
-                        </div>
-                      )}
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
+                <button
+                  onClick={() => {
+                    const nextIsOpen = !showAiChat;
+                    setShowAiChat(nextIsOpen);
+                    setActiveTab(nextIsOpen ? 'ai_buddy' : 'all');
+                  }}
+                  className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all ${
+                    showAiChat
+                      ? 'bg-slate-800 text-white'
+                      : 'text-slate-700 hover:bg-white border border-slate-200'
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4" /> AI Mentor
+                </button>
               </div>
 
-              {/* AI Assistant */}
-              <Card className={`transition-all duration-300 ${showChatbot ? 'h-[700px]' : 'h-auto'} flex flex-col`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center justify-between text-lg">
-                    <div className="flex items-center gap-2">
-                      <Bot className="w-5 h-5 text-blue-600" />
-                      AI Assistant
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowChatbot(!showChatbot)}
-                    >
-                      {showChatbot ? 'Minimize' : 'Expand'}
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className={`${showChatbot ? 'flex-1 flex flex-col' : ''} p-4 pt-0`}>
-                  {!showChatbot ? (
-                    <div className="text-center py-4">
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Get help with any question or concept
-                      </p>
-                      <Button onClick={() => setShowChatbot(true)} className="w-full">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Start Conversation
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <ScrollArea className="flex-1 mb-4 pr-2">
-                        <div className="space-y-4">
-                          {chatMessages.map((message) => (
-                            <div
-                              key={message.id}
-                              className={`flex ${
-                                message.type === 'user' ? 'justify-end' : 'justify-start'
-                              }`}
-                            >
-                              <div
-                                className={`max-w-[85%] p-3 rounded-lg text-sm ${
-                                  message.type === 'user'
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted text-foreground'
-                                }`}
-                              >
-                                {message.message}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                      <div className="flex gap-2">
-                        <Input
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          placeholder="Ask about any question..."
-                          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                          className="flex-1"
-                        />
-                        <Button onClick={handleSendMessage} size="sm">
-                          <Send className="w-4 h-4" />
-                        </Button>
+              <div className={`flex ${showAiChat ? 'flex-col lg:flex-row' : 'flex-col'}`}>
+                <div className={`${showAiChat ? 'lg:w-[65%] w-full border-r border-gray-100' : 'w-full'} p-5`}>
+                  <div className="space-y-4">
+                    {filteredQuestions.length === 0 && (
+                      <div className="text-center py-10 text-gray-500 text-sm">
+                        No questions found for this filter.
                       </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                    )}
+
+                    {filteredQuestions.map((question, idx) => {
+                      const listIndex = questionResults.findIndex((q) => q.id === question.id);
+                      const isExpanded = expandedQuestions.has(listIndex);
+                      const isCorrect = question.isCorrect;
+                      const qType =
+                        question.type === 'mcq'
+                          ? 'MCQ'
+                          : question.type === 'coding'
+                            ? 'Coding'
+                            : 'Descriptive';
+
+                      const correctSet = new Set(
+                        question.correctAnswer
+                          .split(',')
+                          .map((entry) => entry.trim())
+                          .filter(Boolean)
+                      );
+                      const answerSet = new Set(
+                        question.studentAnswer
+                          .split(',')
+                          .map((entry) => entry.trim())
+                          .filter(Boolean)
+                      );
+
+                      return (
+                        <div
+                          key={question.id}
+                          className={`border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm bg-white ${isCorrect ? 'border-gray-200' : 'border-red-200'}`}
+                        >
+                          <div
+                            className={`p-4 cursor-pointer flex items-start gap-3 hover:bg-white transition-colors ${isExpanded ? 'bg-white' : ''}`}
+                            onClick={() => toggleQuestion(listIndex)}
+                          >
+                            <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                              {isCorrect
+                                ? <CheckCircle className="h-4 w-4 text-green-600" />
+                                : <XCircle className="h-4 w-4 text-red-600" />}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
+                                <Badge className="text-[10px] h-4 px-1.5 bg-white text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
+                              </div>
+                              <p className="text-sm font-medium text-gray-900 line-clamp-2">{question.question}</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="text-right hidden sm:block">
+                                <p className="text-[10px] text-gray-400 uppercase font-bold">Score</p>
+                                <p className={`text-sm font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                                  {question.points}/{question.maxPoints}
+                                </p>
+                              </div>
+                              {isExpanded
+                                ? <ChevronUp className="h-4 w-4 text-gray-400" />
+                                : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="border-t border-gray-100 p-5 space-y-4 bg-white">
+                              {question.options && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  {question.options.map((option, optionIndex) => {
+                                    const isSelected = answerSet.has(option);
+                                    const isOptionCorrect = correctSet.has(option);
+                                    const style = isOptionCorrect
+                                      ? 'border-green-200 bg-green-50 text-green-800'
+                                      : isSelected
+                                        ? 'border-red-200 bg-red-50 text-red-800'
+                                        : 'border-gray-200 bg-white text-gray-600';
+
+                                    return (
+                                      <div key={optionIndex} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
+                                        <span>{option}</span>
+                                        {isOptionCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
+                                        {isSelected && !isOptionCorrect && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {question.type === 'coding' && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Code className="h-4 w-4" /> Your Code
+                                  </p>
+                                  {question.studentAnswer ? (
+                                    <pre className="bg-white rounded-lg p-3 border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">{question.studentAnswer}</pre>
+                                  ) : (
+                                    <div className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
+                                      <Eye className="w-4 h-4" /> No code submitted
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {question.type === 'coding' && question.correctAnswer && (
+                                <div className="space-y-2 pt-2 border-t border-gray-100">
+                                  <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                    <Lightbulb className="h-4 w-4" /> Reference Solution
+                                  </p>
+                                  <pre className="bg-green-50 rounded-lg p-3 border border-green-200 text-sm text-green-900 whitespace-pre-wrap">{question.correctAnswer}</pre>
+                                </div>
+                              )}
+
+                              {question.type === 'short-answer' && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700">Your Answer</p>
+                                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                    <pre className="text-sm whitespace-pre-wrap text-gray-800">{question.studentAnswer || 'No answer provided'}</pre>
+                                  </div>
+                                </div>
+                              )}
+
+                              {question.explanation && (
+                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                                  <h4 className="text-sm font-bold text-blue-800 mb-1 flex items-center gap-2">
+                                    <Lightbulb className="h-4 w-4" /> Explanation
+                                  </h4>
+                                  <p className="text-sm text-blue-900/80">{question.explanation}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {showAiChat && (
+                  <div className="lg:w-[35%] w-full flex flex-col bg-white h-screen">
+                    <div className="flex-1 p-4 h-full relative">
+                      <div className="absolute inset-4">
+                        <AIChatContainer
+                          className="w-full h-full border border-gray-200 shadow-sm rounded-xl flex flex-col bg-white overflow-hidden"
+                          welcomeMessage="Hi! I am your AI Mentor. Ask me anything about your test answers, mistakes, or improvement plan."
+                          persistenceKey={`test-results-${subject}-${testName}`}
+                          chatTitle={`${testName} - AI Mentor`}
+                          contextGetter={getTestContext}
+                          onClose={() => {
+                            setShowAiChat(false);
+                            setActiveTab('all');
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

@@ -14,7 +14,7 @@ interface CustomContentSidebarProps {
   subjectName: string;
   onTopicSelect: (topicId: string, title: string) => void;
   selectedTopic: string | null;
-  forceCollapseSignal?: number;
+  forceCollapseSignal?: number | null;
   contentData?: ContentItem[];
   progressMap?: Record<string, number>;
   readMap?: Record<string, boolean>;
@@ -46,7 +46,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
   subjectName,
   onTopicSelect,
   selectedTopic,
-  forceCollapseSignal = 0,
+  forceCollapseSignal = null,
   contentData = [],
   progressMap = {},
   readMap = {},
@@ -79,6 +79,10 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
   }, [collapsed]);
 
   useEffect(() => {
+    if (forceCollapseSignal === null) {
+      return;
+    }
+
     if (!collapsed) {
       setCollapsed(true);
     }

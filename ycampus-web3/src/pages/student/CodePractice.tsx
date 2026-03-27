@@ -219,7 +219,11 @@ const CodePractice = () => {
   const handleViewInsights = () => setCurrentView('insights');
 
   return (
-    <StudentLayout noPadding={currentView === 'problem'}>
+    <StudentLayout
+      noPadding={currentView === 'problem'}
+      hideSidebar={currentView === 'units' || currentView === 'problem'}
+      noPadding={true}
+    >
       <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
         <div className="flex-1 flex flex-col min-h-0 w-full h-full">
           <div className="flex-1 transition-all duration-300 flex flex-col min-h-0 h-full">

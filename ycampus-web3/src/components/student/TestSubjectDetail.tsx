@@ -835,6 +835,21 @@ const TestSubjectDetail = () => {
   const allProblems = subjectProblems[subjectName] || [];
   const units = unitsData[subjectName] || [];
 
+  // Mock pre-completed tests by subject (used for demoing View Results flow).
+  const mockPreCompletedBySubject: Record<string, string[]> = {
+    'matrices-calculus': ['mc2-u1'],
+  };
+
+  React.useEffect(() => {
+    const preCompleted = mockPreCompletedBySubject[subjectName] || [];
+    if (preCompleted.length === 0) return;
+
+    setCompletedTests((prev) => {
+      if (prev.size > 0) return prev;
+      return new Set(preCompleted);
+    });
+  }, [subjectName]);
+
   // Initialize with first unit
   React.useEffect(() => {
     if (units.length > 0 && !selectedUnit) {

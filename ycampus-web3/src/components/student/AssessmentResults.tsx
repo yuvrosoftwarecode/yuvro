@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  ArrowLeft, 
-  RotateCcw, 
-  MessageSquare,
-  Bot,
-  Send,
-  Download,
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import AIChatContainer from './ai-buddy/AIChatContainer';
+import {
+  ArrowLeft,
+  RotateCcw,
+  TrendingUp,
+  TrendingDown,
+  MessageCircle,
+  Target,
+  Star,
+  FileText,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Code,
+  Eye,
+  Lightbulb,
 } from 'lucide-react';
 
 interface Assessment {
@@ -45,410 +54,623 @@ interface QuestionResult {
   maxPoints: number;
 }
 
-interface ChatMessage {
-  id: number;
-  type: 'user' | 'ai';
-  message: string;
-  timestamp: Date;
-}
-
 const AssessmentResults: React.FC<AssessmentResultsProps> = ({
   assessment,
   onBackToList,
-  onTryAgain
+  onTryAgain,
 }) => {
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState(0);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      type: 'ai',
-      message: "Hello! I'm your AI assistant. I can help clarify doubts about any question or explain concepts you found challenging. What would you like to know?",
-      timestamp: new Date()
-    }
-  ]);
-  const [newMessage, setNewMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'incorrect' | 'correct' | 'ai_buddy'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'mcq' | 'coding' | 'descriptive'>('all');
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
+  const [showAiChat, setShowAiChat] = useState(false);
 
-  // Mock assessment results data
-  const assessmentData = {
-    ...assessment,
-    score: assessment.score || Math.floor(Math.random() * 20) + 70,
-    timeTaken: Math.floor(Math.random() * 30) + 45, // Random time between 45-75 minutes
-    completedOn: new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
+  const completedOn = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    })
-  };
+      minute: '2-digit',
+    });
+  }, []);
 
+  // Mock assessment results data
   const questionResults: QuestionResult[] = [
     {
       id: 1,
-      question: "What is the time complexity of binary search algorithm?",
+      question: 'What is the time complexity of binary search algorithm?',
       type: 'mcq',
       options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
       correctAnswer: 'O(log n)',
       studentAnswer: 'O(log n)',
       isCorrect: true,
-      explanation: "Binary search has O(log n) time complexity because it eliminates half of the remaining elements in each iteration.",
+      explanation:
+        'Binary search has O(log n) time complexity because it eliminates half of the remaining elements in each iteration.',
       points: 2,
-      maxPoints: 2
+      maxPoints: 2,
     },
     {
       id: 2,
-      question: "Write a function to find the maximum element in an array.",
+      question: 'Write a function to find the maximum element in an array.',
       type: 'coding',
       correctAnswer: 'function findMax(arr) { return Math.max(...arr); }',
-      studentAnswer: 'function findMax(arr) { let max = arr[0]; for(let i = 1; i < arr.length; i++) { if(arr[i] > max) max = arr[i]; } return max; }',
+      studentAnswer:
+        'function findMax(arr) { let max = arr[0]; for(let i = 1; i < arr.length; i++) { if(arr[i] > max) max = arr[i]; } return max; }',
       isCorrect: true,
-      explanation: "Your solution correctly iterates through the array to find the maximum element. Both approaches are valid.",
+      explanation:
+        'Your solution correctly iterates through the array to find the maximum element. Both approaches are valid.',
       points: 8,
-      maxPoints: 10
+      maxPoints: 10,
     },
     {
       id: 3,
-      question: "Explain the concept of object-oriented programming and its four main principles.",
+      question: 'Explain the concept of object-oriented programming and its four main principles.',
       type: 'descriptive',
-      correctAnswer: 'OOP principles: Encapsulation, Inheritance, Polymorphism, Abstraction',
-      studentAnswer: 'OOP is a programming paradigm based on objects. The four principles are: 1) Encapsulation - bundling data and methods, 2) Inheritance - creating new classes from existing ones, 3) Polymorphism - same interface different implementations.',
+      correctAnswer:
+        'OOP principles: Encapsulation, Inheritance, Polymorphism, Abstraction',
+      studentAnswer:
+        'OOP is a programming paradigm based on objects. The four principles are: 1) Encapsulation - bundling data and methods, 2) Inheritance - creating new classes from existing ones, 3) Polymorphism - same interface different implementations.',
       isCorrect: false,
-      explanation: "Good explanation but you missed Abstraction. Abstraction is hiding complex implementation details while showing only essential features.",
+      explanation:
+        'Good explanation but you missed Abstraction. Abstraction is hiding complex implementation details while showing only essential features.',
       points: 6,
-      maxPoints: 8
+      maxPoints: 8,
     },
     {
       id: 4,
-      question: "Which of the following are valid HTTP methods?",
+      question: 'Which of the following are valid HTTP methods?',
       type: 'mcq',
       options: ['GET', 'POST', 'FETCH', 'DELETE', 'UPDATE', 'PUT'],
       correctAnswer: 'GET, POST, DELETE, PUT',
       studentAnswer: 'GET, POST, DELETE',
       isCorrect: false,
-      explanation: "You correctly identified GET, POST, and DELETE, but missed PUT. FETCH and UPDATE are not valid HTTP methods.",
+      explanation:
+        'You correctly identified GET, POST, and DELETE, but missed PUT. FETCH and UPDATE are not valid HTTP methods.',
       points: 2,
-      maxPoints: 3
+      maxPoints: 3,
     },
     {
       id: 5,
-      question: "Implement a function to check if a string is a palindrome.",
+      question: 'Implement a function to check if a string is a palindrome.',
       type: 'coding',
-      correctAnswer: 'function isPalindrome(str) { const cleaned = str.toLowerCase().replace(/[^a-z0-9]/g, ""); return cleaned === cleaned.split("").reverse().join(""); }',
-      studentAnswer: 'function isPalindrome(str) { return str === str.split("").reverse().join(""); }',
+      correctAnswer:
+        'function isPalindrome(str) { const cleaned = str.toLowerCase().replace(/[^a-z0-9]/g, ""); return cleaned === cleaned.split("").reverse().join(""); }',
+      studentAnswer:
+        'function isPalindrome(str) { return str === str.split("").reverse().join(""); }',
       isCorrect: false,
-      explanation: "Your solution doesn't handle case insensitivity or non-alphanumeric characters as specified in the question.",
+      explanation:
+        "Your solution doesn't handle case insensitivity or non-alphanumeric characters as specified in the question.",
       points: 4,
-      maxPoints: 8
-    }
+      maxPoints: 8,
+    },
   ];
 
   const correctAnswers = questionResults.filter(q => q.isCorrect).length;
-  const wrongAnswers = questionResults.filter(q => !q.isCorrect).length;
-  const notAttempted = assessment.totalQuestions - questionResults.length;
-  
+  const wrongAnswers = questionResults.filter(q => !q.isCorrect && q.studentAnswer.trim() !== '').length;
+  const notAttempted = questionResults.filter(q => q.studentAnswer.trim() === '').length;
   const totalScore = questionResults.reduce((sum, q) => sum + q.points, 0);
-  const maxScore = assessment.marks;
-  const percentage = Math.round((totalScore / maxScore) * 100);
+  const maxScore = assessment.marks || questionResults.reduce((sum, q) => sum + q.maxPoints, 0);
+  const percentage = Math.round((totalScore / Math.max(maxScore, 1)) * 100);
+  const timeTakenSeconds = Math.max(60, Math.round(assessment.duration * 0.82 * 60));
+  const totalQuestions = assessment.totalQuestions || questionResults.length;
 
   const performanceMetrics = {
-    accuracy: Math.round((correctAnswers / questionResults.length) * 100),
-    speed: Math.round((assessmentData.timeTaken / assessment.duration) * 100),
-    completionRate: Math.round((questionResults.length / assessment.totalQuestions) * 100)
+    accuracy: Math.round((correctAnswers / Math.max(totalQuestions, 1)) * 100),
+    speed: Math.round((totalQuestions / Math.max(timeTakenSeconds / 60, 1)) * 10) / 10,
+    completionRate: Math.round(((totalQuestions - notAttempted) / Math.max(totalQuestions, 1)) * 100),
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    
-    const userMessage: ChatMessage = {
-      id: chatMessages.length + 1,
-      type: 'user',
-      message: newMessage,
-      timestamp: new Date()
-    };
-    
-    setChatMessages(prev => [...prev, userMessage]);
-    setNewMessage('');
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(newMessage);
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  const generateAIResponse = (userMessage: string): ChatMessage => {
-    const responses = [
-      "I understand your concern about this question. Let me break it down for you...",
-      "That's a great question! Here's how you can approach this concept...",
-      "I can see why this might be confusing. The key point to remember is...",
-      "Good observation! This topic often requires understanding the fundamentals of..."
-    ];
-    
-    return {
-      id: chatMessages.length + 2,
-      type: 'ai',
-      message: responses[Math.floor(Math.random() * responses.length)],
-      timestamp: new Date()
-    };
+  const getScoreIcon = (score: number) => {
+    if (score >= 80) return <TrendingUp className="w-4 h-4 text-green-600" />;
+    if (score >= 60) return <Target className="w-4 h-4 text-yellow-600" />;
+    return <TrendingDown className="w-4 h-4 text-red-600" />;
   };
 
-  const formatTime = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Reset scroll to top on component mount
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const filteredQuestions = useMemo(() => {
+    let result = questionResults;
+
+    if (typeFilter !== 'all') {
+      result = result.filter((q) => q.type === typeFilter);
+    }
+
+    if (activeTab === 'incorrect') {
+      return result.filter((q) => !q.isCorrect);
+    }
+
+    if (activeTab === 'correct') {
+      return result.filter((q) => q.isCorrect);
+    }
+
+    return result;
+  }, [questionResults, activeTab, typeFilter]);
+
+  const toggleQuestion = (index: number) => {
+    setExpandedQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const getAssessmentContext = () => {
+    const incorrect = questionResults.filter((q) => !q.isCorrect);
+    const focusQuestion = incorrect[0] || questionResults[0];
+    return [
+      `Assessment: ${assessment.title}`,
+      `Course: ${assessment.course}`,
+      `Score: ${totalScore}/${maxScore} (${percentage}%)`,
+      `Correct: ${correctAnswers}/${totalQuestions}`,
+      `Incorrect: ${wrongAnswers}`,
+      `Not attempted: ${notAttempted}`,
+      focusQuestion ? `Focus question: ${focusQuestion.question}` : '',
+    ].filter(Boolean).join('\n');
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={onBackToList}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Assessments
-          </Button>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-foreground">Assessment Results: {assessment.title}</h2>
-            <p className="text-muted-foreground">{assessment.course} | Completed on {assessmentData.completedOn}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Download Report
-            </Button>
-          </div>
-        </div>
-
-        {/* Student Performance Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Performance Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{totalScore}/{maxScore}</div>
-                <p className="text-sm text-muted-foreground">Final Score</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
-                <p className="text-sm text-muted-foreground">Correct</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{wrongAnswers}</div>
-                <p className="text-sm text-muted-foreground">Wrong</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-600">{notAttempted}</div>
-                <p className="text-sm text-muted-foreground">Not Attempted</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Time Taken: </span>
-                <span className="font-medium">{formatTime(assessmentData.timeTaken)}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Accuracy: </span>
-                <span className="font-medium">{performanceMetrics.accuracy}%</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Percentage: </span>
-                <span className="font-medium">{percentage}%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Question Analysis */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-foreground">Question Analysis</h3>
-
-          {/* Question Numbers Navigation */}
-          <div className="relative">
-            <ScrollArea className="w-full">
-              <div className="flex gap-3 pb-2 px-1">
-                {questionResults.map((question, index) => (
-                  <button
-                    key={question.id}
-                    onClick={() => setSelectedQuestion(index)}
-                    className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold text-sm transition-all duration-200 hover:scale-105 ${
-                      selectedQuestion === index
-                        ? 'bg-primary text-primary-foreground border-primary shadow-md'
-                        : question.isCorrect
-                        ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100'
-                        : question.studentAnswer
-                        ? 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100'
-                        : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-
-          {/* Selected Question Details */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">Question {selectedQuestion + 1}</CardTitle>
-                <Badge variant={questionResults[selectedQuestion].isCorrect ? 'default' : questionResults[selectedQuestion].studentAnswer ? 'destructive' : 'secondary'}>
-                  {questionResults[selectedQuestion].isCorrect ? 'Correct' : questionResults[selectedQuestion].studentAnswer ? 'Wrong' : 'Not Attempted'}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ScrollArea className="max-h-[500px]">
-                <div className="space-y-4">
-                  <p className="text-foreground">{questionResults[selectedQuestion].question}</p>
-                  
-                  {questionResults[selectedQuestion].type === 'mcq' && questionResults[selectedQuestion].options && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Options:</p>
-                      <div className="space-y-1">
-                        {questionResults[selectedQuestion].options!.map((option, optIndex) => (
-                          <div 
-                            key={optIndex} 
-                            className={`p-2 rounded-md border ${
-                              option === questionResults[selectedQuestion].correctAnswer 
-                                ? 'bg-green-50 border-green-200 text-green-800' 
-                                : option === questionResults[selectedQuestion].studentAnswer
-                                ? 'bg-red-50 border-red-200 text-red-800'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}
-                          >
-                            <span className="font-medium mr-2">{String.fromCharCode(65 + optIndex)}.</span>
-                            {option}
-                            {option === questionResults[selectedQuestion].correctAnswer && (
-                              <span className="ml-2 text-green-600 font-medium">(Correct Answer)</span>
-                            )}
-                            {option === questionResults[selectedQuestion].studentAnswer && option !== questionResults[selectedQuestion].correctAnswer && (
-                              <span className="ml-2 text-red-600 font-medium">(Your Answer)</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {(questionResults[selectedQuestion].type === 'descriptive' || questionResults[selectedQuestion].type === 'coding') && (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Correct Answer:</p>
-                        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                          <p className="text-green-800 font-mono text-sm">{questionResults[selectedQuestion].correctAnswer}</p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground mb-1">Your Answer:</p>
-                        <div className={`p-3 border rounded-md ${
-                          questionResults[selectedQuestion].isCorrect 
-                            ? 'bg-green-50 border-green-200 text-green-800'
-                            : questionResults[selectedQuestion].studentAnswer
-                            ? 'bg-red-50 border-red-200 text-red-800'
-                            : 'bg-gray-50 border-gray-200 text-gray-600'
-                        }`}>
-                          <p className="font-mono text-sm">{questionResults[selectedQuestion].studentAnswer || 'Not answered'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Explanation */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                    <p className="text-sm font-medium text-blue-800 mb-1">Explanation:</p>
-                    <p className="text-blue-700 text-sm">{questionResults[selectedQuestion].explanation}</p>
-                  </div>
-                  
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <Badge variant="outline">
-                      {questionResults[selectedQuestion].maxPoints} {questionResults[selectedQuestion].maxPoints === 1 ? 'mark' : 'marks'}
-                    </Badge>
-                    <div className="text-sm font-medium">
-                      Earned: {questionResults[selectedQuestion].points} / {questionResults[selectedQuestion].maxPoints}
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
-              
-              {/* AI Assistant Button placed after the entire question container */}
-              <div className="flex justify-start pt-4">
-                <Button 
-                  onClick={() => setShowChatbot(!showChatbot)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <Bot className="h-4 w-4" />
-                  {showChatbot ? 'Hide' : 'Show'} AI Assistant
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header with Back Button */}
+        <div className="flex items-center">
+            <div className="flex-1">
+                <Button className="inline-flex items-center gap-2 bg-white text-black hover:bg-slate-100" onClick={onBackToList}>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Assessments  
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* AI Assistant */}
-          {showChatbot && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Bot className="h-4 w-4" />
-                  AI Assistant
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ScrollArea className="h-[300px] pr-4">
-                  <div className="space-y-3 overflow-x-hidden">
-                    {chatMessages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        {message.type === 'ai' && (
-                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <Bot className="h-4 w-4 text-blue-600" />
-                          </div>
-                        )}
-                        <div
-                          className={`max-w-[80%] p-3 rounded-lg text-sm break-words ${
-                            message.type === 'user'
-                              ? 'bg-primary text-primary-foreground ml-auto'
-                              : 'bg-muted text-muted-foreground'
-                          }`}
-                        >
-                          {message.message}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-                
-                <div className="flex gap-2">
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Ask a question about this assessment..."
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1"
-                  />
-                  <Button size="sm" onClick={handleSendMessage}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+            </div>
+            <div className="flex-1 text-center">  
+                <h2 className="text-xl font-semibold text-foreground">Test Report</h2>
+            </div>
+            <div className="flex-1"></div>
         </div>
+
+
+        <Tabs defaultValue="overall" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="overall">Performance Analysis</TabsTrigger>
+            <TabsTrigger value="questions">Question-wise Analysis</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overall">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    Assessment Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Subject:</span>
+                      <div className="font-semibold">{assessment.course}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Assessment:</span>
+                      <div className="font-semibold">{assessment.title}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Questions:</span>
+                      <div className="font-semibold">{totalQuestions}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Time Taken:</span>
+                      <div className="font-semibold">{formatTime(timeTakenSeconds)}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Completed On:</span>
+                    <div className="font-semibold">{completedOn}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    Overall Score
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="text-4xl font-bold flex items-center justify-center gap-2 mb-2">
+                    <span className={getScoreColor(percentage)}>{percentage}%</span>
+                    {getScoreIcon(percentage)}
+                  </div>
+                  <p className="text-muted-foreground mb-4">{totalScore}/{maxScore} Points</p>
+                  <div className="text-center">
+                    <p className="font-medium text-lg">
+                      {percentage >= 80 ? 'Excellent!' : percentage >= 60 ? 'Good Performance!' : 'Needs Improvement'}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {percentage >= 80 ? 'Outstanding result' : percentage >= 60 ? 'Above average performance' : 'Keep practicing'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5" />
+                    Question Statistics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium">Correct</span>
+                      </div>
+                      <span className="font-bold text-green-600">{correctAnswers}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-sm font-medium">Wrong</span>
+                      </div>
+                      <span className="font-bold text-red-600">{wrongAnswers}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-orange-600" />
+                        <span className="text-sm font-medium">Not Attempted</span>
+                      </div>
+                      <span className="font-bold text-orange-600">{notAttempted}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Performance Metrics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">Accuracy</span>
+                        <span className="text-muted-foreground text-sm">{performanceMetrics.accuracy}%</span>
+                      </div>
+                      <Progress value={performanceMetrics.accuracy} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">Completion Rate</span>
+                        <span className="text-muted-foreground text-sm">{performanceMetrics.completionRate}%</span>
+                      </div>
+                      <Progress value={performanceMetrics.completionRate} className="h-2" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">Speed</span>
+                        <span className="text-muted-foreground text-sm">{performanceMetrics.speed} q/min</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                    Strengths
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {correctAnswers > 0 && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">Strong performance in objective concepts</span>
+                      </li>
+                    )}
+                    {questionResults.some(q => q.type === 'coding' && q.isCorrect) && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">Good coding implementation skills</span>
+                      </li>
+                    )}
+                    {performanceMetrics.completionRate > 80 && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">High completion rate indicates solid time management</span>
+                      </li>
+                    )}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-orange-600" />
+                    Areas for Improvement
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {wrongAnswers > 0 && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">Review incorrect concepts and practice similar problems</span>
+                      </li>
+                    )}
+                    {notAttempted > 0 && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">Improve time management to attempt all questions</span>
+                      </li>
+                    )}
+                    {questionResults.some(q => !q.isCorrect && q.type === 'descriptive') && (
+                      <li className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-sm">Focus on conceptual depth in descriptive responses</span>
+                      </li>
+                    )}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="questions">
+            <Card className="border border-gray-200 shadow-sm rounded-xl overflow-hidden bg-white">
+              <div className="px-6 py-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+                <div className="flex flex-wrap items-center gap-2">
+                  {(['all', 'incorrect', 'correct'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        setActiveTab(tab);
+                        if (tab !== 'ai_buddy') {
+                          setShowAiChat(false);
+                        }
+                      }}
+                      className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all capitalize ${
+                        activeTab === tab
+                          ? tab === 'incorrect'
+                            ? 'bg-red-500 text-white'
+                            : tab === 'correct'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-900 text-white'
+                          : tab === 'incorrect'
+                            ? 'text-black hover:bg-red-50 hover:text-red-600'
+                            : tab === 'correct'
+                              ? 'text-black hover:bg-green-50 hover:text-green-600'
+                              : 'text-black hover:bg-gray-100'
+                      }`}
+                    >
+                      {tab === 'all'
+                        ? `All (${questionResults.length})`
+                        : tab === 'incorrect'
+                          ? `Incorrect (${questionResults.length - correctAnswers})`
+                          : `Correct (${correctAnswers})`}
+                    </button>
+                  ))}
+
+                  <div className="h-5 w-px bg-gray-200 mx-1" />
+
+                  {(['all', 'mcq', 'coding', 'descriptive'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setTypeFilter(type)}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all capitalize ${
+                        typeFilter === type
+                          ? 'bg-white text-black border border-gray-300'
+                          : 'text-black hover:text-black hover:bg-white'
+                      }`}
+                    >
+                      {type === 'all' ? 'All Types' : type.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => {
+                    const nextIsOpen = !showAiChat;
+                    setShowAiChat(nextIsOpen);
+                    setActiveTab(nextIsOpen ? 'ai_buddy' : 'all');
+                  }}
+                  className={`text-sm font-semibold px-3 py-1.5 rounded-lg flex items-center gap-2 transition-all ${
+                    showAiChat
+                      ? 'bg-slate-800 text-white'
+                      : 'text-slate-700 hover:bg-white border border-slate-200'
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4" /> AI Mentor
+                </button>
+              </div>
+
+              <div className={`flex ${showAiChat ? 'flex-col lg:flex-row' : 'flex-col'}`}>
+                <div className={`${showAiChat ? 'lg:w-[65%] w-full border-r border-gray-100' : 'w-full'} p-5`}>
+                  <div className="space-y-4">
+                    {filteredQuestions.length === 0 && (
+                      <div className="text-center py-10 text-gray-500 text-sm">
+                        No questions found for this filter.
+                      </div>
+                    )}
+
+                    {filteredQuestions.map((question, idx) => {
+                      const listIndex = questionResults.findIndex((q) => q.id === question.id);
+                      const isExpanded = expandedQuestions.has(listIndex);
+                      const isCorrect = question.isCorrect;
+                      const qType =
+                        question.type === 'mcq'
+                          ? 'MCQ'
+                          : question.type === 'coding'
+                            ? 'Coding'
+                            : 'Descriptive';
+
+                      const correctSet = new Set(
+                        question.correctAnswer
+                          .split(',')
+                          .map((entry) => entry.trim())
+                          .filter(Boolean)
+                      );
+                      const answerSet = new Set(
+                        question.studentAnswer
+                          .split(',')
+                          .map((entry) => entry.trim())
+                          .filter(Boolean)
+                      );
+
+                      return (
+                        <div
+                          key={question.id}
+                          className={`border rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm bg-white ${isCorrect ? 'border-gray-200' : 'border-red-200'}`}
+                        >
+                          <div
+                            className={`p-4 cursor-pointer flex items-start gap-3 hover:bg-white transition-colors ${isExpanded ? 'bg-white' : ''}`}
+                            onClick={() => toggleQuestion(listIndex)}
+                          >
+                            <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                              {isCorrect
+                                ? <CheckCircle className="h-4 w-4 text-green-600" />
+                                : <XCircle className="h-4 w-4 text-red-600" />}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Q{idx + 1}</span>
+                                <Badge className="text-[10px] h-4 px-1.5 bg-white text-slate-600 border-0 hover:bg-slate-100 font-bold uppercase tracking-wider">{qType}</Badge>
+                              </div>
+                              <p className="text-sm font-medium text-gray-900 line-clamp-2">{question.question}</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="text-right hidden sm:block">
+                                <p className="text-[10px] text-gray-400 uppercase font-bold">Score</p>
+                                <p className={`text-sm font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                                  {question.points}/{question.maxPoints}
+                                </p>
+                              </div>
+                              {isExpanded
+                                ? <ChevronUp className="h-4 w-4 text-gray-400" />
+                                : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="border-t border-gray-100 p-5 space-y-4 bg-white">
+                              {question.options && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  {question.options.map((option, optionIndex) => {
+                                    const isSelected = answerSet.has(option);
+                                    const isOptionCorrect = correctSet.has(option);
+                                    const style = isOptionCorrect
+                                      ? 'border-green-200 bg-green-50 text-green-800'
+                                      : isSelected
+                                        ? 'border-red-200 bg-red-50 text-red-800'
+                                        : 'border-gray-200 bg-white text-gray-600';
+
+                                    return (
+                                      <div key={optionIndex} className={`p-3 rounded-lg border text-sm flex items-center justify-between ${style}`}>
+                                        <span>{option}</span>
+                                        {isOptionCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
+                                        {isSelected && !isOptionCorrect && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {question.type === 'coding' && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Code className="h-4 w-4" /> Your Code
+                                  </p>
+                                  {question.studentAnswer ? (
+                                    <pre className="bg-white rounded-lg p-3 border border-gray-200 text-sm text-gray-800 whitespace-pre-wrap">{question.studentAnswer}</pre>
+                                  ) : (
+                                    <div className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2 text-sm text-gray-400">
+                                      <Eye className="w-4 h-4" /> No code submitted
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {question.type === 'coding' && question.correctAnswer && (
+                                <div className="space-y-2 pt-2 border-t border-gray-100">
+                                  <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                                    <Lightbulb className="h-4 w-4" /> Reference Solution
+                                  </p>
+                                  <pre className="bg-green-50 rounded-lg p-3 border border-green-200 text-sm text-green-900 whitespace-pre-wrap">{question.correctAnswer}</pre>
+                                </div>
+                              )}
+
+                              {question.type === 'descriptive' && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-gray-700">Your Answer</p>
+                                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                    <pre className="text-sm whitespace-pre-wrap text-gray-800">{question.studentAnswer || 'No answer provided'}</pre>
+                                  </div>
+                                </div>
+                              )}
+
+                              {question.explanation && (
+                                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                                  <h4 className="text-sm font-bold text-blue-800 mb-1 flex items-center gap-2">
+                                    <Lightbulb className="h-4 w-4" /> Explanation
+                                  </h4>
+                                  <p className="text-sm text-blue-900/80">{question.explanation}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {showAiChat && (
+                  <div className="lg:w-[35%] w-full flex flex-col bg-white h-screen">
+                    <div className="flex-1 p-4 h-full relative">
+                      <div className="absolute inset-4">
+                        <AIChatContainer
+                          className="w-full h-full border border-gray-200 shadow-sm rounded-xl flex flex-col bg-white overflow-hidden"
+                          welcomeMessage="Hi! I am your AI Mentor. Ask me anything about your assessment answers, mistakes, or improvement plan."
+                          persistenceKey={`assessment-results-${assessment.id}`}
+                          chatTitle={`${assessment.title} - AI Mentor`}
+                          contextGetter={getAssessmentContext}
+                          onClose={() => {
+                            setShowAiChat(false);
+                            setActiveTab('all');
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

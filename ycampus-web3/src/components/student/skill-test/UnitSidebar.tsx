@@ -67,13 +67,13 @@ const UnitSidebar = ({
             {/* Header */}
             <div className="border-b border-border flex-shrink-0">
                 {/* Back Button */}
-                <div className="p-3 border-b border-border">
+                <div className="p-3 border-b border-border flex justify-start">
                     <button
                         onClick={onBackToSubjects}
-                        className="flex items-center gap-2 w-full p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors text-xs font-medium"
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors text-xs font-medium"
                     >
                         <ArrowLeft className="h-4 w-4" />
-                        {isOpen && <span>Interview Preparation</span>}
+                        {isOpen && <p>Interview Preparation</p>}
                     </button>
                 </div>
 
@@ -125,7 +125,7 @@ const UnitSidebar = ({
                 <div className="space-y-1">
                     {isOpen && filteredUnits.length > 0 && (
                         <div className="mb-4">
-                            <p className="text-[10px] font-semibold text-muted-foreground px-2 uppercase tracking-wider">
+                            <p className="text-[10px] font-semibold text-black px-2 uppercase tracking-wider">
                                 {subject.name} Modules
                             </p>
                         </div>
@@ -145,7 +145,7 @@ const UnitSidebar = ({
                                     className={cn(
                                         "flex items-center gap-2 w-full p-2.5 rounded-lg transition-all duration-200 group relative",
                                         isSelected 
-                                            ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20" 
+                                            ? "bg-slate-200 text-primary shadow-sm" 
                                             : "hover:bg-accent text-muted-foreground hover:text-foreground",
                                         !isOpen && "justify-center"
                                     )}
@@ -154,7 +154,7 @@ const UnitSidebar = ({
                                     <div className={cn(
                                         "flex items-center justify-center h-8 w-8 rounded-md text-[10px] font-bold shrink-0 transition-colors",
                                         isSelected 
-                                            ? "bg-primary text-primary-foreground" 
+                                            ? "bg-muted text-muted-foreground " 
                                             : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
                                     )}>
                                         {abbrev}
@@ -162,12 +162,22 @@ const UnitSidebar = ({
 
                                     {isOpen && (
                                         <div className="flex-1 text-left min-w-0 pr-6">
-                                            <p className="text-sm font-medium truncate leading-tight mb-0.5">{unit.name}</p>
+                                            <p className="text-sm font-medium truncate text-black leading-tight mb-0.5">{unit.name}</p>
                                             {showProgress && (
                                                 <div className="flex items-center gap-1.5">
-                                                    <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                                                    <div
+                                                        className={cn(
+                                                            'h-1 flex-1 rounded-full overflow-hidden ring-1 transition-colors',
+                                                            isSelected
+                                                                ? 'bg-slate-300 ring-slate-300/70'
+                                                                : 'bg-muted ring-border/60 group-hover:bg-slate-200 group-hover:ring-slate-300/80',
+                                                        )}
+                                                    >
                                                         <div 
-                                                            className={cn("h-full transition-all duration-300", completed ? "bg-green-500" : "bg-primary")} 
+                                                            className={cn(
+                                                                'h-full transition-all duration-300',
+                                                                completed ? 'bg-green-500' : 'bg-primary',
+                                                            )}
                                                             style={{ width: `${progress}%` }}
                                                         />
                                                     </div>
