@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { MOCK_PLACEMENT_JOBS } from '@/services/mockPlacementData';
 
 export interface Recruiter {
   id: string;
@@ -19,6 +20,7 @@ export interface Recruiter {
   trust_score: number;
   rating: number;
   created_at: string;
+  updated_at: string;
 }
 
 export interface PlacementJob {
@@ -48,6 +50,7 @@ export interface PlacementJob {
   selected_count: number;
   created_at: string;
   updated_at: string;
+  job_type?: 'full_time' | 'internship' | 'contract';
   recruiter?: Recruiter;
 }
 
@@ -97,13 +100,15 @@ export function usePlacementJobs(statusFilter?: string) {
   return useQuery({
     queryKey: ['placement-jobs', statusFilter],
     queryFn: async () => {
-      let query = supabase.from('placement_jobs').select('*, recruiter:recruiters(*)').order('created_at', { ascending: false });
+      // Use mock data
+      let data = [...MOCK_PLACEMENT_JOBS];
+      
       if (statusFilter && statusFilter !== 'all') {
-        query = query.eq('status', statusFilter as any);
+        data = data.filter(j => j.status === statusFilter);
       }
-      const { data, error } = await query;
-      if (error) throw error;
-      return (data || []) as unknown as PlacementJob[];
+      
+      console.log('usePlacementJobs returning mock data:', { statusFilter, count: data.length, data });
+      return data;
     },
   });
 }
@@ -113,12 +118,13 @@ export function usePlacementStats() {
   return useQuery({
     queryKey: ['placement-stats'],
     queryFn: async () => {
-      const [jobsRes, appsRes] = await Promise.all([
-        supabase.from('placement_jobs').select('id, status, ctc_total, selected_count, total_applications, shortlisted_count'),
+      const [appsRes] = await Promise.all([
         supabase.from('student_applications').select('id, status, ctc_offered'),
       ]);
-      const jobs = (jobsRes.data || []) as any[];
+      
+      const jobs = [...MOCK_PLACEMENT_JOBS];
       const apps = (appsRes.data || []) as any[];
+      
       const pendingCount = jobs.filter(j => j.status === 'pending').length;
       const liveCount = jobs.filter(j => j.status === 'approved').length;
       const selectedApps = apps.filter(a => ['selected', 'offer_accepted'].includes(a.status));
@@ -130,6 +136,7 @@ export function usePlacementStats() {
       const totalApps = jobs.reduce((s, j) => s + (j.total_applications || 0), 0);
       const totalShortlisted = jobs.reduce((s, j) => s + (j.shortlisted_count || 0), 0);
       const totalSelected = jobs.reduce((s, j) => s + (j.selected_count || 0), 0);
+      
       return {
         pendingCount, liveCount, selectedThisMonth: selectedApps.length,
         avgCTC, highestCTC, placementPct, totalApps, totalShortlisted, totalSelected,

@@ -8,7 +8,7 @@ export const initialCompanies: CompanyRecord[] = [
     rolesOffered: ['Software Engineer', 'Data Analyst', 'Cloud Architect', 'Business Analyst'],
     recruiterName: 'Priya Sharma', recruiterEmail: 'priya.sharma@tcs.com', recruiterDesignation: 'HR Manager',
     status: 'connected', chatMessages: [
-      { id: 'm1', sender: 'tpo', text: 'Hi Priya, we would like to invite TCS for campus placement this year.', timestamp: '2026-03-18 10:00' },
+      { id: 'm1', sender: 'placement_officer', text: 'Hi Priya, we would like to invite TCS for campus placement this year.', timestamp: '2026-03-18 10:00' },
       { id: 'm2', sender: 'recruiter', text: 'Sure! We are interested. Please share the student data.', timestamp: '2026-03-18 10:30' },
     ]
   },
@@ -19,7 +19,7 @@ export const initialCompanies: CompanyRecord[] = [
     rolesOffered: ['Systems Engineer', 'Senior Software Engineer', 'Technology Analyst'],
     recruiterName: 'Rahul Verma', recruiterEmail: 'rahul.v@infosys.com', recruiterDesignation: 'Campus Lead',
     status: 'connected', chatMessages: [
-      { id: 'm3', sender: 'tpo', text: 'Hello Rahul, would Infosys be interested in our campus drive?', timestamp: '2026-03-17 09:00' },
+      { id: 'm3', sender: 'placement_officer', text: 'Hello Rahul, would Infosys be interested in our campus drive?', timestamp: '2026-03-17 09:00' },
       { id: 'm4', sender: 'recruiter', text: 'Yes, let us schedule a call to discuss details.', timestamp: '2026-03-17 11:00' },
     ]
   },
@@ -54,9 +54,9 @@ export const initialCompanies: CompanyRecord[] = [
     rolesOffered: ['Backend Engineer', 'Frontend Engineer', 'DevOps Engineer'],
     recruiterName: 'Vikram Singh', recruiterEmail: 'vikram@razorpay.com', recruiterDesignation: 'People Ops',
     status: 'connected', chatMessages: [
-      { id: 'm5', sender: 'tpo', text: 'Hi Vikram, interested in hosting a drive?', timestamp: '2026-03-15 14:00' },
-      { id: 'm6', sender: 'recruiter', text: "Absolutely! Let's discuss CTC and roles.", timestamp: '2026-03-15 15:00' },
-      { id: 'm7', sender: 'tpo', text: 'Great, sharing the proposal document.', timestamp: '2026-03-16 09:00' },
+      { id: 'm5', sender: 'placement_officer', text: 'Hi Vikram, interested in hosting a drive?', timestamp: '2026-03-15 14:00' },
+      { id: 'm6', sender: 'recruiter', text: 'Yes, but for Q3. Can we talk about requirements?', timestamp: '2026-03-15 16:30' },
+      { id: 'm7', sender: 'placement_officer', text: 'Great, sharing the proposal document.', timestamp: '2026-03-16 09:00' },
     ]
   },
   {

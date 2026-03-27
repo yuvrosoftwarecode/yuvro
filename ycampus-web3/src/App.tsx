@@ -222,7 +222,7 @@ const App = () => (
               <Route
                 path="/placement/*"
                 element={
-                  <ProtectedRoute allowedRoles={["placement", "placement_officer", "tpo"]}>
+                  <ProtectedRoute allowedRoles={["placement_officer"]}>
                     <Routes>
                       <Route path="dashboard" element={<PlacementDashboard />} />
                       <Route path="job-approvals" element={<JobApprovals />} />
@@ -237,6 +237,7 @@ const App = () => (
                       <Route path="notifications" element={<PlacementNotifications />} />
                       <Route path="settings" element={<PlacementSettings />} />
                       <Route path="pri-report" element={<PlacementPRIReport />} />
+                      <Route path="job-applications/:jobId" element={<JobApplicationsPage />} />
                       <Route path="job-applications" element={<JobApplicationsPage />} />
                     </Routes>
                   </ProtectedRoute>

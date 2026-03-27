@@ -22,8 +22,6 @@ export const redirectToDashboard = (user: any, navigate: NavigateFunction) => {
     case 'faculty':
       navigate('/faculty/dashboard', { replace: true });
       break;
-    case 'tpo':
-    case 'placement':
     case 'placement_officer':
       navigate('/placement/dashboard', { replace: true });
       break;

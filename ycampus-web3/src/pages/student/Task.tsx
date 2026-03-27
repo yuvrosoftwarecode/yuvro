@@ -35,9 +35,6 @@ const StudentTask: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Debug authentication
-  console.log('StudentTask component loaded, user:', user);
-
   // State management
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -822,40 +819,20 @@ const StudentTask: React.FC = () => {
                         </CardDescription>
                       </div>
 
-                      <CardTitle className="text-lg leading-none">
-                        {task.title}
-                      </CardTitle>
-
-                      <CardDescription className="line-clamp-2 text-sm mt-1">
-                        {task.description}
-                      </CardDescription>
-
-                    </div>
-
-                    <Badge
-                      variant={getStatusBadgeVariant(task.id) as any}
-                      className="shrink-0 font-bold px-3 py-1"
-                    >
-                      {getStatusLabelText(task.id)}
-                    </Badge>
-
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span>
-                        Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
-                      </span>
+                      <Badge
+                        variant={getStatusBadgeVariant(task.id) as any}
+                        className="shrink-0 font-bold px-3 py-1"
+                      >
+                        {getStatusLabelText(task.id)}
+                      </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400">
                       <div className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5" />
+                        <Calendar className="h-3.5 w-3.5" />
                         <span>
-                          Due :{format(new Date(task.due_date), 'MMM dd, yyyy')}
+                          Created : {format(new Date(task.created_at), 'MMM dd, yyyy')}
                         </span>
                       </div>
                       {task.due_date && (

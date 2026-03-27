@@ -323,16 +323,16 @@ class AttendanceRecord(BaseTimestampedModel):
         return f"{self.user.username} - Admin {self.college.name}"
 
 
-class TPOProfile(BaseTimestampedModel):
+class PlacementOfficerProfile(BaseTimestampedModel):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="tpo_profile"
+        User, on_delete=models.CASCADE, related_name="placement_officer_profile"
     )
     college = models.ForeignKey(
-        College, on_delete=models.CASCADE, related_name="tpos"
+        College, on_delete=models.CASCADE, related_name="placement_officers"
     )
 
     def __str__(self):
-        return f"{self.user.username} - TPO {self.college.name}"
+        return f"{self.user.username} - Placement Officer {self.college.name}"
 
 class Task(models.Model):
     """

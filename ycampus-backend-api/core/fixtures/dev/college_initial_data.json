@@ -65,7 +65,7 @@
         "fields": {
             "email": "tpo@jntu.edu",
             "username": "tpo@jntu.edu",
-            "role": "tpo",
+            "role": "placement_officer",
             "first_name": "Training",
             "last_name": "Placement",
             "is_active": true,

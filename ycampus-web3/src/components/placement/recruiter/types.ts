@@ -2,7 +2,7 @@ export type ConnectionStatus = 'not_connected' | 'applied' | 'connected';
 
 export interface ChatMessage {
   id: string;
-  sender: 'tpo' | 'recruiter';
+  sender: 'placement_officer' | 'recruiter';
   text: string;
   timestamp: string;
 }

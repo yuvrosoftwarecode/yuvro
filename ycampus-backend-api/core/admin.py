@@ -3,7 +3,7 @@ from .models import (
     College, Batch, Department, Semester, Section,
     StudentProfile, FacultyProfile, HODProfile, PrincipalProfile, CollegeAdminProfile,
     AttendanceSession, AttendanceRecord,
-    TPOProfile, Note
+    PlacementOfficerProfile, Note, Announcement
 )
 
 
@@ -121,8 +121,8 @@ class CollegeAdminProfileAdmin(admin.ModelAdmin):
     search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]
     readonly_fields = ["id", "created_at", "updated_at"]
 
-@admin.register(TPOProfile)
-class TPOProfileAdmin(admin.ModelAdmin):
+@admin.register(PlacementOfficerProfile)
+class PlacementOfficerProfileAdmin(admin.ModelAdmin):
     list_display = ["user", "college"]
     list_filter = ["college"]
     search_fields = ["user__email", "user__first_name", "user__last_name", "college__name"]

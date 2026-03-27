@@ -25,7 +25,7 @@ const RecruiterCompanyDetail = () => {
 
   const handleSendMessage = () => {
     if (!chatInput.trim() || !company) return;
-    const msg: ChatMessage = { id: Date.now().toString(), sender: 'tpo', text: chatInput.trim(), timestamp: new Date().toLocaleString() };
+    const msg: ChatMessage = { id: Date.now().toString(), sender: 'placement_officer', text: chatInput.trim(), timestamp: new Date().toLocaleString() };
     setCompanies(prev => prev.map(c =>
       c.id === company.id ? { ...c, chatMessages: [...c.chatMessages, msg] } : c
     ));
@@ -172,14 +172,14 @@ const RecruiterCompanyDetail = () => {
                   ) : (
                     <div className="space-y-3">
                       {company.chatMessages.map(msg => (
-                        <div key={msg.id} className={`flex ${msg.sender === 'tpo' ? 'justify-end' : 'justify-start'}`}>
+                        <div key={msg.id} className={`flex ${msg.sender === 'placement_officer' ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[80%] rounded-xl px-3 py-2 text-xs ${
-                            msg.sender === 'tpo'
+                            msg.sender === 'placement_officer'
                               ? 'bg-primary text-primary-foreground rounded-br-sm'
                               : 'bg-muted text-foreground rounded-bl-sm'
                           }`}>
                             <p>{msg.text}</p>
-                            <p className={`text-[9px] mt-1 ${msg.sender === 'tpo' ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>{msg.timestamp}</p>
+                            <p className={`text-[9px] mt-1 ${msg.sender === 'placement_officer' ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>{msg.timestamp}</p>
                           </div>
                         </div>
                       ))}

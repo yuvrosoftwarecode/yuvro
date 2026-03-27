@@ -28,9 +28,7 @@ const Dashboard = () => {
       return <Navigate to="/principal/dashboard" replace />;
     case 'college_admin':
       return <Navigate to="/college-admin/dashboard" replace />;
-    case 'placement':
     case 'placement_officer':
-    case 'tpo':
       return <Navigate to="/placement/dashboard" replace />;
     case 'recruiter':
       return <Navigate to="/recruiter/dashboard" replace />;

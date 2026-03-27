@@ -17,7 +17,7 @@ from .models import (
     HODProfile,
     PrincipalProfile,
     CollegeAdminProfile,
-    TPOProfile,
+    PlacementOfficerProfile,
     Department,
     AttendanceSession,
     AttendanceRecord,
@@ -34,7 +34,7 @@ from .serializers import (
     HODProfileSerializer,
     PrincipalProfileSerializer,
     CollegeAdminProfileSerializer,
-    TPOProfileSerializer,
+    PlacementOfficerProfileSerializer,
     AttendanceSessionSerializer,
     AttendanceRecordSerializer,
     TaskSerializer,
@@ -1031,9 +1031,9 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         return Response(results, status=status.HTTP_200_OK if results["created"] > 0 else status.HTTP_200_OK if results["total"] > 0 else status.HTTP_400_BAD_REQUEST)
 
 
-class TPOProfileViewSet(viewsets.ModelViewSet):
-    queryset = TPOProfile.objects.all()
-    serializer_class = TPOProfileSerializer
+class PlacementOfficerProfileViewSet(viewsets.ModelViewSet):
+    queryset = PlacementOfficerProfile.objects.all()
+    serializer_class = PlacementOfficerProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementAdmin]
     filterset_fields = ["college"]
 
@@ -1073,14 +1073,14 @@ class TPOProfileViewSet(viewsets.ModelViewSet):
                     first_name=user_data["first_name"],
                     last_name=user_data["last_name"],
                     password=user_data["password"],
-                    role="tpo"
+                    role="placement_officer"
                 )
 
-                # 2. Create TPO Profile
+                # 2. Create Placement Officer Profile
                 college_id = data.get("college")
                 college = get_object_or_404(College, pk=college_id) if college_id else request.user.college
 
-                profile = TPOProfile.objects.create(
+                profile = PlacementOfficerProfile.objects.create(
                     user=user,
                     college=college
                 )
@@ -1423,15 +1423,15 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
             except StudentProfile.DoesNotExist:
                 return queryset.none()
         
-        # For other roles (faculty, HOD, TPO), show college-level + their department announcements
-        if user.role in ["faculty", "hod", "tpo"]:
+        # For other roles (faculty, HOD, placement_officer), show college-level + their department announcements
+        if user.role in ["faculty", "hod", "placement_officer"]:
             try:
                 if user.role == "hod":
                     profile = user.hod_profile
                     college = profile.college
                     department = profile.department
-                elif user.role == "tpo":
-                    profile = user.tpo_profile
+                elif user.role == "placement_officer":
+                    profile = user.placement_officer_profile
                     college = profile.college
                     department = None
                 else:

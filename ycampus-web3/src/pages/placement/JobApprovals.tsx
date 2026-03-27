@@ -33,7 +33,7 @@ const tabLabels: Record<string, string> = {
 const JobApprovals = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('pending');
-  const { data: jobs, isLoading } = usePlacementJobs(filter);
+  const { data: jobs, isLoading, isError, error } = usePlacementJobs(filter);
   const updateStatus = useUpdateJobStatus();
   const qc = useQueryClient();
   const [selectedJob, setSelectedJob] = useState<PlacementJob | null>(null);
@@ -77,7 +77,12 @@ const JobApprovals = () => {
         </Button>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div className="text-center py-12">
+          <p className="text-destructive font-medium">Failed to load jobs</p>
+          <p className="text-sm text-muted-foreground mt-1">{(error as any)?.message || 'Please check your connection'}</p>
+        </div>
+      ) : isLoading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : !jobs?.length ? (
         <p className="text-muted-foreground text-center py-12">No jobs found</p>
