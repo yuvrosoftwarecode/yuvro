@@ -66,15 +66,69 @@ export function useAnnouncements() {
       const readSet = new Set((readsRes.data ?? []).map((r: any) => r.announcement_id));
       setReadIds(readSet);
 
-      const allAnnouncements: Announcement[] = (announcementsRes.data ?? []).map((a: any) => ({
+      const dbAnnouncements = (announcementsRes.data ?? []).map((a: any) => ({
         ...a,
         is_read: readSet.has(a.id),
       }));
 
+      // Mock data for demonstration
+      const mockAnnouncements: Announcement[] = [
+        {
+          id: 'mock-1',
+          title: 'Campus Recruitment Drive: Techflow Solutions',
+          description: 'Techflow Solutions is visiting for a campus recruitment drive for final year students.',
+          full_content: 'We are pleased to announce that Techflow Solutions will be visiting our campus on April 15th for a recruitment drive. Eligibility: CSE & ECE with 7.5 CGPA and above. Register at the placement cell by April 10th.',
+          category: 'college',
+          department_id: null,
+          priority: 'important',
+          posted_by: 'Placement Officer',
+          posted_date: new Date().toISOString(),
+          expiry_date: new Date(Date.now() + 86400000 * 20).toISOString(),
+          attachment_url: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          is_read: readSet.has('mock-1'),
+        },
+        {
+          id: 'mock-2',
+          title: 'Internal Assessment - II Schedule Out',
+          description: 'The schedule for the second internal assessment has been released for all semesters.',
+          full_content: 'Students are advised to check the departmental notice board for the detailed schedule of Mid-Term exams starting from next Monday.',
+          category: 'department',
+          department_id: studentDeptId,
+          priority: 'urgent',
+          posted_by: 'HOD Office',
+          posted_date: new Date(Date.now() - 86400000).toISOString(),
+          expiry_date: new Date(Date.now() + 86400000 * 5).toISOString(),
+          attachment_url: null,
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          updated_at: new Date(Date.now() - 86400000).toISOString(),
+          is_read: readSet.has('mock-2'),
+        },
+        {
+          id: 'mock-3',
+          title: 'Upcoming Holiday: Ambedkar Jayanti',
+          description: 'The college will remain closed on April 14th on account of Ambedkar Jayanti.',
+          full_content: 'All academic and administrative activities will be suspended for the day.',
+          category: 'college',
+          department_id: null,
+          priority: 'normal',
+          posted_by: 'Administration',
+          posted_date: new Date(Date.now() - 86400000 * 2).toISOString(),
+          expiry_date: new Date(Date.now() + 86400000 * 10).toISOString(),
+          attachment_url: null,
+          created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+          updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+          is_read: readSet.has('mock-3'),
+        }
+      ];
+
+      const allAnnouncements: Announcement[] = [...dbAnnouncements, ...mockAnnouncements];
+
       // Filter: hide expired, filter department visibility
       const visible = allAnnouncements.filter((a) => {
         if (a.expiry_date && new Date(a.expiry_date) < new Date()) return false;
-        if (a.category === 'department' && a.department_id !== studentDeptId) return false;
+        if (a.category === 'department' && a.department_id && a.department_id !== studentDeptId) return false;
         return true;
       });
 
