@@ -237,10 +237,10 @@ const ReportsScreen: React.FC<ReportsScreenProps> = ({
   }));
 
   return (
-    <div className="space-y-6 pb-8 mx-4">
+    <div className="w-full space-y-6 pb-8 px-6 pt-6">
 
       {/* ── Page Header ──────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-6 pb-4 border-b">
+      <div className="w-full flex items-center justify-between gap-6 pb-4 border-b">
 
         {/* Left: Back + Title */}
         <div className="flex items-center gap-4 min-w-0">
