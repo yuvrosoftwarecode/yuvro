@@ -220,11 +220,11 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                       return (
                         <div
                           key={comment.id}
-                          className={`p-3 rounded-2xl max-w-[90%] border shadow-sm transition-all ${
+                          className={`p-4 rounded-xl max-w-[90%] border shadow-sm transition-all ${
                             comment.faculty
-                              ? 'bg-blue-50/50 border-blue-100 ml-0 mr-auto hover:bg-blue-100/20'
-                              : 'bg-white border-slate-100 ml-auto mr-0 hover:bg-slate-50'
-                          } ${annotationMatch ? 'cursor-pointer border-blue-300/30' : ''}`}
+                              ? 'bg-[#EFF6FF] border-blue-200 border-l-4 border-l-blue-500 ml-0 mr-auto'
+                              : 'bg-[#F0FDF4] border-emerald-200 border-r-4 border-r-emerald-500 ml-auto mr-0'
+                          } ${annotationMatch ? 'cursor-pointer' : ''}`}
                           onClick={() => {
                             if (annotationMatch) {
                                const [, _filename, lineStr] = annotationMatch;
@@ -233,15 +233,15 @@ const StudentResponseDetail: React.FC<StudentResponseDetailProps> = ({
                             }
                           }}
                         >
-                          <div className="flex justify-between items-center gap-4 mb-2">
-                            <span className="font-bold text-[10px] text-slate-500">
+                          <div className="flex justify-between items-center gap-6 mb-2">
+                            <span className="font-bold text-[11px] text-[#020817]">
                               {comment.faculty ? 'Faculty' : 'Student'}
                             </span>
-                            <span className="text-[10px] text-slate-400">
-                              {format(new Date(comment.created_at), 'HH:mm')}
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              {format(new Date(comment.created_at), 'M/d/yyyy, hh:mm:ss a')}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                          <p className="text-sm text-[#020817] leading-relaxed font-semibold whitespace-pre-wrap">
                             {(() => {
                               const regex = /^Answer_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
                               const parts = [];
