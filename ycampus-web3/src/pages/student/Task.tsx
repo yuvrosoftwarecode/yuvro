@@ -343,10 +343,10 @@ const StudentTask: React.FC = () => {
 
           {/* Submissions Download Alert */}
           {submissions[currentTask.id]?.file && (
-            <Card className="mb-6 bg-slate-50 border-slate-200 shadow-sm">
+            <Card className="mb-6 border-primary/20 bg-primary/5">
               <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between text-sm text-primary font-medium">
+                  <div className="flex items-center gap-2">
                     <div className="h-10 w-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center shrink-0">
                        <FileText className="h-5 w-5 text-slate-500" />
                     </div>
@@ -653,11 +653,11 @@ const StudentTask: React.FC = () => {
                             <span className={`font-black text-[10px] uppercase tracking-widest ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-bold">
-                              {format(new Date(comment.created_at), 'hh:mm a')}
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {format(new Date(comment.created_at), 'HH:mm')}
                             </span>
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                          <p className="text-sm text-slate-700 leading-relaxed font-medium">
                              {(() => {
                                 const regex = /^([a-zA-Z0-9._-]+)_(\d+)\s*:\s*(?:"([^"]*)")?/gm;
                                 const parts = [];
@@ -693,17 +693,15 @@ const StudentTask: React.FC = () => {
                         </div>
                       ))}
                       {(!submissions[currentTask.id]?.comments || submissions[currentTask.id].comments.length === 0) && (
-                        <div className="h-full flex flex-col items-center justify-center text-center py-24 opacity-30">
-                          <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-                             <Send className="h-8 w-8 text-slate-400" />
-                          </div>
-                          <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">No messages yet</p>
+                        <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-20">
+                          <Send className="h-10 w-10 mb-2" />
+                          <p className="text-sm font-bold tracking-widest">No messages yet</p>
                         </div>
                       )}
                     </div>
                   </ScrollArea>
                   
-                  <Separator className="my-4 bg-slate-100" />
+                  <Separator className="my-4" />
                   
                   <div className="space-y-3">
                     <Textarea
@@ -746,7 +744,7 @@ const StudentTask: React.FC = () => {
           <p className="text-muted-foreground font-medium">View and complete your assigned tasks</p>
         </div>
 
-        <Card className="mb-8 border-slate-200 shadow-sm bg-white">
+        <Card className="mb-8 border-slate-200 shadow-sm">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="flex-1 space-y-2">
@@ -754,7 +752,7 @@ const StudentTask: React.FC = () => {
                   Subjects
                 </label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                  <SelectTrigger className="bg-slate-50 hover:bg-slate-100 border-slate-200 transition-colors h-11 rounded-xl">
+                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
                     <SelectValue placeholder="All Subjects" />
                   </SelectTrigger>
                   <SelectContent>
@@ -773,7 +771,7 @@ const StudentTask: React.FC = () => {
                   Status
                 </label>
                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="bg-slate-50 hover:bg-slate-100 border-slate-200 transition-colors h-11 rounded-xl">
+                  <SelectTrigger className="bg-white hover:bg-slate-50 transition-colors h-11">
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
