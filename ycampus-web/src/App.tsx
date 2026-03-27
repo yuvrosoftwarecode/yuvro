@@ -162,7 +162,11 @@ function App() {
 
               <Route
                 path="/student/learn"
-                element={<Navigate to="/student/notes" replace />}
+                element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <StudentLearn />
+                  </ProtectedRoute>
+                }
               />
 
               <Route
@@ -318,22 +322,6 @@ function App() {
               />
 
               {/* Newly added Coming Soon Pages for Student Dashboard Links */}
-              <Route
-                path="/student/notes"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentLearn />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/student/notes/:subjectId"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentLearn />
-                  </ProtectedRoute>
-                }
-              />
               <Route
                 path="/student/assessment"
                 element={

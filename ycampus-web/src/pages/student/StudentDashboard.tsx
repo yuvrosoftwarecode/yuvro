@@ -58,7 +58,7 @@ type AnnouncementItem = {
 };
 
 const cardClass =
-  'h-full cursor-pointer border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg';
+  'h-full flex flex-col cursor-pointer border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg';
 
 const badgeBase =
   'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium';
@@ -67,12 +67,12 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
   return (
     <Card
       className={cardClass}
-      onClick={() => (window.location.href = '/student/notes')}
+      onClick={() => (window.location.href = '/student/learn')}
     >
-      <CardHeader className="space-y-0 pb-3">
+      <CardHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-            <BookOpen className="h-6 w-6" style={{ color: '#16A249' }} />
+          <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+            <BookOpen className="h-5 w-5" style={{ color: '#16A249' }} />
             Notes Progress
           </h3>
           <div className="flex items-center gap-1 text-sm">
@@ -82,7 +82,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 flex flex-col flex-1">
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
             <span className="font-medium">Overall Completion</span>
@@ -90,9 +90,9 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
               {data.overall}%
             </span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-white">
+          <div className="h-2 w-full rounded-full bg-gray-200">
             <div
-              className="h-1.5 rounded-full transition-all"
+              className="h-2 rounded-full transition-all"
               style={{
                 width: `${data.overall}%`,
                 backgroundColor: '#0F172A',
@@ -117,9 +117,9 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
                   </span>
                 </div>
 
-                <div className="h-2 w-full rounded-full bg-white">
+                <div className="h-1.5 w-full rounded-full bg-gray-200">
                   <div
-                    className="h-2 rounded-full transition-all"
+                    className="h-1.5 rounded-full transition-all"
                     style={{
                       width: `${pct}%`,
                       backgroundColor: '#0F172A',
@@ -131,7 +131,7 @@ const NotesProgress: React.FC<{ data: NotesProgressData }> = ({ data }) => {
           })}
         </div>
 
-        <div className="pt-2 text-xs" style={{ color: '#64748B' }}>
+        <div className="mt-auto pt-2 text-xs" style={{ color: '#64748B' }}>
           Click to view all notes and continue learning
         </div>
       </CardContent>
@@ -145,17 +145,17 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
       className={cardClass}
       onClick={() => (window.location.href = '/student/skill-test')}
     >
-      <CardHeader className="space-y-0 pb-2">
+      <CardHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-            <ClipboardCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
+          <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+            <ClipboardCheck className="h-5 w-5" style={{ color: '#E7B008' }} />
             Test Performance
           </h3>
           <Trophy className="h-5 w-5" style={{ color: '#64748B' }} />
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2.5">
+      <CardContent className="space-y-4 flex flex-col flex-1">
         <div className="grid grid-cols-3 gap-2.5">
           <div className="rounded-lg bg-[#F1F5F980] p-2 text-center">
             <div className="text-xl font-bold" style={{ color: '#16A249' }}>
@@ -183,7 +183,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-sm" style={{ color: '#64748B' }}>
               Chapters Completed
@@ -212,7 +212,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="space-y-3 border-t border-gray-300 pt-3">
+        <div className="space-y-3 border-t border-gray-300 pt-4">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4" style={{ color: '#94A3B8' }} />
             <span className="text-sm font-semibold text-[#0F172A]">
@@ -241,7 +241,7 @@ const TestPerformance: React.FC<{ data: TestPerformanceData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="text-xs" style={{ color: '#64748B' }}>
+        <div className="mt-auto text-xs" style={{ color: '#64748B' }}>
           Click to attempt practice tests
         </div>
       </CardContent>
@@ -255,14 +255,14 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => {
       className={cardClass}
       onClick={() => (window.location.href = '/student/task')}
     >
-      <CardHeader className="space-y-0 pb-2">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <ListTodo className="h-6 w-6" style={{ color: '#16A249' }} />
+      <CardHeader className="space-y-0 pb-4">
+        <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+          <ListTodo className="h-5 w-5" style={{ color: '#16A249' }} />
           Tasks Summary
         </h3>
       </CardHeader>
 
-      <CardContent className="space-y-2.5">
+      <CardContent className="space-y-4 flex flex-col flex-1">
         <div className="space-y-1">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium text-[#0F172A]">Overall Progress</span>
@@ -271,12 +271,12 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => {
             </span>
           </div>
 
-          <div className="h-1.5 w-full rounded-full bg-white overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
             <div
-              className="h-full rounded-full transition-all"
+              className="h-2 rounded-full transition-all"
               style={{
                 width: `${data.overall}%`,
-                backgroundColor: '#16A249',
+                backgroundColor: '#0F172A',
               }}
             />
           </div>
@@ -324,7 +324,7 @@ const TasksSummary: React.FC<{ data: TasksData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="text-xs" style={{ color: '#64748B' }}>
+        <div className="mt-auto text-xs" style={{ color: '#64748B' }}>
           Click to view all tasks and submissions
         </div>
       </CardContent>
@@ -338,10 +338,10 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
       className={cardClass}
       onClick={() => (window.location.href = '/student/assessment')}
     >
-      <CardHeader className="space-y-0 pb-2">
+      <CardHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-            <FileCheck className="h-6 w-6" style={{ color: '#E7B008' }} />
+          <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+            <FileCheck className="h-5 w-5" style={{ color: '#E7B008' }} />
             Assessments Overview
           </h3>
           <span
@@ -352,7 +352,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2.5">
+      <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-2">
           <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
             <div className="text-xl font-bold" style={{ color: '#16A249' }}>
@@ -382,7 +382,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="space-y-2 border-t border-gray-100 pt-2">
+        <div className="space-y-3 border-t border-gray-100 pt-3">
           <div className="flex items-center justify-between">
             <span className="text-sm" style={{ color: '#64748B' }}>
               Average Score
@@ -412,7 +412,7 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-gray-100 pt-2">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
             <span className="text-sm" style={{ color: '#64748B' }}>
               Recent Status
             </span>
@@ -435,17 +435,17 @@ const AssessmentsOverview: React.FC<{ data: AssessmentsData }> = ({ data }) => {
 const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => {
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-      <CardHeader className="space-y-0 pb-2">
+      <CardHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-            <Trophy className="h-6 w-6" style={{ color: '#E7B008' }} />
+          <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+            <Trophy className="h-5 w-5" style={{ color: '#E7B008' }} />
             Contest Performance
           </h3>
-          <Medal className="h-6 w-6" style={{ color: '#E7B008' }} />
+          <Medal className="h-5 w-5" style={{ color: '#E7B008' }} />
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2.5">
+      <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg bg-[#F1F5F980] p-2.5 text-center">
             <div className="text-2xl font-bold" style={{ color: '#16A249' }}>
@@ -466,7 +466,7 @@ const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="space-y-2 border-t border-gray-100 pt-2">
+        <div className="space-y-3 border-t border-gray-100 pt-3">
           <div className="flex items-center justify-between">
             <span className="text-sm" style={{ color: '#64748B' }}>
               Average Score
@@ -490,7 +490,7 @@ const ContestPerformance: React.FC<{ data: ContestsData }> = ({ data }) => {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-2">
+        <div className="border-t border-gray-100 pt-3">
           <div className="mb-2 flex items-center gap-2">
             <Zap className="h-5 w-5" style={{ color: '#E7B008' }} />
             <span className="text-sm font-semibold text-[#0F172A]">
@@ -556,14 +556,14 @@ const AttendanceOverview: React.FC = () => {
 
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-      <CardHeader className="space-y-0 pb-2">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <Calendar className="h-6 w-6" style={{ color: '#16A249' }} />
+      <CardHeader className="space-y-0 pb-4">
+        <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+          <Calendar className="h-5 w-5" style={{ color: '#16A249' }} />
           Attendance Overview
         </h3>
       </CardHeader>
 
-      <CardContent className="space-y-2.5">
+      <CardContent className="space-y-4">
         <div className="h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -658,10 +658,10 @@ const Announcements: React.FC<{ announcements: AnnouncementItem[]; count: number
 
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-      <CardHeader className="space-y-0 pb-2">
+      <CardHeader className="space-y-0 pb-4">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-            <Bell className="h-6 w-6" style={{ color: '#E7B008' }} />
+          <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+            <Bell className="h-5 w-5" style={{ color: '#E7B008' }} />
             Announcements
           </h3>
           <span className={`${badgeBase} border-transparent bg-white text-[#0F172A]`}>
@@ -763,9 +763,9 @@ const StreaksBadges: React.FC = () => {
 
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
-      <CardHeader className="space-y-0 pb-2">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <Flame className="h-6 w-6" style={{ color: '#E7B008' }} />
+      <CardHeader className="space-y-0 pb-4">
+        <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+          <Flame className="h-5 w-5" style={{ color: '#E7B008' }} />
           Streaks & Badges
         </h3>
       </CardHeader>
@@ -793,7 +793,7 @@ const StreaksBadges: React.FC = () => {
             </span>
           </div>
 
-          <div className="h-1.5 w-full rounded-full bg-white overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
             <div
               className="h-full bg-[#0F172A] transition-all"
               style={{ width: `${progressToNext}%` }}
@@ -894,8 +894,8 @@ const PerformanceMetrics: React.FC = () => {
   return (
     <Card className="h-full border border-gray-300 bg-card shadow-sm transition-shadow hover:shadow-lg">
       <CardHeader className="space-y-0 pb-2">
-        <h3 className="flex items-center gap-2 text-xl font-bold text-[#0F172A]">
-          <BarChart3 className="h-6 w-6" style={{ color: '#16A249' }} />
+        <h3 className="flex items-center gap-2 text-xl font-semibold text-[#0F172A]">
+          <BarChart3 className="h-5 w-5" style={{ color: '#16A249' }} />
           Performance Metrics Summary
         </h3>
       </CardHeader>
@@ -916,7 +916,7 @@ const PerformanceMetrics: React.FC = () => {
                 </span>
               </div>
 
-              <div className="h-2 w-full rounded-full bg-white overflow-hidden">
+              <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
@@ -1052,7 +1052,7 @@ const Dashboard: React.FC = () => {
             className="py-0 pb-4"
             noPadding
           />
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 items-stretch">
             <NotesProgress data={notesData} />
             <TestPerformance data={testsData} />
             <TasksSummary data={tasksData} />

@@ -74,7 +74,7 @@ const sidebarItems: SidebarItem[] = [
     id: 'student-notes',
     label: 'Learn',
     icon: BookOpen,
-    path: '/student/notes',
+    path: '/student/learn',
     roles: ['student']
   },
   {

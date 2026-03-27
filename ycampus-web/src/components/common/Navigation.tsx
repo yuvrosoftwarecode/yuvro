@@ -18,7 +18,7 @@ const Navigation: React.FC = () => {
     const roleTabs: Record<string, { label: string; path: string }[]> = {
         student: [
             { label: 'Dashboard', path: '/student/dashboard' },
-            { label: 'Learn', path: '/student/notes' },
+            { label: 'Learn', path: '/student/learn' },
             { label: 'Code Practice', path: '/student/code-practice' },
             { label: 'Skill Test', path: '/student/skill-test' },
             { label: 'Mock Interview', path: '/student/mock-interview' },

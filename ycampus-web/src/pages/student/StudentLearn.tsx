@@ -90,7 +90,7 @@ export default function StudentLearn() {
         <div className="flex-1 overflow-hidden">
           <SubjectDetail 
             hideNavigation 
-            onSwitchSubject={() => navigate('/student/notes')} 
+            onSwitchSubject={() => navigate('/student/learn')} 
             onCollapseChange={setIsSidebarCollapsed}
           />
         </div>
@@ -129,7 +129,7 @@ export default function StudentLearn() {
                 return (
                   <button
                     key={subject.id}
-                    onClick={() => navigate(`/student/notes/${subject.id}`)}
+                    onClick={() => navigate(`/student/learn/${subject.id}`)}
                     className="flex items-center gap-4 px-5 py-4 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
                   >
                     <div className={cn(
