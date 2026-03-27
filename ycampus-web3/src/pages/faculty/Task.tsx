@@ -163,11 +163,11 @@ const TaskPage: React.FC = () => {
     }
   };
 
-  const handleSendTask = async (taskId: string) => {
+  const handleSendTask = async (taskId: string, sectionIds?: string[]) => {
     try {
       setIsActionLoading(true);
-      await taskService.sendTask(taskId);
-      toast({ title: 'Success', description: 'Task sent to students!' });
+      await taskService.sendTask(taskId, sectionIds);
+      toast({ title: 'Success', description: sectionIds && sectionIds.length > 1 ? `Task sent to ${sectionIds.length} sections!` : 'Task sent to students!' });
       fetchTasks();
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to send task.', variant: 'destructive' });
@@ -513,6 +513,8 @@ const TaskPage: React.FC = () => {
                     onDelete={handleDeleteTask}
                     onSend={handleSendTask}
                     onViewResponses={handleViewResponses}
+                    availableSections={availableSections}
+                    currentSectionId={selectedSection}
                   />
                 ))}
               </div>
