@@ -315,7 +315,7 @@ const InterviewPreparation = () => {
                     className="w-full text-xs mt-1"
                     onClick={() => {
                       if (mod.cta === 'Start Mock Interview') {
-                        navigate('/student/mock-interview-select');
+                        navigate('/student/mock-interview');
                       } else if (mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') {
                         navigate('/student/code-practice');
                       }

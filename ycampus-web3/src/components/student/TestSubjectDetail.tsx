@@ -815,7 +815,7 @@ const UnitSidebar = ({
 };
 
 const TestSubjectDetail = () => {
-  const { subject } = useParams<{ subject: string }>();
+  const { subject, id, subjectId } = useParams<{ subject?: string; id?: string; subjectId?: string }>();
   const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -831,7 +831,7 @@ const TestSubjectDetail = () => {
     timeSpent: number;
   } | null>(null);
 
-  const subjectName = subject || 'matrices-calculus';
+  const subjectName = subject || id || subjectId || 'matrices-calculus';
   const allProblems = subjectProblems[subjectName] || [];
   const units = unitsData[subjectName] || [];
 
