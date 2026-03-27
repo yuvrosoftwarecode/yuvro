@@ -69,8 +69,10 @@ export const taskService = {
         return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, data);
     },
 
-    sendTask: async (id: string): Promise<Task> => {
-        return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, { is_sent: true });
+    sendTask: async (id: string, sections?: string[]): Promise<Task> => {
+        const data: any = { is_sent: true };
+        if (sections) data.sections = sections;
+        return await restApiAuthUtil.patch<Task>(`/core/tasks/${id}/`, data);
     },
 
     deleteTask: async (id: string): Promise<void> => {

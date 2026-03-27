@@ -81,7 +81,7 @@ const Attendance = () => {
     if (!selectedCourse || !selectedBatch || !selectedDate) {
       toast({
         title: "Missing Information",
-        description: "Please select course, batch, and date before submitting attendance.",
+        description: "Please select Subject, Batch, and Date before submitting attendance.",
         variant: "destructive",
       });
       return;
@@ -168,10 +168,10 @@ const Attendance = () => {
 
             {/* Course Dropdown */}
             <div className="space-y-2">
-              <Label>Course</Label>
+              <Label>Subject</Label>
               <Select value={selectedCourse} onValueChange={handleCourseChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select course" />
+                  <SelectValue placeholder="Select Subject" />
                 </SelectTrigger>
                 <SelectContent>
                   {courses.map(course => (
@@ -303,7 +303,7 @@ const Attendance = () => {
 
           {!selectedCourse && (
             <div className="text-center text-muted-foreground py-8">
-              Please select a course to get started
+              Please select a Subject to get started
             </div>
           )}
 
