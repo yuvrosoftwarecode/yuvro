@@ -250,10 +250,35 @@ const StudentTask: React.FC = () => {
             <h1 className="text-2xl font-bold text-foreground">{currentTask.title}</h1>
           </div>
 
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Task Details</CardTitle>
-              <CardDescription>{currentTask.description}</CardDescription>
+          <Card className="mb-6 border-slate-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl">Task Details</CardTitle>
+              {currentTask.description ? (
+                <CardDescription className="text-base text-slate-600 mt-2 font-medium leading-relaxed">
+                  {currentTask.description}
+                </CardDescription>
+              ) : currentTask.question_details && currentTask.question_details.length > 0 ? (
+                <div className="mt-4 space-y-4">
+                  {currentTask.question_details.map((q: any, idx: number) => (
+                    <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                      <div className="flex justify-between items-start gap-4 mb-2">
+                        <h4 className="font-bold text-slate-800 text-sm">Question {idx + 1}</h4>
+                        <div className="flex gap-2">
+                          {q.marks && <Badge variant="outline" className="text-[10px] bg-white font-bold">{q.marks} Marks</Badge>}
+                          {q.difficulty_level && <Badge className="text-[10px] bg-slate-200 text-slate-700 hover:bg-slate-300 shadow-none font-bold uppercase tracking-widest">{q.difficulty_level}</Badge>}
+                        </div>
+                      </div>
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
+                        {q.question_text || q.title || 'Untitled Question'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <CardDescription className="text-base text-slate-500 mt-2 italic">
+                  No specific instructions provided.
+                </CardDescription>
+              )}
             </CardHeader>
           </Card>
 
@@ -367,11 +392,11 @@ const StudentTask: React.FC = () => {
                       {submissions[currentTask.id]?.comments?.map((comment: TaskComment) => (
                         <div key={comment.id} className={`p-3 rounded-xl border ${
                           comment.faculty 
-                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4' 
-                            : 'bg-slate-50 border-slate-100 ml-4 mr-0'
+                            ? 'bg-blue-50/50 border-blue-100 ml-0 mr-4 rounded-tl-sm' 
+                            : 'bg-slate-50 border-slate-100 ml-4 mr-0 rounded-tr-sm'
                         }`}>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-[11px] uppercase tracking-wider text-slate-500">
+                            <span className={`font-bold text-[11px] uppercase tracking-wider ${comment.faculty ? 'text-blue-600' : 'text-slate-500'}`}>
                               {comment.faculty ? (comment.faculty_details?.full_name || 'Faculty') : 'You'}
                             </span>
                             <span className="text-[10px] text-slate-400 font-medium">
