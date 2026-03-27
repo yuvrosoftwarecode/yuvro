@@ -433,7 +433,9 @@ const TaskPage: React.FC = () => {
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
                           <Users className="h-4 w-4 text-slate-400" />
                           <span className="text-sm font-semibold text-slate-700">
-                            Section {assignment.section_name || assignment.section}
+                            {(assignment.section_name || assignment.section || '').toString().toLowerCase().startsWith('section') 
+                              ? (assignment.section_name || assignment.section) 
+                              : `Section ${assignment.section_name || assignment.section}`}
                           </span>
                         </div>
 
@@ -481,7 +483,9 @@ const TaskPage: React.FC = () => {
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
                       {selectedBatch !== 'all' ? selectedBatch : 'All Batches'}
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                      Section {selectedSection !== 'all' ? selectedSection : 'All Sections'}
+                      {selectedSection !== 'all' 
+                        ? (selectedSection.toLowerCase().startsWith('section') ? selectedSection : `Section ${selectedSection}`)
+                        : 'All Sections'}
                     </p>
                   </div>
                 </div>
