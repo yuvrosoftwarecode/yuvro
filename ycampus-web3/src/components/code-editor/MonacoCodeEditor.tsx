@@ -69,7 +69,7 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
   };
 
   return (
-    <div className="relative rounded-lg overflow-hidden bg-white min-h-[200px]" style={{ height }}>
+    <div className="relative rounded-lg overflow-hidden bg-white min-h-[200px] h-full flex flex-col" style={height ? { height } : undefined}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-white relative z-10">
         <div className="flex items-center space-x-3">

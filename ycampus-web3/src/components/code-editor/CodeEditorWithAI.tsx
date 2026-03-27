@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, BrainCircuit, Target, Code, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Subject, Unit, CodingProblem } from '@/types/codePractice';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
-import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
+
+import AIChatContainer from '@/components/student/ai-buddy/AIChatContainer';
 import codeEditorService from '@/services/codeEditorService';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -562,7 +562,7 @@ ${codeEditorRef.current?.getCode() || ''}
       {editorOpen && !isEditorFullscreen && (
         <div
           ref={containerRef}
-          className={`h-[calc(100vh-160px)] min-h-[400px] overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
+          className={`h-[calc(100vh-4rem)] flex-1 min-h-[400px] overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
         >
           {/* Collapsed Sidebar — vertical tab buttons */}
           {showProblemDescription && isSidebarCollapsed && (
