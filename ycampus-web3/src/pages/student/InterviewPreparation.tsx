@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MockInterviewSession from '@/components/student/MockInterviewSession';
+import { fetchSubjects } from '@/services/subjectService';
+import { Loader2 } from 'lucide-react';
 
 // Dummy data
 const psBreakdown = {
@@ -154,6 +156,31 @@ const InterviewPreparation = () => {
   const navigate = useNavigate();
   const psStatus = getPsStatus(psBreakdown.overall);
   const [interviewConfig, setInterviewConfig] = useState<any>(null);
+  const [dsaSubjectId, setDsaSubjectId] = useState<string | null>(null);
+  const [isSubjectsLoading, setIsSubjectsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const fetchedSubjects = await fetchSubjects();
+        
+        // Find DSA subject
+        const dsa = fetchedSubjects.find((s: any) => {
+          const name = (s.subject_name || s.name || s.title || "").toLowerCase();
+          return name.includes("data structures") || name.includes("dsa");
+        });
+        
+        if (dsa) {
+          setDsaSubjectId(dsa.id.toString());
+        }
+      } catch (error) {
+        console.error("Failed to fetch subjects in Interview Prep:", error);
+      } finally {
+        setIsSubjectsLoading(false);
+      }
+    };
+    loadSubjects();
+  }, []);
 
   // If interview is active, show session
   if (interviewConfig) {
@@ -313,14 +340,42 @@ const InterviewPreparation = () => {
                     size="sm"
                     variant="outline"
                     className="w-full text-xs mt-1"
-                    onClick={() => {
+                    onClick={async () => {
                       if (mod.cta === 'Start Mock Interview') {
                         navigate('/student/mock-interview');
                       } else if (mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') {
-                        navigate('/student/code-practice');
+                        // Use existing ID if available to avoid redundant fetch
+                        let targetId = dsaSubjectId;
+                        
+                        // Small check if we need to fetch now (user clicked really fast)
+                        if (!targetId && isSubjectsLoading) {
+                          try {
+                            const subjects = await fetchSubjects();
+                            const dsa = subjects.find((s: any) => {
+                              const name = (s.subject_name || s.name || s.title || "").toLowerCase();
+                              return name.includes("data structures") || name.includes("dsa");
+                            });
+                            if (dsa) {
+                              targetId = dsa.id.toString();
+                              setDsaSubjectId(targetId);
+                            }
+                          } catch (e) {
+                            console.error("On-demand fetch failed:", e);
+                          }
+                        }
+
+                        if (targetId) {
+                          navigate(`/student/code-practice/subjects/${targetId}`);
+                        } else {
+                          navigate('/student/code-practice');
+                        }
                       }
                     }}
+                    disabled={(mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') && isSubjectsLoading}
                   >
+                    {(mod.cta === 'Start Practice' || mod.cta === 'Continue Learning') && isSubjectsLoading ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
+                    ) : null}
                     {mod.cta} <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </CardContent>
@@ -358,7 +413,28 @@ const InterviewPreparation = () => {
                     >
                       {rec.priority}
                     </Badge>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs">
+                     <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-7 text-xs"
+                      onClick={() => {
+                        if (rec.module === 'DSA') {
+                          if (dsaSubjectId) {
+                            navigate(`/student/code-practice/subjects/${dsaSubjectId}`);
+                          } else {
+                            navigate('/student/code-practice');
+                          }
+                        } else if (rec.module === 'Aptitude') {
+                          navigate('/student/practice-tests');
+                        } else if (rec.module === 'Mock Interview') {
+                          navigate('/student/mock-interview');
+                        } else if (rec.module === 'Core Subjects') {
+                          navigate('/student/notes');
+                        } else if (rec.module === 'Communication') {
+                          navigate('/student/notes');
+                        }
+                      }}
+                    >
                       Start <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                   </div>
@@ -470,7 +546,26 @@ const InterviewPreparation = () => {
                   </div>
                   <p className="text-xs text-muted-foreground mb-2">{w.module}</p>
                   <Progress value={w.score} className="h-1.5 mb-2" />
-                  <Button size="sm" variant="outline" className="w-full text-xs h-7">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full text-xs h-7"
+                    onClick={() => {
+                      if (w.module === 'DSA') {
+                        if (dsaSubjectId) {
+                          navigate(`/student/code-practice/subjects/${dsaSubjectId}`);
+                        } else {
+                          navigate('/student/code-practice');
+                        }
+                      } else if (w.module === 'Aptitude') {
+                        navigate('/student/practice-tests');
+                      } else if (w.module === 'Communication') {
+                        navigate('/student/notes');
+                      } else if (w.module === 'Core Subjects') {
+                        navigate('/student/notes');
+                      }
+                    }}
+                  >
                     Improve Now <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>

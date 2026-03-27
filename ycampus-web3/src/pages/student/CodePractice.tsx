@@ -6,7 +6,7 @@ import UnitSelection from '@/components/student/code-practice/UnitSelection';
 import CodeEditorWithAI from '@/components/code-editor/CodeEditorWithAI';
 import ScoreAnalytics from '@/components/student/code-practice/ScoreAnalytics';
 import AIInsights from '@/components/student/code-practice/AIInsights';
-import { fetchSubjectById, fetchUnitsBySubject, fetchSubjects } from '@/services/subjectService';
+import { fetchSubjectById, fetchUnitsBySubject } from '@/services/subjectService';
 import { fetchQuestionById } from '@/services/questionService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -18,11 +18,16 @@ const CodePractice = () => {
   const navigate = useNavigate();
   const { subjectId, unitId, problemId } = useParams<{ subjectId: string; unitId: string; problemId: string }>();
 
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  // Set initial state based on URL to prevent flicker
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    if (problemId) return 'problem';
+    if (unitId || subjectId) return 'units';
+    return 'dashboard';
+  });
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedProblem, setSelectedProblem] = useState<CodingProblem | null>(null);
-  const [isHydrating, setIsHydrating] = useState(false);
+  const [isHydrating, setIsHydrating] = useState(!!subjectId); 
 
   const getIconColor = (category: string) => {
     const colors = {
@@ -59,11 +64,10 @@ const CodePractice = () => {
         subject = transformedSubject;
       }
 
-      // 2. Fetch Problem FIRST (if ID exists) to help resolve unit
-      let problem: CodingProblem | null = selectedProblem;
+      // 2. Resolve Unit and Problem
       if (problemId && (!selectedProblem || selectedProblem.id !== problemId)) {
         const q = await fetchQuestionById(problemId);
-        problem = {
+        const transformedProblem: CodingProblem = {
           id: q.id,
           title: q.title,
           difficulty: q.difficulty === 'easy' ? 'Easy' : q.difficulty === 'medium' ? 'Medium' : 'Hard',
@@ -82,41 +86,24 @@ const CodePractice = () => {
             weight: tc.weight || 1
           })),
         };
-        setSelectedProblem(problem);
+        setSelectedProblem(transformedProblem);
       }
 
-      // 3. Resolve Unit
-      if (unitId || problemId) {
-        const targetUnitId = unitId || (problemId ? (selectedProblem as any)?.unitId : null);
-        
-        if (targetUnitId && (!selectedUnit || selectedUnit.id !== targetUnitId)) {
-          const units = await fetchUnitsBySubject(subjectId);
-          let unit = units.find((t: any) => t.id === targetUnitId);
-          
-          if (!unit && problemId && problem) {
-             unit = { 
-               id: targetUnitId, 
-               name: "Section Practice", 
-               total_problems: 0, 
-               order_index: 0, 
-               progress_percentage: 0,
-               subject: subjectId || '',
-               created_at: new Date().toISOString()
-             } as any;
-          }
-
-          if (unit) {
-            setSelectedUnit({
-              id: unit.id,
-              name: unit.name,
-              problemCount: unit.total_problems || 0,
-              order_index: unit.order_index,
-              progress: Math.round(unit.progress_percentage || 0),
-            });
-          }
+      if (unitId && (!selectedUnit || selectedUnit.id !== unitId)) {
+        const units = await fetchUnitsBySubject(subjectId);
+        const unit = units.find((t: any) => t.id === unitId);
+        if (unit) {
+          setSelectedUnit({
+            id: unit.id,
+            name: unit.name,
+            problemCount: unit.total_problems || 0,
+            order_index: unit.order_index,
+            progress: Math.round(unit.progress_percentage || 0),
+          });
         }
       }
 
+      // 3. Set view
       if (problemId) {
         setCurrentView('problem');
       } else if (unitId || subjectId) {
@@ -129,45 +116,24 @@ const CodePractice = () => {
     } finally {
       setIsHydrating(false);
     }
-  }, [subjectId, unitId, problemId, selectedSubject, selectedUnit, selectedProblem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId, unitId, problemId]); // Remove state dependencies to prevent circular calls
 
   useEffect(() => {
     if (subjectId || unitId || problemId) {
-      if ((subjectId && !selectedSubject) || (unitId && !selectedUnit) || (problemId && !selectedProblem)) {
+      const needsHydration = 
+        (subjectId && !selectedSubject) || 
+        (unitId && !selectedUnit) || 
+        (problemId && !selectedProblem);
+        
+      if (needsHydration) {
         hydrateStateFromUrl();
-      } else if (problemId) {
-        setCurrentView('problem');
-      } else if (subjectId) {
-        setCurrentView('units');
       }
     } else {
       setCurrentView('dashboard');
     }
-  }, [subjectId, unitId, problemId, hydrateStateFromUrl, selectedSubject, selectedUnit, selectedProblem]);
-
-  useEffect(() => {
-    const autoSelectDSA = async () => {
-      if (subjectId) return;
-      
-      try {
-        const subjects = await fetchSubjects();
-        const dsaSubject = subjects.find((s: any) => {
-          const name = (s.subject_name || s.name || s.title || '').toLowerCase();
-          return name.includes('data structure') || name.includes('dsa');
-        });
-
-        if (dsaSubject) {
-          navigate(`/student/code-practice/subjects/${dsaSubject.id}`);
-        }
-      } catch (error) {
-        console.error('Failed to auto-select DSA:', error);
-      }
-    };
-
-    if (!subjectId) {
-      autoSelectDSA();
-    }
-  }, [subjectId, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId, unitId, problemId, hydrateStateFromUrl]);
 
   const handleSubjectSelect = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -220,9 +186,8 @@ const CodePractice = () => {
 
   return (
     <StudentLayout
-      noPadding={currentView === 'problem'}
-      hideSidebar={currentView === 'units' || currentView === 'problem'}
       noPadding={true}
+      hideSidebar={currentView === 'units' || currentView === 'problem'}
     >
       <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
         <div className="flex-1 flex flex-col min-h-0 w-full h-full">
