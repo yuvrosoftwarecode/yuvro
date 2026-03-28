@@ -29,6 +29,23 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
 
+  const staticTypingSentences = [
+    "Alright, give me a second to think...",
+"Let me look through this...",
+"Okay, I’m checking what fits best here...",
+"Hmm… analyzing this step by step...",
+"Let me connect a few things...",
+"I’m putting the pieces together...",
+"Checking if there’s a better way to explain this...",
+"Making this simple and clear for you...",
+"Almost there, just refining the answer...",
+"Okay, got it. Here’s what I think..."
+  ];
+
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderCursor, setPlaceholderCursor] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState('');
+
   const handleCopyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeId(id);
@@ -53,7 +70,47 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
     });
   }, [messages]);
 
+  const shouldShowPlaceholderTyping = isLoading && !activeStream;
+
+  useEffect(() => {
+    if (!shouldShowPlaceholderTyping) {
+      setPlaceholderIndex(0);
+      setPlaceholderCursor(0);
+      setPlaceholderText('');
+      return;
+    }
+
+    const sentence = staticTypingSentences[placeholderIndex];
+    if (!sentence) return;
+
+    const typingInterval = setInterval(() => {
+      setPlaceholderCursor(prev => {
+        const next = prev + 1;
+        if (next <= sentence.length) {
+          setPlaceholderText(sentence.slice(0, next));
+          return next;
+        }
+        clearInterval(typingInterval);
+        setTimeout(() => {
+          setPlaceholderIndex((idx) => Math.min(idx + 1, staticTypingSentences.length - 1));
+          setPlaceholderCursor(0);
+          setPlaceholderText('');
+        }, 400);
+        return prev;
+      });
+    }, 35);
+
+    return () => clearInterval(typingInterval);
+  }, [shouldShowPlaceholderTyping, placeholderIndex, staticTypingSentences]);
+
   const isVisible = (id: string) => visibleIds.has(id);
+
+  const messagesToRender = messages.filter((m) => {
+    if (m.message_type === 'assistant' && !m.content && isLoading && !(activeStream && activeStream.id === m.id)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-6 py-6 space-y-6 bg-slate-50/10 custom-scrollbar"
@@ -75,7 +132,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
       )}
 
       {/* Messages */}
-      {messages.map((m) => {
+      {messagesToRender.map((m) => {
         const isUser = m.message_type === 'user';
         const visible = isVisible(m.id);
         const isStreaming = !!(activeStream && activeStream.id === m.id);
@@ -196,7 +253,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, active
         );
       })}
 
-      {isLoading && messages[messages.length - 1]?.message_type !== 'assistant' && (
+      {isLoading && !activeStream && (
+        <div className="flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100 border border-indigo-500/20">
+            <Sparkles size={16} className="text-white" />
+          </div>
+          <div className="bg-white border border-slate-100 shadow-sm px-6 py-4 rounded-[2.5rem] rounded-bl-[0.5rem]">
+            <p className="text-sm text-slate-500 leading-relaxed whitespace-pre-wrap">
+              {placeholderText || 'Warming up knowledge cores...'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isLoading && activeStream && (
         <div className="flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100 border border-indigo-500/20">
             <Sparkles size={16} className="text-white" />
