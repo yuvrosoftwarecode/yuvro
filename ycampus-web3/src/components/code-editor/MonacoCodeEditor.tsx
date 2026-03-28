@@ -109,10 +109,10 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
                     ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200'
                     : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
                     }`}
-                  title={isAiChatOpen ? "Close AI Buddy" : "Open AI Buddy"}
+                  title={isAiChatOpen ? "Close AI Mentor" : "Open AI Mentor"}
                 >
                   {isAiChatOpen ? <X className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                  {isAiChatOpen ? 'Close AI' : 'AI Buddy'}
+                  {isAiChatOpen ? 'Close AI' : 'AI Mentor'}
                 </button>
               )}
               {onToggleFullscreen && (
