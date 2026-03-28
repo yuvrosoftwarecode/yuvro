@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff } from 'lucide-react';
-import yuvroCampusLogo from '@/assets/yuvro-campus-logo.png';
+import yuvroCampusLogo from '@/assets/yuvro-campus-combined.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -53,7 +53,7 @@ const Login = () => {
       <Card className="w-full max-w-md shadow-xl border-border/60">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
-            <img src={yuvroCampusLogo} alt="Yuvro Campus" className="h-20 w-auto object-contain" />
+            <img src={yuvroCampusLogo} alt="Yuvro Campus" className="h-12 w-auto object-contain" />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
@@ -105,16 +105,7 @@ const Login = () => {
             </Button>
           </form>
           
-          <div className="mt-8 pt-6 border-t border-border/60 text-xs text-muted-foreground">
-            <p className="font-semibold text-foreground mb-3 uppercase tracking-wider">Demo Credentials (JNTU)</p>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div><span className="font-medium text-foreground/80">College Admin:</span> admin@jntu.edu</div>
-              <div><span className="font-medium text-foreground/80">Faculty:</span> faculty1@jntu.edu</div>
-              <div><span className="font-medium text-foreground/80">Student:</span> student_jntucse2024a1@gmail.com</div>
-              <div><span className="font-medium text-foreground/80">Placement Officer:</span> tpo@jntu.edu</div>
-            </div>
-            <p className="mt-3 italic">Password for all accounts is: <span className="text-primary font-mono font-bold not-italic">password123</span></p>
-          </div>
+          
         </CardContent>
       </Card>
     </div>

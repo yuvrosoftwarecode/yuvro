@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
 import yuvroCampusLogo from '@/assets/yuvro-campus-combined.png';
 import knowledgeTreeIcon from '@/assets/knowledge-tree.png';
+import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 
 const mainItems = [
   { title: 'Dashboard', url: '/principal/dashboard', icon: LayoutDashboard },
@@ -118,6 +119,20 @@ export function PrincipalSidebar() {
               </>
             )}
           </button>
+           {/* College Logo Section */}
+                    <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
+                      <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
+                      {!collapsed && (
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-tight">
+                            JNTU Hyderabad
+                          </p>
+                          <p className="text-[10px] font-medium text-muted-foreground truncate uppercase tracking-widest opacity-70">
+                            University Campus
+                          </p>
+                        </div>
+                      )}
+                    </div>
           <div className={`overflow-hidden transition-all duration-300 ease-in-out ${profileOpen && !collapsed ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="px-2 pb-2 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground px-2 pb-1 truncate">{user?.email}</p>

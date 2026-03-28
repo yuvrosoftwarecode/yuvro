@@ -72,6 +72,7 @@ import PlacementPRIReport from "./pages/placement/PlacementPRIReport";
 import JobApplicationsPage from "./pages/placement/JobApplications";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
+import DummyReportScreen from "./components/student/DummyReportScreen";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -155,6 +156,7 @@ const App = () => (
                       <Route path="ai-interview-planner" element={<AIInterviewPlanner />} />
                       <Route path="interview-preparation" element={<InterviewPreparation />} />
                       <Route path="mock-interview" element={<StudentMockInterview />} />
+                      <Route path="mock-interview/report/ml" element={<DummyReportScreen />} />
                       <Route path="code-practice" element={<CodePractice />} />
                       <Route path="code-practice/subjects/:subjectId" element={<CodePractice />} />
                       <Route path="code-practice/subjects/:subjectId/units/:unitId" element={<CodePractice />} />
