@@ -55,6 +55,7 @@ import StudentCommunity from "./pages/student/Community";
 import StudentAnnouncements from "./pages/student/Announcements";
 import AIInterviewPlanner from "./pages/student/AIInterviewPlanner";
 import InterviewPreparation from "./pages/student/InterviewPreparation";
+import Contest from "./pages/student/Contest";
 // MockInterviewSelect replaced by StudentMockInterview
 import StudentJobs from "./pages/student/Jobs";
 import CodePractice from "./pages/student/CodePractice";
@@ -146,6 +147,8 @@ const App = () => (
                     <Routes>
                       <Route path="dashboard" element={<StudentDashboard />} />
                       <Route path="task" element={<StudentTask />} />
+                      <Route path="contest" element={<Contest />} />
+                      <Route path="contests" element={<Contest />} />
                       <Route path="notes" element={<StudentNotes />} />
                       <Route path="notes/:subjectId" element={<SubjectDetail />} />
                       <Route path="test" element={<StudentTest />} />
