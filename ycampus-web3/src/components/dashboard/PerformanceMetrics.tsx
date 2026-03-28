@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { BarChart3 } from 'lucide-react';
@@ -41,6 +41,26 @@ export function PerformanceMetrics() {
             <p className="text-sm text-muted-foreground mt-1">
               Overall Performance Score
             </p>
+          </div>
+          <div className="mt-4 space-y-2 pt-4 border-t">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Performance Index</span>
+              <span className="text-sm font-bold" style={{ color: 'hsl(var(--success))' }}>
+                80%
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Preparation Score</span>
+              <span className="text-sm font-bold" style={{ color: 'hsl(var(--success))' }}>
+                75%
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Placement Readiness Index</span>
+              <span className="text-sm font-bold" style={{ color: 'hsl(var(--success))' }}>
+                77.5%
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>

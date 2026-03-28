@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X } from 'lucide-react';
+import { BookOpen, Check, Columns, Minimize2, Pencil, Plus, Sparkles, StickyNote, Trash2, X, Brain, Zap, Table as TableIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { createNote, deleteNote, fetchNotesBySubUnit, Note, updateNote } from '@/services/subjectService';
@@ -56,12 +56,267 @@ const MaterialsView = ({
       </div>
     )}
 
-    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-      {materials.length === 0 ? (
-        <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200 font-sans">
-          <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
-          <p className="text-sm">No study materials available for this unit yet.</p>
+    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
+      <div className="mb-8 mt-2 space-y-6">
+        <div className="rounded-2xl p-8 text-black fshadow-md">
+          <div className="flex items-center gap-3 mb-2">
+            <Brain className="w-8 h-8 text-gray-500" />
+            <h2 className="text-3xl font-bold font-sans tracking-tight">Dynamic Programming (DP) Notes</h2>
+          </div>
+          <p className="text-black mt-2 max-w-3xl font-sans text-sm leading-relaxed">
+            Dynamic Programming is an optimization technique used to solve problems by breaking them into smaller overlapping subproblems and storing their results to avoid recomputation.
+          </p>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><Zap className="w-5 h-5 text-amber-500" /> Used When:</h3>
+            <ul className="space-y-3 font-sans">
+              <li className="flex items-start gap-3 text-gray-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100/50">
+                 <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                 <span className="text-sm">Problem has <strong className="text-gray-900">Overlapping Subproblems</strong></span>
+              </li>
+              <li className="flex items-start gap-3 text-gray-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100/50">
+                 <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                 <span className="text-sm">Problem has <strong className="text-gray-900">Optimal Substructure</strong></span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><BookOpen className="w-5 h-5 text-indigo-500" /> Examples:</h3>
+            <div className="flex flex-wrap gap-2 font-sans">
+              {['Fibonacci', 'Knapsack', 'Longest Common Subsequence', 'Coin Change', 'DP on Trees', 'DP on Grids'].map(ex => (
+                <span key={ex} className="px-3 py-1.5 bg-slate-50 border border-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-100 transition-colors cursor-default">{ex}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col hover:border-indigo-200 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-xl"><Zap className="w-6 h-6" /></div>
+              <h3 className="text-xl font-bold text-gray-900 font-sans tracking-tight">2. Memoization (Top-Down)</h3>
+            </div>
+            <p className="text-gray-600 mb-4 text-sm font-sans leading-relaxed">
+              Memoization is a top-down approach where we solve the problem using recursion and store results in a cache (array/dictionary).
+            </p>
+            
+            <div className="mb-4 font-sans">
+              <h4 className="font-semibold text-gray-800 mb-2 text-xs uppercase tracking-wider">Steps</h4>
+              <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                <li>Write recursive solution</li>
+                <li>Store result of each subproblem</li>
+                <li>If already computed → return stored result</li>
+              </ol>
+            </div>
+
+            <div className="bg-[#0f172a] rounded-xl p-4 overflow-x-auto w-full mb-4 shrink-0 shadow-inner">
+              <pre className="text-xs text-[#a7f3d0] font-mono leading-relaxed">
+{`def fib(n, dp):
+    if n <= 1:
+        return n
+    if dp[n] != -1:
+        return dp[n]
+    
+    dp[n] = fib(n-1, dp) + fib(n-2, dp)
+    return dp[n]
+
+n = 6
+dp = [-1]*(n+1)
+print(fib(n, dp))`}
+              </pre>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm mt-auto border-t border-gray-100 pt-4 font-sans">
+              <div><span className="text-gray-500 block text-xs mb-1">Time Complexity</span><strong className="text-gray-900">O(n)</strong> <span className="text-xs text-gray-400 block mt-0.5">Without DP → O(2^n)</span></div>
+              <div><span className="text-gray-500 block text-xs mb-1">Space Complexity</span><strong className="text-gray-900">O(n)</strong> <span className="text-xs text-gray-400 block mt-0.5">recursion stack + dp array</span></div>
+            </div>
+            <div className="mt-4 bg-indigo-50/80 p-4 rounded-xl border border-indigo-100 text-sm font-sans">
+              <strong className="text-indigo-900 block mb-2 text-xs uppercase tracking-wider">When to Use Memoization</strong>
+              <ul className="text-indigo-800 list-disc list-inside space-y-1 text-xs sm:text-sm">
+                <li>When recursion is easy to write</li>
+                <li>When all states are not required</li>
+                <li>When problem is complex (trees, graphs)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col hover:border-emerald-200 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl"><TableIcon className="w-6 h-6" /></div>
+              <h3 className="text-xl font-bold text-gray-900 font-sans tracking-tight">3. Tabulation (Bottom-Up)</h3>
+            </div>
+            <p className="text-gray-600 mb-4 text-sm font-sans leading-relaxed">
+              Tabulation is a bottom-up approach where we solve smallest subproblems first and build the solution iteratively.
+            </p>
+            
+            <div className="mb-4 font-sans">
+              <h4 className="font-semibold text-gray-800 mb-2 text-xs uppercase tracking-wider">Steps</h4>
+              <ol className="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                <li>Create DP table</li>
+                <li>Initialize base cases</li>
+                <li>Fill table iteratively</li>
+                <li>Return final answer</li>
+              </ol>
+            </div>
+
+            <div className="bg-[#0f172a] rounded-xl p-4 overflow-x-auto w-full mb-4 shrink-0 shadow-inner">
+              <pre className="text-xs text-[#a7f3d0] font-mono leading-relaxed">
+{`def fib(n):
+    if n <= 1:
+        return n
+    
+    dp = [0]*(n+1)
+    dp[1] = 1
+    
+    for i in range(2, n+1):
+        dp[i] = dp[i-1] + dp[i-2]
+    
+    return dp[n]
+
+print(fib(6))`}
+              </pre>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm mt-auto border-t border-gray-100 pt-4 font-sans">
+              <div><span className="text-gray-500 block text-xs mb-1">Time Complexity</span><strong className="text-gray-900">O(n)</strong></div>
+              <div><span className="text-gray-500 block text-xs mb-1">Space Complexity</span><strong className="text-gray-900">O(n)</strong></div>
+            </div>
+            <div className="mt-4 bg-emerald-50/80 p-4 rounded-xl border border-emerald-100 text-sm font-sans flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <strong className="text-emerald-900 block mb-2 text-xs uppercase tracking-wider">Space Optimization</strong>
+                <pre className="text-xs text-emerald-900 bg-emerald-100/50 p-2.5 rounded-lg border border-emerald-200/50 overflow-x-auto">
+{`a, b = 0, 1
+for i in range(2, n+1):
+    a, b = b, a + b`}
+                </pre>
+              </div>
+              <div className="flex items-center justify-center sm:justify-end shrink-0">
+                <div className="bg-white px-3 py-2 rounded-lg border border-emerald-200 shadow-sm text-emerald-800 font-bold text-xs whitespace-nowrap">
+                  Space → O(1)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm overflow-hidden text-sm font-sans">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">4. Memoization vs Tabulation</h3>
+          <div className="overflow-x-auto border border-gray-100 rounded-xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 text-slate-600 uppercase text-[11px] tracking-wider font-bold">
+                  <th className="px-4 py-4 border-b border-gray-100">Feature</th>
+                  <th className="px-4 py-4 border-b border-gray-100">Memoization</th>
+                  <th className="px-4 py-4 border-b border-gray-100">Tabulation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-700 bg-white">
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Approach</td><td className="px-4 py-3.5"><span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-bold uppercase tracking-wide border border-amber-100/50">Top-Down</span></td><td className="px-4 py-3.5"><span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md text-xs font-bold uppercase tracking-wide border border-emerald-100/50">Bottom-Up</span></td></tr>
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Uses Recursion</td><td className="px-4 py-3.5">Yes</td><td className="px-4 py-3.5 border-l border-gray-50">No</td></tr>
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Speed</td><td className="px-4 py-3.5 text-amber-600 font-medium">Slightly slower</td><td className="px-4 py-3.5 text-emerald-600 font-bold border-l border-gray-50">Faster</td></tr>
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Stack Overflow</td><td className="px-4 py-3.5 text-red-500 font-medium bg-red-50/30">Possible</td><td className="px-4 py-3.5 text-emerald-600 font-medium border-l border-gray-50">No</td></tr>
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Easy to Write</td><td className="px-4 py-3.5 text-emerald-600 font-medium bg-emerald-50/30">Easy</td><td className="px-4 py-3.5 text-amber-600 font-medium border-l border-gray-50">Moderate</td></tr>
+                <tr className="hover:bg-slate-50/50 transition-colors"><td className="px-4 py-3.5 font-semibold text-gray-900">Best For</td><td className="px-4 py-3.5">Complex problems</td><td className="px-4 py-3.5 border-l border-gray-50">Simple DP</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight"><Sparkles className="w-5 h-5 text-indigo-500" /> 5. How to Identify DP</h3>
+            <p className="text-sm text-gray-600 mb-4">If the problem asks for any of the following, it is probably DP:</p>
+            <div className="flex flex-wrap gap-2 mt-auto">
+              {['Minimum / Maximum', 'Count ways', 'Subsequence', 'Subset', 'Partition', 'Optimal strategy', '"Find best way"'].map(ex => (
+                <span key={ex} className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-lg text-[13px] font-medium hover:bg-indigo-100 transition-colors cursor-default">{ex}</span>
+              ))}
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm text-black flex flex-col">
+            <h3 className="text-lg font-bold text-black mb-5 flex items-center gap-2 tracking-tight"><Check className="w-5 h-5 text-emerald-500" /> 6. DP Recipe (Steps)</h3>
+            <ol className="space-y-4 mt-auto">
+              {[
+                'Write recursive solution',
+                'Identify changing parameters → DP state',
+                'Memoize it',
+                'Convert to tabulation',
+                'Optimize space'
+              ].map((step, i) => (
+                <li key={i} className="flex items-center gap-4 text-sm bg-white p-3 rounded-xl border border-gray-200">
+                  <span className="w-7 h-7 rounded-full bg-gray-100 text-black flex items-center justify-center text-xs font-bold shrink-0 shadow-sm border border-gray-200">{i + 1}</span>
+                  <span className="text-black font-medium">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 font-sans">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm overflow-hidden text-sm flex flex-col">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">7. Common DP Problems</h3>
+            <div className="overflow-x-auto border border-gray-100 rounded-xl flex-1">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 text-slate-600 uppercase text-[11px] tracking-wider font-bold">
+                    <th className="px-4 py-3.5 border-b border-gray-100">Problem (Must Practice)</th>
+                    <th className="px-4 py-3.5 border-b border-gray-100">Pattern</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-gray-700 bg-white">
+                  {[
+                    ['Fibonacci', '1D DP', 'text-blue-600'],
+                    ['Climbing Stairs', '1D DP', 'text-blue-600'],
+                    ['Knapsack', '0/1 DP', 'text-indigo-600'],
+                    ['Coin Change', 'Unbounded Knapsack', 'text-indigo-600'],
+                    ['LCS', 'DP on Strings', 'text-emerald-600'],
+                    ['LIS', 'DP + Binary Search', 'text-emerald-600'],
+                    ['Matrix Chain Multiplication', 'DP on Intervals', 'text-amber-600'],
+                    ['DP on Trees', 'Tree DP', 'text-rose-600'],
+                    ['DP on Grids', 'Grid DP', 'text-rose-600']
+                  ].map(([prob, pat, col]) => (
+                    <tr key={prob} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-gray-900">{prob}</td>
+                      <td className={`px-4 py-3 text-xs font-bold uppercase tracking-wide ${col} border-l border-gray-50`}>{pat}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm overflow-hidden text-sm flex flex-col">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">8. Quick Summary</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+              {[
+                { icon: '🧠', concept: 'DP', desc: 'Store subproblem results', color: 'bg-indigo-50 border-indigo-100' },
+                { icon: '⏳', concept: 'Memoization', desc: 'Top-Down', color: 'bg-amber-50 border-amber-100' },
+                { icon: '📊', concept: 'Tabulation', desc: 'Bottom-Up', color: 'bg-emerald-50 border-emerald-100' },
+                { icon: '🔄', concept: 'State', desc: 'Changing variables', color: 'bg-blue-50 border-blue-100' },
+                { icon: '📈', concept: 'Transition', desc: 'Recurrence relation', color: 'bg-rose-50 border-rose-100' },
+                { icon: '🌱', concept: 'Base Case', desc: 'Smallest subproblem', color: 'bg-teal-50 border-teal-100' }
+              ].map((item, i) => (
+                <div key={i} className={`flex items-start gap-3 p-3.5 rounded-xl border ${item.color} shadow-sm hover:shadow-md transition-shadow`}>
+                  <div className="text-xl bg-white w-8 h-8 flex items-center justify-center rounded-lg shadow-sm border border-black/5 shrink-0">{item.icon}</div>
+                  <div className="flex-1 mt-0.5">
+                    <strong className="text-gray-900 block text-xs uppercase tracking-wider mb-0.5">{item.concept}</strong>
+                    <span className="text-gray-600 text-xs font-medium">{item.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {materials.length === 0 ? (
+        <></>
+        // <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200 font-sans">
+        //   <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
+        //   <p className="text-sm">No study materials available for this unit yet.</p>
+        // </div>
       ) : (
         <div className="space-y-4">
           {materials.map((note) => (
