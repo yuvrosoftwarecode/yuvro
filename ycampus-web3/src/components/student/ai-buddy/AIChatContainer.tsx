@@ -19,7 +19,7 @@ const AIChatContainer: React.FC<{
   const { user } = useAuth();
   const panelTitle = (chatTitle ? chatTitle.split('-')[0].trim() : 'AI Mentor') || 'AI Mentor';
 
-  const { messages, sendMessage, isLoading, suggestedPrompts } = useAIChat({
+  const { messages, sendMessage, isLoading, suggestedPrompts, activeStream } = useAIChat({
     getContext: contextGetter,
     persistenceKey,
     chatTitle: chatTitle || `AI Mentor - ${user?.first_name || 'Student'}`,
@@ -53,7 +53,7 @@ const AIChatContainer: React.FC<{
           )}
         </div>
 
-        <ChatMessages messages={messages} isLoading={isLoading} welcomeMessage={welcomeMessage} onInsertCode={onInsertCode} />
+        <ChatMessages messages={messages} isLoading={isLoading} welcomeMessage={welcomeMessage} onInsertCode={onInsertCode} activeStream={activeStream} />
 
         <div className="px-3 pb-3 pt-2 bg-white shrink-0" style={{ borderTop: '1px solid #f3f4f6' }}>
           <ChatInput onSend={sendMessage} disabled={isLoading} suggestedPrompts={suggestedPrompts} />

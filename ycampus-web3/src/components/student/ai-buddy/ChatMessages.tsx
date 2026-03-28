@@ -17,11 +17,31 @@ interface ChatMessagesProps {
   isLoading?: boolean;
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
+  activeStream?: { id: string; content: string } | null;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, activeStream }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+
+  const staticTypingSentences = [
+        `Hi Rohith Godugu! Let me see......`,
+
+    "Alright, give me a second to think...",
+"Let me look through this...",
+"Okay, I’m checking what fits best here...",
+"Hmm… analyzing this step by step...",
+"Let me connect a few things...",
+"I’m putting the pieces together...",
+"Checking if there’s a better way to explain this...",
+"Making this simple and clear for you...",
+"Almost there, just refining the answer...",
+"Okay, got it. Here’s what I think..."
+  ];
+
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderCursor, setPlaceholderCursor] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState('');
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -29,11 +49,56 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
     }
   }, [messages, isLoading]);
 
+  const shouldShowPlaceholderTyping = isLoading;
+
+  useEffect(() => {
+    if (!shouldShowPlaceholderTyping) {
+      setPlaceholderIndex(0);
+      setPlaceholderCursor(0);
+      setPlaceholderText('');
+      return;
+    }
+
+    const sentence = staticTypingSentences[placeholderIndex];
+    if (!sentence) return;
+
+    const typingInterval = setInterval(() => {
+      setPlaceholderCursor(prev => {
+        const next = prev + 1;
+        if (next <= sentence.length) {
+          setPlaceholderText(sentence.slice(0, next));
+          return next;
+        }
+        clearInterval(typingInterval);
+        setTimeout(() => {
+          setPlaceholderIndex((idx) => Math.min(idx + 1, staticTypingSentences.length - 1));
+          setPlaceholderCursor(0);
+          setPlaceholderText('');
+        }, 400);
+        return prev;
+      });
+    }, 35);
+
+    return () => clearInterval(typingInterval);
+  }, [shouldShowPlaceholderTyping, placeholderIndex]);
+
   const handleCopyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeId(id);
     setTimeout(() => setCopiedCodeId(null), 2000);
   };
+
+  const filteredMessages = messages.filter((message) => {
+    if (
+      message.message_type === 'assistant' &&
+      !message.content &&
+      isLoading &&
+      !(activeStream && activeStream.id === message.id)
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div
@@ -55,8 +120,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
         </div>
       )}
 
-      {messages.map((message) => {
+      {filteredMessages.map((message) => {
         const isUser = message.message_type === 'user';
+        const isStreaming = !!(activeStream && activeStream.id === message.id);
+        const displayContent = isStreaming ? `${activeStream!.content}|` : message.content;
 
         return (
           <div key={message.id} className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -130,7 +197,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
                       },
                     }}
                   >
-                    {message.content}
+                    {displayContent}
                   </ReactMarkdown>
                 </div>
               )}
@@ -139,14 +206,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
         );
       })}
 
-      {isLoading && (
+      {isLoading && !activeStream && (
         <div className="flex items-end gap-2">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
             <Sparkles size={12} className="text-white" />
           </div>
           <div className="bg-white border border-gray-100 shadow-sm px-4 py-3 rounded-2xl rounded-bl-md flex items-center gap-2 text-gray-500">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-[12px]">Thinking...</span>
+            <span className="text-[12px]">{placeholderText}<span className="animate-pulse">|</span></span>
           </div>
         </div>
       )}
