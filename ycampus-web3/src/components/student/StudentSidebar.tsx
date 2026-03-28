@@ -218,7 +218,7 @@ export function StudentSidebar() {
                 <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-tight">
                   JNTU Hyderabad
                 </p>
-                <p className="text-[10px] font-medium text-muted-foreground truncate uppercase tracking-widest opacity-70">
+                <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
                   University Campus
                 </p>
               </div>
