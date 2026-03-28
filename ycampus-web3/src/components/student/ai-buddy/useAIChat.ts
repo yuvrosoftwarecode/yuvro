@@ -79,7 +79,7 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
       const response = await restApiAuthUtil.post<{ id: string }>('/sessions/', {
         ai_agent: selectedAgent,
         page: 'learn',
-        title: config?.chatTitle || 'AI Buddy Chat',
+        title: config?.chatTitle || 'AI Mentor Chat',
         page_content: getContext?.() || '',
       });
 

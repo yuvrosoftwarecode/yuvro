@@ -765,7 +765,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                               }));
                                             }}
                                           >
-                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                           </Button>
                                         </div>
                                       )}
@@ -792,7 +792,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                                 }));
                                               }}
                                             >
-                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                             </Button>
                                           </div>
                                         </div>

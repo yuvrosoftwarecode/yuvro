@@ -178,7 +178,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`);
   }, [problem.id]);
 
-  // Auto-enable AI Buddy in fullscreen mode
+  // Auto-enable AI Mentor in fullscreen mode
   useEffect(() => {
     if (isEditorFullscreen && showAiBuddy) {
       setShowAiChat(true);
@@ -712,9 +712,9 @@ ${codeEditorRef.current?.getCode() || ''}
                 <AIChatContainer
                   className="w-full flex-1"
                   contextGetter={getProblemContext}
-                  welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                  welcomeMessage={`Hi! I'm your AI Mentor. Ready to help you with "${problem.title}". Ask me anything!`}
                   persistenceKey={chatSessionId}
-                  chatTitle={`${problem.title} - AI Buddy`}
+                  chatTitle={`${problem.title} - AI Mentor`}
                   onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
                   onInsertCode={(code) => {
                     if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
@@ -843,7 +843,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     contextGetter={getProblemContext}
                     welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
                     persistenceKey={chatSessionId}
-                    chatTitle={`${problem.title} - AI Buddy`}
+                    chatTitle={`${problem.title} - AI Mentor`}
                     onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
                     onInsertCode={(code) => {
                       if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
