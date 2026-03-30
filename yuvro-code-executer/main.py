@@ -75,6 +75,7 @@ class TestResult(BaseModel):
     actual_output: str
     error: str
     execution_time: float
+    memory_usage: float = 0.0
     console_output: str = ""  # Add console output field
 
 class CodeExecutionResponse(BaseModel):
@@ -762,10 +763,19 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     # Ensure input ends with newline
                     if input_data and not input_data.endswith('\n'):
                         input_data = input_data + '\n'
-                    stdout, stderr = await asyncio.wait_for(
-                        process.communicate(input=input_data.encode()),
-                        timeout=request.timeout
+
+                    # Measure memory while process is alive
+                    mem_task = asyncio.create_task(
+                        process.communicate(input=input_data.encode())
                     )
+                    memory_usage = 0
+                    try:
+                        ps_proc = psutil.Process(process.pid)
+                        memory_usage = ps_proc.memory_info().rss / 1024 / 1024
+                    except Exception:
+                        pass
+
+                    stdout, stderr = await asyncio.wait_for(mem_task, timeout=request.timeout)
                     execution_time = time.time() - start_time
 
 
@@ -783,6 +793,7 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         actual_output=actual_output,
                         error=stderr.decode() if not passed and not console_output else "",
                         execution_time=execution_time,
+                        memory_usage=memory_usage,
                         console_output=console_output
                     ))
                 except asyncio.TimeoutError:
@@ -803,8 +814,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                 success=passed_count == len(all_test_cases),
                 output=test_results[0].actual_output if test_results else "",
                 error="",
-                execution_time=sum(t.execution_time for t in test_results),
-                memory_usage=0,
+                execution_time=sum(t.execution_time for t in test_results) * 1000,  # convert to ms
+                memory_usage=max((t.memory_usage for t in test_results), default=0),
                 status='completed'
             )
 

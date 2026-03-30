@@ -910,6 +910,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
         }
 
         if question_id and language and code:
+            exec_res = execution_results.get("execution_result", {})
             response_data.update(
                 {
                     "code": code,
@@ -917,6 +918,11 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     "test_results": test_results,
                     "execution_output": execution_output,
                     "status": "completed",
+                    "execution_time": exec_res.get("execution_time", 0),
+                    "memory_usage": exec_res.get("memory_usage", 0),
+                    "test_cases_passed": test_results.get("passed", 0),
+                    "total_test_cases": test_results.get("total", 0),
+                    "plagiarism_score": 0,
                 }
             )
 
@@ -1314,7 +1320,7 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
                 response_data = result["response_data"]
 
                 service_url = os.environ.get(
-                    "CODE_EXECUTOR_URL", "http://code-executor:8002"
+                    "CODE_EXECUTOR_URL", "http://yuvro-code-executor:8002"
                 )
                 (
                     plagiarism_score,
