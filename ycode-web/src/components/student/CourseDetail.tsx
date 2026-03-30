@@ -25,6 +25,7 @@ import { fetchQuestions } from "@/services/questionService";
 import { Check } from "lucide-react";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { PlayCircle, HelpCircle, StickyNote, Code, BookOpen, Info, CheckCircle2, MonitorPlay, Sparkles } from "lucide-react";
+import { getCourseIconConfig } from "@/utils/CourseIcons";
 import {
     Dialog,
     DialogContent,
@@ -323,9 +324,7 @@ const CourseDetail: React.FC = () => {
                                 >
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
-                                <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold bg-gray-50 rounded-xl" title={course.name}>
-                                    🗂️
-                                </div>
+                                {(() => { const cfg = getCourseIconConfig(course.name || '', course.category || ''); const I = cfg.Icon; return <div className={`${cfg.bg} w-10 h-10 flex items-center justify-center rounded-xl`} title={course.name}><I className="w-5 h-5 text-white" /></div>; })()}
                                 <div className="flex flex-col items-center gap-3 w-full px-2">
                                     {topics.map((topic) => {
                                         const progress = getTopicProgress(topic.id);
@@ -356,9 +355,7 @@ const CourseDetail: React.FC = () => {
                             <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
                                 <div className="flex items-center justify-between mb-1">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
-                                            🗂️
-                                        </div>
+                                        {(() => { const cfg = getCourseIconConfig(course.name || '', course.category || ''); const I = cfg.Icon; return <div className={`${cfg.bg} w-10 h-10 flex items-center justify-center rounded-lg shrink-0`}><I className="w-5 h-5 text-white" /></div>; })()}
                                         <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
                                     </div>
                                     <button

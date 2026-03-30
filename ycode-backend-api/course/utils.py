@@ -181,6 +181,7 @@ class CodeExecutionUtil:
         test_results,
         course=None,
         topic=None,
+        context="practice",
     ):
         """
         Create or update StudentCodePractice record
@@ -195,6 +196,7 @@ class CodeExecutionUtil:
             test_results (dict): Test results summary
             course: Course object (optional)
             topic: Topic object (optional)
+            context (str): Submission context - 'learn' or 'practice'
 
         Returns:
             StudentCodePractice: The created or updated practice record
@@ -202,6 +204,7 @@ class CodeExecutionUtil:
         practice_record, created = StudentCodePractice.objects.get_or_create(
             user=user,
             question=question,
+            context=context,
             defaults={
                 "course": course or question.course,
                 "topic": topic

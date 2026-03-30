@@ -805,6 +805,7 @@ class StudentCourseProgressViewSet(viewsets.GenericViewSet):
                     test_results=test_results,
                     course=subtopic.topic.course,
                     topic=subtopic.topic,
+                    context='learn',
                 )
 
             except requests.exceptions.RequestException as e:
@@ -1602,8 +1603,9 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         except Question.DoesNotExist:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        context = request.data.get("context", "practice")
         submission, _ = StudentCodePractice.objects.get_or_create(
-            user=request.user, question=question,
+            user=request.user, question=question, context=context,
             defaults={"answer_latest": {}}
         )
 
@@ -1630,8 +1632,9 @@ class StudentCodePracticeViewSet(viewsets.ModelViewSet):
         except Question.DoesNotExist:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        context = request.data.get("context", "practice")
         submission, _ = StudentCodePractice.objects.get_or_create(
-            user=request.user, question=question,
+            user=request.user, question=question, context=context,
             defaults={"answer_latest": {}}
         )
 
