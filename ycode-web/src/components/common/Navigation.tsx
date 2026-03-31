@@ -47,7 +47,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
 
     const roleTabs: Record<string, { label: string; path: string }[]> = {
         student: [
-            // { label: 'Dashboard', path: '/student/dashboard' },
+            { label: 'Dashboard', path: '/student/dashboard' },
             { label: 'Learn', path: '/student/learn' },
             { label: 'Code Practice', path: '/student/code-practice' },
             { label: 'Skill Test', path: '/student/skill-test' },
@@ -57,7 +57,7 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
             { label: 'Certify', path: '/student/certifications' },
         ],
         admin: [
-            // { label: 'Dashboard', path: '/instructor/dashboard' },
+            { label: 'Dashboard', path: '/instructor/dashboard' },
             { label: 'User Management', path: '/instructor/users' },
             { label: 'Courses', path: '/instructor/courses' },
             { label: 'Skill Tests', path: '/instructor/skill-tests' },
@@ -67,14 +67,14 @@ const Navigation: React.FC<{ autoHide?: boolean }> = ({ autoHide = false }) => {
             { label: 'Certify', path: '/instructor/certifications' },
         ],
         instructor: [
-            // { label: 'Dashboard', path: '/instructor/dashboard' },
+            { label: 'Dashboard', path: '/instructor/dashboard' },
             { label: 'Courses', path: '/instructor/courses' },
             { label: 'Skill Tests', path: '/instructor/skill-tests' },
             { label: 'Mock Interview', path: '/instructor/mock-interview' },
             { label: 'Contests', path: '/instructor/contests' },
         ],
         recruiter: [
-            // { label: 'Dashboard', path: '/recruiter/dashboard' },
+            { label: 'Dashboard', path: '/recruiter/dashboard' },
             { label: 'Jobs', path: '/recruiter/jobs' },
             { label: 'Candidates', path: '/recruiter/candidates' },
             { label: 'Contests', path: '/instructor/contests' },

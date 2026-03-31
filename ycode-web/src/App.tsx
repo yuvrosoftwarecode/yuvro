@@ -17,7 +17,7 @@ import ResumeBuilder from "./pages/student/ResumeBuilder";
 
 
 import Users from './pages/instructor/Users';
-// import StudentDashboard from './pages/student/StudentDashboard';
+import StudentDashboard from './pages/student/StudentDashboard';
 import CourseDetail from './components/student/CourseDetail';
 import SkillTest from './pages/student/SkillTest';
 import MockInterview from './pages/student/MockInterview';
@@ -478,14 +478,14 @@ function App() {
                 }
               />
 
-              {/* <Route
+              <Route
                 path="/student/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentDashboard />
                   </ProtectedRoute>
                 }
-              /> */}
+              />
 
               <Route
                 path="/instructor/contests"
