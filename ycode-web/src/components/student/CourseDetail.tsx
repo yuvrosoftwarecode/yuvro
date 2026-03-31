@@ -7,6 +7,7 @@ import StudentCodingEmbed from "./StudentCodingEmbed";
 import StudentNotes from "./StudentNotes";
 import { toast } from "sonner";
 import { ChevronRight, ChevronLeft, Layout, Video as VideoIcon } from "lucide-react";
+import CustomContentSidebar, { ContentItem } from "./CustomContentSidebar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -66,6 +67,30 @@ const CourseDetail: React.FC = () => {
     const [readMap, setReadMap] = useState<Record<string, boolean>>({});
 
     const [loading, setLoading] = useState(true);
+
+    const sidebarData: ContentItem[] = React.useMemo(() => {
+        return topics.map((t) => ({
+            id: t.id,
+            title: t.name,
+            children: (subtopicsMap[t.id] || []).map((s) => ({
+                id: s.id,
+                title: s.name,
+            })),
+        }));
+    }, [topics, subtopicsMap]);
+
+    const handleTopicSelect = (topicId: string) => {
+        // Find the subtopic in our map
+        for (const topic of topics) {
+            const subs = subtopicsMap[topic.id] || [];
+            const sub = subs.find((s) => s.id === topicId);
+            if (sub) {
+                setSelectedSubtopic(sub);
+                setExpandedTopics((prev) => ({ ...prev, [topic.id]: true }));
+                break;
+            }
+        }
+    };
     const [chatSessionId, setChatSessionId] = useState(`course-chat-${courseId}-${crypto.randomUUID()}`);
     const [rightTab, setRightTab] = useState<'videos' | 'quizzes' | 'coding' | 'materials' | 'my-notes'>('videos');
 
@@ -302,178 +327,22 @@ const CourseDetail: React.FC = () => {
         );
     }
 
+    const currentIconConfig = getCourseIconConfig(course?.name || "Course", course?.category || "");
+
     return (
         <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
             <Navigation autoHide={true} />
             <div className="flex flex-1 overflow-hidden relative">
-                <div
-                    className={`bg-white shadow-sm transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200`}
-                    style={{
-                        width: collapsed ? "50px" : "300px",
-                        minWidth: collapsed ? "50px" : "300px",
-                        overflow: "hidden",
-                    }}
-                >
-                    <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
-                        {collapsed ? (
-                            <div className="flex flex-col items-center h-full py-3 gap-6 animate-fade-in">
-                                <button
-                                    onClick={() => setCollapsed(false)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-all"
-                                    aria-label="Expand sidebar"
-                                >
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                                {(() => { const cfg = getCourseIconConfig(course.name || '', course.category || ''); const I = cfg.Icon; return <div className={`${cfg.bg} w-10 h-10 flex items-center justify-center rounded-xl`} title={course.name}><I className="w-5 h-5 text-white" /></div>; })()}
-                                <div className="flex flex-col items-center gap-3 w-full px-2">
-                                    {topics.map((topic) => {
-                                        const progress = getTopicProgress(topic.id);
-                                        const isCompleted = progress === 100;
-                                        return (
-                                            <div
-                                                key={topic.id}
-                                                className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer border-2 shadow-sm transition-all
-                            ${isCompleted
-                                                        ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
-                                                        : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-gray-50"
-                                                    }`}
-                                                title={topic.name}
-                                                onClick={() => {
-                                                    setCollapsed(false);
-                                                    if (!expandedTopics[topic.id]) {
-                                                        toggleExpandTopic(topic.id);
-                                                    }
-                                                }}
-                                            >
-                                                {topic.name.charAt(0)}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
-                                <div className="flex items-center justify-between mb-1">
-                                    <div className="flex items-center gap-3">
-                                        {(() => { const cfg = getCourseIconConfig(course.name || '', course.category || ''); const I = cfg.Icon; return <div className={`${cfg.bg} w-10 h-10 flex items-center justify-center rounded-lg shrink-0`}><I className="w-5 h-5 text-white" /></div>; })()}
-                                        <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
-                                    </div>
-                                    <button
-                                        onClick={() => setCollapsed(true)}
-                                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-all shrink-0"
-                                        aria-label="Collapse sidebar"
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                </div>
-
-                                <p className="text-sm text-gray-500 mb-5 ml-1">Track your learning progress</p>
-                                <div className="mb-5 px-1">
-                                    <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
-                                        <span>{overallProgress}% Completed</span>
-                                    </div>
-                                    <ProgressBar
-                                        value={overallProgress}
-                                        height={8}
-                                        trackClassName="bg-gray-100 rounded-full"
-                                        barClassName="bg-blue-600 rounded-full"
-                                    />
-                                </div>
-
-                                <div className="h-px bg-gray-100 w-full mb-5" />
-
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 ml-1">Course Topics</h3>
-
-                                <div className="space-y-3 pb-4">
-                                    {topics.map((topic) => {
-                                        const expanded = expandedTopics[topic.id];
-                                        const subs = subtopicsMap[topic.id] || [];
-                                        const allRead = subs.length > 0 && subs.every((s) => readMap[s.id]);
-                                        const progress = getTopicProgress(topic.id);
-                                        return (
-                                            <div key={topic.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
-                                                <div
-                                                    className={`flex items-center justify-between cursor-pointer w-full p-3 transition-colors ${expanded ? 'bg-gray-50' : 'bg-white hover:bg-gray-50'}`}
-                                                    onClick={() => toggleExpandTopic(topic.id)}
-                                                >
-                                                    <div className="flex items-center gap-3 overflow-hidden">
-                                                        <div className={`p-1 rounded-full transition-transform duration-300 ${expanded ? 'bg-gray-200 rotate-90' : 'bg-transparent rotate-0'}`}>
-                                                            <ChevronRight className="w-4 h-4 text-gray-600" />
-                                                        </div>
-                                                        <span className="font-semibold text-gray-800 truncate text-sm">{topic.name}</span>
-                                                    </div>
-                                                    {allRead && (
-                                                        <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-sm">
-                                                            <Check className="w-3 h-3" strokeWidth={4} />
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <div className="px-3 pb-3 pt-0">
-                                                    <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1 mt-1">
-                                                        <span>Progress</span>
-                                                        <span>{progress}%</span>
-                                                    </div>
-                                                    <ProgressBar
-                                                        value={progress}
-                                                        height={6}
-                                                        trackClassName="bg-gray-100 rounded-full"
-                                                        barClassName="bg-green-500 rounded-full"
-                                                    />
-                                                </div>
-
-                                                <div
-                                                    className={`transition-all duration-300 ease-in-out overflow-hidden ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
-                                                >
-                                                    <div className="bg-gray-50 border-t border-gray-100 pb-2 pt-2">
-                                                        <div className="px-2 space-y-1">
-                                                            {subs.map((s) => (
-                                                                <div
-                                                                    key={s.id}
-                                                                    className={`group p-2.5 rounded-lg cursor-pointer flex items-center justify-between transition-all duration-200 ${selectedSubtopic?.id === s.id
-                                                                        ? "bg-white text-blue-700 shadow-sm border border-blue-100 ring-1 ring-blue-50"
-                                                                        : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-sm border border-transparent"
-                                                                        }`}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setSelectedSubtopic(s);
-                                                                        setRightTab("videos");
-                                                                    }}
-                                                                >
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <div className="flex items-center justify-between">
-                                                                            <span className="font-medium text-sm truncate">{s.name}</span>
-                                                                            {readMap[s.id] && (
-                                                                                <Check className="text-green-500 w-4 h-4 flex-shrink-0 ml-2" />
-                                                                            )}
-                                                                        </div>
-                                                                        {!readMap[s.id] && (progressMap[s.id] || 0) > 0 && (progressMap[s.id] || 0) < 100 && (
-                                                                            <div className="mt-1.5 w-full pr-1">
-                                                                                <div className="flex items-center justify-between text-[10px] text-gray-400 mb-0.5">
-                                                                                    <span>{Math.round(progressMap[s.id] || 0)}%</span>
-                                                                                </div>
-                                                                                <ProgressBar
-                                                                                    value={progressMap[s.id] || 0}
-                                                                                    height={3}
-                                                                                    trackClassName="bg-gray-100 rounded-full"
-                                                                                    barClassName="bg-blue-500 rounded-full"
-                                                                                />
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <CustomContentSidebar
+                    courseName={course?.name || "Course"}
+                    courseIcon={currentIconConfig.Icon}
+                    courseBg={currentIconConfig.bg}
+                    contentData={sidebarData}
+                    selectedTopic={selectedSubtopic?.id || null}
+                    onTopicSelect={(id) => handleTopicSelect(id)}
+                    progressMap={progressMap}
+                    readMap={readMap}
+                />
 
                 <div className="flex-1 bg-white overflow-hidden flex flex-col">
                     <div className="border-b border-gray-200 py-1.5 flex items-center justify-between relative min-h-[3rem]">
