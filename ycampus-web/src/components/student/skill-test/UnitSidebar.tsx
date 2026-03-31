@@ -1,26 +1,14 @@
-// src/components/student/skill-test/UnitSidebar.tsx
-import { ChevronLeft, ChevronRight, Check, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useMemo } from 'react';
+import { ChevronRight, Code2, ArrowLeft, Search, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ProgressBar from '@/components/ui/ProgressBar';
-
-const COLOR_MAP: Record<string, string> = {
-    blue: 'bg-blue-600',
-    green: 'bg-emerald-600',
-    orange: 'bg-orange-600',
-    yellow: 'bg-amber-500',
-    purple: 'bg-purple-600',
-    cyan: 'bg-cyan-600',
-    pink: 'bg-pink-600',
-    indigo: 'bg-indigo-600',
-};
+import { Input } from '@/components/ui/input';
 
 export interface SidebarUnit {
     id: string;
     name: string;
     progress?: number;
     completed?: boolean;
-    problemCount?: number; // Added for CodePractice compatibility
+    problemCount?: number;
 }
 
 export interface SidebarSubject {
@@ -41,6 +29,16 @@ interface UnitSidebarProps {
     onBackToSubjects?: () => void;
 }
 
+const generateAbbreviation = (title: string): string => {
+    const words = title.trim().split(/\s+/);
+    if (words.length === 1) {
+        return words[0].substring(0, 2).toUpperCase();
+    }
+    const firstLetter = words[0].charAt(0).toUpperCase();
+    const lastLetter = words[words.length - 1].charAt(0).toUpperCase();
+    return firstLetter + lastLetter;
+};
+
 const UnitSidebar = ({
     subject,
     selectedUnit,
@@ -51,184 +49,180 @@ const UnitSidebar = ({
     overallProgress,
     onBackToSubjects,
 }: UnitSidebarProps) => {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredUnits = useMemo(() => {
+        if (!searchQuery.trim()) return subject.units;
+        const query = searchQuery.toLowerCase();
+        return subject.units.filter(u => u.name.toLowerCase().includes(query));
+    }, [searchQuery, subject.units]);
+
     return (
         <div
             className={cn(
-                'bg-white shadow-none transition-all duration-300 ease-in-out flex flex-col relative z-20 border-r border-gray-200'
+                "flex-shrink-0 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col",
+                isOpen ? "w-72" : "w-16"
             )}
-            style={{
-                width: isOpen ? "320px" : "64px",
-                minWidth: isOpen ? "320px" : "64px",
-            }}
         >
-            {/* Toggle Button */}
-            <button
-                onClick={onToggle}
-                className="absolute -right-3 top-10 z-30 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md hover:bg-white transition-all duration-200"
-            >
-                {isOpen ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
-            </button>
+            {/* Header */}
+            <div className="border-b border-slate-200 flex-shrink-0">
+                {/* Back Button */}
+                <div className="p-3 border-b border-slate-100 flex justify-start">
+                    <button
+                        onClick={onBackToSubjects}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 transition-colors text-xs font-medium text-slate-600"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        {isOpen && <p>Interview Preparation</p>}
+                    </button>
+                </div>
 
-            {/* Scrollable content container */}
-            <div className="h-full overflow-y-auto overflow-x-hidden custom-scrollbar">
-                {/* CONTENT AREA */}
-                {!isOpen ? (
-                    <div className="flex flex-col items-center h-full py-6 gap-6 animate-fade-in">
-                        <div className="w-10 h-10 flex items-center justify-center text-2xl mb-2 bg-white rounded-xl" title={subject.name}>
-                            {subject.icon ? (() => {
-                                const Icon = subject.icon as any;
-                                const colorClass = COLOR_MAP[(subject as any).color] || 'bg-slate-600';
-                                return (
-                                    <div className={cn("w-10 h-10 flex items-center justify-center rounded-xl text-white", colorClass)}>
-                                        <Icon className="w-6 h-6 text-white" />
-                                    </div>
-                                );
-                            })() : '🗂️'}
+                {/* Title and Collapse Button */}
+                <div className={cn("flex items-center p-4", isOpen ? "justify-between" : "justify-center")}>
+                    {isOpen && (
+                        <div className="flex items-center space-x-2 min-w-0">
+                            <Code2 className="h-4 w-4 text-slate-700" />
+                            <h3 className="font-semibold text-sm truncate text-slate-800">
+                                Practice Units
+                            </h3>
                         </div>
-                        <div className="flex flex-col items-center gap-3 w-full px-2">
-                            {subject.units.map((unit) => {
-                                const progress = unit.progress || 0;
-                                const isCompleted = showProgress ? (progress === 100) : false;
-
-                                return (
-                                    <div
-                                        key={unit.id}
-                                        className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold cursor-pointer border-2 shadow-none transition-all
-                      ${isCompleted
-                                                ? "bg-green-500 text-white border-gray-600 hover:bg-green-600"
-                                                : selectedUnit?.id === unit.id
-                                                    ? "bg-blue-600 text-white border-transparent"
-                                                    : "bg-white text-gray-700 border-transparent hover:border-gray-200 hover:bg-white"
-                                            }`}
-                                        title={unit.name}
-                                        onClick={() => {
-                                            onToggle();
-                                            onUnitSelect(unit);
-                                        }}
-                                    >
-                                        {unit.name.charAt(0)}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="p-5 animate-fade-in opacity-100 transition-opacity duration-300">
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-10 h-10 flex items-center justify-center text-xl rounded-lg overflow-hidden">
-                                    {subject.icon ? (() => {
-                                        const Icon = subject.icon as any;
-                                        const colorClass = COLOR_MAP[(subject as any).color] || 'bg-slate-600';
-                                        return (
-                                            <div className={cn("w-10 h-10 flex items-center justify-center rounded-lg text-white", colorClass)}>
-                                                <Icon className="w-6 h-6 text-white" />
-                                            </div>
-                                        );
-                                    })() : '🗂️'}
-                                </div>
-                                <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{subject.name}</h2>
-                            </div>
-                        </div>
-
-                        <p className="text-sm text-gray-500 mb-3 ml-1">
-                            {showProgress ? "Track your progress" : "Browse units"}
-                        </p>
-
-                        {showProgress && overallProgress !== undefined && (
-                            <div className="mb-5 px-1">
-                                <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
-                                    <span>{overallProgress}% Completed</span>
-                                </div>
-                                <ProgressBar
-                                    value={overallProgress}
-                                    height={8}
-                                    trackClassName="bg-white rounded-full"
-                                    barClassName="bg-blue-600 rounded-full"
-                                />
-                            </div>
+                    )}
+                    <button
+                        onClick={onToggle}
+                        className={cn(
+                            "p-1.5 rounded-md hover:bg-slate-100 text-slate-600 transition-colors",
+                            !isOpen && "mx-auto"
                         )}
+                        title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+                    >
+                        <ChevronRight 
+                            className={cn(
+                                "h-4 w-4 transition-transform duration-200",
+                                isOpen && "rotate-180"
+                            )} 
+                        />
+                    </button>
+                </div>
+            </div>
 
-                        <div className="h-px bg-white w-full mb-5" />
+            {/* Search Bar */}
+            {isOpen && (
+                <div className="p-3 border-b border-slate-100">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                            placeholder="Find modules..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 h-8 text-xs bg-slate-50 border border-slate-200 shadow-none focus-visible:ring-1 focus-visible:ring-slate-300"
+                        />
+                    </div>
+                </div>
+            )}
 
-                        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3 ml-1">Subject Units</h3>
+            {/* Content list */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden sidebar-scrollbar p-3">
+                <div className="space-y-1">
+                    {isOpen && filteredUnits.length > 0 && (
+                        <div className="mb-4">
+                            <p className="text-[10px] font-semibold text-slate-500 px-2 uppercase tracking-wider">
+                                {subject.name} Modules
+                            </p>
+                        </div>
+                    )}
 
-                        <div className="space-y-3 pb-4">
-                            {subject.units.map((unit) => {
-                                const isSelected = selectedUnit?.id === unit.id;
-                                const progress = unit.progress || 0;
-                                const completed = unit.completed || (showProgress && progress === 100);
+                    {filteredUnits.length > 0 ? (
+                        filteredUnits.map((unit) => {
+                            const isSelected = selectedUnit?.id === unit.id;
+                            const progress = unit.progress || 0;
+                            const completed = unit.completed || (showProgress && progress === 100);
+                            const abbrev = generateAbbreviation(unit.name);
 
-                                return (
-                                    <div
-                                        key={unit.id}
-                                        className={`border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer ${isSelected ? 'ring-1 ring-blue-100' : ''}`}
-                                        onClick={() => onUnitSelect(unit)}
-                                    >
-                                        {/* Unit header */}
-                                        <div
-                                            className={`flex items-center justify-between w-full p-3 transition-colors ${isSelected ? 'bg-blue-50' : 'bg-white hover:bg-white'}`}
-                                        >
-                                            <div className="flex items-center gap-3 overflow-hidden text-left">
-                                                <div className={`p-1 rounded-full transition-colors ${isSelected ? 'bg-blue-100' : 'bg-transparent'}`}>
-                                                    <ChevronRight className={cn("w-4 h-4 transition-colors", isSelected ? "text-blue-700" : "text-gray-600")} />
+                            return (
+                                <button
+                                    key={unit.id}
+                                    onClick={() => onUnitSelect(unit)}
+                                    className={cn(
+                                        "flex items-center gap-2 w-full p-2.5 rounded-lg transition-all duration-200 group relative",
+                                        isSelected 
+                                            ? "bg-slate-100 text-slate-900 shadow-sm border border-slate-200" 
+                                            : "hover:bg-slate-50 text-slate-500 hover:text-slate-900",
+                                        !isOpen && "justify-center"
+                                    )}
+                                    title={!isOpen ? unit.name : undefined}
+                                >
+                                    <div className={cn(
+                                        "flex items-center justify-center h-8 w-8 rounded-md text-[10px] font-bold shrink-0 transition-colors",
+                                        isSelected 
+                                            ? "bg-white text-slate-600 border border-slate-200" 
+                                            : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                    )}>
+                                        {abbrev}
+                                    </div>
+
+                                    {isOpen && (
+                                        <div className="flex-1 text-left min-w-0 pr-6">
+                                            <p className="text-sm font-medium truncate text-slate-800 leading-tight mb-0.5">{unit.name}</p>
+                                            {showProgress && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <div
+                                                        className={cn(
+                                                            'h-1 flex-1 rounded-full overflow-hidden ring-1 transition-colors',
+                                                            isSelected
+                                                                ? 'bg-slate-300 ring-slate-300/70'
+                                                                : 'bg-slate-100 ring-slate-200 group-hover:bg-slate-200 group-hover:ring-slate-300/80',
+                                                        )}
+                                                    >
+                                                        <div 
+                                                            className={cn(
+                                                                'h-full transition-all duration-300',
+                                                                completed ? 'bg-green-500' : 'bg-primary',
+                                                            )}
+                                                            style={{ width: `${progress}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] font-semibold">{progress}%</span>
                                                 </div>
-                                                <span className={cn("font-semibold truncate text-sm transition-colors", isSelected ? "text-blue-700" : "text-gray-800")}>{unit.name}</span>
-                                            </div>
-
-                                            {/* Show Checkmark if completed (and progress enabled), OR show problem count if strictly not showing progress */}
-                                            {showProgress && completed && (
-                                                <span className="flex items-center justify-center rounded-full bg-green-500 text-white w-5 h-5 shadow-sm">
-                                                    <Check className="w-3 h-3" strokeWidth={4} />
-                                                </span>
-                                            )}
-
-                                            {unit.problemCount !== undefined && (
-                                                <span className="text-xs text-gray-500 font-medium bg-white px-2 py-0.5 rounded-full">
-                                                    {unit.problemCount}
-                                                </span>
                                             )}
                                         </div>
+                                    )}
 
-                                        {showProgress && (
-                                            <div className="px-3 pb-3 pt-0">
-                                                <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1 mt-1">
-                                                    <span>Progress</span>
-                                                    <span>{progress}%</span>
-                                                </div>
-                                                <ProgressBar
-                                                    value={progress}
-                                                    height={6}
-                                                    trackClassName="bg-white rounded-full"
-                                                    barClassName="bg-green-500 rounded-full"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                                    {isOpen && completed && (
+                                        <CheckCircle2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-green-500" />
+                                    )}
 
-                {/* Switch Subject Button at the bottom */}
-                {onBackToSubjects && (
-                    <div className="mt-auto p-4 border-t border-gray-100 flex-shrink-0">
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "w-full flex items-center justify-center transition-all bg-white hover:bg-white border-gray-200 text-gray-700 shadow-sm",
-                                isOpen ? "gap-2 px-4 py-2" : "p-2"
-                            )}
-                            onClick={onBackToSubjects}
-                            title="Switch Subject"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            {isOpen && <span className="font-semibold text-sm">Switch Subject</span>}
-                        </Button>
-                    </div>
-                )}
+                                    {!isOpen && isSelected && (
+                                        <div className="absolute left-0 top-2 bottom-2 w-1 bg-primary rounded-r-full" />
+                                    )}
+                                </button>
+                            );
+                        })
+                    ) : (
+                        isOpen && (
+                            <div className="text-center py-10 px-4">
+                                <Search className="h-8 w-8 text-muted/30 mx-auto mb-2" />
+                                <p className="text-xs text-muted-foreground">No matching units</p>
+                            </div>
+                        )
+                    )}
+                </div>
             </div>
+
+            {/* Overall Progress for Sidebar */}
+            {isOpen && showProgress && overallProgress !== undefined && (
+                <div className="p-4 border-t border-slate-100 bg-slate-50/70">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global Progress</span>
+                        <span className="text-xs font-bold text-primary">{overallProgress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-primary transition-all duration-1000" 
+                            style={{ width: `${overallProgress}%` }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

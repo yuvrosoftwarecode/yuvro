@@ -1,16 +1,16 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Target, Code, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
-import type { Subject, Unit, CodingProblem } from '@/pages/student/CodePractice';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
-import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
+import type { Subject, Unit, CodingProblem } from '@/types/codePractice';
+
+import AIChatContainer from '@/components/student/ai-buddy/AIChatContainer';
 import codeEditorService from '@/services/codeEditorService';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
@@ -129,7 +129,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
 
   const COLLAPSE_THRESHOLD = 5;
 
-  const onDrag = (e: MouseEvent) => {
+  const onDrag = (e: any) => {
     if (!dragMode || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
@@ -178,7 +178,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`);
   }, [problem.id]);
 
-  // Auto-enable AI Buddy in fullscreen mode
+  // Auto-enable AI Mentor in fullscreen mode
   useEffect(() => {
     if (isEditorFullscreen && showAiBuddy) {
       setShowAiChat(true);
@@ -470,14 +470,14 @@ ${codeEditorRef.current?.getCode() || ''}
       {/* 1) Problem-only view (editor hidden) */}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <Card className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
-            <CardHeader className="p-8 bg-white border-b border-gray-100">
+          <Card className="rounded-2xl border border-border shadow-sm bg-background overflow-hidden">
+            <CardHeader className="p-8 bg-background border-b border-border">
               <div className="max-w-4xl mx-auto w-full">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-100">
-                    <BrainCircuit className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm shadow-primary/20">
+                    <Code className="w-5 h-5 text-primary-foreground" />
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900">{problem.title}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{problem.title}</h1>
                 </div>
               </div>
             </CardHeader>
@@ -486,11 +486,11 @@ ${codeEditorRef.current?.getCode() || ''}
               <div className="max-w-4xl mx-auto space-y-10">
                 {/* Description */}
                 <div>
-                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <Layout className="w-3.5 h-3.5 text-slate-700" /> Challenge Overview
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Layout className="w-4 h-4 text-foreground/70" /> Problem Statement
                   </h3>
                   <div className="prose prose-slate max-w-none">
-                    <div className="text-gray-700 text-base leading-relaxed prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-code:text-sm">
+                    <div className="text-foreground text-base leading-relaxed prose prose-sm max-w-none prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:text-sm">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {problem.description}
                       </ReactMarkdown>
@@ -501,15 +501,15 @@ ${codeEditorRef.current?.getCode() || ''}
                 {/* Input/Output Formats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {problem.inputFormat && (
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Input Format</h4>
-                      <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{problem.inputFormat}</p>
+                    <div className="bg-muted/30 p-6 rounded-2xl border border-border">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Input Format</h4>
+                      <p className="text-foreground text-sm whitespace-pre-wrap leading-relaxed">{problem.inputFormat}</p>
                     </div>
                   )}
                   {problem.outputFormat && (
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Output Format</h4>
-                      <p className="text-gray-700 text-sm leading-relaxed">{problem.outputFormat}</p>
+                    <div className="bg-muted/30 p-6 rounded-2xl border border-border">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Output Format</h4>
+                      <p className="text-foreground text-sm leading-relaxed">{problem.outputFormat}</p>
                     </div>
                   )}
                 </div>
@@ -517,22 +517,22 @@ ${codeEditorRef.current?.getCode() || ''}
                 {/* Examples */}
                 {problem.examples && problem.examples.length > 0 && (
                   <div>
-                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Examples</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">Examples</h3>
                     <div className="space-y-4">
                       {problem.examples.map((ex: any, idx: number) => (
-                        <div key={idx} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6 hover:shadow-md transition-all">
+                        <div key={idx} className="bg-background rounded-2xl border border-border shadow-sm overflow-hidden p-6 hover:shadow-md transition-all">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Input</div>
-                              <pre className="bg-white p-4 rounded-xl text-sm font-mono text-slate-900 border border-slate-100">{ex.input}</pre>
+                              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Input</div>
+                              <pre className="bg-muted p-4 rounded-xl text-sm font-mono text-foreground border border-border overflow-x-auto">{ex.input}</pre>
                             </div>
                             <div>
-                              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Output</div>
-                              <pre className="bg-white p-4 rounded-xl text-sm font-mono text-emerald-600 border border-slate-100">{ex.output}</pre>
+                              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Output</div>
+                              <pre className="bg-muted p-4 rounded-xl text-sm font-mono text-primary border border-border overflow-x-auto">{ex.output}</pre>
                             </div>
                           </div>
                           {ex.explanation && (
-                            <p className="text-gray-500 text-sm mt-4 italic">
+                            <p className="text-muted-foreground text-sm mt-4 italic">
                               <strong>Note:</strong> {ex.explanation}
                             </p>
                           )}
@@ -549,7 +549,7 @@ ${codeEditorRef.current?.getCode() || ''}
           <div className="flex justify-center mt-12 mb-16">
             <Button
               onClick={() => setEditorOpen(true)}
-              className="bg-slate-900 hover:bg-black text-white rounded-xl shadow-md font-bold px-10 py-4 h-14 transition-all active:scale-95 text-sm uppercase tracking-widest"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md font-bold px-10 py-4 h-14 transition-all active:scale-95 text-sm uppercase tracking-widest"
             >
               <Code className="w-5 h-5 mr-2" />
               Launch Workspace
@@ -562,7 +562,7 @@ ${codeEditorRef.current?.getCode() || ''}
       {editorOpen && !isEditorFullscreen && (
         <div
           ref={containerRef}
-          className={`flex-1 min-h-0 overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
+          className={`h-[calc(100vh-4rem)] flex-1 min-h-[400px] overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
         >
           {/* Collapsed Sidebar — vertical tab buttons */}
           {showProblemDescription && isSidebarCollapsed && (
@@ -712,9 +712,9 @@ ${codeEditorRef.current?.getCode() || ''}
                 <AIChatContainer
                   className="w-full flex-1"
                   contextGetter={getProblemContext}
-                  welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                  welcomeMessage={`Hi! I'm your AI Mentor. Ready to help you with "${problem.title}". Ask me anything!`}
                   persistenceKey={chatSessionId}
-                  chatTitle={`${problem.title} - AI Buddy`}
+                  chatTitle={`${problem.title} - AI Mentor`}
                   onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
                   onInsertCode={(code) => {
                     if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {
@@ -843,7 +843,7 @@ ${codeEditorRef.current?.getCode() || ''}
                     contextGetter={getProblemContext}
                     welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
                     persistenceKey={chatSessionId}
-                    chatTitle={`${problem.title} - AI Buddy`}
+                    chatTitle={`${problem.title} - AI Mentor`}
                     onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
                     onInsertCode={(code) => {
                       if (codeEditorRef.current && typeof codeEditorRef.current.insertCodeAtCursor === 'function') {

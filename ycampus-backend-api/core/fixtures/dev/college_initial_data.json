@@ -73,7 +73,7 @@
         }
     },
     {
-        "model": "core.tpoprofile",
+        "model": "core.placementofficerprofile",
         "pk": "89ad3ac0-b996-495e-9082-1275b29b36b3",
         "fields": {
             "user": "1ad98763-bfff-430f-9276-e51a95042576",
@@ -8416,7 +8416,7 @@
         }
     },
     {
-        "model": "core.tpoprofile",
+        "model": "core.placementofficerprofile",
         "pk": "621913bf-865e-4047-be8d-45b3d72aa2d6",
         "fields": {
             "user": "57dc8dda-04c9-48bf-8d13-5829dd1e4d43",

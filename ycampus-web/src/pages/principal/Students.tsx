@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileText, Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -84,9 +84,21 @@ const PrincipalStudents = () => {
   useEffect(() => {
     const loadSections = async () => {
       if (!selectedDepartment || !selectedSemester) { setSections([]); return; }
-      // Removed Supabase query, using mock sections
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setSections([{ name: 'A' }, { name: 'B' }, { name: 'C' }]);
+      const { data: semData } = await (await import('@/integrations/supabase/client')).supabase
+        .from('department_semesters')
+        .select('id')
+        .eq('department_id', selectedDepartment)
+        .eq('number', parseInt(selectedSemester))
+        .limit(1);
+      if (semData && semData.length > 0) {
+        const { data: secData } = await (await import('@/integrations/supabase/client')).supabase
+          .from('department_sections')
+          .select('name')
+          .eq('semester_id', semData[0].id);
+        setSections(secData || []);
+      } else {
+        setSections([]);
+      }
     };
     loadSections();
   }, [selectedDepartment, selectedSemester]);
@@ -196,7 +208,7 @@ const PrincipalStudents = () => {
   return (
     <SidebarProvider>
       <div className="h-screen flex w-full overflow-hidden">
-        <RoleSidebar />
+        <PrincipalSidebar />
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <main className="flex-1 p-4 md:p-6 bg-background overflow-y-auto">
             <div className="space-y-5 max-w-[1400px] mx-auto">
@@ -209,7 +221,7 @@ const PrincipalStudents = () => {
                     </Button>
                   )}
                   <div>
-                    <h1 className="text-2xl font-semibold text-foreground">Student Reports</h1>
+                    <h1 className="text-2xl font-bold text-foreground">Student Reports</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {showReport
                         ? `Viewing report for ${report?.studentName}`
@@ -297,7 +309,7 @@ const PrincipalStudents = () => {
                   <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                     <FileText className="h-7 w-7 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-700">Select a department to view students</h3>
+                  <h3 className="text-lg font-medium text-foreground">Select a department to view students</h3>
                   <p className="text-sm text-muted-foreground mt-1 max-w-md">
                     Use the department filter above to see students, or search by name or roll number.
                   </p>
@@ -317,7 +329,7 @@ const PrincipalStudents = () => {
                       return next;
                     })}
                   />
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <StrengthWeakness report={report} />
                     <PendingRiskSummary report={report} />
                   </div>

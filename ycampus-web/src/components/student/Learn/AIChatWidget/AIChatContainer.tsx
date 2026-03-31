@@ -1,6 +1,6 @@
 import React from 'react';
-import AIChatMessages from './ChatMessages';
-import AIChatInput from './ChatInput';
+import ChatMessages from './ChatMessages';
+import ChatInput from './ChatInput';
 import useAIChat from './useAIChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sparkles } from 'lucide-react';
@@ -25,23 +25,20 @@ const AIChatContainer: React.FC<{
 
   return (
     <div className={`flex flex-col min-h-0 ${className || 'w-[360px] h-[500px]'}`}>
-      <div
-        className={`flex flex-col flex-1 min-h-0 bg-white overflow-hidden ${!className ? 'rounded-2xl border border-gray-200 shadow-xl' : ''}`}
-        style={!className ? { border: '1px solid #e5e7eb', boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' } : {}}
-      >
+      <div className={`flex flex-col flex-1 min-h-0 bg-white overflow-hidden ${!className ? 'rounded-2xl border border-slate-200 shadow-xl' : ''}`}>
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 bg-white shrink-0" style={{ borderBottom: '1px solid #f3f4f6' }}>
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-sm">
-            <Sparkles size={15} className="text-white" />
+        <div className="flex items-center gap-3 px-6 py-4 bg-white border-b border-slate-100 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100 rotate-3">
+            <Sparkles size={18} className="text-white" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900 leading-none">AI Buddy</p>
-            <p className="text-[11px] text-emerald-500 font-medium mt-0.5">Online</p>
+            <p className="text-sm font-black text-slate-800 tracking-tight leading-none uppercase">Neural Bridge</p>
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1.5 animate-pulse">Sync Active</p>
           </div>
         </div>
 
         {/* Messages */}
-        <AIChatMessages
+        <ChatMessages
           messages={messages}
           isLoading={isLoading}
           activeStream={activeStream}
@@ -51,13 +48,17 @@ const AIChatContainer: React.FC<{
         />
 
         {/* Input footer */}
-        <div className="px-3 pb-3 pt-2 bg-white shrink-0" style={{ borderTop: '1px solid #f3f4f6' }}>
-          <AIChatInput
+        <div className="px-4 pb-4 pt-3 bg-white border-t border-slate-100 shrink-0">
+          <ChatInput
             onSend={sendMessage}
             disabled={isLoading}
             suggestedPrompts={suggestedPrompts}
           />
-          <p className="text-[10px] text-gray-300 text-center mt-2 tracking-wide">Powered by Yuvro AI</p>
+          <div className="flex items-center justify-center gap-2 mt-4">
+             <div className="h-px w-8 bg-slate-100"></div>
+             <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">YUVRO COGNITIVE CORE v4.0</p>
+             <div className="h-px w-8 bg-slate-100"></div>
+          </div>
         </div>
       </div>
     </div>

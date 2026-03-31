@@ -1,87 +1,42 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Navigation from '@/components/common/Navigation';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import PageHeader from '@/components/common/PageHeader';
+import { StudentLayout } from '@/components/layouts/StudentLayout';
 import SubjectDashboard from '@/components/student/code-practice/CourseDashboard';
 import UnitSelection from '@/components/student/code-practice/UnitSelection';
-import { CodeEditorWithAI } from '@/components/code-editor';
+import CodeEditorWithAI from '@/components/code-editor/CodeEditorWithAI';
 import ScoreAnalytics from '@/components/student/code-practice/ScoreAnalytics';
 import AIInsights from '@/components/student/code-practice/AIInsights';
 import { fetchSubjectById, fetchUnitsBySubject } from '@/services/subjectService';
-import { fetchQuestionById, fetchQuestions } from '@/services/questionService';
+import { fetchQuestionById } from '@/services/questionService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { Subject, Unit, CodingProblem } from '@/types/codePractice';
 
 export type ViewType = 'dashboard' | 'units' | 'problem' | 'analytics' | 'insights';
-
-export interface Subject {
-  id: string;
-  name: string;
-  icon: string;
-  progress: number;
-  totalProblems: number;
-  solvedProblems: number;
-  iconColor?: string;
-  category: string;
-  totalScore?: number;
-  aiHelpUsed?: number;
-}
-
-export interface Unit {
-  id: string;
-  name: string;
-  problemCount: number;
-  order_index: number;
-  progress: number;
-}
-
-export interface CodingProblem {
-  id: string;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  score: number;
-  description: string;
-  inputFormat?: string;
-  outputFormat?: string;
-  hints?: string[];
-  solutions?: any[];
-  examples?: Array<{
-    input: string;
-    output: string;
-    explanation?: string;
-  }>;
-  test_cases_basic: Array<{
-    input: string;
-    expected_output: string;
-    weight?: number;
-  }>;
-  test_cases_advanced: Array<{
-    input: string;
-    expected_output: string;
-    weight?: number;
-  }>;
-}
 
 const CodePractice = () => {
   const navigate = useNavigate();
   const { subjectId, unitId, problemId } = useParams<{ subjectId: string; unitId: string; problemId: string }>();
 
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  // Set initial state based on URL to prevent flicker
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    if (problemId) return 'problem';
+    if (unitId || subjectId) return 'units';
+    return 'dashboard';
+  });
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedProblem, setSelectedProblem] = useState<CodingProblem | null>(null);
-  const [isHydrating, setIsHydrating] = useState(false);
+  const [isHydrating, setIsHydrating] = useState(!!subjectId); 
 
-  // Helper to get icon colors (duplicated from CourseDashboard for consistency)
   const getIconColor = (category: string) => {
     const colors = {
-      databases: 'bg-blue-100 text-blue-600',
-      programming_languages: 'bg-red-100 text-red-600',
+      databases: 'bg-indigo-100 text-indigo-600',
+      programming_languages: 'bg-rose-100 text-rose-600',
       fundamentals: 'bg-purple-100 text-purple-600',
       ai_tools: 'bg-amber-100 text-amber-600',
     };
-    return colors[category as keyof typeof colors] || 'bg-white text-gray-600';
+    return colors[category as keyof typeof colors] || 'bg-slate-100 text-slate-600';
   };
 
   const hydrateStateFromUrl = useCallback(async () => {
@@ -90,24 +45,50 @@ const CodePractice = () => {
     setIsHydrating(true);
     try {
       // 1. Fetch Subject
+      let subject: any = selectedSubject;
       if (!selectedSubject || selectedSubject.id !== subjectId) {
-        const subject: any = await fetchSubjectById(subjectId);
+        subject = await fetchSubjectById(subjectId);
         const transformedSubject: Subject = {
           id: subject.id.toString(),
           name: subject.subject_name || subject.name || subject.title || 'Untitled Subject',
-          icon: subject.category,
+          icon: subject.category || '',
           progress: Math.round(subject.progress_percentage || 0),
           totalProblems: subject.total_problems || 0,
           solvedProblems: subject.solved_problems || 0,
-          category: subject.category,
+          category: subject.category || '',
           iconColor: getIconColor(subject.category),
           totalScore: subject.total_score || 0,
           aiHelpUsed: subject.ai_help_used || 0,
         };
         setSelectedSubject(transformedSubject);
+        subject = transformedSubject;
       }
 
-      // 2. Fetch Unit
+      // 2. Resolve Unit and Problem
+      if (problemId && (!selectedProblem || selectedProblem.id !== problemId)) {
+        const q = await fetchQuestionById(problemId);
+        const transformedProblem: CodingProblem = {
+          id: q.id,
+          title: q.title,
+          difficulty: q.difficulty === 'easy' ? 'Easy' : q.difficulty === 'medium' ? 'Medium' : 'Hard',
+          score: q.marks,
+          description: q.content,
+          hints: q.hints || [],
+          solutions: q.solutions || [],
+          test_cases_basic: (q.test_cases_basic || []).map((tc: any) => ({
+            input: tc.input || '',
+            expected_output: tc.expected_output || '',
+            weight: tc.weight || 1
+          })),
+          test_cases_advanced: (q.test_cases_advanced || []).map((tc: any) => ({
+            input: tc.input || '',
+            expected_output: tc.expected_output || '',
+            weight: tc.weight || 1
+          })),
+        };
+        setSelectedProblem(transformedProblem);
+      }
+
       if (unitId && (!selectedUnit || selectedUnit.id !== unitId)) {
         const units = await fetchUnitsBySubject(subjectId);
         const unit = units.find((t: any) => t.id === unitId);
@@ -122,59 +103,37 @@ const CodePractice = () => {
         }
       }
 
-      // 3. Fetch Problem
-      if (problemId && (!selectedProblem || selectedProblem.id !== problemId)) {
-        const q = await fetchQuestionById(problemId);
-        const transformedProblem: CodingProblem = {
-          id: q.id,
-          title: q.title,
-          difficulty: q.difficulty === 'easy' ? 'Easy' : q.difficulty === 'medium' ? 'Medium' : 'Hard',
-          score: q.marks,
-          description: q.content,
-          hints: q.hints || [],
-          solutions: q.solutions || [],
-          test_cases_basic: q.test_cases_basic?.map((tc: any) => ({
-            input: tc.input || '',
-            expected_output: tc.expected_output || '',
-            weight: tc.weight || 1
-          })) || [],
-          test_cases_advanced: q.test_cases_advanced?.map((tc: any) => ({
-            input: tc.input || '',
-            expected_output: tc.expected_output || '',
-            weight: tc.weight || 1
-          })) || [],
-        };
-        setSelectedProblem(transformedProblem);
+      // 3. Set view
+      if (problemId) {
         setCurrentView('problem');
-      } else if (unitId) {
+      } else if (unitId || subjectId) {
         setCurrentView('units');
-      } else {
-        setCurrentView('units'); // If only subjectId is present
       }
     } catch (error) {
       console.error('Failed to hydrate state:', error);
-      toast.error('Failed to load practice session');
+      toast.error('Failed to load session');
       setCurrentView('dashboard');
     } finally {
       setIsHydrating(false);
     }
-  }, [subjectId, unitId, problemId, selectedSubject, selectedUnit, selectedProblem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId, unitId, problemId]); // Remove state dependencies to prevent circular calls
 
-  // Sync view and state with URL parameters
   useEffect(() => {
     if (subjectId || unitId || problemId) {
-      // If we have IDs in URL but missing state, hydrate
-      if ((subjectId && !selectedSubject) || (unitId && !selectedUnit) || (problemId && !selectedProblem)) {
+      const needsHydration = 
+        (subjectId && !selectedSubject) || 
+        (unitId && !selectedUnit) || 
+        (problemId && !selectedProblem);
+        
+      if (needsHydration) {
         hydrateStateFromUrl();
-      } else if (problemId) {
-        setCurrentView('problem');
-      } else if (subjectId) {
-        setCurrentView('units');
       }
     } else {
       setCurrentView('dashboard');
     }
-  }, [subjectId, unitId, problemId, hydrateStateFromUrl, selectedSubject, selectedUnit, selectedProblem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId, unitId, problemId, hydrateStateFromUrl]);
 
   const handleSubjectSelect = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -205,7 +164,7 @@ const CodePractice = () => {
     setSelectedSubject(null);
     setSelectedUnit(null);
     setSelectedProblem(null);
-    navigate('/student/code-practice');
+    navigate('/student/interview-preparation');
   };
 
   const handleBackToUnits = () => {
@@ -222,51 +181,46 @@ const CodePractice = () => {
     }
   };
 
-  const handleViewAnalytics = () => {
-    setCurrentView('analytics');
-  };
-
-  const handleViewInsights = () => {
-    setCurrentView('insights');
-  };
+  const handleViewAnalytics = () => setCurrentView('analytics');
+  const handleViewInsights = () => setCurrentView('insights');
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex h-screen overflow-hidden">
-        <RoleSidebar />
-        <div className="flex-1 h-screen overflow-hidden bg-white/30 flex flex-col">
-          <div className="flex-1 overflow-hidden px-4 md:px-6 lg:px-8 py-8 space-y-6 flex flex-col">
-            <PageHeader
-              title={currentView === 'dashboard' ? "Code Practice" : selectedSubject?.name || "Code Practice"}
-              subtitle={currentView === 'dashboard' ? "Sharpen your coding skills with hands-on practice" : `Practice modules for ${selectedSubject?.name}`}
-            />
-
-            <div className="flex-1 transition-all duration-300 ease-in-out flex flex-col min-h-0">
-              {isHydrating ? (
-                <div className="flex flex-col items-center justify-center min-h-[40vh]">
-                  <Loader2 className="h-10 w-10 text-blue-600 animate-spin mb-4" />
-                  <p className="text-gray-500 font-medium">Loading your practice session...</p>
+    <StudentLayout
+      noPadding={true}
+      hideSidebar={currentView === 'units' || currentView === 'problem'}
+    >
+      <div className="flex-1 flex flex-col min-h-0 bg-background overflow-hidden relative h-full">
+        <div className="flex-1 flex flex-col min-h-0 w-full h-full">
+          <div className="flex-1 transition-all duration-300 flex flex-col min-h-0 h-full">
+            {isHydrating ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <div className="text-center space-y-1">
+                   <p className="text-lg font-semibold text-foreground">Loading Session</p>
+                   <p className="text-sm text-muted-foreground">Preparing your practice environment...</p>
                 </div>
-              ) : (
-                <>
-                  {currentView === 'dashboard' && (
-                    <SubjectDashboard
-                      onSubjectSelect={handleSubjectSelect}
-                      onViewAnalytics={handleViewAnalytics}
-                    />
-                  )}
+              </div>
+            ) : (
+              <>
+                {currentView === 'dashboard' && (
+                  <SubjectDashboard
+                    onSubjectSelect={handleSubjectSelect}
+                    onViewAnalytics={handleViewAnalytics}
+                  />
+                )}
 
-                  {currentView === 'units' && selectedSubject && (
-                    <UnitSelection
-                      subject={selectedSubject}
-                      selectedUnit={selectedUnit}
-                      onUnitSelect={handleUnitSelect}
-                      onProblemSelect={handleProblemSelect}
-                      onBack={handleBackToDashboard}
-                    />
-                  )}
+                {currentView === 'units' && selectedSubject && (
+                  <UnitSelection
+                    subject={selectedSubject}
+                    selectedUnit={selectedUnit}
+                    onUnitSelect={handleUnitSelect}
+                    onProblemSelect={handleProblemSelect}
+                    onBack={handleBackToDashboard}
+                  />
+                )}
 
-                  {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
+                {currentView === 'problem' && selectedProblem && selectedSubject && selectedUnit && (
+                  <div className="flex-1 flex flex-col h-full bg-background overflow-hidden animate-in fade-in duration-300">
                     <CodeEditorWithAI
                       problem={selectedProblem}
                       subject={selectedSubject}
@@ -274,28 +228,29 @@ const CodePractice = () => {
                       onBack={handleBackToUnits}
                       onViewAnalytics={handleViewAnalytics}
                       codeSubmissionType="practice"
+                      initialEditorOpen={true}
                     />
-                  )}
+                  </div>
+                )}
 
-                  {currentView === 'analytics' && (
-                    <ScoreAnalytics
-                      onBack={handleBackToDashboard}
-                      onViewInsights={handleViewInsights}
-                    />
-                  )}
+                {currentView === 'analytics' && (
+                  <ScoreAnalytics
+                    onBack={handleBackToDashboard}
+                    onViewInsights={handleViewInsights}
+                  />
+                )}
 
-                  {currentView === 'insights' && (
-                    <AIInsights
-                      onBack={() => setCurrentView('analytics')}
-                    />
-                  )}
-                </>
-              )}
-            </div>
+                {currentView === 'insights' && (
+                  <AIInsights
+                    onBack={() => setCurrentView('analytics')}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </StudentLayout>
   );
 };
 

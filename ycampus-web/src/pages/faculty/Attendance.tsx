@@ -1,144 +1,321 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import RoleSidebar from '../../components/common/RoleSidebar';
-import PageHeader from '../../components/common/PageHeader';
-import { getFacultyAssignments, SectionSubjectFaculty } from '../../services/subjectService';
-import { BookOpen, Users, Calendar, ArrowRight, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import FacultyLayout from '@/components/layouts/FacultyLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Calendar, CalendarIcon, Users, Search, UserCheck } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
-const Attendance: React.FC = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
-    const [loading, setLoading] = useState(true);
+// Mock data
+const courses = [
+  { id: '1', name: 'Mathematics 101', code: 'MATH101' },
+  { id: '2', name: 'Physics 201', code: 'PHY201' },
+  { id: '3', name: 'Chemistry 301', code: 'CHEM301' },
+];
 
-    useEffect(() => {
-        const fetchAssignments = async () => {
-            try {
-                setLoading(true);
-                // Passing empty string or null will trigger the backend 'faculty__user=request.user' filter for faculty role
-                const data = await getFacultyAssignments(); 
-                setAssignments(data);
-            } catch (err) {
-                console.error("Failed to fetch assignments", err);
-                toast.error("Failed to load your assigned subjects");
-            } finally {
-                setLoading(false);
-            }
-        };
+const batchesData: { [key: string]: Array<{ id: string, name: string, year: string }> } = {
+  '1': [
+    { id: 'b1', name: 'Batch A', year: '2024' },
+    { id: 'b2', name: 'Batch B', year: '2024' },
+  ],
+  '2': [
+    { id: 'b3', name: 'Batch C', year: '2024' },
+    { id: 'b4', name: 'Batch D', year: '2023' },
+  ],
+  '3': [
+    { id: 'b5', name: 'Batch E', year: '2024' },
+    { id: 'b6', name: 'Batch F', year: '2023' },
+  ]
+};
 
-        if (user) {
-            fetchAssignments();
-        }
-    }, [user]);
+const studentsData: { [key: string]: Array<{ id: string, rollNo: string, name: string, email: string }> } = {
+  'b1': [
+    { id: 's1', rollNo: 'MT001', name: 'John Smith', email: 'john@example.com' },
+    { id: 's2', rollNo: 'MT002', name: 'Alice Johnson', email: 'alice@example.com' },
+    { id: 's3', rollNo: 'MT003', name: 'Bob Wilson', email: 'bob@example.com' },
+    { id: 's4', rollNo: 'MT004', name: 'Carol Davis', email: 'carol@example.com' },
+  ],
+  'b2': [
+    { id: 's5', rollNo: 'MT005', name: 'David Brown', email: 'david@example.com' },
+    { id: 's6', rollNo: 'MT006', name: 'Emma Taylor', email: 'emma@example.com' },
+    { id: 's7', rollNo: 'MT007', name: 'Frank Miller', email: 'frank@example.com' },
+  ],
+  'b3': [
+    { id: 's8', rollNo: 'PH001', name: 'Grace Lee', email: 'grace@example.com' },
+    { id: 's9', rollNo: 'PH002', name: 'Henry Clark', email: 'henry@example.com' },
+    { id: 's10', rollNo: 'PH003', name: 'Ivy Martinez', email: 'ivy@example.com' },
+  ]
+};
 
-    return (
-        <div className="min-h-screen bg-white">
-            <div className="flex">
-                <RoleSidebar />
-                <div className="flex-1">
+const Attendance = () => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
+  const { toast } = useToast();
 
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <PageHeader 
-                            title="Attendance Management" 
-                            subtitle="Take and manage attendance for your assigned sections" 
-                        />
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <Loader2 className="h-10 w-10 text-orange-500 animate-spin mb-4" />
-                                <p className="text-gray-500 font-medium">Loading your assignments...</p>
-                            </div>
-                        ) : assignments.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {assignments.map((assignment) => (
-                                    <Card 
-                                        key={assignment.id} 
-                                        className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden relative flex flex-col h-full bg-white"
-                                    >
-                                        <CardContent className="p-6 flex flex-col flex-1">
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between mb-4">
-                                                <div className="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-inner border border-orange-100/50">
-                                                    <BookOpen className="h-6 w-6" />
-                                                </div>
-                                                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
-                                                    {assignment.section_name || "Section"}
-                                                </Badge>
-                                            </div>
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourse(courseId);
+    setSelectedBatch('');
+    setAttendance({});
+  };
 
-                                            {/* Subject Info */}
-                                            <div className="mb-6 flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2 text-lg">
-                                                        {assignment.semester_subject_details?.subject_details?.subject_name || "Unknown Subject"}
-                                                    </h3>
-                                                </div>
-                                                
-                                                <div className="space-y-1 mt-3">
-                                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 capitalize">
-                                                        <span className="font-semibold text-gray-700">Branch:</span>
-                                                        {assignment.semester_subject_details?.department_name || "N/A"}
-                                                    </p>
-                                                    <div className="flex items-center gap-3">
-                                                        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                            <span className="font-semibold text-gray-700">Batch:</span>
-                                                            {assignment.semester_subject_details?.batch_name || "N/A"}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                            <span className="font-semibold text-gray-700">Sem:</span>
-                                                            {assignment.semester_subject_details?.semester_number || "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    <p className="text-sm text-gray-500 mt-3 pt-2 flex items-center gap-1.5 border-t border-gray-50">
-                                                        <Users className="h-4 w-4 text-orange-400" />
-                                                        <span className="font-medium">{assignment.student_count || 0}</span>
-                                                        <span>Students enrolled</span>
-                                                    </p>
-                                                </div>
-                                            </div>
+  const handleAttendanceChange = (studentId: string, present: boolean) => {
+    setAttendance(prev => ({
+      ...prev,
+      [studentId]: present
+    }));
+  };
 
-                                            {/* Footer/Action */}
-                                            <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
-                                                <div className="text-xs text-gray-400 flex items-center gap-1">
-                                                    <Calendar className="h-3.5 w-3.5" />
-                                                    <span>Last session: Today</span>
-                                                </div>
-                                                <Button 
-                                                    className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm rounded-lg h-9 px-4 text-sm font-semibold group/btn"
-                                                    onClick={() => navigate(`/faculty/attendance/${assignment.id}/take`)}
-                                                >
-                                                    Take Attendance
-                                                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                        
-                                        {/* Bottom Decorator */}
-                                        <div className="h-1 w-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-0" />
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto">
-                                <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <BookOpen className="h-10 w-10 text-gray-300" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">No Assignments Found</h3>
-                                <p className="text-gray-500 mb-8">
-                                    You don't have any subjects or sections assigned to you for attendance management yet. 
-                                    Please contact your Department Administrator (HOD) for assignments.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+  const handleSubmitAttendance = async () => {
+    if (!selectedCourse || !selectedBatch || !selectedDate) {
+      toast({
+        title: "Missing Information",
+        description: "Please select Subject, Batch, and Date before submitting attendance.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // API call would go here - currently commented
+    // try {
+    //   const response = await fetch('/api/attendance', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       date: selectedDate,
+    //       courseId: selectedCourse,
+    //       batchId: selectedBatch,
+    //       attendance: attendance
+    //     })
+    //   });
+    // } catch (error) {
+    //   console.error('Error submitting attendance:', error);
+    // }
+
+    toast({
+      title: "Attendance Submitted",
+      description: `Attendance recorded for ${format(selectedDate, 'PPP')}`,
+    });
+
+    // Reset attendance after submission
+    setAttendance({});
+  };
+
+  const availableBatches = selectedCourse ? batchesData[selectedCourse] || [] : [];
+  const availableStudents = selectedBatch ? studentsData[selectedBatch] || [] : [];
+  
+  const filteredStudents = availableStudents.filter(student =>
+    student.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const selectedCourseData = courses.find(c => c.id === selectedCourse);
+  const selectedBatchData = availableBatches.find(b => b.id === selectedBatch);
+
+  const presentCount = Object.values(attendance).filter(Boolean).length;
+  const totalStudents = filteredStudents.length;
+
+  return (
+    <FacultyLayout>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserCheck className="h-5 w-5" />
+            Attendance Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Form Controls */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Date Field */}
+            <div className="space-y-2">
+              <Label>Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-        </div>
-    );
+
+            {/* Course Dropdown */}
+            <div className="space-y-2">
+              <Label>Subject</Label>
+              <Select value={selectedCourse} onValueChange={handleCourseChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map(course => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Batch Dropdown */}
+            <div className="space-y-2">
+              <Label>Batch</Label>
+              <Select 
+                value={selectedBatch} 
+                onValueChange={setSelectedBatch}
+                disabled={!selectedCourse}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select batch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableBatches.map(batch => (
+                    <SelectItem key={batch.id} value={batch.id}>
+                      {batch.name} - {batch.year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Search Field */}
+            <div className="space-y-2">
+              <Label>Search Students</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by roll no or name"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                  disabled={!selectedBatch}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          {selectedCourseData && selectedBatchData && (
+            <div className="flex flex-wrap items-center gap-4 p-4 bg-muted rounded-lg">
+              <Badge variant="outline" className="text-sm">
+                {selectedCourseData.name}
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                {selectedBatchData.name} - {selectedBatchData.year}
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                {format(selectedDate, 'PPP')}
+              </Badge>
+              {totalStudents > 0 && (
+                <Badge variant="secondary" className="text-sm">
+                  Present: {presentCount}/{totalStudents}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Student List */}
+          {filteredStudents.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Students ({filteredStudents.length})
+                </h3>
+                <Button onClick={handleSubmitAttendance} className="ml-auto">
+                  Submit Attendance
+                </Button>
+              </div>
+
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[150px]">Roll No</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead className="w-[200px] text-center">Attendance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map(student => (
+                      <TableRow key={student.id}>
+                        <TableCell className="font-mono">
+                          {student.rollNo}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{student.name}</p>
+                            <p className="text-sm text-muted-foreground">{student.email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center space-x-2">
+                            <Label htmlFor={`attendance-${student.id}`} className="text-sm">
+                              Present
+                            </Label>
+                            <Checkbox
+                              id={`attendance-${student.id}`}
+                              checked={attendance[student.id] || false}
+                              onCheckedChange={(checked) => handleAttendanceChange(student.id, !!checked)}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {/* Empty States */}
+          {!selectedBatch && selectedCourse && (
+            <div className="text-center text-muted-foreground py-8">
+              Please select a batch to view students
+            </div>
+          )}
+
+          {!selectedCourse && (
+            <div className="text-center text-muted-foreground py-8">
+              Please select a Subject to get started
+            </div>
+          )}
+
+          {filteredStudents.length === 0 && selectedBatch && searchTerm && (
+            <div className="text-center text-muted-foreground py-8">
+              No students found matching "{searchTerm}"
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </FacultyLayout>
+  );
 };
 
 export default Attendance;

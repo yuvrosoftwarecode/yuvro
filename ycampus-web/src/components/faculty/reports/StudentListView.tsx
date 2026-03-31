@@ -23,9 +23,9 @@ interface StudentListViewProps {
 }
 
 const getPRIColor = (pri: number) => {
-  if (pri >= 85) return 'bg-[#D1FAE5] text-[#047857]';
-  if (pri >= 70) return 'bg-[#FEF3C7] text-[#B45309]';
-  return 'bg-[#FEE2E2] text-[#B91C1C]';
+  if (pri >= 85) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+  if (pri >= 70) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+  return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 };
 
 const getPRILabel = (pri: number) => {
@@ -107,9 +107,9 @@ const StudentListView: React.FC<StudentListViewProps> = ({ students, onSelectStu
 
                 {/* Right: PRI Badge + Action */}
                 <div className="flex items-center gap-2.5 shrink-0">
-                      <div className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${getPRIColor(item.pri)}`}>
-                        {getPRILabel(item.pri)}
-                      </div>
+                  <Badge className={`text-[10px] px-2 py-0.5 font-medium ${getPRIColor(item.pri)}`}>
+                    {getPRILabel(item.pri)}
+                  </Badge>
                   <Button
                     variant="ghost"
                     size="sm"

@@ -165,7 +165,6 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   onCodeChangeRef.current = onCodeChange;
 
   // Track if code change was from user input vs internal updates
-  const isUserInputRef = useRef(false);
 
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
@@ -468,12 +467,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <ResizablePanelGroup direction="vertical" className="flex-1 overflow-hidden">
+          <ResizablePanelGroup 
+            key={showOutput ? 'split' : 'single'}
+            direction="vertical" 
+            className="flex-1 h-full overflow-hidden"
+          >
             {/* Editor Panel */}
             <ResizablePanel
-              id="code-editor-panel"
+              id="code-editor-main-panel"
               order={1}
-              defaultSize={showOutput ? 50 : 100}
+              defaultSize={showOutput ? 70 : 100}
               minSize={30}
             >
               <div className="h-full bg-white">
@@ -506,10 +509,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
             {/* Output Panel */}
             {showOutput && (
               <ResizablePanel
-                id="output-panel"
+                id="code-editor-output-panel"
                 order={2}
-                defaultSize={50}
-                minSize={20}
+                defaultSize={30}
+                minSize={15}
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
@@ -530,7 +533,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           disabled={isRunning || isSubmitting}
                           size="sm"
                           variant="outline"
-                          className="h-9 text-xs font-bold gap-2 bg-slate-900 hover:bg-black text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
+                          className="h-9 text-xs font-bold gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md px-6 rounded-xl transition-all active:scale-95"
                         >
                           <Play className="h-3 w-3 mr-1" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
@@ -762,7 +765,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                               }));
                                             }}
                                           >
-                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                           </Button>
                                         </div>
                                       )}
@@ -789,7 +792,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                                 }));
                                               }}
                                             >
-                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                             </Button>
                                           </div>
                                         </div>
