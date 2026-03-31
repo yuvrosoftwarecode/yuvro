@@ -20,7 +20,7 @@ const CollegeAdminDashboard = () => {
       <div className="min-h-screen flex w-full">
         <CollegeAdminSidebar />
         <div className="flex-1 flex flex-col">
-          <main className="flex-1 p-6 bg-background">
+<main className="flex-1 p-6 bg-background">
             <div className="space-y-6">
               <h1 className="text-2xl font-bold">Dashboard</h1>
               <div>

@@ -1,484 +1,1285 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import FacultyLayout from '@/components/layouts/FacultyLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { FileText, Plus, Search, Loader2, Trophy, Clock, Users, Trash2, Edit, BarChart2, ArrowLeft, Send, Save, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Search, Clock, FileText, Users, Edit, Trash2, Eye, Send, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject } from '@/services/subjectService';
-import skillTestService, { SkillTest } from '@/services/skillTestService';
-import { cn } from '@/lib/utils';
-
-// Reusing Admin components for Test creation
+import { QuestionSetup } from '@/components/admin/test-questions/QuestionSetup';
+import { QuestionManager } from '@/components/admin/test-questions/QuestionManager';
 import { QuestionForm } from '@/components/admin/test-questions/QuestionForm';
 import { QuestionPreview } from '@/components/admin/test-questions/QuestionPreview';
 import { TestSettings } from '@/components/admin/test-questions/TestSettings';
 
-type ViewMode = 'list' | 'create' | 'edit' | 'analytics';
+interface Assessment {
+  id: string;
+  title: string;
+  description: string;
+  numberOfQuestions: number;
+  duration: number; // in minutes
+  numberOfResponses: number;
+  status: 'Draft' | 'Sent';
+  createdDate: string;
+  courseId: string;
+  batchId: string;
+}
 
-// --- Sub-components (Declared at top to avoid use-before-def issues) ---
+interface StudentResponse {
+  id: string;
+  rollNo: string;
+  name: string;
+  score: number;
+  totalMarks: number;
+  submissionDate: string;
+  correctAnswers: number;
+  wrongAnswers: number;
+  notAttempted: number;
+  answers: { questionId: string; answer: string | string[]; isCorrect: boolean }[];
+}
 
-const FilterSelect = ({ label, value, options, values, onChange, disabled, highlight }: any) => (
-  <div className="space-y-1.5">
-    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">{label}</Label>
-    <Select value={value} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className={cn("bg-white/60", highlight && "border-primary/30 ring-primary/5 shadow-sm")}>
-        <SelectValue placeholder={`Select ${label}`} />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((o: string, i: number) => (
-          <SelectItem key={i} value={values ? values[i] : o}>{o}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-);
+interface Question {
+  id: string;
+  questionText: string;
+  type: 'mcq' | 'coding' | 'short-answer' | 'true-false';
+  options?: string[];
+  correctAnswer: string | string[];
+  marks: number;
+  courseId: string;
+  batchId: string;
+  moduleId: string;
+  topicId: string;
+  isMultipleAnswer?: boolean;
+  testSettings?: {
+    startDate: string;
+    startTime: string;
+    endDate: string;
+    endTime: string;
+    duration: number;
+  };
+}
 
-const AssessmentCard = ({ test, onAnalytics, onEdit, onDelete }: any) => (
-  <Card className="group border-none shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-    <CardContent className="p-4 flex items-center gap-4">
-      <div className="p-4 bg-primary/5 rounded-2xl group-hover:bg-primary/10 transition-colors">
-        <Trophy className="w-6 h-6 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h4 className="font-bold text-gray-900 truncate">{test.title}</h4>
-          <Badge className="text-[10px] uppercase bg-gray-50 border-gray-100 text-gray-500">{test.difficulty}</Badge>
-        </div>
-        <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground/70 tracking-tight">
-          <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {test.duration}m</span>
-          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {test.participants_count || 0}</span>
-          <span className="flex items-center gap-1 uppercase tracking-wider">Status: <span className="text-amber-600">{test.publish_status}</span></span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={onAnalytics} className="h-9 w-9 border border-gray-100 hover:bg-indigo-50 hover:text-indigo-600"><BarChart2 className="w-4 h-4" /></Button>
-        <Button variant="ghost" size="icon" onClick={onEdit} className="h-9 w-9 border border-gray-100 hover:bg-blue-50 hover:text-blue-600"><Edit className="w-4 h-4" /></Button>
-        <Button variant="ghost" size="icon" onClick={onDelete} className="h-9 w-9 text-rose-500 hover:bg-rose-50 border border-gray-100"><Trash2 className="w-4 h-4" /></Button>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const StatCard = ({ label, value, icon: Icon, color }: any) => (
-  <Card className="border-none shadow-sm">
-    <CardContent className="p-5 flex items-center gap-4">
-      <div className={cn("p-3 rounded-2xl bg-gray-50", color.replace('text', 'bg').replace('600', '100'))}><Icon className={cn("w-5 h-5", color)} /></div>
-      <div>
-        <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">{label}</p>
-        <p className="text-xl font-extrabold text-gray-900 leading-tight">{value}</p>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const FullLoadingPlaceholder = ({ text }: any) => (
-  <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-gray-100 opacity-80">
-    <Loader2 className="w-10 h-10 text-primary/40 animate-spin mb-4" />
-    <p className="text-muted-foreground font-bold tracking-tighter uppercase text-xs">{text}</p>
-  </div>
-);
-
-const EmptyPlaceholder = ({ text }: any) => (
-  <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-100 italic text-muted-foreground font-medium">{text}</div>
-);
-
-const SelectionRequiredPlaceholder = () => (
-  <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border border-dashed border-gray-200 group">
-    <div className="relative p-7 bg-white shadow-xl rounded-3xl border border-gray-50 mb-8 group-hover:scale-110 transition-transform duration-500">
-      <FileText className="w-12 h-12 text-primary/10 group-hover:text-primary transition-colors duration-500" />
-    </div>
-    <p className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Identity Required</p>
-    <p className="text-muted-foreground max-w-sm text-center font-medium leading-relaxed px-6">Provide Batch, Faculty, Subject, Section, and Unit parameters to access evaluations.</p>
-  </div>
-);
-
-const DeleteDialog = ({ open, title, onCancel, onConfirm }: any) => (
-  <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
-    <AlertDialogContent className="rounded-3xl border-none shadow-2xl p-8 max-w-md">
-      <AlertDialogHeader className="space-y-4">
-        <AlertDialogTitle className="text-2xl font-black text-gray-900 tracking-tighter">Discard Assessment?</AlertDialogTitle>
-        <AlertDialogDescription className="text-base font-medium text-gray-500 leading-relaxed italic">
-          Are you sure you want to delete <span className="text-rose-500 not-italic font-black">"{title}"</span>? This will permanently erase student records.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <div className="flex justify-end gap-3 mt-10">
-        <AlertDialogCancel className="bg-transparent border-none text-gray-400 hover:text-gray-900 font-black text-xs uppercase tracking-widest px-8">Abort</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm} className="bg-rose-500 hover:bg-rose-600 text-white rounded-2xl px-10 h-12 font-black shadow-lg shadow-rose-100 active:scale-95 transition-all">Destroy Data</AlertDialogAction>
-      </div>
-    </AlertDialogContent>
-  </AlertDialog>
-);
-
-// --- Main component ---
-
-const Assessment = () => {
-  const [view, setView] = useState<ViewMode>('list');
-  const [testsLoading, setTestsLoading] = useState(false);
-  const [allAssignments, setAllAssignments] = useState<SectionSubjectFaculty[]>([]);
-  
+const Assessment: React.FC = () => {
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  const [selectedUnit, setSelectedUnit] = useState<string>('');
-  const [units, setUnits] = useState<{id: string, name: string}[]>([]);
-  
-  const [assessments, setAssessments] = useState<SkillTest[]>([]);
-  const [selectedAssessment, setSelectedAssessment] = useState<SkillTest | null>(null);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [assessmentToDelete, setAssessmentToDelete] = useState<SkillTest | null>(null);
-  
-  // Create/Edit State
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [settings, setSettings] = useState({
-    startDate: new Date().toISOString().split('T')[0],
-    startTime: '09:00',
-    endDate: new Date().toISOString().split('T')[0],
-    endTime: '10:00',
-    duration: 1
-  });
-  const [formData, setFormData] = useState({ title: '', description: '' });
-
-  // Analytics State
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [analyticsLoading, setAnalyticsLoading] = useState(false);
-
+  const [assessmentToDelete, setAssessmentToDelete] = useState<Assessment | null>(null);
+  const [editingAssessment, setEditingAssessment] = useState<Assessment | null>(null);
+  const [viewingAssessment, setViewingAssessment] = useState<Assessment | null>(null);
+  const [viewingResponses, setViewingResponses] = useState<Assessment | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<StudentResponse | null>(null);
+  const [responseSearchQuery, setResponseSearchQuery] = useState<string>('');
+  const [assessmentToSend, setAssessmentToSend] = useState<Assessment | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadAssignments();
-  }, []);
+  // Mock data
+  const courses = [
+    { id: '1', name: 'React Development' },
+    { id: '2', name: 'Node.js Backend' },
+    { id: '3', name: 'Database Design' }
+  ];
 
-  const loadAssignments = async () => {
-    try {
-      const data = await getFacultyAssignments();
-      setAllAssignments(data);
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to load assignments", variant: "destructive" });
+  const batches = selectedCourse ? [
+    { id: '1', name: 'Batch A', courseId: selectedCourse },
+    { id: '2', name: 'Batch B', courseId: selectedCourse },
+    { id: '3', name: 'Batch C', courseId: selectedCourse }
+  ] : [];
+
+  const mockAssessments: Assessment[] = [
+    {
+      id: '1',
+      title: 'React Fundamentals Quiz',
+      description: 'Test your knowledge of React basics including components, props, and state',
+      numberOfQuestions: 15,
+      duration: 30,
+      numberOfResponses: 8,
+      status: 'Sent',
+      createdDate: '2024-01-15',
+      courseId: '1',
+      batchId: '1'
+    },
+    {
+      id: '2',
+      title: 'JavaScript ES6 Assessment',
+      description: 'Comprehensive test on modern JavaScript features and syntax',
+      numberOfQuestions: 20,
+      duration: 45,
+      numberOfResponses: 0,
+      status: 'Draft',
+      createdDate: '2024-01-20',
+      courseId: '1',
+      batchId: '1'
+    },
+    {
+      id: '3',
+      title: 'CSS and Styling Test',
+      description: 'Assessment covering CSS fundamentals, Flexbox, and Grid',
+      numberOfQuestions: 12,
+      duration: 25,
+      numberOfResponses: 0,
+      status: 'Draft',
+      createdDate: '2024-01-25',
+      courseId: '1',
+      batchId: '1'
+    },
+    {
+      id: '4',
+      title: 'API Integration Quiz',
+      description: 'Test knowledge of REST APIs, HTTP methods, and data handling',
+      numberOfQuestions: 18,
+      duration: 35,
+      numberOfResponses: 5,
+      status: 'Sent',
+      createdDate: '2024-01-30',
+      courseId: '1',
+      batchId: '1'
+    }
+  ];
+
+  // Mock questions for assessments
+  const mockQuestions: { [assessmentId: string]: Question[] } = {
+    '1': [
+      {
+        id: 'q1',
+        questionText: 'What is JSX?',
+        type: 'mcq',
+        options: ['JavaScript XML', 'Java Syntax Extension', 'JSON XML', 'None of the above'],
+        correctAnswer: 'JavaScript XML',
+        marks: 2,
+        courseId: '1',
+        batchId: '1',
+        moduleId: 'm1',
+        topicId: 't1'
+      },
+      {
+        id: 'q2',
+        questionText: 'Which hook is used for state management in functional components?',
+        type: 'mcq',
+        options: ['useEffect', 'useState', 'useContext', 'useReducer'],
+        correctAnswer: 'useState',
+        marks: 2,
+        courseId: '1',
+        batchId: '1',
+        moduleId: 'm1',
+        topicId: 't1'
+      },
+      {
+        id: 'q3',
+        questionText: 'What is the virtual DOM?',
+        type: 'short-answer',
+        correctAnswer: 'A JavaScript representation of the real DOM that React uses to optimize updates',
+        marks: 5,
+        courseId: '1',
+        batchId: '1',
+        moduleId: 'm1',
+        topicId: 't1'
+      }
+    ],
+    '4': [
+      {
+        id: 'q4',
+        questionText: 'What does REST stand for?',
+        type: 'mcq',
+        options: ['Representational State Transfer', 'Remote State Transfer', 'Real State Transfer', 'None of the above'],
+        correctAnswer: 'Representational State Transfer',
+        marks: 2,
+        courseId: '1',
+        batchId: '1',
+        moduleId: 'm2',
+        topicId: 't2'
+      },
+      {
+        id: 'q5',
+        questionText: 'Which HTTP method is used to create a new resource?',
+        type: 'mcq',
+        options: ['GET', 'POST', 'PUT', 'DELETE'],
+        correctAnswer: 'POST',
+        marks: 2,
+        courseId: '1',
+        batchId: '1',
+        moduleId: 'm2',
+        topicId: 't2'
+      }
+    ]
+  };
+
+  // Mock student responses
+  const mockStudentResponses: { [assessmentId: string]: StudentResponse[] } = {
+    '1': [
+      {
+        id: 'r1',
+        rollNo: 'CSE001',
+        name: 'John Doe',
+        score: 8,
+        totalMarks: 9,
+        submissionDate: '2024-01-16',
+        correctAnswers: 2,
+        wrongAnswers: 1,
+        notAttempted: 0,
+        answers: [
+          { questionId: 'q1', answer: 'JavaScript XML', isCorrect: true },
+          { questionId: 'q2', answer: 'useState', isCorrect: true },
+          { questionId: 'q3', answer: 'A representation of DOM', isCorrect: false }
+        ]
+      },
+      {
+        id: 'r2',
+        rollNo: 'CSE002',
+        name: 'Jane Smith',
+        score: 9,
+        totalMarks: 9,
+        submissionDate: '2024-01-16',
+        correctAnswers: 3,
+        wrongAnswers: 0,
+        notAttempted: 0,
+        answers: [
+          { questionId: 'q1', answer: 'JavaScript XML', isCorrect: true },
+          { questionId: 'q2', answer: 'useState', isCorrect: true },
+          { questionId: 'q3', answer: 'A JavaScript representation of the real DOM that React uses to optimize updates', isCorrect: true }
+        ]
+      },
+      {
+        id: 'r3',
+        rollNo: 'CSE003',
+        name: 'Mike Johnson',
+        score: 4,
+        totalMarks: 9,
+        submissionDate: '2024-01-17',
+        correctAnswers: 1,
+        wrongAnswers: 1,
+        notAttempted: 1,
+        answers: [
+          { questionId: 'q1', answer: 'Java Syntax Extension', isCorrect: false },
+          { questionId: 'q2', answer: 'useState', isCorrect: true },
+          { questionId: 'q3', answer: '', isCorrect: false }
+        ]
+      }
+    ],
+    '4': [
+      {
+        id: 'r4',
+        rollNo: 'CSE004',
+        name: 'Sarah Wilson',
+        score: 4,
+        totalMarks: 4,
+        submissionDate: '2024-02-01',
+        correctAnswers: 2,
+        wrongAnswers: 0,
+        notAttempted: 0,
+        answers: [
+          { questionId: 'q4', answer: 'Representational State Transfer', isCorrect: true },
+          { questionId: 'q5', answer: 'POST', isCorrect: true }
+        ]
+      }
+    ]
+  };
+
+  useEffect(() => {
+    if (selectedCourse && selectedBatch) {
+      // Mock API call to fetch assessments
+      setAssessments(mockAssessments.filter(assessment => 
+        assessment.courseId === selectedCourse && assessment.batchId === selectedBatch
+      ));
+    } else {
+      setAssessments([]);
+    }
+  }, [selectedCourse, selectedBatch]);
+
+  // Filter assessments based on search query
+  const filteredAssessments = assessments.filter(assessment =>
+    assessment.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleCourseSelect = (courseId: string) => {
+    setSelectedCourse(courseId);
+    setSelectedBatch('');
+    setAssessments([]);
+  };
+
+  const handleCreateAssessment = (assessmentData: { title: string; description: string; numberOfQuestions: number; duration: number }) => {
+    const newAssessment: Assessment = {
+      id: Date.now().toString(),
+      title: assessmentData.title,
+      description: assessmentData.description,
+      numberOfQuestions: assessmentData.numberOfQuestions,
+      duration: assessmentData.duration,
+      numberOfResponses: 0,
+      status: 'Draft',
+      createdDate: new Date().toISOString().split('T')[0],
+      courseId: selectedCourse,
+      batchId: selectedBatch
+    };
+    
+    setAssessments(prev => [...prev, newAssessment]);
+    setShowCreateForm(false);
+    
+    toast({
+      title: "Assessment Created",
+      description: "New assessment has been created successfully.",
+    });
+  };
+
+  const handleDeleteAssessment = (assessmentId: string) => {
+    setAssessments(prev => prev.filter(assessment => assessment.id !== assessmentId));
+    
+    toast({
+      title: "Assessment Deleted",
+      description: "Assessment has been deleted successfully.",
+    });
+  };
+
+  const handleDeleteClick = (assessment: Assessment) => {
+    setAssessmentToDelete(assessment);
+  };
+
+  const handleConfirmDelete = () => {
+    if (assessmentToDelete) {
+      handleDeleteAssessment(assessmentToDelete.id);
+      setAssessmentToDelete(null);
     }
   };
 
-  // Cascading Filters Logic
-  const uniqueBatches = useMemo(() => {
-    const b = new Set<string>();
-    allAssignments.forEach(a => { if (a.semester_subject_details?.batch_name) b.add(a.semester_subject_details.batch_name); });
-    return Array.from(b).sort();
-  }, [allAssignments]);
-
-  const uniqueDepartments = useMemo(() => {
-    if (!selectedBatch) return [];
-    const depts = new Map<string, string>();
-    allAssignments.filter(a => a.semester_subject_details?.batch_name === selectedBatch).forEach(a => {
-      if (a.semester_subject_details?.department_id) depts.set(String(a.semester_subject_details.department_id), a.semester_subject_details.department_name || '');
-    });
-    return Array.from(depts.entries()).map(([id, name]) => ({ id, name }));
-  }, [allAssignments, selectedBatch]);
-
-  const uniqueSubjects = useMemo(() => {
-    if (!selectedBatch || !selectedDepartment) return [];
-    const subs = new Map<string, string>();
-    allAssignments.filter(a => a.semester_subject_details?.batch_name === selectedBatch && String(a.semester_subject_details?.department_id) === selectedDepartment).forEach(a => {
-      const details = a.semester_subject_details?.subject_details;
-      if (details) subs.set(String(details.id), details.subject_name || details.name || 'Unknown');
-    });
-    return Array.from(subs.entries()).map(([id, name]) => ({ id, name }));
-  }, [allAssignments, selectedBatch, selectedDepartment]);
-
-  const uniqueSections = useMemo(() => {
-    if (!selectedBatch || !selectedDepartment || !selectedSubject) return [];
-    return allAssignments.filter(a => a.semester_subject_details?.batch_name === selectedBatch && String(a.semester_subject_details?.department_id) === selectedDepartment && String(a.semester_subject_details?.subject_details?.id) === selectedSubject)
-      .map(a => ({ id: String(a.id), name: a.section_name || `Section ${a.section}` }));
-  }, [allAssignments, selectedBatch, selectedDepartment, selectedSubject]);
-
-  useEffect(() => {
-    if (selectedSubject) loadUnits(selectedSubject);
-    else { setUnits([]); setSelectedUnit(''); }
-  }, [selectedSubject]);
-
-  const loadUnits = async (subjectId: string) => {
-    try {
-      const data = await fetchUnitsBySubject(subjectId);
-      setUnits(data.map(u => ({ id: u.id, name: u.name })));
-    } catch (e) { console.error(e); }
+  const handleCancelDelete = () => {
+    setAssessmentToDelete(null);
   };
 
-  useEffect(() => {
-    if (selectedUnit && view === 'list') loadAssessments(selectedUnit);
-  }, [selectedUnit, view]);
-
-  const loadAssessments = async (unitId: string) => {
-    try {
-      setTestsLoading(true);
-      const data = await skillTestService.getSkillTestsByUnit(unitId, 'assessment');
-      setAssessments(data);
-    } catch (e) { toast({ title: "Error", description: "Failed to load assessments", variant: "destructive" }); }
-    finally { setTestsLoading(false); }
+  const handleEditAssessment = (assessment: Assessment) => {
+    setEditingAssessment(assessment);
   };
 
-  const loadAnalytics = async (testId: string) => {
-    try {
-      setAnalyticsLoading(true);
-      const data = await skillTestService.getSkillTestSubmissions(testId);
-      setSubmissions(data);
-    } catch (e) { toast({ title: "Error", description: "Failed to load analytics", variant: "destructive" }); }
-    finally { setAnalyticsLoading(false); }
+  const handleCancelEdit = () => {
+    setEditingAssessment(null);
   };
 
-  // Actions
-  const handleCreate = () => {
-    setFormData({ title: '', description: '' });
-    setQuestions([]);
-    setView('create');
+  const handleViewAssessment = (assessment: Assessment) => {
+    setViewingAssessment(assessment);
   };
 
-  const handleEdit = (test: SkillTest) => {
-    setSelectedAssessment(test);
-    setFormData({ title: test.title, description: test.description });
-    setQuestions([]); 
-    setView('edit');
+  const handleViewResponses = (assessment: Assessment) => {
+    setViewingResponses(assessment);
   };
 
-  const handleAnalytics = (test: SkillTest) => {
-    setSelectedAssessment(test);
-    loadAnalytics(test.id);
-    setView('analytics');
+  const handleBackToAssessments = () => {
+    setViewingAssessment(null);
+    setViewingResponses(null);
+    setSelectedStudent(null);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await skillTestService.deleteSkillTest(id);
-      toast({ title: "Deleted", description: "Assessment removed." });
-      if (selectedUnit) loadAssessments(selectedUnit);
-    } catch (e) { toast({ title: "Error", description: "Failed to delete", variant: "destructive" }); }
-    finally { setAssessmentToDelete(null); }
+  const handleSendClick = (assessment: Assessment) => {
+    setAssessmentToSend(assessment);
   };
 
-  const handleSaveAssessment = async () => {
-    if (!formData.title) return toast({ title: "Error", description: "Title is required", variant: "destructive" });
+  const handleConfirmSend = () => {
+    if (assessmentToSend) {
+      handleSendAssessment(assessmentToSend.id);
+      setAssessmentToSend(null);
+    }
+  };
+
+  const handleCancelSend = () => {
+    setAssessmentToSend(null);
+  };
+
+  const handleSendAssessment = (assessmentId: string) => {
+    setAssessments(prev => prev.map(assessment => 
+      assessment.id === assessmentId ? { ...assessment, status: 'Sent' as const } : assessment
+    ));
     
-    try {
-      const data = {
-        title: formData.title,
-        description: formData.description,
-        difficulty: 'medium' as const,
-        duration: settings.duration * 60,
-        subject: selectedSubject,
-        unit: selectedUnit,
-        publish_status: 'draft' as const,
-        test_type: 'assessment' as const
-      };
-
-      if (view === 'create') await skillTestService.createSkillTest(data);
-      else if (selectedAssessment) await skillTestService.updateSkillTest(selectedAssessment.id, data);
-
-      toast({ title: "Success", description: `Assessment ${view === 'create' ? 'created' : 'updated'} successfully.` });
-      setView('list');
-    } catch (e) { toast({ title: "Error", description: "Save failed", variant: "destructive" }); }
+    toast({
+      title: "Assessment Sent",
+      description: "Assessment has been sent to students successfully.",
+    });
   };
 
-  const filteredAssessments = assessments.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  };
 
-  // Render Helpers
-  const renderList = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Assessment Manager</h1>
-          <p className="text-muted-foreground/80">Manage student competency evaluations.</p>
-        </div>
-        <Button onClick={handleCreate} disabled={!selectedUnit} className="font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-          <Plus className="w-4 h-4 mr-2" /> New Assessment
-        </Button>
-      </div>
+  // Custom Assessment Question Setup Component (without dropdowns)
+  const AssessmentQuestionSetup = () => {
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const [showQuestionForm, setShowQuestionForm] = useState(true);
+    const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [assessmentTitle, setAssessmentTitle] = useState('');
+    const [assessmentDescription, setAssessmentDescription] = useState('');
+    const [testSettings, setTestSettings] = useState({
+      startDate: new Date().toISOString().split('T')[0],
+      startTime: '09:00',
+      endDate: new Date().toISOString().split('T')[0],
+      endTime: '10:00',
+      duration: 1
+    });
 
-      <Card className="border-none shadow-sm bg-gradient-to-br from-white to-gray-50/50">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <FilterSelect label="Batch" value={selectedBatch} options={uniqueBatches} onChange={(v: string) => { setSelectedBatch(v); setSelectedDepartment(''); setSelectedSubject(''); setSelectedSection(''); setSelectedUnit(''); }} />
-            <FilterSelect label="Department" value={selectedDepartment} options={uniqueDepartments.map(d=>d.name)} values={uniqueDepartments.map(d=>d.id)} onChange={(v: string) => { setSelectedDepartment(v); setSelectedSubject(''); setSelectedSection(''); setSelectedUnit(''); }} disabled={!selectedBatch} />
-            <FilterSelect label="Subject" value={selectedSubject} options={uniqueSubjects.map(s=>s.name)} values={uniqueSubjects.map(s=>s.id)} onChange={(v: string) => { setSelectedSubject(v); setSelectedSection(''); setSelectedUnit(''); }} disabled={!selectedDepartment} />
-            <FilterSelect label="Section" value={selectedSection} options={uniqueSections.map(s=>s.name)} values={uniqueSections.map(s=>s.id)} onChange={(v: string) => { setSelectedSection(v); setSelectedUnit(''); }} disabled={!selectedSubject} />
-            <FilterSelect label="Unit" value={selectedUnit} options={units.map(u=>u.name)} values={units.map(u=>u.id)} onChange={setSelectedUnit} disabled={!selectedSection} highlight />
-          </div>
-        </CardContent>
-      </Card>
+    const handleQuestionSave = (question: Question) => {
+      const newQuestion = {
+        ...question,
+        id: Date.now().toString(),
+        courseId: selectedCourse,
+        batchId: selectedBatch,
+        testSettings: testSettings,
+      };
+      
+      setQuestions(prev => [...prev, newQuestion]);
+      toast({
+        title: "Success",
+        description: "Question created successfully!",
+      });
+    };
 
-      <div className="space-y-4">
-        {testsLoading ? (
-          <FullLoadingPlaceholder text="Scanning unit assessments..." />
-        ) : selectedUnit ? (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary/60" /> Assessments
-                <Badge variant="outline" className="ml-2 font-bold">{filteredAssessments.length}</Badge>
-              </h3>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9 bg-white" />
+    const handleQuestionDelete = (questionId: string) => {
+      setQuestions(prev => prev.filter(q => q.id !== questionId));
+      toast({
+        title: "Success",
+        description: "Question deleted successfully!",
+      });
+    };
+
+    const handleQuestionEdit = (question: Question) => {
+      setEditingQuestion(question);
+      setShowEditForm(true);
+      setShowQuestionForm(false);
+    };
+
+    const handleCancelEdit = () => {
+      setEditingQuestion(null);
+      setShowEditForm(false);
+      setShowQuestionForm(true);
+    };
+
+    const handleUpdateQuestion = (updatedQuestionData: Question) => {
+      if (editingQuestion) {
+        const updatedQuestion = {
+          ...updatedQuestionData,
+          id: editingQuestion.id,
+          courseId: editingQuestion.courseId,
+          batchId: editingQuestion.batchId,
+          testSettings: editingQuestion.testSettings,
+        };
+        
+        setQuestions(prev => prev.map(q => q.id === editingQuestion.id ? updatedQuestion : q));
+        setEditingQuestion(null);
+        setShowEditForm(false);
+        setShowQuestionForm(true);
+        
+        toast({
+          title: "Success",
+          description: "Question updated successfully!",
+        });
+      }
+    };
+
+    const handleTestSettingsChange = (newSettings: {
+      startDate: string;
+      startTime: string;
+      endDate: string;
+      endTime: string;
+      duration: number;
+    }) => {
+      setTestSettings(newSettings);
+    };
+
+    const handleSaveAssessment = () => {
+      if (!assessmentTitle.trim()) {
+        toast({
+          title: "Error",
+          description: "Please enter an assessment title.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (questions.length === 0) {
+        toast({
+          title: "Error",
+          description: "Please add at least one question to the assessment.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create the assessment
+      const newAssessment: Assessment = {
+        id: Date.now().toString(),
+        title: assessmentTitle,
+        description: assessmentDescription,
+        numberOfQuestions: questions.length,
+        duration: testSettings.duration * 60, // Convert hours to minutes
+        numberOfResponses: 0,
+        status: 'Draft',
+        createdDate: new Date().toISOString().split('T')[0],
+        courseId: selectedCourse,
+        batchId: selectedBatch
+      };
+      
+      setAssessments(prev => [...prev, newAssessment]);
+      setShowCreateForm(false);
+      
+      toast({
+        title: "Assessment Created",
+        description: "New assessment has been created successfully.",
+      });
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Assessment Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Assessment Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Assessment Title *
+              </label>
+              <Input
+                type="text"
+                placeholder="Enter assessment title..."
+                value={assessmentTitle}
+                onChange={(e) => setAssessmentTitle(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Description
+              </label>
+              <textarea
+                placeholder="Enter assessment description..."
+                value={assessmentDescription}
+                onChange={(e) => setAssessmentDescription(e.target.value)}
+                className="w-full min-h-[80px] px-3 py-2 border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md resize-none"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Test Settings */}
+        <TestSettings
+          settings={testSettings}
+          onSettingsChange={handleTestSettingsChange}
+        />
+
+        {/* Question Form */}
+        {showQuestionForm && (
+          <QuestionForm onSave={handleQuestionSave} />
+        )}
+
+        {/* Edit Form */}
+        {showEditForm && editingQuestion && (
+          <QuestionForm
+            onSave={handleUpdateQuestion}
+            initialData={editingQuestion}
+            isEditing={true}
+            onCancel={handleCancelEdit}
+          />
+        )}
+
+        {/* Questions Preview */}
+        {questions.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-foreground">Created Questions ({questions.length})</h3>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Success",
+                      description: `${questions.length} questions saved successfully!`,
+                    });
+                    setQuestions([]);
+                  }}
+                >
+                  Clear Questions
+                </Button>
+                <Button onClick={handleSaveAssessment}>
+                  Create Assessment
+                </Button>
               </div>
             </div>
-
-            {filteredAssessments.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {filteredAssessments.map((test) => (
-                  <AssessmentCard 
-                    key={test.id} 
-                    test={test} 
-                    onAnalytics={() => handleAnalytics(test)} 
-                    onEdit={() => handleEdit(test)} 
-                    onDelete={() => setAssessmentToDelete(test)} 
-                  />
-                ))}
-              </div>
-            ) : <EmptyPlaceholder text="No assessments found for this unit." />}
-          </div>
-        ) : <SelectionRequiredPlaceholder />}
-      </div>
-    </div>
-  );
-
-  const renderForm = () => (
-    <div className="space-y-6 animate-in fade-in scale-in-95 duration-300">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => setView('list')} className="rounded-full h-10 w-10 border border-gray-200">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">{view === 'create' ? 'Construct Assessment' : 'Refine Assessment'}</h2>
-          <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">
-            {uniqueSubjects.find(s=>s.id === selectedSubject)?.name} • {units.find(u=>u.id === selectedUnit)?.name}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Core Details</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g., Mid-Term Competency Sync" />
-              </div>
-              <div className="space-y-2">
-                <Label>Instructions / Description</Label>
-                <textarea className="w-full h-24 p-3 rounded-lg border border-input bg-transparent text-sm" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Define evaluation parameters..." />
-              </div>
-            </CardContent>
-          </Card>
-
-          <QuestionForm 
-            onSave={(q) => setQuestions([...questions, {...q, id: Date.now().toString()}])} 
-            onCancel={() => {}}
-          />
-          
-          {questions.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-bold flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Integrated Questions ({questions.length})
-              </h3>
-              {questions.map((q) => (
-                <QuestionPreview key={q.id} question={q} onDelete={() => setQuestions(questions.filter(x=>x.id !== q.id))} />
+              {questions.map((question) => (
+                <QuestionPreview
+                  key={question.id}
+                  question={question}
+                  onDelete={() => handleQuestionDelete(question.id)}
+                  onEdit={() => handleQuestionEdit(question)}
+                />
               ))}
             </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <TestSettings settings={settings} onSettingsChange={setSettings} />
-          <Card className="bg-primary/5 border-primary/10">
-            <CardContent className="p-6 space-y-4">
-              <h4 className="font-bold text-primary flex items-center gap-2 italic">
-                <Save className="w-4 h-4" /> Finalize Selection
-              </h4>
-              <p className="text-xs text-muted-foreground">Ensure all parameters are accurate before committing to the unit syllabus.</p>
-              <Button onClick={handleSaveAssessment} className="w-full font-bold h-12 shadow-md shadow-primary/20 hover:scale-[1.02] transition-transform">
-                {view === 'create' ? 'Create Evaluation' : 'Update Evaluation'}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAnalytics = () => (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setView('list')} className="rounded-full h-10 w-10 border border-gray-200">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h2 className="text-2xl font-bold">{selectedAssessment?.title} — Analytics</h2>
-            <p className="text-muted-foreground text-sm">Engagement and performance insights.</p>
           </div>
-        </div>
-        <Button variant="outline" className="font-bold border-indigo-200 text-indigo-700 bg-indigo-50">
-          <Send className="w-4 h-4 mr-2" /> Export CSV
-        </Button>
+        )}
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard label="Submissions" value={submissions.length} icon={Users} color="text-blue-600" />
-        <StatCard label="Avg Score" value={submissions.length > 0 ? (submissions.reduce((a, b) => a + (b.score || 0), 0) / submissions.length).toFixed(1) : '0'} icon={Trophy} color="text-amber-600" />
-        <StatCard label="Duration" value={`${selectedAssessment?.duration || 0}m`} icon={Clock} color="text-emerald-600" />
-        <StatCard label="Status" value={selectedAssessment?.publish_status || 'Draft'} icon={CheckCircle2} color="text-indigo-600" />
-      </div>
-
-      <Card>
-        <CardContent className="p-0">
-          {analyticsLoading ? (
-            <div className="py-20 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary/20" /></div>
-          ) : submissions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-50 border-b text-[10px] uppercase font-bold text-muted-foreground">
-                  <tr>
-                    <th className="px-6 py-4">Student</th>
-                    <th className="px-6 py-4 text-center">Score</th>
-                    <th className="px-6 py-4 text-center">Status</th>
-                    <th className="px-6 py-4 text-right">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {submissions.map((s, i) => (
-                    <tr key={i} className="border-b last:border-0 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 font-bold">{s.student_name || 'Anonymous'}</td>
-                      <td className="px-6 py-4 text-center font-mono">{s.score || 0}</td>
-                      <td className="px-6 py-4 text-center">
-                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100">Submitted</Badge>
-                      </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : <EmptyPlaceholder text="No submissions recorded yet." />}
-        </CardContent>
-      </Card>
-    </div>
-  );
+    );
+  };
 
   return (
     <FacultyLayout>
-      {view === 'list' ? renderList() : view === 'analytics' ? renderAnalytics() : renderForm()}
-      
-      <DeleteDialog 
-        open={!!assessmentToDelete} 
-        title={assessmentToDelete?.title || ''} 
-        onCancel={() => setAssessmentToDelete(null)} 
-        onConfirm={() => assessmentToDelete && handleDelete(assessmentToDelete.id)} 
-      />
+      {showCreateForm ? (
+        // Test Questions UI (Admin-style) - Create Mode
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCreateForm(false)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Assessments
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Create Assessment</h1>
+              <p className="text-muted-foreground">
+                {courses.find(c => c.id === selectedCourse)?.name} - {batches.find(b => b.id === selectedBatch)?.name}
+              </p>
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <AssessmentQuestionSetup />
+            </CardContent>
+          </Card>
+        </div>
+      ) : editingAssessment ? (
+        // Edit Assessment Mode
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={handleCancelEdit}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Assessments
+            </Button>
+            <h1 className="text-3xl font-bold text-foreground">Edit Assessment: {editingAssessment.title}</h1>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <QuestionManager />
+            </CardContent>
+          </Card>
+        </div>
+      ) : viewingAssessment ? (
+        // View Assessment Mode - Questions View Only
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={handleBackToAssessments}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Assessments
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">View Assessment: {viewingAssessment.title}</h1>
+              <p className="text-muted-foreground">{viewingAssessment.description}</p>
+            </div>
+          </div>
+
+          {/* Assessment Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Assessment Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Questions</p>
+                    <p className="font-medium">{viewingAssessment.numberOfQuestions}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-green-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Duration</p>
+                    <p className="font-medium">{formatDuration(viewingAssessment.duration)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-purple-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Responses</p>
+                    <p className="font-medium">{viewingAssessment.numberOfResponses}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Questions List */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">Questions</h2>
+            {mockQuestions[viewingAssessment.id] ? (
+              <div className="space-y-4">
+                {mockQuestions[viewingAssessment.id].map((question, index) => (
+                  <Card key={question.id}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-foreground">{question.questionText}</p>
+                      
+                      {question.type === 'mcq' && question.options && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-muted-foreground">Options:</p>
+                          <div className="space-y-1">
+                            {question.options.map((option, optIndex) => (
+                              <div 
+                                key={optIndex} 
+                                className={`p-2 rounded-md border ${
+                                  option === question.correctAnswer 
+                                    ? 'bg-green-50 border-green-200 text-green-800' 
+                                    : 'bg-gray-50 border-gray-200'
+                                }`}
+                              >
+                                <span className="font-medium mr-2">{String.fromCharCode(65 + optIndex)}.</span>
+                                {option}
+                                {option === question.correctAnswer && (
+                                  <span className="ml-2 text-green-600 font-medium">(Correct Answer)</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {question.type === 'short-answer' && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-muted-foreground">Correct Answer:</p>
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                            <p className="text-green-800">{question.correctAnswer}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between items-center pt-2 border-t">
+                        <Badge variant="outline">
+                          {question.type === 'mcq' ? 'Multiple Choice' : 
+                           question.type === 'short-answer' ? 'Short Answer' : 
+                           question.type === 'true-false' ? 'True/False' : 'Coding'}
+                        </Badge>
+                        <div className="text-sm font-medium text-blue-600">
+                          {question.marks} {question.marks === 1 ? 'mark' : 'marks'}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-muted-foreground">No questions found for this assessment.</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      ) : viewingResponses ? (
+        // View Responses Mode
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={handleBackToAssessments}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Assessments
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Student Responses: {viewingResponses.title}</h1>
+              <p className="text-muted-foreground">View and analyze student performance</p>
+            </div>
+          </div>
+
+          {selectedStudent ? (
+            // Individual Student Report View
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedStudent(null)}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Responses
+                </Button>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Individual Report: {selectedStudent.name}</h2>
+                  <p className="text-muted-foreground">Roll No: {selectedStudent.rollNo}</p>
+                </div>
+              </div>
+
+              {/* Student Performance Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{selectedStudent.score}/{selectedStudent.totalMarks}</div>
+                      <p className="text-sm text-muted-foreground">Final Score</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{selectedStudent.correctAnswers}</div>
+                      <p className="text-sm text-muted-foreground">Correct</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-red-600">{selectedStudent.wrongAnswers}</div>
+                      <p className="text-sm text-muted-foreground">Wrong</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-600">{selectedStudent.notAttempted}</div>
+                      <p className="text-sm text-muted-foreground">Not Attempted</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Submitted on: {new Date(selectedStudent.submissionDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Question-wise Analysis */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-foreground">Question-wise Analysis</h3>
+                {mockQuestions[viewingResponses.id] && (
+                  <div className="space-y-4">
+                    {mockQuestions[viewingResponses.id].map((question, index) => {
+                      const studentAnswer = selectedStudent.answers.find(ans => ans.questionId === question.id);
+                      return (
+                        <Card key={question.id}>
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+                              <Badge variant={studentAnswer?.isCorrect ? 'default' : studentAnswer?.answer ? 'destructive' : 'secondary'}>
+                                {studentAnswer?.isCorrect ? 'Correct' : studentAnswer?.answer ? 'Wrong' : 'Not Attempted'}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <p className="text-foreground">{question.questionText}</p>
+                            
+                            {question.type === 'mcq' && question.options && (
+                              <div className="space-y-2">
+                                <p className="text-sm font-medium text-muted-foreground">Options:</p>
+                                <div className="space-y-1">
+                                  {question.options.map((option, optIndex) => (
+                                    <div 
+                                      key={optIndex} 
+                                      className={`p-2 rounded-md border ${
+                                        option === question.correctAnswer 
+                                          ? 'bg-green-50 border-green-200 text-green-800' 
+                                          : option === studentAnswer?.answer
+                                          ? 'bg-red-50 border-red-200 text-red-800'
+                                          : 'bg-gray-50 border-gray-200'
+                                      }`}
+                                    >
+                                      <span className="font-medium mr-2">{String.fromCharCode(65 + optIndex)}.</span>
+                                      {option}
+                                      {option === question.correctAnswer && (
+                                        <span className="ml-2 text-green-600 font-medium">(Correct Answer)</span>
+                                      )}
+                                      {option === studentAnswer?.answer && option !== question.correctAnswer && (
+                                        <span className="ml-2 text-red-600 font-medium">(Student's Answer)</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {question.type === 'short-answer' && (
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-sm font-medium text-muted-foreground mb-1">Correct Answer:</p>
+                                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                                    <p className="text-green-800">{question.correctAnswer}</p>
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-muted-foreground mb-1">Student's Answer:</p>
+                                  <div className={`p-3 border rounded-md ${
+                                    studentAnswer?.isCorrect 
+                                      ? 'bg-green-50 border-green-200 text-green-800'
+                                      : studentAnswer?.answer
+                                      ? 'bg-red-50 border-red-200 text-red-800'
+                                      : 'bg-gray-50 border-gray-200 text-gray-600'
+                                  }`}>
+                                    <p>{studentAnswer?.answer || 'Not answered'}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="flex justify-between items-center pt-2 border-t">
+                              <Badge variant="outline">
+                                {question.marks} {question.marks === 1 ? 'mark' : 'marks'}
+                              </Badge>
+                              <div className="text-sm font-medium">
+                                Earned: {studentAnswer?.isCorrect ? question.marks : 0} / {question.marks}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            // Student Responses Table View
+            <div className="space-y-6">
+              {/* Search and Bulk Actions */}
+              <div className="flex items-center justify-between">
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search students..."
+                    value={responseSearchQuery}
+                    onChange={(e) => setResponseSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Download Report (Bulk)
+                </Button>
+              </div>
+
+              {/* Responses Table */}
+              {mockStudentResponses[viewingResponses.id] ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Student Responses ({mockStudentResponses[viewingResponses.id].length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-3 px-4 font-medium">Roll No</th>
+                            <th className="text-left py-3 px-4 font-medium">Name</th>
+                            <th className="text-left py-3 px-4 font-medium">Score</th>
+                            <th className="text-left py-3 px-4 font-medium">Submission Date</th>
+                            <th className="text-left py-3 px-4 font-medium">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {mockStudentResponses[viewingResponses.id]
+                            .filter(student => 
+                              student.name.toLowerCase().includes(responseSearchQuery.toLowerCase()) ||
+                              student.rollNo.toLowerCase().includes(responseSearchQuery.toLowerCase())
+                            )
+                            .map(student => (
+                            <tr 
+                              key={student.id} 
+                              className="border-b hover:bg-gray-50 cursor-pointer"
+                              onClick={() => setSelectedStudent(student)}
+                            >
+                              <td className="py-3 px-4">{student.rollNo}</td>
+                              <td className="py-3 px-4">{student.name}</td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">{student.score}/{student.totalMarks}</span>
+                                  <Badge 
+                                    variant={student.score / student.totalMarks >= 0.8 ? 'default' : 
+                                            student.score / student.totalMarks >= 0.6 ? 'secondary' : 'destructive'}
+                                  >
+                                    {Math.round((student.score / student.totalMarks) * 100)}%
+                                  </Badge>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4">{new Date(student.submissionDate).toLocaleDateString()}</td>
+                              <td className="py-3 px-4">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Handle individual download
+                                  }}
+                                >
+                                  Download Report
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="py-8 text-center">
+                    <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-muted-foreground">No student responses found for this assessment.</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        // Main Assessment Management UI
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-foreground">Assessment Management</h1>
+            {selectedCourse && selectedBatch && (
+              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create Assessment
+              </Button>
+            )}
+          </div>
+
+          {/* Course and Batch Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Subject & Batch</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Subject</label>
+                  <Select value={selectedCourse} onValueChange={handleCourseSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a Subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courses.map(course => (
+                        <SelectItem key={course.id} value={course.id}>
+                          {course.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">Batch</label>
+                  <Select 
+                    value={selectedBatch} 
+                    onValueChange={setSelectedBatch}
+                    disabled={!selectedCourse}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a batch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {batches.map(batch => (
+                        <SelectItem key={batch.id} value={batch.id}>
+                          {batch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Assessment Cards */}
+          {assessments.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-foreground">Assessments</h2>
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search assessments..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredAssessments.map(assessment => (
+                  <Card key={assessment.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg mb-2">{assessment.title}</CardTitle>
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {assessment.description}
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={assessment.status === 'Sent' ? 'default' : 'secondary'}
+                          className="ml-2"
+                        >
+                          {assessment.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Assessment Details */}
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="flex flex-col items-center">
+                          <FileText className="h-5 w-5 text-blue-500 mb-1" />
+                          <span className="text-sm font-medium">{assessment.numberOfQuestions}</span>
+                          <span className="text-xs text-muted-foreground">Questions</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <Clock className="h-5 w-5 text-green-500 mb-1" />
+                          <span className="text-sm font-medium">{formatDuration(assessment.duration)}</span>
+                          <span className="text-xs text-muted-foreground">Duration</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <Users className="h-5 w-5 text-purple-500 mb-1" />
+                          <span className="text-sm font-medium">{assessment.numberOfResponses}</span>
+                          <span className="text-xs text-muted-foreground">Responses</span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-2">
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className="flex items-center gap-1"
+                           onClick={() => handleViewAssessment(assessment)}
+                         >
+                           <Eye className="h-3 w-3" />
+                           View
+                         </Button>
+                        
+                        {assessment.status === 'Draft' ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-1"
+                              onClick={() => handleEditAssessment(assessment)}
+                            >
+                              <Edit className="h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                              onClick={() => handleDeleteClick(assessment)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Delete
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="flex items-center gap-1"
+                              onClick={() => handleSendClick(assessment)}
+                            >
+                              <Send className="h-3 w-3" />
+                              Send
+                            </Button>
+                          </>
+                        ) : (
+                           <Button
+                             variant="default"
+                             size="sm"
+                             className="flex items-center gap-1"
+                             onClick={() => handleViewResponses(assessment)}
+                           >
+                             <Users className="h-3 w-3" />
+                             View Responses
+                           </Button>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-muted-foreground">
+                        Created: {new Date(assessment.createdDate).toLocaleDateString()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {filteredAssessments.length === 0 && searchQuery && (
+                <div className="text-center text-muted-foreground py-8">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No assessments found matching "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedCourse && selectedBatch && assessments.length === 0 && (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-muted-foreground">No assessments found for this Subject and batch.</p>
+                <p className="text-sm text-muted-foreground mt-2">Click "Create Assessment" to add your first assessment.</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Delete Confirmation Dialog */}
+          {assessmentToDelete && (
+            <AlertDialog open={!!assessmentToDelete} onOpenChange={(open) => !open && setAssessmentToDelete(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your assessment.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={handleCancelDelete}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmDelete}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
+          {/* Send Confirmation Dialog */}
+          {assessmentToSend && (
+            <AlertDialog open={!!assessmentToSend} onOpenChange={(open) => !open && setAssessmentToSend(null)}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently send your assessment to students.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={handleCancelSend}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmSend}>Send</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
+      )}
     </FacultyLayout>
   );
 };
 
-export default Assessment;
+export default Assessment; 

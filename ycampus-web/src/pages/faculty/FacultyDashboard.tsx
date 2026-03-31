@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import FacultyLayout from '@/components/layouts/FacultyLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,196 +6,117 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BookOpen, 
-  ClipboardCheck, 
-  Users, 
-  CheckSquare, 
-  Plus, 
-  Calendar, 
-  MessageSquare, 
-  CheckCircle, 
-  Clock, 
-  Play,
-  Loader2
-} from 'lucide-react';
-import subjectService, { SectionSubjectFaculty, UnitBasic } from '@/services/subjectService';
-import { instructorDashboardService, InstructorActivity } from '@/services/instructorDashboardService';
-import { useAuth } from '@/contexts/AuthContext';
+import { BookOpen, ClipboardCheck, Users, BarChart3, CheckSquare, Plus, FileText, Calendar, MessageSquare, CheckCircle, Clock, Target, TrendingUp, ArrowRight, Play } from 'lucide-react';
 
 const FacultyDashboard = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  // Filter State
-  const [selectedDept, setSelectedDept] = useState<string>('');
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  
-  // Data State
-  const [loading, setLoading] = useState(true);
-  const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
-  const [statsData, setStatsData] = useState({
-    total_courses: 0,
-    total_students: 0,
-    total_assessments: 0,
-    average_attendance: 0
-  });
-  const [activities, setActivities] = useState<InstructorActivity[]>([]);
-  const [currentUnits, setCurrentUnits] = useState<UnitBasic[]>([]);
 
-  // Backwards compatibility for stats call
-  const selectedAssignmentId = useMemo(() => {
-    if (!selectedDept || !selectedSubject || !selectedBatch || !selectedSection) return '';
-    const found = assignments.find(a => 
-      String(a.semester_subject_details?.department_id) === selectedDept &&
-      String(a.semester_subject_details?.subject_details?.id) === selectedSubject &&
-      a.semester_subject_details?.batch_name === selectedBatch &&
-      (a.section_name || String(a.section)) === selectedSection
-    );
-    return found ? String(found.id) : '';
-  }, [assignments, selectedDept, selectedSubject, selectedBatch, selectedSection]);
+  const courses = [
+    { id: '1', name: 'Mathematics 101' },
+    { id: '2', name: 'Physics Lab' },
+    { id: '3', name: 'Computer Science' },
+    { id: '4', name: 'Chemistry Basics' },
+  ];
 
-  useEffect(() => {
-    fetchInitialData();
-  }, [user]);
+  const batches = selectedCourse ? [
+    { id: '1', name: 'Batch A (Morning)' },
+    { id: '2', name: 'Batch B (Afternoon)' },
+    { id: '3', name: 'Batch C (Evening)' },
+  ] : [];
 
-  useEffect(() => {
-    fetchStats();
-  }, [selectedDept, selectedSubject, selectedBatch, selectedSection, assignments]);
-
-  useEffect(() => {
-    if (selectedSubject) {
-      fetchSubjectUnits(selectedSubject);
-    } else {
-      setCurrentUnits([]);
-    }
-  }, [selectedSubject]);
-
-  const fetchInitialData = async () => {
-    try {
-      setLoading(true);
-      const [assignmentsData, activityData] = await Promise.all([
-        subjectService.getFacultyAssignments(),
-        instructorDashboardService.getRecentActivity()
-      ]);
-      setAssignments(assignmentsData);
-      setActivities(activityData);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
+  // Enhanced topics data with stepper-friendly structure
+  const topicsData = {
+    '1': { // Mathematics 101
+      overallProgress: 68,
+      currentStep: 7, // Current active step
+      totalSteps: 12,
+      modules: [
+        {
+          id: 'm1',
+          name: 'Algebra Fundamentals',
+          progress: 85,
+          currentStep: 3,
+          totalSteps: 4,
+          topics: [
+            { id: 't1', name: 'Introduction to Algebra', status: 'completed', step: 1 },
+            { id: 't2', name: 'Linear Equations', status: 'completed', step: 2 },
+            { id: 't3', name: 'Quadratic Functions', status: 'in-progress', step: 3 },
+            { id: 't4', name: 'Polynomials', status: 'pending', step: 4 },
+          ]
+        },
+        {
+          id: 'm2',
+          name: 'Calculus Basics',
+          progress: 45,
+          currentStep: 2,
+          totalSteps: 4,
+          topics: [
+            { id: 't5', name: 'Limits and Continuity', status: 'completed', step: 5 },
+            { id: 't6', name: 'Derivatives', status: 'in-progress', step: 6 },
+            { id: 't7', name: 'Integration', status: 'pending', step: 7 },
+            { id: 't8', name: 'Applications', status: 'pending', step: 8 },
+          ]
+        },
+        {
+          id: 'm3',
+          name: 'Statistics',
+          progress: 0,
+          currentStep: 0,
+          totalSteps: 3,
+          topics: [
+            { id: 't9', name: 'Descriptive Statistics', status: 'pending', step: 9 },
+            { id: 't10', name: 'Probability', status: 'pending', step: 10 },
+            { id: 't11', name: 'Hypothesis Testing', status: 'pending', step: 11 },
+          ]
+        }
+      ]
+    },
+    '2': { // Physics Lab
+      overallProgress: 92,
+      currentStep: 4,
+      totalSteps: 5,
+      modules: [
+        {
+          id: 'm4',
+          name: 'Classical Mechanics',
+          progress: 100,
+          currentStep: 3,
+          totalSteps: 3,
+          topics: [
+            { id: 't12', name: 'Newton\'s Laws', status: 'completed', step: 1 },
+            { id: 't13', name: 'Motion in 2D', status: 'completed', step: 2 },
+            { id: 't14', name: 'Energy and Work', status: 'completed', step: 3 },
+          ]
+        },
+        {
+          id: 'm5',
+          name: 'Thermodynamics',
+          progress: 75,
+          currentStep: 2,
+          totalSteps: 3,
+          topics: [
+            { id: 't15', name: 'Heat and Temperature', status: 'completed', step: 4 },
+            { id: 't16', name: 'First Law', status: 'in-progress', step: 5 },
+            { id: 't17', name: 'Second Law', status: 'pending', step: 6 },
+          ]
+        }
+      ]
     }
   };
-
-  const fetchStats = async () => {
-    try {
-      const params: any = {};
-      
-      if (selectedDept) params.department_id = selectedDept;
-      if (selectedSubject) params.subject_id = selectedSubject;
-      
-      // Only resolve and send section_id if a section is selected
-      if (selectedSection) {
-        const assignment = assignments.find(a => 
-          String(a.semester_subject_details?.department_id) === selectedDept &&
-          String(a.semester_subject_details?.subject_details?.id) === selectedSubject &&
-          a.semester_subject_details?.batch_name === selectedBatch &&
-          (a.section_name || String(a.section)) === selectedSection
-        );
-        if (assignment?.section) {
-          params.section_id = String(assignment.section);
-        }
-      }
-
-      console.log('Fetching stats with params:', params);
-      const data = await subjectService.fetchFacultyStats(params);
-      
-      if (data) {
-        setStatsData(data);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
-  const fetchSubjectUnits = async (subjectId: string) => {
-    try {
-      const units = await subjectService.getUnits(subjectId);
-      setCurrentUnits(units || []);
-    } catch (error) {
-      console.error('Error fetching units:', error);
-    }
-  };
-
-  const uniqueDepartments = useMemo(() => {
-    const acc: { id: string; name: string }[] = [];
-    assignments.forEach(curr => {
-      const deptId = String(curr.semester_subject_details?.department_id);
-      const deptName = curr.semester_subject_details?.department_name;
-      if (deptId && deptName && !acc.find(d => d.id === deptId)) {
-        acc.push({ id: deptId, name: deptName });
-      }
-    });
-    return acc;
-  }, [assignments]);
-
-  const uniqueSubjects = useMemo(() => {
-    if (!selectedDept) return [];
-    const acc: { id: string; name: string }[] = [];
-    assignments
-      .filter(a => String(a.semester_subject_details?.department_id) === selectedDept)
-      .forEach(curr => {
-        const subjectId = String(curr.semester_subject_details?.subject_details?.id);
-        const subjectName = curr.semester_subject_details?.subject_details?.subject_name;
-        if (subjectId && subjectName && !acc.find(s => s.id === subjectId)) {
-          acc.push({ id: subjectId, name: subjectName });
-        }
-      });
-    return acc;
-  }, [assignments, selectedDept]);
-
-  const uniqueBatches = useMemo(() => {
-    if (!selectedDept || !selectedSubject) return [];
-    const acc: string[] = [];
-    assignments
-      .filter(a => 
-        String(a.semester_subject_details?.department_id) === selectedDept &&
-        String(a.semester_subject_details?.subject_details?.id) === selectedSubject
-      )
-      .forEach(curr => {
-        const batchName = curr.semester_subject_details?.batch_name;
-        if (batchName && !acc.includes(batchName)) {
-          acc.push(batchName);
-        }
-      });
-    return acc;
-  }, [assignments, selectedDept, selectedSubject]);
-
-  const uniqueSections = useMemo(() => {
-    if (!selectedDept || !selectedSubject || !selectedBatch) return [];
-    return assignments
-      .filter(a => 
-        String(a.semester_subject_details?.department_id) === selectedDept &&
-        String(a.semester_subject_details?.subject_details?.id) === selectedSubject &&
-        a.semester_subject_details?.batch_name === selectedBatch
-      )
-      .map(a => a.section_name || String(a.section));
-  }, [assignments, selectedDept, selectedSubject, selectedBatch]);
 
   const stats = [
-    { title: 'Subjects', value: statsData.total_courses.toString(), icon: BookOpen, change: 'Active' },
-    { title: 'Students', value: statsData.total_students.toString(), icon: Users, change: 'Enrolled' },
-    { title: 'Assessments', value: statsData.total_assessments.toString(), icon: ClipboardCheck, change: 'Pending' },
-    { title: 'Attendance', value: `${statsData.average_attendance}%`, icon: CheckSquare, change: 'Average' },
+    { title: 'Subjects', value: '8', icon: BookOpen, change: 'Active' },
+    { title: 'Students', value: selectedBatch ? '45' : '156', icon: Users, change: 'Enrolled' },
+    { title: 'Assessments', value: selectedBatch ? '3' : '12', icon: ClipboardCheck, change: 'Pending' },
+    { title: 'Attendance', value: selectedBatch ? '92%' : '87%', icon: CheckSquare, change: 'Average' },
   ];
 
   const quickActions = [
-    { title: 'Create Task', icon: Plus, description: 'Assign new task to students', path: '/faculty/task' },
-    { title: 'Take Attendance', icon: CheckSquare, description: 'Mark today\'s attendance', path: '/faculty/attendance' },
-    { title: 'Schedule Class', icon: Calendar, description: 'Schedule upcoming class', path: '/faculty/schedule' },
-    { title: 'Send Announcement', icon: MessageSquare, description: 'Notify students', path: '/faculty/announcements' },
+    { title: 'Create Task', icon: Plus, description: 'Assign new task to students' },
+    { title: 'Take Attendance', icon: CheckSquare, description: 'Mark today\'s attendance' },
+    { title: 'Schedule Class', icon: Calendar, description: 'Schedule upcoming class' },
+    { title: 'Send Announcement', icon: MessageSquare, description: 'Notify students' },
   ];
 
   const getStepStatus = (status: string) => {
@@ -223,128 +143,59 @@ const FacultyDashboard = () => {
     return 'bg-muted border-muted-foreground text-muted-foreground';
   };
 
-  // Map real units to the topicsData structure expected by the UI
-  const selectedCourseData = useMemo(() => {
-      if (!selectedSubject || currentUnits.length === 0) return null;
-      
-      return {
-          overallProgress: 0, // Should be calculated or fetched
-          currentStep: 1,
-          totalSteps: currentUnits.length,
-          modules: currentUnits.map((unit, idx) => ({
-              id: unit.id,
-              name: unit.name,
-              progress: 0,
-              currentStep: 0,
-              totalSteps: 1,
-              topics: [
-                  { id: `t-${unit.id}`, name: `Overview of ${unit.name}`, status: 'pending', step: idx + 1 }
-              ]
-          }))
-      };
-  }, [selectedSubject, currentUnits]);
+  const selectedCourseData = selectedCourse ? topicsData[selectedCourse as keyof typeof topicsData] : null;
 
+  // Flatten all topics for the main stepper
   const allTopics = selectedCourseData ? selectedCourseData.modules.flatMap(module => module.topics) : [];
 
-  const renderDashboardContent = () => {
-    if (loading) {
-      return (
-        <div className="flex flex-col h-[70vh] items-center justify-center space-y-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary opacity-20" />
-          <p className="font-bold text-xs text-slate-500 uppercase tracking-widest animate-pulse">Initializing Dashboard...</p>
+  const renderDashboardContent = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, Professor!</h2>
+        <p className="text-muted-foreground">Here's an overview of your classes and activities.</p>
+      </div>
+
+      {/* Course and Batch Dropdowns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Select Subject</label>
+          <Select value={selectedCourse} onValueChange={(value) => {
+            setSelectedCourse(value);
+            setSelectedBatch(''); // Reset batch when course changes
+          }}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a Subject" />
+            </SelectTrigger>
+            <SelectContent>
+              {courses.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      );
-    }
 
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Welcome back, {user?.first_name || 'Professor'}!</h2>
-          <p className="text-muted-foreground">Here's an overview of your classes and activities.</p>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Select Batch</label>
+          <Select 
+            value={selectedBatch} 
+            onValueChange={setSelectedBatch}
+            disabled={!selectedCourse}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a batch" />
+            </SelectTrigger>
+            <SelectContent>
+              {batches.map((batch) => (
+                <SelectItem key={batch.id} value={batch.id}>
+                  {batch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-
-        {/* Filter Dropdowns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Department</label>
-            <Select value={selectedDept} onValueChange={(value) => {
-              setSelectedDept(value);
-              setSelectedSubject('');
-              setSelectedBatch('');
-              setSelectedSection('');
-            }}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Departments" />
-              </SelectTrigger>
-              <SelectContent>
-                {uniqueDepartments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Subject</label>
-            <Select 
-              value={selectedSubject} 
-              onValueChange={(value) => {
-                setSelectedSubject(value);
-                setSelectedBatch('');
-                setSelectedSection('');
-              }}
-              disabled={!selectedDept}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Subjects" />
-              </SelectTrigger>
-              <SelectContent>
-                {uniqueSubjects.map((course) => (
-                  <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Batch</label>
-            <Select 
-              value={selectedBatch} 
-              onValueChange={(value) => {
-                setSelectedBatch(value);
-                setSelectedSection('');
-              }}
-              disabled={!selectedSubject}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Batches" />
-              </SelectTrigger>
-              <SelectContent>
-                {uniqueBatches.map((batch) => (
-                  <SelectItem key={batch} value={batch}>{batch}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Section</label>
-            <Select 
-              value={selectedSection} 
-              onValueChange={setSelectedSection}
-              disabled={!selectedBatch}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Sections" />
-              </SelectTrigger>
-              <SelectContent>
-                {uniqueSections.map((section) => (
-                  <SelectItem key={section} value={section}>Section {section}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
@@ -379,7 +230,6 @@ const FacultyDashboard = () => {
                   key={index}
                   variant="outline"
                   className="w-full justify-start h-auto p-3"
-                  onClick={() => action.path && navigate(action.path)}
                 >
                   <action.icon className="h-4 w-4 mr-3" />
                   <div className="text-left">
@@ -399,9 +249,9 @@ const FacultyDashboard = () => {
               <div>
                 <CardTitle>Sub-Units Progress Stepper</CardTitle>
             <CardDescription>
-              {selectedSubject && selectedAssignmentId 
-                    ? `Step ${selectedCourseData?.currentStep} of ${selectedCourseData?.totalSteps} - ${uniqueSubjects.find(c => c.id === selectedSubject)?.name}`
-                : 'Select Subject and section to view progress'
+              {selectedCourse && selectedBatch 
+                    ? `Step ${selectedCourseData?.currentStep} of ${selectedCourseData?.totalSteps} - ${courses.find(c => c.id === selectedCourse)?.name}`
+                : 'Select Subject and batch to view progress'
               }
             </CardDescription>
               </div>
@@ -435,7 +285,7 @@ const FacultyDashboard = () => {
                     </div>
                     
                     <div className="space-y-4">
-                      {allTopics.map((topic, _index) => (
+                      {allTopics.map((topic, index) => (
                         <div key={topic.id} className="flex items-center space-x-4">
                           {/* Step Circle */}
                   <div className="flex-shrink-0">
@@ -486,7 +336,7 @@ const FacultyDashboard = () => {
                           </div>
                           
                           {/* Connector Line */}
-                          {_index < allTopics.length - 1 && (
+                          {index < allTopics.length - 1 && (
                             <div className="absolute left-5 top-10 w-0.5 h-8 bg-muted-foreground/20" />
                           )}
                         </div>
@@ -509,7 +359,7 @@ const FacultyDashboard = () => {
                       </div>
                       
                       <div className="space-y-3">
-                        {module.topics.map((topic, _index) => (
+                        {module.topics.map((topic, index) => (
                           <div key={topic.id} className="flex items-center space-x-4">
                   <div className="flex-shrink-0">
                     <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
@@ -604,25 +454,23 @@ const FacultyDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {activities.length > 0 ? (
-                activities.map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        <p className="text-sm">
-                            <span className="font-bold">{activity.action}</span> {activity.target}
-                            <span className="text-xs text-muted-foreground ml-2 italic">({activity.time})</span>
-                        </p>
-                    </div>
-                ))
-            ) : (
-                <p className="text-sm text-muted-foreground italic">No recent activity recorded.</p>
-            )}
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <p className="text-sm">New assignment submitted by Student A</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <p className="text-sm">Assessment results published</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <p className="text-sm">Attendance marked for Math 101</p>
+            </div>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
 
   return (
     <FacultyLayout>
