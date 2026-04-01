@@ -28,6 +28,7 @@ import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import Syllabus from "./pages/faculty/Syllabus";
 import Revise from "./pages/faculty/Revise";
 import Attendance from "./pages/faculty/Attendance";
+import TakeAttendance from "./pages/faculty/TakeAttendance";
 import Task from "./pages/faculty/Task";
 import Assessment from "./pages/faculty/Assessment";
 import Reports from "./pages/faculty/Reports";
@@ -156,6 +157,7 @@ const App = () => (
                       <Route path="revise" element={<Revise />} />
                       <Route path="assessment" element={<Assessment />} />
                       <Route path="attendance" element={<Attendance />} />
+                      <Route path="attendance/:assignmentId/take" element={<TakeAttendance />} />
                       <Route path="task" element={<Task />} />
                       <Route path="reports" element={<Reports />} />
                       <Route path="attendance-report" element={<AttendanceReport />} />
