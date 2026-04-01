@@ -721,6 +721,20 @@ export async function getAttendanceSessions(params: Record<string, any>) {
   });
 }
 
+export async function getStudentAttendanceRecords(studentId: string) {
+  // Django REST framework returns { count, results: [] } for paginated endpoints.
+  return restApiAuthUtil.get<any>('/core/attendance-records/', {
+    params: { student: studentId, limit: '1000' }
+  });
+}
+
+export async function getStudentTaskSubmissions(studentId: string) {
+  // Returns task submissions for a student, each with subject_id, subject_name, task_title, is_submitted.
+  return restApiAuthUtil.get<any>('/core/task-submissions/', {
+    params: { student: studentId, limit: '1000' }
+  });
+}
+
 export async function getAssignmentDetails(assignmentId: string | number): Promise<SectionSubjectFaculty> {
   return restApiAuthUtil.get<SectionSubjectFaculty>(`/course/section-subject-faculty/${assignmentId}/`);
 }

@@ -176,7 +176,11 @@ const Reports: React.FC = () => {
           name: `${s.user_details.first_name} ${s.user_details.last_name}`,
           rollNo: s.roll_number,
           email: s.user_details.email,
-          image: s.user_details.profile?.profile_image
+          image: s.user_details.profile?.profile_image,
+          department_name: s.department_name,
+          batch_name: s.batch_name,
+          semester: s.semester_number ? String(s.semester_number) : undefined,
+          section: s.section_name || s.section ? String(s.section_name || s.section) : undefined,
         }));
         
         setRealStudents(students);
@@ -226,9 +230,9 @@ const Reports: React.FC = () => {
       
       return {
         student: s,
-        department: deptObj ? deptObj.name : 'Unknown',
-        semester: selectedSemester !== 'all' ? selectedSemester : '5',
-        section: selectedSection !== 'all' ? (sectionsList.find((sec: any) => String(sec.id) === selectedSection)?.name || 'A') : 'A',
+        department: s.department_name || (deptObj ? deptObj.name : 'Unknown'),
+        semester: s.semester || (selectedSemester !== 'all' ? selectedSemester : '5'),
+        section: s.section || (selectedSection !== 'all' ? (sectionsList.find((sec: any) => String(sec.id) === selectedSection)?.name || 'A') : 'A'),
         pi: snap.pi,
         ps: snap.ps,
         pri: snap.pri,
@@ -251,9 +255,31 @@ const Reports: React.FC = () => {
   useEffect(() => {
     if (selectedStudent) {
       const student = allAvailableStudents.find(s => s.id === selectedStudent);
-      loadReport(selectedStudent, {}, student || undefined);
+
+      let assignedSubjects = assignments.filter((a: SectionSubjectFaculty) => {
+        let match = true;
+        if (selectedDepartment !== 'all') {
+          match = match && String(a.semester_subject_details?.department_id) === selectedDepartment;
+        }
+        if (selectedSemester !== 'all') {
+          match = match && String(a.semester_subject_details?.semester_number) === selectedSemester;
+        }
+        if (selectedSection !== 'all') {
+          match = match && String(a.section) === selectedSection;
+        }
+        return match;
+      })
+      .map((a: SectionSubjectFaculty) => a.semester_subject_details?.subject_details)
+      .filter(Boolean);
+
+      // Remove duplicates based on subject id
+      assignedSubjects = assignedSubjects.filter((subj: any, index: number, self: any[]) => 
+        index === self.findIndex((s: any) => s?.id === subj?.id)
+      );
+
+      loadReport(selectedStudent, { externalSubjects: assignedSubjects }, student || undefined);
     }
-  }, [selectedStudent, loadReport, allAvailableStudents]);
+  }, [selectedStudent, selectedDepartment, selectedSemester, selectedSection, assignments, loadReport, allAvailableStudents]);
 
   const handleSearchTriggered = () => {
     if (studentSearch.length > 0) {

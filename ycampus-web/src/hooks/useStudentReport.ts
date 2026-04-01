@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import adminApiService from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
+import { getStudentAttendanceRecords, getStudentTaskSubmissions } from '@/services/subjectService';
 
 export interface ReportFilters {
   academicYear: string;
@@ -9,6 +10,7 @@ export interface ReportFilters {
   studentId: string;
   subjectFilter: string;
   dateRange: string;
+  externalSubjects?: any[];
 }
 
 export interface SubjectPerformance {
@@ -77,6 +79,10 @@ export interface BatchStudent {
   name: string;
   rollNo: string;
   email: string;
+  department_name?: string;
+  batch_name?: string;
+  semester?: string;
+  section?: string;
 }
 
 export interface DepartmentOption {
@@ -183,8 +189,15 @@ function generateDummySubject(name: string, code: string, idx: number): SubjectP
   };
 }
 
-function generateDummyReport(student: BatchStudent): StudentReport {
-  const subjects = DUMMY_SUBJECTS.map((s, i) => generateDummySubject(s.name, s.code, i));
+function generateDummyReport(student: BatchStudent, realSubjects?: any[]): StudentReport {
+  const subjectsToUse = realSubjects && realSubjects.length > 0 
+    ? realSubjects.map(s => ({
+        name: s.subject_name || s.name || 'Unknown',
+        code: s.short_code || s.code || 'UNK'
+      })) 
+    : DUMMY_SUBJECTS;
+
+  const subjects = subjectsToUse.map((s, i) => generateDummySubject(s.name, s.code, i));
 
   const totalPerf = Math.round(
     subjects.reduce((sum, s) => {
@@ -210,9 +223,9 @@ function generateDummyReport(student: BatchStudent): StudentReport {
   return {
     studentName: student.name,
     rollNumber: student.rollNo,
-    program: 'B.Tech CSE',
-    semester: '5',
-    section: 'A',
+    program: student.department_name || 'B.Tech CSE',
+    semester: student.semester || '5',
+    section: student.section || 'A',
     performanceIndex: totalPerf,
     status,
     overallAttendance,
@@ -362,25 +375,30 @@ export function useStudentReport() {
       if (isDummy) {
         // Use dummy data
         await new Promise(r => setTimeout(r, 400)); // simulate loading
-        setReport(generateDummyReport(student));
+        setReport(generateDummyReport(student, filters.externalSubjects));
         setLoading(false);
         return;
       }
 
       // Real student — try API + Supabase
-      const studentCourses = courses.length > 0 ? courses : [];
+      const studentCourses = filters.externalSubjects?.length ? filters.externalSubjects : (courses.length > 0 ? courses : []);
       let assessmentData: any[] = [];
       let taskData: any[] = [];
+      let attendanceData: any[] = [];
 
       try {
         if (filters.batchId) {
-          const [assessments, tasks] = await Promise.all([
-            adminApiService.getAssessmentsByBatch(filters.batchId, studentId).catch(() => []),
-            adminApiService.getCandidateTasks(studentId).catch(() => []),
-          ]);
+          const assessments = await adminApiService.getAssessmentsByBatch(filters.batchId, studentId).catch(() => []);
           assessmentData = Array.isArray(assessments) ? assessments : [];
-          taskData = Array.isArray(tasks) ? tasks : [];
         }
+
+        // Fetch real attendance and task submissions from backend
+        const [attendanceRes, taskRes] = await Promise.all([
+          getStudentAttendanceRecords(studentId).catch(() => ({ results: [] })),
+          getStudentTaskSubmissions(studentId).catch(() => ({ results: [] })),
+        ]);
+        attendanceData = Array.isArray(attendanceRes.results) ? attendanceRes.results : (Array.isArray(attendanceRes) ? attendanceRes : []);
+        taskData = Array.isArray(taskRes.results) ? taskRes.results : (Array.isArray(taskRes) ? taskRes : []);
       } catch { /* API unavailable */ }
 
       const { data: progressData } = await supabase
@@ -388,39 +406,51 @@ export function useStudentReport() {
 
       // If no courses and no progress, fall back to dummy
       if (studentCourses.length === 0 && (!progressData || progressData.length === 0)) {
-        setReport(generateDummyReport(student));
+        setReport(generateDummyReport(student, filters.externalSubjects));
         setLoading(false);
         return;
       }
 
-      const subjects: SubjectPerformance[] = studentCourses.map((course, idx) => {
+      const subjects: SubjectPerformance[] = studentCourses.map((course: any, _idx: number) => {
         const subjectProgress = (progressData || []).filter(p => p.subject_id === course.id);
         const totalSubtopics = subjectProgress.length || 10;
         const completedSubtopics = subjectProgress.filter(p => p.completed).length;
         const notesCompletion = totalSubtopics > 0 ? Math.round((completedSubtopics / totalSubtopics) * 100) : 0;
 
         const subjectAssessments = assessmentData.filter((a: any) => a.courseId === course.id || a.subjectId === course.id);
-        const subjectTasks = taskData.filter((t: any) => t.courseId === course.id || t.subjectId === course.id);
+        // Filter task submissions for this subject using backend subject_id / subject_name
+        const subjectTasks = taskData.filter((t: any) =>
+          String(t.subject_id) === String(course.id) || t.subject_name === (course.subject_name || course.name)
+        );
 
+        const tasksTotal = subjectTasks.length;
+        const tasksSubmitted = subjectTasks.filter((t: any) => t.is_submitted === true).length;
+        const tasksPending = tasksTotal - tasksSubmitted;
         const assessmentScores = subjectAssessments
           .filter((a: any) => a.score != null)
           .map((a: any) => ({ name: a.name || 'Assessment', score: a.score || 0, date: a.submittedAt || '' }));
         const assessmentAvg = assessmentScores.length > 0
           ? Math.round(assessmentScores.reduce((sum: number, a: any) => sum + a.score, 0) / assessmentScores.length) : 0;
 
-        const tasksTotal = subjectTasks.length || 0;
-        const tasksSubmitted = subjectTasks.filter((t: any) => t.status === 'SUBMITTED' || t.status === 'COMPLETED').length;
-        const tasksPending = tasksTotal - tasksSubmitted;
         const testAvg = assessmentAvg;
+
+        const subjectAttendance = attendanceData.filter((a: any) => String(a.subject_id) === String(course.id) || a.subject_name === course.subject_name);
+        let attendancePercent = 0;
+        let classesHeld = subjectAttendance.length;
+        let classesAttended = 0;
+        if (classesHeld > 0) {
+          classesAttended = subjectAttendance.filter((a: any) => a.is_present).length;
+          attendancePercent = Math.round((classesAttended / classesHeld) * 100);
+        }
 
         const overallScore = notesCompletion * 0.25 + testAvg * 0.3 + assessmentAvg * 0.25 + (tasksTotal > 0 ? (tasksSubmitted / tasksTotal) * 100 * 0.2 : 0);
         const strength: 'Strong' | 'Average' | 'Weak' = overallScore >= 70 ? 'Strong' : overallScore >= 40 ? 'Average' : 'Weak';
         const risk: 'Low' | 'Medium' | 'High' = overallScore >= 70 ? 'Low' : overallScore >= 40 ? 'Medium' : 'High';
 
         return {
-          id: course.id, name: course.name, code: course.code,
+          id: String(course.id), name: course.subject_name || course.name, code: course.short_code || course.code,
           notesCompletion, testAvgScore: testAvg, assessmentAvgScore: assessmentAvg,
-          tasksTotal, tasksSubmitted, tasksPending, attendancePercent: 0, strength, risk,
+          tasksTotal, tasksSubmitted, tasksPending, attendancePercent, strength, risk,
           totalChapters: Math.ceil(totalSubtopics / 3) || 5,
           chaptersCompleted: Math.ceil(completedSubtopics / 3),
           chaptersPending: Math.ceil((totalSubtopics - completedSubtopics) / 3) || 5,
@@ -433,8 +463,9 @@ export function useStudentReport() {
           assessmentsCompleted: subjectAssessments.filter((a: any) => a.status === 'COMPLETED' || a.status === 'SUBMITTED').length,
           assessmentsInProgress: subjectAssessments.filter((a: any) => a.status === 'IN_PROGRESS').length,
           assessmentsPending: subjectAssessments.filter((a: any) => a.status === 'PENDING' || a.status === 'SENT').length,
-          assessmentScores, tasksOnTime: tasksSubmitted, tasksLate: 0,
-          classesHeld: 0, classesAttended: 0, missedSessions: 0,
+          assessmentScores, 
+          tasksOnTime: tasksSubmitted, tasksLate: 0,
+          classesHeld, classesAttended, missedSessions: classesHeld - classesAttended,
         };
       });
 
@@ -450,8 +481,8 @@ export function useStudentReport() {
       const status: 'On Track' | 'Needs Attention' | 'At Risk' = totalPerf >= 70 ? 'On Track' : totalPerf >= 45 ? 'Needs Attention' : 'At Risk';
 
       setReport({
-        studentName: student.name, rollNumber: student.rollNo, program: 'B.Tech',
-        semester: filters.semester || '1', section: 'A', performanceIndex: totalPerf, status,
+        studentName: student.name, rollNumber: student.rollNo, program: student.department_name || 'B.Tech',
+        semester: student.semester || filters.semester || '1', section: student.section || 'A', performanceIndex: totalPerf, status,
         overallAttendance, learningCompletion, subjects,
         strongestSubject: sorted[0]?.name || 'N/A',
         weakestSubject: sorted[sorted.length - 1]?.name || 'N/A',
