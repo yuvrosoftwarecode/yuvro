@@ -308,6 +308,17 @@ class UsersListCreateView(generics.ListCreateAPIView):
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == "true")
 
+        college_id = self.request.query_params.get("college_id", None)
+        if college_id:
+            queryset = queryset.filter(
+                Q(student_profile__college_id=college_id) |
+                Q(faculty_profile__college_id=college_id) |
+                Q(hod_profile__college_id=college_id) |
+                Q(principal_profile__college_id=college_id) |
+                Q(college_admin_profile__college_id=college_id) |
+                Q(placement_officer_profile__college_id=college_id)
+            )
+
         search = self.request.query_params.get("search", None)
         if search:
             queryset = queryset.filter(
@@ -317,7 +328,7 @@ class UsersListCreateView(generics.ListCreateAPIView):
                 | Q(last_name__icontains=search)
             )
 
-        return queryset
+        return queryset.distinct()
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):

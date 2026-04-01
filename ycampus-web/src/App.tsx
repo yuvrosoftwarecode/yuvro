@@ -16,9 +16,14 @@ import Students from "./pages/admin/Students";
 import Faculty from "./pages/admin/Faculty";
 import PracticeQuestions from "./pages/admin/PracticeQuestions";
 import TestQuestions from "./pages/admin/TestQuestions";
+import AdminSubjects from "./pages/admin/Subjects";
+import SubjectEdit from "./components/admin/subjects/SubjectEdit";
+import CollegeSubjects from "./pages/admin/CollegeSubjects";
 import AdminCollege from "./pages/admin/College";
+import CollegeDetails from "./pages/admin/CollegeDetails";
 import AdminDepartments from "./pages/admin/Departments";
 import AdminSemesters from "./pages/admin/Semesters";
+import AdminUsers from "./pages/admin/Users";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import Syllabus from "./pages/faculty/Syllabus";
 import Revise from "./pages/faculty/Revise";
@@ -77,6 +82,13 @@ import DummyReportScreen from "./components/student/DummyReportScreen";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Mock Interview Imports
+import InstructorMockInterview from './pages/admin/MockInterview';
+import MockInterviewAnalytics from './pages/admin/MockInterviewAnalytics';
+import MockInterviewReports from './pages/admin/MockInterviewReports';
+import MockInterviewReportView from './pages/admin/MockInterviewReportView';
+import MockInterviewForm from './components/admin/mock-interviews/MockInterviewForm';
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -107,14 +119,27 @@ const App = () => (
                     <Routes>
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="college" element={<AdminCollege />} />
+                      <Route path="college/:collegeId/*" element={<CollegeDetails />} />
                       <Route path="departments" element={<AdminDepartments />} />
                       <Route path="batches" element={<Batches />} />
                       <Route path="semesters" element={<AdminSemesters />} />
+                      <Route path="subjects/:tab?" element={<AdminSubjects />} />
+                      <Route path="subjects/:id/manage" element={<SubjectEdit />} />
+                      <Route path="subjects/colleges/:collegeId" element={<CollegeSubjects />} />
                       <Route path="courses" element={<Courses />} />
                       <Route path="students" element={<Students />} />
                       <Route path="faculty" element={<Faculty />} />
+                      <Route path="users" element={<AdminUsers />} />
                       <Route path="practice-questions" element={<PracticeQuestions />} />
                       <Route path="test-questions" element={<TestQuestions />} />
+
+                      {/* Mock Interviews */}
+                      <Route path="mock-interview" element={<InstructorMockInterview />} />
+                      <Route path="mock-interview/add" element={<MockInterviewForm />} />
+                      <Route path="mock-interview/:mockInterviewId/edit" element={<MockInterviewForm />} />
+                      <Route path="mock-interview/:mockInterviewId/analytics" element={<MockInterviewAnalytics />} />
+                      <Route path="mock-interview/reports" element={<MockInterviewReports />} />
+                      <Route path="mock-interview/reports/:sessionId" element={<MockInterviewReportView />} />
                     </Routes>
                   </ProtectedRoute>
                 }
