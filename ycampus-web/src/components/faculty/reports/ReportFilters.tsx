@@ -3,19 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Loader2 } from 'lucide-react';
-import type { DepartmentOption, CourseOption, BatchOption, BatchStudent } from '@/hooks/useStudentReport';
 
-interface SectionOption {
+interface FilterOption {
+  id: string;
   name: string;
 }
 
 interface ReportFiltersProps {
-  departments: DepartmentOption[];
-  courses: CourseOption[];
-  batches: BatchOption[];
-  students: BatchStudent[];
-  allStudents: BatchStudent[];
-  sections: SectionOption[];
+  departments: FilterOption[];
+  subjects: FilterOption[];
+  batches: FilterOption[];
+  students: any[];
+  allStudents: any[];
+  sections: FilterOption[];
+  semesters: FilterOption[];
   selectedDepartment: string;
   selectedSemester: string;
   selectedBatch: string;
@@ -35,7 +36,7 @@ interface ReportFiltersProps {
 }
 
 const ReportFilters: React.FC<ReportFiltersProps> = ({
-  departments, courses, batches, students, allStudents, sections,
+  departments, subjects, batches, students, allStudents, sections, semesters,
   selectedDepartment, selectedSemester, selectedBatch, selectedStudent, selectedSubject, selectedSection,
   studentSearch, studentsLoading,
   onDepartmentChange, onSemesterChange, onBatchChange, onStudentChange, onSubjectChange, onSectionChange,
@@ -45,10 +46,10 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const searchSource = studentSearch.length > 0 ? allStudents : students;
-  const filteredStudents = searchSource.filter(s =>
-    s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    s.rollNo.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    s.email.toLowerCase().includes(studentSearch.toLowerCase())
+  const filteredStudents = searchSource.filter((s: any) =>
+    (s.name || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
+    (s.rollNo || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
+    (s.email || '').toLowerCase().includes(studentSearch.toLowerCase())
   );
 
   // Close dropdown on outside click
@@ -62,7 +63,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const handleStudentSelect = (student: BatchStudent) => {
+  const handleStudentSelect = (student: any) => {
     onStudentSearchChange(student.name);
     onStudentChange(student.id);
     setShowDropdown(false);
@@ -110,7 +111,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
                 {filteredStudents.length === 0 ? (
                   <div className="px-4 py-3 text-sm text-muted-foreground">No students found</div>
                 ) : (
-                  filteredStudents.map(s => (
+                  filteredStudents.map((s: any) => (
                     <button
                       key={s.id}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-accent transition-colors flex items-center justify-between"
@@ -131,13 +132,29 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
+            <Select value={selectedBatch} onValueChange={onBatchChange}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Select batch" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">All Batches</SelectItem>
+                {batches.map((b: FilterOption) => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Department</label>
-            <Select value={selectedDepartment || undefined} onValueChange={onDepartmentChange}>
+            <Select value={selectedDepartment} onValueChange={onDepartmentChange}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
-                {departments.map(d => (
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments.map((d: FilterOption) => (
                   <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -146,34 +163,15 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
 
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
-            <Select value={selectedSemester || undefined} onValueChange={onSemesterChange} disabled={!selectedDepartment}>
+            <Select value={selectedSemester} onValueChange={onSemesterChange}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="Select semester" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                  <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                <SelectItem value="all">All Semesters</SelectItem>
+                {semesters.map((s: FilterOption) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
-            <Select value={selectedBatch || undefined} onValueChange={onBatchChange} disabled={!selectedDepartment}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select batch" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                {batches.length === 0 ? (
-                  <SelectItem value="__none" disabled>No batches available</SelectItem>
-                ) : (
-                  batches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>
-                      {b.name} {b.startYear && b.endYear ? `(${b.startYear}-${b.endYear})` : ''}
-                    </SelectItem>
-                  ))
-                )}
               </SelectContent>
             </Select>
           </div>
@@ -186,8 +184,8 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 <SelectItem value="all">All Subjects</SelectItem>
-                {courses.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                {subjects.map((s: FilterOption) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -195,14 +193,14 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
 
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Section</label>
-            <Select value={selectedSection} onValueChange={onSectionChange} disabled={!selectedSemester}>
+            <Select value={selectedSection} onValueChange={onSectionChange}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 <SelectItem value="all">All Sections</SelectItem>
-                {sections.map(s => (
-                  <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+                {sections.map((s: FilterOption) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
