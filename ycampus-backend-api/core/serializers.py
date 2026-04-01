@@ -230,10 +230,21 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
     subject_id = serializers.CharField(source="task.subject.id", read_only=True)
     subject_name = serializers.CharField(source="task.subject.subject_name", read_only=True)
     task_title = serializers.CharField(source="task.title", read_only=True)
+    due_date = serializers.DateTimeField(source="task.due_date", read_only=True)
+    # Return submitted_at if set; fall back to updated_at for old submissions
+    effective_submitted_at = serializers.SerializerMethodField()
+
+    def get_effective_submitted_at(self, obj):
+        if obj.submitted_at:
+            return obj.submitted_at
+        if obj.is_submitted:
+            # Backfill: use updated_at as best estimate for when it was submitted
+            return obj.updated_at
+        return None
 
     class Meta:
         model = TaskSubmission
-        fields = ["id", "task", "task_title", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "subject_id", "subject_name", "comments", "created_at", "updated_at"]
+        fields = ["id", "task", "task_title", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "effective_submitted_at", "due_date", "subject_id", "subject_name", "comments", "created_at", "updated_at"]
         read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at"]
 
 class TaskSerializer(serializers.ModelSerializer):

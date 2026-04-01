@@ -1271,6 +1271,23 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
         student = get_object_or_404(StudentProfile, user=self.request.user)
         serializer.save(student=student)
 
+    def perform_update(self, serializer):
+        """
+        Auto-set submitted_at when is_submitted transitions to True.
+        """
+        instance = serializer.instance
+        was_submitted = instance.is_submitted
+        new_is_submitted = serializer.validated_data.get('is_submitted', was_submitted)
+
+        if new_is_submitted and not was_submitted and not instance.submitted_at:
+            # Just being submitted for the first time
+            serializer.save(submitted_at=timezone.now())
+        elif new_is_submitted and instance.submitted_at is None:
+            # Already marked submitted but no timestamp — backfill with current time
+            serializer.save(submitted_at=timezone.now())
+        else:
+            serializer.save()
+
     def get_queryset(self):
         qs = TaskSubmission.objects.select_related(
             "task", "student__user"
