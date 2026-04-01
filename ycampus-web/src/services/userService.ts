@@ -11,6 +11,11 @@ export interface User {
   last_login: string | null;
   date_joined: string;
   college_name?: string;
+  profile?: {
+    profile_image?: string;
+    phone?: string;
+    [key: string]: any;
+  };
 }
 
 export interface PaginatedUsersResponse {

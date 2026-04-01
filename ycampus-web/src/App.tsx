@@ -241,6 +241,7 @@ const App = () => (
                       <Route path="principals" element={<CollegeAdminPrincipals />} />
                       <Route path="hods" element={<CollegeAdminHODs />} />
                       <Route path="departments" element={<CollegeAdminDepartments />} />
+                      <Route path="departments/:id" element={<CollegeAdminDepartments />} />
                       <Route path="batches" element={<CollegeAdminBatchIds />} />
                       <Route path="faculty" element={<CollegeAdminFaculty />} />
                       <Route path="students" element={<CollegeAdminStudents />} />
