@@ -166,10 +166,12 @@ class PlacementOfficerProfileSerializer(serializers.ModelSerializer):
 class AttendanceRecordSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source="student.user.get_full_name", read_only=True)
     roll_number = serializers.CharField(source="student.roll_number", read_only=True)
+    subject_id = serializers.CharField(source="session.section_subject_faculty.semester_subject.subject.id", read_only=True)
+    subject_name = serializers.CharField(source="session.section_subject_faculty.semester_subject.subject.subject_name", read_only=True)
 
     class Meta:
         model = AttendanceRecord
-        fields = ["id", "session", "student", "student_name", "roll_number", "is_present", "created_at", "updated_at"]
+        fields = ["id", "session", "student", "student_name", "roll_number", "is_present", "subject_id", "subject_name", "created_at", "updated_at"]
         read_only_fields = ["id", "session", "created_at", "updated_at"]
 
 
@@ -225,10 +227,13 @@ class TaskCommentSerializer(serializers.ModelSerializer):
 class TaskSubmissionSerializer(serializers.ModelSerializer):
     student_details = StudentProfileSerializer(source="student", read_only=True)
     comments = TaskCommentSerializer(many=True, read_only=True)
+    subject_id = serializers.CharField(source="task.subject.id", read_only=True)
+    subject_name = serializers.CharField(source="task.subject.subject_name", read_only=True)
+    task_title = serializers.CharField(source="task.title", read_only=True)
 
     class Meta:
         model = TaskSubmission
-        fields = ["id", "task", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "comments", "created_at", "updated_at"]
+        fields = ["id", "task", "task_title", "student", "student_details", "answer", "answers_data", "file", "is_submitted", "submitted_at", "subject_id", "subject_name", "comments", "created_at", "updated_at"]
         read_only_fields = ["id", "student", "created_at", "updated_at", "submitted_at"]
 
 class TaskSerializer(serializers.ModelSerializer):
