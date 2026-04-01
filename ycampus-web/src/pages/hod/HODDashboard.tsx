@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
+import { HODSidebar } from '@/components/hod/HODSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -190,7 +190,7 @@ const HODDashboard = ({ sidebarComponent, title, headerExtra }: HODDashboardProp
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-[hsl(210,40%,98%)]">
-        {sidebarComponent || <RoleSidebar />}
+        {sidebarComponent || <HODSidebar />}
         <div className="flex-1 flex flex-col min-h-0">
 
           <main className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">

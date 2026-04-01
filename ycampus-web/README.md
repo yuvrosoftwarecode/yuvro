@@ -1,140 +1,73 @@
-# YC Web Frontend
+# React + TypeScript + Vite
 
-A modern React frontend application built with Vite, TypeScript, React Router, and Tailwind CSS.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- **Authentication System**: Login/register with email/password and Google OAuth integration
-- **Protected Routes**: Route protection with JWT token management
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **State Management**: React Context API for authentication state
-- **API Integration**: RESTful API client with automatic token refresh
-- **Testing**: Component and integration tests with Vitest and React Testing Library
-- **TypeScript**: Full TypeScript support for type safety
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Tech Stack
+## React Compiler
 
-- **React 18+** - UI library
-- **Vite** - Build tool and dev server
-- **TypeScript** - Type safety
-- **React Router v6** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Vitest** - Testing framework
-- **React Testing Library** - Component testing utilities
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Getting Started
+## Expanding the ESLint configuration
 
-### Prerequisites
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- Node.js 18+ and npm
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-### Installation
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-1. Install dependencies:
-```bash
-npm install
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-2. Copy environment variables:
-```bash
-cp .env.example .env
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-3. Update the `.env` file with your backend API URL:
-```
-BACKEND_API_BASE_URL=http://localhost:8000/api
-```
-
-### Development
-
-Start the development server:
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`
-
-### Building
-
-Build for production:
-```bash
-npm run build
-```
-
-### Testing
-
-Run tests:
-```bash
-npm run test
-```
-
-Run tests in watch mode:
-```bash
-npm run test:watch
-```
-
-### Linting
-
-Run ESLint:
-```bash
-npm run lint
-```
-
-## Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── __tests__/      # Component tests
-│   ├── LoadingSpinner.tsx
-│   ├── Navigation.tsx
-│   └── ProtectedRoute.tsx
-├── contexts/           # React contexts
-│   ├── __tests__/     # Context tests
-│   └── AuthContext.tsx
-├── pages/             # Page components
-│   ├── __tests__/    # Page tests
-│   ├── Dashboard.tsx
-│   ├── Landing.tsx
-│   ├── Login.tsx
-│   ├── NotFound.tsx
-│   ├── Profile.tsx
-│   └── Register.tsx
-├── services/          # API and external services
-│   └── api.ts
-├── test/             # Test configuration
-│   └── setup.ts
-├── App.tsx           # Main app component
-└── main.tsx         # App entry point
-```
-
-## API Integration
-
-The frontend communicates with a Django REST Framework backend. The API client (`src/services/api.ts`) handles:
-
-- JWT token management
-- Automatic token refresh
-- Error handling
-- Request/response interceptors
-
-## Authentication Flow
-
-1. User logs in with email/password or Google OAuth
-2. Backend returns JWT access and refresh tokens
-3. Tokens are stored in localStorage
-4. API client automatically includes tokens in requests
-5. Expired tokens are automatically refreshed
-6. Protected routes redirect to login if not authenticated
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run test` - Run tests once
-- `npm run test:watch` - Run tests in watch mode
-- `npm run lint` - Run ESLint
-
-## Environment Variables
-
-- `BACKEND_API_BASE_URL` - Backend API base URL (default: http://localhost:8000/api)

@@ -1,18 +1,21 @@
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import ManageHODs from '@/components/principal/ManageHODs';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
+import { ManageHODs } from '@/components/principal/ManageHODs';
 
 const PrincipalHODs = () => {
   return (
     <SidebarProvider>
-      <RoleSidebar />
-      <SidebarInset className="p-6 bg-background">
-        <div className="max-w-7xl mx-auto w-full">
-          <ManageHODs />
+      <div className="min-h-screen flex w-full">
+        <PrincipalSidebar />
+        <div className="flex-1 flex flex-col">
+<main className="flex-1 p-6 bg-background">
+            <h1 className="text-2xl font-bold mb-6">HODs Management</h1>
+            <ManageHODs />
+          </main>
         </div>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   );
-}
+};
 
 export default PrincipalHODs;

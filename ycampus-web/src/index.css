@@ -1,72 +1,6 @@
-@import "tailwindcss";
-
-@theme {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --color-saffron: hsl(var(--saffron));
-  --color-saffron-light: hsl(var(--saffron-light));
-  --color-saffron-dark: hsl(var(--saffron-dark));
-  --color-saffron-foreground: hsl(var(--saffron-foreground));
-
-  --color-chakra: hsl(var(--chakra));
-  --color-chakra-light: hsl(var(--chakra-light));
-  --color-chakra-dark: hsl(var(--chakra-dark));
-  --color-chakra-foreground: hsl(var(--chakra-foreground));
-
-  --color-success: hsl(var(--success));
-  --color-success-light: hsl(var(--success-light));
-  --color-success-dark: hsl(var(--success-dark));
-  --color-success-foreground: hsl(var(--success-foreground));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -86,13 +20,13 @@ All colors MUST be HSL.
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 0 0% 100%;
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 0 0% 100%;
+    --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -104,13 +38,20 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 0 0% 98%;
+
     --sidebar-foreground: 240 5.3% 26.1%;
+
     --sidebar-primary: 240 5.9% 10%;
+
     --sidebar-primary-foreground: 0 0% 98%;
+
     --sidebar-accent: 240 4.8% 95.9%;
+
     --sidebar-accent-foreground: 240 5.9% 10%;
+
     --sidebar-border: 220 13% 91%;
+
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Subject card colors - HackerRank style */
@@ -214,12 +155,11 @@ All colors MUST be HSL.
 
 @layer base {
   * {
-    border-color: hsl(var(--border) / 1);
+    @apply border-border;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
   }
 }
 
@@ -231,18 +171,22 @@ All colors MUST be HSL.
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 200px;
+    border:1px solid;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 1rem;
+    background-clip: padding-box;
+    background-color: #fbfbfb;
+    border: 0.25rem solid rgba(118, 118, 118, 0);
+    background: initial;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    background-color: rgba(118, 118, 118, 0.16);
+    background: initial;
   }
 
   /* Hide WebKit scrollbar arrow buttons (top/bottom) */
@@ -329,9 +273,4 @@ All colors MUST be HSL.
   .sidebar-scrollbar::-webkit-scrollbar-corner {
     background: transparent;
   }
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  pointer-events: none;
 }

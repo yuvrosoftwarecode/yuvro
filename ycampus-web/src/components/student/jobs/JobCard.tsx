@@ -1,113 +1,117 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Building2, Calendar, Clock, IndianRupee } from 'lucide-react';
-import { StudentJob, StudentJobApplication } from '@/pages/student/Jobs';
+import { MapPin, IndianRupee, Calendar, Building2, Clock, CheckCircle2 } from 'lucide-react';
+import { format } from 'date-fns';
+import type { StudentJob, StudentJobApplication } from '@/pages/student/Jobs';
 
 interface JobCardProps {
   job: StudentJob;
   variant: 'active' | 'applied' | 'previous';
-  application?: StudentJobApplication;
   deadlineApproaching?: boolean;
+  application?: StudentJobApplication;
   onViewDetails: () => void;
   onApply?: () => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({
-  job,
-  variant,
-  application,
-  deadlineApproaching,
-  onViewDetails,
-  onApply,
-}) => {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'applied': return <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50/50">Applied</Badge>;
-      case 'shortlisted': return <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50/50">Shortlisted</Badge>;
-      case 'interview': return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50/50">Interview</Badge>;
-      case 'selected': return <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50/50">Selected</Badge>;
-      case 'rejected': return <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50/50">Rejected</Badge>;
-      default: return null;
-    }
-  };
+const typeColors: Record<string, string> = {
+  Product: 'bg-blue-50 text-blue-700 border-blue-200',
+  Service: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Startup: 'bg-amber-50 text-amber-700 border-amber-200',
+};
 
-  const formatLPA = (amount: number) => {
-    return `${(amount / 100000).toFixed(1)} LPA`;
+export function JobCard({ job, variant, deadlineApproaching, application, onViewDetails, onApply }: JobCardProps) {
+  const formatCTC = (amount: number) => {
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)} LPA`;
+    return `₹${amount.toLocaleString()}`;
   };
 
   return (
-    <Card className={`p-6 border-muted/20 shadow-sm transition-all hover:shadow-md ${variant === 'previous' ? 'opacity-70 bg-muted/5' : ''}`}>
-      <div className="flex flex-row justify-between items-start gap-2">
-        {/* Left Content */}
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-medium text-gray-900">{job.role}</h3>
-            <Badge variant="outline" className="bg-[#f0fdf4] text-[#15803d] border-[#dcfce7] font-medium text-[11px] py-0 px-2 h-5">
-              {job.companyType}
-            </Badge>
-            {variant === 'applied' && application && getStatusBadge(application.status)}
-            {variant === 'active' && deadlineApproaching && (
-                <Badge variant="secondary" className="bg-orange-50 text-orange-600 border-orange-100 text-[10px] py-0 h-5">
-                  <Clock className="h-3 w-3 mr-1" /> Deadline Soon
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer border-border/60"
+      onClick={onViewDetails}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-foreground text-base">{job.role}</h3>
+              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${typeColors[job.companyType] || ''}`}>
+                {job.companyType}
+              </Badge>
+              {deadlineApproaching && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 animate-pulse">
+                  <Clock className="h-3 w-3 mr-0.5" /> Deadline Soon
                 </Badge>
               )}
-          </div>
-          
-          <div className="flex items-center gap-2 text-gray-800">
-            <Building2 className="h-4 w-4 text-gray-500" />
-            <span className="text-sm font-medium">{job.companyName}</span>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-gray-600">
-            <div className="flex items-center gap-1 text-xs">
-              <MapPin className="h-3 w-3" />
-              {job.location}
+              {variant === 'previous' && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 text-muted-foreground">
+                  Expired
+                </Badge>
+              )}
             </div>
-            <div className="flex items-center gap-1 text-xs">
-              <IndianRupee className="h-3 w-3" />
-              {formatLPA(job.ctcTotal)}
+
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-medium text-foreground/80">{job.companyName}</span>
             </div>
-            <div className="flex items-center gap-1 text-xs">
-              <Calendar className="h-3 w-3" />
-              Deadline: {new Date(job.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 pt-3">
-            {job.eligibleBranches.map(branch => (
-              <span key={branch} className="bg-[#f1f5f9] text-gray-900 text-[11px] font-semibold px-2.5 py-0.5 rounded-full uppercase">
-                {branch}
+
+            <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {job.location}
               </span>
-            ))}
-            {job.skills.length > 3 && (
-              <span className="px-3 py-1 bg-white text-gray-500 rounded-full text-sm">
-                +{job.skills.length - 3} more
+              <span className="flex items-center gap-1">
+                <IndianRupee className="h-3 w-3" /> {formatCTC(job.ctcTotal)}
               </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {variant === 'applied' && application
+                  ? `Applied ${format(new Date(application.appliedDate), 'dd MMM yyyy')}`
+                  : `Deadline: ${format(new Date(job.deadline), 'dd MMM yyyy')}`
+                }
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {job.eligibleBranches.slice(0, 4).map(b => (
+                <Badge key={b} variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted/80">
+                  {b}
+                </Badge>
+              ))}
+              {job.eligibleBranches.length > 4 && (
+                <span className="text-[10px] text-muted-foreground">+{job.eligibleBranches.length - 4} more</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            {variant === 'active' && onApply && (
+              <Button
+                size="sm"
+                className="text-xs"
+                onClick={(e) => { e.stopPropagation(); onApply(); }}
+              >
+                Apply
+              </Button>
             )}
-          </div>
-
-        </div>
-
-        {/* Right Actions */}
-        <div className="flex flex-col items-end gap-3 shrink-0">
-          {variant === 'active' && onApply && (
-            <Button 
-              onClick={onApply} 
-              className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-medium px-6 h-10 rounded-lg min-w-[80px]"
+            {variant === 'applied' && application && (
+              <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px]">
+                <CheckCircle2 className="h-3 w-3 mr-0.5" />
+                {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
+              onClick={(e) => { e.stopPropagation(); onViewDetails(); }}
             >
-              Apply
+              View Details
             </Button>
-          )}
-          <button 
-            onClick={onViewDetails}
-            className="text-gray-600 font-medium hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors pr-1"
-          >
-            View Details
-          </button>
+          </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
-};
+}

@@ -335,7 +335,7 @@ class MockJobService {
         const oldStatus = jobApps[appIdx].status;
         jobApps[appIdx].status = status;
 
-        // If newly shortlisted (TPO Approved), increment the count in the job object
+        // If newly shortlisted (Placement Officer Approved), increment the count in the job object
         if (status === 'shortlisted' && oldStatus !== 'shortlisted') {
             const jobIdx = this.jobs.findIndex(j => j.id === jobId);
             if (jobIdx !== -1) {

@@ -1,19 +1,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Building2, 
-  MapPin, 
-  User, 
-  Mail, 
-  MessageSquare, 
-  Globe, 
-  Plus,
-  Clock,
-  ExternalLink,
-  MoreVertical
-} from 'lucide-react';
-import { CompanyRecord } from './types';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Building2, MapPin, Users, Mail, UserPlus, MessageCircle, Globe, Clock } from 'lucide-react';
+import { CompanyRecord, statusColors, statusLabels } from './types';
 
 interface CompanyCardProps {
   company: CompanyRecord;
@@ -23,114 +13,67 @@ interface CompanyCardProps {
   onSimulateAccept: (id: string) => void;
 }
 
-const CompanyCard: React.FC<CompanyCardProps> = ({ 
-  company, 
-  onConnect, 
-  onChat, 
-  onCardClick,
-  onSimulateAccept
-}) => {
-  const getStatusStyles = (status: string) => {
-    switch (status) {
-      case 'connected': return 'bg-[#ECFDF5] text-[#10B981] border-[#D1FAE5]';
-      case 'applied': return 'bg-[#FFFBEB] text-[#F59E0B] border-[#FEF3C7]';
-      default: return 'bg-[#F9FAFB] text-[#6B7280] border-[#F3F4F6]';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'connected': return 'Connected';
-      case 'applied': return 'Applied';
-      default: return 'Not Connected';
-    }
-  };
-
-  return (
-    <Card 
-      className="group hover:shadow-md transition-all border-slate-100 overflow-hidden cursor-pointer"
-      onClick={() => onCardClick(company.id)}
-    >
-      <CardContent className="p-6 space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 font-bold shrink-0 group-hover:scale-105 transition-transform">
-              <Building2 className="h-6 w-6" />
+const CompanyCard = ({ company, onConnect, onChat, onCardClick, onSimulateAccept }: CompanyCardProps) => (
+  <Card className="border border-border/60 hover:shadow-md transition-shadow">
+    <CardContent className="p-5">
+      <div
+        className="cursor-pointer"
+        onClick={() => onCardClick(company.id)}
+      >
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
             </div>
-            <div className="min-w-0">
-              <h3 className="text-base font-bold text-slate-900 truncate">{company.companyName}</h3>
-              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                <span>{company.companyType}</span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <div className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  <span>{company.headcount}</span>
-                </div>
+            <div>
+              <h3 className="font-semibold text-sm text-foreground">{company.companyName}</h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal">{company.companyType}</Badge>
+                <span className="text-[11px] text-muted-foreground flex items-center gap-0.5"><Users className="h-3 w-3" />{company.headcount}</span>
               </div>
             </div>
           </div>
-          <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${getStatusStyles(company.status)}`}>
-            {getStatusLabel(company.status)}
-          </span>
+          <Badge className={`text-[10px] px-2 py-0.5 border-0 ${statusColors[company.status]}`}>
+            {statusLabels[company.status]}
+          </Badge>
         </div>
 
-        <div className="space-y-2.5 pt-2">
-          <div className="flex items-center gap-2 text-slate-500">
-            <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-            <span className="text-sm font-medium">{company.location}</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-600">
-            <User className="h-4 w-4 shrink-0 text-slate-400" />
-            <div className="text-sm leading-tight">
-              <span className="font-bold">{company.recruiterName}</span>
-              <span className="text-slate-400 font-medium ml-1">— {company.recruiterDesignation}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-slate-400 truncate">
-            <Mail className="h-4 w-4 shrink-0" />
-            <span className="text-xs font-medium">{company.recruiterEmail}</span>
-          </div>
+        <div className="space-y-1.5 mb-4 text-xs text-muted-foreground">
+          <p className="flex items-center gap-1.5"><MapPin className="h-3 w-3" />{company.location}</p>
+          <p className="flex items-center gap-1.5"><Mail className="h-3 w-3" />{company.recruiterName} — {company.recruiterDesignation}</p>
+          <p className="flex items-center gap-1.5 text-[11px]">{company.recruiterEmail}</p>
         </div>
+      </div>
 
-        <div className="pt-4 flex items-center gap-3" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          {company.status === 'connected' ? (
-            <Button 
-              size="sm"
-              className="flex-1 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-bold gap-2 h-10 border-none shadow-none"
-              onClick={() => onChat(company.id)}
-            >
-              <MessageSquare className="h-4 w-4" />
-              Chat
-            </Button>
-          ) : company.status === 'applied' ? (
-            <div className="flex-1 flex items-center gap-2 text-slate-400 text-[11px] font-medium py-2.5">
-              <Clock className="h-4 w-4" />
-              Waiting for recruiter to accept
-            </div>
-          ) : (
-            <Button 
-              size="sm"
-              className="flex-1 rounded-xl bg-slate-900 hover:bg-black text-white font-bold gap-2 h-10 border-none shadow-none"
-              onClick={() => onConnect(company.id)}
-            >
-              <Plus className="h-4 w-4" />
-              Connect
-            </Button>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="rounded-xl h-10 flex items-center gap-2 px-3 text-slate-600 hover:bg-white transition-all font-bold text-xs"
-            onClick={() => company.website && window.open(company.website, '_blank')}
-          >
-            <Globe className="h-4 w-4" />
-            <span>Website</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        {company.status === 'not_connected' && (
+          <Button size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); onConnect(company.id); }}>
+            <UserPlus className="h-3 w-3" /> Connect
           </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+        )}
+
+        {company.status === 'applied' && (
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Waiting for recruiter to accept
+          </span>
+        )}
+
+        {company.status === 'connected' && (
+          <Button size="sm" className="h-7 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={(e) => { e.stopPropagation(); onChat(company.id); }}>
+            <MessageCircle className="h-3 w-3" /> Chat
+          </Button>
+        )}
+
+        {company.website && (
+          <a href={company.website} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>
+            <Button size="sm" variant="ghost" className="h-7 text-xs gap-1">
+              <Globe className="h-3 w-3" /> Website
+            </Button>
+          </a>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default CompanyCard;

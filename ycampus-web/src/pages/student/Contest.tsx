@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import RoleHeader from '@/components/common/RoleHeader';
+import { StudentLayout } from '@/components/layouts/StudentLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import StatusBadge from '@/components/common/StatusBadge';
 import SearchBar from '@/components/common/SearchBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -193,31 +191,26 @@ const ContestPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader title="Contests" subtitle="Loading contests..." />
+      <StudentLayout noPadding>
+        <div className="min-h-full bg-white w-full">
           <div className="p-8 animate-pulse space-y-8">
             <div className="grid grid-cols-4 gap-6"><div className="h-24 bg-gray-200 rounded-xl" /><div className="h-24 bg-gray-200 rounded-xl" /><div className="h-24 bg-gray-200 rounded-xl" /><div className="h-24 bg-gray-200 rounded-xl" /></div>
             <div className="h-64 bg-gray-200 rounded-xl" />
           </div>
         </div>
-      </div>
+      </StudentLayout>
     );
   }
 
   return (
-    <div className="h-screen bg-white flex overflow-hidden">
-      <RoleSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-6 lg:px-8 py-6 space-y-6">
+    <StudentLayout>
+      <div className="min-h-full bg-white">
+        <div className="px-6 lg:px-8 py-6 space-y-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <RoleHeader
-              title="Contests & Competitions"
-              subtitle="Compete, learn, and get ranked globally"
-              noPadding
-              className="py-0"
-            />
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold">Contests & Competitions</h1>
+              <p className="text-sm text-slate-600">Compete, learn, and get ranked globally</p>
+            </div>
 
             {/* Inline Stats */}
             <div className="flex flex-wrap gap-3">
@@ -252,7 +245,15 @@ const ContestPage = () => {
                         <div className={cn("flex items-center justify-center w-10 h-10 rounded-xl", style.bg, style.text)}>
                           {getTypeIcon(contest.type)}
                         </div>
-                        <StatusBadge status={contest.status} label={contest.status === 'ongoing' ? 'Live Now' : undefined} />
+                          <Badge className={cn(
+                            "text-[10px] font-semibold uppercase px-2 py-1 rounded-lg",
+                            contest.status === 'ongoing' ? 'bg-green-100 text-green-700' :
+                            contest.status === 'upcoming' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
+                          )}
+                          >
+                            {contest.status === 'ongoing' ? 'Live Now' : contest.status}
+                          </Badge>
                       </div>
                       <h3 className="font-bold text-slate-900 mb-1 line-clamp-1">{contest.title}</h3>
                       <p className="text-sm text-slate-500 mb-4 truncate">{contest.organizer}</p>
@@ -448,7 +449,7 @@ const ContestPage = () => {
           width: max-content;
         }
       `}</style>
-    </div>
+    </StudentLayout>
   );
 };
 
