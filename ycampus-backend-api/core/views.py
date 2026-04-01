@@ -657,8 +657,19 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
         if user.role in ["college_admin", "principal", "faculty"]:
             college = user.college
             if college:
-                return queryset.filter(college=college)
-            return queryset.none()
+                queryset = queryset.filter(college=college)
+            else:
+                return queryset.none()
+            
+        # Additional manual filters for human-readable values (batch name and semester number)
+        # These are useful when the client doesn't have the UUIDs directly
+        batch_name = self.request.query_params.get('batch_name')
+        if batch_name and batch_name != 'all':
+            queryset = queryset.filter(batch__name=batch_name)
+            
+        semester_number = self.request.query_params.get('semester_number')
+        if semester_number and semester_number != 'all':
+            queryset = queryset.filter(semester__number=semester_number)
             
         return queryset
 

@@ -12,7 +12,7 @@ class Command(BaseCommand):
         self.stdout.write("📚 Shuffling subjects and faculty assignments...")
 
         # 1. Get Target Subjects
-        subject_codes = ["DSA100", "PY101", "WEB101"]
+        subject_codes = ["M&C101", "PPS101", "EC101"]
         subjects = list(Subject.objects.filter(short_code__in=subject_codes))
         
         if len(subjects) < 3:
