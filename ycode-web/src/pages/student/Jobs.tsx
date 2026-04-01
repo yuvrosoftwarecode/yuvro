@@ -549,7 +549,7 @@ const Jobs = () => {
         job={selectedJob}
         onSubmit={handleApplySubmit}
       />
-      {/* <Footer /> */}
+      <Footer />
     </div >
   );
 };
