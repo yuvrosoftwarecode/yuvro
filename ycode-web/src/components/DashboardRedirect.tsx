@@ -18,8 +18,8 @@ const DashboardRedirect: React.FC = () => {
           break;
         case 'student':
         default:
-          // navigate('/student/dashboard', { replace: true });
-          navigate('/student/learn', { replace: true });
+          navigate('/student/dashboard', { replace: true });
+          // navigate('/student/learn', { replace: true });
           break;
       }
     } else if (!isLoading && !isAuthenticated) {

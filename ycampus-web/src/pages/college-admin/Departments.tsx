@@ -1,154 +1,140 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { CollegeAdminSidebar } from '@/components/college-admin/CollegeAdminSidebar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Edit, Trash2 } from 'lucide-react';
-import { useDepartments, Department } from '@/hooks/useDepartments';
-import { DepartmentForm } from '@/components/college-admin/DepartmentForm';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { 
+  Search, Building2, ChevronRight, LayoutGrid
+} from 'lucide-react';
+import { departmentService, Department } from '@/services/departmentService';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import DepartmentDetailView from '@/components/college-admin/DepartmentDetailView';
+import { Badge } from '@/components/ui/badge';
 
 const Departments = () => {
-  const { departments, isLoading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingDept, setEditingDept] = useState<Department | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSubmit = (data: Omit<Department, 'id' | 'created_at' | 'updated_at'>) => {
-    if (editingDept) {
-      updateDepartment({ id: editingDept.id, updates: data });
-    } else {
-      createDepartment(data);
+  const loadDepartments = async () => {
+    try {
+      setLoading(true);
+      const collegeId = (user as any)?.college_id;
+      const data = await departmentService.getDepartments(collegeId);
+      setDepartments(data);
+    } catch (error) {
+      console.error('Failed to load departments:', error);
+      toast.error('Failed to load departments');
+    } finally {
+      setLoading(false);
     }
-    setDialogOpen(false);
-    setEditingDept(null);
   };
 
-  const handleEdit = (dept: Department) => {
-    setEditingDept(dept);
-    setDialogOpen(true);
-  };
+  useEffect(() => {
+    loadDepartments();
+  }, [user]);
 
-  const handleDelete = (id: string) => {
-    deleteDepartment(id);
-    setDeleteId(null);
-  };
+  const filteredDepartments = useMemo(() => {
+    return departments.filter(dept => 
+      dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      dept.short_form?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [departments, searchQuery]);
 
+  
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <CollegeAdminSidebar />
-        <div className="flex-1 flex flex-col">
-<main className="flex-1 p-6 bg-background">
-            <h1 className="text-2xl font-bold mb-6">Departments</h1>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Panel - Form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {editingDept ? 'Edit Department' : 'Add New Department'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DepartmentForm 
-                    onSubmit={handleSubmit}
-                    initialData={editingDept || undefined}
-                  />
-                  {editingDept && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full mt-2"
-                      onClick={() => setEditingDept(null)}
-                    >
-                      Cancel Edit
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Right Panel - Data List */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Departments List</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <p className="text-muted-foreground">Loading...</p>
-                  ) : departments && departments.length > 0 ? (
-                    <div className="space-y-4">
-                      {departments.map((dept) => (
-                        <Card key={dept.id}>
-                          <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <CardTitle className="text-base">{dept.name}</CardTitle>
-                                <p className="text-sm text-muted-foreground">Code: {dept.code}</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleEdit(dept)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => setDeleteId(dept.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-sm mb-2">
-                              <strong>Semesters:</strong> {dept.semesters.length}
-                            </p>
-                            <div className="space-y-1">
-                              {dept.semesters.map((sem) => (
-                                <div key={sem.id} className="text-sm">
-                                  <span className="font-medium">Sem {sem.number}:</span>{' '}
-                                  {sem.sections.length > 0 
-                                    ? sem.sections.map(s => s.name).join(', ')
-                                    : 'No sections'
-                                  }
-                                </div>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+  <CollegeAdminSidebar />
+  <div className="flex-1 flex flex-col">
+    <main className="flex-1 p-6 bg-background overflow-y-auto">
+                    <h1 className="text-2xl font-bold text-foreground">Departments</h1>
+    
+            {id ? (
+              <DepartmentDetailView 
+                departmentId={id} 
+                onBack={() => navigate('/college-admin/departments')} 
+              />
+            ) : (
+              <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+                
+                {/* Search Bar */}
+                <Card className="border-none shadow-sm bg-white/80 backdrop-blur-md sticky top-0 z-10 transition-all rounded-2xl">
+                  <CardContent className="p-4">
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input 
+                        placeholder="Search by department name or code..."
+                        className="pl-12 h-12 bg-muted/50 border-none focus:ring-2 focus:ring-foreground/5 text-lg rounded-xl"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
                     </div>
-                  ) : (
-                    <p className="text-muted-foreground">No departments found</p>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
+
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="h-48 rounded-2xl bg-muted animate-pulse" />
+                    ))}
+                  </div>
+                ) : filteredDepartments.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-32 bg-muted/5 rounded-2xl border border-dashed border-gray-200">
+                    <div className="h-24 w-24 bg-muted rounded-full flex items-center justify-center text-muted-foreground/30 mb-6 shadow-inner ring-1 ring-gray-100">
+                      <Building2 className="h-12 w-12" />
+                    </div>
+                    <h3 className="text-xl font-bold text-muted-foreground italic">No departments located.</h3>
+                    <p className="text-muted-foreground/60 mt-2 text-sm">Try adjusting your search query.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredDepartments.map((dept) => (
+                      <Card 
+                        key={dept.id} 
+                        className="group border-gray-100 hover:border-gray-200 shadow-sm transition-all duration-300 cursor-pointer overflow-hidden rounded-2xl bg-white ring-1 ring-gray-50"
+                        onClick={() => navigate(`/college-admin/departments/${dept.id}`)}
+                      >
+                        <CardContent className="p-0">
+                          <div className="p-6">
+                            <div className="flex justify-between items-start mb-6">
+                              <div className="h-14 w-14 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-foreground group-hover:text-background transition-all duration-300 shadow-sm ring-1 ring-gray-100">
+                                <LayoutGrid className="h-7 w-7" />
+                              </div>
+                            </div>
+                            
+                            <h3 className="text-xl font-bold text-foreground transition-colors line-clamp-1">{dept.name}</h3>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-gray-200 font-medium rounded-lg">
+                                {dept.short_form || "dept"}
+                              </Badge>
+                              <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                              <span className="text-xs text-muted-foreground font-medium tracking-tight">Department oversight</span>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-muted/30 p-4 border-t border-gray-50 flex items-center justify-between group-hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <span className="text-[11px] font-bold text-muted-foreground tracking-tighter">View details</span>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-foreground/50 group-hover:translate-x-1 transition-all" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </main>
         </div>
       </div>
-
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this department.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </SidebarProvider>
   );
 };

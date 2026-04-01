@@ -16,7 +16,7 @@ import ReportsScreen from './ReportsScreen';
 import { mockInterviewService, MockInterview as ApiMockInterview } from '@/services/mockInterviewService';
 
 import { Role, InterviewSettings } from '@/types/mockInterview';
-import { getLevelBadgeVariant, getRoleIconConfig } from '@/utils/mockInterviewUtils';
+import { getLevelBadgeVariant } from '@/utils/mockInterviewUtils';
 import { getCourseIconConfig } from '@/utils/CourseIcons';
 
 interface MockInterviewLibraryProps {
@@ -46,7 +46,8 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
         const data = await mockInterviewService.getAllMockInterviews();
         const mappedRoles = data.map((item: ApiMockInterview) => {
           let level: 'Beginner' | 'Intermediate' | 'Advanced' = 'Intermediate';
-          const { icon, iconBg, iconColor, buttonGradient } = getRoleIconConfig(item.title);
+          const config = getCourseIconConfig(item.title, item.ai_generation_mode);
+          const IconComponent = config.Icon;
 
           return {
             id: item.id,
@@ -58,10 +59,10 @@ const MockInterviewLibrary: React.FC<MockInterviewLibraryProps> = ({ onStartInte
             interviewer_name: item.interviewer_name || 'Junnu',
             interviewer_voice_id: item.interviewer_voice_id || '',
             voice_speed: item.voice_speed || 1.0,
-            icon: <span className="text-2xl">{icon}</span>,
-            iconBg: `${iconBg} p-2 rounded-lg`,
-            iconColor: iconColor,
-            buttonGradient: buttonGradient
+            icon: <IconComponent className="w-6 h-6 text-white" />,
+            iconBg: `${config.bg} p-2 rounded-lg`,
+            iconColor: config.text,
+            buttonGradient: config.gradient || "from-slate-700 to-slate-900"
           };
         });
         setMockRoles(mappedRoles);

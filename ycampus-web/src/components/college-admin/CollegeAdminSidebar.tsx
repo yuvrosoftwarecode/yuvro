@@ -123,10 +123,10 @@ export function CollegeAdminSidebar() {
                       <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
                       {!collapsed && (
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-tight">
+                          <p className="text-[11px] font-bold text-foreground truncate">
                             JNTU Hyderabad
                           </p>
-                          <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
+                          <p className="text-[10px] font-medium text-muted-foreground truncate opacity-70">
                             University Campus
                           </p>
                         </div>

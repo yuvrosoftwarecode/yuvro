@@ -5,8 +5,8 @@ import { useAuth } from "../../../contexts/AuthContext";
 import VideosPanel from "./VideosPanel";
 import NotesManager from "./NotesManager";
 import QuestionBankManager from "./QuestionBankManager";
-import RoleSidebar from "../../common/RoleSidebar";
-import RoleHeader from "../../common/RoleHeader";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "../../admin/AdminSidebar";
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -375,40 +375,45 @@ const SubjectEdit: React.FC = () => {
 
   if (!subjectId) return <div className="min-h-screen flex items-center justify-center">No subject selected</div>;
   if (loading) return (
-    <div className="min-h-screen bg-white uppercase-none flex">
-      <RoleSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader title="Loading Subject..." />
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex justify-center flex-col items-center h-[50vh]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground font-medium">Loading Subject Structure...</p>
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 
   return (
-    <>
-      <div className="h-screen overflow-hidden bg-white">
-      <div className="flex h-full">
-        <RoleSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-        <RoleHeader
-          title={subject?.subject_name || 'Loading Subject...'}
-          subtitle={subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
-          actions={
-            <Button
-              variant="outline"
-              onClick={() => navigate("/admin/subjects/global")}
-              className="cursor-pointer"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Subjects
-            </Button>
-          }
-        />
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
+        <div className="flex-1 overflow-y-auto w-full">
+          <div className="w-full">
+            {/* Header Replacement */}
+            <div className="bg-background border-b border-border/40 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{subject?.subject_name || 'Loading Subject...'}</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="shadow-sm font-semibold"
+                onClick={() => navigate("/admin/subjects/global")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Root Catalog
+              </Button>
+            </div>
 
-        <main className="flex-1 overflow-hidden p-3">
-          <div className="h-full w-full px-2 py-3 flex gap-4">
+            <main className="p-6">
+              <div className="h-[calc(100vh-120px)] w-full flex gap-6">
             {/* Left Sidebar */}
             <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
               <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-amber-50 to-orange-50/50">
@@ -567,8 +572,40 @@ const SubjectEdit: React.FC = () => {
         <Button className="cursor-pointer" onClick={saveSubUnit}>{savingSubUnit ? "Saving..." : "Save"}</Button>
       </DialogFooter>
     </DialogContent>
-      </Dialog>
-    </>
+  </Dialog>
+
+  {/* Delete Confirmation Modal */}
+  <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle className="text-destructive flex items-center gap-2">
+          <Trash2 className="h-5 w-5" />
+          Confirm Deletion
+        </DialogTitle>
+      </DialogHeader>
+      <div className="py-2">
+        <p className="text-sm text-foreground">
+          Are you sure you want to permanently delete this {confirmDelete?.type}?
+          This action cannot be undone.
+        </p>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            if (confirmDelete?.type === 'subject') handleDeleteSubject();
+            else if (confirmDelete?.type === 'unit') handleDeleteUnit(confirmDelete.id);
+            else if (confirmDelete?.type === 'sub-unit') handleDeleteSubUnit(confirmDelete.id);
+          }}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting..." : "Confirm Delete"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+</SidebarProvider>
   );
 };
 

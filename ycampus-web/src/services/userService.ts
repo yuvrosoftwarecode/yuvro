@@ -6,10 +6,16 @@ export interface User {
   username: string;
   first_name: string;
   last_name: string;
-  role: 'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty';
+  role: 'admin' | 'college_admin' | 'principal' | 'hod' | 'instructor' | 'recruiter' | 'placement_officer' | 'student' | 'faculty';
   is_active: boolean;
   last_login: string | null;
   date_joined: string;
+  college_name?: string;
+  profile?: {
+    profile_image?: string;
+    phone?: string;
+    [key: string]: any;
+  };
 }
 
 export interface PaginatedUsersResponse {
@@ -20,11 +26,13 @@ export interface PaginatedUsersResponse {
 }
 
 export interface UsersFilters {
-  role?: 'admin' | 'instructor' | 'recruiter' | 'student' | 'faculty';
+  role?: 'admin' | 'college_admin' | 'principal' | 'hod' | 'instructor' | 'recruiter' | 'placement_officer' | 'student' | 'faculty';
   search?: string;
   is_active?: boolean;
   page?: number;
   page_size?: number;
+  ordering?: string;
+  college_id?: string;
 }
 
 export const userService = {
@@ -37,6 +45,8 @@ export const userService = {
     if (filters.is_active !== undefined) params.append('is_active', filters.is_active.toString());
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.page_size) params.append('page_size', filters.page_size.toString());
+    if (filters.ordering) params.append('ordering', filters.ordering);
+    if (filters.college_id) params.append('college_id', filters.college_id);
 
     return await restApiAuthUtil.get<PaginatedUsersResponse>(`/auth/users/?${params.toString()}`);
   },

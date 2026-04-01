@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export type StatusType =
     | 'active' | 'approved' | 'published'

@@ -143,6 +143,8 @@ class CollegeSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "short_form",
+            "location",
+            "website",
             "college_type",
             "affiliated_university",
             "is_aicte_approved",

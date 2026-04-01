@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import PageHeader from '@/components/common/PageHeader';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Eye, Clock, Calendar, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -16,7 +16,7 @@ export default function MockInterviewAnalytics() {
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [mockInterview, setMockInterview] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
-    const fetchedRef = React.useRef(false);
+    const fetchedRef = useRef(false);
 
     useEffect(() => {
         if (mockInterviewId && !fetchedRef.current) {
@@ -59,23 +59,26 @@ export default function MockInterviewAnalytics() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="flex">
-                <RoleSidebar />
+        
+            <SidebarProvider>
+<div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+                <AdminSidebar />
                 <div className="flex-1">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <PageHeader
-                            title={mockInterview?.title || 'Mock Interview Analytics'}
-                            subtitle="View participant submissions and performance"
-                            actions={
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <h1 className="text-2xl font-bold tracking-tight">{mockInterview?.title || 'Mock Interview Analytics'}</h1>
+                                <p className="text-muted-foreground">View participant submissions and performance</p>
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => navigate('/admin/mock-interview')}
-                                    className="bg-white0 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+                                    className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
                                 >
                                     ← Back to Interviews
                                 </button>
-                            }
-                        />
+                            </div>
+                        </div>
 
                         <div className="mt-6">
                             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -181,6 +184,6 @@ export default function MockInterviewAnalytics() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SidebarProvider>
     );
 }

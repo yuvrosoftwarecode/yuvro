@@ -6,7 +6,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BookOpen, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import { BookOpen, Library, GraduationCap, UserCheck, FileQuestion, ClipboardCheck, Home, Building2, Building, Layers, Calendar, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,10 @@ import yuvroCampusCombined from '@/assets/yuvro-campus-combined.png';
 
 const adminMenuItems = [
   { title: 'Dashboard', url: '/admin/dashboard', icon: Home },
+  { title: 'User Management', url: '/admin/users', icon: Users },
   { title: 'College', url: '/admin/college', icon: Building2 },
+  { title: 'Subjects', url: '/admin/subjects/global', icon: Library },
+  { title: 'Mock Interviews', url: '/admin/mock-interview', icon: Users },
   { title: 'Departments', url: '/admin/departments', icon: Building },
   { title: 'Batches', url: '/admin/batches', icon: Layers },
   { title: 'Semesters', url: '/admin/semesters', icon: Calendar },
