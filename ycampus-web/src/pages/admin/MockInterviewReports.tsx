@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import PageHeader from '@/components/common/PageHeader';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Eye, Clock, Calendar, CheckCircle, Search, Bot } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -89,15 +89,18 @@ export default function MockInterviewReports() {
     });
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="flex">
-                <RoleSidebar />
+        
+            <SidebarProvider>
+<div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+                <AdminSidebar />
                 <div className="flex-1">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <PageHeader
-                            title="Mock Interview Reports"
-                            subtitle="View and analyze all student mock interview sessions"
-                        />
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <h1 className="text-2xl font-bold tracking-tight">Mock Interview Reports</h1>
+                                <p className="text-muted-foreground">View and analyze all student mock interview sessions</p>
+                            </div>
+                        </div>
 
                         <div className="mt-6">
                             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -231,6 +234,6 @@ export default function MockInterviewReports() {
                     </div>
                 </div>
             </div>
-        </div>
+        </SidebarProvider>
     );
 }

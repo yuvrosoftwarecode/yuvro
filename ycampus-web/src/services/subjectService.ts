@@ -532,6 +532,7 @@ const subjectService = {
   getAttendanceSessions,
   getAssignmentDetails,
   fetchFacultyStats,
+  getFacultyAssignments,
 };
 
 export default subjectService;

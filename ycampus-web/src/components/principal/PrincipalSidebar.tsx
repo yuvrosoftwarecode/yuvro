@@ -12,7 +12,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
-import yuvroCampusLogo from '@/assets/YuvroCampusLogo.png';
+import yuvroCampusLogo from '@/assets/yuvro-campus-combined.png';
+import knowledgeTreeIcon from '@/assets/knowledge-tree.png';
+import jntuLogo from '@/assets/JNTU_Hyderabad_logo.png';
 
 const mainItems = [
   { title: 'Dashboard', url: '/principal/dashboard', icon: LayoutDashboard },
@@ -30,7 +32,8 @@ export function PrincipalSidebar() {
   const { theme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const [profileOpen, setProfileOpen] = useState(false);
-  const initials = user?.name?.split(' ').map(n => n[0]).join('') || 'P';
+  const firstName = user?.first_name || user?.username || 'Principal';
+  const initials = firstName.charAt(0).toUpperCase();
 
   const handleLogout = async () => {
     await logout();
@@ -45,7 +48,7 @@ export function PrincipalSidebar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button onClick={toggleSidebar} className="mx-auto hover:opacity-80 transition-opacity">
-                  <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">Y</div>
+                  <img src={knowledgeTreeIcon} alt="Yuvro" className="h-8 w-8 shrink-0 object-contain" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">Expand Sidebar</TooltipContent>
@@ -109,13 +112,27 @@ export function PrincipalSidebar() {
             {!collapsed && (
               <>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-medium truncate">{user?.name}</p>
+                  <p className="text-sm font-medium truncate">{firstName}</p>
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Principal</Badge>
                 </div>
                 <ChevronsUpDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
               </>
             )}
           </button>
+           {/* College Logo Section */}
+                    <div className={`mt-1 flex items-center border-t border-border/40 pt-3 ${collapsed ? 'justify-center' : 'gap-3 px-3 pb-3 transition-all duration-200 hover:bg-sidebar-accent/30'}`}>
+                      <img src={jntuLogo} alt="JNTU Hyderabad" className="h-8 w-8 shrink-0 object-contain" />
+                      {!collapsed && (
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-tight">
+                            JNTU Hyderabad
+                          </p>
+                          <p className="text-[10px] font-medium text-muted-foreground truncate tracking-widest opacity-70">
+                            University Campus
+                          </p>
+                        </div>
+                      )}
+                    </div>
           <div className={`overflow-hidden transition-all duration-300 ease-in-out ${profileOpen && !collapsed ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="px-2 pb-2 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground px-2 pb-1 truncate">{user?.email}</p>

@@ -1,33 +1,28 @@
-import React from 'react';
+
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  actions?: React.ReactNode;
+  title: string;
+  subtitle?: string;
   className?: string;
+  actions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({
-  title,
-  subtitle,
-  actions,
-  className = ''
-}) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, className, actions }) => {
   return (
-    <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 ${className}`}>
-      <div className="space-y-0.5">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+    <div className={cn("flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 mb-8", className)}>
+      <div className="space-y-2">
+        <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-slate-500 text-[13px] font-medium max-w-2xl">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] pl-1">
             {subtitle}
           </p>
         )}
       </div>
-      
       {actions && (
-        <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="flex items-center gap-3">
           {actions}
         </div>
       )}

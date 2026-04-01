@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart2, Brain, CheckCircle, Clock, Eye, FileText, Mic, Pencil, Settings, Trash2, Users } from 'lucide-react';
+import { BarChart2, Brain, CheckCircle, Clock, Eye, FileText, Mic, Pencil, Settings, Trash2, Users, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import StatusBadge from '@/components/common/StatusBadge';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import PageHeader from '@/components/common/PageHeader';
-import SearchBar from '@/components/common/SearchBar';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { StatsCard } from '@/components/common/StatsCard';
 import { DataTable, Column } from '@/components/common/DataTable';
@@ -275,16 +276,20 @@ export default function MockInterviewPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex">
-        <RoleSidebar />
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
         <div className="flex-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <PageHeader
-                title={getHeaderTitle()}
-                subtitle={getHeaderSubtitle()}
-                actions={headerActions}
-            />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">{getHeaderTitle()}</h1>
+                <p className="text-muted-foreground">{getHeaderSubtitle()}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {headerActions}
+              </div>
+            </div>
 
             <div className="mt-6">
                 {currentView === 'list' && (
@@ -326,8 +331,14 @@ export default function MockInterviewPage() {
                         </TabsList>
                         </Tabs>
 
-                        <div className="group relative h-full flex items-center">
-                        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+                        <div className="relative flex-1 w-full h-full min-w-[250px]">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search by title or description..."
+                                className="pl-9 h-full bg-white border-gray-200 w-full"
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                            />
                         </div>
                     </div>
                     </div>
@@ -455,6 +466,6 @@ export default function MockInterviewPage() {
           </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

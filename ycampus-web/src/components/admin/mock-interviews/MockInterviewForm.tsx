@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Settings, FileText, ArrowLeft, Plus, Minus } from 'lucide-react';
 import QuestionBank from '@/components/common/QuestionBank';
 import { toast } from 'sonner';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import PageHeader from '@/components/common/PageHeader';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { mockInterviewService } from '@/services/mockInterviewService';
 import { fetchQuestionById } from '@/services/questionService';
 
@@ -335,15 +335,17 @@ export default function MockInterviewForm() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex">
-        <RoleSidebar />
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
         <div className="flex-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <PageHeader
-              title={getHeaderTitle()}
-              subtitle={getHeaderSubtitle()}
-              actions={
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">{getHeaderTitle()}</h1>
+                <p className="text-muted-foreground">{getHeaderSubtitle()}</p>
+              </div>
+              <div className="flex items-center gap-2">
                 <Button
                   onClick={() => navigate('/admin/mock-interview')}
                   variant="outline"
@@ -352,8 +354,8 @@ export default function MockInterviewForm() {
                   <ArrowLeft className="h-4 w-4" />
                   Back to List
                 </Button>
-              }
-            />
+              </div>
+            </div>
             <div className="bg-white shadow rounded-lg mb-6 p-6">
               <Tabs value={currentFormTab} onValueChange={setCurrentFormTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 mb-6 bg-white p-1 rounded-lg">
@@ -722,6 +724,6 @@ export default function MockInterviewForm() {
           </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

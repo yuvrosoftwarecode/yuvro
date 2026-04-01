@@ -1,6 +1,6 @@
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
+import { Card, CardContent } from '@/components/ui/card';
 import { useDepartments } from '@/hooks/useDepartments';
 import { Building2, Users, BookOpen, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,75 +16,43 @@ const cardGradients = [
 
 const cardIcons = [Building2, GraduationCap, BookOpen, Users, Building2, GraduationCap];
 
-// Assuming DepartmentCard is defined elsewhere or will be created.
-// For the purpose of this change, we'll use the provided structure.
-const DepartmentCard = ({ id, name, code, description, semesters, index }) => {
-  const navigate = useNavigate();
-  const Icon = cardIcons[index % cardIcons.length];
-  const gradient = cardGradients[index % cardGradients.length];
-
-  return (
-    <Card
-      key={id}
-      onClick={() => navigate(`/principal/departments/${id}`)}
-      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-none`}
-    >
-      <CardContent className="p-6 flex flex-col items-center gap-3">
-        <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
-          <Icon className="h-8 w-8" />
-        </div>
-        <h3 className="text-xl font-semibold text-center">{name}</h3>
-        <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{code}</span>
-        {description && (
-          <p className="text-sm text-white/80 text-center mt-1">{description}</p>
-        )}
-        <p className="text-xs text-white/60 mt-2">
-          {semesters?.length || 0} Semesters
-        </p>
-      </CardContent>
-    </Card>
-  );
-};
-
-
 const PrincipalDepartments = () => {
   const { departments, isLoading } = useDepartments();
   const navigate = useNavigate();
 
   return (
     <SidebarProvider>
-      <RoleSidebar />
-      <SidebarInset className="p-4 md:p-6 bg-background">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold">Departments</h1>
+      <div className="h-screen flex w-full overflow-hidden">
+        <PrincipalSidebar />
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex items-center justify-end px-4 py-2 border-b shrink-0">
           </div>
+<main className="flex-1 p-6 bg-background overflow-y-auto">
+            <h1 className="text-2xl font-bold mb-6">Departments</h1>
             {isLoading ? (
               <p className="text-muted-foreground">Loading departments...</p>
             ) : departments && departments.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {departments.map((dept, index) => {
                   const Icon = cardIcons[index % cardIcons.length];
                   const gradient = cardGradients[index % cardGradients.length];
-                  const hodName = dept.hod_details
-                    ? `${dept.hod_details.user_details.first_name} ${dept.hod_details.user_details.last_name}`.trim()
-                    : null;
                   return (
                     <Card
                       key={dept.id}
                       onClick={() => navigate(`/principal/departments/${dept.id}`)}
-                      className={`bg-gradient-to-br ${gradient} text-white border-0 hover:-translate-y-1 transition-all duration-300 cursor-pointer shadow-none`}
+                      className={`bg-gradient-to-br ${gradient} text-white border-0 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
                     >
                       <CardContent className="p-6 flex flex-col items-center gap-3">
                         <div className="p-3 rounded-full bg-white/20 backdrop-blur-sm">
                           <Icon className="h-8 w-8" />
                         </div>
-                        <h3 className="text-xl font-semibold text-center">{dept.name}</h3>
-                        {dept.short_form && (
-                          <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{dept.short_form}</span>
+                        <h3 className="text-xl font-bold text-center">{dept.name}</h3>
+                        <span className="text-sm bg-white/20 px-3 py-1 rounded-full">{dept.code}</span>
+                        {dept.description && (
+                          <p className="text-sm text-white/80 text-center mt-1">{dept.description}</p>
                         )}
                         <p className="text-xs text-white/60 mt-2">
-                          {dept.semesterCount} Semester{dept.semesterCount !== 1 ? 's' : ''}
+                          {dept.semesters?.length || 0} Semesters
                         </p>
                       </CardContent>
                     </Card>
@@ -94,8 +62,9 @@ const PrincipalDepartments = () => {
             ) : (
               <p className="text-muted-foreground">No departments found.</p>
             )}
-          </div>
-      </SidebarInset>
+          </main>
+        </div>
+      </div>
     </SidebarProvider>
   );
 };

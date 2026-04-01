@@ -1,86 +1,110 @@
-import React from 'react';
-import { Card } from '@/components/ui/card';
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Play, Clock } from 'lucide-react';
+import { Play, Clock, HelpCircle } from 'lucide-react';
+
 
 interface InterviewRoleCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
-  gradient: string; // Tailwind gradient classes e.g. "from-orange-500 to-rose-500"
+  gradient: string;
   duration: number;
   questionCount: number;
-  category: string; // Startup, Product Based, Service Based
+  category: string;
   onStart: () => void;
+  buttonType?: 'start' | 'report';
+
 }
+
+const getCategoryBadgeClass = (category: string) => {
+  switch (category) {
+    case 'Product Based':
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'Startup':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'Service Based':
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    default:
+      return 'bg-slate-50 text-slate-600 border-slate-200';
+  }
+};
 
 const InterviewRoleCard: React.FC<InterviewRoleCardProps> = ({
   title,
   description,
   icon,
-  gradient,
   duration,
   questionCount,
   category,
   onStart,
+  buttonType = 'start', // ✅ default value
 }) => {
   return (
-    <Card className="group relative h-full flex flex-col overflow-hidden border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 rounded-2xl">
-      {/* Top Gradient Section */}
-      <div className={`relative h-32 w-full bg-gradient-to-br ${gradient} flex items-center justify-center overflow-hidden`}>
-        {/* Decorative Circles */}
-        <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-black/5 rounded-full blur-2xl" />
-        
-        {/* Icon */}
-        <div className="relative z-10 p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-inner group-hover:scale-110 transition-transform duration-500">
-          <span className="text-3xl text-white drop-shadow-md">
-            {icon}
-          </span>
-        </div>
-
-        {/* Duration Badge */}
-        <div className="absolute top-3 right-3 px-2 py-1 bg-black/20 backdrop-blur-md rounded-lg border border-white/20 flex items-center gap-1.5">
-          <Clock className="w-3 h-3 text-white/90" />
-          <span className="text-[10px] font-bold text-white uppercase tracking-wider">{duration}m Interview</span>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-slate-900 transition-colors">
-            {title}
-          </h3>
-          <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4">
-            {description}
-          </p>
-        </div>
-
-        {/* Info Row */}
-        <div className="flex items-center justify-between mt-auto mb-4 pt-4 border-t border-slate-50">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">
-              {questionCount} Questions
-            </span>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow border-slate-200 rounded-xl group flex flex-col h-full">
+      <CardHeader className="px-6 pt-6 pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-2 flex-1 min-w-0">
+            {/* Type + category badge row — same as Task */}
+            <div className="flex items-center gap-2 mb-1.5">
+              <Badge
+                variant="outline"
+                className={`text-[10px] tracking-wide font-semibold border px-2.5 py-0.5 ${getCategoryBadgeClass(category)}`}
+              >
+                {category}
+              </Badge>
+            </div>
+            <CardTitle className="text-[18px] font-semibold group-hover:text-primary transition-colors leading-tight line-clamp-2">
+              {title}
+            </CardTitle>
+            <CardDescription className="line-clamp-2 text-sm font-normal text-slate-500 leading-relaxed min-h-[40px]">
+              {description}
+            </CardDescription>
           </div>
-          <Badge variant="secondary" className="bg-white text-slate-600 border-none font-bold text-[10px] uppercase px-2 py-0.5 rounded-md">
-            {category}
-          </Badge>
+  
         </div>
+      </CardHeader>
 
-        {/* Action Button */}
-        <Button 
-          onClick={onStart}
-          className={`w-full py-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all active:scale-95 shadow-lg shadow-slate-200 group-button`}
-        >
-          <Play className="w-4 h-4 mr-2 fill-current" />
-          Start Interview
-        </Button>
+        <CardContent className="px-6 pb-6 pt-0 mt-auto">
+  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+    <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
+      <div className="flex items-center gap-1.5">
+        <Clock className="h-3.5 w-3.5" />
+        <span>{duration} mins</span>
       </div>
-    </Card>
+      <div className="flex items-center gap-1.5">
+        <HelpCircle className="h-3.5 w-3.5" />
+        <span>{questionCount} questions</span>
+      </div>
+    </div>
+
+    {buttonType === 'report' ? (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={e => { e.stopPropagation(); onStart(); }}
+        className="gap-1.5 h-9 text-sm font-semibold px-4 shrink-0"
+      >
+        Show Report
+      </Button>
+    ) : (
+      <Button
+        size="sm"
+        onClick={e => { e.stopPropagation(); onStart(); }}
+        className="gap-1.5 h-9 text-sm font-semibold px-4 shrink-0"
+      >
+        <Play className="h-3.5 w-3.5 fill-current" />
+        Start
+      </Button>
+    )}
+  </div>
+</CardContent>
+      </Card>
+    
+    
+    
+    
   );
 };
 

@@ -1,143 +1,231 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import RoleSidebar from '../../components/common/RoleSidebar';
-import PageHeader from '../../components/common/PageHeader';
-import { getFacultyAssignments, SectionSubjectFaculty } from '../../services/subjectService';
-import { BookOpen, Users, Calendar, ArrowRight, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import FacultyLayout from '@/components/layouts/FacultyLayout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Loader2, Users, BookOpen, Briefcase } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { getFacultyAssignments, SectionSubjectFaculty } from '@/services/subjectService';
 
-const Attendance: React.FC = () => {
-    const { user } = useAuth();
+const Attendance = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Filter states
+    const [selectedDept, setSelectedDept] = useState<string>('all');
+    const [selectedSubject, setSelectedSubject] = useState<string>('all');
+    const [selectedBatch, setSelectedBatch] = useState<string>('all');
+    const [selectedSection, setSelectedSection] = useState<string>('all');
 
     useEffect(() => {
-        const fetchAssignments = async () => {
-            try {
-                setLoading(true);
-                // Passing empty string or null will trigger the backend 'faculty__user=request.user' filter for faculty role
-                const data = await getFacultyAssignments(); 
-                setAssignments(data);
-            } catch (err) {
-                console.error("Failed to fetch assignments", err);
-                toast.error("Failed to load your assigned subjects");
-            } finally {
-                setLoading(false);
-            }
-        };
+        fetchAssignments();
+    }, []);
 
-        if (user) {
-            fetchAssignments();
+    const fetchAssignments = async () => {
+        try {
+            setIsLoading(true);
+            const data = await getFacultyAssignments();
+            setAssignments(data);
+        } catch (err) {
+            console.error("Failed to fetch assignments", err);
+            toast({ title: "Error", description: "Failed to load subjects", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
         }
-    }, [user]);
+    };
+
+    // Derived filter options (Matching faculty/task)
+    const uniqueDepts = useMemo(() => {
+        const depts = new Map();
+        assignments.forEach(a => {
+            const deptId = a.semester_subject_details?.department_id;
+            const deptName = a.semester_subject_details?.department_name;
+            if (deptId) depts.set(String(deptId), deptName || 'Unknown Department');
+        });
+        return Array.from(depts.entries()).map(([id, name]) => ({ id, name }));
+    }, [assignments]);
+
+    const availableSubjects = useMemo(() => {
+        if (selectedDept === 'all') return [];
+        const subs = new Map();
+        assignments
+            .filter(a => String(a.semester_subject_details?.department_id) === selectedDept)
+            .forEach(a => {
+                const sub = a.semester_subject_details?.subject_details;
+                if (sub) subs.set(String(sub.id), sub.subject_name || sub.name);
+            });
+        return Array.from(subs.entries()).map(([id, name]) => ({ id, name }));
+    }, [assignments, selectedDept]);
+
+    const uniqueBatches = useMemo(() => {
+        if (selectedDept === 'all' || selectedSubject === 'all') return [];
+        const batches = new Set<string>();
+        assignments
+            .filter(a =>
+                String(a.semester_subject_details?.department_id) === selectedDept &&
+                String(a.semester_subject_details?.subject_details?.id) === selectedSubject
+            )
+            .forEach(a => {
+                if (a.semester_subject_details?.batch_name) {
+                    batches.add(a.semester_subject_details.batch_name);
+                }
+            });
+        return Array.from(batches).map(name => ({ id: name, name }));
+    }, [assignments, selectedDept, selectedSubject]);
+
+    const availableSections = useMemo(() => {
+        if (selectedDept === 'all' || selectedSubject === 'all') return [];
+        return assignments
+            .filter(a =>
+                String(a.semester_subject_details?.department_id) === selectedDept &&
+                String(a.semester_subject_details?.subject_details?.id) === selectedSubject &&
+                (selectedBatch === 'all' || a.semester_subject_details?.batch_name === selectedBatch)
+            )
+            .map(a => ({ id: String(a.section), name: a.section_name || `Section ${a.section}` }));
+    }, [assignments, selectedDept, selectedSubject, selectedBatch]);
+
+    const filteredAssignments = assignments
+        .filter(a => selectedDept === 'all' || String(a.semester_subject_details?.department_id) === selectedDept)
+        .filter(a => selectedSubject === 'all' || String(a.semester_subject_details?.subject_details?.id) === selectedSubject)
+        .filter(a => selectedBatch === 'all' || a.semester_subject_details?.batch_name === selectedBatch)
+        .filter(a => selectedSection === 'all' || String(a.section) === selectedSection);
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="flex">
-                <RoleSidebar />
-                <div className="flex-1">
-
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <PageHeader 
-                            title="Attendance Management" 
-                            subtitle="Take and manage attendance for your assigned sections" 
-                        />
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <Loader2 className="h-10 w-10 text-orange-500 animate-spin mb-4" />
-                                <p className="text-gray-500 font-medium">Loading your assignments...</p>
-                            </div>
-                        ) : assignments.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {assignments.map((assignment) => (
-                                    <Card 
-                                        key={assignment.id} 
-                                        className="hover:shadow-lg transition-all border-gray-100 hover:border-orange-200 group overflow-hidden relative flex flex-col h-full bg-white"
-                                    >
-                                        <CardContent className="p-6 flex flex-col flex-1">
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between mb-4">
-                                                <div className="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-inner border border-orange-100/50">
-                                                    <BookOpen className="h-6 w-6" />
-                                                </div>
-                                                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
-                                                    {assignment.section_name || "Section"}
-                                                </Badge>
-                                            </div>
-
-                                            {/* Subject Info */}
-                                            <div className="mb-6 flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-bold text-gray-900 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2 text-lg">
-                                                        {assignment.semester_subject_details?.subject_details?.subject_name || "Unknown Subject"}
-                                                    </h3>
-                                                </div>
-                                                
-                                                <div className="space-y-1 mt-3">
-                                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 capitalize">
-                                                        <span className="font-semibold text-gray-700">Branch:</span>
-                                                        {assignment.semester_subject_details?.department_name || "N/A"}
-                                                    </p>
-                                                    <div className="flex items-center gap-3">
-                                                        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                            <span className="font-semibold text-gray-700">Batch:</span>
-                                                            {assignment.semester_subject_details?.batch_name || "N/A"}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                            <span className="font-semibold text-gray-700">Sem:</span>
-                                                            {assignment.semester_subject_details?.semester_number || "N/A"}
-                                                        </p>
-                                                    </div>
-                                                    <p className="text-sm text-gray-500 mt-3 pt-2 flex items-center gap-1.5 border-t border-gray-50">
-                                                        <Users className="h-4 w-4 text-orange-400" />
-                                                        <span className="font-medium">{assignment.student_count || 0}</span>
-                                                        <span>Students enrolled</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Footer/Action */}
-                                            <div className="pt-4 border-t border-gray-50 flex items-center justify-between mt-auto">
-                                                <div className="text-xs text-gray-400 flex items-center gap-1">
-                                                    <Calendar className="h-3.5 w-3.5" />
-                                                    <span>Last session: Today</span>
-                                                </div>
-                                                <Button 
-                                                    className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm rounded-lg h-9 px-4 text-sm font-semibold group/btn"
-                                                    onClick={() => navigate(`/faculty/attendance/${assignment.id}/take`)}
-                                                >
-                                                    Take Attendance
-                                                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                        
-                                        {/* Bottom Decorator */}
-                                        <div className="h-1 w-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-0" />
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-12 text-center max-w-2xl mx-auto">
-                                <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <BookOpen className="h-10 w-10 text-gray-300" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">No Assignments Found</h3>
-                                <p className="text-gray-500 mb-8">
-                                    You don't have any subjects or sections assigned to you for attendance management yet. 
-                                    Please contact your Department Administrator (HOD) for assignments.
-                                </p>
-                            </div>
-                        )}
-                    </div>
+        <FacultyLayout>
+            <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 animate-in fade-in duration-500">
+                {/* Header Section */}
+                <div>
+                    <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Attendance Hub</h1>
+                    <p className="text-muted-foreground font-medium mt-1">Record classroom presence and sync session history</p>
                 </div>
+
+                {/* Filters Bar (Task 1:1 replica) */}
+                <Card className="border-slate-200 shadow-sm bg-slate-50/50 mb-6">
+                    <CardContent className="pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Department</label>
+                                <Select value={selectedDept} onValueChange={(v) => { setSelectedDept(v); setSelectedSubject('all'); setSelectedBatch('all'); setSelectedSection('all'); }}>
+                                    <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors shadow-none">
+                                        <SelectValue placeholder="Select Department" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Departments</SelectItem>
+                                        {uniqueDepts.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Subject</label>
+                                <Select value={selectedSubject} onValueChange={(v) => { setSelectedSubject(v); setSelectedBatch('all'); setSelectedSection('all'); }} disabled={selectedDept === 'all'}>
+                                    <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors shadow-none">
+                                        <SelectValue placeholder="Select Subject" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Subjects</SelectItem>
+                                        {availableSubjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Batch</label>
+                                <Select value={selectedBatch} onValueChange={(v) => { setSelectedBatch(v); setSelectedSection('all'); }} disabled={selectedSubject === 'all'}>
+                                    <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors shadow-none">
+                                        <SelectValue placeholder="All Batches" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Batches</SelectItem>
+                                        {uniqueBatches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">Section (optional)</label>
+                                <Select value={selectedSection} onValueChange={setSelectedSection} disabled={selectedSubject === 'all'}>
+                                    <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors shadow-none">
+                                        <SelectValue placeholder="All Sections" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Sections</SelectItem>
+                                        {availableSections.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Assignments Grid */}
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-2xl border border-dashed">
+                        <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
+                        <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Searching Roster...</p>
+                    </div>
+                ) : filteredAssignments.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {filteredAssignments.map((assignment, index) => (
+                            <Card key={assignment.id || index} className="cursor-pointer hover:shadow-lg transition-all border-slate-200 group bg-white shadow-sm">
+                                <CardContent className="p-6">
+                                    <div className="flex justify-between items-start mb-4 gap-4">
+                                        <div className="space-y-1 w-full overflow-hidden">
+                                            <div className="flex items-center gap-2 text-slate-500/90 font-bold text-[11px] mb-4 uppercase tracking-tighter">
+                                                <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="truncate">{assignment.semester_subject_details?.subject_details?.subject_code || 'SUB'}</span>
+                                            </div>
+                                            <h3 className="font-bold text-lg leading-tight text-slate-800 line-clamp-2" title={assignment.semester_subject_details?.subject_details?.subject_name}>
+                                                {assignment.semester_subject_details?.subject_details?.subject_name || 'Subject Name'}
+                                            </h3>
+                                            <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1 truncate" title={assignment.semester_subject_details?.department_name}>
+                                                <Briefcase className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="truncate">{assignment.semester_subject_details?.department_name || 'Department'}</span>
+                                            </p>
+                                        </div>
+                                        <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 shrink-0 font-bold px-3">
+                                            {assignment.semester_subject_details?.batch_name || 'Batch'}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-6 border-t border-slate-100">
+                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                                            <Users className="h-4 w-4 text-slate-400" />
+                                            <span className="text-sm font-semibold text-slate-700">
+                                                {(assignment.section_name || assignment.section || '').toString().toLowerCase().startsWith('section') 
+                                                    ? (assignment.section_name || assignment.section) 
+                                                    : `Section ${assignment.section_name || assignment.section}`}
+                                            </span>
+                                        </div>
+
+                                        <Button
+                                            className="w-full sm:w-auto shadow-sm hover:shadow font-bold h-10 px-6 tracking-tight bg-primary text-white"
+                                            onClick={() => navigate(`/faculty/attendance/${assignment.id}/take`)}
+                                        >
+                                            Take Attendance
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="col-span-full py-20 text-center bg-white border border-dashed rounded-2xl border-slate-200">
+                        <div className="bg-slate-100 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <BookOpen className="h-10 w-10 text-slate-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-700">No sessions available</h3>
+                        <p className="text-slate-500 font-medium max-w-sm mx-auto mt-2 leading-relaxed">
+                            Filter criteria did not match any assigned sections. Try adjusting your search parameters.
+                        </p>
+                    </div>
+                )}
             </div>
-        </div>
+        </FacultyLayout>
     );
 };
 

@@ -44,26 +44,26 @@ const ModernCard: React.FC<ModernCardProps> = ({
 }) => {
     return (
         <Card
-            className={`group relative h-full min-h-[280px] overflow-hidden border border-gray-200 bg-card shadow-none transition-all duration-300 hover:-translate-y-1 ${className}`}
+            className={`group relative h-full min-h-[320px] overflow-hidden border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-100 rounded-[2.5rem] ${className}`}
         >
             {/* Card Decoration (Hover Gradient) */}
-            <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br ${gradientColor.split(' ')[0]} to-transparent`} />
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-gradient-to-br ${gradientColor} to-transparent`} />
 
-            <div className="p-5 h-full flex flex-col relative z-10">
-                <div className="flex items-start justify-between mb-4">
+            <div className="p-8 h-full flex flex-col relative z-10">
+                <div className="flex items-start justify-between mb-6">
                     {/* Main Icon */}
-                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl ${iconClassName} group-hover:scale-110 transition-transform duration-500`}>
-                        <span className="text-2xl filter drop-shadow-sm">{icon}</span>
+                    <div className={`relative flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 ${iconClassName}`}>
+                        <span className="text-2xl filter drop-shadow-md">{icon}</span>
                     </div>
 
-                    {/* Tags (e.g. Difficulty, New, etc.) */}
+                    {/* Tags */}
                     {tags.length > 0 && (
                         <div className="flex gap-2">
                             {tags.map((tag, i) => (
                                 <Badge
                                     key={i}
                                     variant={tag.variant || "secondary"}
-                                    className={`uppercase text-[10px] tracking-wider font-semibold px-2 py-0.5 ${tag.className || ""}`}
+                                    className={`uppercase text-[9px] tracking-[0.2em] font-black px-3 py-1 rounded-xl transition-all ${tag.className || "bg-slate-100 text-slate-600"}`}
                                 >
                                     {tag.text}
                                 </Badge>
@@ -72,28 +72,28 @@ const ModernCard: React.FC<ModernCardProps> = ({
                     )}
                 </div>
 
-                {/* Content (Grows to push bottom section down) */}
-                <div className="flex-grow space-y-2">
-                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
+                {/* Content */}
+                <div className="flex-grow space-y-3">
+                    <h3 className="text-xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors duration-300 line-clamp-2 uppercase">
                         {title}
                     </h3>
-                    <p className="text-sm text-muted-foreground/80 line-clamp-3 leading-relaxed">
+                    <p className="text-sm font-semibold text-slate-400 line-clamp-3 leading-relaxed">
                         {description}
                     </p>
                 </div>
 
-                {/* Bottom Metadata (Progress + Footer) - Fades out on hover */}
-                <div className="mt-4 transition-opacity duration-300 group-hover:opacity-0">
-                    {/* Progress Bar (if applicable) */}
+                {/* Bottom Metadata */}
+                <div className="mt-8 transition-opacity duration-500 group-hover:opacity-0 space-y-6">
+                    {/* Progress Bar */}
                     {progress !== undefined && (
-                        <div className="mb-4">
-                            <div className="flex justify-between text-xs mb-1.5 font-medium text-slate-500">
-                                <span>Progress</span>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+                                <span>Engine Sync</span>
                                 <span>{Math.round(progress)}%</span>
                             </div>
-                            <div className="h-1.5 w-full bg-white rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-50">
                                 <div
-                                    className={`h-full rounded-full transition-all duration-500 ${progress >= 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+                                    className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${progress >= 100 ? 'bg-emerald-500' : 'bg-indigo-600'}`}
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
@@ -102,11 +102,11 @@ const ModernCard: React.FC<ModernCardProps> = ({
 
                     {/* Footer Info */}
                     {footerItems.length > 0 && (
-                        <div className="pt-4 flex items-center justify-between text-xs text-muted-foreground border-t border-slate-50">
+                        <div className="pt-5 flex items-center justify-between border-t border-slate-100/50">
                             {footerItems.map((item, i) => (
-                                <div key={i} className="flex items-center gap-1.5">
-                                    {item.icon}
-                                    <span>{item.text}</span>
+                                <div key={i} className="flex items-center gap-2">
+                                    <div className="text-slate-400">{item.icon}</div>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.text}</span>
                                 </div>
                             ))}
                         </div>
@@ -114,16 +114,19 @@ const ModernCard: React.FC<ModernCardProps> = ({
                 </div>
 
                 {/* Start Button Overlay */}
-                <div className="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-background via-background to-transparent pt-10 flex items-end">
+                <div className="absolute inset-x-0 bottom-0 p-8 translate-y-full group-hover:translate-y-0 transition-all duration-500 bg-gradient-to-t from-white via-white to-transparent pt-16 flex items-end">
                     <Button
                         onClick={(e) => {
                             e.stopPropagation();
                             onAction && onAction();
                         }}
-                        className={`w-full text-white shadow-md rounded-lg h-10 text-sm font-semibold tracking-wide bg-gradient-to-r ${gradientColor} hover:opacity-90 border-0`}
+                        className={`w-full text-white shadow-2xl rounded-2xl h-14 text-xs font-black uppercase tracking-[0.2em] bg-slate-900 hover:bg-black border-0 transition-all active:scale-95 group/btn overflow-hidden relative shadow-indigo-100`}
                     >
-                        <Play className="h-4 w-4 mr-2 fill-current" />
-                        {actionLabel}
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                        <span className="relative z-10 flex items-center gap-3">
+                            <Play className="h-4 w-4 fill-current group-hover/btn:translate-x-1 transition-transform" />
+                            {actionLabel}
+                        </span>
                     </Button>
                 </div>
             </div>

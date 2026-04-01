@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-
-// Stub for adminApiService — replace with real service when available
-const adminApiService = {
-  getAssessmentsByBatch: async (_batchId: string, _studentId: string) => [] as any[],
-  getCandidateTasks: async (_studentId: string) => [] as any[],
-};
+import adminApiService from '@/services/api';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface ReportFilters {
   academicYear: string;
@@ -126,6 +122,7 @@ const DUMMY_SUBJECTS: { name: string; code: string }[] = [
 ];
 
 function generateDummySubject(name: string, code: string, idx: number): SubjectPerformance {
+  // Seeded-ish values per subject index
   const seeds = [
     { notes: 82, test: 78, assess: 85, taskT: 8, taskS: 7, attend: 91, easy: 88, med: 76, hard: 62, streak: 5, testsA: 4 },
     { notes: 65, test: 62, assess: 58, taskT: 10, taskS: 6, attend: 78, easy: 72, med: 55, hard: 40, streak: 2, testsA: 3 },
@@ -269,54 +266,215 @@ export function useStudentReport() {
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
 
+  // Load departments + all students on mount
   useEffect(() => {
     const init = async () => {
-      // Dummy departments
-      setDepartments([
-        { id: 'dept-1', name: 'Computer Science', code: 'CSE' },
-        { id: 'dept-2', name: 'Electronics', code: 'ECE' },
-        { id: 'dept-3', name: 'Mechanical', code: 'MECH' },
+      const [deptRes, studentRes] = await Promise.all([
+        supabase.from('departments').select('id, name, code'),
+        supabase.from('profiles').select('id, full_name, email').eq('role', 'student'),
       ]);
-      setAllStudents([...DUMMY_STUDENTS]);
+      if (deptRes.data && deptRes.data.length > 0) setDepartments(deptRes.data);
+
+      // Merge real students with dummy students
+      const realStudents: BatchStudent[] = (studentRes.data || []).map((p, i) => ({
+        id: p.id,
+        name: p.full_name,
+        rollNo: `STU${String(i + 1).padStart(3, '0')}`,
+        email: p.email,
+      }));
+      setAllStudents([...realStudents, ...DUMMY_STUDENTS]);
       setFiltersLoading(false);
     };
     init();
   }, []);
 
   const loadCourses = useCallback(async (departmentId: string, semester?: string) => {
-    // Dummy courses
-    setCourses(DUMMY_SUBJECTS.map((s, i) => ({
-      id: `course-${i}`,
-      name: s.name,
-      code: s.code,
-      semester: semester ? parseInt(semester) : 5,
-    })));
+    let query = supabase.from('courses').select('id, name, code, semester').eq('department_id', departmentId);
+    if (semester) query = query.eq('semester', parseInt(semester));
+    const { data } = await query;
+    if (data) setCourses(data.map(c => ({ id: c.id, name: c.name, code: c.code, semester: c.semester })));
+    else setCourses([]);
   }, []);
 
   const loadBatches = useCallback(async (departmentId: string) => {
-    // Dummy batches
-    setBatches([
-      { id: 'batch-1', name: '2022-2026', startYear: 2022, endYear: 2026 },
-      { id: 'batch-2', name: '2023-2027', startYear: 2023, endYear: 2027 },
-    ]);
+    const { data: batchIdData } = await supabase
+      .from('batch_ids')
+      .select('id, name, description')
+      .eq('department_id', departmentId)
+      .eq('is_archived', false);
+
+    if (batchIdData && batchIdData.length > 0) {
+      const { data: batchData } = await supabase
+        .from('batches')
+        .select('id, batch_id_ref, start_year, end_year')
+        .in('batch_id_ref', batchIdData.map(b => b.id))
+        .eq('is_archived', false);
+
+      if (batchData && batchData.length > 0) {
+        setBatches(batchData.map(b => {
+          const batchId = batchIdData.find(bi => bi.id === b.batch_id_ref);
+          return { id: b.id, name: batchId?.name || 'Unknown', startYear: b.start_year, endYear: b.end_year };
+        }));
+      } else {
+        setBatches(batchIdData.map(bi => ({ id: bi.id, name: bi.name, startYear: 0, endYear: 0 })));
+      }
+    } else {
+      setBatches([]);
+    }
   }, []);
 
   const loadStudents = useCallback(async (departmentId: string, semester?: string) => {
     setStudentsLoading(true);
-    await new Promise(r => setTimeout(r, 400));
-    setStudents([...DUMMY_STUDENTS]);
+    let query = supabase
+      .from('student_semester_mapping')
+      .select('student_id')
+      .eq('department_id', departmentId)
+      .eq('is_active', true);
+    if (semester) query = query.eq('semester', parseInt(semester));
+
+    const { data: mappings } = await query;
+    if (mappings && mappings.length > 0) {
+      const studentIds = mappings.map(m => m.student_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', studentIds)
+        .eq('role', 'student');
+      if (profiles) {
+        setStudents(profiles.map((p, i) => ({
+          id: p.id, name: p.full_name, rollNo: `STU${String(i + 1).padStart(3, '0')}`, email: p.email,
+        })));
+      }
+    } else {
+      setStudents([]);
+    }
     setStudentsLoading(false);
   }, []);
 
   const loadReport = useCallback(async (studentId: string, filters: Partial<ReportFilters>, externalStudent?: BatchStudent) => {
     setLoading(true);
     try {
-      const student = externalStudent || allStudents.find(s => s.id === studentId) || DUMMY_STUDENTS[0];
-      await new Promise(r => setTimeout(r, 400)); // simulate loading
-      setReport(generateDummyReport(student));
-      setLoading(false);
+      const student = externalStudent || allStudents.find(s => s.id === studentId);
+      if (!student) { setLoading(false); return; }
+
+      // Check if this is a dummy student (demo- or dummy- prefixed)
+      const isDummy = studentId.startsWith('demo-') || studentId.startsWith('dummy-');
+      if (isDummy) {
+        // Use dummy data
+        await new Promise(r => setTimeout(r, 400)); // simulate loading
+        setReport(generateDummyReport(student));
+        setLoading(false);
+        return;
+      }
+
+      // Real student — try API + Supabase
+      const studentCourses = courses.length > 0 ? courses : [];
+      let assessmentData: any[] = [];
+      let taskData: any[] = [];
+
+      try {
+        if (filters.batchId) {
+          const [assessments, tasks] = await Promise.all([
+            adminApiService.getAssessmentsByBatch(filters.batchId, studentId).catch(() => []),
+            adminApiService.getCandidateTasks(studentId).catch(() => []),
+          ]);
+          assessmentData = Array.isArray(assessments) ? assessments : [];
+          taskData = Array.isArray(tasks) ? tasks : [];
+        }
+      } catch { /* API unavailable */ }
+
+      const { data: progressData } = await supabase
+        .from('subtopic_progress').select('*').eq('user_id', studentId);
+
+      // If no courses and no progress, fall back to dummy
+      if (studentCourses.length === 0 && (!progressData || progressData.length === 0)) {
+        setReport(generateDummyReport(student));
+        setLoading(false);
+        return;
+      }
+
+      const subjects: SubjectPerformance[] = studentCourses.map((course, idx) => {
+        const subjectProgress = (progressData || []).filter(p => p.subject_id === course.id);
+        const totalSubtopics = subjectProgress.length || 10;
+        const completedSubtopics = subjectProgress.filter(p => p.completed).length;
+        const notesCompletion = totalSubtopics > 0 ? Math.round((completedSubtopics / totalSubtopics) * 100) : 0;
+
+        const subjectAssessments = assessmentData.filter((a: any) => a.courseId === course.id || a.subjectId === course.id);
+        const subjectTasks = taskData.filter((t: any) => t.courseId === course.id || t.subjectId === course.id);
+
+        const assessmentScores = subjectAssessments
+          .filter((a: any) => a.score != null)
+          .map((a: any) => ({ name: a.name || 'Assessment', score: a.score || 0, date: a.submittedAt || '' }));
+        const assessmentAvg = assessmentScores.length > 0
+          ? Math.round(assessmentScores.reduce((sum: number, a: any) => sum + a.score, 0) / assessmentScores.length) : 0;
+
+        const tasksTotal = subjectTasks.length || 0;
+        const tasksSubmitted = subjectTasks.filter((t: any) => t.status === 'SUBMITTED' || t.status === 'COMPLETED').length;
+        const tasksPending = tasksTotal - tasksSubmitted;
+        const testAvg = assessmentAvg;
+
+        const overallScore = notesCompletion * 0.25 + testAvg * 0.3 + assessmentAvg * 0.25 + (tasksTotal > 0 ? (tasksSubmitted / tasksTotal) * 100 * 0.2 : 0);
+        const strength: 'Strong' | 'Average' | 'Weak' = overallScore >= 70 ? 'Strong' : overallScore >= 40 ? 'Average' : 'Weak';
+        const risk: 'Low' | 'Medium' | 'High' = overallScore >= 70 ? 'Low' : overallScore >= 40 ? 'Medium' : 'High';
+
+        return {
+          id: course.id, name: course.name, code: course.code,
+          notesCompletion, testAvgScore: testAvg, assessmentAvgScore: assessmentAvg,
+          tasksTotal, tasksSubmitted, tasksPending, attendancePercent: 0, strength, risk,
+          totalChapters: Math.ceil(totalSubtopics / 3) || 5,
+          chaptersCompleted: Math.ceil(completedSubtopics / 3),
+          chaptersPending: Math.ceil((totalSubtopics - completedSubtopics) / 3) || 5,
+          topicsNotOpened: totalSubtopics - completedSubtopics,
+          lastLearningDate: subjectProgress.length > 0 ? subjectProgress[subjectProgress.length - 1].updated_at : null,
+          learningStreak: 0, testsAttempted: subjectAssessments.length,
+          easyAvg: 0, mediumAvg: 0, hardAvg: 0, accuracy: assessmentAvg,
+          trend: 'stable' as const,
+          assessmentsTotal: subjectAssessments.length,
+          assessmentsCompleted: subjectAssessments.filter((a: any) => a.status === 'COMPLETED' || a.status === 'SUBMITTED').length,
+          assessmentsInProgress: subjectAssessments.filter((a: any) => a.status === 'IN_PROGRESS').length,
+          assessmentsPending: subjectAssessments.filter((a: any) => a.status === 'PENDING' || a.status === 'SENT').length,
+          assessmentScores, tasksOnTime: tasksSubmitted, tasksLate: 0,
+          classesHeld: 0, classesAttended: 0, missedSessions: 0,
+        };
+      });
+
+      const totalPerf = subjects.length > 0
+        ? Math.round(subjects.reduce((sum, s) => sum + s.notesCompletion * 0.25 + s.testAvgScore * 0.3 + s.assessmentAvgScore * 0.25 + (s.tasksTotal > 0 ? (s.tasksSubmitted / s.tasksTotal) * 100 * 0.2 : 0), 0) / subjects.length)
+        : 0;
+      const overallAttendance = subjects.length > 0 ? Math.round(subjects.reduce((s, sub) => s + sub.attendancePercent, 0) / subjects.length) : 0;
+      const learningCompletion = subjects.length > 0 ? Math.round(subjects.reduce((s, sub) => s + sub.notesCompletion, 0) / subjects.length) : 0;
+
+      const sorted = [...subjects].sort((a, b) => (b.notesCompletion * 0.25 + b.testAvgScore * 0.3 + b.assessmentAvgScore * 0.25) - (a.notesCompletion * 0.25 + a.testAvgScore * 0.3 + a.assessmentAvgScore * 0.25));
+      const sortedPending = [...subjects].sort((a, b) => b.tasksPending - a.tasksPending);
+      const sortedAttend = [...subjects].sort((a, b) => a.attendancePercent - b.attendancePercent);
+      const status: 'On Track' | 'Needs Attention' | 'At Risk' = totalPerf >= 70 ? 'On Track' : totalPerf >= 45 ? 'Needs Attention' : 'At Risk';
+
+      setReport({
+        studentName: student.name, rollNumber: student.rollNo, program: 'B.Tech',
+        semester: filters.semester || '1', section: 'A', performanceIndex: totalPerf, status,
+        overallAttendance, learningCompletion, subjects,
+        strongestSubject: sorted[0]?.name || 'N/A',
+        weakestSubject: sorted[sorted.length - 1]?.name || 'N/A',
+        highestPendingSubject: sortedPending[0]?.name || 'N/A',
+        lowestAttendanceSubject: sortedAttend[0]?.name || 'N/A',
+        performanceGap: sorted.length >= 2 ? Math.round(Math.abs(
+          (sorted[0].notesCompletion * 0.25 + sorted[0].testAvgScore * 0.3 + sorted[0].assessmentAvgScore * 0.25) -
+          (sorted[sorted.length - 1].notesCompletion * 0.25 + sorted[sorted.length - 1].testAvgScore * 0.3 + sorted[sorted.length - 1].assessmentAvgScore * 0.25)
+        )) : 0,
+        activeLearningDays: (progressData || []).length,
+        currentStreak: 0, longestStreak: 0,
+        badges: [
+          { name: 'First Login', earned: true, icon: '🏅' },
+          { name: 'Notes Starter', earned: (progressData || []).length > 0, icon: '📚' },
+          { name: '5 Day Streak', earned: false, icon: '🔥' },
+          { name: 'All Tasks Done', earned: false, icon: '✅' },
+          { name: 'Perfect Attendance', earned: false, icon: '🎯' },
+        ],
+        timeline: [], remarks: [],
+      });
     } catch (err) {
       console.error('Error loading report:', err);
+    } finally {
       setLoading(false);
     }
   }, [allStudents, courses]);

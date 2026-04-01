@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import ReportsScreen from '@/components/student/mock_interview/ReportsScreen';
 

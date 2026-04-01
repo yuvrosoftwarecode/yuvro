@@ -2,203 +2,445 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Clock,
-  Flag,
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  Clock, 
+  Flag, 
+  CheckCircle, 
+  ChevronLeft, 
+  ChevronRight, 
+  AlertTriangle, 
   X,
   Camera,
   Mic,
   CameraOff,
   MicOff,
+  Monitor,
   Eye,
   EyeOff,
-  Maximize,
-  Shield,
-  CheckCircle,
+  MoreVertical,
+  Maximize
 } from 'lucide-react';
-import CodeEditor from '@/components/code-editor/CodeEditor';
-import { submitSkillTest } from "@/services/skillTestService";
-import { toast } from "sonner";
-import { useProctoring } from '@/hooks/useProctoring';
+import CodeEditor from '@/components/ui/code-editor';
 
 interface Assessment {
   id: string;
   title: string;
-  subjectName: string;
+  course: string;
   duration: number;
   totalQuestions: number;
-  topicId: string;
 }
 
 interface Question {
   id: string;
-  type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'descriptive';
-  title: string;
-  content: string;
-  mcq_options?: { text: string; is_correct: boolean }[];
+  type: 'mcq' | 'coding' | 'descriptive';
+  question: string;
+  options?: string[];
+  multipleCorrect?: boolean;
   marks: number;
-  test_cases_basic?: any;
-  test_cases_advanced?: any;
 }
-
 
 interface AssessmentInterfaceProps {
   assessment: Assessment;
-  questions: Question[];
-  submissionId: string;
   onComplete: (stats?: { answeredCount: number; totalQuestions: number; timeSpent: number }) => void;
   onBack: () => void;
-  onSubmit?: (assessmentId: string, submissionId: string, answers: any, explanations: any, q_ids: string[]) => Promise<any>;
-  assessmentType?: 'skill-tests' | 'certification-exams' | 'contests' | 'mock-interviews';
 }
+
+// Mock questions data - increased to 30 questions
+const mockQuestions: Question[] = [
+  {
+    id: '1',
+    type: 'mcq',
+    question: 'What is the time complexity of binary search algorithm?',
+    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '2',
+    type: 'coding',
+    question: 'Write a function to find the maximum element in an array. The function should handle edge cases like empty arrays.',
+    marks: 10
+  },
+  {
+    id: '3',
+    type: 'descriptive',
+    question: 'Explain the concept of object-oriented programming and its four main principles. Provide examples for each principle.',
+    marks: 8
+  },
+  {
+    id: '4',
+    type: 'mcq',
+    question: 'Which of the following are valid HTTP methods? (Select all that apply)',
+    options: ['GET', 'POST', 'FETCH', 'DELETE', 'UPDATE', 'PUT'],
+    multipleCorrect: true,
+    marks: 3
+  },
+  {
+    id: '5',
+    type: 'coding',
+    question: 'Implement a function to check if a string is a palindrome. Ignore case and non-alphanumeric characters.',
+    marks: 8
+  },
+  {
+    id: '6',
+    type: 'mcq',
+    question: 'What is the result of 2 + 2 * 3 in most programming languages?',
+    options: ['8', '12', '10', '6'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '7',
+    type: 'mcq',
+    question: 'Which data structures use LIFO (Last In, First Out) principle?',
+    options: ['Queue', 'Stack', 'Array', 'Linked List'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '8',
+    type: 'coding',
+    question: 'Write a function to reverse a string without using built-in reverse methods.',
+    marks: 6
+  },
+  {
+    id: '9',
+    type: 'mcq',
+    question: 'Which of these are programming paradigms? (Select all that apply)',
+    options: ['Object-Oriented', 'Functional', 'Procedural', 'Recursive', 'Iterative'],
+    multipleCorrect: true,
+    marks: 4
+  },
+  {
+    id: '10',
+    type: 'coding',
+    question: 'Implement a function to find the factorial of a number using recursion.',
+    marks: 8
+  },
+  {
+    id: '11',
+    type: 'mcq',
+    question: 'What is the space complexity of merge sort?',
+    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '12',
+    type: 'coding',
+    question: 'Write a function to find the second largest element in an array.',
+    marks: 7
+  },
+  {
+    id: '13',
+    type: 'mcq',
+    question: 'Which sorting algorithms have O(n log n) average time complexity? (Select all that apply)',
+    options: ['Quick Sort', 'Merge Sort', 'Bubble Sort', 'Heap Sort', 'Insertion Sort'],
+    multipleCorrect: true,
+    marks: 4
+  },
+  {
+    id: '14',
+    type: 'coding',
+    question: 'Implement a function to check if two strings are anagrams of each other.',
+    marks: 8
+  },
+  {
+    id: '15',
+    type: 'mcq',
+    question: 'What is a closure in programming?',
+    options: ['A type of loop', 'A function with access to outer scope', 'A data structure', 'A control statement'],
+    multipleCorrect: false,
+    marks: 3
+  },
+  {
+    id: '16',
+    type: 'coding',
+    question: 'Write a function to find all prime numbers up to a given number using the Sieve of Eratosthenes.',
+    marks: 10
+  },
+  {
+    id: '17',
+    type: 'mcq',
+    question: 'Which of these are valid ways to declare a variable in JavaScript? (Select all that apply)',
+    options: ['var x = 5', 'let y = 10', 'const z = 15', 'int a = 20'],
+    multipleCorrect: true,
+    marks: 3
+  },
+  {
+    id: '18',
+    type: 'coding',
+    question: 'Implement a function to merge two sorted arrays into one sorted array.',
+    marks: 8
+  },
+  {
+    id: '19',
+    type: 'mcq',
+    question: 'What is the time complexity of accessing an element in a hash table (average case)?',
+    options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '20',
+    type: 'coding',
+    question: 'Write a function to implement binary search on a sorted array.',
+    marks: 9
+  },
+  {
+    id: '21',
+    type: 'mcq',
+    question: 'Which of these are characteristics of functional programming? (Select all that apply)',
+    options: ['Immutability', 'Pure Functions', 'Higher-order Functions', 'Global State'],
+    multipleCorrect: true,
+    marks: 4
+  },
+  {
+    id: '22',
+    type: 'coding',
+    question: 'Implement a function to find the longest common subsequence of two strings.',
+    marks: 12
+  },
+  {
+    id: '23',
+    type: 'mcq',
+    question: 'What does SQL stand for?',
+    options: ['Structured Query Language', 'Sequential Query Language', 'Standard Query Language', 'Simple Query Language'],
+    multipleCorrect: false,
+    marks: 2
+  },
+  {
+    id: '24',
+    type: 'coding',
+    question: 'Write a function to implement a simple LRU (Least Recently Used) cache.',
+    marks: 15
+  },
+  {
+    id: '25',
+    type: 'mcq',
+    question: 'Which of these are NoSQL database types? (Select all that apply)',
+    options: ['Document', 'Key-Value', 'Column-Family', 'Relational', 'Graph'],
+    multipleCorrect: true,
+    marks: 4
+  },
+  {
+    id: '26',
+    type: 'coding',
+    question: 'Implement a function to detect if a linked list has a cycle.',
+    marks: 10
+  },
+  {
+    id: '27',
+    type: 'mcq',
+    question: 'What is the difference between == and === in JavaScript?',
+    options: ['No difference', '== checks type, === checks value', '=== checks type and value', '== is deprecated'],
+    multipleCorrect: false,
+    marks: 3
+  },
+  {
+    id: '28',
+    type: 'coding',
+    question: 'Write a function to implement quicksort algorithm.',
+    marks: 12
+  },
+  {
+    id: '29',
+    type: 'mcq',
+    question: 'Which HTTP status codes indicate client errors? (Select all that apply)',
+    options: ['200', '400', '404', '500', '403'],
+    multipleCorrect: true,
+    marks: 3
+  },
+  {
+    id: '30',
+    type: 'coding',
+    question: 'Implement a function to find the shortest path in a weighted graph using Dijkstra\'s algorithm.',
+    marks: 15
+  }
+];
 
 const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   assessment,
-  questions: propQuestions,
-  submissionId,
   onComplete,
-  onBack,
-  onSubmit,
-  assessmentType = 'skill-tests'
+  onBack
 }) => {
-  const [questions, setQuestions] = useState<Question[]>(() => {
-    const order: Record<string, number> = {
-      mcq_single: 1,
-      mcq_multiple: 1,
-      coding: 2,
-      descriptive: 3
-    };
-    return [...propQuestions].sort((a, b) => (order[a.type] || 99) - (order[b.type] || 99));
-  });
-
-  useEffect(() => {
-    const order: Record<string, number> = {
-      mcq_single: 1,
-      mcq_multiple: 1,
-      coding: 2,
-      descriptive: 3
-    };
-    const sorted = [...propQuestions].sort((a, b) => (order[a.type] || 99) - (order[b.type] || 99));
-    setQuestions(sorted);
-  }, [propQuestions]);
-
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [timeLeft, setTimeLeft] = useState(assessment.duration * 60);
-  const [answers, setAnswers] = useState<{ [key: string]: any }>({});
-  const [isDescriptionCollapsed, setIsDescriptionCollapsed] = useState(false);
-
-  const currentQuestionData = questions[currentQuestion];
-
-  useEffect(() => {
-    if (currentQuestionData?.id) {
-      setViewed(prev => {
-        const next = new Set(prev);
-        next.add(currentQuestionData.id);
-        return next;
-      });
-    }
-  }, [currentQuestionData?.id]);
-
-  const isCodingQuestion = currentQuestionData?.type === 'coding';
-  const proctoringQuestionId = isCodingQuestion ? currentQuestionData?.id : undefined;
-
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: true,
-    questionId: undefined
-  });
-
-  useProctoring({
-    assessmentId: assessment.id,
-    assessmentType: assessmentType,
-    enabled: isCodingQuestion,
-    questionId: proctoringQuestionId
-  });
-
-  const [explanations, setExplanations] = useState<{ [key: string]: string }>({});
+  const [answers, setAnswers] = useState<{[key: string]: any}>({});
+  const [explanations, setExplanations] = useState<{[key: string]: string}>({});
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  const [viewed, setViewed] = useState<Set<string>>(new Set());
-  const [codingSubmitted, setCodingSubmitted] = useState<Set<string>>(new Set());
-  const [showExamples, setShowExamples] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [cameraAlert, setCameraAlert] = useState(false);
   const [tabSwitchAlert, setTabSwitchAlert] = useState(false);
   const [showTabSwitchDialog, setShowTabSwitchDialog] = useState(false);
   const [showNavigationDialog, setShowNavigationDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<() => void | null>(null);
   const [isCodeEditorFullscreen, setIsCodeEditorFullscreen] = useState(false);
-
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const [hasMediaAccess, setHasMediaAccess] = useState(true);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
-
-  const [questionPage, setQuestionPage] = useState(0);
+  const streamRef = useRef<MediaStream | null>(null);
+  const managedStreamsRef = useRef<Set<MediaStream>>(new Set());
+  const isSubmittingRef = useRef(false);
+  const playbackRetryTimerRef = useRef<number | null>(null);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [questionPage, setQuestionPage] = useState(0); // For pagination
+  // Debounce timers to stabilize monitoring status updates
+  const videoStatusTimerRef = useRef<number | null>(null);
+  const audioStatusTimerRef = useRef<number | null>(null);
 
-  // Centralized camera cleanup function
-  const cleanupCamera = () => {
-    console.log('cleanupCamera called');
-    if (streamRef.current) {
-      console.log('Stopping media tracks...');
-      streamRef.current.getTracks().forEach(track => {
-        track.stop();
-        console.log('Camera/microphone track stopped:', track.kind);
-      });
-      streamRef.current = null;
-      setVideoTrackEnabled(false);
-      setAudioTrackEnabled(false);
-      console.log('Camera cleanup completed');
-    } else {
-      console.log('No stream to cleanup');
+  const scheduleStableStatusUpdate = (
+    type: 'video' | 'audio',
+    enabled: boolean,
+    delayMs: number = 1000
+  ) => {
+    const timerRef = type === 'video' ? videoStatusTimerRef : audioStatusTimerRef;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
+    timerRef.current = window.setTimeout(() => {
+      if (type === 'video') {
+        setVideoTrackEnabled(prev => (prev !== enabled ? enabled : prev));
+      } else {
+        setAudioTrackEnabled(prev => (prev !== enabled ? enabled : prev));
+      }
+    }, delayMs);
   };
 
+  const stopMediaMonitoring = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    managedStreamsRef.current.forEach((stream) => {
+      stream.getTracks().forEach((track) => track.stop());
+    });
+    managedStreamsRef.current.clear();
+
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+
+    setVideoTrackEnabled(false);
+    setAudioTrackEnabled(false);
+  };
+
+  // Initialize camera and microphone with better permission handling
   useEffect(() => {
     const initializeMedia = async () => {
+      if (isSubmittingRef.current) return;
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true
         });
 
+        if (isSubmittingRef.current) {
+          stream.getTracks().forEach(track => track.stop());
+          return;
+        }
+
+        managedStreamsRef.current.add(stream);
+        
         streamRef.current = stream;
         setHasMediaAccess(true);
         setVideoTrackEnabled(true);
         setAudioTrackEnabled(true);
         setCameraAlert(false);
+        
+        // Enhanced video initialization with multiple attempts
+        const initializeVideo = async () => {
+          if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream;
+            try {
+              await videoRef.current.play();
+            } catch (playError) {
+              console.error('Video play error:', playError);
+              // Retry after a short delay
+              setTimeout(() => {
+                videoRef.current?.play().catch(console.error);
+              }, 500);
+            }
+          }
+        };
+        
+        // Stronger ensure-playback loop for browsers that delay autoplay
+        const ensureVideoPlaying = () => {
+          let attempts = 0;
+          const tryPlay = async () => {
+            attempts += 1;
+            if (!videoRef.current || !streamRef.current) return;
+            const el = videoRef.current;
+            if (el.srcObject !== streamRef.current) {
+              el.srcObject = streamRef.current;
+            }
+            el.muted = true; // enforce autoplay allowance
+            try {
+              if (el.paused) {
+                await el.play();
+              }
+              // if playing, stop retries
+              if (!el.paused) {
+                if (playbackRetryTimerRef.current) clearInterval(playbackRetryTimerRef.current);
+                playbackRetryTimerRef.current = null;
+              }
+            } catch {}
+            if (attempts > 12 && playbackRetryTimerRef.current) {
+              clearInterval(playbackRetryTimerRef.current);
+              playbackRetryTimerRef.current = null;
+            }
+          };
+          if (playbackRetryTimerRef.current) clearInterval(playbackRetryTimerRef.current);
+          playbackRetryTimerRef.current = window.setInterval(tryPlay, 400);
+        };
+        
+        // Multiple initialization attempts
+        await initializeVideo();
+        setTimeout(initializeVideo, 100);
+        setTimeout(initializeVideo, 500);
+        ensureVideoPlaying();
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(console.error);
-        }
+        // Enhanced track monitoring
+        const monitorTrack = (track: MediaStreamTrack, type: 'video' | 'audio') => {
+          const updateStatus = () => {
+            const enabled = track.enabled && track.readyState === 'live';
+            scheduleStableStatusUpdate(type, enabled);
+          };
 
-      } catch (err) {
-        console.error("Media init error", err);
+          track.addEventListener('ended', updateStatus);
+          track.addEventListener('mute', updateStatus);
+          track.addEventListener('unmute', updateStatus);
+          
+          // Regular status check
+          const interval = setInterval(updateStatus, 1000);
+          return () => {
+            clearInterval(interval);
+            track.removeEventListener('ended', updateStatus);
+            track.removeEventListener('mute', updateStatus);
+            track.removeEventListener('unmute', updateStatus);
+          };
+        };
+
+        stream.getVideoTracks().forEach(track => monitorTrack(track, 'video'));
+        stream.getAudioTracks().forEach(track => monitorTrack(track, 'audio'));
+
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
         setHasMediaAccess(false);
         setVideoTrackEnabled(false);
         setAudioTrackEnabled(false);
@@ -208,18 +450,272 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
     initializeMedia();
 
+    // Check for permission changes periodically (only when access is lost)
+    const permissionCheck = setInterval(async () => {
+      if (!hasMediaAccess && !isSubmittingRef.current) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+          });
+
+          if (isSubmittingRef.current) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
+          managedStreamsRef.current.add(stream);
+
+          streamRef.current = stream;
+          setHasMediaAccess(true);
+          setCameraAlert(false);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(console.error);
+          }
+        } catch (error) {
+          // remain in no-access state
+        }
+      }
+    }, 5000);
+
     return () => {
-      console.log('AssessmentInterface component unmounting - cleaning up camera');
-      cleanupCamera();
+      clearInterval(permissionCheck);
+      stopMediaMonitoring();
+      if (playbackRetryTimerRef.current) {
+        clearInterval(playbackRetryTimerRef.current);
+        playbackRetryTimerRef.current = null;
+      }
+    };
+  }, [hasMediaAccess]);
+
+  // Enhanced track monitoring with better state detection
+  useEffect(() => {
+    if (!streamRef.current) return;
+
+    const checkTrackStates = () => {
+      const videoTracks = streamRef.current?.getVideoTracks() || [];
+      const audioTracks = streamRef.current?.getAudioTracks() || [];
+      
+      const videoEnabled = videoTracks.some(track => track.enabled && track.readyState === 'live');
+      const audioEnabled = audioTracks.some(track => track.enabled && track.readyState === 'live');
+      
+      // Debounced/stabilized updates to avoid blinking
+      // Only reassign/play when state actually changes to enabled to avoid flicker
+      if (videoEnabled && videoRef.current && streamRef.current) {
+        const currentSrc = videoRef.current.srcObject as MediaStream | null;
+        if (currentSrc !== streamRef.current) {
+          videoRef.current.srcObject = streamRef.current;
+        }
+        if (videoRef.current.paused) {
+          videoRef.current.play().catch(() => {});
+        }
+      }
+      scheduleStableStatusUpdate('video', videoEnabled);
+      scheduleStableStatusUpdate('audio', audioEnabled);
+    };
+
+    const interval = setInterval(checkTrackStates, 2000); // Less frequent checks to prevent blinking
+    return () => clearInterval(interval);
+  }, [hasMediaAccess]);
+
+  // Derive alert from stabilized track states
+  useEffect(() => {
+    const shouldAlert = !(videoTrackEnabled && audioTrackEnabled);
+    setCameraAlert(prev => (prev !== shouldAlert ? shouldAlert : prev));
+  }, [videoTrackEnabled, audioTrackEnabled]);
+
+  // Ensure video element persists through sidebar changes and re-enable detection
+  useEffect(() => {
+    if (videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current?.play().catch(console.error);
+      };
+      videoRef.current.play().catch(console.error);
+    }
+  }, [isSidebarCollapsed]);
+
+  // Re-initialize media when tracks are re-enabled
+  useEffect(() => {
+    const reinitializeMedia = async () => {
+      if (!hasMediaAccess && !cameraAlert && !isSubmittingRef.current) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+          });
+
+          if (isSubmittingRef.current) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
+          managedStreamsRef.current.add(stream);
+          
+          streamRef.current = stream;
+          setHasMediaAccess(true);
+          
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(console.error);
+          }
+        } catch (error) {
+          console.error('Error re-initializing media:', error);
+        }
+      }
+    };
+
+    reinitializeMedia();
+  }, [hasMediaAccess, cameraAlert]);
+
+  // Fallback: if autoplay is blocked initially, start playback on first user interaction
+  useEffect(() => {
+    const tryResumePlayback = async () => {
+      try {
+        if (videoRef.current && streamRef.current) {
+          const el = videoRef.current;
+          if (el.srcObject !== streamRef.current) {
+            el.srcObject = streamRef.current;
+          }
+          // Only call play if paused or not started
+          // Some browsers throw if calling play() redundantly
+          if (el.paused) {
+            await el.play();
+          }
+        }
+      } catch {}
+    };
+
+    const onUserInteract = () => {
+      tryResumePlayback();
+    };
+
+    document.addEventListener('click', onUserInteract, { capture: true, once: true });
+    document.addEventListener('keydown', onUserInteract, { capture: true, once: true });
+
+    return () => {
+      document.removeEventListener('click', onUserInteract, { capture: true } as any);
+      document.removeEventListener('keydown', onUserInteract, { capture: true } as any);
     };
   }, []);
 
+  // Tab switch detection with exam termination after 2 switches
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 2) {
+            setShowTabSwitchDialog(true);
+          } else {
+            setTabSwitchAlert(true);
+          }
+          return newCount;
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  // Navigation blocking for back button and tab closing
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      event.preventDefault();
+      setShowNavigationDialog(true);
+      setPendingNavigation(() => () => window.history.back());
+      // Push current state back to prevent navigation
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Trigger browser's native confirmation dialog
+      event.preventDefault();
+      event.returnValue = '';
+      return '';
+    };
+
+    const handleVisibilityChange = () => {
+      // Show custom dialog when user comes back after interacting with native dialog
+      if (document.visibilityState === 'visible') {
+        setTimeout(() => {
+          setShowNavigationDialog(true);
+          setPendingNavigation(() => () => window.close());
+        }, 100);
+      }
+    };
+
+    const handleFocus = () => {
+      // Also show dialog when window regains focus (handles both Cancel/Stay and Leave scenarios)
+      setTimeout(() => {
+        setShowNavigationDialog(true);
+        setPendingNavigation(() => () => window.close());
+      }, 100);
+    };
+
+    // Push initial state
+    window.history.pushState(null, '', window.location.href);
+    
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // Listen to browser permission changes (camera/microphone) to update status immediately
+  useEffect(() => {
+    if (!(navigator as any).permissions) return;
+
+    let camStatus: PermissionStatus | null = null;
+    let micStatus: PermissionStatus | null = null;
+
+    const handlePermissionChange = () => {
+      const cameraGranted = camStatus ? camStatus.state === 'granted' : true;
+      const micGranted = micStatus ? micStatus.state === 'granted' : true;
+
+      if (!cameraGranted || !micGranted) {
+        // Reflect loss of access immediately
+        setHasMediaAccess(false);
+        scheduleStableStatusUpdate('video', false, 0);
+        scheduleStableStatusUpdate('audio', false, 0);
+        setCameraAlert(true);
+        // Stop any active tracks
+        stopMediaMonitoring();
+      }
+    };
+
+    (navigator as any).permissions.query({ name: 'camera' }).then((status: PermissionStatus) => {
+      camStatus = status;
+      status.onchange = handlePermissionChange;
+      handlePermissionChange();
+    }).catch(() => {});
+
+    (navigator as any).permissions.query({ name: 'microphone' }).then((status: PermissionStatus) => {
+      micStatus = status;
+      status.onchange = handlePermissionChange;
+      handlePermissionChange();
+    }).catch(() => {});
+
+    return () => {
+      if (camStatus) camStatus.onchange = null;
+      if (micStatus) micStatus.onchange = null;
+    };
+  }, []);
+
+  // Timer
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
-          console.log('Timer expired - cleaning up camera');
-          cleanupCamera(); // Ensure camera is stopped when time runs out
           handleSubmitAssessment();
           return 0;
         }
@@ -230,144 +726,112 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Handle browser navigation/close events
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      console.log('beforeunload event - cleaning up camera');
-      cleanupCamera();
-
-      // Show confirmation dialog
-      event.preventDefault();
-      event.returnValue = '';
-      return '';
-    };
-
-    const handlePopState = () => {
-      console.log('popstate event - cleaning up camera');
-      cleanupCamera();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, []);
-
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleAnswerChange = (questionId: string, answer: any) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }));
   };
 
   const handleExplanationChange = (questionId: string, explanation: string) => {
-    setExplanations(prev => ({ ...prev, [questionId]: explanation }));
+    setExplanations(prev => ({
+      ...prev,
+      [questionId]: explanation
+    }));
   };
 
   const handleFlagQuestion = (questionId: string) => {
     setFlagged(prev => {
-      const n = new Set(prev);
-      n.has(questionId) ? n.delete(questionId) : n.add(questionId);
-      return n;
+      const newFlagged = new Set(prev);
+      if (newFlagged.has(questionId)) {
+        newFlagged.delete(questionId);
+      } else {
+        newFlagged.add(questionId);
+      }
+      return newFlagged;
     });
   };
 
-  const handleBack = () => {
-    console.log('handleBack called - cleaning up camera');
-    cleanupCamera();
-    onBack();
+  const handleSubmitAssessment = () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    stopMediaMonitoring();
+
+    const answeredCount = mockQuestions.filter(q => {
+      if (q.type === 'descriptive') {
+        return answers[q.id]?.trim();
+      } else {
+        return answers[q.id] && explanations[q.id]?.trim();
+      }
+    }).length;
+    
+    const timeSpent = (assessment.duration * 60) - timeLeft;
+    
+    onComplete({
+      answeredCount,
+      totalQuestions: mockQuestions.length,
+      timeSpent
+    });
   };
 
-  const handleSubmitAssessment = async () => {
-    const answeredCount = questions.filter(q => {
-      const ans = answers[q.id];
-      const exp = explanations[q.id]?.trim();
-      if (q.type === 'descriptive' || q.type === 'coding') {
-        return ans?.trim();
-      }
-      if (Array.isArray(ans)) {
-        return ans.length > 0 && exp;
-      }
-      return ans && exp;
-    }).length;
+  const handleTabSwitchDialogClose = () => {
+    // End exam regardless of user action
+    handleSubmitAssessment();
+  };
 
-    const flaggedCount = questions.filter(q => flagged.has(q.id)).length;
-    const timeSpent = (assessment.duration * 60) - timeLeft;
-    const q_ids = questions.map(q => q.id);
+  const handleNavigationConfirm = () => {
+    setShowNavigationDialog(false);
+    setPendingNavigation(null);
+    handleSubmitAssessment();
+  };
 
-    // Stop camera and microphone FIRST before any async operations
-    console.log('handleSubmitAssessment called - cleaning up camera');
-    cleanupCamera();
-
-    try {
-      const loadingToast = toast.loading("Submitting assessment...");
-
-      if (onSubmit) {
-        await onSubmit(assessment.id, submissionId, answers, explanations, q_ids);
-      } else {
-        await submitSkillTest(assessment.id, submissionId, answers, explanations, q_ids);
-      }
-
-      toast.dismiss(loadingToast);
-      toast.success("Assessment submitted successfully!");
-
-      onComplete({
-        answeredCount,
-        totalQuestions: questions.length,
-        timeSpent
-      });
-    } catch (err) {
-      toast.error("Failed to submit assessment. Please try again.");
-      console.error("Submit error", err);
-    }
+  const handleNavigationCancel = () => {
+    setShowNavigationDialog(false);
+    setPendingNavigation(null);
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionData.type.includes('mcq')) {
-      const hasAnswer = answers[currentQuestionData.id];
-      const hasExplanation = explanations[currentQuestionData.id]?.trim();
-
-      if (!hasAnswer || !hasExplanation) {
-        toast.error("Explanation and answer is mandatory. If you don't want to answer, please click on skip.");
-        return;
+    if (currentQuestion < mockQuestions.length - 1) {
+      const newQuestion = currentQuestion + 1;
+      setCurrentQuestion(newQuestion);
+      // Update pagination if needed
+      const newPage = Math.floor(newQuestion / 10);
+      if (newPage !== questionPage) {
+        setQuestionPage(newPage);
       }
-    }
-
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      handleSubmitAssessment();
-    }
-  };
-
-  const handleSkipQuestion = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      handleSubmitAssessment();
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
-      const n = currentQuestion - 1;
-      setCurrentQuestion(n);
-      const newPage = Math.floor(n / 10);
-      if (newPage !== questionPage) setQuestionPage(newPage);
+      const newQuestion = currentQuestion - 1;
+      setCurrentQuestion(newQuestion);
+      // Update pagination if needed
+      const newPage = Math.floor(newQuestion / 10);
+      if (newPage !== questionPage) {
+        setQuestionPage(newPage);
+      }
     }
   };
 
+  // Question navigation with pagination
   const questionsPerPage = 10;
-  const totalPages = Math.ceil(questions.length / questionsPerPage);
+  const totalPages = Math.ceil(mockQuestions.length / questionsPerPage);
   const startQuestion = questionPage * questionsPerPage;
-  const endQuestion = Math.min(startQuestion + questionsPerPage, questions.length);
-  const paginatedQuestions = questions.slice(startQuestion, endQuestion);
+  const endQuestion = Math.min(startQuestion + questionsPerPage, mockQuestions.length);
+  const paginatedQuestions = mockQuestions.slice(startQuestion, endQuestion);
 
   const handleQuestionClick = (index: number) => {
     const actualIndex = startQuestion + index;
@@ -375,159 +839,87 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 0 && newPage < totalPages) {
-      setQuestionPage(newPage);
-    }
+    setQuestionPage(newPage);
   };
 
-  const getQuestionStatus = (questionId: string) => {
+  const getQuestionStatus = (index: number, questionId: string) => {
+    const question = mockQuestions.find(q => q.id === questionId);
+    // For non-descriptive questions, check both answer and explanation
+    if (question && question.type !== 'descriptive') {
+      const hasAnswer = answers[questionId];
+      const hasExplanation = explanations[questionId]?.trim();
+      if (hasAnswer && hasExplanation) return 'answered';
+    } else if (question && question.type === 'descriptive') {
+      // For descriptive questions, only check if answer exists
+      if (answers[questionId]?.trim()) return 'answered';
+    }
     if (flagged.has(questionId)) return 'flagged';
-
-    const q = questions.find(q => q.id === questionId);
-    if (!q) return 'unanswered';
-
-    const ans = answers[q.id];
-    const exp = explanations[q.id]?.trim();
-
-    const isAnswered = q.type === 'descriptive'
-      ? !!ans?.trim()
-      : q.type === 'coding'
-        ? codingSubmitted.has(q.id)
-        : Array.isArray(ans)
-          ? ans.length > 0 && !!exp
-          : !!ans && !!exp;
-
-    if (isAnswered) return 'answered';
-    if (viewed.has(questionId)) return 'viewed';
+    if (index === currentQuestion) return 'current';
     return 'unanswered';
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'viewed': return 'bg-blue-400 text-white hover:bg-blue-500';
-      case 'flagged': return 'bg-orange-500 text-white hover:bg-orange-600';
-      case 'answered': return 'bg-emerald-500 text-white hover:bg-emerald-600';
-      default: return 'bg-white text-gray-700 border border-slate-200 hover:bg-white';
+      case 'answered': return 'bg-green-500 text-white';
+      case 'flagged': return 'bg-yellow-500 text-white';
+      case 'current': return 'bg-primary text-white';
+      default: return 'bg-muted text-muted-foreground border';
     }
   };
 
   const renderQuestion = (question: Question) => {
     switch (question.type) {
-      case 'mcq_single':
+      case 'mcq':
         return (
-          <div className="space-y-4">
-            <RadioGroup
-              value={answers[question.id] || ''}
-              onValueChange={(value) => handleAnswerChange(question.id, value)}
-              className="grid gap-3"
-            >
-              {question.mcq_options?.map((option, index) => {
-                const isSelected = answers[question.id] === option.text;
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-white hover:border-slate-200'}`}
-                    onClick={() => handleAnswerChange(question.id, option.text)}
-                  >
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="flex items-center justify-center w-6">
-                        {isSelected ? (
-                          <CheckCircle className="h-6 w-6 text-emerald-600" />
-                        ) : (
-                          <RadioGroupItem
-                            value={option.text}
-                            id={`option-${index}`}
-                            className="h-5 w-5 border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                          />
-                        )}
-                      </div>
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-slate-500'
-                        }`}>
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer font-semibold text-lg text-slate-700">
-                        {option.text}
-                      </Label>
-                    </div>
+          <div className="space-y-3">
+            {question.multipleCorrect ? (
+              <div className="space-y-3">
+                {question.options?.map((option, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`option-${index}`}
+                      checked={answers[question.id]?.includes(option) || false}
+                      onCheckedChange={(checked) => {
+                        const currentAnswers = answers[question.id] || [];
+                        const newAnswers = checked
+                          ? [...currentAnswers, option]
+                          : currentAnswers.filter((a: string) => a !== option);
+                        handleAnswerChange(question.id, newAnswers);
+                      }}
+                    />
+                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                      {option}
+                    </Label>
                   </div>
-                );
-              })}
-            </RadioGroup>
-
-            <div className="mt-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-inner">
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="h-4 w-1 bg-amber-500 rounded-full"></div>
-                <Label htmlFor={`explanation-${question.id}`} className="text-sm font-bold text-slate-800">
-                  Explain your answer (required)
-                </Label>
+                ))}
               </div>
+            ) : (
+              <RadioGroup
+                value={answers[question.id] || ''}
+                onValueChange={(value) => handleAnswerChange(question.id, value)}
+              >
+                {question.options?.map((option, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <RadioGroupItem value={option} id={`option-${index}`} />
+                    <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
+            
+            {/* Explanation field for MCQ questions */}
+            <div className="mt-4">
+              <Label htmlFor={`explanation-${question.id}`} className="text-sm font-medium">
+                Explain your answer (required)
+              </Label>
               <Textarea
                 id={`explanation-${question.id}`}
-                placeholder="Type your explanation here..."
+                placeholder="Explain why you chose this answer..."
                 value={explanations[question.id] || ''}
                 onChange={(e) => handleExplanationChange(question.id, e.target.value)}
-                className="min-h-[140px] bg-white border-slate-200 focus:border-emerald-500 rounded-xl resize-none"
-              />
-            </div>
-          </div>
-        );
-
-      case 'mcq_multiple':
-        return (
-          <div className="space-y-4">
-            <div className="grid gap-3">
-              {question.mcq_options?.map((option, index) => {
-                const isSelected = answers[question.id]?.includes(option.text);
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center space-x-3 p-4 rounded-2xl transition-all cursor-pointer border-2 ${isSelected ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-white border-slate-100 shadow-sm hover:bg-white hover:border-slate-200'}`}
-                    onClick={() => {
-                      const current = answers[question.id] || [];
-                      const newAns = current.includes(option.text)
-                        ? current.filter((a: string) => a !== option.text)
-                        : [...current, option.text];
-                      handleAnswerChange(question.id, newAns);
-                    }}
-                  >
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="flex items-center justify-center w-6">
-                        {isSelected ? (
-                          <CheckCircle className="h-6 w-6 text-emerald-600" />
-                        ) : (
-                          <Checkbox
-                            id={`option-${index}`}
-                            checked={false}
-                            className="h-5 w-5 border-slate-300 rounded focus:ring-emerald-500"
-                          />
-                        )}
-                      </div>
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-slate-500'
-                        }`}>
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer font-semibold text-lg text-slate-700">
-                        {option.text}
-                      </Label>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 p-6 bg-white rounded-2xl border border-slate-100 shadow-inner">
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="h-4 w-1 bg-amber-500 rounded-full"></div>
-                <Label htmlFor={`explanation-${question.id}`} className="text-sm font-bold text-slate-800">
-                  Explain your answer (required)
-                </Label>
-              </div>
-              <Textarea
-                id={`explanation-${question.id}`}
-                placeholder="Type your explanation here..."
-                value={explanations[question.id] || ''}
-                onChange={(e) => handleExplanationChange(question.id, e.target.value)}
-                className="min-h-[140px] bg-white border-slate-200 focus:border-emerald-500 rounded-xl resize-none"
+                className="mt-4 min-h-20"
               />
             </div>
           </div>
@@ -535,50 +927,55 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
 
       case 'coding':
         return (
-          <div className={`space-y-4 ${isCodeEditorFullscreen ? 'fixed inset-0 z-50 bg-background p-6 flex flex-col' : ''}`}>
-
-            {isCodeEditorFullscreen && (
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">{question.title} (Fullscreen)</h2>
-                <Button variant="outline" size="sm" onClick={() => setIsCodeEditorFullscreen(false)}>
-                  <Maximize className="h-4 w-4 mr-2" /> Exit Fullscreen
-                </Button>
-              </div>
-            )}
-
-            {!isCodeEditorFullscreen && question.test_cases_basic && (
-              <div className="mb-4 p-4 bg-white rounded-lg shadow-sm">
-                <h4 className="font-semibold text-sm mb-2 text-slate-700">Test Cases</h4>
-                <div className="space-y-2">
-                  {question.test_cases_basic.map((tc: any, idx: number) => (
-                    <div key={idx} className="bg-white p-2 rounded border-l-2 border-indigo-400 text-xs font-mono grid grid-cols-2 gap-2">
-                      <div><span className="text-gray-500">Input:</span> {tc.input}</div>
-                      <div><span className="text-gray-500">Output:</span> {tc.output}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className={isCodeEditorFullscreen ? 'flex-1' : 'h-[500px]'}>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  <SelectItem value="python">Python</SelectItem>
+                  <SelectItem value="java">Java</SelectItem>
+                  <SelectItem value="cpp">C++</SelectItem>
+                  <SelectItem value="c">C</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCodeEditorFullscreen(!isCodeEditorFullscreen)}
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className={isCodeEditorFullscreen ? 'h-[60vh]' : 'h-80'}>
               <CodeEditor
+                language={selectedLanguage}
                 initialCode={answers[question.id] || ''}
-                onCodeChange={(code) => handleAnswerChange(question.id, code)}
-                initialLanguage={selectedLanguage}
-                onLanguageChange={setSelectedLanguage}
-                problemTitle={question.title}
-                problemId={question.id}
-                testCases={question.test_cases_basic || []}
-                isFullscreen={isCodeEditorFullscreen}
-                onFullscreenChange={setIsCodeEditorFullscreen}
-                onSubmissionComplete={() => {
-                  setCodingSubmitted(prev => {
-                    const next = new Set(prev);
-                    next.add(question.id);
-                    return next;
-                  });
-                }}
-                className="h-full border-0 shadow-lg"
+                onCodeChange={(value) => handleAnswerChange(question.id, value)}
+                placeholder={`Write your ${selectedLanguage} code here...`}
+                showLanguageSelector={false}
+                showRunButton={false}
+                showCopyButton={false}
+                showResetButton={false}
+                showFullscreenToggle={false}
+                maxHeight={isCodeEditorFullscreen ? '60vh' : '400px'}
+              />
+            </div>
+            
+            {/* Explanation field for coding questions */}
+            <div className="mt-2">
+              <Label htmlFor={`explanation-${question.id}`} className="text-sm font-medium">
+                Explain your approach (required)
+              </Label>
+              <Textarea
+                id={`explanation-${question.id}`}
+                placeholder="Explain your coding approach, algorithm choice, time/space complexity..."
+                value={explanations[question.id] || ''}
+                onChange={(e) => handleExplanationChange(question.id, e.target.value)}
+                className="mt-4 min-h-24"
               />
             </div>
           </div>
@@ -590,7 +987,7 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
             placeholder="Type your answer here..."
             value={answers[question.id] || ''}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            className="min-h-32"
+            className="mt-4 min-h-32"
           />
         );
 
@@ -599,37 +996,64 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     }
   };
 
-  const progress = questions.length ? ((currentQuestion + 1) / questions.length) * 100 : 0;
-  const answeredCount = questions.filter(q => {
-    const ans = answers[q.id];
-    const exp = explanations[q.id]?.trim();
-    if (q.type === 'descriptive') {
-      return ans?.trim();
-    }
-    if (q.type === 'coding') {
-      return codingSubmitted.has(q.id);
-    }
-    if (Array.isArray(ans)) {
-      return ans.length > 0 && exp;
-    }
-    return ans && exp;
-  }).length;
+  const currentQuestionData = mockQuestions[currentQuestion];
 
+  // Prevent copy/paste/cut for MCQ explanation, coding, and descriptive questions.
+  useEffect(() => {
+    if (
+      currentQuestionData.type !== 'mcq' &&
+      currentQuestionData.type !== 'coding' &&
+      currentQuestionData.type !== 'descriptive'
+    ) {
+      return;
+    }
+
+    const blockClipboard = (event: ClipboardEvent) => {
+      event.preventDefault();
+    };
+
+    const blockShortcutKeys = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && (key === 'c' || key === 'v' || key === 'x')) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('copy', blockClipboard);
+    document.addEventListener('paste', blockClipboard);
+    document.addEventListener('cut', blockClipboard);
+    document.addEventListener('keydown', blockShortcutKeys);
+
+    return () => {
+      document.removeEventListener('copy', blockClipboard);
+      document.removeEventListener('paste', blockClipboard);
+      document.removeEventListener('cut', blockClipboard);
+      document.removeEventListener('keydown', blockShortcutKeys);
+    };
+  }, [currentQuestionData.type]);
+
+  const progress = ((currentQuestion + 1) / mockQuestions.length) * 100;
+  const answeredCount = mockQuestions.filter(q => {
+    if (q.type === 'descriptive') {
+      return answers[q.id]?.trim();
+    } else {
+      return answers[q.id] && explanations[q.id]?.trim();
+    }
+  }).length;
   const flaggedCount = flagged.size;
-  const viewedCount = viewed.size;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-
+      {/* Alerts */}
       <div className="flex justify-center">
         {cameraAlert && (
           <Alert className="m-4 w-[60%] border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
               <span>
-                {!hasMediaAccess
-                  ? "Camera and microphone access are required for this assessment. Please enable permissions."
-                  : "Camera or microphone has been disabled. Please re-enable to continue."
+                {!hasMediaAccess 
+                  ? "Camera and microphone access are required for this assessment. Please enable permissions in your browser settings."
+                  : "Camera or microphone has been disabled. Please re-enable to continue the assessment."
                 }
               </span>
               <Button variant="ghost" size="sm" onClick={() => setCameraAlert(false)}>
@@ -643,468 +1067,344 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
       <div className="flex justify-center">
         {tabSwitchAlert && (
           <Alert className="m-4 w-[60%] border-orange-200 bg-orange-50">
-            <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
-              <span>Tab switching detected! ({tabSwitchCount} violations)</span>
+              <AlertTriangle className="h-4 w-4" />
+              <div className='flex items-center justify-between flex-1 ml-4'>
+              <span>Tab switching detected! This action has been logged. ({tabSwitchCount} violations)</span>
               <Button variant="ghost" size="sm" onClick={() => setTabSwitchAlert(false)}>
                 <X className="h-4 w-4" />
               </Button>
+              </div>
             </AlertDescription>
           </Alert>
         )}
       </div>
 
-      <div className="absolute inset-x-0 top-0 h-1 z-50 overflow-hidden pointer-events-none">
-        <div
-          className="h-full bg-emerald-500 transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      <div className="bg-card shadow-lg relative z-30 px-6 py-4">
+      {/* Header */}
+      <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="relative h-14 w-20 bg-white rounded-xl overflow-hidden border border-slate-200">
-              <video
-                ref={videoRef}
-                autoPlay
-                muted
-                playsInline
-                className={`h-full w-full object-cover scale-x-[-1] transition-opacity duration-500 ${videoTrackEnabled ? 'opacity-100' : 'opacity-0'}`}
-              />
-              {!videoTrackEnabled && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-                  <CameraOff className="h-6 w-6 text-slate-500" />
+            {/* Video Monitor - Left side */}
+            <div className="relative bg-black rounded-lg overflow-hidden h-16 w-32">
+              {hasMediaAccess && streamRef.current ? (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white text-xs">
+                  <div className="text-center">
+                    <Camera className="h-4 w-4 mx-auto mb-1 opacity-50" />
+                    <p className="text-[10px]">Camera Not Available</p>
+                  </div>
                 </div>
               )}
               <div className="absolute bottom-1 right-1 flex space-x-1">
-                {videoTrackEnabled ?
-                  <Camera className="h-2 w-2 text-green-400" /> :
-                  <CameraOff className="h-2 w-2 text-red-400" />}
-                {audioTrackEnabled ?
-                  <Mic className="h-2 w-2 text-green-400" /> :
-                  <MicOff className="h-2 w-2 text-red-400" />}
+                {videoTrackEnabled ? (
+                  <Camera className="h-2 w-2 text-green-400" />
+                ) : (
+                  <CameraOff className="h-2 w-2 text-red-400" />
+                )}
+                {audioTrackEnabled ? (
+                  <Mic className="h-2 w-2 text-green-400" />
+                ) : (
+                  <MicOff className="h-2 w-2 text-red-400" />
+                )}
               </div>
             </div>
+            
             <div>
               <h1 className="text-xl font-bold">{assessment.title}</h1>
-              <Badge variant="outline">{assessment.subjectName}</Badge>
+              <Badge variant="outline">{assessment.course}</Badge>
             </div>
           </div>
-
+          
           <div className="flex items-center space-x-4 mr-4">
             <div className="flex items-center space-x-2">
-              <Clock className="h-5 w-5 text-slate-400" />
-              <div className={`text-2xl font-black tabular-nums transition-colors ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-700'}`}>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className={`font-mono text-lg ${timeLeft < 300 ? 'text-red-600' : 'text-foreground'}`}>
                 {formatTime(timeLeft)}
-              </div>
+              </span>
             </div>
 
+            {/* Submit Button */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button size="default" className="w-32 h-12 text-lg font-bold bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white shadow-md transition-all active:scale-95">
-                  Finish
+                <Button variant="outline" size="sm" className="bg-black text-white hover:bg-black/90 hover:text-white">
+                  Submit
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-md bg-white border-none shadow-2xl p-0 overflow-hidden ring-0 outline-none">
-                <div className="p-8">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="text-2xl font-bold text-center text-slate-800">Finish Assessment?</AlertDialogTitle>
-                    <div className="text-base pt-4 text-center text-slate-600">
-                      Are you sure you want to finish the assessment? Your progress will be recorded.
-                      <div className="mt-8 grid grid-cols-4 gap-2">
-                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-blue-50 border border-blue-100">
-                          <div className="text-xl font-black text-blue-600">{viewedCount}</div>
-                          <div className="font-bold text-blue-500 uppercase tracking-wider text-[8px] text-center">Viewed</div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
-                          <div className="text-xl font-black text-emerald-600">{answeredCount}</div>
-                          <div className="font-bold text-emerald-500 uppercase tracking-wider text-[8px] text-center">Answered</div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-orange-50 border border-orange-100">
-                          <div className="text-xl font-black text-orange-600">{flaggedCount}</div>
-                          <div className="font-bold text-orange-500 uppercase tracking-wider text-[8px] text-center">Flagged</div>
-                        </div>
-
-                        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-100">
-                          <div className="text-xl font-black text-slate-600">{questions.length - answeredCount}</div>
-                          <div className="font-bold text-slate-500 uppercase tracking-wider text-[8px] text-center">Left</div>
-                        </div>
-                      </div>
-                    </div>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="mt-10 flex flex-row sm:justify-center gap-4">
-                    <AlertDialogCancel className="flex-1 h-12 border-none bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl">Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleSubmitAssessment}
-                      className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg border-none transition-all active:scale-95"
-                    >
-                      Finish
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </div>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Submit Assessment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to submit your assessment? You won't be able to make changes after submission.
+                    <br /><br />
+                    <strong>Summary:</strong>
+                    <br />• Answered: {answeredCount}/{mockQuestions.length} questions
+                    <br />• Flagged: {flaggedCount} questions
+                    <br />• Time remaining: {formatTime(timeLeft)}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleSubmitAssessment}>
+                    Submit Assessment
+                  </AlertDialogAction>
+                </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </div>
-
         </div>
       </div>
 
-      {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
-
+      <div className="flex flex-1">
         {/* Sidebar */}
-        <div className={`bg-card shadow-[4px_0_15px_-3px_rgba(0,0,0,0.05)] relative z-20 transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-80'
-          }`}>
+        <div className={`bg-card border-r transition-all duration-300 ${
+          isSidebarCollapsed ? 'w-16' : 'w-80'
+        }`}>
           <div className="p-4">
-
-            {/* Top */}
             <div className="flex items-center justify-between mb-4">
-              {!isSidebarCollapsed && <h3 className="font-semibold">Questions</h3>}
-              <Button variant="ghost" size="sm" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+              {!isSidebarCollapsed && (
+                <h3 className="font-semibold">Questions</h3>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              >
                 {isSidebarCollapsed ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
 
-            <div className={`mt-4 ${isSidebarCollapsed ? 'flex flex-col items-center h-[calc(100vh-160px)] overflow-y-auto no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-20' : 'h-[calc(100vh-280px)] overflow-y-auto pr-2 custom-scrollbar'}`}>
-              {isSidebarCollapsed && (
-                <div className="flex flex-col w-full items-center gap-4 py-4">
-                  {questions.map((q, index) => {
-                    const status = getQuestionStatus(q.id);
-                    const isCurrent = index === currentQuestion;
-
-                    return (
+            {!isSidebarCollapsed ? (
+              <>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">
+                      Questions {startQuestion + 1}-{endQuestion}
+                    </span>
+                    <div className="flex space-x-1">
                       <Button
-                        key={q.id}
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handlePageChange(questionPage - 1)}
+                        disabled={questionPage === 0}
+                        className="h-6 w-6 p-0"
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
-                        className={`h-10 w-10 p-0 text-xs font-bold rounded-xl transition-all border-none outline-none ring-0 ${isCurrent ? 'bg-black text-white hover:bg-slate-800 shadow-lg scale-110 z-10' : getStatusColor(status)}`}
-                        onClick={() => setCurrentQuestion(index)}
+                        onClick={() => handlePageChange(questionPage + 1)}
+                        disabled={questionPage === totalPages - 1}
+                        className="h-6 w-6 p-0"
                       >
-                        {index + 1}
+                        <ChevronRight className="h-3 w-3" />
                       </Button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {!isSidebarCollapsed && (
-                <>
-                  <div className="mb-6">
-                    {/* Progress Stats */}
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                      <div className="bg-blue-50 p-2 rounded-lg text-center shadow-sm">
-                        <div className="text-md font-bold text-blue-700">{viewedCount}</div>
-                        <div className="text-[8px] font-semibold text-blue-600 uppercase text-center leading-tight">Viewed</div>
-                      </div>
-                      <div className="bg-emerald-50 p-2 rounded-lg text-center shadow-sm">
-                        <div className="text-md font-bold text-emerald-700">{answeredCount}</div>
-                        <div className="text-[8px] font-semibold text-emerald-600 uppercase text-center leading-tight">Answered</div>
-                      </div>
-                      <div className="bg-orange-50 p-2 rounded-lg text-center shadow-sm">
-                        <div className="text-md font-bold text-orange-700">{flaggedCount}</div>
-                        <div className="text-[8px] font-semibold text-orange-600 uppercase text-center leading-tight">Flagged</div>
-                      </div>
-
-                      <div className="bg-white p-2 rounded-lg text-center shadow-sm">
-                        <div className="text-md font-bold text-gray-700">{questions.length - answeredCount}</div>
-                        <div className="text-[8px] font-semibold text-gray-500 uppercase text-center leading-tight">Left</div>
-                      </div>
                     </div>
-
-                    {[
-                      { label: 'Multiple Choice', types: ['mcq_single', 'mcq_multiple'] },
-                      { label: 'Coding Challenges', types: ['coding'] },
-                      { label: 'Descriptive', types: ['descriptive'] }
-                    ].map(group => {
-                      const groupQuestions = questions.map((q, i) => ({ ...q, globalIndex: i }))
-                        .filter(q => group.types.includes(q.type));
-
-                      if (groupQuestions.length === 0) return null;
-
+                  </div>
+                  
+                  <div className="grid grid-cols-5 gap-2 mb-6">
+                    {paginatedQuestions.map((question, index) => {
+                      const actualIndex = startQuestion + index;
+                      const status = getQuestionStatus(actualIndex, question.id);
                       return (
-                        <div key={group.label} className="mb-6">
-                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1 flex items-center gap-2">
-                            {group.label}
-                            <span className="bg-white text-slate-500 px-1.5 py-0.5 rounded text-[10px]">{groupQuestions.length}</span>
-                          </h4>
-                          <div className="grid grid-cols-5 gap-2">
-                            {groupQuestions.map(q => {
-                              const status = getQuestionStatus(q.id);
-                              const isCurrent = q.globalIndex === currentQuestion;
-                              return (
-                                <Button
-                                  key={q.id}
-                                  variant="ghost"
-                                  size="sm"
-                                  className={`h-10 w-10 p-0 rounded-lg transition-all border-none outline-none ring-0 shadow-sm hover:shadow-md ${getStatusColor(status)} ${isCurrent ? 'bg-black text-white hover:bg-gray-800' : ''}`}
-                                  onClick={() => setCurrentQuestion(q.globalIndex)}
-                                >
-                                  {q.globalIndex + 1}
-                                </Button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )
+                        <Button
+                          key={question.id}
+                          variant="outline"
+                          size="sm"
+                          className={`h-10 w-10 p-0 ${getStatusColor(status)}`}
+                          onClick={() => handleQuestionClick(index)}
+                        >
+                          {actualIndex + 1}
+                        </Button>
+                      );
                     })}
                   </div>
-
-                  {/* Proctoring Section */}
-                  <div className="mt-6 border-t pt-6">
-                    <h4 className="flex items-center text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
-                      <Shield className="h-3 w-3 mr-1.5" /> Proctoring
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
-                        <span className="text-muted-foreground">Camera</span>
-                        <Badge variant="outline" className={videoTrackEnabled ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-red-100 text-red-700 border-red-200"}>
-                          {videoTrackEnabled ? "Active" : "Off"}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
-                        <span className="text-muted-foreground">Microphone</span>
-                        <Badge variant="outline" className={audioTrackEnabled ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-red-100 text-red-700 border-red-200"}>
-                          {audioTrackEnabled ? "Active" : "Off"}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center bg-white p-2 rounded text-sm">
-                        <span className="text-muted-foreground">Tab Switches</span>
-                        <Badge variant="outline" className={tabSwitchCount > 0 ? "bg-red-100 text-red-700 border-red-200" : "bg-emerald-100 text-emerald-700 border-emerald-200"}>
-                          {tabSwitchCount}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-          </div>
-        </div>
-
-        {/* Main Question Area */}
-        <div className="flex-1 flex flex-col h-full overflow-y-auto">
-          <div className="p-6">
-
-            {questions.length > 0 && (
-              currentQuestionData.type === 'coding' ? (
-                <div className="h-[calc(100vh-140px)] flex flex-col">
-                  {/* Top Header Row (Outside Description) */}
-                  <div className="flex justify-between items-center mb-4 px-1">
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h2 className="text-xl font-bold line-clamp-1">{currentQuestionData.title}</h2>
-                        <Badge variant="outline">Q{currentQuestion + 1}/{questions.length}</Badge>
-                        <Badge variant="secondary">{currentQuestionData.marks} marks</Badge>
-                        <Badge variant="outline" className="capitalize">{currentQuestionData.type}</Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1}>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-muted-foreground hidden sm:inline-flex">
-                        Skip
-                      </Button>
-
-                      <Button
-                        variant={flagged.has(currentQuestionData.id) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleFlagQuestion(currentQuestionData.id)}
-                        className={flagged.has(currentQuestionData.id)
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500'
-                          : 'text-muted-foreground hover:text-foreground'
-                        }
-                      >
-                        <Flag className={`h-4 w-4 mr-2 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
-                        {flagged.has(currentQuestionData.id) ? 'Flagged' : 'Flag'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Split Content Area */}
-                  <ResizablePanelGroup direction="horizontal" className="flex-1 rounded-lg border-0 shadow-lg bg-card text-card-foreground my-1 overflow-hidden">
-                    {/* LEFT PANEL: Description & Test Cases */}
-                    <ResizablePanel
-                      defaultSize={40}
-                      minSize={20}
-                      className={`bg-white transition-all duration-300 ${isDescriptionCollapsed ? 'hidden' : ''}`}
-                    >
-                      <div className="h-full overflow-y-auto p-6 relative">
-                        <div className="absolute top-2 right-2 z-10">
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setIsDescriptionCollapsed(true)} title="Collapse Description">
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        {/* Description */}
-                        <div className="prose prose-sm max-w-none mb-8 mt-2">
-                          <div dangerouslySetInnerHTML={{ __html: currentQuestionData.content || '' }} />
-                        </div>
-
-                        {/* Test Cases */}
-                        {currentQuestionData.test_cases_basic && (
-                          <div className="mb-8">
-                            <h4 className="font-semibold text-sm mb-3 text-slate-800">Sample Test Cases</h4>
-                            <div className="space-y-3">
-                              {currentQuestionData.test_cases_basic.map((tc: any, idx: number) => (
-                                <div key={idx} className="bg-white p-3 rounded-lg border border-slate-100 grid grid-cols-2 gap-4 text-xs font-mono">
-                                  <div>
-                                    <div className="font-semibold text-slate-500 mb-1">Input</div>
-                                    <div className="bg-white p-2 rounded border border-slate-200">{tc.input}</div>
-                                  </div>
-                                  <div>
-                                    <div className="font-semibold text-slate-500 mb-1">Output</div>
-                                    <div className="bg-white p-2 rounded border border-slate-200">{tc.output}</div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </ResizablePanel>
-
-                    {/* Collapsed Sidebar Ghost */}
-                    {isDescriptionCollapsed && (
-                      <div className="w-10 bg-white border-r flex flex-col items-center py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setIsDescriptionCollapsed(false)}>
-                        <div className="rotate-180 mb-4">
-                          <ChevronLeft className="h-4 w-4 text-slate-500" />
-                        </div>
-                        <span className="writing-vertical-rl text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap" style={{ writingMode: 'vertical-rl' }}>
-                          Description
-                        </span>
-                      </div>
-                    )}
-
-                    {!isDescriptionCollapsed && <ResizableHandle />}
-
-                    {/* RIGHT PANEL: Editor */}
-                    <ResizablePanel defaultSize={60}>
-                      <div className="h-full flex flex-col bg-white">
-                        <div className="flex-1 overflow-hidden relative">
-                          <CodeEditor
-                            initialCode={answers[currentQuestionData.id] || ''}
-                            onCodeChange={(code) => handleAnswerChange(currentQuestionData.id, code)}
-                            initialLanguage={selectedLanguage}
-                            onLanguageChange={setSelectedLanguage}
-                            problemTitle={currentQuestionData.title}
-                            problemId={currentQuestionData.id}
-                            testCases={currentQuestionData.test_cases_basic || []}
-                            isFullscreen={isCodeEditorFullscreen}
-                            onFullscreenChange={setIsCodeEditorFullscreen}
-                            onSubmissionComplete={() => {
-                              setCodingSubmitted(prev => {
-                                const next = new Set(prev);
-                                next.add(currentQuestionData.id);
-                                return next;
-                              });
-                            }}
-                            className="h-full border-0"
-                          />
-                        </div>
-                        {/* Footer Removed */}
-                      </div>
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
                 </div>
-              ) : (
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h2 className="text-xl font-bold line-clamp-1">{currentQuestionData.title}</h2>
 
-                          <Badge variant="outline">
-                            Question {currentQuestion + 1} of {questions.length}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {currentQuestionData.marks} marks
-                          </Badge>
-                          <Badge variant="outline">{currentQuestionData.type}</Badge>
-                        </div>
-
-
-                        <div className="mt-4 prose prose-sm max-w-none">
-                          <div dangerouslySetInnerHTML={{ __html: currentQuestionData.content || '' }} />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handlePreviousQuestion} disabled={currentQuestion === 0}>
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleNextQuestion} disabled={currentQuestion === questions.length - 1}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={handleSkipQuestion} disabled={currentQuestion === questions.length - 1} className="text-muted-foreground hidden sm:inline-flex">
-                          Skip
-                        </Button>
-
-                        <Button
-                          variant={flagged.has(currentQuestionData.id) ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handleFlagQuestion(currentQuestionData.id)}
-                          className={flagged.has(currentQuestionData.id)
-                            ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500'
-                            : 'text-muted-foreground hover:text-foreground'
-                          }
-                        >
-                          <Flag className={`h-4 w-4 mr-2 ${flagged.has(currentQuestionData.id) ? 'fill-current' : ''}`} />
-                          {flagged.has(currentQuestionData.id) ? 'Flagged' : 'Flag'}
-                        </Button>
-                      </div>
+                <div className="space-y-4">
+                  <div className="text-sm space-y-2">
+                    <div className="flex justify-between">
+                      <span>Progress</span>
+                      <span>{currentQuestion + 1}/{mockQuestions.length}</span>
                     </div>
-                  </CardHeader>
+                    <Progress value={progress} className="h-2" />
+                  </div>
 
-                  <CardContent>
-                    {renderQuestion(currentQuestionData)}
+                  <div className="text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span>Answered</span>
+                      <span className="text-green-600">{answeredCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Flagged</span>
+                      <span className="text-yellow-600">{flaggedCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Remaining</span>
+                      <span className="text-muted-foreground">{mockQuestions.length - answeredCount}</span>
+                    </div>
+                  </div>
+                </div>
 
+                {/* Monitoring Status */}
+                <div className="mt-6 p-3 bg-muted/30 rounded-lg">
+                  <h4 className="text-sm font-semibold mb-2">Monitoring Status</h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span>Camera</span>
+                      <span className={videoTrackEnabled ? 'text-green-600' : 'text-red-600'}>
+                        {videoTrackEnabled ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Audio</span>
+                      <span className={audioTrackEnabled ? 'text-green-600' : 'text-red-600'}>
+                        {audioTrackEnabled ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tab Switches</span>
+                      <span className="text-orange-600">{tabSwitchCount}</span>
+                    </div>
+                  </div>
+                </div>
 
-                  </CardContent>
-                </Card>
-              )
+              </>
+            ) : (
+              <>
+                {/* Collapsed sidebar with question numbers and pagination */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="flex space-x-1">
+                      <Button
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handlePageChange(questionPage - 1)}
+                        disabled={questionPage === 0}
+                        className="h-5 w-5 p-0"
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePageChange(questionPage + 1)}
+                        disabled={questionPage === totalPages - 1}
+                        className="h-5 w-5 p-0"
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    {paginatedQuestions.map((question, index) => {
+                      const actualIndex = startQuestion + index;
+                      const status = getQuestionStatus(actualIndex, question.id);
+                      return (
+                        <Button
+                          key={question.id}
+                          variant="outline"
+                          size="sm"
+                          className={`w-8 h-8 p-0 text-xs ${getStatusColor(status)}`}
+                          onClick={() => handleQuestionClick(index)}
+                        >
+                          {actualIndex + 1}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </>
             )}
-
           </div>
         </div>
 
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-auto max-h-[480px] custom-scrollbar mr-4">
+          <div className="p-6 pb-0">
+            <Card className="h-full flex flex-col">
+              <CardHeader className="flex-shrink-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Badge variant="outline">
+                        Question {currentQuestion + 1} of {mockQuestions.length}
+                      </Badge>
+                      <Badge variant="secondary">
+                        {currentQuestionData.marks} marks
+                      </Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {currentQuestionData.type}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-lg leading-relaxed">
+                      {currentQuestionData.question}
+                    </CardTitle>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFlagQuestion(currentQuestionData.id)}
+                    className={flagged.has(currentQuestionData.id) ? 'text-yellow-600' : ''}
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 overflow-y-auto">
+                {renderQuestion(currentQuestionData)}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
-
-      <AlertDialog open={showTabSwitchDialog} onOpenChange={() => { }}>
-        <AlertDialogContent>
+      
+      {/* Tab Switch Violation Dialog */}
+      <AlertDialog open={showTabSwitchDialog} onOpenChange={() => {}}>
+        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Assessment Terminated</AlertDialogTitle>
             <AlertDialogDescription>
-              Too many tab switches. Your responses are recorded.
+              The assessment has been closed due to excessive tab switching. This violation has been logged for review.
+              Your responses up to this point have been recorded.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleSubmitAssessment}>Finish</AlertDialogAction>
+            <AlertDialogAction onClick={handleTabSwitchDialogClose}>
+              OK
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Navigation Confirmation Dialog */}
       <AlertDialog open={showNavigationDialog} onOpenChange={setShowNavigationDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>End Assessment?</AlertDialogTitle>
             <AlertDialogDescription>
-              You cannot return once you exit.
+              Do you want to end the assessment? Your current progress will be saved, but you won't be able to continue the assessment.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continue</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSubmitAssessment}>Finish</AlertDialogAction>
+            <AlertDialogCancel onClick={handleNavigationCancel}>
+              Continue Assessment
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleNavigationConfirm}>
+              End Assessment
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   );
 };

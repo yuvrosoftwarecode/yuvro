@@ -27,8 +27,6 @@ const DashboardRedirect: React.FC = () => {
         case 'recruiter':
           navigate('/recruiter/dashboard', { replace: true });
           break;
-        case 'tpo':
-        case 'placement':
         case 'placement_officer':
           navigate('/placement/dashboard', { replace: true });
           break;

@@ -167,7 +167,7 @@ export default function StudentJobs() {
 
   return (
     <StudentLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl space-y-6 ml-[40px]">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Jobs</h1>
           <p className="text-sm text-muted-foreground mt-1">Discover opportunities and track your applications</p>

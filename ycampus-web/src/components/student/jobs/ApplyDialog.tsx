@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { StudentJob } from '@/pages/student/Jobs';
+import { toast } from '@/hooks/use-toast';
+import type { StudentJob } from '@/pages/student/Jobs';
 
 interface ApplyDialogProps {
   job: StudentJob | null;
@@ -19,119 +16,107 @@ interface ApplyDialogProps {
   onSubmit: (data: { cgpa: number; previousOffers: boolean; highestCtc?: number }) => void;
 }
 
-export const ApplyDialog: React.FC<ApplyDialogProps> = ({
-  job,
-  open,
-  onClose,
-  onSubmit,
-}) => {
+export function ApplyDialog({ job, open, onClose, onSubmit }: ApplyDialogProps) {
   const [cgpa, setCgpa] = useState('');
   const [previousOffers, setPreviousOffers] = useState('no');
   const [highestCtc, setHighestCtc] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  if (!job) return null;
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    const cgpaNum = parseFloat(cgpa);
+    if (!cgpa || isNaN(cgpaNum)) errs.cgpa = 'CGPA is required';
+    else if (cgpaNum < 0 || cgpaNum > 10) errs.cgpa = 'CGPA must be between 0 and 10';
+    else if (job && cgpaNum < job.minCgpa) errs.cgpa = `Minimum CGPA required is ${job.minCgpa}`;
+    if (previousOffers === 'yes' && (!highestCtc || isNaN(parseFloat(highestCtc)))) {
+      errs.highestCtc = 'Highest CTC is required when you have previous offers';
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    if (!validate()) return;
     onSubmit({
       cgpa: parseFloat(cgpa),
       previousOffers: previousOffers === 'yes',
       highestCtc: previousOffers === 'yes' ? parseFloat(highestCtc) : undefined,
     });
-    // Reset state
+    toast({ title: 'Application submitted!', description: `You have applied to ${job?.companyName} - ${job?.role}` });
     setCgpa('');
     setPreviousOffers('no');
     setHighestCtc('');
+    setErrors({});
   };
 
+  const handleClose = () => {
+    setCgpa('');
+    setPreviousOffers('no');
+    setHighestCtc('');
+    setErrors({});
+    onClose();
+  };
+
+  if (!job) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <DialogHeader className="space-y-1">
-            <DialogTitle className="text-2xl font-bold text-[#0f172a]">
-              Apply to {job.companyName}
-            </DialogTitle>
-            <p className="text-sm font-medium text-gray-500">
-              {job.role} - {job.location}
-            </p>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Apply to {job.companyName}</DialogTitle>
+          <DialogDescription>{job.role} · {job.location}</DialogDescription>
+        </DialogHeader>
 
-          <div className="space-y-6 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="cgpa" className="text-sm font-bold text-[#0f172a]">
-                B.Tech CGPA <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="cgpa"
-                type="number"
-                step="0.01"
-                placeholder="e.g. 7.85"
-                required
-                value={cgpa}
-                onChange={(e) => setCgpa(e.target.value)}
-                className="h-12 border-gray-300 rounded-xl focus-visible:ring-[#0f172a]"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-bold text-[#0f172a]">
-                Previous Offers <span className="text-red-500">*</span>
-              </Label>
-              <RadioGroup 
-                value={previousOffers} 
-                onValueChange={setPreviousOffers}
-                className="flex items-center gap-6"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="yes" className="border-gray-400 text-[#0f172a]" />
-                  <Label htmlFor="yes" className="text-sm font-medium text-gray-700 cursor-pointer">Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="no" className="border-gray-400 text-[#0f172a]" />
-                  <Label htmlFor="no" className="text-sm font-medium text-gray-700 cursor-pointer">No</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            {previousOffers === 'yes' && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                <Label htmlFor="highestCtc" className="text-sm font-bold text-[#0f172a]">
-                  Highest CTC offered (LPA) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="highestCtc"
-                  type="number"
-                  step="0.1"
-                  placeholder="e.g. 12"
-                  required={previousOffers === 'yes'}
-                  value={highestCtc}
-                  onChange={(e) => setHighestCtc(e.target.value)}
-                  className="h-12 border-gray-300 rounded-xl focus-visible:ring-[#0f172a]"
-                />
-              </div>
-            )}
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="cgpa">B.Tech CGPA <span className="text-destructive">*</span></Label>
+            <Input
+              id="cgpa"
+              type="number"
+              step="0.01"
+              min="0"
+              max="10"
+              placeholder="e.g. 7.85"
+              value={cgpa}
+              onChange={e => setCgpa(e.target.value)}
+            />
+            {errors.cgpa && <p className="text-xs text-destructive">{errors.cgpa}</p>}
           </div>
 
-          <DialogFooter className="flex flex-row justify-center gap-3 sm:justify-center p-0 pt-2">
-            <Button 
-              variant="outline" 
-              type="button" 
-              onClick={onClose}
-              className="h-12 px-8 border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 flex-1 sm:flex-none"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={parseFloat(cgpa) < job.minCgpa}
-              className="h-12 px-8 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold rounded-lg flex-1 sm:flex-auto"
-            >
-              Submit Application
-            </Button>
-          </DialogFooter>
-        </form>
+          <div className="space-y-1.5">
+            <Label>Previous Offers <span className="text-destructive">*</span></Label>
+            <RadioGroup value={previousOffers} onValueChange={setPreviousOffers} className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="yes" id="yes" />
+                <Label htmlFor="yes" className="font-normal cursor-pointer">Yes</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="no" id="no" />
+                <Label htmlFor="no" className="font-normal cursor-pointer">No</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {previousOffers === 'yes' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="ctc">Highest CTC (₹) <span className="text-destructive">*</span></Label>
+              <Input
+                id="ctc"
+                type="number"
+                placeholder="e.g. 400000"
+                value={highestCtc}
+                onChange={e => setHighestCtc(e.target.value)}
+              />
+              {errors.highestCtc && <p className="text-xs text-destructive">{errors.highestCtc}</p>}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Submit Application</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -1,8 +1,21 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
+import { BookOpen, Building2, ChevronRight, Edit, Plus, Search, Trash2, Loader2, BookA, GraduationCap } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, BookOpen, Building2, ChevronRight, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import {
     fetchSubjects,
     createSubject,
@@ -12,52 +25,35 @@ import {
     Subject,
     CollegeBasic,
 } from "@/services/subjectService";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useNavigate, useParams } from "react-router-dom";
-import RoleSidebar from "../../components/common/RoleSidebar";
-import PageHeader from "../../components/common/PageHeader";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
-type MainTab = "global" | "colleges";
+type MainTab = "global" | "colleges" | "auto";
 
-const Subjects: React.FC = () => {
+const AdminSubjects: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { tab } = useParams<{ tab: string }>();
 
-    // Main tab state
-    const [mainTab, setMainTab] = useState<MainTab>("global");
+    // Derived states
+    const activeTab: MainTab = (tab as MainTab) || "auto";
 
-    useEffect(() => {
-        if (tab && (tab === "global" || tab === "colleges")) {
-            setMainTab(tab as MainTab);
-        } else {
-            // Default to global if tab is invalid or missing (though App.tsx handles missing)
-            setMainTab("global");
-        }
-    }, [tab]);
+    if (activeTab === "auto") {
+        return <Navigate to="/admin/subjects/global" replace />;
+    }
 
-    // Global Subjects Tab
+    // Global Subjects State
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
     const [subjectsLoading, setSubjectsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Colleges Tab
+    // Colleges State
     const [colleges, setColleges] = useState<CollegeBasic[]>([]);
     const [filteredColleges, setFilteredColleges] = useState<CollegeBasic[]>([]);
     const [collegesLoading, setCollegesLoading] = useState(false);
     const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
 
-    // Add Subject Modal
+    // Modal States
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [newSubject, setNewSubject] = useState({
         subject_name: "",
@@ -65,11 +61,9 @@ const Subjects: React.FC = () => {
     });
     const [saving, setSaving] = useState(false);
 
-    // Edit Subject Modal
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editSubjectId, setEditSubjectId] = useState<string | number | null>(null);
 
-    // Delete Confirmation
     const [confirmDelete, setConfirmDelete] = useState<string | number | null>(null);
     const [deleting, setDeleting] = useState(false);
 
@@ -78,13 +72,13 @@ const Subjects: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (mainTab === "colleges" && colleges.length === 0) {
+        if (activeTab === "colleges" && colleges.length === 0) {
             loadColleges();
         }
-    }, [mainTab]);
+    }, [activeTab]);
 
     useEffect(() => {
-        if (searchQuery.trim() === "") {
+        if (!searchQuery.trim()) {
             setFilteredSubjects(subjects);
         } else {
             const query = searchQuery.toLowerCase();
@@ -92,15 +86,15 @@ const Subjects: React.FC = () => {
                 subjects.filter(
                     (s) =>
                         s.subject_name.toLowerCase().includes(query) ||
-                        s.short_code?.toLowerCase().includes(query) ||
-                        s.yuvro_id?.toLowerCase().includes(query)
+                        (s.short_code && s.short_code.toLowerCase().includes(query)) ||
+                        (s.yuvro_id && s.yuvro_id.toLowerCase().includes(query))
                 )
             );
         }
     }, [searchQuery, subjects]);
 
     useEffect(() => {
-        if (collegeSearchQuery.trim() === "") {
+        if (!collegeSearchQuery.trim()) {
             setFilteredColleges(colleges);
         } else {
             const query = collegeSearchQuery.toLowerCase();
@@ -116,7 +110,7 @@ const Subjects: React.FC = () => {
             setFilteredSubjects(data as Subject[]);
         } catch (err) {
             console.error("Failed to load subjects", err);
-            toast.error("Failed to load subjects");
+            toast.error("Failed to load global subjects from server");
         } finally {
             setSubjectsLoading(false);
         }
@@ -130,26 +124,9 @@ const Subjects: React.FC = () => {
             setFilteredColleges(data);
         } catch (err) {
             console.error("Failed to load colleges", err);
-            toast.error("Failed to load colleges");
+            toast.error("Failed to load colleges from server");
         } finally {
             setCollegesLoading(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!confirmDelete) return;
-        setDeleting(true);
-
-        try {
-            await deleteSubject(confirmDelete.toString());
-            toast.success("Subject deleted successfully");
-            setConfirmDelete(null);
-            loadSubjects();
-        } catch (err: any) {
-            console.error(err);
-            toast.error(err.message || "Failed to delete subject");
-        } finally {
-            setDeleting(false);
         }
     };
 
@@ -158,17 +135,16 @@ const Subjects: React.FC = () => {
             toast.error("Subject name is required");
             return;
         }
-
         try {
             setSaving(true);
             await createSubject(newSubject);
-            toast.success("Subject created successfully");
+            toast.success("Subject created successfully!");
             setNewSubject({ subject_name: "", short_code: "" });
             setIsAddOpen(false);
             loadSubjects();
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            toast.error("Failed to create subject");
+            toast.error(err.message || "Failed to create subject");
         } finally {
             setSaving(false);
         }
@@ -185,384 +161,385 @@ const Subjects: React.FC = () => {
 
     const handleUpdateSubject = async () => {
         if (!editSubjectId) return;
+        if (!newSubject.subject_name.trim()) {
+            toast.error("Subject name is required");
+            return;
+        }
 
         try {
             setSaving(true);
             await updateSubject(editSubjectId.toString(), newSubject);
-            toast.success("Subject updated successfully");
+            toast.success("Subject updated successfully!");
             setNewSubject({ subject_name: "", short_code: "" });
             setIsEditOpen(false);
             loadSubjects();
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            toast.error("Failed to update subject");
+            toast.error(err.message || "Failed to update subject");
         } finally {
             setSaving(false);
         }
     };
 
-    const headerActions = mainTab === "global" ? (
-        <Button
-            onClick={() => setIsAddOpen(true)}
-            className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
-        >
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Subject
-        </Button>
-    ) : null;
+    const handleDelete = async () => {
+        if (!confirmDelete) return;
+        
+        try {
+            setDeleting(true);
+            await deleteSubject(confirmDelete.toString());
+            toast.success("Subject completely purged.");
+            setConfirmDelete(null);
+            loadSubjects();
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err.message || "Failed to delete subject");
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="flex">
-                <RoleSidebar />
+        <SidebarProvider>
+            <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+                <AdminSidebar />
                 <div className="flex-1 overflow-y-auto">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        <PageHeader
-                            title="Subject Management"
-                            subtitle={
-                                mainTab === "global"
-                                    ? "Manage all subjects in the global repository"
-                                    : "Select a college to manage its subjects"
-                            }
-                            actions={headerActions}
-                        />
-                        {/* Main Tabs */}
-                        <div className="mb-6">
-                            <nav className="flex space-x-8 border-b border-gray-200">
-                                <button
-                                    onClick={() => navigate("/admin/subjects/global")}
-                                    className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm transition-all cursor-pointer ${
-                                        mainTab === "global"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                    }`}
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
+                        {/* Header Container */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Subject Management</h1>
+                                <p className="text-muted-foreground mt-1 text-sm">
+                                    {activeTab === "global"
+                                        ? "Manage repository of universal academic subjects"
+                                        : "Browse institutions to map distinct academic offerings"}
+                                </p>
+                            </div>
+                            
+                            {activeTab === "global" && (
+                                <Button
+                                    onClick={() => setIsAddOpen(true)}
+                                    className="font-semibold shadow-sm rounded-lg"
                                 >
-                                    <BookOpen className="h-5 w-5" />
-                                    <span>Global Subjects</span>
-                                    <span
-                                        className={`rounded-full px-2 py-1 text-xs transition-colors ${
-                                            mainTab === "global"
-                                                ? "bg-blue-100 text-blue-600"
-                                                : "bg-white text-gray-600"
-                                        }`}
-                                    >
-                                        {subjects.length}
-                                    </span>
-                                </button>
-                                <button
-                                    onClick={() => navigate("/admin/subjects/colleges")}
-                                    className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm transition-all cursor-pointer ${
-                                        mainTab === "colleges"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                    }`}
-                                >
-                                    <Building2 className="h-5 w-5" />
-                                    <span>Colleges</span>
-                                    <span
-                                        className={`rounded-full px-2 py-1 text-xs transition-colors ${
-                                            mainTab === "colleges"
-                                                ? "bg-blue-100 text-blue-600"
-                                                : "bg-white text-gray-600"
-                                        }`}
-                                    >
-                                        {colleges.length}
-                                    </span>
-                                </button>
-                            </nav>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Create New Subject
+                                </Button>
+                            )}
                         </div>
 
-                        {/* Global Subjects Tab Content */}
-                        {mainTab === "global" && (
-                            <>
-                                {/* Search Bar */}
-                                <div className="mb-6">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Search by name, code, or Yuvro ID..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="pl-10 w-full md:w-96"
-                                        />
-                                    </div>
+                        {/* Navigation Tabs */}
+                        <div className="flex items-center space-x-2 border-b border-border/60 mb-8 pb-px">
+                            <button
+                                onClick={() => navigate("/admin/subjects/global")}
+                                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all relative ${
+                                    activeTab === "global"
+                                        ? "text-primary"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-t-lg"
+                                }`}
+                            >
+                                <BookOpen className="h-4 w-4" />
+                                <span className="uppercase tracking-wider">Global Repository</span>
+                                <span className={`ml-1.5 px-2 py-0.5 rounded-full text-[10px] ${
+                                    activeTab === 'global' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                                }`}>
+                                    {subjects.length}
+                                </span>
+                                {activeTab === "global" && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(0,0,0,0.1)]" />
+                                )}
+                            </button>
+                            <button
+                                onClick={() => navigate("/admin/subjects/colleges")}
+                                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all relative ${
+                                    activeTab === "colleges"
+                                        ? "text-primary"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-t-lg"
+                                }`}
+                            >
+                                <Building2 className="h-4 w-4" />
+                                <span className="uppercase tracking-wider">Colleges Catalogue</span>
+                                <span className={`ml-1.5 px-2 py-0.5 rounded-full text-[10px] ${
+                                    activeTab === 'colleges' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                                }`}>
+                                    {colleges.length}
+                                </span>
+                                {activeTab === "colleges" && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-2px_8px_rgba(0,0,0,0.1)]" />
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Content Area */}
+                        
+                        {activeTab === "global" && (
+                            <div className="space-y-6">
+                                {/* Native Search Filter */}
+                                <div className="relative max-w-lg">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search by ID, code, or exact nomenclature..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-9 bg-background/50 border-muted-foreground/20 h-11 shadow-sm rounded-xl focus-visible:ring-primary focus-visible:border-primary"
+                                    />
                                 </div>
 
-                                {subjectsLoading && (
-                                    <div className="flex justify-center items-center py-12">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                        <span className="ml-2 text-gray-600">Loading subjects...</span>
+                                {subjectsLoading ? (
+                                    <div className="h-[40vh] flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary/50" />
+                                        <span className="text-sm font-medium tracking-wide">Synchronizing global catalogue...</span>
                                     </div>
-                                )}
-
-                                {!subjectsLoading && filteredSubjects.length === 0 && (
-                                    <div className="bg-white shadow rounded-lg p-12 text-center text-gray-500">
-                                        {searchQuery
-                                            ? "No subjects found matching your search."
-                                            : "No subjects found. Create one to get started."}
+                                ) : filteredSubjects.length === 0 ? (
+                                    <div className="h-[40vh] flex flex-col items-center justify-center gap-4 bg-background border border-dashed border-border rounded-xl">
+                                        <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-2">
+                                            <BookA className="h-8 w-8 text-muted-foreground/50" />
+                                        </div>
+                                        <h3 className="font-semibold text-lg max-w-[250px] text-center text-foreground w-full">
+                                            {searchQuery ? "No matches recorded" : "Catalogue Empty"}
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground max-w-sm text-center">
+                                            {searchQuery 
+                                                ? `We couldn't locate any subject matching "${searchQuery}" inside the global pool.` 
+                                                : "There are no subjects generated currently in the global pool."}
+                                        </p>
                                     </div>
-                                )}
-
-                                {!subjectsLoading && filteredSubjects.length > 0 && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                         {filteredSubjects.map((subject) => (
-                                            <Card
-                                                key={subject.id}
-                                                className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white rounded-xl cursor-pointer border-none shadow-md"
+                                            <Card 
+                                                key={subject.id} 
+                                                className="group hover:border-primary/40 hover:shadow-lg transition-all duration-300 bg-background cursor-pointer flex flex-col justify-between overflow-hidden relative"
                                                 onClick={() => navigate(`/admin/subjects/${subject.id}/manage`)}
                                             >
-                                                <CardContent className="p-0">
-                                                    <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-4 text-white hover:brightness-110 transition-all">
-                                                        <div className="flex items-center gap-2 mb-2 text-white/70 text-xs uppercase font-medium">
-                                                            <BookOpen className="h-4 w-4" />
-                                                            {subject.yuvro_id || "Subject"}
+                                                <div className="absolute top-0 right-0 p-4 opacity-10 blur-xl group-hover:opacity-40 transition-opacity pointer-events-none text-primary mix-blend-multiply">
+                                                    <GraduationCap className="h-24 w-24 -mr-6 -mt-6" />
+                                                </div>
+                                                <CardContent className="p-6 pb-20 relative z-10 flex flex-col gap-3">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground/70 bg-secondary px-2 py-0.5 rounded-sm">
+                                                            ID: {subject.yuvro_id?.split('-')[0] || subject.id.toString().substring(0, 8)}
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="font-bold text-lg leading-tight line-clamp-2 pr-4">{subject.subject_name}</h3>
+                                                    {subject.short_code && (
+                                                        <div className="w-fit border border-primary/20 bg-primary/5 px-2.5 py-0.5 rounded-md text-primary text-xs font-bold tracking-widest mt-1">
+                                                            {subject.short_code}
                                                         </div>
-                                                        <h3 className="font-bold text-lg leading-tight mb-2">
-                                                            {subject.subject_name}
-                                                        </h3>
-                                                        {subject.short_code && (
-                                                            <div className="inline-block bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-xs font-bold">
-                                                                {subject.short_code}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="p-5 flex items-center justify-between">
-                                                        <Button
-                                                            variant="default"
-                                                            size="sm"
-                                                            className="bg-black hover:bg-gray-800 text-white cursor-pointer px-4 font-medium"
-                                                        >
-                                                            Manage
-                                                        </Button>
-                                                        {user?.role === "admin" && (
-                                                            <div className="flex gap-2">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        openEditSubjectModal(subject);
-                                                                    }}
-                                                                    className="h-8 w-8 cursor-pointer hover:bg-amber-50 hover:text-amber-600 transition-colors"
-                                                                >
-                                                                    <Edit className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        setConfirmDelete(subject.id);
-                                                                    }}
-                                                                    className="h-8 w-8 text-red-500 cursor-pointer hover:bg-red-50 transition-colors"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    )}
                                                 </CardContent>
+                                                
+                                                <div className="absolute bottom-0 left-0 right-0 p-4 mt-auto border-t border-border/40 bg-muted/20 backdrop-blur-sm flex items-center justify-between z-20">
+                                                    <span className="text-xs font-semibold text-primary/80 group-hover:text-primary flex items-center gap-1 group/btn hover:underline transition-all uppercase tracking-tight">
+                                                        CONFIGURE
+                                                        <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform" />
+                                                    </span>
+
+                                                    {user?.role === "admin" && (
+                                                        <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openEditSubjectModal(subject);
+                                                                }}
+                                                                className="h-8 w-8 rounded bg-background hover:bg-secondary border-border/50 shadow-sm"
+                                                            >
+                                                                <Edit className="h-3.5 w-3.5 text-foreground/70" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setConfirmDelete(subject.id);
+                                                                }}
+                                                                className="h-8 w-8 rounded bg-background hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive border-border/50 shadow-sm transition-colors"
+                                                            >
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </Card>
                                         ))}
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
 
-                        {/* Colleges Tab Content */}
-                        {mainTab === "colleges" && (
-                            <>
-                                {/* Search Bar */}
-                                <div className="mb-6">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Search colleges..."
-                                            value={collegeSearchQuery}
-                                            onChange={(e) => setCollegeSearchQuery(e.target.value)}
-                                            className="pl-10 w-full md:w-96"
-                                        />
-                                    </div>
+                        {activeTab === "colleges" && (
+                            <div className="space-y-6">
+                                <div className="relative max-w-lg">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search mapped colleges..."
+                                        value={collegeSearchQuery}
+                                        onChange={(e) => setCollegeSearchQuery(e.target.value)}
+                                        className="pl-9 bg-background/50 border-muted-foreground/20 h-11 shadow-sm rounded-xl focus-visible:ring-primary focus-visible:border-primary"
+                                    />
                                 </div>
 
-                                {collegesLoading && (
-                                    <div className="flex justify-center items-center py-12">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                        <span className="ml-2 text-gray-600">Loading colleges...</span>
+                                {collegesLoading ? (
+                                    <div className="h-[40vh] flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary/50" />
+                                        <span className="text-sm font-medium tracking-wide">Discovering localized institutions...</span>
                                     </div>
-                                )}
-
-                                {!collegesLoading && filteredColleges.length === 0 && (
-                                    <div className="bg-white shadow rounded-lg p-12 text-center text-gray-500">
-                                        {collegeSearchQuery
-                                            ? "No colleges found matching your search."
-                                            : "No colleges found."}
+                                ) : filteredColleges.length === 0 ? (
+                                    <div className="h-[40vh] flex flex-col items-center justify-center gap-4 bg-background border border-dashed border-border rounded-xl">
+                                        <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-2">
+                                            <Building2 className="h-8 w-8 text-muted-foreground/50" />
+                                        </div>
+                                        <h3 className="font-semibold text-lg text-center text-foreground">
+                                            {collegeSearchQuery ? "No colleges discovered" : "Ecosystem Empty"}
+                                        </h3>
                                     </div>
-                                )}
-
-                                {!collegesLoading && filteredColleges.length > 0 && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                         {filteredColleges.map((college) => (
                                             <Card
                                                 key={college.id}
-                                                className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-white rounded-xl cursor-pointer border-none shadow-md"
-                                                onClick={() =>
-                                                    navigate(`/admin/subjects/colleges/${college.id}`)
-                                                }
+                                                className="group hover:border-primary/50 hover:shadow-xl transition-all duration-300 bg-background cursor-pointer overflow-hidden relative"
+                                                onClick={() => navigate(`/admin/subjects/colleges/${college.id}`)}
                                             >
-                                                <CardContent className="p-0">
-                                                    <div className="bg-gradient-to-r from-indigo-900 to-indigo-700 p-6 text-white hover:brightness-110 transition-all">
-                                                        <div className="flex items-center gap-3 mb-3">
-                                                            <Building2 className="h-8 w-8" />
-                                                            <h3 className="font-bold text-xl leading-tight">
+                                                <div className="absolute inset-0 bg-gradient-to-tl from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                                <CardContent className="p-6 flex flex-col justify-between h-full gap-5">
+                                                    <div className="flex gap-4">
+                                                        <div className="h-10 w-10 shrink-0 bg-primary/10 rounded-lg border border-primary/20 flex items-center justify-center">
+                                                            <Building2 className="h-5 w-5 text-primary" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h3 className="font-bold text-base leading-tight truncate text-foreground mb-1 mt-0.5">
                                                                 {college.name}
                                                             </h3>
+                                                            {college.location ? (
+                                                                <p className="text-xs text-muted-foreground line-clamp-2">{college.location}</p>
+                                                            ) : (
+                                                                <p className="text-xs text-muted-foreground/50 italic">Location unassigned</p>
+                                                            )}
                                                         </div>
-                                                        {college.location && (
-                                                            <p className="text-white/70 text-sm">{college.location}</p>
-                                                        )}
                                                     </div>
-                                                    <div className="p-5 flex items-center justify-between">
-                                                        <span className="text-sm text-gray-600">Manage Subjects</span>
-                                                        <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                                                    <div className="mt-auto border-t border-border pt-4 flex items-center justify-between">
+                                                        <span className="text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 uppercase tracking-wide group/btn">
+                                                            Explore Academics
+                                                        </span>
+                                                        <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center group-hover:bg-primary transition-colors">
+                                                            <ChevronRight className="h-3 w-3 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
+                                                        </div>
                                                     </div>
                                                 </CardContent>
                                             </Card>
                                         ))}
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
                     </div>
-
-                    {/* Add Subject Dialog */}
-                    <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Create New Subject</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label>Subject Name *</Label>
-                                    <Input
-                                        value={newSubject.subject_name}
-                                        onChange={(e) =>
-                                            setNewSubject({ ...newSubject, subject_name: e.target.value })
-                                        }
-                                        placeholder="e.g., Data Structures and Algorithms"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Short Code (Optional)</Label>
-                                    <Input
-                                        value={newSubject.short_code}
-                                        onChange={(e) =>
-                                            setNewSubject({ ...newSubject, short_code: e.target.value })
-                                        }
-                                        placeholder="e.g., DSA"
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="cursor-pointer"
-                                    onClick={() => setIsAddOpen(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    disabled={saving}
-                                    className="cursor-pointer"
-                                    onClick={handleCreateSubject}
-                                >
-                                    {saving ? "Creating..." : "Create Subject"}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* Edit Subject Dialog */}
-                    <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                        <DialogContent className="sm:max-w-[500px]">
-                            <DialogHeader>
-                                <DialogTitle>Edit Subject</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label>Subject Name *</Label>
-                                    <Input
-                                        value={newSubject.subject_name}
-                                        onChange={(e) =>
-                                            setNewSubject({ ...newSubject, subject_name: e.target.value })
-                                        }
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Short Code (Optional)</Label>
-                                    <Input
-                                        value={newSubject.short_code}
-                                        onChange={(e) =>
-                                            setNewSubject({ ...newSubject, short_code: e.target.value })
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="cursor-pointer"
-                                    onClick={() => setIsEditOpen(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    disabled={saving}
-                                    className="cursor-pointer"
-                                    onClick={handleUpdateSubject}
-                                >
-                                    {saving ? "Updating..." : "Save Changes"}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* Delete Confirmation */}
-                    <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Delete Subject</DialogTitle>
-                            </DialogHeader>
-                            <div className="py-4">
-                                Are you sure you want to delete this subject? This action cannot be undone.
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="cursor-pointer"
-                                    onClick={() => setConfirmDelete(null)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    className="cursor-pointer"
-                                    disabled={deleting}
-                                    onClick={handleDelete}
-                                >
-                                    {deleting ? "Deleting..." : "Delete"}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
                 </div>
+
+                {/* Create/Edit Modals mapped precisely from legacy app */}
+                <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl">Allocate New Subject</DialogTitle>
+                            <DialogDescription>
+                                Input the nomenclature for this globally available item.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-5 py-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="name" className="text-sm font-semibold">Subject Name <span className="text-destructive">*</span></Label>
+                                <Input
+                                    id="name"
+                                    autoComplete="off"
+                                    value={newSubject.subject_name}
+                                    onChange={(e) => setNewSubject({ ...newSubject, subject_name: e.target.value })}
+                                    placeholder="Engineered Calculus V"
+                                    className="h-11"
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="code" className="text-sm font-semibold">Short Code</Label>
+                                <Input
+                                    id="code"
+                                    autoComplete="off"
+                                    value={newSubject.short_code}
+                                    onChange={(e) => setNewSubject({ ...newSubject, short_code: e.target.value })}
+                                    placeholder="ECV05"
+                                    className="h-11 uppercase font-mono placeholder:normal-case placeholder:font-sans"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                            <Button onClick={handleCreateSubject} disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
+                                Instantiate
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                    <DialogContent className="sm:max-w-[450px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl">Reconfigure Reference</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-5 py-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-name" className="text-sm font-semibold">Subject Ref Nomenclature <span className="text-destructive">*</span></Label>
+                                <Input
+                                    id="edit-name"
+                                    autoComplete="off"
+                                    value={newSubject.subject_name}
+                                    onChange={(e) => setNewSubject({ ...newSubject, subject_name: e.target.value })}
+                                    className="h-11"
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit-code" className="text-sm font-semibold">Short Code Identifier</Label>
+                                <Input
+                                    id="edit-code"
+                                    autoComplete="off"
+                                    value={newSubject.short_code}
+                                    onChange={(e) => setNewSubject({ ...newSubject, short_code: e.target.value })}
+                                    className="h-11 uppercase font-mono"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                            <Button variant="ghost" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                            <Button onClick={handleUpdateSubject} disabled={saving}>
+                                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                                Save Mutation
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle className="text-destructive flex items-center gap-2 text-xl">
+                                <Trash2 className="h-5 w-5" />
+                                Initiate Destructive Override
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4">
+                            <p className="text-muted-foreground text-sm">
+                                System verification required. Are you sure you wish to permanently purge this subject from the repository? Associated curriculum elements might become orphaned.
+                            </p>
+                        </div>
+                        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                            <Button variant="outline" onClick={() => setConfirmDelete(null)}>Abort</Button>
+                            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                                {deleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Authorize Purge"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
-        </div>
+        </SidebarProvider>
     );
 };
 
-export default Subjects;
+export default AdminSubjects;

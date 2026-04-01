@@ -1,74 +1,112 @@
 import { useState } from 'react';
+import { useProfiles } from '@/hooks/useProfiles';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, ArrowUpCircle } from 'lucide-react';
-import AddHODDialog from '@/components/principal/AddHODDialog';
-import PromoteFacultyDialog from '@/components/principal/PromoteFacultyDialog';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, Search } from 'lucide-react';
+import { AddHODDialog } from './AddHODDialog';
+import { PromoteFacultyDialog } from './PromoteFacultyDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
-const initialHods = [
-  {
-    id: 1,
-    name: 'Dr. Rajesh Kumar',
-    department: 'CSE',
-    email: 'rajesh.kumar@yuvro.edu',
-  },
-  {
-    id: 2,
-    name: 'Dr. Priya Sharma',
-    department: 'ECE',
-    email: 'priya.sharma@yuvro.edu',
-  },
-];
+export function ManageHODs() {
+  const { profiles: hods, isLoading, updateProfile, deleteProfile } = useProfiles('hod');
+  const [searchTerm, setSearchTerm] = useState('');
 
-export default function ManageHODs() {
-  const [hods] = useState(initialHods);
-  const [addOpen, setAddOpen] = useState(false);
-  const [promoteOpen, setPromoteOpen] = useState(false);
+  const filteredHODs = hods?.filter(hod =>
+    hod.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    hod.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">Manage HODs</h2>
-          <p className="text-sm text-muted-foreground">
-            Add new HODs or promote faculty members as department heads
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <Button onClick={() => setAddOpen(true)} className="gap-2">
-            <UserPlus className="h-4 w-4" />
-            Add HOD
-          </Button>
-          <Button variant="outline" onClick={() => setPromoteOpen(true)} className="gap-2">
-            <ArrowUpCircle className="h-4 w-4" />
-            Promote Faculty
-          </Button>
-        </div>
-      </div>
-
-      <Card className="border">
-        <CardHeader>
-          <CardTitle>Current HODs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {hods.map((hod) => (
-              <div
-                key={hod.id}
-                className="rounded-lg border p-4 bg-background"
-              >
-                <h3 className="font-semibold">{hod.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{hod.department}</p>
-                <p className="text-sm text-muted-foreground">{hod.email}</p>
-              </div>
-            ))}
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Manage HODs</CardTitle>
+          <div className="flex gap-2">
+            <PromoteFacultyDialog />
+            <AddHODDialog />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search HODs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+        </div>
 
-      <AddHODDialog open={addOpen} onOpenChange={setAddOpen} />
-      <PromoteFacultyDialog open={promoteOpen} onOpenChange={setPromoteOpen} />
-    </div>
+        {isLoading ? (
+          <div className="text-center py-8">Loading...</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Assigned</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredHODs?.map((hod) => (
+                <TableRow key={hod.id}>
+                  <TableCell className="font-medium">{hod.full_name}</TableCell>
+                  <TableCell>{hod.email}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">Computer Science</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge>Active</Badge>
+                  </TableCell>
+                  <TableCell>{new Date(hod.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete HOD</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {hod.full_name}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteProfile(hod.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {filteredHODs?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No HODs found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
   );
 }

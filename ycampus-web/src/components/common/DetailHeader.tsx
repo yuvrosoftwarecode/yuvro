@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import StatusBadge from '@/components/common/StatusBadge';
 import { Building2, Calendar, Pencil, Clock, Users, Trophy, BarChart2, LucideIcon } from 'lucide-react';

@@ -459,7 +459,7 @@ function PreparationDashboard({ config, onReset }: { config: any; onReset: () =>
           {/* ── NOTIFICATIONS TAB ── */}
           <TabsContent value="notifications" className="space-y-3">
             {notifications.map((n, i) => (
-              <Card key={i} className={`border-border/60 ${n.type === 'warning' ? 'border-l-4 border-l-red-400' : n.type === 'positive' ? 'border-l-4 border-l-green-400' : n.type === 'positive' ? 'border-l-4 border-l-green-400' : 'border-l-4 border-l-blue-400'}`}>
+              <Card key={i} className={`border-border/60 ${n.type === 'warning' ? 'border-l-4 border-l-red-400' : n.type === 'positive' ? 'border-l-4 border-l-green-400' : 'border-l-4 border-l-blue-400'}`}>
                 <CardContent className="pt-4 pb-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Bell className="h-3.5 w-3.5 text-muted-foreground" />

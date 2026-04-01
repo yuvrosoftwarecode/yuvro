@@ -1,119 +1,132 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import RoleSidebar from '../../components/common/RoleSidebar';
-import PageHeader from '../../components/common/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React, { useState, useEffect, useMemo } from 'react';
+import FacultyLayout from '@/components/layouts/FacultyLayout';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, fetchSubUnitsByUnit, SubUnit, UnitBasic } from '../../services/subjectService';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  Search,
-  BookOpen,
-  CheckCircle2,
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { BookOpen, CheckCircle, Search, Loader2, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { getFacultyAssignments, SectionSubjectFaculty, fetchUnitsBySubject, fetchSubUnitsByUnit } from '@/services/subjectService';
 
 interface Topic {
   id: string;
-  title: string;
-  description: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
+  name: string;
   unitName?: string;
+  status: 'pending' | 'finished';
 }
 
-const Syllabus: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [assignments, setAssignments] = useState<SectionSubjectFaculty[]>([]);
+const Syllabus = () => {
+  const [loading, setLoading] = useState(true);
+  const [topicsLoading, setTopicsLoading] = useState(false);
+  const [allAssignments, setAllAssignments] = useState<SectionSubjectFaculty[]>([]);
   
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSection, setSelectedSection] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
-
+  
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [topicToConfirm, setTopicToConfirm] = useState<Topic | null>(null);
+  
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchInitialData();
+    loadAssignments();
   }, []);
 
-  const fetchInitialData = async () => {
+  const loadAssignments = async () => {
     try {
       setLoading(true);
       const data = await getFacultyAssignments();
-      setAssignments(data);
-    } catch (err) {
-      toast.error('Failed to load assignments');
+      setAllAssignments(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load faculty assignments",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const uniqueDepartments = useMemo(() => {
-    const acc: { id: string; name: string }[] = [];
-    assignments.forEach((curr) => {
-      const deptId = curr.semester_subject_details?.department_id;
-      const deptName = curr.semester_subject_details?.department_name;
-      if (deptId && deptName && !acc.find((d) => d.id === String(deptId))) {
-        acc.push({ id: String(deptId), name: deptName });
+  // 1. Batch filter
+  const uniqueBatches = useMemo(() => {
+    const batches = new Set<string>();
+    allAssignments.forEach(a => {
+      if (a.semester_subject_details?.batch_name) {
+        batches.add(a.semester_subject_details.batch_name);
       }
     });
-    return acc;
-  }, [assignments]);
+    return Array.from(batches).sort();
+  }, [allAssignments]);
 
+  // 2. Department filter (Integrated with Batch)
+  const uniqueDepartments = useMemo(() => {
+    if (!selectedBatch) return [];
+    const depts = new Map<string, string>();
+    allAssignments
+      .filter(a => a.semester_subject_details?.batch_name === selectedBatch)
+      .forEach(a => {
+        if (a.semester_subject_details?.department_id && a.semester_subject_details?.department_name) {
+          depts.set(String(a.semester_subject_details.department_id), a.semester_subject_details.department_name);
+        }
+      });
+    return Array.from(depts.entries()).map(([id, name]) => ({ id, name }));
+  }, [allAssignments, selectedBatch]);
+
+  // 3. Subject filter (Integrated with Batch + Department)
   const uniqueSubjects = useMemo(() => {
-    if (!selectedDepartment) return [];
-    const acc: { id: string; name: string }[] = [];
-    assignments
-      .filter((a) => String(a.semester_subject_details?.department_id) === selectedDepartment)
-      .forEach((curr) => {
-        const subjectId = String(curr.semester_subject_details?.subject_details?.id);
-        if (!acc.find((s) => s.id === subjectId)) {
-          acc.push({
-            id: subjectId,
-            name: curr.semester_subject_details?.subject_details?.subject_name || 'Unknown Subject',
+    if (!selectedBatch || !selectedDepartment) return [];
+    const subs = new Map<string, { name: string; code?: string }>();
+    allAssignments
+      .filter(a => 
+        a.semester_subject_details?.batch_name === selectedBatch && 
+        String(a.semester_subject_details?.department_id) === selectedDepartment
+      )
+      .forEach(a => {
+        const details = a.semester_subject_details?.subject_details;
+        if (details) {
+          subs.set(String(details.id), { 
+            name: details.subject_name || details.name || 'Unknown', 
+            code: details.short_code 
           });
         }
       });
-    return acc;
-  }, [assignments, selectedDepartment]);
+    return Array.from(subs.entries()).map(([id, info]) => ({ id, ...info }));
+  }, [allAssignments, selectedBatch, selectedDepartment]);
 
-  const availableSections = useMemo(() => {
-    if (!selectedDepartment || !selectedSubject) return [];
-    return assignments.filter(
-      (a) =>
+  // 4. Section filter (Integrated with Batch + Department + Subject)
+  const uniqueSections = useMemo(() => {
+    if (!selectedBatch || !selectedDepartment || !selectedSubject) return [];
+    return allAssignments
+      .filter(a => 
+        a.semester_subject_details?.batch_name === selectedBatch && 
         String(a.semester_subject_details?.department_id) === selectedDepartment &&
         String(a.semester_subject_details?.subject_details?.id) === selectedSubject
-    );
-  }, [assignments, selectedDepartment, selectedSubject]);
+      )
+      .map(a => ({ 
+        id: String(a.id), 
+        sectionId: String(a.section),
+        name: a.section_name || `Section ${a.section}`
+      }));
+  }, [allAssignments, selectedBatch, selectedDepartment, selectedSubject]);
 
   useEffect(() => {
     if (selectedSubject) {
-      loadTopics(selectedSubject);
+      loadSyllabus(selectedSubject);
     } else {
       setTopics([]);
     }
   }, [selectedSubject]);
 
-  const loadTopics = async (subjectId: string) => {
+  const loadSyllabus = async (subjectId: string) => {
     try {
-      setLoading(true);
+      setTopicsLoading(true);
       const units = await fetchUnitsBySubject(subjectId);
       let allTopics: Topic[] = [];
       
@@ -121,221 +134,280 @@ const Syllabus: React.FC = () => {
         const subUnits = await fetchSubUnitsByUnit(unit.id);
         const unitTopics: Topic[] = subUnits.map((su) => ({
           id: su.id,
-          title: su.name,
-          description: su.content || '',
-          status: 'Pending',
+          name: su.name,
           unitName: unit.name,
+          status: 'pending' as const, // Default to pending
         }));
         allTopics = [...allTopics, ...unitTopics];
       }
       setTopics(allTopics);
-    } catch (err) {
-      toast.error('Failed to load topics');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load syllabus content",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false);
+      setTopicsLoading(false);
     }
   };
 
-  const filteredTopics = useMemo(() => {
-    return topics.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [topics, searchQuery]);
-
-  const [topicToFinish, setTopicToFinish] = useState<string | null>(null);
-
-  const handleFinishTopic = () => {
-    if (!topicToFinish) return;
+  const handleFinishTopic = (topicId: string) => {
+    // MOCK: Update local state only as requested
+    setTopics(prev => prev.map(t => 
+      t.id === topicId ? { ...t, status: t.status === 'finished' ? 'pending' : 'finished' } : t
+    ));
     
-    // Optimistically update topic status locally
-    setTopics(prev => prev.map(t => t.id === topicToFinish ? { ...t, status: t.status === 'Completed' ? 'Pending' : 'Completed' } : t));
-    toast.success('Topic status updated successfully!');
-    setTopicToFinish(null);
+    const topic = topics.find(t => t.id === topicId);
+    const wasFinished = topic?.status === 'finished';
+    
+    toast({
+      title: wasFinished ? "Topic Reverted" : "Topic Completed",
+      description: `Successfully updated status for "${topic?.name}"`,
+    });
+    setTopicToConfirm(null);
   };
 
+  const filteredTopics = topics.filter(topic =>
+    topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    topic.unitName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="flex h-screen bg-white overflow-hidden">
-      <RoleSidebar />
-      <div className="flex flex-1 flex-col h-screen overflow-hidden min-w-0">
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar min-h-0 bg-white">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <PageHeader title="Syllabus Management" subtitle="Take and manage attendance for your assigned sections" />
+    <FacultyLayout>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              
+              <h1 className="text-2xl font-bold tracking-tight">Syllabus Management</h1>
+            </div>
+            <p className="">Manage and track course coverage for your assigned sections.</p>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full text-amber-700 text-xs font-medium animate-pulse">
+            <Sparkles className="w-3 h-3" />
+            Live Coverage Tracking
+          </div>
+        </div>
 
-            <div className="bg-white rounded-xl border border-gray-300 p-6 flex flex-col space-y-8 min-h-[500px]">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-foreground">Department</label>
-                  <Select
-                    value={selectedDepartment}
-                    onValueChange={(value) => {
-                      setSelectedDepartment(value);
-                      setSelectedSubject('');
-                      setSelectedSection('');
-                    }}
-                  >
-                    <SelectTrigger className="h-10 border-gray-300 rounded-lg">
-                      <SelectValue placeholder="Choose Department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {uniqueDepartments.map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        {/* Filters Card */}
+        <Card className="border-none shadow-sm bg-gradient-to-br from-white to-gray-50/50">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold  tracking-wider ">Batch</Label>
+                <Select value={selectedBatch} onValueChange={(val) => {
+                  setSelectedBatch(val);
+                  setSelectedDepartment('');
+                  setSelectedSubject('');
+                  setSelectedSection('');
+                }}>
+                  <SelectTrigger className="bg-white/50 border-gray-200">
+                    <SelectValue placeholder="Identify Batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueBatches.map(batch => (
+                      <SelectItem key={batch} value={batch}>{batch}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-foreground">Subject</label>
-                  <Select
-                    value={selectedSubject}
-                    onValueChange={(value) => {
-                      setSelectedSubject(value);
-                      setSelectedSection('');
-                    }}
-                    disabled={!selectedDepartment}
-                  >
-                    <SelectTrigger className="h-10 border-gray-300 rounded-lg">
-                      <SelectValue placeholder="Select Subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {uniqueSubjects.map((subject) => (
-                        <SelectItem key={subject.id} value={subject.id}>
-                          {subject.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold  tracking-wider ">Department</Label>
+                <Select 
+                  value={selectedDepartment} 
+                  onValueChange={(val) => {
+                    setSelectedDepartment(val);
+                    setSelectedSubject('');
+                    setSelectedSection('');
+                  }}
+                  disabled={!selectedBatch}
+                >
+                  <SelectTrigger className="bg-white/50 border-gray-200">
+                    <SelectValue placeholder="Choose Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueDepartments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-foreground">Section</label>
-                  <Select
-                    value={selectedSection}
-                    onValueChange={setSelectedSection}
-                    disabled={!selectedSubject}
-                  >
-                    <SelectTrigger className="h-10 border-gray-900 rounded-lg ring-1 ring-gray-900 shadow-sm font-medium">
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableSections.map((sec) => (
-                        <SelectItem key={String(sec.section)} value={String(sec.section)}>
-                          {sec.section_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold  tracking-wider ">Subject</Label>
+                <Select 
+                  value={selectedSubject} 
+                  onValueChange={(val) => {
+                    setSelectedSubject(val);
+                    setSelectedSection('');
+                  }}
+                  disabled={!selectedDepartment}
+                >
+                  <SelectTrigger className="bg-white/50 border-gray-200">
+                    <SelectValue placeholder="Select Subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueSubjects.map(sub => (
+                      <SelectItem key={sub.id} value={sub.id}>
+                        {sub.name} {sub.code ? `(${sub.code})` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold  tracking-wider ">Section</Label>
+                <Select 
+                  value={selectedSection} 
+                  onValueChange={setSelectedSection}
+                  disabled={!selectedSubject}
+                >
+                  <SelectTrigger className="bg-white/50 border-gray-200">
+                    <SelectValue placeholder="Target Section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueSections.map(sec => (
+                      <SelectItem key={sec.id} value={sec.id}>{sec.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Syllabus Content */}
+        <div className="space-y-4">
+          {topicsLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-200">
+              <Loader2 className="w-10 h-10 text-primary/40 animate-spin mb-4" />
+              <p className=" font-medium">Extracting syllabus structure...</p>
+            </div>
+          ) : selectedSection ? (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  Sub Units Coverage
+                  <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100  text-[10px]">
+                    {uniqueSubjects.find(s => s.id === selectedSubject)?.name}
+                  </Badge>
+                </h3>
+                <div className="relative w-full max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 " />
+                  <Input
+                    placeholder="Quick search topics..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 h-9 bg-white border-gray-200 shadow-none"
+                  />
                 </div>
               </div>
 
-              {selectedDepartment && selectedSubject && selectedSection ? (
-                <div className="space-y-6 mt-8">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Topics
-                    </h2>
-                    <span className="text-sm font-medium text-muted-foreground border border-gray-300 rounded-full px-4 py-1.5">
-                      {uniqueSubjects.find(s => s.id === selectedSubject)?.name || 'Subject'}
-                    </span>
-                  </div>
-
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search topics..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-11 border-gray-300 rounded-xl bg-white"
-                    />
-                  </div>
-
-                  {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                      <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {filteredTopics.length > 0 ? filteredTopics.map((topic) => (
-                        <div
-                          key={topic.id}
-                          className="flex items-center justify-between p-4 rounded-xl border border-gray-300 bg-white"
-                        >
-                        <div className="flex items-center gap-4">
-                          <div className="h-2 w-2 rounded-full bg-gray-900" />
-                          <span className="font-semibold text-base text-foreground">
-                            {topic.title}
-                            {topic.unitName && <span className="ml-2 text-xs font-normal text-gray-400">({topic.unitName})</span>}
-                          </span>
-                          <Badge
-                            variant={topic.status === 'Completed' ? 'secondary' : 'outline'}
-                            className={`rounded-full px-3 font-medium ${
-                              topic.status === 'Completed' 
-                                ? 'bg-white text-gray-700 hover:bg-gray-100' 
-                                : 'text-gray-500 border-gray-200'
-                            }`}
-                          >
-                            {topic.status === 'Completed' ? 'sent' : 'pending'}
-                          </Badge>
+              <div className="grid grid-cols-1 gap-3">
+                {filteredTopics.length > 0 ? (
+                  filteredTopics.map((topic) => (
+                    <Card key={topic.id} className={`group border-none shadow-sm transition-all duration-300 hover:shadow-md ${topic.status === 'finished' ? 'bg-emerald-50/30' : 'bg-white'}`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className={`flex-shrink-0 w-1.5 h-10 rounded-full transition-colors duration-300 ${topic.status === 'finished' ? 'bg-emerald-500' : 'bg-gray-200 group-hover:bg-primary/40'}`} />
+                            <div className="min-w-0">
+                              <p className={`font-semibold text-sm sm:text-base truncate transition-colors duration-300 ${topic.status === 'finished' ? 'text-emerald-900' : 'text-gray-900'}`}>
+                                {topic.name}
+                              </p>
+                              {topic.unitName && (
+                                <p className="text-xs /80 font-medium">Unit: {topic.unitName}</p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <Badge 
+                              variant={topic.status === 'finished' ? 'default' : 'outline'}
+                              className={`rounded-full px-3 py-0.5 text-[10px] font-bold  tracking-wider transition-all duration-300 ${
+                                topic.status === 'finished' 
+                                  ? 'bg-emerald-500 hover:bg-emerald-600 border-none shadow-sm shadow-emerald-200' 
+                                  : 'text-gray-400 border-gray-200'
+                              }`}
+                            >
+                              {topic.status === 'finished' ? 'Completed' : 'Pending'}
+                            </Badge>
+                            
+                            <Button
+                              onClick={() => setTopicToConfirm(topic)}
+                              variant={topic.status === 'finished' ? 'outline' : 'default'}
+                              size="sm"
+                              className={`h-9 px-4 rounded-lg font-bold transition-all duration-300 ${
+                                topic.status === 'finished'
+                                  ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800'
+                                  : 'bg-primary hover:bg-primary/90 shadow-sm shadow-primary/20'
+                              }`}
+                            >
+                              <CheckCircle className={`w-4 h-4 mr-1.5 ${topic.status === 'finished' ? 'text-emerald-500' : 'text-white'}`} />
+                              {topic.status === 'finished' ? 'Revert' : 'Finish'}
+                            </Button>
+                          </div>
                         </div>
-                        <Button
-                          onClick={() => setTopicToFinish(topic.id)}
-                          className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white gap-2 font-medium px-6"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Finish
-                        </Button>
-                      </div>
-                    )) : (
-                      <div className="text-center py-10 text-gray-400 border border-dashed border-gray-300 rounded-xl">
-                         No topics found for this subject.
-                      </div>
-                    )}
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-200">
+                    <p className=" font-medium">No topics found matching your query.</p>
                   </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-gray-400 min-h-[300px]">
-                  <BookOpen className="h-12 w-12 mb-4 text-gray-200" />
-                  <p className="text-lg font-medium text-gray-900">Please complete selection</p>
-                  <p className="text-sm">Select department, subject, and section to view topics</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-
-            <Dialog open={!!topicToFinish} onOpenChange={(open) => !open && setTopicToFinish(null)}>
-              <DialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-6 bg-white">
-                <DialogHeader className="space-y-3">
-                  <DialogTitle className="text-xl font-bold text-gray-900">Confirm Status Change</DialogTitle>
-                  <DialogDescription className="text-sm font-medium text-gray-500 leading-relaxed">
-                    Are you sure you want to mark this topic as{' '}
-                    <span className="text-gray-900 font-bold">
-                      {topics.find(t => t.id === topicToFinish)?.status === 'Completed' ? 'pending' : 'completed'}
-                    </span>
-                    ? This status will be visible to students in this section.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-end gap-3 mt-8">
-                  <Button
-                    variant="outline"
-                    onClick={() => setTopicToFinish(null)}
-                    className="rounded-xl h-11 px-6 font-bold text-gray-400 border-gray-100 hover:bg-white"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleFinishTopic}
-                    className="bg-orange-500 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-orange-100 transition-all"
-                  >
-                    Confirm Change
-                  </Button>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-32 bg-white rounded-2xl border border-dashed border-gray-200 group transition-all duration-500 hover:border-primary/30 hover:bg-primary/5">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
+                <div className="relative p-5 bg-white shadow-xl rounded-2xl border border-gray-100 group-hover:scale-110 transition-transform duration-500">
+                  <BookOpen className="w-10 h-10 text-primary/40 group-hover:text-primary transition-colors duration-500" />
                 </div>
-              </DialogContent>
-            </Dialog>
-
-          </div>
+              </div>
+              <p className="text-xl font-bold text-gray-900 mb-2">Selection Required</p>
+              <p className=" max-w-sm text-center">
+                Use the filters above to select highly specific Batch, Department, Subject, and Section to load the syllabus topics.
+              </p>
+            </div>
+          )}
         </div>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={!!topicToConfirm} onOpenChange={(open) => !open && setTopicToConfirm(null)}>
+          <AlertDialogContent className="max-w-md rounded-2xl border-none shadow-2xl p-6 bg-white">
+            <AlertDialogHeader className="space-y-3">
+              <AlertDialogTitle className="text-xl font-bold text-gray-900">
+                Confirm Status Change
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm font-medium text-gray-500 leading-relaxed">
+                Are you sure you want to mark "{topicToConfirm?.name}" as {' '}
+                <span className="font-bold text-primary italic">
+                  {topicToConfirm?.status === 'finished' ? 'pending' : 'completed'}
+                </span>?
+                This status tracking is used for internal coverage reports.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex justify-end gap-3 mt-8">
+              <AlertDialogCancel className="bg-transparent border-none text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl px-6 font-bold transition-all">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => topicToConfirm && handleFinishTopic(topicToConfirm.id)}
+                className="bg-primary hover:bg-primary/90 text-white px-8 h-11 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+              >
+                Confirm
+              </AlertDialogAction>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-    </div>
+    </FacultyLayout>
   );
 };
 
