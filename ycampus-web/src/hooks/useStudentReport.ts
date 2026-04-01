@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import adminApiService from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
-import { getStudentAttendanceRecords, getStudentTaskSubmissions } from '@/services/subjectService';
+import { getStudentAttendanceRecords, getStudentTaskSubmissions, getStudentAssignedTasks } from '@/services/subjectService';
+
 
 export interface ReportFilters {
   academicYear: string;
@@ -83,6 +84,7 @@ export interface BatchStudent {
   batch_name?: string;
   semester?: string;
   section?: string;
+  section_id?: string;
 }
 
 export interface DepartmentOption {
@@ -384,7 +386,10 @@ export function useStudentReport() {
       const studentCourses = filters.externalSubjects?.length ? filters.externalSubjects : (courses.length > 0 ? courses : []);
       let assessmentData: any[] = [];
       let taskData: any[] = [];
+      let assignedTaskData: any[] = [];
       let attendanceData: any[] = [];
+      
+      const studentSectionId = student.section_id; // Prefer the new section_id mapping
 
       try {
         if (filters.batchId) {
@@ -393,12 +398,14 @@ export function useStudentReport() {
         }
 
         // Fetch real attendance and task submissions from backend
-        const [attendanceRes, taskRes] = await Promise.all([
+        const [attendanceRes, taskRes, assignedRes] = await Promise.all([
           getStudentAttendanceRecords(studentId).catch(() => ({ results: [] })),
           getStudentTaskSubmissions(studentId).catch(() => ({ results: [] })),
+          studentSectionId ? getStudentAssignedTasks(studentSectionId).catch(() => ({ results: [] })) : Promise.resolve({ results: [] })
         ]);
         attendanceData = Array.isArray(attendanceRes.results) ? attendanceRes.results : (Array.isArray(attendanceRes) ? attendanceRes : []);
         taskData = Array.isArray(taskRes.results) ? taskRes.results : (Array.isArray(taskRes) ? taskRes : []);
+        assignedTaskData = Array.isArray(assignedRes.results) ? assignedRes.results : (Array.isArray(assignedRes) ? assignedRes : []);
       } catch { /* API unavailable */ }
 
       const { data: progressData } = await supabase
@@ -423,9 +430,59 @@ export function useStudentReport() {
           String(t.subject_id) === String(course.id) || t.subject_name === (course.subject_name || course.name)
         );
 
-        const tasksTotal = subjectTasks.length;
-        const tasksSubmitted = subjectTasks.filter((t: any) => t.is_submitted === true).length;
-        const tasksPending = tasksTotal - tasksSubmitted;
+        const subjectAssignedTasks = assignedTaskData.filter((t: any) => {
+          const isSameSubject = String(t.subject_id || t.subject) === String(course.id) || 
+                               (t.subject_details && t.subject_details.subject_name === (course.subject_name || course.name));
+          if (!isSameSubject) return false;
+          const isSent = t.is_sent === true || String(t.is_sent).toLowerCase() === 'true';
+          if (!isSent) return false;
+          if (studentSectionId && Array.isArray(t.sections)) {
+            const sectionStr = String(studentSectionId);
+            if (!t.sections.some((s: any) => String(s) === sectionStr)) return false;
+          }
+          return true;
+        });
+
+        // tasksTotal should be the total tasks assigned to the section for this subject. If that fails, fallback to length of submissions.
+        const tasksTotal = Math.max(subjectAssignedTasks.length, subjectTasks.length);
+
+        const tasksOnTime = subjectTasks.filter((t: any) => {
+          const isSub = t.is_submitted === true || String(t.is_submitted).toLowerCase() === 'true';
+          if (!isSub) return false;
+          
+          const submitTime = t.effective_submitted_at || t.submitted_at || t.updated_at;
+          if (!submitTime || String(submitTime).toLowerCase() === 'none') return true; 
+
+          const assignedTask = subjectAssignedTasks.find((at: any) => String(at.id) === String(t.task?.id || t.task));
+          const dueDate = t.due_date || t.task?.due_date || assignedTask?.due_date;
+          if (!dueDate || String(dueDate).toLowerCase() === 'none') return true; 
+
+          const sDate = new Date(submitTime).getTime();
+          const dDate = new Date(dueDate).getTime();
+          if (isNaN(sDate) || isNaN(dDate)) return true; // fallback to on time
+          return sDate <= dDate;
+        }).length;
+
+        const tasksLate = subjectTasks.filter((t: any) => {
+          const isSub = t.is_submitted === true || String(t.is_submitted).toLowerCase() === 'true';
+          if (!isSub) return false;
+
+          const submitTime = t.effective_submitted_at || t.submitted_at || t.updated_at;
+          if (!submitTime || String(submitTime).toLowerCase() === 'none') return false; 
+
+          const assignedTask = subjectAssignedTasks.find((at: any) => String(at.id) === String(t.task?.id || t.task));
+          const dueDate = t.due_date || t.task?.due_date || assignedTask?.due_date;
+          if (!dueDate || String(dueDate).toLowerCase() === 'none') return false; 
+
+          const sDate = new Date(submitTime).getTime();
+          const dDate = new Date(dueDate).getTime();
+          if (isNaN(sDate) || isNaN(dDate)) return false;
+          return sDate > dDate;
+        }).length;
+
+        const tasksPending = Math.max(0, tasksTotal - (tasksOnTime + tasksLate));
+
+        const tasksSubmitted = tasksOnTime + tasksLate;
         const assessmentScores = subjectAssessments
           .filter((a: any) => a.score != null)
           .map((a: any) => ({ name: a.name || 'Assessment', score: a.score || 0, date: a.submittedAt || '' }));
@@ -463,8 +520,8 @@ export function useStudentReport() {
           assessmentsCompleted: subjectAssessments.filter((a: any) => a.status === 'COMPLETED' || a.status === 'SUBMITTED').length,
           assessmentsInProgress: subjectAssessments.filter((a: any) => a.status === 'IN_PROGRESS').length,
           assessmentsPending: subjectAssessments.filter((a: any) => a.status === 'PENDING' || a.status === 'SENT').length,
-          assessmentScores, 
-          tasksOnTime: tasksSubmitted, tasksLate: 0,
+          assessmentScores,
+          tasksOnTime, tasksLate,
           classesHeld, classesAttended, missedSessions: classesHeld - classesAttended,
         };
       });

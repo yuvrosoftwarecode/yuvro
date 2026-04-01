@@ -171,7 +171,7 @@ const Reports: React.FC = () => {
 
         const response = await studentService.getStudents(params);
         
-        const students = response.results.map(s => ({
+        const students = response.results.map((s: any) => ({
           id: String(s.id),
           name: `${s.user_details.first_name} ${s.user_details.last_name}`,
           rollNo: s.roll_number,
@@ -181,6 +181,7 @@ const Reports: React.FC = () => {
           batch_name: s.batch_name,
           semester: s.semester_number ? String(s.semester_number) : undefined,
           section: s.section_name || s.section ? String(s.section_name || s.section) : undefined,
+          section_id: s.section ? String(s.section) : undefined,
         }));
         
         setRealStudents(students);

@@ -735,6 +735,13 @@ export async function getStudentTaskSubmissions(studentId: string) {
   });
 }
 
+export async function getStudentAssignedTasks(sectionId: string) {
+  // Return all tasks assigned to the student's section
+  return restApiAuthUtil.get<any>('/core/tasks/', {
+    params: { sections: sectionId, is_sent: 'True', limit: '1000' }
+  });
+}
+
 export async function getAssignmentDetails(assignmentId: string | number): Promise<SectionSubjectFaculty> {
   return restApiAuthUtil.get<SectionSubjectFaculty>(`/course/section-subject-faculty/${assignmentId}/`);
 }
