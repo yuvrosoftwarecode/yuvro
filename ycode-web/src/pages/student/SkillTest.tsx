@@ -16,6 +16,7 @@ import {
 } from "@/services/courseService";
 import { getSkillTestsByTopic, startSkillTest } from "@/services/skillTestService";
 import { toast } from "sonner";
+import { getCourseIconConfig } from "@/utils/CourseIcons";
 
 export interface Topic {
   id: string;
@@ -28,8 +29,8 @@ export interface Course {
   id: string;
   name: string;
   description: string;
-  icon: string;
-  color: string;
+  icon?: React.ReactNode;
+  iconBg?: string;
   topics: Topic[];
   category?: string;
   topicCount?: number;
@@ -61,17 +62,7 @@ type View =
   | "test"
   | "results";
 
-const ICONS = ["🧠", "🗂️", "⚙️", "🐍", "⚡", "⚛️", "📘", "💻"];
-const COLORS = [
-  "blue",
-  "green",
-  "orange",
-  "yellow",
-  "purple",
-  "cyan",
-  "pink",
-  "indigo",
-];
+// Removed manual ICONS and COLORS. Using CourseIcons utility instead.
 
 const SkillTest: React.FC = () => {
   const { courseId, testId } = useParams();
@@ -109,417 +100,188 @@ const SkillTest: React.FC = () => {
         return pathParts[skillTestsIndex + 1];
       }
     }
-    return null;
+    return testId;
   };
 
-  const actualTestId = testId || extractTestIdFromPath();
+  const actualTestId = extractTestIdFromPath();
 
-  console.log('SkillTest component - URL info:', {
-    pathname: window.location.pathname,
-    isResultsRoute,
-    courseId,
-    testId,
-    actualTestId,
-    selectedTest: selectedTest?.id
-  });
+  const [loadingView, setLoadingView] = useState(true);
+  const [hideNavigation, setHideNavigation] = useState(false);
+  const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
-    const load = async () => {
+    const loadInitialData = async () => {
       try {
         setLoadingCourses(true);
-        const backendCourses = await fetchCourses();
+        const data = await fetchCourses();
+        const coursesWithConfig = data.map((course: any) => {
+          const config = getCourseIconConfig(course.name, course.category);
+          return {
+            ...course,
+            icon: config.icon,
+            iconBg: config.color,
+          };
+        });
+        setCourses(coursesWithConfig);
 
-        const mapped: Course[] = backendCourses.map(
-          (c: any, index: number): Course => ({
-            id: c.id,
-            name: c.name,
-            description: `Skill tests for ${c.name}`,
-            icon: ICONS[index % ICONS.length],
-            color: COLORS[index % COLORS.length],
-            topics: [],
-            category: c.category || "General",
-            topicCount: c.topics ? c.topics.length : 0,
-          })
-        );
+        // If we have courseId in URL, initialize that course
+        if (courseId) {
+          const course = coursesWithConfig.find((c: Course) => c.id.toString() === courseId);
+          if (course) {
+            const topics = await fetchTopicsByCourse(courseId);
+            const courseWithTopics = { ...course, topics };
+            setSelectedCourse(courseWithTopics);
 
-        setCourses(mapped);
-      } catch (err) {
-        console.error("Failed to load courses", err);
-        toast.error("Failed to load courses");
+            // Handle specific test or results view
+            if (actualTestId) {
+              if (isResultsRoute) {
+                setCurrentView("results");
+              } else {
+                setCurrentView("instructions");
+              }
+            } else {
+              setCurrentView("tests");
+              // default to first topic if none selected
+              if (topics.length > 0) {
+                setSelectedTopic(topics[0]);
+                const testsData = await getSkillTestsByTopic(topics[0].id);
+                setTests(testsData);
+              }
+            }
+          }
+        } else {
+          setCurrentView("courses");
+        }
+      } catch (error) {
+        console.error("Error loading skill tests:", error);
+        toast.error("Failed to load content. Please try again.");
       } finally {
         setLoadingCourses(false);
+        setLoadingView(false);
       }
     };
 
-    load();
-  }, []);
+    loadInitialData();
+  }, [courseId, actualTestId, isResultsRoute]);
 
-  const handleCourseSelect = (course: Course) => {
-    setCurrentView("tests");
-    navigate(`/student/courses/${course.id}/skill-tests`);
+  const handleCourseSelect = async (course: Course) => {
+    setLoadingView(true);
+    try {
+      const topics = await fetchTopicsByCourse(course.id.toString());
+      const courseWithTopics = { ...course, topics };
+      setSelectedCourse(courseWithTopics);
+      setCurrentView("tests");
+
+      if (topics.length > 0) {
+        setSelectedTopic(topics[0]);
+        const testsData = await getSkillTestsByTopic(topics[0].id);
+        setTests(testsData);
+      }
+      navigate(`/student/courses/${course.id}/skill-tests`);
+    } catch (error) {
+      console.error("Error selecting course:", error);
+      toast.error("Failed to load topics.");
+    } finally {
+      setLoadingView(false);
+    }
+  };
+
+  const handleTopicSelect = async (topic: Topic) => {
+    setLoadingView(true);
+    setSelectedTopic(topic);
+    try {
+      const testsData = await getSkillTestsByTopic(topic.id);
+      setTests(testsData);
+      setCurrentView("tests");
+      navigate(`/student/courses/${courseId}/skill-tests`);
+    } catch (error) {
+      console.error("Error selecting topic:", error);
+      toast.error("Failed to load tests.");
+    } finally {
+      setLoadingView(false);
+    }
   };
 
   const handleStartTest = (test: Test) => {
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}`);
-    }
+    setSelectedTest(test);
+    setCurrentView("instructions");
+    navigate(`/student/courses/${courseId}/skill-tests/${test.id}`);
   };
 
-  const handleBackToCourses = () => {
-    navigate("/student/skill-test");
-  };
-
-  const refreshTestsData = async () => {
-    if (!selectedCourse) return;
-
+  const handleBeginTest = async (testId: string) => {
     try {
-      const realTests: Test[] = [];
-      const updatedTopics = [...selectedCourse.topics];
-
-      for (const topic of updatedTopics) {
-        try {
-          const apiTests = await getSkillTestsByTopic(topic.id);
-          const activeTests = apiTests.filter(t => t.publish_status === 'active');
-
-          // Calculate Progress
-          const totalTests = activeTests.length;
-          let completedCount = 0;
-
-          activeTests.forEach(t => {
-            const subs = (t as any).my_submissions || [];
-            const isDone = subs.some((s: any) =>
-              s.status === 'completed' || s.status === 'submitted' || s.status === 'evaluated'
-            );
-            if (isDone) completedCount++;
-          });
-
-          if (totalTests > 0) {
-            topic.progress = Math.round((completedCount / totalTests) * 100);
-            topic.completed = topic.progress === 100;
-          }
-
-          const mappedTests: Test[] = activeTests.map(t => ({
-            id: t.id,
-            title: t.title,
-            difficulty: t.difficulty.charAt(0).toUpperCase() + t.difficulty.slice(1) as "Easy" | "Medium" | "Hard",
-            totalQuestions: t.total_questions || (t.questions_config.mcq_single.length +
-              t.questions_config.mcq_multiple.length +
-              t.questions_config.coding.length +
-              t.questions_config.descriptive.length),
-            totalMarks: t.total_marks,
-            duration: t.duration,
-            topicId: topic.id,
-            course: selectedCourse.name,
-            maxAttempts: t.max_attempts || 3,
-            my_submissions: (t as any).my_submissions || [],
-            enable_proctoring: t.enable_proctoring,
-          }));
-          realTests.push(...mappedTests);
-        } catch (e) {
-          console.error("Error loading tests for topic:", e);
-        }
-      }
-
-      setTests(realTests);
-      // Update selectedCourse with new topic progress
-      setSelectedCourse(prev => prev ? ({ ...prev, topics: updatedTopics }) : null);
-    } catch (err) {
-      console.error("Failed to refresh tests data", err);
+      setLoadingView(true);
+      const response = await startSkillTest(testId);
+      setQuestions(response.questions);
+      setCurrentSubmissionId(response.submission_id);
+      setCurrentView("test");
+      setHideNavigation(true);
+    } catch (error: any) {
+      console.error("Error starting test:", error);
+      toast.error(error.message || "Failed to start test.");
+    } finally {
+      setLoadingView(false);
     }
   };
 
-  const handleBackToTests = async () => {
-    await refreshTestsData();
-
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests`);
-    } else {
-      navigate("/student/skill-test");
-    }
-  };
-
-  useEffect(() => {
-    if (loadingCourses || courses.length === 0) return;
-
-    const syncCourse = async () => {
-      if (courseId) {
-        const foundCourse = courses.find(c => c.id === courseId);
-
-        if (foundCourse) {
-          if (foundCourse.topics.length === 0) {
-            try {
-              const backendTopics = await fetchTopicsByCourse(foundCourse.id);
-              const uiTopics: Topic[] = backendTopics.map((t: any) => ({
-                id: t.id,
-                name: t.name,
-                progress: 0,
-                completed: false,
-              }));
-
-              setCourses(prev =>
-                prev.map(c =>
-                  c.id === foundCourse.id ? { ...c, topics: uiTopics } : c
-                )
-              );
-
-              const updatedCourse = { ...foundCourse, topics: uiTopics };
-              setSelectedCourse(updatedCourse);
-              setSelectedTopic(uiTopics[0] || null);
-
-              const realTests: Test[] = [];
-              for (const topic of uiTopics) {
-                try {
-                  const apiTests = await getSkillTestsByTopic(topic.id);
-                  const activeTests = apiTests.filter(t => t.publish_status === 'active');
-
-                  // Calculate Progress
-                  const totalTests = activeTests.length;
-                  let completedCount = 0;
-
-                  activeTests.forEach(t => {
-                    const subs = (t as any).my_submissions || [];
-                    // Check if user has ANY successful/completed attempt
-                    const isDone = subs.some((s: any) =>
-                      s.status === 'completed' || s.status === 'submitted' || s.status === 'evaluated'
-                    );
-                    if (isDone) completedCount++;
-                  });
-
-                  if (totalTests > 0) {
-                    topic.progress = Math.round((completedCount / totalTests) * 100);
-                    topic.completed = topic.progress === 100;
-                  }
-
-                  const mappedTests: Test[] = activeTests.map(t => ({
-                    id: t.id,
-                    title: t.title,
-                    difficulty: t.difficulty.charAt(0).toUpperCase() + t.difficulty.slice(1) as "Easy" | "Medium" | "Hard",
-                    totalQuestions: t.total_questions || (t.questions_config.mcq_single.length +
-                      t.questions_config.mcq_multiple.length +
-                      t.questions_config.coding.length +
-                      t.questions_config.descriptive.length),
-                    totalMarks: t.total_marks,
-                    duration: t.duration,
-                    topicId: topic.id,
-                    course: foundCourse.name,
-                    maxAttempts: t.max_attempts || 3,
-                    my_submissions: (t as any).my_submissions || [],
-                    enable_proctoring: t.enable_proctoring,
-                  }));
-                  realTests.push(...mappedTests);
-                } catch (e) {
-                  console.error("Error loading tests for topic:", e);
-                }
-              }
-
-              setTests(realTests);
-              // Update course state to reflect the calculated progress
-              setSelectedCourse(prev => prev ? ({ ...prev, topics: [...uiTopics] }) : null);
-
-            } catch (err) {
-              console.error("Failed to load topics", err);
-            }
-          } else {
-            if (!selectedCourse || selectedCourse.id !== courseId) {
-              setSelectedCourse(foundCourse);
-              setSelectedTopic(foundCourse.topics[0] || null);
-            }
-          }
-
-          if (!testId) {
-            setCurrentView("tests");
-          }
-          setSidebarOpen(true);
-        }
-      } else {
-        setSelectedCourse(null);
-        setSelectedTopic(null);
-        setTests([]);
-        setCurrentView("courses");
-      }
-    };
-
-    syncCourse();
-  }, [courseId, courses, loadingCourses]);
-
-  useEffect(() => {
-    if (selectedCourse && tests.length > 0) {
-      if (actualTestId) {
-        const foundTest = tests.find(t => t.id === actualTestId);
-        if (foundTest) {
-          setSelectedTest(foundTest);
-
-          // Check if we're on the results route
-          if (isResultsRoute) {
-            // Set up for results view
-            const matchingTopic = selectedCourse.topics.find(t => t.id === foundTest.topicId);
-            if (matchingTopic) {
-              setSelectedTopic(matchingTopic);
-
-              // Get the latest submission ID from the test's submissions
-              const submissions = foundTest.my_submissions || [];
-              const completedSubmissions = submissions.filter(s => s.status === 'completed' || s.status === 'submitted');
-              const latestSubmission = completedSubmissions[0]; // Should be the most recent
-
-              if (latestSubmission) {
-                setCurrentSubmissionId(latestSubmission.id);
-              }
-
-              setCurrentView("results");
-            }
-          } else if (currentView !== 'test' && currentView !== 'results') {
-            setCurrentView("instructions");
-          }
-
-          const matchingTopic = selectedCourse.topics.find(t => t.id === foundTest.topicId);
-          if (matchingTopic) setSelectedTopic(matchingTopic);
-        }
-      } else {
-        setSelectedTest(null);
-        setCurrentView("tests");
-      }
-    }
-  }, [actualTestId, tests, selectedCourse, testCompleted, isResultsRoute]);
-
-  const handleTopicSelect = async (topic: Topic) => {
-    setSelectedTopic(topic);
-    await refreshTestsData();
-
-    if (testId) {
-      navigate(`/student/courses/${selectedCourse?.id}/skill-tests`);
-    } else {
-      setCurrentView("tests");
-    }
-  };
-
-  const [activeScreenStream, setActiveScreenStream] = useState<MediaStream | null>(null);
-
-  const handleBeginTest = async (screenStream?: MediaStream) => {
-    if (!selectedTest) return;
-
-    if (screenStream) {
-      setActiveScreenStream(screenStream);
-    }
-
-    // Request fullscreen synchronously before any async operations
-    if (selectedTest.enable_proctoring && document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(e => {
-        console.warn("Fullscreen request declined or failed", e);
-      });
-    }
-
-    try {
-
-      const loadingToast = toast.loading("Starting test...");
-      const res = await startSkillTest(selectedTest.id);
-      toast.dismiss(loadingToast);
-
-      if (res.status === 'started' || res.status === 'in_progress') {
-        setQuestions(res.questions);
-        setCurrentSubmissionId(res.submission_id);
-        setCurrentView("test");
-        toast.success("Test started successfully");
-      } else if (res.status === 'completed' || res.status === 'submitted') {
-        toast.info("You have already completed this test.");
-      }
-    } catch (err: any) {
-      console.error("Failed to start test", err);
-
-      let errorMessage = "Failed to start test";
-
-      if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data;
-        } else if (err.response.data.error) {
-          errorMessage = err.response.data.error;
-        } else if (err.response.data.detail) {
-          errorMessage = err.response.data.detail;
-        } else if (err.response.data.message) {
-          errorMessage = err.response.data.message;
-        }
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      toast.error(errorMessage, {
-        duration: 10000,
-        action: {
-          label: "×",
-          onClick: () => toast.dismiss(),
-        },
-      });
-    }
-  };
-
-  const handleTestComplete = async (stats?: TestStats) => {
-    if (stats) {
-      console.log('Test completed with stats:', stats);
-    }
-
-    if (selectedTest) {
-      setTestCompleted((prev) => {
-        const updated = new Set(prev);
-        updated.add(selectedTest.id);
-        return updated;
-      });
-
-      if (currentSubmissionId) {
-        setTestSubmissions(prev => ({
-          ...prev,
-          [selectedTest.id]: currentSubmissionId
-        }));
-      }
-    }
-
-    await refreshTestsData();
-
-    // Navigate to results URL instead of just changing view
-    if (courseId && selectedTest) {
-      navigate(`/student/courses/${courseId}/skill-tests/${selectedTest.id}/results`);
-    }
-  };
-
-  const handleViewResult = (submissionId: string, test: Test) => {
-    // Navigate to results URL with specific submission
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
-    }
-  };
-
-  const handleRetakeTest = async () => {
-    console.log('handleRetakeTest called with:', { courseId, testId, actualTestId, selectedTest });
-
-    await refreshTestsData();
-
-    const testIdToUse = actualTestId || selectedTest?.id;
-
-    if (courseId && testIdToUse) {
-      console.log('Navigating to:', `/student/courses/${courseId}/skill-tests/${testIdToUse}`);
-      navigate(`/student/courses/${courseId}/skill-tests/${testIdToUse}`);
-    } else {
-      console.error('Cannot navigate - missing courseId or testId', { courseId, testIdToUse });
-    }
+  const handleTestComplete = (submissionId: string) => {
+    setTestSubmissions(prev => ({
+      ...prev,
+      [selectedTest?.id || ""]: submissionId
+    }));
+    setCurrentSubmissionId(submissionId);
+    setTestCompleted(prev => new Set(prev).add(selectedTest?.id || ""));
+    setCurrentView("results");
+    setHideNavigation(false);
+    navigate(`/student/courses/${courseId}/skill-tests/${selectedTest?.id}/results`);
   };
 
   const handleBackToInstructions = () => {
     setCurrentView("instructions");
+    setHideNavigation(false);
   };
 
-  const handleViewAllResults = async (test: Test) => {
-    console.log('handleViewAllResults called with test:', test.id, test.title);
+  const handleBackToTests = () => {
+    setCurrentView("tests");
+    setHideNavigation(false);
+    navigate(`/student/courses/${courseId}/skill-tests`);
+  };
 
-    // Navigate to the results URL instead of just changing view state
-    if (courseId) {
-      navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
+  const handleBackToCourses = () => {
+    setSelectedCourse(null);
+    setSelectedTopic(null);
+    setCurrentView("courses");
+    navigate("/student/skill-test");
+  };
+
+  const handleViewResult = (test: Test) => {
+    setSelectedTest(test);
+    setCurrentView("results");
+    navigate(`/student/courses/${courseId}/skill-tests/${test.id}/results`);
+  };
+
+  const handleViewAllResults = () => {
+    navigate("/student/skill-test/results");
+  };
+
+  const handleRetakeTest = () => {
+    if (selectedTest) {
+      handleBeginTest(selectedTest.id);
     }
   };
 
+  const filteredTests = tests.filter(test => test.topicId === selectedTopic?.id);
 
-  const filteredTests: Test[] = selectedTopic
-    ? tests.filter((t) => t.topicId === selectedTopic.id)
-    : [];
-
-  const hideNavigation = currentView !== "courses";
+  if (loadingView && !courses.length) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation autoHide={hideNavigation} />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (currentView === "instructions" && selectedTest && selectedTopic) {
     return (
@@ -529,13 +291,13 @@ const SkillTest: React.FC = () => {
           test={{
             id: selectedTest.id,
             title: selectedTest.title,
-            course: selectedCourse?.name || "",
             duration: selectedTest.duration,
             totalQuestions: selectedTest.totalQuestions,
-            difficulty: selectedTest.difficulty,
-            description: `${selectedTopic.name} - ${selectedTest.difficulty} level test`,
             marks: selectedTest.totalMarks,
+            maxAttempts: selectedTest.maxAttempts,
+            enable_proctoring: selectedTest.enable_proctoring || false,
           }}
+          topicName={selectedTopic.name}
           onStart={handleBeginTest}
           onBack={handleBackToTests}
         />
@@ -546,10 +308,9 @@ const SkillTest: React.FC = () => {
   if (currentView === "test" && selectedTest && selectedTopic) {
     return (
       <AssessmentInterface
-        assessment={{
+        test={{
           id: selectedTest.id,
           title: selectedTest.title,
-          course: selectedCourse?.name || "",
           duration: selectedTest.duration,
           totalQuestions: selectedTest.totalQuestions,
           topicId: selectedTopic.id,

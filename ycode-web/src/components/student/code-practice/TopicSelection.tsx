@@ -11,6 +11,7 @@ import { fetchQuestions } from '@/services/questionService';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { toast } from 'sonner';
 import TopicSidebar, { SidebarCourse, SidebarTopic } from '@/components/student/skill-test/TopicSidebar';
+import { getCourseIconConfig } from '@/utils/CourseIcons';
 
 interface TopicSelectionProps {
   course: Course;
@@ -133,10 +134,13 @@ const TopicSelection = ({
   };
 
   // Construct SidebarCourse object for TopicSidebar
+  const iconConfig = getCourseIconConfig(course.name, course.category);
+  const CourseIcon = iconConfig.Icon;
+
   const sidebarCourse: SidebarCourse = {
     id: course.id,
     name: course.name,
-    icon: '💻',
+    icon: <div className={`${iconConfig.bg} w-full h-full flex items-center justify-center rounded-lg`}><CourseIcon className="w-5 h-5 text-white" /></div>,
     topics: topics.map(t => ({
       id: t.id,
       name: t.name,
