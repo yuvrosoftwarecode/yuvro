@@ -642,7 +642,18 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrFaculty]
-    filterset_fields = ["college", "department", "batch", "batch__name", "semester", "semester__number", "section", "section__name", "admission_type", "is_detained"]
+    filterset_fields = {
+        "college": ["exact"],
+        "department": ["exact"],
+        "batch": ["exact"],
+        "batch__name": ["exact"],
+        "semester": ["exact"],
+        "section": ["exact"],
+        "semester__number": ["exact"],
+        "section__name": ["exact"],
+        "admission_type": ["exact"],
+        "is_detained": ["exact"],
+    }
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
     ordering_fields = ["user__first_name", "user__last_name", "roll_number", "created_at"]
@@ -1401,8 +1412,8 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
             models.Q(expiry_date__isnull=True) | models.Q(expiry_date__gte=now)
         )
         
-        # If user is a College Admin, Principal, or HOD, show all their college announcements
-        if user.role in ["college_admin", "principal", "hod", "admin"]:
+        # If user is a College Admin or Principal, show all their college announcements
+        if user.role in ["college_admin", "principal", "admin"]:
             college = user.college
             if college:
                 return queryset.filter(college=college)
@@ -1415,21 +1426,11 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
                 college = student_profile.college
                 department = student_profile.department
                 
-                # Get college-level, department-level OR batch-level announcements
-                # We check the student's batch from their profile, or fall back to their semester/section's batch
-                student_batches = []
-                if student_profile.batch_id:
-                    student_batches.append(student_profile.batch_id)
-                if student_profile.semester and student_profile.semester.batch_id:
-                    student_batches.append(student_profile.semester.batch_id)
-                if student_profile.section and student_profile.section.semester and student_profile.section.semester.batch_id:
-                    student_batches.append(student_profile.section.semester.batch_id)
-
+                # Get college-level announcements OR department-level announcements for their department
                 return queryset.filter(
                     models.Q(college=college, level="college") |
-                    models.Q(college=college, level="department", department=department) |
-                    models.Q(college=college, level="batch", batch_id__in=student_batches)
-                ).distinct()
+                    models.Q(college=college, level="department", department=department)
+                )
             except StudentProfile.DoesNotExist:
                 return queryset.none()
         
@@ -1437,9 +1438,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         if user.role in ["faculty", "hod", "placement_officer"]:
             try:
                 if user.role == "hod":
-                    profile = getattr(user, 'hod_profile', None)
-                    if not profile:
-                        return queryset.none()
+                    profile = user.hod_profile
                     college = profile.college
                     department = profile.department
                 elif user.role == "placement_officer":
@@ -1455,8 +1454,7 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
                     if department:
                         return queryset.filter(
                             models.Q(college=college, level="college") |
-                            models.Q(college=college, level="department", department=department) |
-                            models.Q(college=college, level="batch", batch__department=department)
+                            models.Q(college=college, level="department", department=department)
                         )
                     return queryset.filter(college=college, level="college")
                 return queryset.none()
@@ -1470,8 +1468,8 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        # Only college_admin, principal, and hod can create announcements
-        if request.user.role not in ["college_admin", "principal", "hod", "admin"]:
+        # Only college_admin and principal can create announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
             return Response(
                 {"detail": "You do not have permission to create announcements."},
                 status=status.HTTP_403_FORBIDDEN
@@ -1504,8 +1502,8 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        # Only college_admin, principal, and hod can update announcements
-        if request.user.role not in ["college_admin", "principal", "hod", "admin"]:
+        # Only college_admin and principal can update announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
             return Response(
                 {"detail": "You do not have permission to update announcements."},
                 status=status.HTTP_403_FORBIDDEN
@@ -1513,8 +1511,8 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        # Only college_admin, principal, and hod can delete announcements
-        if request.user.role not in ["college_admin", "principal", "hod", "admin"]:
+        # Only college_admin and principal can delete announcements
+        if request.user.role not in ["college_admin", "principal", "admin"]:
             return Response(
                 {"detail": "You do not have permission to delete announcements."},
                 status=status.HTTP_403_FORBIDDEN
