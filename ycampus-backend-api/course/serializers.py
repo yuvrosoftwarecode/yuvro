@@ -303,6 +303,7 @@ class SectionSubjectFacultySerializer(serializers.ModelSerializer):
             "is_elective": obj.semester_subject.is_elective,
             "is_lab": obj.semester_subject.is_lab,
             "semester_number": obj.semester_subject.semester.number,
+            "batch_id": obj.semester_subject.semester.batch.id,
             "batch_name": obj.semester_subject.semester.batch.name,
             "department_id": obj.semester_subject.semester.batch.department.id,
             "department_name": obj.semester_subject.semester.batch.department.name,

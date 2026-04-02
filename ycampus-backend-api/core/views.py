@@ -642,7 +642,18 @@ class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsCollegeManagementOrFaculty]
-    filterset_fields = ["college", "department", "batch", "semester", "section", "admission_type", "is_detained"]
+    filterset_fields = {
+        "college": ["exact"],
+        "department": ["exact"],
+        "batch": ["exact"],
+        "batch__name": ["exact"],
+        "semester": ["exact"],
+        "section": ["exact"],
+        "semester__number": ["exact"],
+        "section__name": ["exact"],
+        "admission_type": ["exact"],
+        "is_detained": ["exact"],
+    }
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["user__first_name", "user__last_name", "user__email", "roll_number"]
     ordering_fields = ["user__first_name", "user__last_name", "roll_number", "created_at"]
