@@ -70,6 +70,7 @@ export interface SkillTestFilters {
   difficulty?: 'easy' | 'medium' | 'hard';
   search?: string;
   test_type?: string;
+  publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
 }
 
 
@@ -229,6 +230,15 @@ const skillTestService = {
   getSkillTestsByUnit,
   getSkillTestSubmissions,
   getSkillTestSubmission,
+  getSkillTestSubmissionsByUser: async (userId: string): Promise<any[]> => {
+    try {
+      const response = await restApiAuthUtil.get(`/assessment/skill-test/submissions/?user=${userId}`);
+      return response as any[];
+    } catch (error) {
+      console.error('Error fetching student submissions:', error);
+      throw error;
+    }
+  },
   startSkillTest,
   submitSkillTest,
 };

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import adminApiService from '@/services/api';
 import { supabase } from '@/integrations/supabase/client';
 import { getStudentAttendanceRecords, getStudentTaskSubmissions, getStudentAssignedTasks } from '@/services/subjectService';
+import skillTestService from '@/services/skillTestService';
 
 
 export interface ReportFilters {
@@ -154,8 +155,8 @@ function generateDummySubject(name: string, code: string, idx: number): SubjectP
     name,
     code,
     notesCompletion: s.notes,
-    testAvgScore: s.test,
-    assessmentAvgScore: s.assess,
+    testAvgScore: 0,
+    assessmentAvgScore: 0,
     tasksTotal: s.taskT,
     tasksSubmitted: s.taskS,
     tasksPending,
@@ -388,6 +389,8 @@ export function useStudentReport() {
       let taskData: any[] = [];
       let assignedTaskData: any[] = [];
       let attendanceData: any[] = [];
+      let allSkillTests: any[] = [];
+      let allSubmissions: any[] = [];
       
       const studentSectionId = student.section_id; // Prefer the new section_id mapping
 
@@ -398,15 +401,20 @@ export function useStudentReport() {
         }
 
         // Fetch real attendance and task submissions from backend
-        const [attendanceRes, taskRes, assignedRes] = await Promise.all([
+        const [attendanceRes, taskRes, assignedRes, skillTestsRes, submissionsRes] = await Promise.all([
           getStudentAttendanceRecords(studentId).catch(() => ({ results: [] })),
           getStudentTaskSubmissions(studentId).catch(() => ({ results: [] })),
-          studentSectionId ? getStudentAssignedTasks(studentSectionId).catch(() => ({ results: [] })) : Promise.resolve({ results: [] })
+          studentSectionId ? getStudentAssignedTasks(studentSectionId).catch(() => ({ results: [] })) : Promise.resolve({ results: [] }),
+          skillTestService.getSkillTests({ publish_status: 'active' }).catch(() => []),
+          skillTestService.getSkillTestSubmissionsByUser(studentId).catch(() => [])
         ]);
         attendanceData = Array.isArray(attendanceRes.results) ? attendanceRes.results : (Array.isArray(attendanceRes) ? attendanceRes : []);
         taskData = Array.isArray(taskRes.results) ? taskRes.results : (Array.isArray(taskRes) ? taskRes : []);
         assignedTaskData = Array.isArray(assignedRes.results) ? assignedRes.results : (Array.isArray(assignedRes) ? assignedRes : []);
-      } catch { /* API unavailable */ }
+        
+        allSkillTests = Array.isArray(skillTestsRes) ? skillTestsRes : [];
+        allSubmissions = Array.isArray(submissionsRes) ? submissionsRes : [];
+      } catch (err) { console.error('API error:', err); }
 
       const { data: progressData } = await supabase
         .from('subtopic_progress').select('*').eq('user_id', studentId);
@@ -483,13 +491,42 @@ export function useStudentReport() {
         const tasksPending = Math.max(0, tasksTotal - (tasksOnTime + tasksLate));
 
         const tasksSubmitted = tasksOnTime + tasksLate;
-        const assessmentScores = subjectAssessments
-          .filter((a: any) => a.score != null)
-          .map((a: any) => ({ name: a.name || 'Assessment', score: a.score || 0, date: a.submittedAt || '' }));
-        const assessmentAvg = assessmentScores.length > 0
-          ? Math.round(assessmentScores.reduce((sum: number, a: any) => sum + a.score, 0) / assessmentScores.length) : 0;
+        const subjectSkillTests = allSkillTests.filter((st: any) => String(st.subject) === String(course.id));
+        const subjectSubmissions = allSubmissions.filter((sub: any) => 
+          subjectSkillTests.some((st: any) => String(st.id) === String(sub.skill_test))
+        );
 
-        const testAvg = assessmentAvg;
+        const assessmentTests = subjectSkillTests.filter((st: any) => st.test_type === 'assessment');
+        const practiceTests = subjectSkillTests.filter((st: any) => st.test_type === 'practice' || !st.test_type);
+
+        const calculateAvg = (tests: any[]) => {
+          const testSubmissions = subjectSubmissions.filter(sub => 
+            tests.some(t => String(t.id) === String(sub.skill_test))
+          );
+          if (testSubmissions.length === 0) return 0;
+          
+          let totalScorePercent = 0;
+          testSubmissions.forEach(sub => {
+            const test = tests.find(t => String(t.id) === String(sub.skill_test));
+            const totalMarks = test?.total_marks || 100;
+            totalScorePercent += (sub.marks / totalMarks) * 100;
+          });
+          return Math.round(totalScorePercent / testSubmissions.length);
+        };
+
+        const assessmentAvg = calculateAvg(assessmentTests);
+        const testAvg = calculateAvg(practiceTests);
+
+        const assessmentScores = subjectSubmissions
+          .filter((sub: any) => assessmentTests.some(t => String(t.id) === String(sub.skill_test)))
+          .map((sub: any) => {
+            const test = assessmentTests.find(t => String(t.id) === String(sub.skill_test));
+            return {
+              name: test?.title || 'Assessment',
+              score: Math.round((sub.marks / (test?.total_marks || 100)) * 100),
+              date: sub.completed_at || sub.created_at || ''
+            };
+          });
 
         const subjectAttendance = attendanceData.filter((a: any) => String(a.subject_id) === String(course.id) || a.subject_name === course.subject_name);
         let attendancePercent = 0;
