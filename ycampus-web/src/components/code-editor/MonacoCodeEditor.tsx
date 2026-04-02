@@ -69,9 +69,9 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
   };
 
   return (
-    <div className="relative rounded-lg overflow-hidden bg-white" style={{ height }}>
+    <div className="relative rounded-lg overflow-hidden bg-white min-h-[200px] h-full flex flex-col" style={height ? { height } : undefined}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-100 relative z-10">
+      <div className="flex items-center justify-between px-4 py-2 bg-white relative z-10">
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-800 font-medium">Select Language</span>
           {onLanguageChange && (
@@ -109,10 +109,10 @@ const MonacoCodeEditor = forwardRef<any, MonacoCodeEditorProps>(({
                     ? 'bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200'
                     : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
                     }`}
-                  title={isAiChatOpen ? "Close AI Buddy" : "Open AI Buddy"}
+                  title={isAiChatOpen ? "Close AI Mentor" : "Open AI Mentor"}
                 >
                   {isAiChatOpen ? <X className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                  {isAiChatOpen ? 'Close AI' : 'AI Buddy'}
+                  {isAiChatOpen ? 'Close AI' : 'AI Mentor'}
                 </button>
               )}
               {onToggleFullscreen && (

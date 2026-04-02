@@ -40,7 +40,7 @@ const LANGUAGES = [
     { id: 'javascript', label: 'JavaScript', color: 'bg-amber-100 text-amber-700' },
     { id: 'java', label: 'Java', color: 'bg-red-100 text-red-700' },
     { id: 'cpp', label: 'C++', color: 'bg-blue-100 text-blue-700' },
-    { id: 'c', label: 'C', color: 'bg-gray-100 text-gray-700' },
+    { id: 'c', label: 'C', color: 'bg-white text-gray-700' },
 ];
 
 interface ExampleCodeGalleryProps {
@@ -180,8 +180,8 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Sidebar: Problem Selection */}
-                    <div className="w-[280px] shrink-0 border-r border-gray-100 bg-gray-50/50 flex flex-col">
-                        <div className="p-4 border-b border-gray-100 bg-gray-50">
+                    <div className="w-[280px] shrink-0 border-r border-gray-100 bg-white flex flex-col">
+                        <div className="p-4 border-b border-gray-100 bg-white">
                             <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available Problems</h3>
                             <p className="text-[10px] text-gray-500">Select a problem to view solution</p>
                         </div>
@@ -200,7 +200,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${selectedProblem?.id === problem.id ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${selectedProblem?.id === problem.id ? 'bg-white/20' : 'bg-white group-hover:bg-gray-200'
                                             }`}>
                                             <Code2 className={`h-4 w-4 ${selectedProblem?.id === problem.id ? 'text-white' : 'text-gray-500'}`} />
                                         </div>
@@ -226,7 +226,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-2">
                                             <Badge className="bg-blue-50 text-blue-700 border-blue-100 text-[10px] font-bold uppercase tracking-tighter">Description</Badge>
-                                            <div className="h-px flex-1 bg-gray-100"></div>
+                                            <div className="h-px flex-1 bg-white"></div>
                                         </div>
                                         <h3 className="text-2xl font-black text-gray-900 tracking-tight">{selectedProblem.title}</h3>
                                         <p className="text-sm text-gray-600 leading-relaxed font-medium">
@@ -239,7 +239,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-2">
                                                 <Badge className="bg-amber-50 text-amber-700 border-amber-100 text-[10px] font-bold uppercase tracking-tighter">Last Run Analytics</Badge>
-                                                <div className="h-px flex-1 bg-gray-100"></div>
+                                                <div className="h-px flex-1 bg-white"></div>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-2xl border border-green-100 shadow-sm relative overflow-hidden group">
@@ -270,7 +270,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-2">
                                             <Badge className="bg-purple-50 text-purple-700 border-purple-100 text-[10px] font-bold uppercase tracking-tighter">Test Scenarios</Badge>
-                                            <div className="h-px flex-1 bg-gray-100"></div>
+                                            <div className="h-px flex-1 bg-white"></div>
                                         </div>
                                         <div className="space-y-4">
                                             {selectedProblem.test_cases.map((tc, idx) => (
@@ -299,11 +299,11 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div className="space-y-1">
                                                             <div className="text-[9px] text-gray-400 uppercase font-black tracking-widest px-1">Input Data</div>
-                                                            <pre className="bg-gray-50 p-3 rounded-xl text-xs font-mono text-gray-800 border border-gray-100">{tc.input || '(none)'}</pre>
+                                                            <pre className="bg-white p-3 rounded-xl text-xs font-mono text-gray-800 border border-gray-100">{tc.input || '(none)'}</pre>
                                                         </div>
                                                         <div className="space-y-1">
                                                             <div className="text-[9px] text-gray-400 uppercase font-black tracking-widest px-1">Expected Signature</div>
-                                                            <pre className="bg-gray-50 p-3 rounded-xl text-xs font-mono text-gray-800 border border-gray-100">{tc.expected_output}</pre>
+                                                            <pre className="bg-white p-3 rounded-xl text-xs font-mono text-gray-800 border border-gray-100">{tc.expected_output}</pre>
                                                         </div>
                                                         {testResults && testResults[idx] && !testResults[idx].passed && (
                                                             <div className="mt-2 space-y-2 pt-2 border-t border-red-100">
@@ -322,7 +322,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                             </div>
 
                             {/* Right Panel: Solution & Editor View */}
-                            <div className="flex-1 flex flex-col bg-gray-50/30 overflow-hidden">
+                            <div className="flex-1 flex flex-col bg-white/30 overflow-hidden">
                                 {/* Editor Header */}
                                 <div className="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between shrink-0">
                                     <div className="flex items-center gap-3">
@@ -338,7 +338,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-9 text-xs font-bold gap-2 border-gray-200 bg-white hover:bg-gray-50 px-4 rounded-xl"
+                                            className="h-9 text-xs font-bold gap-2 border-gray-200 bg-white hover:bg-white px-4 rounded-xl"
                                             onClick={() => handleCopy(solutionCode, selectedProblem.id + selectedLanguage)}
                                         >
                                             {copiedId === selectedProblem.id + selectedLanguage ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
@@ -363,7 +363,7 @@ const ExampleCodeGallery: React.FC<ExampleCodeGalleryProps> = ({ onClose, curren
                                         onValueChange={(v) => { setSelectedLanguage(v); setTestResults(null); setExecutionMetrics(null); }}
                                         className="w-full"
                                     >
-                                        <TabsList className="bg-gray-100/50 p-1 rounded-2xl w-fit">
+                                        <TabsList className="bg-white p-1 rounded-2xl w-fit">
                                             {LANGUAGES.map(lang => (
                                                 <TabsTrigger
                                                     key={lang.id}

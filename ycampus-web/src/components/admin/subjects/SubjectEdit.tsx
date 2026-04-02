@@ -5,8 +5,8 @@ import { useAuth } from "../../../contexts/AuthContext";
 import VideosPanel from "./VideosPanel";
 import NotesManager from "./NotesManager";
 import QuestionBankManager from "./QuestionBankManager";
-import RoleSidebar from "../../common/RoleSidebar";
-import RoleHeader from "../../common/RoleHeader";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "../../admin/AdminSidebar";
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -374,189 +374,238 @@ const SubjectEdit: React.FC = () => {
   };
 
   if (!subjectId) return <div className="min-h-screen flex items-center justify-center">No subject selected</div>;
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading subject...</div>;
-
-  return (
-    <div className="min-h-screen bg-gray-50 uppercase-none">
-      <div className="flex">
-        <RoleSidebar />
-        <div className="flex-1">
-          <RoleHeader
-            title={subject?.subject_name || 'Loading Subject...'}
-            subtitle={subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
-            actions={
-              <Button
-                variant="outline"
-                onClick={() => navigate("/admin/subjects/global")}
-                className="cursor-pointer"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Subjects
-              </Button>
-            }
-          />
-
-          <div className="p-6">
-            <div className="h-full w-full px-4 py-6 flex gap-6">
-              {/* Left Sidebar */}
-              <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-amber-50 to-orange-50/50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <Layers3 className="w-4 h-4 text-amber-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-semibold text-slate-900">Structure</h3>
-                        <p className="text-xs text-slate-600">Units & Sub-units</p>
-                      </div>
-                    </div>
-                    <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1 cursor-pointer">
-                      <Plus className="w-3 h-3 mr-1" /> Add
-                    </Button>
-                  </div>
-                </div>
-
-                <ScrollArea className="flex-1 p-3">
-                  <div className="space-y-3">
-                    {units.map((unit) => {
-                      const expanded = !!expandedUnits[unit.id];
-                      const subs = subUnitsMap[unit.id] || [];
-                      const isSelected = selectedUnit?.id === unit.id;
-
-                      return (
-                        <div key={unit.id} className={`group backdrop-blur-sm border rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? "bg-amber-50/80 border-amber-200 shadow-sm" : "bg-white/70 border-slate-200/60"}`} onClick={async () => {
-                          if (isSelected && !selectedSubUnit) {
-                            await toggleExpandUnit(unit.id);
-                          } else if (isSelected && selectedSubUnit) {
-                            setSelectedSubUnit(null);
-                          } else {
-                            setSelectedUnit(unit);
-                            setSelectedSubUnit(null);
-                            if (!expanded) await toggleExpandUnit(unit.id);
-                          }
-                        }}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className={`font-medium text-sm transition-colors ${isSelected ? "text-amber-700" : "text-slate-900 group-hover:text-amber-700"}`}>
-                                {unit.name}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600 cursor-pointer">
-                                <Edit3 className="w-3 h-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer">
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </div>
-                          {expanded && (
-                            <div className="mt-3 pt-3 border-t border-slate-200/60">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="text-xs font-medium text-slate-700 flex items-center gap-1">Sub-units</div>
-                                <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2 cursor-pointer">
-                                  <Plus className="w-2 h-2 mr-1" /> Add
-                                </Button>
-                              </div>
-                              <div className="space-y-2">
-                                {subs.map((s) => (
-                                  <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white/50 border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
-                                    <div className="flex items-center justify-between">
-                                      <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
-                                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50 cursor-pointer"><Edit3 className="w-2.5 h-2.5" /></Button>
-                                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50 cursor-pointer"><Trash2 className="w-2.5 h-2.5" /></Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              {/* Right Panel */}
-              <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
-                <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-indigo-50/50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">Management</h3>
-                      <p className="text-sm text-slate-600 mt-1">{selectedSubUnit ? `Sub-unit: ${selectedSubUnit.name}` : "Select a sub-unit"}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {selectedSubUnit && (
-                        <>
-                          <Button variant={rightTab === "videos" ? "default" : "outline"} onClick={() => setRightTab("videos")} className="gap-2 cursor-pointer transition-all"><Video className="w-4 h-4" /> Videos</Button>
-                          <Button variant={rightTab === "notes" ? "default" : "outline"} onClick={() => setRightTab("notes")} className="gap-2 cursor-pointer transition-all"><FileText className="w-4 h-4" /> Notes</Button>
-                        </>
-                      )}
-                      <Button variant={rightTab === "questions" ? "default" : "outline"} onClick={() => setRightTab("questions")} className="gap-2 cursor-pointer transition-all"><FileQuestion className="w-4 h-4" /> Question Bank</Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-auto">
-                  {rightTab === "questions" ? (
-                    <QuestionBankManager
-                      subject={subject}
-                      selectedUnit={selectedUnit}
-                      selectedSubUnit={selectedSubUnit}
-                      units={units}
-                    />
-                  ) : rightTab === "videos" && selectedSubUnit ? (
-                    <VideosPanel subUnitId={selectedSubUnit.id} />
-                  ) : rightTab === "notes" && selectedSubUnit ? (
-                    <NotesManager subUnitId={selectedSubUnit.id} />
-                  ) : (
-                    <div className="p-12 text-center text-slate-500">Select a sub-unit to manage content</div>
-                  )}
-                </div>
-              </div>
-            </div>
+  if (loading) return (
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex justify-center flex-col items-center h-[50vh]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground font-medium">Loading Subject Structure...</p>
           </div>
         </div>
       </div>
+    </SidebarProvider>
+  );
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen bg-gray-50/50 w-full overflow-hidden">
+        <AdminSidebar />
+        <div className="flex-1 overflow-y-auto w-full">
+          <div className="w-full">
+            {/* Header Replacement */}
+            <div className="bg-background border-b border-border/40 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{subject?.subject_name || 'Loading Subject...'}</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {subject ? `${subject.yuvro_id ? `ID: ${subject.yuvro_id}` : ''}${subject.short_code ? ` • Code: ${subject.short_code}` : ''}` : 'Loading...'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="shadow-sm font-semibold"
+                onClick={() => navigate("/admin/subjects/global")}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Root Catalog
+              </Button>
+            </div>
+
+            <main className="p-6">
+              <div className="h-[calc(100vh-120px)] w-full flex gap-6">
+            {/* Left Sidebar */}
+            <div className="w-[360px] bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
+              <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-amber-50 to-orange-50/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-amber-100 rounded-lg">
+                      <Layers3 className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-900">Structure</h3>
+                      <p className="text-xs text-slate-600">Units & Sub-units</p>
+                    </div>
+                  </div>
+                  <Button onClick={openCreateUnitModal} size="sm" className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm text-xs px-2 py-1 cursor-pointer">
+                    <Plus className="w-3 h-3 mr-1" /> Add
+                  </Button>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1 p-3">
+                <div className="space-y-3">
+                  {units.map((unit) => {
+                    const expanded = !!expandedUnits[unit.id];
+                    const subs = subUnitsMap[unit.id] || [];
+                    const isSelected = selectedUnit?.id === unit.id;
+
+                    return (
+                      <div key={unit.id} className={`group backdrop-blur-sm border rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer ${isSelected ? "bg-amber-50/80 border-amber-200 shadow-sm" : "bg-white/70 border-slate-200/60"}`} onClick={async () => {
+                        if (isSelected && !selectedSubUnit) {
+                          await toggleExpandUnit(unit.id);
+                        } else if (isSelected && selectedSubUnit) {
+                          setSelectedSubUnit(null);
+                        } else {
+                          setSelectedUnit(unit);
+                          setSelectedSubUnit(null);
+                          if (!expanded) await toggleExpandUnit(unit.id);
+                        }
+                      }}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className={`font-medium text-sm transition-colors ${isSelected ? "text-amber-700" : "text-slate-900 group-hover:text-amber-700"}`}>
+                              {unit.name}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditUnitModal(unit); }} className="h-6 w-6 p-0 hover:bg-amber-50 hover:text-amber-600 cursor-pointer">
+                              <Edit3 className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "unit", id: unit.id }); }} className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer">
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        {expanded && (
+                          <div className="mt-3 pt-3 border-t border-slate-200/60">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="text-xs font-medium text-slate-700 flex items-center gap-1">Sub-units</div>
+                              <Button size="sm" onClick={() => openCreateSubUnitModal(unit.id)} variant="outline" className="h-6 text-xs border-amber-200 text-amber-600 hover:bg-amber-50 px-2 cursor-pointer">
+                                <Plus className="w-2 h-2 mr-1" /> Add
+                              </Button>
+                            </div>
+                            <div className="space-y-2">
+                              {subs.map((s) => (
+                                <div key={s.id} className={`group p-2 rounded-md border cursor-pointer transition-all duration-200 ${selectedSubUnit?.id === s.id ? "bg-amber-50 border-amber-200 shadow-sm" : "bg-white border-slate-200/60 hover:bg-white"}`} onClick={(e) => { e.stopPropagation(); setSelectedSubUnit(s); setSelectedUnit(unit); setRightTab("videos"); }}>
+                                  <div className="flex items-center justify-between">
+                                    <div className={`font-medium text-xs ${selectedSubUnit?.id === s.id ? "text-amber-900" : "text-slate-800"}`}>{s.name}</div>
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); openEditSubUnitModal(s); }} className="h-5 w-5 p-0 hover:bg-amber-50 cursor-pointer"><Edit3 className="w-2.5 h-2.5" /></Button>
+                                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ type: "sub-unit", id: s.id }); }} className="h-5 w-5 p-0 hover:bg-red-50 cursor-pointer"><Trash2 className="w-2.5 h-2.5" /></Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Right Panel */}
+            <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-indigo-50/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Management</h3>
+                    <p className="text-sm text-slate-600 mt-1">{selectedSubUnit ? `Sub-unit: ${selectedSubUnit.name}` : "Select a sub-unit"}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedSubUnit && (
+                      <>
+                        <Button variant={rightTab === "videos" ? "default" : "outline"} onClick={() => setRightTab("videos")} className="gap-2 cursor-pointer transition-all"><Video className="w-4 h-4" /> Videos</Button>
+                        <Button variant={rightTab === "notes" ? "default" : "outline"} onClick={() => setRightTab("notes")} className="gap-2 cursor-pointer transition-all"><FileText className="w-4 h-4" /> Notes</Button>
+                      </>
+                    )}
+                    <Button variant={rightTab === "questions" ? "default" : "outline"} onClick={() => setRightTab("questions")} className="gap-2 cursor-pointer transition-all"><FileQuestion className="w-4 h-4" /> Question Bank</Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto">
+                {rightTab === "questions" ? (
+                  <QuestionBankManager
+                    subject={subject}
+                    selectedUnit={selectedUnit}
+                    selectedSubUnit={selectedSubUnit}
+                    units={units}
+                  />
+                ) : rightTab === "videos" && selectedSubUnit ? (
+                  <VideosPanel subUnitId={selectedSubUnit.id} />
+                ) : rightTab === "notes" && selectedSubUnit ? (
+                  <NotesManager subUnitId={selectedSubUnit.id} />
+                ) : (
+                  <div className="p-12 text-center text-slate-500">Select a sub-unit to manage content</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    </div>
 
       {/* Unit Modal */}
-      <Dialog open={isUnitModalOpen} onOpenChange={setIsUnitModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{unitModalMode === "create" ? "Add Unit" : "Edit Unit"}</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-2">
-            <Label>Unit Name</Label>
-            <Input value={unitNameValue} onChange={(e) => setUnitNameValue(e.target.value)} />
-            <Label>Order Index</Label>
-            <Input type="number" value={unitOrderValue ?? ""} onChange={(e) => setUnitOrderValue(Number(e.target.value))} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" className="cursor-pointer" onClick={() => setIsUnitModalOpen(false)}>Cancel</Button>
-            <Button className="cursor-pointer" onClick={saveUnit}>{savingUnit ? "Saving..." : "Save"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <Dialog open={isUnitModalOpen} onOpenChange={setIsUnitModalOpen}>
+    <DialogContent>
+      <DialogHeader><DialogTitle>{unitModalMode === "create" ? "Add Unit" : "Edit Unit"}</DialogTitle></DialogHeader>
+      <div className="space-y-4 py-2">
+        <Label>Unit Name</Label>
+        <Input value={unitNameValue} onChange={(e) => setUnitNameValue(e.target.value)} />
+        <Label>Order Index</Label>
+        <Input type="number" value={unitOrderValue ?? ""} onChange={(e) => setUnitOrderValue(Number(e.target.value))} />
+      </div>
+      <DialogFooter>
+        <Button variant="outline" className="cursor-pointer" onClick={() => setIsUnitModalOpen(false)}>Cancel</Button>
+        <Button className="cursor-pointer" onClick={saveUnit}>{savingUnit ? "Saving..." : "Save"}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 
-      {/* SubUnit Modal */}
-      <Dialog open={isSubUnitModalOpen} onOpenChange={setIsSubUnitModalOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{subUnitModalMode === "create" ? "Add Sub-unit" : "Edit Sub-unit"}</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-2">
-            <Label>Sub-unit Name</Label>
-            <Input value={subUnitNameValue} onChange={(e) => setSubUnitNameValue(e.target.value)} />
-            <Label>Content (Markdown)</Label>
-            <textarea className="w-full h-32 border rounded p-2" value={subUnitContentValue} onChange={(e) => setSubUnitContentValue(e.target.value)} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" className="cursor-pointer" onClick={() => setIsSubUnitModalOpen(false)}>Cancel</Button>
-            <Button className="cursor-pointer" onClick={saveSubUnit}>{savingSubUnit ? "Saving..." : "Save"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+  {/* SubUnit Modal */ }
+  <Dialog open={isSubUnitModalOpen} onOpenChange={setIsSubUnitModalOpen}>
+    <DialogContent>
+      <DialogHeader><DialogTitle>{subUnitModalMode === "create" ? "Add Sub-unit" : "Edit Sub-unit"}</DialogTitle></DialogHeader>
+      <div className="space-y-4 py-2">
+        <Label>Sub-unit Name</Label>
+        <Input value={subUnitNameValue} onChange={(e) => setSubUnitNameValue(e.target.value)} />
+        <Label>Content (Markdown)</Label>
+        <textarea className="w-full h-32 border rounded p-2" value={subUnitContentValue} onChange={(e) => setSubUnitContentValue(e.target.value)} />
+      </div>
+      <DialogFooter>
+        <Button variant="outline" className="cursor-pointer" onClick={() => setIsSubUnitModalOpen(false)}>Cancel</Button>
+        <Button className="cursor-pointer" onClick={saveSubUnit}>{savingSubUnit ? "Saving..." : "Save"}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+
+  {/* Delete Confirmation Modal */}
+  <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle className="text-destructive flex items-center gap-2">
+          <Trash2 className="h-5 w-5" />
+          Confirm Deletion
+        </DialogTitle>
+      </DialogHeader>
+      <div className="py-2">
+        <p className="text-sm text-foreground">
+          Are you sure you want to permanently delete this {confirmDelete?.type}?
+          This action cannot be undone.
+        </p>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            if (confirmDelete?.type === 'subject') handleDeleteSubject();
+            else if (confirmDelete?.type === 'unit') handleDeleteUnit(confirmDelete.id);
+            else if (confirmDelete?.type === 'sub-unit') handleDeleteSubUnit(confirmDelete.id);
+          }}
+          disabled={deleting}
+        >
+          {deleting ? "Deleting..." : "Confirm Delete"}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+</SidebarProvider>
   );
 };
 

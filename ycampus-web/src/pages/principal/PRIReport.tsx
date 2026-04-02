@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -96,10 +96,10 @@ function generateStudents() {
 const ALL_STUDENTS = generateStudents();
 
 const getPRIStatus = (pri: number) => {
-  if (pri >= 85) return { label: 'Ready', color: '#047857', bg: 'bg-[#D1FAE5] text-[#047857] border-emerald-100' };
-  if (pri >= 70) return { label: 'Almost Ready', color: '#059669', bg: 'bg-[#D1FAE5] text-[#059669] border-emerald-100' };
-  if (pri >= 55) return { label: 'Needs Improvement', color: '#B45309', bg: 'bg-[#FEF3C7] text-[#B45309] border-amber-100' };
-  return { label: 'Not Ready', color: '#B91C1C', bg: 'bg-[#FEE2E2] text-[#B91C1C] border-red-100' };
+  if (pri >= 85) return { label: 'Ready', color: DARK_GREEN, bg: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-300' };
+  if (pri >= 70) return { label: 'Almost Ready', color: LIGHT_GREEN, bg: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' };
+  if (pri >= 55) return { label: 'Needs Improvement', color: SAFFRON, bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' };
+  return { label: 'Not Ready', color: RED, bg: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' };
 };
 
 const PIE_COLORS = [DARK_GREEN, LIGHT_GREEN, SAFFRON, RED];
@@ -233,13 +233,15 @@ const PRIReport = () => {
 
   return (
     <SidebarProvider>
-      <RoleSidebar />
-      <SidebarInset className="p-4 md:p-6 bg-background overflow-y-auto">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          <h1 className="text-2xl font-semibold text-slate-800">PRI Report</h1>
+      <div className="h-screen flex w-full overflow-hidden">
+        <PrincipalSidebar />
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <main className="flex-1 p-4 md:p-6 bg-background overflow-y-auto">
+            <div className="max-w-[1400px] mx-auto space-y-6">
+              <h1 className="text-2xl font-bold">PRI Report</h1>
 
               {/* FILTERS */}
-              <Card className="border-gray-200 shadow-none">
+              <Card>
                 <CardContent className="pt-4 pb-3">
                   <div className="flex flex-wrap gap-3">
                     <Select value={filters.academicYear} onValueChange={v => updateFilter('academicYear', v)}>
@@ -325,10 +327,10 @@ const PRIReport = () => {
                   { label: 'Needs Imp', value: `${distPct(dist.needs)}%`, icon: AlertTriangle, iconColor: 'text-amber-600' },
                   { label: 'Not Ready', value: `${distPct(dist.notReady)}%`, icon: XCircle, iconColor: 'text-red-600' },
                 ].map((kpi, i) => (
-                  <Card key={i} className="border-gray-200 shadow-none">
+                  <Card key={i} className="border">
                     <CardContent className="p-3 flex flex-col items-center text-center gap-1">
                       <kpi.icon className={`h-4 w-4 ${kpi.iconColor}`} />
-                      <span className="text-lg font-semibold text-slate-700">{kpi.value}</span>
+                      <span className="text-lg font-bold">{kpi.value}</span>
                       <span className="text-[10px] text-muted-foreground">{kpi.label}</span>
                     </CardContent>
                   </Card>
@@ -337,9 +339,9 @@ const PRIReport = () => {
 
               {/* DISTRIBUTION CHART + PS BREAKDOWN */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <GraduationCap className="h-4 w-4 text-indigo-600" /> PRI Distribution
                     </CardTitle>
                   </CardHeader>
@@ -366,9 +368,9 @@ const PRIReport = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <BarChart3 className="h-4 w-4 text-violet-600" /> Avg PS Breakdown
                     </CardTitle>
                   </CardHeader>
@@ -412,9 +414,9 @@ const PRIReport = () => {
               </div>
 
               {/* STUDENT TABLE */}
-              <Card className="border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Users className="h-4 w-4 text-blue-600" /> Student PRI Details
                     <Badge variant="secondary" className="ml-2 text-[10px]">{filteredStudents.length} students</Badge>
                   </CardTitle>
@@ -461,13 +463,11 @@ const PRIReport = () => {
                                 <TableCell className="text-xs text-center">{s.section}</TableCell>
                                 <TableCell className="text-sm font-semibold text-center" style={{ color: s.pi >= 70 ? DARK_GREEN : s.pi >= 55 ? SAFFRON : RED }}>{s.pi}%</TableCell>
                                 <TableCell className="text-sm font-semibold text-center" style={{ color: s.ps >= 70 ? DARK_GREEN : s.ps >= 55 ? SAFFRON : RED }}>{s.ps}%</TableCell>
-                                <TableCell className="text-sm font-semibold text-center" style={{ color: status.color }}>{s.pri}%</TableCell>
+                                <TableCell className="text-sm font-bold text-center" style={{ color: status.color }}>{s.pri}%</TableCell>
                                 <TableCell className="text-sm text-center" style={{ color: s.attendance >= 75 ? DARK_GREEN : RED }}>{s.attendance}%</TableCell>
                                 <TableCell className="text-xs text-center">{s.taskCompletion}%</TableCell>
                                 <TableCell className="text-center">
-                                  <div className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${status.bg}`}>
-                                    {status.label}
-                                  </div>
+                                  <Badge className={`text-[10px] px-2 py-0.5 font-medium ${status.bg}`}>{status.label}</Badge>
                                 </TableCell>
                                 <TableCell className="text-center">
                                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -479,7 +479,7 @@ const PRIReport = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                       {/* PS Breakdown */}
                                       <div>
-                                        <h4 className="text-[12px] font-semibold mb-3 text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <h4 className="text-xs font-bold mb-3 text-foreground flex items-center gap-1.5">
                                           <BarChart3 className="h-3.5 w-3.5 text-violet-600" /> PS Breakdown
                                         </h4>
                                         <div className="space-y-2">
@@ -494,23 +494,23 @@ const PRIReport = () => {
                                       </div>
                                       {/* Strengths */}
                                       <div>
-                                        <h4 className="text-[12px] font-semibold mb-3 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                                        <h4 className="text-xs font-bold mb-3 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                                           <CheckCircle2 className="h-3.5 w-3.5" /> Strengths
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
                                           {s.strengths.map((st: string) => (
-                                            <Badge key={st} variant="outline" className="text-[11px] px-2.5 py-0.5 font-semibold border-[#D1FAE5] text-[#047857] bg-[#D1FAE5] dark:bg-emerald-900/20">{st}</Badge>
+                                            <Badge key={st} variant="outline" className="text-[11px] px-2.5 py-1 border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:bg-emerald-900/20">{st}</Badge>
                                           ))}
                                         </div>
                                       </div>
                                       {/* Improvements */}
                                       <div>
-                                        <h4 className="text-[12px] font-semibold mb-3 text-red-700 dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5">
+                                        <h4 className="text-xs font-bold mb-3 text-red-700 dark:text-red-400 flex items-center gap-1.5">
                                           <AlertTriangle className="h-3.5 w-3.5" /> Areas to Improve
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
                                           {s.improvements.map((im: string) => (
-                                            <Badge key={im} variant="outline" className="text-[11px] px-2.5 py-0.5 font-semibold border-[#FEE2E2] text-[#B91C1C] bg-[#FEE2E2] dark:bg-red-900/20">{im}</Badge>
+                                            <Badge key={im} variant="outline" className="text-[11px] px-2.5 py-1 border-red-300 text-red-700 bg-red-50 dark:border-red-700 dark:text-red-400 dark:bg-red-900/20">{im}</Badge>
                                           ))}
                                         </div>
                                       </div>
@@ -529,9 +529,9 @@ const PRIReport = () => {
 
               {/* AI INSIGHTS + RECOMMENDATIONS */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <Brain className="h-4 w-4 text-violet-600" /> AI Insights
                     </CardTitle>
                   </CardHeader>
@@ -545,9 +545,9 @@ const PRIReport = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <Target className="h-4 w-4 text-emerald-600" /> Recommendations
                     </CardTitle>
                   </CardHeader>
@@ -562,8 +562,10 @@ const PRIReport = () => {
                 </Card>
               </div>
 
+            </div>
+          </main>
         </div>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 };

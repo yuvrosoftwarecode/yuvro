@@ -1,5 +1,4 @@
 import React from 'react';
-import { Lightbulb } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   prompts: string[];
@@ -11,16 +10,13 @@ const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onSelect, 
   if (!prompts || prompts.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 px-1 custom-scrollbar scroll-smooth">
-      <div className="shrink-0 flex items-center justify-center p-1.5 rounded-full bg-amber-50 text-amber-500 shadow-sm border border-amber-100">
-        <Lightbulb size={14} className="stroke-[2.5px]" />
-      </div>
+    <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
       {prompts.map((prompt) => (
         <button
           key={prompt}
           onClick={() => onSelect(prompt)}
           disabled={disabled}
-          className="shrink-0 whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-full hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+          className="shrink-0 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50/50 border-2 border-indigo-100 rounded-xl hover:bg-white hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-100 transition-all duration-300 disabled:opacity-30 disabled:pointer-events-none active:scale-95"
         >
           {prompt}
         </button>

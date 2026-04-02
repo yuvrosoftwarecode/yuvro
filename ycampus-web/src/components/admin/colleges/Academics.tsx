@@ -39,10 +39,8 @@ const DEPARTMENT_CATEGORIES = [
             { name: "Artificial Intelligence & Data Science", short_form: "AIDS" },
             { name: "Data Science", short_form: "DS" },
             { name: "Cyber Security", short_form: "CS" },
-            { name: "Computer Science & Business Systems", short_form: "CSBS" },
             { name: "Computer Science & Engineering – Data Science", short_form: "CSE-DS" },
             { name: "Computer Science & Engineering – AI", short_form: "CSE-AI" },
-            { name: "Computer Science & Engineering – IoT", short_form: "CSE-IoT" },
         ]
     },
     {
@@ -51,8 +49,6 @@ const DEPARTMENT_CATEGORIES = [
         departments: [
             { name: "Electrical and Electronics Engineering", short_form: "EEE" },
             { name: "Electronics and Communication Engineering", short_form: "ECE" },
-            { name: "Electronics and Instrumentation Engineering", short_form: "EIE" },
-            { name: "Electronics and Computer Engineering", short_form: "ECmE" },
         ]
     },
     {
@@ -61,23 +57,6 @@ const DEPARTMENT_CATEGORIES = [
         departments: [
             { name: "Civil Engineering", short_form: "CE" },
             { name: "Mechanical Engineering", short_form: "ME" },
-            { name: "Chemical Engineering", short_form: "CHE" },
-            { name: "Metallurgical Engineering", short_form: "MET" },
-            { name: "Mining Engineering", short_form: "MIN" },
-            { name: "Production Engineering", short_form: "PE" },
-        ]
-    },
-    {
-        name: "Emerging & Specialized",
-        icon: "🧪",
-        departments: [
-            { name: "Biomedical Engineering", short_form: "BME" },
-            { name: "Biotechnology Engineering", short_form: "BT" },
-            { name: "Aeronautical Engineering", short_form: "AE" },
-            { name: "Automobile Engineering", short_form: "AUTO" },
-            { name: "Mechatronics Engineering", short_form: "MTR" },
-            { name: "Agricultural Engineering", short_form: "AGRI" },
-            { name: "Petroleum Engineering", short_form: "PET" },
         ]
     }
 ];
@@ -109,14 +88,12 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
     // Bulk Section State
     const [isBulkSectionsDialogOpen, setIsBulkSectionsDialogOpen] = useState(false);
-    const [selectedSectionLimit, setSelectedSectionLimit] = useState<number>(0); // 1 = A, 2 = B, etc.
+    const [selectedSectionLimit, setSelectedSectionLimit] = useState<number>(0);
 
     useEffect(() => {
-        // Initialize with unique batches
         loadUniqueBatches(true);
     }, [college]);
 
-    // Clear search when view changes
     useEffect(() => {
         setSearchQuery("");
     }, [manageView, activeParent]);
@@ -143,13 +120,12 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const loadDepartmentsForBatch = async (batchName: string, pushPath = true) => {
         setManageLoading(true);
         try {
-            // Load all batches for this college with this name that have departments
             const batches = await batchService.getBatchesByCollegeAndName(college.id, batchName);
-            // Map batches to a format the UI expects (which looks like departments)
             const data = batches.filter(b => b.department).map(b => ({
                 id: b.department,
                 name: b.department_name,
-                batchId: b.id
+                batchId: b.id,
+                semesters: b.semesters || []
             }));
 
             setHierarchyData(data);
@@ -171,7 +147,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         if (!selectedBatchName) return;
         setManageLoading(true);
         try {
-            // 1. Get batches for this department
             const batches = await batchService.getBatches(deptId);
             const targetBatch = batches.find(b => b.name === selectedBatchName);
             
@@ -180,8 +155,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             if(dept) deptName = dept.name;
 
             if (!targetBatch) {
-                // If batch doesn't exist for this department, we can't show semesters yet
-                // The user needs to initialize it or add it
                 setHierarchyData([]);
                 setManageView('semesters');
                 const newActiveParent = { id: deptId, name: deptName };
@@ -233,9 +206,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
         try {
              if (manageView === 'batches') {
-                // Batch deletion is complex here because id is name. 
-                // Maybe we don't allow delete from this view or we delete all batches with this name?
-                // For now, let's just toast that it's a grouped view.
                 toast.error("Cannot delete batch from grouped view. Delete from department level.");
                 return;
             } else if (manageView === 'departments') {
@@ -257,7 +227,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     const handleAutoGenerateSemesters = async () => {
         if (!activeParent || manageView !== 'semesters') return;
         
-        // We need the batch ID. If it's not in activeParent, we need to find/create it.
         const currentPath = hierarchyPath[hierarchyPath.length - 1] as any;
         let batchId = currentPath.batchId;
 
@@ -304,16 +273,14 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         setManageLoading(true);
         try {
             const response = await collegeService.bulkInitializeSemesters(college.id, selectedBatchName);
-            
             if (response.departments_processed_count > 0) {
                 toast.success(response.message || `Successfully initialized semesters for ${response.departments_processed_count} departments`);
-                // Reload data to show results
                 loadDepartmentsForBatch(selectedBatchName, false);
             } else {
                 toast.info("No empty departments found to initialize.");
             }
         } catch (err: any) {
-            toast.error(err.response?.data?.error || "Failed during bulk initialization");
+             toast.error(err.response?.data?.error || "Failed during bulk initialization");
         } finally {
             setManageLoading(false);
         }
@@ -331,20 +298,14 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             let initializedCount = 0;
             let deletedCount = 0;
 
-            // hierarchyData contains semesters for the current department
             for (const sem of hierarchyData) {
-                // Get existing sections to avoid duplicates and handle deletions
                 const existingSections = await sectionService.getSections(sem.id);
-                
-                // 1. Add missing target sections
                 for (const sectionName of targetSections) {
                     if (!existingSections.find(s => s.name.toUpperCase() === sectionName)) {
                         await sectionService.createSection({ semester: sem.id, name: sectionName });
                         initializedCount++;
                     }
                 }
-
-                // 2. Delete sections that are in A-J but not in targetRange
                 for (const sectionName of sectionsToDelete) {
                     const extraSection = existingSections.find(s => s.name.toUpperCase() === sectionName);
                     if (extraSection) {
@@ -354,11 +315,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 }
             }
 
-            let msg = `Successfully synchronized sections.`;
-            if (initializedCount > 0) msg += ` Added ${initializedCount} sections.`;
-            if (deletedCount > 0) msg += ` Removed ${deletedCount} extra sections.`;
-            
-            toast.success(msg);
+            toast.success(`Synched sections. Added ${initializedCount}, removed ${deletedCount}.`);
             setIsBulkSectionsDialogOpen(false);
             if (activeParent) loadSemestersForManager(activeParent.id, false);
         } catch (err) {
@@ -386,7 +343,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
         setIsAdding(true);
         try {
             if (manageView === 'batches') {
-                // Create a global batch at the college level
                 await batchService.createBatch({ 
                     college: college.id, 
                     name: nameToAdd 
@@ -401,7 +357,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                     return;
                 }
 
-                // Get existing departments once
                 const existingDepts = await departmentService.getDepartments(college.id);
 
                 for (const deptData of departmentsToCreate) {
@@ -414,8 +369,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             short_form: deptData.short_form
                         });
                     }
-
-                    // Now link this department to the batch
                     await batchService.createBatch({ 
                         college: college.id, 
                         department: dept.id,
@@ -425,7 +378,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 
                 loadDepartmentsForBatch(selectedBatchName!, false);
             } else if (manageView === 'semesters') {
-                // Find or create batch first
                 const currentPath = hierarchyPath[hierarchyPath.length - 1] as any;
                 let batchId = currentPath.batchId;
                 if (!batchId) {
@@ -445,7 +397,6 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 loadSectionsForManage(activeParent!.id, false);
             }
             
-            // Clean up
             setNewItemName("");
             setNewItemShortForm("");
             setSelectedPresets([]);
@@ -462,12 +413,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 
     const getFilteredData = () => {
         if (!searchQuery) return hierarchyData;
-        
         return hierarchyData.filter((item: any) => {
             const name = item.name ? item.name.toString().toLowerCase() : '';
             const number = item.number ? item.number.toString() : '';
             const query = searchQuery.toLowerCase();
-            
             return name.includes(query) || number.includes(query);
         });
     };
@@ -487,25 +436,25 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
             {/* Breadcrumbs Section */}
-            <div className="bg-white p-3 px-6 rounded-xl border border-slate-200/60 shadow-sm flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                        <Layers className="h-4 w-4 text-indigo-500" />
+            <div className="bg-card p-3 px-6 rounded-xl border border-border shadow-sm flex items-center gap-2 overflow-x-auto">
+                <div className="flex items-center gap-2 shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Layers className="h-4 w-4 text-primary" />
                     </div>
                 </div>
                 {hierarchyPath.map((crumb, idx) => (
                     <React.Fragment key={idx}>
-                         {idx > 0 && <ChevronRight className="h-4 w-4 text-slate-300 mx-1" />}
+                         {idx > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground mx-1 shrink-0" />}
                         <button
                             onClick={() => {
-                                if (idx === hierarchyPath.length - 1) return; // Current crumb
+                                if (idx === hierarchyPath.length - 1) return;
                                 if (idx === 0) loadUniqueBatches(false);
                                 else if (crumb.view === 'departments') loadDepartmentsForBatch(crumb.id.toString(), false);
                                 else if (crumb.view === 'semesters') loadSemestersForManager(crumb.id, false);
                                 setHierarchyPath(hierarchyPath.slice(0, idx + 1));
                             }}
-                            className={`text-[10px] font-black tracking-widest uppercase transition-colors cursor-pointer ${
-                                idx === hierarchyPath.length - 1 ? 'text-indigo-500' : 'text-slate-400 hover:text-indigo-500'
+                            className={`text-[10px] whitespace-nowrap font-bold tracking-widest uppercase transition-colors cursor-pointer ${
+                                idx === hierarchyPath.length - 1 ? 'text-primary' : 'text-muted-foreground hover:text-primary'
                             }`}
                         >
                             {crumb.name}
@@ -518,10 +467,10 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
             <div className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="space-y-1">
-                        <h3 className="text-3xl font-bold text-slate-900">
+                        <h3 className="text-3xl font-bold text-foreground">
                             {manageView.charAt(0).toUpperCase() + manageView.slice(1)}
                         </h3>
-                        <p className="text-slate-500 text-sm font-medium">
+                        <p className="text-muted-foreground text-sm font-medium">
                             Select a {manageView.slice(0, -1)} to manage {
                                 manageView === 'batches' ? 'departments' :
                                     manageView === 'departments' ? 'semesters' :
@@ -529,15 +478,14 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             }
                         </p>
                     </div>
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                        {/* Search Input */}
-                        <div className="relative flex-grow md:flex-grow-0">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1">
+                        <div className="relative flex-grow md:flex-grow-0 shrink-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder={`Search ${manageView}...`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 h-11 w-full md:w-64 border-slate-200 bg-white"
+                                className="pl-9 h-11 w-[200px] md:w-64 border-border bg-card"
                             />
                         </div>
 
@@ -545,9 +493,9 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             <Button
                                 onClick={handleBulkInitializeSemesters}
                                 variant="outline"
-                                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap"
+                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap shrink-0"
                             >
-                                <Zap className="h-4 w-4 fill-indigo-100" />
+                                <Zap className="h-4 w-4 fill-primary/20" />
                                 BULK INITIALIZE SEMESTERS
                             </Button>
                         )}
@@ -556,19 +504,19 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                             <Button
                                 onClick={() => setIsBulkSectionsDialogOpen(true)}
                                 variant="outline"
-                                className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap"
+                                className="border-primary text-primary hover:bg-primary/10 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-wide whitespace-nowrap shrink-0"
                             >
-                                <Zap className="h-4 w-4 fill-indigo-100" />
+                                <Zap className="h-4 w-4 fill-primary/20" />
                                 BULK INITIALIZE SECTIONS
                             </Button>
                         )}
 
                         <Button
                             onClick={() => setIsAddDialogOpen(true)}
-                            className="bg-indigo-600 text-white hover:bg-indigo-700 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-100 uppercase tracking-wide whitespace-nowrap"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-11 rounded-lg font-bold text-xs flex items-center gap-2 shadow-lg uppercase tracking-wide whitespace-nowrap shrink-0"
                         >
                             <Plus className="h-4 w-4" />
-                            ADD {manageView.slice(0, -1).toUpperCase()}
+                            ADD {manageView.slice(0, -1)}
                         </Button>
                     </div>
                 </div>
@@ -576,7 +524,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                 {manageLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-12">
                         {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-48 bg-slate-100 animate-pulse rounded-2xl border border-slate-200 shadow-sm" />
+                            <div key={i} className="h-48 bg-card animate-pulse rounded-2xl border border-border shadow-sm" />
                         ))}
                     </div>
                 ) : (
@@ -584,7 +532,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                         {filteredData.map((item: any) => (
                             <Card
                                 key={item.id}
-                                className="bg-white border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer relative"
+                                className="bg-card border border-border shadow-sm hover:shadow-md hover:border-border/80 transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer relative"
                                 onClick={() => {
                                     if (manageView === 'batches') loadDepartmentsForBatch(item.name);
                                     else if (manageView === 'departments') loadSemestersForManager(item.id);
@@ -592,37 +540,71 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                 }}
                             >
                                 <CardHeader className="p-6 pb-2">
-                                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 mb-6 font-bold group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 font-bold group-hover:scale-110 transition-transform">
                                         {manageView === 'batches' ? <Calendar className="h-6 w-6" /> :
                                             manageView === 'departments' ? <Building2 className="h-6 w-6" /> :
                                                 manageView === 'semesters' ? <Clock className="h-6 w-6" /> :
                                                     <Hash className="h-6 w-6" />}
                                     </div>
-                                    <h4 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">
+                                    <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors uppercase truncate">
                                         {manageView === 'batches' ? `BATCH ${item.name}` :
                                             manageView === 'semesters' ? `SEMESTER ${item.number}` : item.name}
                                     </h4>
                                 </CardHeader>
-                                <CardContent className="p-6 pt-8 space-y-6">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: {item.id}</span>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-medium text-slate-300 italic max-w-[150px] truncate">
-                                                {item.id.toString().substring(0, 18)}...
-                                            </span>
-                                            <button
+                                <CardContent className="p-6 pt-4 space-y-6 flex-grow flex flex-col justify-between">
+                                    <div className="flex flex-col gap-2">
+                                        {manageView === 'departments' && (
+                                            <div className="flex gap-1.5 flex-wrap">
+                                                {item.semesters?.length > 0 ? (
+                                                    // Map sorted semesters
+                                                    [...item.semesters].sort((a: any, b: any) => a.number - b.number).map((sem: any) => (
+                                                        <span key={sem.id} className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-1 rounded-sm border border-primary/20">
+                                                            SEM {sem.number}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-xs font-medium text-muted-foreground">0 Semesters</span>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {manageView === 'semesters' && (
+                                            <div className="flex gap-1.5 flex-wrap">
+                                                {item.sections?.length > 0 ? (
+                                                    // Map sorted sections
+                                                    [...item.sections].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((sec: any) => (
+                                                        <span key={sec.id} className="text-[10px] font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-sm border border-primary/20">
+                                                            {sec.name}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-xs font-medium text-muted-foreground">0 Sections</span>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        {manageView === 'sections' && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-bold text-foreground">
+                                                    {item.student_count || 0} Students
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-end mt-4">
+                                        <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     if (manageView === 'batches') loadDepartmentsForBatch(item.name);
                                                     else if (manageView === 'departments') loadSemestersForManager(item.id);
                                                     else if (manageView === 'semesters') loadSectionsForManage(item.id);
                                                 }}
-                                                className="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
+                                                className="text-xs font-bold text-primary hover:underline uppercase tracking-tighter flex items-center gap-1 group/btn cursor-pointer"
                                             >
-                                                MANAGE {manageView.slice(0, -1).toUpperCase()}
+                                                MANAGE
                                                 <ChevronRight className="h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
                                             </button>
-                                        </div>
                                     </div>
 
                                     {/* Absolute buttons for Edit/Delete that appear on hover */}
@@ -634,7 +616,7 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                 e.stopPropagation();
                                                 handleDeleteHierarchyItem(item.id);
                                             }}
-                                            className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -644,19 +626,19 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                         ))}
 
                         {filteredData.length === 0 && (
-                            <div className="col-span-full py-24 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
-                                <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mb-4">
-                                    <Search className="h-8 w-8 text-slate-200" />
+                            <div className="col-span-full py-24 flex flex-col items-center justify-center bg-card rounded-2xl border border-dashed border-border shadow-sm">
+                                <div className="w-16 h-16 bg-muted flex items-center justify-center rounded-2xl mb-4">
+                                    <Search className="h-8 w-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
                                     {searchQuery ? `No results for "${searchQuery}"` : "No Items Initialized"}
                                 </h3>
                                 {!searchQuery && manageView === 'semesters' && (
                                     <Button
                                         onClick={handleAutoGenerateSemesters}
-                                        className="mt-6 bg-indigo-600 text-white rounded-lg px-6 h-11 font-bold text-xs border-none shadow-indigo-200 shadow-lg"
+                                        className="mt-6 bg-primary text-primary-foreground rounded-lg px-6 h-11 font-bold text-xs border-none"
                                     >
-                                        AUTO-GENERATE 8 SEMESTERS FOR THIS DEPT
+                                        AUTO-GENERATE 8 SEMESTERS
                                     </Button>
                                 )}
                             </div>
@@ -688,21 +670,21 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                         {manageView === 'batches' ? (
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Start Year</label>
+                                     <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Start Year</label>
                                     <Input
                                         placeholder="YYYY"
                                         value={startYear}
                                         onChange={(e) => setStartYear(e.target.value)}
-                                        className="font-bold border-slate-200"
+                                        className="font-bold border-border"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">End Year</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">End Year</label>
                                     <Input
                                         placeholder="YYYY"
                                         value={endYear}
                                         onChange={(e) => setEndYear(e.target.value)}
-                                        className="font-bold border-slate-200"
+                                        className="font-bold border-border"
                                     />
                                 </div>
                             </div>
@@ -716,9 +698,9 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                 <TabsContent value="preset" className="space-y-6">
                                     {DEPARTMENT_CATEGORIES.map((cat, catIdx) => (
                                         <div key={catIdx} className="space-y-3">
-                                            <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                                            <div className="flex items-center gap-2 border-b border-border pb-2">
                                                 <span className="text-lg">{cat.icon}</span>
-                                                <h4 className="text-sm font-bold text-slate-800 uppercase tracking-tight">{cat.name}</h4>
+                                                <h4 className="text-sm font-bold text-foreground uppercase tracking-tight">{cat.name}</h4>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {cat.departments.map((dept, deptIdx) => {
@@ -735,20 +717,20 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                                             }}
                                                             className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
                                                                 isSelected 
-                                                                    ? "bg-indigo-50 border-indigo-200 shadow-sm" 
-                                                                    : "bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50"
+                                                                    ? "bg-primary/5 border-primary shadow-sm" 
+                                                                    : "bg-card border-border hover:border-primary/50"
                                                             }`}
                                                         >
                                                             <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
-                                                                isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"
+                                                                isSelected ? "bg-primary border-primary" : "bg-card border-border"
                                                             }`}>
-                                                                {isSelected && <Check className="h-3 w-3 text-white" />}
+                                                                {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className={`text-[11px] font-bold leading-tight ${isSelected ? "text-indigo-900" : "text-slate-700"}`}>
+                                                                <span className={`text-[11px] font-bold leading-tight ${isSelected ? "text-primary" : "text-foreground"}`}>
                                                                     {dept.name}
                                                                 </span>
-                                                                <span className="text-[10px] font-medium text-slate-400">({dept.short_form})</span>
+                                                                <span className="text-[10px] font-medium text-muted-foreground">({dept.short_form})</span>
                                                             </div>
                                                         </div>
                                                     );
@@ -756,135 +738,99 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
                                             </div>
                                         </div>
                                     ))}
-                                    {selectedPresets.length > 0 && (
-                                        <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex items-center justify-between">
-                                            <span className="text-xs font-bold text-indigo-700 uppercase">{selectedPresets.length} items selected</span>
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
-                                                onClick={() => setSelectedPresets([])}
-                                                className="text-[10px] font-bold text-indigo-600 uppercase hover:bg-indigo-100"
-                                            >
-                                                Clear All
-                                            </Button>
-                                        </div>
-                                    )}
                                 </TabsContent>
                                 
                                 <TabsContent value="manual" className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Department Name</label>
+                                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Department Name</label>
                                         <Input
                                             placeholder="Enter department name"
                                             value={newItemName}
                                             onChange={(e) => setNewItemName(e.target.value)}
-                                            className="font-bold border-slate-200"
+                                            className="font-bold border-border"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Short Form / Shortcut</label>
+                                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Short Form / Shortcut</label>
                                         <Input
                                             placeholder="e.g. CSE"
                                             value={newItemShortForm}
                                             onChange={(e) => setNewItemShortForm(e.target.value)}
-                                            className="font-bold border-slate-200 uppercase"
+                                            className="font-bold border-border uppercase"
                                         />
                                     </div>
                                 </TabsContent>
                             </Tabs>
                         ) : (
                             <div className="space-y-2">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{manageView.slice(0, -1)} Name/Number</label>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{manageView.slice(0, -1)} Name/Number</label>
                                 <Input
                                     placeholder={manageView === 'semesters' ? "e.g. 1" : `Enter ${manageView.slice(0, -1)} name`}
                                     value={newItemName}
                                     onChange={(e) => setNewItemName(e.target.value)}
-                                    className="font-bold border-slate-200"
-                                    type={manageView === 'semesters' ? 'number' : 'text'}
+                                    className="font-bold border-border uppercase"
                                 />
-                                {manageView === 'semesters' && <p className="text-xs text-slate-500">Enter the semester number (e.g., 1 for Semester 1)</p>}
                             </div>
                         )}
                     </div>
-
+                    
                     <DialogFooter>
-                        <Button 
-                            variant="outline" 
-                            onClick={() => setIsAddDialogOpen(false)}
-                            disabled={isAdding}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            onClick={handleAddItem}
-                            disabled={isAdding}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        >
-                            {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create {manageView.slice(0, -1)}
+                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAddItem} disabled={isAdding}>
+                            {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Add {manageView.slice(0, -1)}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
-            {/* Bulk Section Initialization Dialog */}
-            <Dialog open={isBulkSectionsDialogOpen} onOpenChange={setIsBulkSectionsDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+             {/* Bulk Sections Dialog */}
+             <Dialog open={isBulkSectionsDialogOpen} onOpenChange={setIsBulkSectionsDialogOpen}>
+                <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Bulk Initialize Sections</DialogTitle>
+                        <DialogTitle>Synchronize Sections (A-J)</DialogTitle>
                         <DialogDescription>
-                            Select the last section to include. Clicking 'C' will initialize sections A, B, and C for all semesters in this department.
+                            This will create the specified number of sections across <strong>all semesters</strong> in this department. 
+                            It will automatically delete any extra sections beyond your selection.
                         </DialogDescription>
                     </DialogHeader>
-
-                    <div className="py-8">
-                        <div className="grid grid-cols-5 gap-3">
-                            {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'].map((letter, idx) => {
-                                const pos = idx + 1;
-                                const isSelected = pos <= selectedSectionLimit;
-                                return (
-                                    <button
-                                        key={letter}
-                                        onClick={() => setSelectedSectionLimit(pos)}
-                                        className={`h-12 w-full rounded-xl border-2 font-black transition-all flex items-center justify-center ${
-                                            isSelected 
-                                                ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100 scale-105" 
-                                                : "bg-white border-slate-100 text-slate-400 hover:border-indigo-200 hover:text-indigo-500"
-                                        }`}
-                                    >
-                                        {letter}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        {selectedSectionLimit > 0 && (
-                            <p className="mt-6 text-center text-xs font-bold text-indigo-600 uppercase tracking-widest animate-in fade-in slide-in-from-top-2">
-                                Initializing Sections: {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'].slice(0, selectedSectionLimit).join(', ')}
-                            </p>
-                        )}
+                    <div className="grid grid-cols-5 gap-3 py-6">
+                        {[1,2,3,4,5,6,7,8,9,10].map((num) => {
+                            const sectionLetter = String.fromCharCode(64 + num); // A, B, C...
+                            const isSelected = selectedSectionLimit === num;
+                            return (
+                                <button
+                                    key={num}
+                                    onClick={() => setSelectedSectionLimit(num)}
+                                    className={`h-12 rounded-lg font-bold border transition-all ${
+                                        isSelected 
+                                            ? "bg-primary border-primary text-primary-foreground shadow-sm" 
+                                            : "bg-card border-border text-muted-foreground hover:border-primary/50"
+                                    }`}
+                                >
+                                    To {sectionLetter}
+                                </button>
+                            );
+                        })}
                     </div>
-
-                    <DialogFooter>
-                        <Button 
-                            variant="outline" 
-                            onClick={() => setIsBulkSectionsDialogOpen(false)}
-                            disabled={isAdding}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            onClick={handleBulkInitializeSections}
-                            disabled={isAdding || selectedSectionLimit === 0}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        >
-                            {isAdding ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Initializing...
-                                </>
-                            ) : (
-                                `Initialize ${selectedSectionLimit} Sections`
-                            )}
+                    {selectedSectionLimit > 0 && (
+                        <div className="bg-primary/10 p-4 rounded-xl border border-primary/20 flex items-start gap-3">
+                            <AlertCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                            <div className="text-sm">
+                                <p className="font-semibold text-primary">Applying up to Section {String.fromCharCode(64 + selectedSectionLimit)}</p>
+                                <p className="text-primary/70 mt-1">
+                                    All semesters will be synced to have sections {
+                                        Array.from({length: selectedSectionLimit}, (_, i) => String.fromCharCode(65 + i)).join(', ')
+                                    }. Existing sections beyond this limit will be permanently deleted.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter className="mt-4">
+                        <Button variant="outline" onClick={() => setIsBulkSectionsDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleBulkInitializeSections} disabled={isAdding || selectedSectionLimit === 0}>
+                            {isAdding ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                            Synchronize Sections
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -894,4 +840,3 @@ const Academics: React.FC<AcademicsProps> = ({ college }) => {
 };
 
 export default Academics;
-

@@ -1,6 +1,6 @@
 import { trackApiCall } from '../observability/telemetry';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL || '/api';
 
 export class ApiError extends Error {
     status: number;
@@ -26,14 +26,34 @@ class RestApiUtil {
     }
 
     private buildUrl(endpoint: string, params?: Record<string, string>): string {
-        const url = new URL(`${this.baseURL}${endpoint}`);
-        if (params) {
-            Object.entries(params).forEach(([key, value]) => {
-                url.searchParams.append(key, value);
-            });
+        // Handle URL construction safely whether baseURL is relative or absolute
+        let urlString = `${this.baseURL}${endpoint}`;
+        
+        try {
+            // Try to add origin if it's a relative URL to use the URL API safely
+            const url = new URL(urlString, window.location.origin);
+            if (params) {
+                Object.entries(params).forEach(([key, value]) => {
+                    url.searchParams.append(key, value);
+                });
+            }
+            return url.toString();
+        } catch (e) {
+            // Fallback string manipulation if URL parsing fails
+            if (params) {
+                const searchParams = new URLSearchParams();
+                Object.entries(params).forEach(([key, value]) => {
+                    searchParams.append(key, value);
+                });
+                const queryString = searchParams.toString();
+                if (queryString) {
+                    urlString += (urlString.includes('?') ? '&' : '?') + queryString;
+                }
+            }
+            return urlString;
         }
-        return url.toString();
     }
+
 
     protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
         const { params, ...fetchOptions } = options;

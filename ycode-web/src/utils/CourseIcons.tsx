@@ -155,7 +155,7 @@ const ICON_MAPPINGS: IconRule[] = [
     // --- Domain Specific Fallbacks ---
     {
         keywords: ["data structure", "algorithm", "dsa"],
-        config: { Icon: Network, bg: "bg-purple-600", text: "text-white", gradient: "from-purple-600 to-indigo-600" }
+        config: { Icon: Network, bg: "bg-emerald-600", text: "text-white", gradient: "from-emerald-600 to-teal-600" }
     },
     {
         keywords: ["machine learning", "ai", "artificial"],

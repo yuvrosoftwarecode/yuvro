@@ -410,7 +410,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
       case 'easy': return 'bg-green-100 text-green-800';
       case 'medium': return 'bg-yellow-100 text-yellow-800';
       case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-white text-gray-800';
     }
   };
 
@@ -451,7 +451,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-full overflow-y-auto">
       {/* Header with Tabs */}
       <div className="space-y-4">
         <div>
@@ -462,20 +462,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-1 bg-amber-50 p-1 rounded-lg border border-amber-200">
-          <button
-            onClick={() => { setActiveTab('questions'); setEditingQuestion(null); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'questions'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
-              }`}
-          >
-            <FileQuestion className="w-4 h-4" />
-            Questions
-          </button>
+        <div className="flex flex-wrap gap-2 space-x-0 sm:space-x-1 sm:flex-nowrap bg-amber-50 p-1.5 rounded-lg border border-amber-200">
           <button
             onClick={openCreateForm}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'create'
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'create'
               ? 'bg-amber-600 text-white shadow-sm'
               : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
               }`}
@@ -483,155 +473,178 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
             <Plus className="w-4 h-4" />
             {editingQuestion ? 'Edit Question' : 'Create New Question'}
           </button>
+          <button
+            onClick={() => { setActiveTab('questions'); setEditingQuestion(null); }}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex-1 whitespace-nowrap ${activeTab === 'questions'
+              ? 'bg-amber-600 text-white shadow-sm'
+              : 'text-amber-700 hover:text-amber-800 hover:bg-amber-100'
+              }`}
+          >
+            <FileQuestion className="w-4 h-4" />
+            Questions
+          </button>
         </div>
       </div>
 
       {/* Questions Tab */}
       {activeTab === 'questions' && (
-        <>
-          {/* Search and Filters */}
-          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search questions (optional)..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-10"
-                />
-              </div>
-            </div>
-            <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Types</SelectItem>
-                {QUESTION_TYPES.map(type => (
-                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Difficulty</SelectItem>
-                {DIFFICULTY_LEVELS.map(level => (
-                  <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
-              <SelectTrigger className="w-40 bg-white border-slate-300">
-                <SelectValue placeholder="Level" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="subject">Subject Level</SelectItem>
-                <SelectItem value="unit">Unit Level</SelectItem>
-                <SelectItem value="subunit">Subunit Level</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Questions List */}
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+        <Card className="border-2 border-amber-200 bg-amber-50/30">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="border-b border-amber-200 pb-4">
+                <div className="flex items-center gap-3">
+                  <FileQuestion className="w-5 h-5 text-amber-600" />
+                  <h4 className="text-lg font-semibold text-slate-900">Question Bank</h4>
                 </div>
-              ))}
-            </div>
-          ) : filteredQuestions.length === 0 ? (
-            <div className="text-center py-12">
-              <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
-              <p className="text-gray-500 mb-4">
-                No questions match your search criteria. Try different keywords or create a new question.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredQuestions.map(question => (
-                <Card key={question.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            {getQuestionIcon(question.type)}
-                            <span className="font-semibold text-slate-900">{question.title}</span>
-                          </div>
-                          <Badge className={getDifficultyColor(question.difficulty)}>
-                            {question.difficulty}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {getQuestionTypeLabel(question.type)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.level} level
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {question.marks} marks
-                          </Badge>
-                        </div>
-                        <p className="text-slate-600 text-sm mb-2 line-clamp-2">
-                          {question.content}
-                        </p>
-                        {question.categories.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {question.categories.map(category => (
-                              <Badge key={category} variant="secondary" className="text-xs">
-                                {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        {question.type === 'coding' && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setTestCasesTarget(question)}
-                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            title="Edit Test Cases"
-                          >
-                            <FlaskConical className="w-4 h-4" />
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditForm(question)}
-                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setConfirmDelete(question.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+              </div>
+
+              {/* Search and Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search questions (optional)..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all w-full"
+                    />
+                  </div>
+                </div>
+                <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Types</SelectItem>
+                    {QUESTION_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterDifficulty} onValueChange={(value) => setFilterDifficulty(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Difficulty" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Difficulty</SelectItem>
+                    {DIFFICULTY_LEVELS.map(level => (
+                      <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">{level.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterLevel} onValueChange={(value) => setFilterLevel(value)}>
+                  <SelectTrigger className="w-full bg-white border border-slate-300 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
+                    <SelectValue placeholder="Level" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                    <SelectItem value="all" className="rounded-md focus:bg-amber-50 focus:text-amber-900">All Levels</SelectItem>
+                    <SelectItem value="subject" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subject Level</SelectItem>
+                    <SelectItem value="unit" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Unit Level</SelectItem>
+                    <SelectItem value="subunit" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subunit Level</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Questions List */}
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-white rounded w-1/2"></div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  ))}
+                </div>
+              ) : filteredQuestions.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileQuestion className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No questions found</h3>
+                  <p className="text-gray-500 mb-4">
+                    No questions match your search criteria. Try different keywords or create a new question.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredQuestions.map(question => (
+                    <Card key={question.id} className="hover:border-amber-300 transition-colors border-slate-200 shadow-sm">
+                      <CardContent className="p-5">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                          <div className="flex-1 space-y-3 w-full">
+                            <div className="flex items-center gap-2">
+                              {getQuestionIcon(question.type)}
+                              <h5 className="font-semibold text-slate-900 text-base">{question.title}</h5>
+                              <Badge className={getDifficultyColor(question.difficulty)}>
+                                {question.difficulty}
+                              </Badge>
+                            </div>
+                            <p className="text-slate-600 text-sm line-clamp-2">
+                              {question.content}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 border-blue-100 font-medium">
+                                {getQuestionTypeLabel(question.type)}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-white text-slate-700 hover:bg-slate-200 hover:text-slate-800 border-slate-200">
+                                {question.level} level
+                              </Badge>
+                              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 border-emerald-100">
+                                {question.marks} marks
+                              </Badge>
+                              {question.categories.length > 0 && (
+                                <>
+                                  <div className="w-1 h-1 rounded-full bg-slate-300 mx-1"></div>
+                                  {question.categories.map(category => (
+                                    <Badge key={category} variant="outline" className="text-slate-500 border-slate-200">
+                                      {QUESTION_CATEGORIES.find(c => c.value === category)?.label || category}
+                                    </Badge>
+                                  ))}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex sm:flex-col items-center gap-2 self-end sm:self-start mt-2 sm:mt-0">
+                            {question.type === 'coding' && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setTestCasesTarget(question)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                title="Manage Test Cases"
+                              >
+                                <FlaskConical className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openEditForm(question)}
+                              className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setConfirmDelete(question.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Create New Question Tab */}
+      {/* Create / Edit Question Tab */}
       {activeTab === 'create' && (
         <Card className="border-2 border-amber-200 bg-amber-50/30">
           <CardContent className="p-6">
@@ -653,8 +666,8 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 </div>
               </div>
 
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Basic Information Grid: Row 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Question Type</Label>
                   <Select
@@ -664,38 +677,38 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       type: value as any
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {QUESTION_TYPES.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
+                        <SelectItem key={type.value} value={type.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {type.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Level</Label>
                   <Select
                     value={formData.level}
                     onValueChange={(value) => handleLevelChange(value as any)}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
-                      <SelectItem value="subject">Subject Level</SelectItem>
-                      <SelectItem value="unit">Unit Level</SelectItem>
-                      <SelectItem value="subunit">Subunit Level</SelectItem>
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
+                      <SelectItem value="subject" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subject Level</SelectItem>
+                      <SelectItem value="unit" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Unit Level</SelectItem>
+                      <SelectItem value="subunit" className="rounded-md focus:bg-amber-50 focus:text-amber-900">Subunit Level</SelectItem>
                     </SelectContent>
                   </Select>
 
-
                   {/* Unit Selection - Show if level is unit/subunit and no unit pre-selected */}
                   {(formData.level === 'unit' || formData.level === 'subunit') && !selectedUnit && (
-                    <div className="mt-3">
+                    <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
                       <Label className="text-sm font-medium text-slate-700">Select Unit</Label>
                       <Select
                         value={formData.unit}
@@ -707,12 +720,12 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                           }));
                         }}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select unit" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {units.map((unit: any) => (
-                            <SelectItem key={unit.id} value={unit.id}>
+                            <SelectItem key={unit.id} value={unit.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                               {unit.name}
                             </SelectItem>
                           ))}
@@ -723,24 +736,22 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
                   {/* Subunit Selection - Show if level is subunit and no subunit pre-selected */}
                   {formData.level === 'subunit' && !selectedSubUnit && (
-                    <div className="mt-3">
+                    <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
                       <Label className="text-sm font-medium text-slate-700">Select Subunit</Label>
                       <Select
                         disabled={!formData.unit && !selectedUnit}
                         value={formData.sub_unit}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, sub_unit: value }))}
                       >
-                        <SelectTrigger className="bg-white border-slate-300 mt-1">
+                        <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                           <SelectValue placeholder="Select subunit" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                           {(() => {
                             const activeUnitId = selectedUnit?.id || formData.unit;
                             const activeUnit = units.find((t: any) => t.id === activeUnitId);
-                            // Assuming subUnits might be provided in the unit object as 'subUnits' or similar, 
-                            // but usually they are fetched separately. If not available, we show a message.
                             return (activeUnit as any)?.subUnits?.map((sub: any) => (
-                              <SelectItem key={sub.id} value={sub.id}>
+                              <SelectItem key={sub.id} value={sub.id} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                                 {sub.name}
                               </SelectItem>
                             )) || <SelectItem value="none" disabled>Hierarchy depth exceeded</SelectItem>;
@@ -750,6 +761,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     </div>
                   )}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Difficulty</Label>
                   <Select
@@ -759,18 +771,19 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       difficulty: value as any
                     }))}
                   >
-                    <SelectTrigger className="bg-white border-slate-300">
+                    <SelectTrigger className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all">
                       <SelectValue placeholder="Difficulty" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-[9999]">
+                    <SelectContent className="bg-white border border-slate-200 shadow-xl rounded-lg z-[9999]">
                       {DIFFICULTY_LEVELS.map(level => (
-                        <SelectItem key={level.value} value={level.value}>
+                        <SelectItem key={level.value} value={level.value} className="rounded-md focus:bg-amber-50 focus:text-amber-900">
                           {level.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-slate-700">Marks</Label>
                   <Input
@@ -779,7 +792,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                     max="100"
                     value={formData.marks}
                     onChange={(e) => setFormData(prev => ({ ...prev, marks: parseInt(e.target.value) || 1 }))}
-                    className="bg-white border-slate-300 h-10"
+                    className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all"
                   />
                 </div>
                 <div>
@@ -795,17 +808,22 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                 </div>
               </div>
 
-              {/* Categories */}
+              {/* Row 2: Categories */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium text-slate-700">Categories</Label>
-                <div className="flex flex-wrap gap-3 p-4 bg-white rounded-lg border border-slate-200">
-                  {QUESTION_CATEGORIES.map(category => (
-                    <div key={category.value} className="flex items-center space-x-2 p-2 px-3 bg-slate-50 rounded-md border border-slate-200 hover:border-amber-300 transition-colors">
-                      <Checkbox
-                        id={`category-${category.value}`}
-                        checked={formData.categories.includes(category.value)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
+                <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg border border-slate-200">
+                  {QUESTION_CATEGORIES.map(category => {
+                    const isSelected = formData.categories.includes(category.value);
+                    return (
+                      <div 
+                        key={category.value} 
+                        className={`flex items-center space-x-2 p-2 px-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                          isSelected 
+                            ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-300/30' 
+                            : 'bg-white border-slate-200 hover:border-amber-200'
+                        }`}
+                        onClick={() => {
+                          if (!isSelected) {
                             setFormData(prev => ({ ...prev, categories: [...prev.categories, category.value] }));
                           } else {
                             if (category.value === 'learn' && formData.level === 'subunit') {
@@ -815,13 +833,22 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                             setFormData(prev => ({ ...prev, categories: prev.categories.filter(c => c !== category.value) }));
                           }
                         }}
-                        className="border-slate-400"
-                      />
-                      <Label htmlFor={`category-${category.value}`} className="text-xs font-medium text-slate-700 cursor-pointer leading-tight whitespace-nowrap">
-                        {category.label}
-                      </Label>
-                    </div>
-                  ))}
+                      >
+                        <Checkbox
+                          id={`category-${category.value}`}
+                          checked={isSelected}
+                          onCheckedChange={() => {}} // Controlled via parent div onClick
+                          className={`border-slate-400 ${isSelected ? 'data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600' : ''}`}
+                        />
+                        <Label 
+                          htmlFor={`category-${category.value}`} 
+                          className="text-sm font-medium text-slate-700 cursor-pointer leading-none"
+                        >
+                          {category.label}
+                        </Label>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -831,7 +858,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter a clear title"
-                  className="bg-white border-slate-300 h-10"
+                  className="bg-white border-slate-300 mt-1.5 h-10 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all"
                 />
               </div>
 
@@ -842,7 +869,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                   onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                   placeholder="Enter the detailed question text..."
                   rows={4}
-                  className="bg-white border-slate-300"
+                  className="bg-white border-slate-300 mt-1.5 rounded-lg hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-amber-100 focus-visible:border-amber-400 transition-all"
                 />
               </div>
 
@@ -856,7 +883,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                       {formData.type === 'mcq_single' ? 'Select one correct answer' : 'Select multiple correct answers'}
                     </div>
                   </div>
-                  <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="space-y-3 p-4 bg-white rounded-xl border border-slate-200">
                     {formData.mcq_options?.map((option, index) => (
                       <div
                         key={index}
@@ -941,7 +968,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                               onChange={(e) => updateTestCase(index, 'input', e.target.value)}
                               placeholder="Input data"
                               rows={2}
-                              className="text-sm bg-slate-50/50"
+                              className="text-sm bg-white"
                             />
                           </div>
                           <div className="space-y-1">
@@ -951,7 +978,7 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
                               onChange={(e) => updateTestCase(index, 'expected_output', e.target.value)}
                               placeholder="Expected output"
                               rows={2}
-                              className="text-sm bg-slate-50/50"
+                              className="text-sm bg-white"
                             />
                           </div>
                         </div>

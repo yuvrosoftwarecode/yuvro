@@ -52,6 +52,7 @@ export interface Subject {
   progress_percentage?: number;
   total_score?: number;
   ai_help_used?: number;
+  category?: string;
 }
 
 export interface CollegeSubject {
@@ -531,6 +532,7 @@ const subjectService = {
   getAttendanceSessions,
   getAssignmentDetails,
   fetchFacultyStats,
+  getFacultyAssignments,
 };
 
 export default subjectService;

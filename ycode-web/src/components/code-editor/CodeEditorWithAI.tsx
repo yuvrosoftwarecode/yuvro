@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 're
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download, PanelLeftClose } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
@@ -71,7 +71,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
   // Custom drag-based resizing (like StudentVideos)
-  const [problemPanelWidth, setProblemPanelWidth] = useState(35); // % width for problem description
+  const [problemPanelWidth, setProblemPanelWidth] = useState(27); // % width for problem description
   const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30); // % width for AI chat
   const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -135,13 +135,13 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
       if (isSidebarCollapsed) {
         if (relativeX > 40) {
           setIsSidebarCollapsed(false);
-          setProblemPanelWidth(Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), 60));
+          setProblemPanelWidth(Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), 50));
         }
       } else {
         if (newWidth < COLLAPSE_THRESHOLD) {
           setIsSidebarCollapsed(true);
           setDragMode(null);
-        } else if (newWidth <= 60) {
+        } else if (newWidth <= 50) {
           setProblemPanelWidth(newWidth);
         }
       }
@@ -149,7 +149,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
       // AI chat resize - calculate from right edge
       const rightEdgeX = containerWidth - relativeX;
       const newWidth = (rightEdgeX / containerWidth) * 100;
-      if (newWidth >= 20 && newWidth <= 50) {
+      if (newWidth >= 15 && newWidth <= 40) {
         setAiChatPanelWidth(newWidth);
       }
     }
@@ -181,9 +181,29 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   }, [isEditorFullscreen, showAiBuddy]);
 
   // Handle fullscreen changes from CodeEditor
-  const handleFullscreenChange = (isFullscreen: boolean) => {
+  const handleFullscreenChange = async (isFullscreen: boolean) => {
     setIsEditorFullscreen(isFullscreen);
+    try {
+      if (isFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+    } catch (e) {
+      // Fullscreen API may be blocked by browser policy
+    }
   };
+
+  // Sync state if user presses Escape to exit browser fullscreen
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement && isEditorFullscreen) {
+        setIsEditorFullscreen(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, [isEditorFullscreen]);
 
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
@@ -256,9 +276,14 @@ ${codeEditorRef.current?.getCode() || ''}
       setRevealedSolution(true);
       setShowSolutionDialog(false);
       toast.success('Solution revealed');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to reveal solution:', err);
-      toast.error('Failed to reveal solution');
+      const message = err?.message || '';
+      if (message.includes('No predefined solutions') || message.includes('404')) {
+        toast.info('Solution not available yet for this problem');
+      } else {
+        toast.error('Failed to reveal solution');
+      }
       setShowSolutionDialog(false);
     }
   };
@@ -563,11 +588,11 @@ ${codeEditorRef.current?.getCode() || ''}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsSidebarCollapsed(false)}
-                className="w-7 h-7 p-0 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-all mb-1"
-                title="Expand"
+                onClick={onBack}
+                className="w-7 h-7 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all mb-1"
+                title="Back to problems"
               >
-                <ChevronLeft className="h-4 w-4 rotate-180" />
+                <ChevronLeft className="h-4 w-4" />
               </Button>
               {[
                 { key: 'question', label: 'Description', icon: <BookOpen className="w-3 h-3" /> },
@@ -576,7 +601,7 @@ ${codeEditorRef.current?.getCode() || ''}
               ].map((t) => (
                 <button
                   key={t.key}
-                  onClick={() => { setLeftTab(t.key as any); setIsSidebarCollapsed(false); }}
+                  onClick={() => { setLeftTab(t.key as any); setProblemPanelWidth(30); setIsSidebarCollapsed(false); }}
                   className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
                     ${leftTab === t.key ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
                   title={t.label}
@@ -608,7 +633,7 @@ ${codeEditorRef.current?.getCode() || ''}
                   </Button>
                   {[
                     { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                    ...(problem.hints && problem.hints.length > 0 ? [{ key: 'hints', label: `Hints (${problem.hints.length})`, icon: <Lightbulb className="w-3.5 h-3.5" /> }] : []),
+                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
                     { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
                   ].map((t) => (
                     <button
@@ -623,6 +648,15 @@ ${codeEditorRef.current?.getCode() || ''}
                       {t.label}
                     </button>
                   ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                    title="Collapse"
+                  >
+                    <PanelLeftClose className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
 
                 <div className="flex-1 overflow-hidden p-0 flex">
@@ -716,58 +750,105 @@ ${codeEditorRef.current?.getCode() || ''}
       {/* 3) Fullscreen editor mode */}
       {isEditorFullscreen && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col overflow-hidden">
-          {/* Fullscreen Header - Elevated AI Workspace Design */}
-          {!isEmbedded && (
-            <div className="bg-white border-b border-gray-200 px-8 h-20 flex items-center justify-between shadow-sm shrink-0 relative z-[50]">
-              <div className="flex items-center gap-6 min-w-0 flex-1">
-                <Button variant="ghost" size="sm" onClick={() => handleFullscreenChange(false)} className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100 transition-all text-gray-500 hover:text-gray-900">
-                  <ChevronLeft className="h-6 w-6" />
-                </Button>
-                <div className="h-8 w-px bg-gray-200 hidden md:block" />
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] leading-none mb-1.5 flex items-center gap-2">
-                    <BrainCircuit className="w-3.5 h-3.5" /> AI Workspace
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-gray-900 truncate leading-none">{problem.title}</h2>
-                    <Badge variant="outline" className={`px-2 py-0.5 rounded-[6px] text-[10px] font-black uppercase shrink-0 border-2 ${getDifficultyStyles(problem.difficulty)}`}>
-                      {problem.difficulty}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-8">
-                <div className="hidden lg:flex items-center gap-6 pr-6 border-r border-gray-200">
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                      <Target className="w-3.5 h-3.5 text-indigo-500" /> potential
-                    </div>
-                    <p className="text-sm font-bold text-gray-900 leading-none">{problem.score} Points</p>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                      <Layout className="w-3.5 h-3.5 text-blue-500" /> Environment
-                    </div>
-                    <p className="text-sm font-bold text-gray-900 leading-none capitalize">{language}</p>
-                  </div>
-                </div>
-
-                <Button
-                  variant="ghost"
-                  onClick={() => handleFullscreenChange(false)}
-                  className="h-10 px-5 gap-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-gray-100"
-                >
-                  <ChevronLeft className="w-4 h-4" /> Exit
-                </Button>
-              </div>
-            </div>
-          )}
-
           <div
             ref={containerRef}
-            className={`flex-1 flex overflow-hidden p-4 gap-4 bg-gray-50 ${dragMode ? 'select-none' : ''}`}
+            className={`flex-1 flex overflow-hidden p-1.5 gap-1.5 bg-gray-50 ${dragMode ? 'select-none' : ''}`}
           >
+            {/* Collapsed Left Panel Sidebar Strip */}
+            {showProblemDescription && isSidebarCollapsed && (
+              <div className="w-9 shrink-0 border border-gray-200 bg-white rounded-xl flex flex-col items-center pt-2 pb-4 gap-1 transition-all shadow-sm overflow-hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleFullscreenChange(false)}
+                  className="w-7 h-7 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all mb-1"
+                  title="Exit fullscreen"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                {[
+                  { key: 'question', label: 'Description', icon: <BookOpen className="w-3 h-3" /> },
+                  { key: 'hints', label: 'Hints', icon: <Lightbulb className="w-3 h-3" /> },
+                  { key: 'solution', label: 'Solution', icon: <Key className="w-3 h-3" /> },
+                ].map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => { setLeftTab(t.key as any); setProblemPanelWidth(30); setIsSidebarCollapsed(false); }}
+                    className={`w-full flex flex-col items-center gap-1 py-3 text-[8px] font-bold uppercase tracking-widest transition-all
+                      ${leftTab === t.key ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                    title={t.label}
+                  >
+                    {t.icon}
+                    <span className="[writing-mode:vertical-rl] rotate-180 leading-none">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Expanded Left Panel — Problem Description */}
+            {showProblemDescription && !isSidebarCollapsed && (
+              <div
+                className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
+                style={{ width: `calc(${problemPanelWidth}% - 4px)` }}
+              >
+                <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-xl overflow-hidden">
+                  <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleFullscreenChange(false)}
+                      className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-red-600 shrink-0"
+                      title="Exit fullscreen"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </Button>
+                    {[
+                      { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                      { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
+                      { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                    ].map((t) => (
+                      <button
+                        key={t.key}
+                        onClick={() => setLeftTab(t.key as any)}
+                        className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+                          ${leftTab === t.key
+                            ? 'border-indigo-600 text-indigo-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
+                      >
+                        {t.icon}
+                        {t.label}
+                      </button>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsSidebarCollapsed(true)}
+                      className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                      title="Collapse"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  <div className="flex-1 overflow-hidden p-0 flex">
+                    {renderLeftPanelContent()}
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Problem Resize Handle */}
+            {showProblemDescription && (
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  startProblemDrag();
+                }}
+                className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+              >
+                <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+              </div>
+            )}
+
             {/* Main Area (Editor + Output) */}
             <div className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>
               <div className="h-full flex flex-col overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-sm">

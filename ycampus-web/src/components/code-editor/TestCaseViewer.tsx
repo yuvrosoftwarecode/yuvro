@@ -40,7 +40,7 @@ const TestCaseViewer: React.FC<TestCaseViewerProps> = ({ testCases, result }) =>
             ? testResult.passed
               ? 'bg-green-50 border-green-200'
               : 'bg-red-50 border-red-200'
-            : 'bg-gray-50 border-gray-200'
+            : 'bg-white border-gray-200'
             }`}>
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-medium">Test Case {index + 1}</h4>
@@ -51,7 +51,7 @@ const TestCaseViewer: React.FC<TestCaseViewerProps> = ({ testCases, result }) =>
                   </span>
                 )}
                 {testCase.is_hidden && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                  <span className="px-2 py-1 bg-white text-gray-600 text-xs rounded-full">
                     🔒 Hidden
                   </span>
                 )}

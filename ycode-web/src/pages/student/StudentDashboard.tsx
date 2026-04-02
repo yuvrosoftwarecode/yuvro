@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '../../components/common/Navigation';
-import Footer from '@/components/common/Footer';
+import DashboardLayout from '@/components/common/DashboardLayout';
 
 import {
   BookOpen,
@@ -116,8 +115,7 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
+      <DashboardLayout hideHeader hideFooter>
         <div className="max-w-[1600px] mx-auto py-6 sm:px-6 lg:px-8">
           <div className="animate-pulse">
             <div className="bg-gray-300 rounded-lg h-32 mb-8"></div>
@@ -128,29 +126,27 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <Navigation />
-
-      <div className="max-w-[1600px] mx-auto px-8 py-6">
+    <DashboardLayout hideHeader hideFooter>
+      <div className="max-w-[1600px] mx-auto px-8 pt-[18px] pb-6">
         {/* Header */}
         <div className="mb-8">
           <div className="rounded-lg p-8 text-black">
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold mb-2">
-                  Welcome back, {user?.first_name || user?.username || 'Student'}! 👋
+                   Welcome back, {user?.first_name || user?.username || 'Student'}! 👋
                 </h1>
                 <p className="text-lg mb-4">
                   Continue your learning journey and track your progress.
-                </p>
+                 </p>
               </div>
               <div className="flex items-center space-x-6">
-                <div className="flex items-center space-x-2">
+                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                     <Flame className="w-5 h-5 text-orange-500 animate-pulse" fill="currentColor" strokeWidth={2} />
                   </div>
@@ -159,13 +155,13 @@ const Dashboard: React.FC = () => {
                     <p className="font-semibold">7 days</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                     <Star className="w-5 h-5 text-amber-500 animate-pulse" fill="currentColor" strokeWidth={2} />
                   </div>
                   <div>
                     <p className="text-sm">XP Points</p>
-                    <p className="font-semibold">2,450</p>
+                     <p className="font-semibold">2,450</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -462,8 +458,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      <Footer />
-    </div>
+    </DashboardLayout>
   );
 };
 

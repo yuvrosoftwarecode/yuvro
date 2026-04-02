@@ -18,10 +18,10 @@ function computePS() {
 }
 
 function getStatusBadge(score: number, thresholds: { high: number; mid: number; low: number }, labels: string[]) {
-  if (score >= thresholds.high) return { label: labels[0], cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
-  if (score >= thresholds.mid) return { label: labels[1], cls: 'bg-[#FEF3C7] text-[#B45309] border-amber-200/50' };
-  if (score >= thresholds.low) return { label: labels[2], cls: 'bg-red-50 text-red-700 border-red-100' };
-  return { label: labels[3], cls: 'bg-slate-100 text-slate-700 border-slate-200' };
+  if (score >= thresholds.high) return { label: labels[0], cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+  if (score >= thresholds.mid) return { label: labels[1], cls: 'bg-blue-100 text-blue-700 border-blue-200' };
+  if (score >= thresholds.low) return { label: labels[2], cls: 'bg-amber-100 text-amber-700 border-amber-200' };
+  return { label: labels[3], cls: 'bg-red-100 text-red-700 border-red-200' };
 }
 
 const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
@@ -51,8 +51,8 @@ const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-lg font-semibold text-foreground truncate">{report.studentName}</h2>
-                <Badge variant="outline" className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border-0 ${priStatus.cls}`}>
-                  {priStatus.label}
+                <Badge className={`text-[10px] border ${statusColor[report.status]}`} variant="outline">
+                  {report.status}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">

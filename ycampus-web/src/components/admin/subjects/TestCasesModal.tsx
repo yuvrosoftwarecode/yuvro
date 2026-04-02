@@ -56,7 +56,7 @@ const TestCaseRow: React.FC<{
           onChange={(e) => onChange(index, 'input', e.target.value)}
           placeholder="Enter input..."
           rows={2}
-          className="text-xs font-mono bg-slate-50 resize-none"
+          className="text-xs font-mono bg-white resize-none"
         />
       </div>
       <div className="space-y-1">
@@ -66,7 +66,7 @@ const TestCaseRow: React.FC<{
           onChange={(e) => onChange(index, 'expected_output', e.target.value)}
           placeholder="Expected output..."
           rows={2}
-          className="text-xs font-mono bg-slate-50 resize-none"
+          className="text-xs font-mono bg-white resize-none"
         />
       </div>
     </div>

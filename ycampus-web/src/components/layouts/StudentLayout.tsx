@@ -1,21 +1,25 @@
 import React from 'react';
-import RoleSidebar from '../common/RoleSidebar';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { StudentSidebar } from '@/components/student/StudentSidebar';
 
 interface StudentLayoutProps {
   children: React.ReactNode;
+  noPadding?: boolean;
+  hideSidebar?: boolean;
 }
 
-export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
+export function StudentLayout({ children, noPadding = false, hideSidebar = false }: StudentLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#FBFBFB] flex">
-      <RoleSidebar />
-      <main className="flex-1 min-w-0 overflow-hidden flex flex-col pt-16 md:pt-0">
-        <div className="flex-1 overflow-y-auto w-full">
-          <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
+    <SidebarProvider>
+      <div className="min-h-screen h-screen flex w-full bg-background overflow-x-hidden">
+        {!hideSidebar && <StudentSidebar />}
+        
+<div className="flex-1 flex flex-col min-w-0 h-full">
+          <main className={`flex-1 flex flex-col min-h-0 h-full overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-6'}`}>            
             {children}
-          </div>
+          </main>
         </div>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
-};
+}

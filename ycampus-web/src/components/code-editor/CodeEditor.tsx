@@ -165,7 +165,6 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   onCodeChangeRef.current = onCodeChange;
 
   // Track if code change was from user input vs internal updates
-  const isUserInputRef = useRef(false);
 
   // Expose methods to parent
   useImperativeHandle(ref, () => ({
@@ -468,12 +467,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
         )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <ResizablePanelGroup direction="vertical" className="flex-1 overflow-hidden">
+          <ResizablePanelGroup 
+            key={showOutput ? 'split' : 'single'}
+            direction="vertical" 
+            className="flex-1 h-full overflow-hidden"
+          >
             {/* Editor Panel */}
             <ResizablePanel
-              id="code-editor-panel"
+              id="code-editor-main-panel"
               order={1}
-              defaultSize={showOutput ? 50 : 100}
+              defaultSize={showOutput ? 70 : 100}
               minSize={30}
             >
               <div className="h-full bg-white">
@@ -498,7 +501,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
 
             {/* Divider */}
             {showOutput && (
-              <ResizableHandle className="h-2 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+              <ResizableHandle className="h-2 bg-white hover:bg-gray-200 flex items-center justify-center transition-colors">
                 <div className="w-12 h-1 bg-gray-300 rounded-full" />
               </ResizableHandle>
             )}
@@ -506,10 +509,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
             {/* Output Panel */}
             {showOutput && (
               <ResizablePanel
-                id="output-panel"
+                id="code-editor-output-panel"
                 order={2}
-                defaultSize={50}
-                minSize={20}
+                defaultSize={30}
+                minSize={15}
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden border-t">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
@@ -520,7 +523,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         </TabsTrigger>
                         {showTestCases && (
                           <TabsTrigger value="testcases" className="h-8 px-4 text-sm flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-gray-200 font-semibold text-gray-700 data-[state=active]:text-gray-900 rounded-lg transition-all">
-                            <FlaskConical className="h-4 w-4 text-blue-600" /> Test Cases
+                            <FlaskConical className="h-4 w-4 text-slate-900" /> Test Cases
                           </TabsTrigger>
                         )}
                       </div>
@@ -567,10 +570,10 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {executionMetrics.execution_time !== undefined && (
-                                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-xl border border-blue-200 shadow-md hover:shadow-lg transition-shadow">
-                                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Execution Time</div>
-                                  <div className="text-2xl font-bold text-blue-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
-                                  <div className="text-xs text-blue-600 mt-1">milliseconds</div>
+                                <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 rounded-xl border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+                                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">Execution Time</div>
+                                  <div className="text-2xl font-bold text-slate-900">{typeof executionMetrics.execution_time === 'number' ? executionMetrics.execution_time.toFixed(2) : executionMetrics.execution_time}</div>
+                                  <div className="text-xs text-slate-600 mt-1">milliseconds</div>
                                 </div>
                               )}
                               {executionMetrics.memory_usage !== undefined && (
@@ -661,7 +664,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                         {testResults && testResults.results && Array.isArray(testResults.results) && (
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                              <CheckCircle2 className="h-5 w-5 text-slate-900" />
                               Test Results
                               <span className={`ml-2 px-3 py-1 rounded-full text-sm font-bold ${testResults.passed === testResults.total
                                 ? 'bg-green-100 text-green-800'
@@ -678,7 +681,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                 return (
                                   <div key={idx} className={`border-2 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow ${isHidden
                                     ? result.passed
-                                      ? 'border-blue-200 bg-gradient-to-br from-blue-50/50 to-blue-100/30'
+                                      ? 'border-slate-200 bg-gradient-to-br from-slate-50/50 to-slate-100/30'
                                       : 'border-purple-200 bg-gradient-to-br from-purple-50/50 to-purple-100/30'
                                     : result.passed
                                       ? 'border-green-200 bg-gradient-to-br from-green-50/50 to-green-100/30'
@@ -686,7 +689,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                     }`}>
                                     <div className={`px-6 py-4 border-b-2 flex justify-between items-center ${isHidden
                                       ? result.passed
-                                        ? 'bg-blue-100/60 border-blue-200'
+                                        ? 'bg-white/60 border-slate-200'
                                         : 'bg-purple-100/60 border-purple-200'
                                       : result.passed
                                         ? 'bg-green-100/60 border-green-200'
@@ -716,8 +719,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           Input {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
                                         </div>
                                         <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
+                                          ? 'bg-white border-gray-300 text-gray-600'
+                                          : 'bg-white border-gray-200 text-gray-800'
                                           }`}>
                                           {result.input}
                                         </pre>
@@ -727,8 +730,8 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           Expected Output {isHidden && <span className="text-gray-400">(Partially Hidden)</span>}
                                         </div>
                                         <pre className={`text-sm p-4 border rounded-lg font-mono overflow-x-auto shadow-sm ${isHidden
-                                          ? 'bg-gray-100 border-gray-300 text-gray-600'
-                                          : 'bg-gray-50 border-gray-200 text-gray-800'
+                                          ? 'bg-white border-gray-300 text-gray-600'
+                                          : 'bg-white border-gray-200 text-gray-800'
                                           }`}>
                                           {result.expected_output}
                                         </pre>
@@ -749,7 +752,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                            className="text-xs bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
                                             onClick={() => {
                                               if (onToggleAiChat && !isAiChatOpen) {
                                                 onToggleAiChat();
@@ -762,7 +765,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                               }));
                                             }}
                                           >
-                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                            <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                           </Button>
                                         </div>
                                       )}
@@ -776,7 +779,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                             <Button
                                               size="sm"
                                               variant="outline"
-                                              className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200"
+                                              className="text-xs bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
                                               onClick={() => {
                                                 if (onToggleAiChat && !isAiChatOpen) {
                                                   onToggleAiChat();
@@ -789,7 +792,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                                                 }));
                                               }}
                                             >
-                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Buddy
+                                              <Sparkles className="h-3 w-3 mr-1.5" /> Ask AI Mentor
                                             </Button>
                                           </div>
                                         </div>

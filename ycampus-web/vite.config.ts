@@ -1,6 +1,8 @@
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import path from "path"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { componentTagger } from "lovable-tagger";
+
 
 export default defineConfig({
   plugins: [react()],
@@ -12,8 +14,18 @@ export default defineConfig({
   server: {
     port: 3000,
     host: "0.0.0.0",
+    proxy: {
+      '/media': {
+        target: 'http://ycampus-backend:8000',
+        changeOrigin: true,
+      },
+      '/api': {
+        target: 'http://ycampus-backend:8000',
+        changeOrigin: true,
+      }
+    },
     hmr: {
-      clientPort: 3002,
+      clientPort: 3001,
       overlay: true
     },
     watch: {
@@ -21,3 +33,4 @@ export default defineConfig({
     },
   },
 })
+

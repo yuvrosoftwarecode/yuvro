@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import RoleSidebar from '@/components/common/RoleSidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -44,12 +44,14 @@ const PrincipalDashboard = () => {
   if (isLoading || !data) {
     return (
       <SidebarProvider>
-        <RoleSidebar />
-        <SidebarInset>
-          <div className="flex-1 p-6 bg-background flex items-center justify-center">
-            <div className="text-muted-foreground">Loading dashboard...</div>
+        <div className="h-screen flex w-full overflow-hidden">
+          <PrincipalSidebar />
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <main className="flex-1 p-6 bg-background flex items-center justify-center">
+              <div className="text-muted-foreground">Loading dashboard...</div>
+            </main>
           </div>
-        </SidebarInset>
+        </div>
       </SidebarProvider>
     );
   }
@@ -80,13 +82,15 @@ const PrincipalDashboard = () => {
 
   return (
     <SidebarProvider>
-      <RoleSidebar />
-      <SidebarInset className="p-4 md:p-6 bg-background">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="h-screen flex w-full overflow-hidden">
+        <PrincipalSidebar />
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <main className="flex-1 p-4 md:p-6 bg-background overflow-y-auto">
+            <div className="max-w-[1400px] mx-auto space-y-6">
+              <h1 className="text-2xl font-bold">Dashboard</h1>
 
-          {/* GLOBAL FILTERS */}
-          <Card className="border border-gray-200 shadow-none">
+              {/* GLOBAL FILTERS */}
+              <Card>
                 <CardContent className="pt-4 pb-3">
                   <div className="flex flex-wrap gap-3">
                     <Select value={filters.academicYear} onValueChange={v => setFilters(f => ({ ...f, academicYear: v }))}>
@@ -143,10 +147,10 @@ const PrincipalDashboard = () => {
                     { label: 'Attendance', value: `${summary.overallAttendance}%`, icon: ClipboardCheck, iconColor: summary.overallAttendance >= 80 ? 'text-emerald-600' : 'text-amber-600', valueColor: summary.overallAttendance >= 80 ? GREEN : SAFFRON },
                     { label: 'Avg PRI', value: `${summary.avgPRI}%`, icon: Target, iconColor: summary.avgPRI >= 60 ? 'text-emerald-600' : 'text-amber-600', valueColor: summary.avgPRI >= 60 ? GREEN : SAFFRON },
                   ].map((kpi, i) => (
-                    <Card key={i} className="border border-gray-200 shadow-none">
+                    <Card key={i} className="border">
                       <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                         <kpi.icon className={`h-5 w-5 ${kpi.iconColor}`} />
-                        <span className="text-xl font-semibold" style={kpi.valueColor ? { color: kpi.valueColor } : {}}>{kpi.value}</span>
+                        <span className="text-xl font-bold" style={kpi.valueColor ? { color: kpi.valueColor } : {}}>{kpi.value}</span>
                         <span className="text-[11px] text-muted-foreground">{kpi.label}</span>
                       </CardContent>
                     </Card>
@@ -161,7 +165,7 @@ const PrincipalDashboard = () => {
                     { label: 'Active Students', value: `${summary.activeStudents}%`, icon: Users, iconColor: 'text-green-600' },
                     { label: 'Interview Ready', value: `${summary.interviewReady}%`, icon: GraduationCap, iconColor: 'text-rose-600' },
                   ].map((kpi, i) => (
-                    <Card key={i} className="border border-gray-200 shadow-none">
+                    <Card key={i} className="border">
                       <CardContent className="p-3 flex flex-col items-center text-center gap-1">
                         <kpi.icon className={`h-4 w-4 ${kpi.iconColor}`} />
                         <span className="text-lg font-semibold text-foreground">{kpi.value}</span>
@@ -173,9 +177,9 @@ const PrincipalDashboard = () => {
               </div>
 
               {/* 2. DEPARTMENT PERFORMANCE RANKING */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <Building2 className="h-4 w-4" /> Department Performance Ranking
                   </CardTitle>
                 </CardHeader>
@@ -196,8 +200,8 @@ const PrincipalDashboard = () => {
                     <TableBody>
                       {departmentRanking.map((d, i) => (
                         <TableRow key={d.name}>
-                          <TableCell className="text-xs font-semibold">{i + 1}</TableCell>
-                          <TableCell className="text-xs font-semibold">{d.name}</TableCell>
+                          <TableCell className="text-xs font-medium">{i + 1}</TableCell>
+                          <TableCell className="text-xs font-medium">{d.name}</TableCell>
                           <TableCell className="text-xs text-center">{d.totalStudents}</TableCell>
                           <TableCell className="text-xs text-center">
                             <span style={{ color: d.avgPI >= 75 ? GREEN : d.avgPI >= 65 ? SAFFRON : RED }}>{d.avgPI}%</span>
@@ -218,9 +222,9 @@ const PrincipalDashboard = () => {
               </Card>
 
               {/* 3. SEMESTER PERFORMANCE */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <BookOpen className="h-4 w-4" /> Semester Performance
                   </CardTitle>
                 </CardHeader>
@@ -239,7 +243,7 @@ const PrincipalDashboard = () => {
                     <TableBody>
                       {semesterPerformance.map(s => (
                         <TableRow key={s.semester}>
-                          <TableCell className="text-xs font-semibold">Sem {s.semester}</TableCell>
+                          <TableCell className="text-xs font-medium">Sem {s.semester}</TableCell>
                           <TableCell className="text-xs text-center">{s.totalStudents}</TableCell>
                           <TableCell className="text-xs text-center">
                             <span style={{ color: s.avgPI >= 75 ? GREEN : s.avgPI >= 65 ? SAFFRON : RED }}>{s.avgPI}%</span>
@@ -258,9 +262,9 @@ const PrincipalDashboard = () => {
 
               {/* 4. SECTION INTELLIGENCE */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <ChevronUp className="h-4 w-4" style={{ color: GREEN }} /> Top 5 Sections
                     </CardTitle>
                   </CardHeader>
@@ -278,7 +282,7 @@ const PrincipalDashboard = () => {
                       <TableBody>
                         {topSections.map(s => (
                           <TableRow key={s.name}>
-                            <TableCell className="text-xs font-semibold">{s.name}</TableCell>
+                            <TableCell className="text-xs font-medium">{s.name}</TableCell>
                             <TableCell className="text-[11px] text-muted-foreground">{s.department}</TableCell>
                             <TableCell className="text-xs text-center">{s.semester}</TableCell>
                             <TableCell className="text-xs text-center font-semibold" style={{ color: GREEN }}>{s.pi}%</TableCell>
@@ -289,9 +293,9 @@ const PrincipalDashboard = () => {
                     </Table>
                   </CardContent>
                 </Card>
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <ChevronDown className="h-4 w-4" style={{ color: RED }} /> Bottom 5 Sections
                     </CardTitle>
                   </CardHeader>
@@ -309,7 +313,7 @@ const PrincipalDashboard = () => {
                       <TableBody>
                         {bottomSections.map(s => (
                           <TableRow key={s.name}>
-                            <TableCell className="text-xs font-semibold">{s.name}</TableCell>
+                            <TableCell className="text-xs font-medium">{s.name}</TableCell>
                             <TableCell className="text-[11px] text-muted-foreground">{s.department}</TableCell>
                             <TableCell className="text-xs text-center">{s.semester}</TableCell>
                             <TableCell className="text-xs text-center font-semibold" style={{ color: RED }}>{s.pi}%</TableCell>
@@ -325,9 +329,9 @@ const PrincipalDashboard = () => {
               {/* 5. STUDENT DISTRIBUTION + 6. PRI INSIGHTS */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Student Distribution */}
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" /> Student Distribution
                     </CardTitle>
                   </CardHeader>
@@ -359,20 +363,20 @@ const PrincipalDashboard = () => {
                 </Card>
 
                 {/* PRI Insights */}
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <Target className="h-4 w-4" /> PRI Insights
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-3 mb-4">
                       <div className="text-center p-2 rounded-lg" style={{ backgroundColor: GREEN_LIGHT }}>
-                        <span className="text-lg font-semibold" style={{ color: GREEN }}>{priInsights.interviewReady}%</span>
+                        <span className="text-lg font-bold" style={{ color: GREEN }}>{priInsights.interviewReady}%</span>
                         <p className="text-[10px] text-muted-foreground">Interview Ready</p>
                       </div>
                       <div className="text-center p-2 rounded-lg" style={{ backgroundColor: SAFFRON_LIGHT }}>
-                        <span className="text-lg font-semibold" style={{ color: SAFFRON }}>{priInsights.almostReady}%</span>
+                        <span className="text-lg font-bold" style={{ color: SAFFRON }}>{priInsights.almostReady}%</span>
                         <p className="text-[10px] text-muted-foreground">Almost Ready</p>
                       </div>
                     </div>
@@ -396,9 +400,9 @@ const PrincipalDashboard = () => {
               </div>
 
               {/* 7. RISK & ALERT PANEL */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" style={{ color: RED }} /> Risk & Alert Panel
                   </CardTitle>
                 </CardHeader>
@@ -427,9 +431,9 @@ const PrincipalDashboard = () => {
               </Card>
 
               {/* 8. PERFORMANCE TRENDS */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" /> Performance Trends
                   </CardTitle>
                 </CardHeader>
@@ -454,9 +458,9 @@ const PrincipalDashboard = () => {
 
               {/* 9. SUBJECT / SKILL ANALYTICS */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <ChevronUp className="h-4 w-4" style={{ color: GREEN }} /> Strongest Subjects
                     </CardTitle>
                   </CardHeader>
@@ -477,9 +481,9 @@ const PrincipalDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <ChevronDown className="h-4 w-4" style={{ color: RED }} /> Weakest Subjects
                     </CardTitle>
                   </CardHeader>
@@ -503,9 +507,9 @@ const PrincipalDashboard = () => {
               </div>
 
               {/* 10. FACULTY IMPACT OVERVIEW */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <UserCheck className="h-4 w-4" /> Faculty Impact Overview
                   </CardTitle>
                 </CardHeader>
@@ -523,12 +527,12 @@ const PrincipalDashboard = () => {
                     <TableBody>
                       {facultyImpact.map(f => (
                         <TableRow key={f.name}>
-                          <TableCell className="text-xs font-semibold">{f.name}</TableCell>
+                          <TableCell className="text-xs font-medium">{f.name}</TableCell>
                           <TableCell className="text-[11px] text-muted-foreground">{f.sections.join(', ')}</TableCell>
                           <TableCell className="text-xs text-center">{f.avgStudentPI}%</TableCell>
                           <TableCell className="text-xs text-center">{f.subjectAvg}%</TableCell>
                           <TableCell className="text-xs text-center">
-                            <span className="font-semibold" style={{ color: f.fpiScore >= 70 ? GREEN : f.fpiScore >= 60 ? SAFFRON : RED }}>
+                            <span className="font-bold" style={{ color: f.fpiScore >= 70 ? GREEN : f.fpiScore >= 60 ? SAFFRON : RED }}>
                               {f.fpiScore}%
                             </span>
                           </TableCell>
@@ -541,9 +545,9 @@ const PrincipalDashboard = () => {
 
               {/* 11. ATTENDANCE OVERVIEW */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <ClipboardCheck className="h-4 w-4" /> Attendance by Department
                     </CardTitle>
                   </CardHeader>
@@ -561,9 +565,9 @@ const PrincipalDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border border-gray-200 shadow-none">
+                <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4" style={{ color: RED }} /> Low Attendance Alerts
                     </CardTitle>
                   </CardHeader>
@@ -584,9 +588,9 @@ const PrincipalDashboard = () => {
               </div>
 
               {/* 12. AI INSIGHTS & IMPROVEMENT SUGGESTIONS */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <Brain className="h-4 w-4" style={{ color: SAFFRON }} /> AI Insights & Improvement Suggestions
                   </CardTitle>
                 </CardHeader>
@@ -616,9 +620,9 @@ const PrincipalDashboard = () => {
               </Card>
 
               {/* 13. DOWNLOAD & REPORTS */}
-              <Card className="border border-gray-200 shadow-none">
+              <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                     <Download className="h-4 w-4" /> Download Reports
                   </CardTitle>
                 </CardHeader>
@@ -648,8 +652,10 @@ const PrincipalDashboard = () => {
                 </CardContent>
               </Card>
 
-          </div>
-      </SidebarInset>
+            </div>
+          </main>
+        </div>
+      </div>
     </SidebarProvider>
   );
 };

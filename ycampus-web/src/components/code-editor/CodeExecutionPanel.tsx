@@ -320,7 +320,7 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
                 className={`
                   px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center space-x-2
                   ${isExecuting
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    ? 'bg-white text-slate-400 cursor-not-allowed'
                     : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
                   }
                 `}
@@ -338,7 +338,7 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
                 className={`
                   px-4 py-1.5 rounded-md text-sm font-medium transition-colors
                   ${isExecuting
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    ? 'bg-white text-slate-400 cursor-not-allowed'
                     : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
                   }
                 `}
@@ -369,7 +369,7 @@ const CodeExecutionPanel: React.FC<CodeExecutionPanelProps> = ({
       </div>
 
       {/* Tab Navigation - cleaner */}
-      <div className="bg-slate-50 border-b px-4">
+      <div className="bg-white border-b px-4">
         <nav className="flex space-x-6">
           {['editor', 'output', ...(showTestCases ? ['tests'] : []), ...(allowCustomTestCases ? ['custom-tests'] : [])].map((tab) => (
             <button

@@ -6,7 +6,7 @@ from .models import (
     HODProfile,
     PrincipalProfile,
     CollegeAdminProfile,
-    TPOProfile,
+    PlacementOfficerProfile,
     College,
     Department,
     Batch,
@@ -147,12 +147,12 @@ class CollegeAdminProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
-class TPOProfileSerializer(serializers.ModelSerializer):
+class PlacementOfficerProfileSerializer(serializers.ModelSerializer):
     user_details = UserSerializer(source="user", read_only=True)
     college_name = serializers.CharField(source="college.name", read_only=True)
 
     class Meta:
-        model = TPOProfile
+        model = PlacementOfficerProfile
         fields = [
             "id",
             "user",

@@ -66,6 +66,21 @@ class Command(BaseCommand):
                 call_command("load_sample_assessment_tests", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
+            self.stdout.write("🏫 Loading college data...")
+            if options["clear"]:
+                call_command("load_colleges", "--clear", deploy_env=options["deploy_env"], verbosity=1)
+            else:
+                call_command("load_colleges", deploy_env=options["deploy_env"], verbosity=1)
+            self.stdout.write("")
+
+            self.stdout.write("🤖 Seeding AI agents...")
+            call_command("seed_agents", verbosity=1)
+            self.stdout.write("")
+
+            self.stdout.write("📚 Assigning subjects and tasks...")
+            call_command("assign_subjects_and_tasks", verbosity=1)
+            self.stdout.write("")
+
             self.stdout.write(
                 self.style.SUCCESS(
                     "🎉 Local testing environment setup completed successfully!"
@@ -75,6 +90,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("✓ Sample courses loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample companies and jobs loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample assessment tests loaded"))
+            self.stdout.write(self.style.SUCCESS("✓ College data loaded"))
+            self.stdout.write(self.style.SUCCESS("✓ AI agents seeded"))
             self.stdout.write("")
             self.stdout.write("🚀 You can now start testing the application!")
 

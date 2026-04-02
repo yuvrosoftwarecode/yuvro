@@ -1,225 +1,117 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, DollarSign, Share2, BookmarkIcon } from 'lucide-react';
-import { Job } from '@/services/jobService';
-import BookmarkButton from './BookmarkButton';
-import ShareJobModal from './ShareJobModal';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MapPin, IndianRupee, Calendar, Building2, Clock, CheckCircle2 } from 'lucide-react';
+import { format } from 'date-fns';
+import type { StudentJob, StudentJobApplication } from '@/pages/student/Jobs';
 
 interface JobCardProps {
-  job: Job;
-  isBookmarked: boolean;
-  isApplied: boolean;
-  onBookmark: (jobId: string) => void;
-  onApply: (job: Job) => void;
-  showBookmarkDate?: boolean;
-  bookmarkDate?: string;
-  bookmarkLoading?: boolean;
+  job: StudentJob;
+  variant: 'active' | 'applied' | 'previous';
+  deadlineApproaching?: boolean;
+  application?: StudentJobApplication;
+  onViewDetails: () => void;
+  onApply?: () => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ 
-  job, 
-  isBookmarked, 
-  isApplied, 
-  onBookmark, 
-  onApply, 
-  showBookmarkDate, 
-  bookmarkDate,
-  bookmarkLoading = false
-}) => {
-  const navigate = useNavigate();
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  if (!job || !job.company) {
-    return null;
-  }
+const typeColors: Record<string, string> = {
+  Product: 'bg-blue-50 text-blue-700 border-blue-200',
+  Service: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  Startup: 'bg-amber-50 text-amber-700 border-amber-200',
+};
 
-  const getExperienceText = (job: Job) => {
-    if (job.experience_min_years === 0) return 'Fresher';
-    if (job.experience_max_years) {
-      return `${job.experience_min_years}-${job.experience_max_years} yrs`;
-    }
-    return `${job.experience_min_years}+ yrs`;
-  };
-
-  const getSalaryText = (job: Job) => {
-    if (!job.min_salary && !job.max_salary) return null;
-    const currency = job.currency === 'INR' ? '₹' : '$';
-    if (job.min_salary && job.max_salary) {
-      return `${currency}${job.min_salary}-${job.max_salary} LPA`;
-    }
-    if (job.min_salary) {
-      return `${currency}${job.min_salary}+ LPA`;
-    }
-    return `Up to ${currency}${job.max_salary} LPA`;
-  };
-
-  const getLocationText = (job: Job) => {
-    if (job.is_remote && job.locations.length > 0) {
-      return `${job.locations[0]} • Hybrid`;
-    }
-    if (job.is_remote) {
-      return 'Remote';
-    }
-    if (job.locations.length > 0) {
-      return `${job.locations[0]} • Onsite`;
-    }
-    return 'Location not specified';
-  };
-
-  const getPostedTime = (postedAt: string) => {
-    const now = new Date();
-    const posted = new Date(postedAt);
-    const diffTime = Math.abs(now.getTime() - posted.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week${Math.ceil(diffDays / 7) > 1 ? 's' : ''} ago`;
-    return `${Math.ceil(diffDays / 30)} month${Math.ceil(diffDays / 30) > 1 ? 's' : ''} ago`;
-  };
-
-  const getMatchPercentage = (job: Job) => {
-    const userSkills = ['React', 'TypeScript', 'JavaScript']; 
-    const matchingSkills = job.skills.filter(skill => 
-      userSkills.some(userSkill => 
-        userSkill.toLowerCase() === skill.toLowerCase()
-      )
-    );
-    const percentage = Math.min(Math.round((matchingSkills.length / Math.max(job.skills.length, 1)) * 100), 100);
-    return Math.max(percentage, 60); 
-  };
-
-  const handleShare = () => {
-    setShareModalOpen(true);
-  };
-
-  const handleTitleClick = () => {
-    navigate(`/student/jobs/${job.id}`);
+export function JobCard({ job, variant, deadlineApproaching, application, onViewDetails, onApply }: JobCardProps) {
+  const formatCTC = (amount: number) => {
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)} LPA`;
+    return `₹${amount.toLocaleString()}`;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-lg">
-              {job.company.name.charAt(0)}
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer border-border/60"
+      onClick={onViewDetails}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-foreground text-base">{job.role}</h3>
+              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${typeColors[job.companyType] || ''}`}>
+                {job.companyType}
+              </Badge>
+              {deadlineApproaching && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0 animate-pulse">
+                  <Clock className="h-3 w-3 mr-0.5" /> Deadline Soon
+                </Badge>
+              )}
+              {variant === 'previous' && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 text-muted-foreground">
+                  Expired
+                </Badge>
+              )}
             </div>
-            <div>
-              <h3 
-                className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
-                onClick={handleTitleClick}
-              >
-                {job.title}
-              </h3>
-              <p className="text-gray-600">{job.company.name}</p>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-            <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              {getLocationText(job)}
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-medium text-foreground/80">{job.companyName}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Briefcase className="h-4 w-4" />
-              {getExperienceText(job)}
-            </div>
-            {job.posted_at && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {getPostedTime(job.posted_at)}
-              </div>
-            )}
-            {showBookmarkDate && bookmarkDate && (
-              <div className="flex items-center gap-1 text-blue-600">
-                <BookmarkIcon className="h-4 w-4" />
-                Bookmarked {getPostedTime(bookmarkDate)}
-              </div>
-            )}
-          </div>
 
-          <div className="flex flex-wrap gap-2 mb-3">
-            {job.skills.slice(0, 3).map((skill, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-              >
-                {skill}
+            <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {job.location}
               </span>
-            ))}
-            {job.skills.length > 3 && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
-                +{job.skills.length - 3} more
+              <span className="flex items-center gap-1">
+                <IndianRupee className="h-3 w-3" /> {formatCTC(job.ctcTotal)}
               </span>
-            )}
-          </div>
-
-          {getSalaryText(job) && (
-            <div className="flex items-center gap-1 text-green-600 font-medium">
-              <DollarSign className="h-4 w-4" />
-              {getSalaryText(job)}
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {variant === 'applied' && application
+                  ? `Applied ${format(new Date(application.appliedDate), 'dd MMM yyyy')}`
+                  : `Deadline: ${format(new Date(job.deadline), 'dd MMM yyyy')}`
+                }
+              </span>
             </div>
-          )}
-        </div>
 
-        <div className="flex flex-col items-end gap-3">
-          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            {getMatchPercentage(job)}% Match
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {job.eligibleBranches.slice(0, 4).map(b => (
+                <Badge key={b} variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted/80">
+                  {b}
+                </Badge>
+              ))}
+              {job.eligibleBranches.length > 4 && (
+                <span className="text-[10px] text-muted-foreground">+{job.eligibleBranches.length - 4} more</span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <BookmarkButton
-              isBookmarked={isBookmarked}
-              isLoading={bookmarkLoading}
-              onClick={() => onBookmark(job.id)}
-            />
-            <button 
-              className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-              onClick={handleShare}
-              title="Share this job"
+
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            {variant === 'active' && onApply && (
+              <Button
+                size="sm"
+                className="text-xs"
+                onClick={(e) => { e.stopPropagation(); onApply(); }}
+              >
+                Apply
+              </Button>
+            )}
+            {variant === 'applied' && application && (
+              <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px]">
+                <CheckCircle2 className="h-3 w-3 mr-0.5" />
+                {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
+              onClick={(e) => { e.stopPropagation(); onViewDetails(); }}
             >
-              <Share2 className="h-4 w-4" />
-            </button>
+              View Details
+            </Button>
           </div>
         </div>
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-        <p className="text-sm text-gray-600 line-clamp-2 flex-1 mr-4">
-          {job.description.substring(0, 150)}...
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleTitleClick}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
-          >
-            View Details
-          </button>
-          {isApplied ? (
-            <button
-              disabled
-              className="bg-green-100 text-green-700 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
-            >
-              Applied
-            </button>
-          ) : (
-            <button
-              onClick={() => onApply(job)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Apply Now
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Share Modal */}
-      <ShareJobModal
-        isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        job={job}
-      />
-    </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default JobCard;
+}

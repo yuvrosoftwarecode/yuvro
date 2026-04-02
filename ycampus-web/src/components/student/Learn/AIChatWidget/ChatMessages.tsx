@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Bot, User, Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Loader2, Copy, Check, Terminal, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -19,11 +19,32 @@ interface ChatMessagesProps {
   welcomeMessage?: string;
   onInsertCode?: (code: string) => void;
   onFeedback?: (messageId: string, isPositive: boolean) => void;
+  activeStream?: { id: string; content: string } | null;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcomeMessage, onInsertCode, onFeedback }) => {
+const animatedIds = new Set<string>();
+
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, activeStream, welcomeMessage, onInsertCode, onFeedback }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
+
+  const staticTypingSentences = [
+    "Alright, give me a second to think...",
+"Let me look through this...",
+"Okay, I’m checking what fits best here...",
+"Hmm… analyzing this step by step...",
+"Let me connect a few things...",
+"I’m putting the pieces together...",
+"Checking if there’s a better way to explain this...",
+"Making this simple and clear for you...",
+"Almost there, just refining the answer...",
+"Okay, got it. Here’s what I think..."
+  ];
+
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderCursor, setPlaceholderCursor] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState('');
 
   const handleCopyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -31,130 +52,197 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
     setTimeout(() => setCopiedCodeId(null), 2000);
   };
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, activeStream]);
+
+  useEffect(() => {
+    messages.forEach((m, i) => {
+      if (!animatedIds.has(m.id)) {
+        animatedIds.add(m.id);
+        const delay = i === messages.length - 1 ? 30 : 0;
+        setTimeout(() => {
+          setVisibleIds(prev => new Set([...prev, m.id]));
+        }, delay);
+      }
+    });
+  }, [messages]);
+
+  const shouldShowPlaceholderTyping = isLoading && !activeStream;
+
+  useEffect(() => {
+    if (!shouldShowPlaceholderTyping) {
+      setPlaceholderIndex(0);
+      setPlaceholderCursor(0);
+      setPlaceholderText('');
+      return;
+    }
+
+    const sentence = staticTypingSentences[placeholderIndex];
+    if (!sentence) return;
+
+    const typingInterval = setInterval(() => {
+      setPlaceholderCursor(prev => {
+        const next = prev + 1;
+        if (next <= sentence.length) {
+          setPlaceholderText(sentence.slice(0, next));
+          return next;
+        }
+        clearInterval(typingInterval);
+        setTimeout(() => {
+          setPlaceholderIndex((idx) => Math.min(idx + 1, staticTypingSentences.length - 1));
+          setPlaceholderCursor(0);
+          setPlaceholderText('');
+        }, 400);
+        return prev;
+      });
+    }, 35);
+
+    return () => clearInterval(typingInterval);
+  }, [shouldShowPlaceholderTyping, placeholderIndex, staticTypingSentences]);
+
+  const isVisible = (id: string) => visibleIds.has(id);
+
+  const messagesToRender = messages.filter((m) => {
+    if (m.message_type === 'assistant' && !m.content && isLoading && !(activeStream && activeStream.id === m.id)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
-    <div ref={scrollRef} className="ai-chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-6 py-6 space-y-6 bg-slate-50/10 custom-scrollbar"
+      style={{ scrollBehavior: 'auto' }}
+    >
+      {/* Welcome state */}
       {messages.length === 0 && !isLoading && (
-        <div className="flex flex-col items-center justify-center min-h-full text-center p-8 text-slate-500 space-y-6">
-          <div className="w-24 h-24 bg-blue-50/50 rounded-full flex items-center justify-center mb-2 ring-8 ring-blue-50/30">
-            <div className="bg-white p-4 rounded-3xl shadow-sm border border-blue-50">
-              <Bot size={48} className="text-blue-600" />
-            </div>
+        <div className="flex flex-col items-center justify-center h-full gap-6 text-center select-none animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 rounded-3xl bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-200 rotate-6 hover:rotate-0 transition-transform duration-500">
+            <Sparkles size={32} className="text-white" />
           </div>
           <div className="space-y-2">
-            <p className="font-black text-slate-800 text-2xl tracking-tight">Hi, I'm your AI Buddy!</p>
-            <p className="text-sm font-bold text-slate-400 max-w-[280px] leading-relaxed">
-              {welcomeMessage || "I'm here to help you with your assessment review. Ask me anything!"}
+            <p className="text-lg font-black text-slate-800 tracking-tight">Neural Sync Ready</p>
+            <p className="text-xs font-bold text-slate-400 max-w-[240px] leading-relaxed uppercase tracking-widest px-4">
+              {welcomeMessage || 'Establishing connection to cognitive logic core.'}
             </p>
           </div>
         </div>
       )}
 
-      {messages.map((m) => {
+      {/* Messages */}
+      {messagesToRender.map((m) => {
         const isUser = m.message_type === 'user';
-        return (
-          <div key={m.id} className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${isUser ? 'bg-blue-600' : 'bg-white border border-gray-100'}`}>
-              {isUser ? <User size={14} className="text-white" /> : <Bot size={16} className="text-emerald-500" />}
-            </div>
+        const visible = isVisible(m.id);
+        const isStreaming = !!(activeStream && activeStream.id === m.id);
+        const displayContent = isStreaming ? `${activeStream!.content}|` : m.content;
 
-            <div className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-sm shadow-sm ${isUser
-              ? 'bg-blue-600 text-white rounded-tr-sm'
-              : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
-              }`}>
+        return (
+          <div
+            key={m.id}
+            className={`flex items-end gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'translateY(0) scale(1)' : `translateY(15px) scale(0.95)`,
+              transition: 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            {!isUser && (
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 mb-1 shadow-lg shadow-indigo-100 border border-indigo-500/20">
+                <Sparkles size={16} className="text-white" />
+              </div>
+            )}
+
+            <div className={`max-w-[85%] relative group ${
+              isUser
+                ? 'bg-slate-900 text-white px-5 py-3.5 rounded-[2rem] rounded-br-[0.5rem] shadow-xl'
+                : 'bg-white text-slate-800 px-6 py-5 rounded-[2.5rem] rounded-bl-[0.5rem] shadow-sm border border-slate-100'
+            }`}>
               {isUser ? (
-                <div className="whitespace-pre-wrap font-medium">{m.content}</div>
+                <p className="text-sm font-bold leading-relaxed whitespace-pre-wrap">{m.content}</p>
               ) : (
-                <div className="prose prose-sm prose-blue max-w-none dark:prose-invert leading-relaxed relative flex flex-col">
+                <div className="prose prose-sm prose-slate max-w-none [&_p]:leading-relaxed relative font-semibold">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
                       code({ node, inline, className, children, ...props }: any) {
                         const match = /language-(\w+)/.exec(className || '');
                         const codeString = String(children).replace(/\n$/, '');
-                        const codeId = Math.random().toString(36).substring(7); // simple unique ID for copy state
-                        
-                        // Don't render custom block if it's inline code
+                        const codeId = Math.random().toString(36).substring(7);
+
                         if (inline) {
                           return (
-                            <code className={className} {...props}>
+                            <code className="bg-slate-100 text-indigo-700 px-1.5 py-0.5 rounded-md text-[11px] font-black" {...props}>
                               {children}
                             </code>
                           );
                         }
-                        
+
+                        if (isStreaming) {
+                          return (
+                            <pre className="bg-slate-950 text-indigo-100 p-5 rounded-3xl overflow-x-auto my-4 font-mono text-[11px] border border-slate-800 shadow-2xl">
+                              <code>{codeString}</code>
+                            </pre>
+                          );
+                        }
+
                         return (
-                          <div className="relative group rounded-lg overflow-hidden my-3 border border-slate-700 w-[calc(100%+1.25rem)] -ml-5 sm:ml-0 sm:w-full">
-                            <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 border-b border-slate-700">
-                              <span className="text-xs font-mono text-slate-400 capitalize">{match?.[1] || 'Code'}</span>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="relative group rounded-[2rem] overflow-hidden my-6 border border-slate-800 shadow-2xl bg-slate-950">
+                            <div className="flex items-center justify-between px-6 py-3 bg-slate-900 border-b border-white/5">
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-rose-500"></div>
+                                <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">{match?.[1] || 'logic buffer'}</span>
+                              </div>
+                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => handleCopyCode(codeString, codeId)}
-                                  className="p-1.5 rounded bg-slate-700/50 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1.5"
-                                  title="Copy code"
+                                  className="h-8 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
                                 >
-                                  {copiedCodeId === codeId ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                                  {copiedCodeId === codeId ? <span className="text-[10px] font-medium text-emerald-400">Copied!</span> : <span className="text-[10px] font-medium hidden sm:inline-block">Copy</span>}
+                                  {copiedCodeId === codeId
+                                    ? <><Check size={10} className="text-emerald-400" /><span>Copied</span></>
+                                    : <><Copy size={10} /><span>Copy</span></>}
                                 </button>
                                 {onInsertCode && (
-                                  <>
-                                    <div className="w-px h-4 bg-slate-600 mx-0.5"></div>
-                                    <button
-                                      onClick={() => onInsertCode(codeString)}
-                                      className="p-1.5 rounded bg-blue-600/80 hover:bg-blue-600 text-white transition-colors flex items-center gap-1.5"
-                                      title="Insert code at cursor"
-                                    >
-                                      <Terminal size={14} />
-                                      <span className="text-[10px] font-medium hidden sm:inline-block">Insert</span>
-                                    </button>
-                                  </>
+                                  <button
+                                    onClick={() => onInsertCode(codeString)}
+                                    className="h-8 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-500/20"
+                                  >
+                                    <Terminal size={10} /><span>Inject</span>
+                                  </button>
                                 )}
                               </div>
                             </div>
-                            <div className="text-[13px] leading-relaxed relative">
-                              <SyntaxHighlighter
-                                language={match?.[1] || 'text'}
-                                style={vscDarkPlus}
-                                PreTag="div"
-                                customStyle={{ margin: 0, padding: '1rem', background: '#1e1e1e' }}
-                                {...props}
-                              >
-                                {codeString}
-                              </SyntaxHighlighter>
-                            </div>
+                            <SyntaxHighlighter
+                              language={match?.[1] || 'text'}
+                              style={vscDarkPlus}
+                              PreTag="div"
+                              customStyle={{ margin: 0, padding: '1.5rem', background: 'transparent', fontSize: '12px', lineHeight: '1.7' }}
+                              {...props}
+                            >
+                              {codeString}
+                            </SyntaxHighlighter>
                           </div>
                         );
-                      }
+                      },
                     }}
                   >
-                    {m.content}
+                    {displayContent}
                   </ReactMarkdown>
-                  {/* Blinking cursor for the actively streaming message */}
-                  {!isUser && isLoading && m.id === messages[messages.length - 1]?.id && (
-                    <span className="inline-block w-1.5 h-4 ml-1 mt-1 bg-slate-400 animate-pulse align-middle" style={{ animationDuration: '0.8s' }}></span>
-                  )}
-                  
-                  {!isUser && !isLoading && (
-                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100/60 justify-end">
+
+                  {!isLoading && !isStreaming && (
+                    <div className="flex items-center gap-1 mt-4 pt-4 border-t border-slate-50 justify-end transition-opacity opacity-0 group-hover:opacity-100">
                       <button
                         onClick={() => onFeedback?.(m.id, true)}
-                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'positive' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-emerald-500 hover:bg-emerald-50'}`}
-                        title="Helpful"
+                        className={`p-2 rounded-xl transition-all ${m.feedback === 'positive' ? 'text-emerald-500 bg-emerald-50' : 'text-slate-300 hover:text-emerald-500 hover:bg-emerald-50'}`}
                       >
-                        <ThumbsUp size={14} className={m.feedback === 'positive' ? 'fill-current' : ''} />
+                        <ThumbsUp size={14} fill={m.feedback === 'positive' ? 'currentColor' : 'none'} />
                       </button>
                       <button
                         onClick={() => onFeedback?.(m.id, false)}
-                        className={`p-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${m.feedback === 'negative' ? 'bg-red-50 text-red-600' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
-                        title="Not helpful"
+                        className={`p-2 rounded-xl transition-all ${m.feedback === 'negative' ? 'text-rose-500 bg-rose-50' : 'text-slate-300 hover:text-rose-500 hover:bg-rose-50'}`}
                       >
-                        <ThumbsDown size={14} className={m.feedback === 'negative' ? 'fill-current' : ''} />
+                        <ThumbsDown size={14} fill={m.feedback === 'negative' ? 'currentColor' : 'none'} />
                       </button>
                     </div>
                   )}
@@ -165,17 +253,42 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, welcom
         );
       })}
 
-      {isLoading && (
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center shadow-sm">
-            <Bot size={16} className="text-emerald-500 animate-pulse" />
+      {isLoading && !activeStream && (
+        <div className="flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100 border border-indigo-500/20">
+            <Sparkles size={16} className="text-white" />
           </div>
-          <div className="bg-white px-5 py-3.5 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex items-center gap-2 text-gray-400 text-sm">
-            <Loader2 size={14} className="animate-spin text-emerald-500" />
-            <span>Thinking...</span>
+          <div className="bg-white border border-slate-100 shadow-sm px-6 py-4 rounded-[2.5rem] rounded-bl-[0.5rem]">
+            <p className="text-sm text-slate-500 leading-relaxed whitespace-pre-wrap">
+              {placeholderText || 'Warming up knowledge cores...'}
+            </p>
           </div>
         </div>
       )}
+
+      {isLoading && activeStream && (
+        <div className="flex items-end gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-100 border border-indigo-500/20">
+            <Sparkles size={16} className="text-white" />
+          </div>
+          <div className="bg-white border border-slate-100 shadow-sm px-6 py-4 rounded-[2.5rem] rounded-bl-[0.5rem] flex items-center gap-2">
+            {[0, 150, 300].map((delay) => (
+              <span
+                key={delay}
+                className="w-2 h-2 rounded-full bg-indigo-200"
+                style={{ animation: `typingDot 1.4s ease-in-out ${delay}ms infinite` }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes typingDot {
+          0%, 60%, 100% { transform: translateY(0);    opacity: 0.4; }
+          30%            { transform: translateY(-6px); opacity: 1;   }
+        }
+      `}</style>
     </div>
   );
 };

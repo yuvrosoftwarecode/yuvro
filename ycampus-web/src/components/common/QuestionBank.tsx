@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Filter, Plus, Eye, Edit, Trash2, Code, FileText, CheckCircle, Circle, GripVertical, X } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Code, FileText, CheckCircle, Circle, GripVertical, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { Question, QuestionFilters, fetchQuestions, QUESTION_TYPES, DIFFICULTY_LEVELS } from '@/services/questionService';
+import { Question, QuestionFilters, fetchQuestions, QUESTION_TYPES } from '@/services/questionService';
 
 interface QuestionBankProps {
   mode?: 'selection' | 'management';
@@ -53,15 +53,19 @@ export default function QuestionBank({
   const [selectedType, setSelectedType] = useState<string>('mcq_single');
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const [isDragging, setIsDragging] = useState(false);
+  const [restrictToScope, setRestrictToScope] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchQuestionsData = async () => {
     setLoading(true);
     try {
-      const queryFilters: QuestionFilters = {
+      const queryFilters: any = {
         ...filters,
         search: searchQuery || undefined,
-        type: selectedType !== 'all' ? selectedType as any : undefined,
+        type: selectedType !== 'all' ? selectedType : undefined,
+        // Always scope to subject; only add unit filter when restrictToScope is checked
+        subject: filters.subject || undefined,
+        unit: restrictToScope && filters.unit ? filters.unit : undefined,
       };
 
       const data = await fetchQuestions(queryFilters);
@@ -78,7 +82,7 @@ export default function QuestionBank({
 
   useEffect(() => {
     fetchQuestionsData();
-  }, [searchQuery, selectedType, filters]);
+  }, [searchQuery, selectedType, filters, restrictToScope]);
 
   // Update filters when props change
   useEffect(() => {
@@ -248,7 +252,7 @@ export default function QuestionBank({
       case 'hard':
         return 'bg-red-100 text-red-700 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
@@ -262,27 +266,25 @@ export default function QuestionBank({
       case 'descriptive':
         return 'bg-orange-100 text-orange-700 border-orange-200';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-white text-gray-700 border-gray-200';
     }
   };
 
   if (showSplitView && mode === 'selection') {
     return (
-      <div className="h-full">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-600">{description}</p>
-        </div>
-
-        <div ref={containerRef} className="flex h-[600px] border border-gray-200 rounded-lg overflow-hidden">
+      <div className="flex flex-col h-[600px] bg-white rounded-lg overflow-hidden border border-gray-200">
+        <div className="flex flex-1 overflow-hidden" ref={containerRef}>
           {/* Left Panel - Selected Questions */}
           <div
-            className="bg-gray-50 border-r border-gray-200 flex flex-col"
+            className="flex flex-col h-full border-r border-gray-200"
             style={{ width: `${leftPanelWidth}%` }}
           >
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900">Selected Questions ({selectedQuestions.length})</h4>
+            <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
+              <h4 className="font-medium text-gray-900">Selected Questions</h4>
+              <div className="flex items-center gap-2">
+                <div className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                  {selectedQuestions.length}
+                </div>
                 {selectedQuestions.length > 0 && (
                   <button
                     onClick={() => {
@@ -350,22 +352,21 @@ export default function QuestionBank({
 
           {/* Right Panel - Question Bank */}
           <div
-            className="bg-white flex flex-col"
+            className="bg-white flex flex-col h-full overflow-hidden"
             style={{ width: `${100 - leftPanelWidth}%` }}
           >
             <div className="p-4 border-b border-gray-200">
               <div className="flex flex-col gap-4">
                 {/* Question Type Tabs */}
                 <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 bg-gray-100">
-                    <TabsTrigger value="mcq_single" className="text-xs">MCQ Single</TabsTrigger>
-                    <TabsTrigger value="mcq_multiple" className="text-xs">MCQ Multiple</TabsTrigger>
-                    <TabsTrigger value="coding" className="text-xs">Coding</TabsTrigger>
-                    <TabsTrigger value="descriptive" className="text-xs">Descriptive</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 rounded-lg p-1">
+                    <TabsTrigger value="mcq_single" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">MCQ Single</TabsTrigger>
+                    <TabsTrigger value="mcq_multiple" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">MCQ Multiple</TabsTrigger>
+                    <TabsTrigger value="coding" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">Coding</TabsTrigger>
+                    <TabsTrigger value="descriptive" className="text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">Descriptive</TabsTrigger>
                   </TabsList>
                 </Tabs>
 
-                {/* Search Bar */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -376,6 +377,21 @@ export default function QuestionBank({
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+
+                {mode === 'selection' && (subjectFilter || unitFilter) && (
+                  <div className="flex items-center gap-2 mt-[-5px]">
+                    <input
+                      type="checkbox"
+                      id="restrictToScopeSplit"
+                      checked={restrictToScope}
+                      onChange={(e) => setRestrictToScope(e.target.checked)}
+                      className="h-3.5 w-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <label htmlFor="restrictToScopeSplit" className="text-xs text-gray-600 cursor-pointer select-none">
+                      Only show questions for the selected unit
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -388,9 +404,18 @@ export default function QuestionBank({
                 <div className="text-center py-8">
                   <FileText className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No questions found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-500 mb-4">
                     {searchQuery ? `No questions found matching "${searchQuery}"` : 'No questions available.'}
                   </p>
+                  {mode === 'selection' && subjectFilter && (
+                    <button
+                      onClick={() => window.open(`/admin/subjects/${subjectFilter}/manage`, '_blank')}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create New Question
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="p-4 space-y-3">
@@ -398,8 +423,8 @@ export default function QuestionBank({
                     <div
                       key={question.id}
                       className={`p-4 border border-gray-200 rounded-lg cursor-pointer transition-all hover:shadow-md ${selectedQuestions.includes(question.id)
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'bg-white hover:bg-gray-50'
+                        ? 'bg-blue-50 border-blue-200'
+                        : 'bg-white hover:bg-white'
                         }`}
                       onClick={() => handleQuestionToggle(question.id)}
                     >
@@ -472,6 +497,21 @@ export default function QuestionBank({
             </select>
           </div>
         </div>
+
+        {mode === 'selection' && (subjectFilter || unitFilter) && (
+          <div className="flex items-center gap-2 mt-3">
+            <input
+              type="checkbox"
+              id="restrictToScopeFull"
+              checked={restrictToScope}
+              onChange={(e) => setRestrictToScope(e.target.checked)}
+              className="h-3.5 w-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label htmlFor="restrictToScopeFull" className="text-xs text-gray-600 cursor-pointer select-none">
+              Only show questions for the selected unit
+            </label>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -480,12 +520,21 @@ export default function QuestionBank({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : questions.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No questions found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 mb-4">
               {searchQuery ? `No questions found matching "${searchQuery}"` : 'No questions available in the question bank.'}
             </p>
+            {mode === 'selection' && subjectFilter && (
+              <button
+                onClick={() => window.open(`/admin/subjects/${subjectFilter}/manage`, '_blank')}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                Create New Question
+              </button>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -505,7 +554,7 @@ export default function QuestionBank({
                 {questions.map((question) => (
                   <TableRow
                     key={question.id}
-                    className={mode === 'selection' ? 'cursor-pointer hover:bg-gray-50' : ''}
+                    className={mode === 'selection' ? 'cursor-pointer hover:bg-white' : ''}
                     onClick={() => mode === 'selection' && handleQuestionToggle(question.id)}
                   >
                     {mode === 'selection' && (

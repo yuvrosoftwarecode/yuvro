@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import RoleSidebar from '@/components/common/RoleSidebar';
+import { PrincipalSidebar } from '@/components/principal/PrincipalSidebar';
 import { useDepartments } from '@/hooks/useDepartments';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -15,7 +15,7 @@ const DepartmentDetail = () => {
 
   return (
     <HODDashboard
-      sidebarComponent={<RoleSidebar />}
+      sidebarComponent={<PrincipalSidebar />}
       title={`${deptName} — Department Dashboard`}
       headerExtra={
         <Button variant="ghost" size="icon" className="mr-1" onClick={() => navigate('/principal/departments')}>
