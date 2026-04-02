@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import type { DepartmentOption, CourseOption, BatchOption, BatchStudent } from '@/hooks/useStudentReport';
 
-interface SectionOption {
+export interface SectionOption {
   name: string;
 }
 
@@ -24,6 +24,7 @@ interface ReportFiltersProps {
   selectedSection: string;
   studentSearch: string;
   studentsLoading: boolean;
+  semesters: number[];
   onDepartmentChange: (v: string) => void;
   onSemesterChange: (v: string) => void;
   onBatchChange: (v: string) => void;
@@ -37,7 +38,7 @@ interface ReportFiltersProps {
 const ReportFilters: React.FC<ReportFiltersProps> = ({
   departments, courses, batches, students, allStudents, sections,
   selectedDepartment, selectedSemester, selectedBatch, selectedStudent, selectedSubject, selectedSection,
-  studentSearch, studentsLoading,
+  studentSearch, studentsLoading, semesters,
   onDepartmentChange, onSemesterChange, onBatchChange, onStudentChange, onSubjectChange, onSectionChange,
   onStudentSearchChange, onSearchTriggered,
 }) => {
@@ -45,13 +46,12 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const searchSource = studentSearch.length > 0 ? allStudents : students;
-  const filteredStudents = searchSource.filter(s =>
+  const filteredStudents = searchSource.filter((s: BatchStudent) =>
     s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
     s.rollNo.toLowerCase().includes(studentSearch.toLowerCase()) ||
     s.email.toLowerCase().includes(studentSearch.toLowerCase())
   );
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -68,7 +68,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
     setShowDropdown(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       setShowDropdown(false);
@@ -92,7 +92,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
             <Input
               placeholder="Type student name, roll number, or email and press Enter..."
               value={studentSearch}
-              onChange={e => {
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 onStudentSearchChange(e.target.value);
                 setShowDropdown(true);
                 if (!e.target.value) onStudentChange('');
@@ -110,7 +110,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
                 {filteredStudents.length === 0 ? (
                   <div className="px-4 py-3 text-sm text-muted-foreground">No students found</div>
                 ) : (
-                  filteredStudents.map(s => (
+                  filteredStudents.map((s: BatchStudent) => (
                     <button
                       key={s.id}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-accent transition-colors flex items-center justify-between"
@@ -131,47 +131,77 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Department</label>
-            <Select value={selectedDepartment || undefined} onValueChange={onDepartmentChange}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                {departments.map(d => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
-            <Select value={selectedSemester || undefined} onValueChange={onSemesterChange} disabled={!selectedDepartment}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select semester" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                  <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Batch</label>
-            <Select value={selectedBatch || undefined} onValueChange={onBatchChange} disabled={!selectedDepartment}>
-              <SelectTrigger className="h-9 text-sm">
+            {/* Batch Filter - Now FIRST */}
+            <Select value={selectedBatch} onValueChange={onBatchChange}>
+              <SelectTrigger className="h-10 bg-background/50 border-muted-foreground/20">
                 <SelectValue placeholder="Select batch" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {batches.length === 0 ? (
                   <SelectItem value="__none" disabled>No batches available</SelectItem>
                 ) : (
-                  batches.map(b => (
+                  batches.map((b: BatchOption) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.name} {b.startYear && b.endYear ? `(${b.startYear}-${b.endYear})` : ''}
                     </SelectItem>
+                  )))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Department</label>
+            {/* Department Filter - SECOND */}
+            <Select value={selectedDepartment} onValueChange={onDepartmentChange} disabled={!selectedBatch}>
+              <SelectTrigger className="h-10 bg-background/50 border-muted-foreground/20">
+                <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {departments.length === 0 ? (
+                  <SelectItem value="__none" disabled>Select batch first</SelectItem>
+                ) : (
+                  departments.map((d: DepartmentOption) => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Semester</label>
+            {/* Semester Filter - THIRD */}
+            <Select value={selectedSemester} onValueChange={onSemesterChange} disabled={!selectedDepartment}>
+              <SelectTrigger className="h-10 bg-background/50 border-muted-foreground/20">
+                <SelectValue placeholder="Select semester" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {semesters.length === 0 ? (
+                  <SelectItem value="__none" disabled>Select dept first</SelectItem>
+                ) : (
+                  semesters.map((s: number) => (
+                    <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Section</label>
+            {/* Section Filter - FOURTH */}
+            <Select value={selectedSection} onValueChange={onSectionChange} disabled={!selectedSemester}>
+              <SelectTrigger className="h-10 bg-background/50 border-muted-foreground/20">
+                <SelectValue placeholder="Select section" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">All Sections</SelectItem>
+                {sections.length === 0 ? (
+                  <SelectItem value="__none" disabled>Select semester first</SelectItem>
+                ) : (
+                  sections.map((s: SectionOption) => (
+                    <SelectItem key={s.name} value={s.name}>Section {s.name}</SelectItem>
                   ))
                 )}
               </SelectContent>
@@ -180,30 +210,20 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
 
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Subject</label>
-            <Select value={selectedSubject} onValueChange={onSubjectChange}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="All Subjects" />
+            {/* Subject Filter - FIFTH */}
+            <Select value={selectedSubject} onValueChange={onSubjectChange} disabled={selectedSection === 'all' || !selectedSection}>
+              <SelectTrigger className="h-10 bg-background/50 border-muted-foreground/20">
+                <SelectValue placeholder="Select subject" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 <SelectItem value="all">All Subjects</SelectItem>
-                {courses.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Section</label>
-            <Select value={selectedSection} onValueChange={onSectionChange} disabled={!selectedSemester}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="All Sections" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
-                <SelectItem value="all">All Sections</SelectItem>
-                {sections.map(s => (
-                  <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
-                ))}
+                {courses.length === 0 ? (
+                  <SelectItem value="__none" disabled>Select section first</SelectItem>
+                ) : (
+                  courses.map((c: CourseOption) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>

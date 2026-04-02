@@ -84,13 +84,13 @@ const StudentListView: React.FC<StudentListViewProps> = ({ students, onSelectStu
                     {item.semester && (
                       <>
                         <span className="text-border">|</span>
-                        <span>Sem {item.semester}</span>
+                        <span>{item.semester}</span>
                       </>
                     )}
                     {item.section && (
                       <>
                         <span className="text-border">|</span>
-                        <span>Sec {item.section}</span>
+                        <span>{item.section}</span>
                       </>
                     )}
                   </div>

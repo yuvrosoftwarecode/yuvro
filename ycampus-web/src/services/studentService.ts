@@ -41,7 +41,14 @@ export const studentService = {
     getStudents: async (params?: any): Promise<PaginatedResponse<Student>> => {
         let url = '/core/student/';
         if (params) {
-            const query = new URLSearchParams(params).toString();
+            const cleanParams: any = {};
+            Object.keys(params).forEach(key => {
+                const value = params[key];
+                if (value !== undefined && value !== null && value !== '') {
+                    cleanParams[key] = value;
+                }
+            });
+            const query = new URLSearchParams(cleanParams).toString();
             url += `?${query}`;
         }
         return await restApiAuthUtil.get<PaginatedResponse<Student>>(url);
