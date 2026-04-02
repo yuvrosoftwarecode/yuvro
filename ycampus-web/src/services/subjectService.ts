@@ -105,6 +105,7 @@ export interface SectionSubjectFaculty {
     is_elective: boolean;
     is_lab: boolean;
     semester_number: number;
+    batch_id: string | number;
     batch_name: string;
     department_id: string | number;
     department_name: string;
