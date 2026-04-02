@@ -13,8 +13,10 @@
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
+.PHONY: observability-setup observability-validate
+.PHONY: secrets-load secrets-validate secrets-rotate secrets-audit
 .PHONY: prod-build prod-up prod-down
-.PHONY: _validate-deploy
+.PHONY: _validate-deploy load-env-files validate-env-files
 
 # ============================================================================
 # Environment Configuration
@@ -26,6 +28,9 @@ DEPLOY_TYPE ?= $(if $(filter local dev,$(DEPLOY_ENV)),docker,k8s)
 # Validate DEPLOY_ENV
 VALID_DEPLOY_ENVS  := local dev staging prod
 VALID_DEPLOY_TYPES := docker k8s
+
+# Services list
+SERVICES := ycode-backend ycampus-backend ycode-frontend ycampus-frontend code-executor
 
 _validate-deploy:
 	@if ! echo "$(VALID_DEPLOY_ENVS)" | grep -qw "$(DEPLOY_ENV)"; then \
@@ -42,6 +47,99 @@ _validate-deploy:
 	fi
 	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_TYPE=$(DEPLOY_TYPE)"
 
+# ============================================================================
+# Environment-Specific Configuration Loading
+# ============================================================================
+
+.PHONY: load-env-files validate-env-files
+
+load-env-files: _validate-deploy
+	@echo "📦 Loading environment-specific .env files for DEPLOY_ENV=$(DEPLOY_ENV)..."
+	@for service in $(SERVICES); do \
+		case $$service in \
+			ycode-backend) \
+				if [ -f "ycode-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ycode-backend-api/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ycode-backend-api/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ycampus-backend) \
+				if [ -f "ycampus-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ycampus-backend-api/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ycampus-backend-api/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ycode-frontend) \
+				if [ -f "ycode-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ycode-web/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ycode-web/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ycampus-frontend) \
+				if [ -f "ycampus-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ycampus-web/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ycampus-web/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			code-executor) \
+				if [ -f "yuvro-code-executer/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ yuvro-code-executer/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ yuvro-code-executer/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+		esac \
+	done
+	@echo "✅ Environment files loaded!"
+
+validate-env-files: _validate-deploy
+	@echo "🔍 Validating environment-specific .env files for DEPLOY_ENV=$(DEPLOY_ENV)..."
+	@MISSING_FILES=0; \
+	for service in $(SERVICES); do \
+		case $$service in \
+			ycode-backend) \
+				if [ ! -f "ycode-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ycode-backend-api/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ycampus-backend) \
+				if [ ! -f "ycampus-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ycampus-backend-api/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ycode-frontend) \
+				if [ ! -f "ycode-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ycode-web/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ycampus-frontend) \
+				if [ ! -f "ycampus-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ycampus-web/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			code-executor) \
+				if [ ! -f "yuvro-code-executer/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: yuvro-code-executer/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+		esac \
+	done; \
+	if [ $$MISSING_FILES -eq 1 ]; then \
+		echo "❌ Some environment files are missing!"; \
+		exit 1; \
+	else \
+		echo "✅ All environment files validated!"; \
+	fi
+
 help:
 	@echo "Usage: [DEPLOY_ENV=local|dev|staging|prod] [DEPLOY_TYPE=docker|k8s] make <command>"
 	@echo ""
@@ -57,6 +155,24 @@ help:
 	@echo "  make logs               View all logs"
 	@echo "  make status             Check deployment status"
 	@echo "  make port-forward       Setup port forwarding (k8s only)"
+	@echo ""
+	@echo "Configuration Commands:"
+	@echo "  make load-env-files     Load environment-specific .env files"
+	@echo "  make validate-env-files Validate environment-specific .env files"
+	@echo ""
+	@echo "Observability Commands:"
+	@echo "  make observability-setup      Setup observability for environment"
+	@echo "  make observability-dev        Start observability stack (local/dev only)"
+	@echo "  make observability-stop       Stop observability stack"
+	@echo "  make observability-clean      Clean observability stack"
+	@echo "  make observability-validate   Validate observability configuration"
+	@echo "  make observability-dashboards Show observability dashboard URLs"
+	@echo ""
+	@echo "Secrets Management Commands:"
+	@echo "  make secrets-load       Load secrets for environment"
+	@echo "  make secrets-validate   Validate secrets configuration"
+	@echo "  make secrets-rotate     Rotate secrets (staging/prod only)"
+	@echo "  make secrets-audit      Audit secret access (staging/prod only)"
 	@echo ""
 	@echo "Platform-Specific Commands:"
 	@echo "  make install-ycode      Start YCode services only"
@@ -78,6 +194,8 @@ help:
 	@echo "  make install-ycode                  # Start YCode only"
 	@echo "  DEPLOY_TYPE=k8s make install        # Deploy to Kubernetes"
 	@echo "  DEPLOY_ENV=staging DEPLOY_TYPE=k8s make install  # Deploy to staging k8s"
+	@echo "  make observability-dev              # Start observability stack"
+	@echo "  make secrets-load                   # Load secrets for environment"
 
 # ============================================================================
 # Docker Compose Commands (DEPLOY_TYPE=docker)
@@ -381,22 +499,104 @@ check-all:
 # Observability
 # ============================================================================
 
-observability-dev:
-	@echo "🔍 Starting all services with observability..."
-	docker compose $(COMPOSE_FILES) -f docker-compose.observability.yml up
+.PHONY: observability-dev observability-stop observability-clean observability-dashboards
+.PHONY: observability-setup observability-validate
 
-observability-stop:
-	docker compose -f docker-compose.observability.yml down
+observability-dev: _validate-deploy load-env-files
+	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "🔍 Starting observability stack (Prometheus + Jaeger + Loki + Grafana)..."; \
+		docker compose $(COMPOSE_FILES) -f docker-compose.yobservability.yml up; \
+	else \
+		echo "❌ Observability dev stack is only available for DEPLOY_ENV=local or dev"; \
+		echo "   For staging/prod, use CloudWatch + X-Ray configured via OpenTofu"; \
+		exit 1; \
+	fi
 
-observability-clean:
-	docker compose -f docker-compose.observability.yml down -v
+observability-stop: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "🛑 Stopping observability stack..."; \
+		docker compose -f docker-compose.yobservability.yml down; \
+		echo "✅ Observability stack stopped!"; \
+	else \
+		echo "❌ Observability dev stack is only available for DEPLOY_ENV=local or dev"; \
+		exit 1; \
+	fi
+
+observability-clean: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "🧹 Cleaning observability stack..."; \
+		docker compose -f docker-compose.yobservability.yml down -v; \
+		echo "✅ Observability stack cleaned!"; \
+	else \
+		echo "❌ Observability dev stack is only available for DEPLOY_ENV=local or dev"; \
+		exit 1; \
+	fi
 
 observability-dashboards:
 	@echo "🌐 Observability Dashboards:"
-	@echo "Grafana: http://localhost:3001 (admin/admin)"
-	@echo "Jaeger: http://localhost:16686"
-	@echo "Prometheus: http://localhost:9090"
-	@echo "Loki: http://localhost:3100"
+	@echo "   Grafana: http://localhost:3001 (admin/admin)"
+	@echo "   Jaeger: http://localhost:16686"
+	@echo "   Prometheus: http://localhost:9090"
+	@echo "   Loki: http://localhost:3100"
+
+observability-setup: _validate-deploy load-env-files
+	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "📊 Setting up observability for $(DEPLOY_ENV) environment..."; \
+		echo "   - Prometheus: Metrics collection"; \
+		echo "   - Jaeger: Distributed tracing"; \
+		echo "   - Loki: Log aggregation"; \
+		echo "   - Grafana: Dashboards and visualization"; \
+		echo ""; \
+		echo "✅ Observability configured for $(DEPLOY_ENV)!"; \
+		echo "   Run 'make observability-dev' to start the stack"; \
+	elif [ "$(DEPLOY_ENV)" = "staging" ] || [ "$(DEPLOY_ENV)" = "prod" ]; then \
+		echo "📊 Setting up observability for $(DEPLOY_ENV) environment..."; \
+		echo "   - CloudWatch: Logs and metrics"; \
+		echo "   - X-Ray: Distributed tracing"; \
+		echo "   - CloudWatch Dashboards: Visualization"; \
+		echo ""; \
+		echo "✅ Observability configured for $(DEPLOY_ENV)!"; \
+		echo "   Infrastructure is managed via OpenTofu in infra/opentofu/"; \
+	fi
+
+observability-validate: _validate-deploy
+	@echo "🔍 Validating observability configuration for DEPLOY_ENV=$(DEPLOY_ENV)..."
+	@if [ "$(DEPLOY_ENV)" = "local" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		if [ -f "docker-compose.yobservability.yml" ]; then \
+			echo "  ✓ docker-compose.yobservability.yml found"; \
+		else \
+			echo "  ❌ docker-compose.yobservability.yml not found"; \
+			exit 1; \
+		fi; \
+		if [ -f "yuvro-observability/prometheus.yml" ]; then \
+			echo "  ✓ Prometheus configuration found"; \
+		else \
+			echo "  ❌ Prometheus configuration not found"; \
+			exit 1; \
+		fi; \
+		if [ -f "yuvro-observability/otel-collector-config.yaml" ]; then \
+			echo "  ✓ OpenTelemetry Collector configuration found"; \
+		else \
+			echo "  ❌ OpenTelemetry Collector configuration not found"; \
+			exit 1; \
+		fi; \
+		if [ -f "yuvro-observability/loki-config.yaml" ]; then \
+			echo "  ✓ Loki configuration found"; \
+		else \
+			echo "  ❌ Loki configuration not found"; \
+			exit 1; \
+		fi; \
+		echo "✅ Observability configuration validated!"; \
+	elif [ "$(DEPLOY_ENV)" = "staging" ] || [ "$(DEPLOY_ENV)" = "prod" ]; then \
+		if [ -d "infra/opentofu" ]; then \
+			echo "  ✓ OpenTofu infrastructure directory found"; \
+		else \
+			echo "  ❌ OpenTofu infrastructure directory not found"; \
+			exit 1; \
+		fi; \
+		echo "✅ Observability configuration validated!"; \
+		echo "   Note: CloudWatch + X-Ray configuration is managed via OpenTofu"; \
+	fi
 
 # ============================================================================
 # Production

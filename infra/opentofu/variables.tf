@@ -1,0 +1,164 @@
+variable "aws_region" {
+  description = "AWS region for resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "environment" {
+  description = "Environment name (staging, prod)"
+  type        = string
+  validation {
+    condition     = contains(["staging", "prod"], var.environment)
+    error_message = "Environment must be 'staging' or 'prod'."
+  }
+}
+
+# VPC Configuration
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+  default     = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+}
+
+# EC2 Configuration
+variable "instance_type" {
+  description = "EC2 instance type for Kubernetes nodes"
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "instance_count" {
+  description = "Number of EC2 instances for Kubernetes cluster"
+  type        = number
+  default     = 3
+  validation {
+    condition     = var.instance_count >= 1 && var.instance_count <= 10
+    error_message = "Instance count must be between 1 and 10."
+  }
+}
+
+variable "key_pair_name" {
+  description = "EC2 Key Pair name for SSH access"
+  type        = string
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version to install"
+  type        = string
+  default     = "1.28"
+}
+
+variable "root_volume_size" {
+  description = "Root volume size in GB"
+  type        = number
+  default     = 50
+}
+
+variable "root_volume_type" {
+  description = "Root volume type (gp3, gp2, io1)"
+  type        = string
+  default     = "gp3"
+}
+
+# RDS Configuration - YCode
+variable "ycode_db_username" {
+  description = "YCode database master username"
+  type        = string
+  sensitive   = true
+}
+
+variable "ycode_db_password" {
+  description = "YCode database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "ycode_db_instance_class" {
+  description = "YCode RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "ycode_db_allocated_storage" {
+  description = "YCode database allocated storage in GB"
+  type        = number
+  default     = 20
+}
+
+variable "ycode_db_max_allocated_storage" {
+  description = "YCode database max allocated storage for autoscaling in GB"
+  type        = number
+  default     = 100
+}
+
+# RDS Configuration - YCampus
+variable "ycampus_db_username" {
+  description = "YCampus database master username"
+  type        = string
+  sensitive   = true
+}
+
+variable "ycampus_db_password" {
+  description = "YCampus database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "ycampus_db_instance_class" {
+  description = "YCampus RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "ycampus_db_allocated_storage" {
+  description = "YCampus database allocated storage in GB"
+  type        = number
+  default     = 20
+}
+
+variable "ycampus_db_max_allocated_storage" {
+  description = "YCampus database max allocated storage for autoscaling in GB"
+  type        = number
+  default     = 100
+}
+
+# RDS Common Configuration
+variable "postgres_version" {
+  description = "PostgreSQL engine version"
+  type        = string
+  default     = "15.4"
+}
+
+variable "backup_retention_days" {
+  description = "Database backup retention period in days"
+  type        = number
+  default     = 7
+  validation {
+    condition     = var.backup_retention_days >= 1 && var.backup_retention_days <= 35
+    error_message = "Backup retention days must be between 1 and 35."
+  }
+}
+
+variable "multi_az" {
+  description = "Enable Multi-AZ deployment for RDS"
+  type        = bool
+  default     = true
+}

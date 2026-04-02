@@ -1,0 +1,36 @@
+# AWS Configuration
+aws_region = "us-east-1"
+environment = "staging"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+public_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+
+# EC2 Configuration
+instance_type = "t3.medium"
+instance_count = 3
+key_pair_name = "your-key-pair-name"
+kubernetes_version = "1.28"
+root_volume_size = 50
+root_volume_type = "gp3"
+
+# RDS Configuration - YCode
+ycode_db_username = "ycode_admin"
+ycode_db_password = "change-me-to-secure-password"
+ycode_db_instance_class = "db.t3.micro"
+ycode_db_allocated_storage = 20
+ycode_db_max_allocated_storage = 100
+
+# RDS Configuration - YCampus
+ycampus_db_username = "ycampus_admin"
+ycampus_db_password = "change-me-to-secure-password"
+ycampus_db_instance_class = "db.t3.micro"
+ycampus_db_allocated_storage = 20
+ycampus_db_max_allocated_storage = 100
+
+# RDS Common Configuration
+postgres_version = "15.4"
+backup_retention_days = 7
+multi_az = true
