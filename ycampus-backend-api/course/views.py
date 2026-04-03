@@ -1387,19 +1387,53 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 
                 tasks_completed = sub_progress.filter(is_completed=True).count()
 
-            # Attendance per subject
-            attendance_pct = 0
-            subject_sessions = AttendanceRecord.objects.filter(
+            # Detailed Attendance Counts
+            total_sessions = 0
+            present_sessions = 0
+            
+            subject_sessions_qs = AttendanceRecord.objects.filter(
                 student__user=user_to_query,
                 session__section_subject_faculty__semester_subject__subject_id=sid
-            ).count()
-            if subject_sessions > 0:
-                present_count = AttendanceRecord.objects.filter(
+            )
+            total_sessions = subject_sessions_qs.count()
+            if total_sessions > 0:
+                present_sessions = subject_sessions_qs.filter(is_present=True).count()
+                attendance_pct = round((present_sessions / total_sessions) * 100)
+
+            # Faculty-Assigned Tasks Metrics
+            assigned_tasks_total = 0
+            assigned_tasks_completed = 0
+            assigned_tasks_on_time = 0
+            assigned_tasks_late = 0
+            
+            if student_profile and student_profile.section:
+                # Tasks assigned to this student's section for this subject
+                subject_tasks = Task.objects.filter(
+                    subject_id=sid,
+                    sections=student_profile.section
+                )
+                assigned_tasks_total = subject_tasks.count()
+                
+                # Fetch student submissions for these tasks
+                submissions = TaskSubmission.objects.filter(
                     student__user=user_to_query,
-                    is_present=True,
-                    session__section_subject_faculty__semester_subject__subject_id=sid
-                ).count()
-                attendance_pct = round((present_count / subject_sessions) * 100)
+                    task__in=subject_tasks,
+                    is_submitted=True
+                )
+                assigned_tasks_completed = submissions.count()
+                
+                for sub in submissions:
+                    # Logic for on-time vs late
+                    # Due date check
+                    task_due = sub.task.due_date
+                    submitted_at = sub.submitted_at
+                    
+                    if not task_due:
+                        assigned_tasks_on_time += 1
+                    elif submitted_at and submitted_at <= task_due:
+                        assigned_tasks_on_time += 1
+                    else:
+                        assigned_tasks_late += 1
 
             results.append({
                 "subject_id": str(sid),
@@ -1410,8 +1444,16 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 "avg_quiz_score": avg_quiz,
                 "avg_coding_score": avg_coding,
                 "attendance_pct": attendance_pct,
-                "tasks_completed": tasks_completed,
-                "tasks_total": total_subs
+                "attendance_total": total_sessions,
+                "attendance_present": present_sessions,
+                "attendance_missed": total_sessions - present_sessions,
+                "tasks_completed": tasks_completed, # Learning subunits completed
+                "tasks_total": total_subs, # Total learning subunits
+                "assigned_tasks_total": assigned_tasks_total,
+                "assigned_tasks_submitted": assigned_tasks_completed,
+                "assigned_tasks_on_time": assigned_tasks_on_time,
+                "assigned_tasks_late": assigned_tasks_late,
+                "assigned_tasks_pending": assigned_tasks_total - assigned_tasks_completed
             })
 
         return Response(results)
