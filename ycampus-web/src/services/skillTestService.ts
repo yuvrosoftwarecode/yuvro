@@ -206,6 +206,18 @@ export const getSkillTestSubmission = async (submissionId: string): Promise<any>
   }
 };
 
+export const getUserSubmissions = async (userId: string): Promise<any[]> => {
+  try {
+    const response = await restApiAuthUtil.get<any[]>('/assessment/skill-test/submissions/', {
+      params: { user: userId }
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching student submissions:', error);
+    throw error;
+  }
+};
+
 export const DIFFICULTY_LEVELS = [
   { value: 'easy', label: 'Easy' },
   { value: 'medium', label: 'Medium' },
@@ -229,6 +241,7 @@ const skillTestService = {
   getSkillTestsByUnit,
   getSkillTestSubmissions,
   getSkillTestSubmission,
+  getUserSubmissions,
   startSkillTest,
   submitSkillTest,
 };
