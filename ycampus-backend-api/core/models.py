@@ -408,6 +408,11 @@ class TaskSubmission(BaseTimestampedModel):
     def __str__(self):
         return f"{self.student.user.username} - {self.task.title}"
 
+    def save(self, *args, **kwargs):
+        if self.is_submitted and self.submitted_at is None:
+            self.submitted_at = timezone.now()
+        super().save(*args, **kwargs)
+
 class TaskComment(BaseTimestampedModel):
     """
     Model representing comments/feedback on a task submission.

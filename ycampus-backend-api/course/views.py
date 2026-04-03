@@ -1424,13 +1424,13 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 
                 for sub in submissions:
                     # Logic for on-time vs late
-                    # Due date check
                     task_due = sub.task.due_date
-                    submitted_at = sub.submitted_at
+                    # Use submitted_at, fallback to updated_at if missing (historical data)
+                    submission_time = sub.submitted_at or sub.updated_at
                     
                     if not task_due:
                         assigned_tasks_on_time += 1
-                    elif submitted_at and submitted_at <= task_due:
+                    elif submission_time and submission_time <= task_due:
                         assigned_tasks_on_time += 1
                     else:
                         assigned_tasks_late += 1
