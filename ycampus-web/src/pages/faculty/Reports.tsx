@@ -51,7 +51,7 @@ const Reports: React.FC = () => {
   const { toast } = useToast();
   const {
     batches, students, allStudents, report, loading, studentsLoading,
-    loadStudents, loadReport, assignments
+    loadStudents, loadStudentsByDepartments, loadReport, assignments
   } = useStudentReport();
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -66,6 +66,17 @@ const Reports: React.FC = () => {
 
   // Local state for tracking manual filter interaction vs auto-selection
   const isAutoSelecting = useRef(false);
+
+  // All department IDs this faculty is assigned to (used to scope search autocomplete)
+  const assignedDeptIds = useMemo(() => {
+    const ids = new Set<string>();
+    assignments.forEach((a: SectionSubjectFaculty) => {
+      if (a.semester_subject_details?.department_id) {
+        ids.add(String(a.semester_subject_details.department_id));
+      }
+    });
+    return ids;
+  }, [assignments]);
 
   // ──────────────────────────────────────────────────────────────────
   // HIERARCHICAL FILTER DERIVATION
@@ -151,21 +162,28 @@ const Reports: React.FC = () => {
 
   useEffect(() => {
     if (selectedBatch && !isAutoSelecting.current) {
-      // Clean params: remove undefined/null/empty string values
-      const params: any = {
-        batch__name: selectedBatch,
-      };
-      
-      if (selectedDepartment) params.department = selectedDepartment;
-      if (selectedSemester) params.semester__number = selectedSemester;
-      if (selectedSection && selectedSection !== 'all') params.section__name = selectedSection;
-
-      loadStudents(params);
+      if (!selectedDepartment) {
+        // No department selected → fetch ALL assigned depts in parallel and merge
+        // This avoids under-counting from batch-wide paginated queries
+        const deptIds = derivedDepartments.map((d: DepartmentOption) => d.id);
+        if (deptIds.length > 0) {
+          loadStudentsByDepartments(selectedBatch, deptIds);
+        } else {
+          // Assignments not yet computed (derivedDepartments empty), fall back
+          loadStudents({ batch__name: selectedBatch });
+        }
+      } else {
+        // Department selected → targeted single-dept fetch
+        const params: any = { batch__name: selectedBatch, department: selectedDepartment };
+        if (selectedSemester) params.semester__number = selectedSemester;
+        if (selectedSection && selectedSection !== 'all') params.section__name = selectedSection;
+        loadStudents(params);
+      }
       setShowStudentList(true);
     } else if (!selectedBatch && !selectedStudent) {
       setShowStudentList(false);
     }
-  }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, selectedStudent]);
+  }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, loadStudentsByDepartments, derivedDepartments, selectedStudent]);
 
   const combinedAllStudents = useMemo(() => {
     const existingIds = new Set(allStudents.map(s => s.id));
@@ -181,14 +199,19 @@ const Reports: React.FC = () => {
   }, [selectedStudent, loadReport, combinedAllStudents]);
 
   const filteredStudentList = useMemo(() => {
-    let sourceStudents = studentSearch.length > 0 ? combinedAllStudents : students;
+    // Source: always use faculty-scoped pool
+    const sourceStudents = studentSearch.length > 0 ? allStudents : students;
 
-    // Use dummy data only in initial demo state (no search, no batch selected)
-    if (sourceStudents.length === 0 && !selectedBatch && studentSearch.length === 0) {
-      sourceStudents = DUMMY_STUDENTS;
-    }
+    if (sourceStudents.length === 0) return [];
 
-    let filtered = sourceStudents;
+    // SCOPE: Only show students from departments this faculty is assigned to
+    const scopedStudents = assignedDeptIds.size > 0
+      ? sourceStudents.filter((s: BatchStudent) =>
+          !s.department_id || assignedDeptIds.has(String(s.department_id))
+        )
+      : sourceStudents;
+
+    let filtered = scopedStudents;
 
     if (studentSearch.length > 0) {
       const q = studentSearch.toLowerCase();
@@ -215,7 +238,7 @@ const Reports: React.FC = () => {
         taskCompletion: snap.task,
       };
     });
-  }, [studentSearch, combinedAllStudents, students, selectedDepartment, selectedSemester, selectedSection, derivedDepartments, selectedBatch]);
+  }, [studentSearch, allStudents, students, selectedDepartment, selectedSemester, selectedSection, derivedDepartments, assignedDeptIds]);
 
   const handleSearchTriggered = () => {
     if (studentSearch.length > 0) {
@@ -273,7 +296,10 @@ const Reports: React.FC = () => {
 
   const showReport = !loading && report && selectedStudent && !showStudentList;
   const showList = !loading && showStudentList && !selectedStudent;
-  const showEmpty = !loading && !showStudentList && !selectedDepartment && !selectedStudent;
+  // Show empty when: no batch selected yet, and no student selected
+  const showEmpty = !loading && !showStudentList && !selectedStudent && !studentSearch;
+  // Show prompt when: user is searching but no batch has been loaded yet (allStudents is empty)
+  const showSearchNoBatch = !loading && !selectedStudent && studentSearch.length > 0 && allStudents.length === 0 && !showStudentList;
 
   return (
     <FacultyLayout>
@@ -325,6 +351,7 @@ const Reports: React.FC = () => {
             studentsLoading={studentsLoading}
             students={students}
             allStudents={allStudents}
+            assignedDeptIds={assignedDeptIds}
             onBatchChange={(v: string) => {
               setSelectedBatch(v);
               setSelectedDepartment('');
@@ -393,7 +420,19 @@ const Reports: React.FC = () => {
             </div>
             <h3 className="text-lg font-medium text-foreground">Select a batch to view students</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md">
-              Use the batch filter above to see students, or search by name or roll number.
+              Use the batch filter above to see students, or search by name or roll number after selecting a batch.
+            </p>
+          </div>
+        )}
+
+        {showSearchNoBatch && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+              <FileText className="h-7 w-7 text-amber-600 dark:text-amber-400" />
+            </div>
+            <h3 className="text-lg font-medium text-foreground">Select a batch first</h3>
+            <p className="text-sm text-muted-foreground mt-1 max-w-md">
+              Please select a batch from the filter above before searching. Only students from your assigned batches will be shown.
             </p>
           </div>
         )}

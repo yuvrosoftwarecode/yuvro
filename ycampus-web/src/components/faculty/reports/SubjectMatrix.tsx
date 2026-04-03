@@ -45,7 +45,7 @@ const SubjectMatrix: React.FC<SubjectMatrixProps> = ({ subjects, expandedSubject
               <tr className="border-b bg-muted/30">
                 <th className="text-left p-3 font-medium text-muted-foreground"></th>
                 <th className="text-left p-3 font-medium text-muted-foreground">Subject</th>
-                <th className="text-center p-3 font-medium text-muted-foreground">Notes</th>
+                <th className="text-center p-3 font-medium text-muted-foreground">Learning</th>
                 <th className="text-center p-3 font-medium text-muted-foreground">Test Avg</th>
                 <th className="text-center p-3 font-medium text-muted-foreground">Assessment Avg</th>
                 <th className="text-center p-3 font-medium text-muted-foreground">Tasks</th>
@@ -133,7 +133,7 @@ const SubjectDrillDown: React.FC<{ subject: SubjectPerformance }> = ({ subject: 
       {/* Notes & Learning */}
       <div className="space-y-2">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-          📚 Notes & Learning
+          📚 Learning
         </h4>
         <div className="space-y-1.5 text-xs">
           <Row label="Total Chapters" value={s.totalChapters} />

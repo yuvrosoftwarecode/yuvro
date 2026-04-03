@@ -272,15 +272,12 @@ export function useStudentReport() {
   const [filtersLoading, setFiltersLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
 
-  // Load assignments + all students on mount
+  // Load assignments only on mount — students are fetched when filters are applied
   useEffect(() => {
     const init = async () => {
       try {
         setFiltersLoading(true);
-        const [facultyAssignments, studentRes] = await Promise.all([
-          getFacultyAssignments(),
-          studentService.getStudents({ limit: 100 }),
-        ]);
+        const facultyAssignments = await getFacultyAssignments();
 
         setAssignments(facultyAssignments);
 
@@ -293,26 +290,15 @@ export function useStudentReport() {
         });
 
         const derivedBatches = Array.from(uniqueBatchNames).map(name => ({
-          id: name, // Use name as ID for deduplicated selection
+          id: name,
           name,
           startYear: 0,
           endYear: 0
         }));
         setBatches(derivedBatches);
 
-        // Map backend students to local interface
-        const realStudents: BatchStudent[] = (studentRes.results || []).map((s: any) => ({
-          id: String(s.user || s.id),
-          name: `${s.user_details?.first_name || ''} ${s.user_details?.last_name || ''}`.trim() || 'Unknown',
-          rollNo: s.roll_number || '',
-          email: s.user_details?.email || '',
-          department_id: s.department,
-          department_name: s.department_name,
-          semester_number: s.semester_number,
-          batch_name: s.batch_name,
-          section_name: s.section_name
-        }));
-        setAllStudents([...realStudents, ...DUMMY_STUDENTS]);
+        // Do NOT pre-fetch all students — keeps scope to faculty's assigned data
+        setAllStudents([]);
       } catch (err) {
         console.error("Failed to initialize student report filters", err);
       } finally {
@@ -322,32 +308,66 @@ export function useStudentReport() {
     init();
   }, []);
 
+  const mapStudent = (s: any): BatchStudent => ({
+    id: String(s.user || s.id),
+    name: `${s.user_details?.first_name || ''} ${s.user_details?.last_name || ''}`.trim() || 'Unknown',
+    rollNo: s.roll_number || '',
+    email: s.user_details?.email || '',
+    department_id: s.department,
+    department_name: s.department_name,
+    semester_number: s.semester_number,
+    batch_name: s.batch_name,
+    section_name: s.section_name
+  });
+
   const loadStudents = useCallback(async (params: any) => {
     setStudentsLoading(true);
     try {
-      const res = await studentService.getStudents({
-        ...params,
-        limit: 100
-      });
-      
+      const res = await studentService.getStudents({ ...params, limit: 200 });
       if (res.results) {
-        setStudents(res.results.map((s: any) => ({
-          id: String(s.user || s.id),
-          name: `${s.user_details?.first_name || ''} ${s.user_details?.last_name || ''}`.trim() || 'Unknown',
-          rollNo: s.roll_number || '',
-          email: s.user_details?.email || '',
-          department_id: s.department,
-          department_name: s.department_name,
-          semester_number: s.semester_number,
-          batch_name: s.batch_name,
-          section_name: s.section_name
-        })));
+        const mapped = res.results.map(mapStudent);
+        setStudents(mapped);
+        setAllStudents(mapped);
       } else {
         setStudents([]);
+        setAllStudents([]);
       }
     } catch (err) {
       console.error("Failed to load students from backend", err);
       setStudents([]);
+      setAllStudents([]);
+    } finally {
+      setStudentsLoading(false);
+    }
+  }, []);
+
+  // Fetch students for EACH assigned department separately and merge.
+  // This ensures accurate counts when no single-department filter is applied.
+  const loadStudentsByDepartments = useCallback(async (batchName: string, deptIds: string[], extraParams: any = {}) => {
+    if (deptIds.length === 0) return;
+    setStudentsLoading(true);
+    try {
+      const results = await Promise.all(
+        deptIds.map(deptId =>
+          studentService.getStudents({ ...extraParams, batch__name: batchName, department: deptId, limit: 200 })
+        )
+      );
+      const allRaw = results.flatMap(res => res.results || []);
+      // Deduplicate by student ID
+      const seen = new Set<string>();
+      const unique = allRaw.filter((s: any) => {
+        const id = String(s.user || s.id);
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      const mapped = unique.map(mapStudent);
+      setStudents(mapped);
+      setAllStudents(mapped);
+    } catch (err) {
+      console.error("Failed to load students by departments", err);
+      setStudents([]);
+      setAllStudents([]);
     } finally {
       setStudentsLoading(false);
     }
@@ -382,6 +402,7 @@ export function useStudentReport() {
     filtersLoading,
     studentsLoading,
     loadStudents,
+    loadStudentsByDepartments,
     loadReport,
     setReport,
     setStudents
