@@ -16,19 +16,7 @@ import StreaksAchievements from '@/components/faculty/reports/StreaksAchievement
 import PlacementReadiness from '@/components/faculty/reports/PlacementReadiness';
 import { downloadPDF, downloadExcel } from '@/components/faculty/reports/ReportExporter';
 
-// Dummy students for when DB returns empty
-const DUMMY_STUDENTS = [
-  { id: 'dummy-1', name: 'Aarav Sharma', rollNo: 'CSE2021001', email: 'aarav.sharma@campus.edu' },
-  { id: 'dummy-2', name: 'Priya Mehta', rollNo: 'CSE2021002', email: 'priya.mehta@campus.edu' },
-  { id: 'dummy-3', name: 'Rohan Gupta', rollNo: 'CSE2021003', email: 'rohan.gupta@campus.edu' },
-  { id: 'dummy-4', name: 'Sneha Reddy', rollNo: 'CSE2021004', email: 'sneha.reddy@campus.edu' },
-  { id: 'dummy-5', name: 'Vikram Patel', rollNo: 'CSE2021005', email: 'vikram.patel@campus.edu' },
-  { id: 'dummy-6', name: 'Ananya Iyer', rollNo: 'CSE2021006', email: 'ananya.iyer@campus.edu' },
-  { id: 'dummy-7', name: 'Karthik Nair', rollNo: 'CSE2021007', email: 'karthik.nair@campus.edu' },
-  { id: 'dummy-8', name: 'Divya Joshi', rollNo: 'CSE2021008', email: 'divya.joshi@campus.edu' },
-  { id: 'dummy-9', name: 'Arjun Singh', rollNo: 'CSE2021009', email: 'arjun.singh@campus.edu' },
-  { id: 'dummy-10', name: 'Meera Kulkarni', rollNo: 'CSE2021010', email: 'meera.kulkarni@campus.edu' },
-];
+// Legacy dummy data removed.
 
 // Generate snapshot metrics for student list (deterministic per student)
 function generateSnapshot(index: number) {
@@ -58,6 +46,7 @@ const Reports: React.FC = () => {
   const [selectedSemester, setSelectedSemester] = useState('');
   const [selectedBatch, setSelectedBatch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedStudentObj, setSelectedStudentObj] = useState<BatchStudent | null>(null);
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedSection, setSelectedSection] = useState('all');
   const [studentSearch, setStudentSearch] = useState('');
@@ -161,7 +150,7 @@ const Reports: React.FC = () => {
   }, [assignments, selectedBatch, selectedDepartment, selectedSemester, selectedSection]);
 
   useEffect(() => {
-    if (selectedBatch && !isAutoSelecting.current) {
+    if (selectedBatch && !isAutoSelecting.current && !selectedStudent) {
       if (!selectedDepartment) {
         // No department selected → fetch ALL assigned depts in parallel and merge
         // This avoids under-counting from batch-wide paginated queries
@@ -185,18 +174,14 @@ const Reports: React.FC = () => {
     }
   }, [selectedBatch, selectedDepartment, selectedSemester, selectedSection, loadStudents, loadStudentsByDepartments, derivedDepartments, selectedStudent]);
 
-  const combinedAllStudents = useMemo(() => {
-    const existingIds = new Set(allStudents.map(s => s.id));
-    const extras = DUMMY_STUDENTS.filter(s => !existingIds.has(s.id));
-    return [...allStudents, ...extras];
-  }, [allStudents]);
+  const combinedAllStudents = allStudents;
 
   useEffect(() => {
     if (selectedStudent) {
-      const student = combinedAllStudents.find(s => s.id === selectedStudent);
+      const student = selectedStudentObj || combinedAllStudents.find(s => s.id === selectedStudent);
       loadReport(selectedStudent, {}, student || undefined);
     }
-  }, [selectedStudent, loadReport, combinedAllStudents]);
+  }, [selectedStudent, loadReport, combinedAllStudents, selectedStudentObj]);
 
   const filteredStudentList = useMemo(() => {
     // Source: always use faculty-scoped pool
@@ -265,6 +250,7 @@ const Reports: React.FC = () => {
       if (student.batch_name) setSelectedBatch(student.batch_name);
 
       setSelectedStudent(studentId);
+      setSelectedStudentObj(student);
       setShowStudentList(false);
 
       setTimeout(() => { isAutoSelecting.current = false; }, 500);
@@ -273,6 +259,7 @@ const Reports: React.FC = () => {
 
   const handleBackToList = () => {
     setSelectedStudent('');
+    setSelectedStudentObj(null);
     setShowStudentList(true);
   };
 
@@ -294,12 +281,11 @@ const Reports: React.FC = () => {
     toast({ title: 'Excel Downloaded', description: 'Student report has been exported to Excel.' });
   };
 
-  const showReport = !loading && report && selectedStudent && !showStudentList;
-  const showList = !loading && showStudentList && !selectedStudent;
-  // Show empty when: no batch selected yet, and no student selected
-  const showEmpty = !loading && !showStudentList && !selectedStudent && !studentSearch;
-  // Show prompt when: user is searching but no batch has been loaded yet (allStudents is empty)
-  const showSearchNoBatch = !loading && !selectedStudent && studentSearch.length > 0 && allStudents.length === 0 && !showStudentList;
+  // View states simplified for reliability
+  const showReport = !loading && !!report && !!selectedStudent;
+  const showList = !loading && !selectedStudent && showStudentList;
+  const showEmpty = !loading && !selectedStudent && !showStudentList && !studentSearch;
+  const showSearchNoBatch = !loading && !selectedStudent && studentSearch && allStudents.length === 0 && !showStudentList;
 
   return (
     <FacultyLayout>
