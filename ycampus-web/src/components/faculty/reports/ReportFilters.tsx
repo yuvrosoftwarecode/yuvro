@@ -25,6 +25,7 @@ interface ReportFiltersProps {
   studentSearch: string;
   studentsLoading: boolean;
   semesters: number[];
+  assignedDeptIds: Set<string>;
   onDepartmentChange: (v: string) => void;
   onSemesterChange: (v: string) => void;
   onBatchChange: (v: string) => void;
@@ -38,14 +39,17 @@ interface ReportFiltersProps {
 const ReportFilters: React.FC<ReportFiltersProps> = ({
   departments, courses, batches, students, allStudents, sections,
   selectedDepartment, selectedSemester, selectedBatch, selectedStudent, selectedSubject, selectedSection,
-  studentSearch, studentsLoading, semesters,
+  studentSearch, studentsLoading, semesters, assignedDeptIds,
   onDepartmentChange, onSemesterChange, onBatchChange, onStudentChange, onSubjectChange, onSectionChange,
   onStudentSearchChange, onSearchTriggered,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const searchSource = studentSearch.length > 0 ? allStudents : students;
+  // Only show students whose department is in the faculty's assignments
+  const searchSource = (studentSearch.length > 0 ? allStudents : students).filter((s: BatchStudent) =>
+    assignedDeptIds.size === 0 || !s.department_id || assignedDeptIds.has(String(s.department_id))
+  );
   const filteredStudents = searchSource.filter((s: BatchStudent) =>
     s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
     s.rollNo.toLowerCase().includes(studentSearch.toLowerCase()) ||
