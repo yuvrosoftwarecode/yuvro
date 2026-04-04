@@ -166,7 +166,7 @@ const Students = () => {
             
             <Card className="border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xl font-bold text-foreground">All Students</CardTitle>
+                <CardTitle>All Students</CardTitle>
                 <div className="flex gap-2">
                   <BulkUploadDialog />
                   <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 h-10 px-4 bg-black text-white hover:bg-black/90">

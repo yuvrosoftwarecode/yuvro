@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, ShieldCheck } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -23,6 +23,7 @@ const menuItems = [
   { title: 'Batch IDs', url: '/college-admin/batch-ids', icon: Layers },
   { title: 'Faculty', url: '/college-admin/faculty', icon: UserCheck },
   { title: 'Students', url: '/college-admin/students', icon: Users },
+  { title: 'TPO', url: '/college-admin/tpo', icon: ShieldCheck },
   { title: 'Subjects', url: '/college-admin/subjects', icon: BookOpen },
   { title: 'Reports', url: '/college-admin/reports', icon: FileText },
   { title: 'Activity Logs', url: '/college-admin/logs', icon: Activity },
