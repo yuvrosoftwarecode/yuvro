@@ -34,7 +34,11 @@ class RestApiUtil {
             const url = new URL(urlString, window.location.origin);
             if (params) {
                 Object.entries(params).forEach(([key, value]) => {
-                    url.searchParams.append(key, value);
+                    // Safety check: Filter out both literal and stringified versions of undefined/null
+                    const stringValue = String(value);
+                    if (value !== undefined && value !== null && stringValue !== 'undefined' && stringValue !== 'null') {
+                        url.searchParams.append(key, stringValue);
+                    }
                 });
             }
             return url.toString();
@@ -43,7 +47,10 @@ class RestApiUtil {
             if (params) {
                 const searchParams = new URLSearchParams();
                 Object.entries(params).forEach(([key, value]) => {
-                    searchParams.append(key, value);
+                    const stringValue = String(value);
+                    if (value !== undefined && value !== null && stringValue !== 'undefined' && stringValue !== 'null') {
+                        searchParams.append(key, stringValue);
+                    }
                 });
                 const queryString = searchParams.toString();
                 if (queryString) {
