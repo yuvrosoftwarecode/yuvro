@@ -53,6 +53,7 @@ import CollegeAdminFaculty from "./pages/college-admin/Faculty";
 import CollegeAdminStudents from "./pages/college-admin/Students";
 import CollegeAdminTPO from "@/pages/college-admin/TPOManagement";
 import CollegeAdminSubjects from "./pages/college-admin/Subjects";
+import CollegeAdminPracticeTest from "./pages/college-admin/PracticeTest";
 import PrincipalFaculty from "./pages/principal/Faculty";
 import PrincipalStudents from "./pages/principal/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -254,6 +255,7 @@ const App = () => (
                       <Route path="tpo" element={<CollegeAdminTPO />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
                       <Route path="announcements" element={<CollegeAdminAnnouncements />} />
+                      <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                     </Routes>
                   </ProtectedRoute>
                 }

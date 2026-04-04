@@ -70,6 +70,7 @@ export interface SkillTestFilters {
   difficulty?: 'easy' | 'medium' | 'hard';
   search?: string;
   test_type?: string;
+  publish_status?: 'draft' | 'active' | 'inactive' | 'archived';
 }
 
 

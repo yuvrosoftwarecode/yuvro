@@ -23,10 +23,10 @@ type ViewMode = 'list' | 'create' | 'edit' | 'analytics';
 // --- Sub-components (Declared at top to avoid use-before-def issues) ---
 
 const FilterSelect = ({ label, value, options, values, onChange, disabled, highlight }: any) => (
-  <div className="space-y-1.5">
-    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">{label}</Label>
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-[#020817] mb-2 block font-sans">{label}</label>
     <Select value={value} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className={cn("bg-white/60", highlight && "border-primary/30 ring-primary/5 shadow-sm")}>
+      <SelectTrigger className="bg-white h-11 border-slate-200 hover:border-primary/50 transition-colors shadow-none">
         <SelectValue placeholder={`Select ${label}`} />
       </SelectTrigger>
       <SelectContent>
@@ -296,9 +296,9 @@ const Assessment = () => {
         </Button>
       </div>
 
-      <Card className="border-none shadow-sm bg-gradient-to-br from-white to-gray-50/50">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <Card className="border-slate-200 shadow-sm bg-slate-50/50 mb-6">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <FilterSelect label="Batch" value={selectedBatch} options={uniqueBatches} onChange={(v: string) => { setSelectedBatch(v); setSelectedDepartment(''); setSelectedSubject(''); setSelectedSection(''); setSelectedUnit(''); }} />
             <FilterSelect label="Department" value={selectedDepartment} options={uniqueDepartments.map(d=>d.name)} values={uniqueDepartments.map(d=>d.id)} onChange={(v: string) => { setSelectedDepartment(v); setSelectedSubject(''); setSelectedSection(''); setSelectedUnit(''); }} disabled={!selectedBatch} />
             <FilterSelect label="Subject" value={selectedSubject} options={uniqueSubjects.map(s=>s.name)} values={uniqueSubjects.map(s=>s.id)} onChange={(v: string) => { setSelectedSubject(v); setSelectedSection(''); setSelectedUnit(''); }} disabled={!selectedDepartment} />
