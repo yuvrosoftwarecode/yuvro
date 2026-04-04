@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Trophy } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
@@ -24,6 +24,7 @@ const menuItems = [
   { title: 'Faculty', url: '/college-admin/faculty', icon: UserCheck },
   { title: 'Students', url: '/college-admin/students', icon: Users },
   { title: 'Subjects', url: '/college-admin/subjects', icon: BookOpen },
+  { title: 'Practice Test', url: '/college-admin/practice-test', icon: Trophy },
   { title: 'Reports', url: '/college-admin/reports', icon: FileText },
   { title: 'Activity Logs', url: '/college-admin/logs', icon: Activity },
   { title: 'Settings', url: '/college-admin/settings', icon: Settings },

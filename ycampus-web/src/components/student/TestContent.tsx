@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -196,6 +196,7 @@ const subjectProblems: Record<string, Problem[]> = {
 
 const TestContent: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { testId } = useParams<{ testId: string }>();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -210,8 +211,26 @@ const TestContent: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [selectedTestForResults, setSelectedTestForResults] = useState<Problem | null>(null);
 
-  // Initialize state from URL parameters on mount
+  // Auto-show results when URL path contains a real skill test UUID
   useEffect(() => {
+    const isUUID = testId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(testId);
+    if (isUUID) {
+      // Create a placeholder problem for the results screen
+      const placeholder: Problem = {
+        id: testId!,
+        title: 'Practice Test',
+        difficulty: 'Medium',
+        duration: 60,
+        questions: 0,
+        color: 'from-violet-500 to-purple-600',
+        description: ''
+      };
+      setSelectedTestForResults(placeholder);
+      setShowResults(true);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const subject = searchParams.get('subject') || 'Java';
     const view = searchParams.get('view');
     const problemId = searchParams.get('problemId');
@@ -231,7 +250,7 @@ const TestContent: React.FC = () => {
 
     // Scroll to top on component mount
     window.scrollTo(0, 0);
-  }, [searchParams]);
+  }, [searchParams, testId]);
 
   const updateUrlParams = (params: Record<string, string | null>) => {
     const newParams = new URLSearchParams(searchParams);
@@ -336,6 +355,7 @@ const TestContent: React.FC = () => {
         difficulty={selectedTestForResults.difficulty}
         totalQuestions={selectedTestForResults.questions}
         timeTaken={selectedTestForResults.duration * 60}
+        skillTestId={testId}
         onTryAgain={handleTryAgain}
         onBackToTests={handleBackToTests}
       />

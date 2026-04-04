@@ -49,6 +49,7 @@ import CollegeAdminBatchIds from "./pages/college-admin/BatchIds";
 import CollegeAdminFaculty from "./pages/college-admin/Faculty";
 import CollegeAdminStudents from "./pages/college-admin/Students";
 import CollegeAdminSubjects from "./pages/college-admin/Subjects";
+import CollegeAdminPracticeTest from "./pages/college-admin/PracticeTest";
 import PrincipalFaculty from "./pages/principal/Faculty";
 import PrincipalStudents from "./pages/principal/Students";
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -246,6 +247,7 @@ const App = () => (
                       <Route path="faculty" element={<CollegeAdminFaculty />} />
                       <Route path="students" element={<CollegeAdminStudents />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
+                      <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
                     </Routes>
                   </ProtectedRoute>
                 }
