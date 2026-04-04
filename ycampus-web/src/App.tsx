@@ -38,6 +38,7 @@ import HODStudents from "./pages/hod/Students";
 import HODFaculty from "./pages/hod/Faculty";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
 import PrincipalDepartments from "./pages/principal/Departments";
+import PrincipalAnnouncements from './pages/principal/Announcements';
 import PRIReport from "./pages/principal/PRIReport";
 import DepartmentDetail from "./pages/principal/DepartmentDetail";
 import PrincipalHODs from "./pages/principal/HODs";
@@ -45,6 +46,7 @@ import CollegeAdminDashboard from "./pages/college-admin/CollegeAdminDashboard";
 import CollegeAdminPrincipals from "./pages/college-admin/Principals";
 import CollegeAdminHODs from "./pages/college-admin/HODs";
 import CollegeAdminDepartments from "./pages/college-admin/Departments";
+import CollegeAdminAnnouncements from "./pages/college-admin/Announcements";
 import CollegeAdminBatchIds from "./pages/college-admin/BatchIds";
 import CollegeAdminFaculty from "./pages/college-admin/Faculty";
 import CollegeAdminStudents from "./pages/college-admin/Students";
@@ -225,6 +227,7 @@ const App = () => (
                       <Route path="departments/:id" element={<DepartmentDetail />} />
                       <Route path="faculty" element={<PrincipalFaculty />} />
                       <Route path="students" element={<PrincipalStudents />} />
+                      <Route path="announcements" element={<PrincipalAnnouncements />} />
                       <Route path="pri-report" element={<PRIReport />} />
                       <Route path="hods" element={<PrincipalHODs />} />
                     </Routes>
@@ -248,6 +251,7 @@ const App = () => (
                       <Route path="students" element={<CollegeAdminStudents />} />
                       <Route path="tpo" element={<CollegeAdminTPO />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
+                      <Route path="announcements" element={<CollegeAdminAnnouncements />} />
                     </Routes>
                   </ProtectedRoute>
                 }

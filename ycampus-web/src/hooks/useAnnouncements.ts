@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { announcementService, Announcement as APIAnnouncement } from '@/services/announcementService';
+import { studentService } from '@/services/studentService';
 
 export interface Announcement {
   id: string;
@@ -19,6 +20,24 @@ export interface Announcement {
   is_read: boolean;
 }
 
+// Helper to map API Announcement to UI Announcement
+const mapToUI = (a: APIAnnouncement, readSet: Set<string>): Announcement => ({
+  id: a.id,
+  title: a.title,
+  description: a.content || '',
+  full_content: a.content || null,
+  category: a.level,
+  department_id: a.department,
+  priority: a.priority,
+  posted_by: a.created_by_name || 'Admin',
+  posted_date: a.publish_date || a.created_at,
+  expiry_date: a.expiry_date,
+  attachment_url: a.attachment || null,
+  created_at: a.created_at,
+  updated_at: a.updated_at,
+  is_read: readSet.has(a.id),
+});
+
 export type CategoryFilter = 'all' | 'college' | 'department';
 export type PriorityFilter = 'all' | 'normal' | 'important' | 'urgent';
 export type SortOrder = 'latest' | 'oldest';
@@ -35,22 +54,23 @@ export function useAnnouncements() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch student's department
+  // Fetch student's department info
   const [studentDeptId, setStudentDeptId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    const fetchDept = async () => {
-      const { data } = await supabase
-        .from('student_semester_mapping')
-        .select('department_id')
-        .eq('student_id', user.id)
-        .eq('is_active', true)
-        .limit(1)
-        .maybeSingle();
-      setStudentDeptId(data?.department_id ?? null);
+    if (!user || user.role !== 'student') return;
+    const fetchStudentProfile = async () => {
+      try {
+        const response = await studentService.getStudents({ user: user.id });
+        if (response.results.length > 0) {
+          const studentProfile = response.results[0];
+          setStudentDeptId(studentProfile.department?.toString() || null);
+        }
+      } catch (err) {
+        console.error('Error fetching student profile:', err);
+      }
     };
-    fetchDept();
+    fetchStudentProfile();
   }, [user]);
 
   // Fetch announcements
@@ -58,113 +78,71 @@ export function useAnnouncements() {
     if (!user) return;
     const fetchData = async () => {
       setLoading(true);
-      const [announcementsRes, readsRes] = await Promise.all([
-        supabase.from('announcements').select('*').order('posted_date', { ascending: false }),
-        supabase.from('announcement_reads').select('announcement_id').eq('user_id', user.id),
-      ]);
+      try {
+        // Fetch announcements from REST API
+        const response = await announcementService.getAnnouncements({
+          is_active: true,
+          ordering: '-publish_date'
+        });
 
-      const readSet = new Set((readsRes.data ?? []).map((r: any) => r.announcement_id));
-      setReadIds(readSet);
+        // For now, we'll use local state for read status as the backend doesn't have a direct "read" endpoint yet
+        // or we could use a local storage based approach if needed.
+        const readSet = new Set<string>(); // In a real app, this might come from another API call or localStorage
+        setReadIds(readSet);
 
-      const dbAnnouncements = (announcementsRes.data ?? []).map((a: any) => ({
-        ...a,
-        is_read: readSet.has(a.id),
-      }));
+        const apiAnnouncements = (response.results || []).map((a: APIAnnouncement) => 
+          mapToUI(a, readSet)
+        );
 
-      // Mock data for demonstration
-      const mockAnnouncements: Announcement[] = [
-        {
-          id: 'mock-1',
-          title: 'Campus Recruitment Drive: Techflow Solutions',
-          description: 'Techflow Solutions is visiting for a campus recruitment drive for final year students.',
-          full_content: 'We are pleased to announce that Techflow Solutions will be visiting our campus on April 15th for a recruitment drive. Eligibility: CSE & ECE with 7.5 CGPA and above. Register at the placement cell by April 10th.',
-          category: 'college',
-          department_id: null,
-          priority: 'important',
-          posted_by: 'Placement Officer',
-          posted_date: new Date().toISOString(),
-          expiry_date: new Date(Date.now() + 86400000 * 20).toISOString(),
-          attachment_url: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          is_read: readSet.has('mock-1'),
-        },
-        {
-          id: 'mock-2',
-          title: 'Internal Assessment - II Schedule Out',
-          description: 'The schedule for the second internal assessment has been released for all semesters.',
-          full_content: 'Students are advised to check the departmental notice board for the detailed schedule of Mid-Term exams starting from next Monday.',
-          category: 'department',
-          department_id: studentDeptId,
-          priority: 'urgent',
-          posted_by: 'HOD Office',
-          posted_date: new Date(Date.now() - 86400000).toISOString(),
-          expiry_date: new Date(Date.now() + 86400000 * 5).toISOString(),
-          attachment_url: null,
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          updated_at: new Date(Date.now() - 86400000).toISOString(),
-          is_read: readSet.has('mock-2'),
-        },
-        {
-          id: 'mock-3',
-          title: 'Upcoming Holiday: Ambedkar Jayanti',
-          description: 'The college will remain closed on April 14th on account of Ambedkar Jayanti.',
-          full_content: 'All academic and administrative activities will be suspended for the day.',
-          category: 'college',
-          department_id: null,
-          priority: 'normal',
-          posted_by: 'Administration',
-          posted_date: new Date(Date.now() - 86400000 * 2).toISOString(),
-          expiry_date: new Date(Date.now() + 86400000 * 10).toISOString(),
-          attachment_url: null,
-          created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-          updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-          is_read: readSet.has('mock-3'),
-        }
-      ];
+        // Filter: hide expired, filter department visibility
+        const now = new Date();
+        const visible = apiAnnouncements.filter((a: Announcement) => {
+          if (a.expiry_date && new Date(a.expiry_date) < now) return false;
+          // For students, show college announcements or those specifically for their department
+          if (user.role === 'student' && a.category === 'department' && a.department_id && a.department_id !== studentDeptId) {
+            return false;
+          }
+          return true;
+        });
 
-      const allAnnouncements: Announcement[] = [...dbAnnouncements, ...mockAnnouncements];
-
-      // Filter: hide expired, filter department visibility
-      const visible = allAnnouncements.filter((a) => {
-        if (a.expiry_date && new Date(a.expiry_date) < new Date()) return false;
-        if (a.category === 'department' && a.department_id && a.department_id !== studentDeptId) return false;
-        return true;
-      });
-
-      setAnnouncements(visible);
-      setLoading(false);
+        setAnnouncements(visible);
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [user, studentDeptId]);
 
-  // Mark as read
+  // Mark as read (local state for now)
   const markAsRead = async (announcementId: string) => {
-    if (!user || readIds.has(announcementId)) return;
-    await supabase.from('announcement_reads').insert({
-      announcement_id: announcementId,
-      user_id: user.id,
-    });
-    setReadIds((prev) => new Set([...prev, announcementId]));
-    setAnnouncements((prev) =>
-      prev.map((a) => (a.id === announcementId ? { ...a, is_read: true } : a))
+    if (readIds.has(announcementId)) return;
+    
+    // If backend supports marking as read, add API call here
+    // await announcementService.markAsRead(announcementId);
+    
+    setReadIds((prev: Set<string>) => new Set([...prev, announcementId]));
+    setAnnouncements((prev: Announcement[]) =>
+      prev.map((a: Announcement) => (a.id === announcementId ? { ...a, is_read: true } : a))
     );
   };
+
 
   // Filtered & sorted
   const filtered = useMemo(() => {
     let result = [...announcements];
 
     if (categoryFilter !== 'all') {
-      result = result.filter((a) => a.category === categoryFilter);
+      result = result.filter((a: Announcement) => a.category === categoryFilter);
     }
     if (priorityFilter !== 'all') {
-      result = result.filter((a) => a.priority === priorityFilter);
+      result = result.filter((a: Announcement) => a.priority === priorityFilter);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (a) => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q)
+        (a: Announcement) => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q)
       );
     }
 

@@ -3,52 +3,53 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell, MessageSquare, Calendar as CalendarIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { badgeVariants } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { formatDistanceToNow } from 'date-fns';
 
 export function AnnouncementsWidget() {
-  const announcements = [
-    {
-      id: 1,
-      title: 'New Python Course Available',
-      type: 'course',
-      description: 'Advanced Python programming course is now live',
-      timestamp: '2 hours ago',
-      read: false
-    },
-    {
-      id: 2,
-      title: 'Contest Registration Open',
-      type: 'event',
-      description: 'Register for the upcoming coding contest by March 15',
-      timestamp: '5 hours ago',
-      read: false
-    },
-    {
-      id: 3,
-      title: 'System Maintenance Notice',
-      type: 'system',
-      description: 'Platform will be under maintenance on Sunday',
-      timestamp: '1 day ago',
-      read: true
-    },
-    {
-      id: 4,
-      title: 'Assignment Deadline Reminder',
-      type: 'reminder',
-      description: 'Data Structures assignment due in 3 days',
-      timestamp: '1 day ago',
-      read: true
-    }
-  ];
+  const { announcements, loading } = useAnnouncements();
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'course': return 'hsl(var(--success))';
-      case 'event': return 'hsl(var(--saffron))';
+      case 'college': return 'hsl(var(--success))';
+      case 'department': return 'hsl(var(--saffron))';
       case 'system': return 'hsl(var(--muted-foreground))';
       case 'reminder': return 'hsl(var(--primary))';
       default: return 'hsl(var(--foreground))';
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" style={{ color: 'hsl(var(--saffron-light))' }} />
+            Announcements
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-20 w-full bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Take top 5 latest announcements
+  const displayAnnouncements = announcements.slice(0, 5).map(a => ({
+    id: a.id,
+    title: a.title,
+    type: a.category,
+    description: a.description,
+    timestamp: formatDistanceToNow(new Date(a.posted_date), { addSuffix: true }),
+    read: a.is_read
+  }));
 
   return (
     <Card>
@@ -58,15 +59,15 @@ export function AnnouncementsWidget() {
             <Bell className="h-5 w-5" style={{ color: 'hsl(var(--saffron-light))' }} />
             Announcements
           </CardTitle>
-          <Badge variant="secondary">
-            {announcements.filter(a => !a.read).length} new
-          </Badge>
+          <div className={cn(badgeVariants({ variant: 'secondary' }))}>
+            {displayAnnouncements.filter(a => !a.read).length} new
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px] pr-4">
           <div className="space-y-3">
-            {announcements.map((announcement) => (
+            {displayAnnouncements.map((announcement) => (
               <div
                 key={announcement.id}
                 className={`p-3 rounded-lg border transition-colors cursor-pointer hover:bg-muted/50 ${
@@ -90,16 +91,15 @@ export function AnnouncementsWidget() {
                     <CalendarIcon className="h-3 w-3" />
                     {announcement.timestamp}
                   </span>
-                  <Badge 
-                    variant="outline" 
-                    className="text-xs"
+                  <div 
+                    className={cn(badgeVariants({ variant: 'outline' }), "text-xs")}
                     style={{ 
                       color: getTypeColor(announcement.type),
                       borderColor: `${getTypeColor(announcement.type)}30`
                     }}
                   >
                     {announcement.type}
-                  </Badge>
+                  </div>
                 </div>
               </div>
             ))}
