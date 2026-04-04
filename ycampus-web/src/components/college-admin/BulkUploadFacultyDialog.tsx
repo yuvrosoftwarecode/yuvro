@@ -1,25 +1,24 @@
 import { useState, useRef } from 'react';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, Download, X, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { useProfiles } from '@/hooks/useProfiles';
 import { useDepartments } from '@/hooks/useDepartments';
 import { supabase } from '@/integrations/supabase/client';
-import { facultyService } from '@/services/facultyService';
-import { useAuth } from '@/contexts/AuthContext';
 
 export function BulkUploadFacultyDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addProfile } = useProfiles();
   const { departments } = useDepartments();
-  const { user } = useAuth();
 
   const downloadTemplate = () => {
-    const headers = ['First Name', 'Last Name', 'Email', 'Username', 'Designation', 'Primary Department Code'];
+    const headers = ['Full Name', 'Email', 'Department Code', 'Reporting Manager Email', 'Subject Code', 'Semester'];
     const exampleData = [
-      'John,Doe,john.doe@college.edu,jdoe,Senior Professor,CSE',
-      'Jane,Smith,jane.smith@college.edu,jsmith,Lecturer,IT'
+      'John Doe,john.doe@college.edu,CSE,hod@college.edu,CS101,1',
+      'Jane Smith,jane.smith@college.edu,IT,principal@college.edu,IT201,2'
     ];
 
     const csv = [headers.join(','), ...exampleData].join('\n');
@@ -27,7 +26,7 @@ export function BulkUploadFacultyDialog() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'faculty_onboarding_template.csv';
+    a.download = 'faculty_bulk_upload_template.csv';
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -43,11 +42,11 @@ export function BulkUploadFacultyDialog() {
       const lines = text.split('\n').filter(line => line.trim());
       const headers = lines[0].split(',').map(h => h.trim());
 
-      const requiredHeaders = ['First Name', 'Last Name', 'Email', 'Primary Department Code'];
+      const requiredHeaders = ['Full Name', 'Email', 'Department Code', 'Reporting Manager Email', 'Subject Code', 'Semester'];
       const hasAllHeaders = requiredHeaders.every(h => headers.includes(h));
 
       if (!hasAllHeaders) {
-        throw new Error(`Invalid CSV format. Missing one of: ${requiredHeaders.join(', ')}`);
+        throw new Error('Invalid CSV format. Please use the provided template.');
       }
 
       let successCount = 0;
@@ -61,25 +60,44 @@ export function BulkUploadFacultyDialog() {
             row[header] = values[index] || '';
           });
 
-          const department = departments?.find(d => d.code === row['Primary Department Code'] || d.name === row['Primary Department Code']);
+          const department = departments?.find(d => d.code === row['Department Code']);
           if (!department) {
-            throw new Error(`Department ${row['Primary Department Code']} not found`);
+            throw new Error(`Department ${row['Department Code']} not found`);
           }
 
-          // Create faculty profile via REST Service
-          await facultyService.createFaculty({
-            user: {
-              first_name: row['First Name'],
-              last_name: row['Last Name'],
-              email: row['Email'],
-              username: row['Username'] || row['Email'],
-              password: 'ChangeMe@123'
-            },
-            college: user?.college_id || '1',
-            department: department.id.toString(),
-            linked_departments: [],
-            designation: row['Designation'] || 'Academic Faculty'
+          // Create faculty profile
+          const profile = await addProfile({
+            email: row['Email'],
+            full_name: row['Full Name'],
+            role: 'faculty'
           });
+
+          if (!profile || !profile.id) {
+            throw new Error('Failed to create faculty profile');
+          }
+
+          // Get course by code
+          const { data: courses } = await supabase
+            .from('courses')
+            .select('id')
+            .eq('code', row['Subject Code'])
+            .eq('department_id', department.id)
+            .single();
+
+          if (courses) {
+            // Add assignment
+            const currentYear = new Date().getFullYear();
+            await supabase
+              .from('faculty_subject_mapping')
+              .insert({
+                faculty_id: profile.id,
+                course_id: courses.id,
+                department_id: department.id,
+                semester: parseInt(row['Semester']),
+                academic_year: `${currentYear}-${currentYear + 1}`,
+                is_active: true
+              });
+          }
 
           successCount++;
         } catch (error) {
@@ -88,11 +106,7 @@ export function BulkUploadFacultyDialog() {
         }
       }
 
-      if (errorCount === 0) {
-        toast.success(`Successfully onboarded ${successCount} faculty members.`);
-      } else {
-        toast.info(`Onboarded ${successCount} members. ${errorCount} records failed.`);
-      }
+      toast.success(`Successfully added ${successCount} faculty members. ${errorCount} errors.`);
       setOpen(false);
     } catch (error: any) {
       toast.error(error.message || 'Failed to process file');
@@ -107,84 +121,41 @@ export function BulkUploadFacultyDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-12 border-zinc-200 rounded-2xl font-bold text-xs uppercase tracking-widest px-6 shadow-sm hover:bg-zinc-50">
+        <Button variant="outline">
           <Upload className="mr-2 h-4 w-4" />
-          Bulk Action
+          Bulk Upload
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl p-0 border-none rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <div className="flex">
-            {/* Left Sidebar */}
-            <div className="w-56 bg-zinc-900 p-8 flex flex-col justify-between text-white shrink-0">
-                <div>
-                    <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center mb-6">
-                        <FileText className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-xl font-black leading-tight tracking-tight">Bulk Import</h3>
-                    <p className="mt-3 text-zinc-500 text-[11px] font-medium leading-relaxed uppercase tracking-wider">Sync Academic Records</p>
-                </div>
-                
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-zinc-500" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Auto-Pass</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 bg-white p-10">
-                <div className="space-y-8">
-                    <div>
-                        <h4 className="text-lg font-black text-zinc-900 tracking-tight">Onboard Academic Staff</h4>
-                        <p className="text-zinc-500 text-sm font-medium mt-1">Upload a structured CSV to register multiple faculty members at once.</p>
-                    </div>
-
-                    <div className="bg-zinc-50 rounded-2xl p-6 border border-zinc-100/50 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Step 1: Get Template</span>
-                            <Download className="h-3.5 w-3.5 text-zinc-300" />
-                        </div>
-                        <Button onClick={downloadTemplate} variant="ghost" className="h-12 bg-white border border-zinc-100 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all">
-                            Download Template Structure
-                        </Button>
-                    </div>
-
-                    <div className="space-y-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Step 2: Upload Files</span>
-                        <div className="border-2 border-dashed border-zinc-100 rounded-3xl p-12 text-center group hover:border-zinc-300 transition-all cursor-pointer relative overflow-hidden bg-zinc-50/20"
-                             onClick={() => !loading && fileInputRef.current?.click()}>
-                            <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                            disabled={loading}
-                            />
-                            
-                            <div className="relative z-10 flex flex-col items-center gap-4">
-                                <div className="h-16 w-16 rounded-[2rem] bg-white shadow-xl shadow-zinc-200 border border-zinc-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                                    <Upload className={`h-6 w-6 text-zinc-900 ${loading ? 'animate-bounce' : ''}`} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-black text-zinc-900">
-                                        {loading ? 'Processing Records...' : 'Drop CSV File Here'}
-                                    </p>
-                                    <p className="text-[11px] text-zinc-400 font-medium mt-1">Click to browse your locale storage</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 px-4 py-3 bg-red-50/50 rounded-xl border border-red-50 shrink-0">
-                        <ShieldAlert className="h-3.5 w-3.5 text-red-500 shrink-0" />
-                        <p className="text-[10px] font-bold text-red-700/80 leading-relaxed italic">
-                            Ensure Department Codes in CSV match existing system records exactly.
-                        </p>
-                    </div>
-                </div>
-            </div>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Bulk Upload Faculty</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <Button onClick={downloadTemplate} variant="outline" className="w-full">
+            Download CSV Template
+          </Button>
+          
+          <div className="border-2 border-dashed rounded-lg p-8 text-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={loading}
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading}
+              variant="secondary"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {loading ? 'Processing...' : 'Upload CSV File'}
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Upload a CSV file with faculty data
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
