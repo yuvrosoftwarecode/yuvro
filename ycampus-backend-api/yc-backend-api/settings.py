@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "assessment",
     "django_filters",
     "community",
+    "ai_interview_planner",
 ]
 
 MIDDLEWARE = [

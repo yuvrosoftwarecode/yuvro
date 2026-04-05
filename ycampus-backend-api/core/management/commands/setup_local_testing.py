@@ -59,6 +59,13 @@ class Command(BaseCommand):
                 call_command("load_sample_companies_and_jobs", deploy_env=options["deploy_env"], verbosity=1)
             self.stdout.write("")
 
+            self.stdout.write("🤖 Loading AI Interview Planner mock data...")
+            if options["clear"]:
+                call_command("load_planner_data", "--clear", deploy_env=options["deploy_env"], verbosity=1)
+            else:
+                call_command("load_planner_data", deploy_env=options["deploy_env"], verbosity=1)
+            self.stdout.write("")
+
             self.stdout.write("📝 Loading sample assessment tests...")
             if options["clear"]:
                 call_command("load_sample_assessment_tests", "--clear", deploy_env=options["deploy_env"], verbosity=1)
@@ -89,6 +96,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("✓ Test users created"))
             self.stdout.write(self.style.SUCCESS("✓ Sample courses loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample companies and jobs loaded"))
+            self.stdout.write(self.style.SUCCESS("✓ AI Interview Planner mock data loaded"))
             self.stdout.write(self.style.SUCCESS("✓ Sample assessment tests loaded"))
             self.stdout.write(self.style.SUCCESS("✓ College data loaded"))
             self.stdout.write(self.style.SUCCESS("✓ AI agents seeded"))
