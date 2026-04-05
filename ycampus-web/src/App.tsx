@@ -48,6 +48,7 @@ import CollegeAdminDepartments from "./pages/college-admin/Departments";
 import CollegeAdminBatchIds from "./pages/college-admin/BatchIds";
 import CollegeAdminFaculty from "./pages/college-admin/Faculty";
 import CollegeAdminStudents from "./pages/college-admin/Students";
+import CollegeAdminTPO from "@/pages/college-admin/TPOManagement";
 import CollegeAdminSubjects from "./pages/college-admin/Subjects";
 import PrincipalFaculty from "./pages/principal/Faculty";
 import PrincipalStudents from "./pages/principal/Students";
@@ -80,7 +81,7 @@ import JobApplicationsPage from "./pages/placement/JobApplications";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
-import Index from "./pages/Index";
+
 import NotFound from "./pages/NotFound";
 
 // Mock Interview Imports
@@ -242,9 +243,10 @@ const App = () => (
                       <Route path="hods" element={<CollegeAdminHODs />} />
                       <Route path="departments" element={<CollegeAdminDepartments />} />
                       <Route path="departments/:id" element={<CollegeAdminDepartments />} />
-                      <Route path="batches" element={<CollegeAdminBatchIds />} />
+                      <Route path="batch-ids" element={<CollegeAdminBatchIds />} />
                       <Route path="faculty" element={<CollegeAdminFaculty />} />
                       <Route path="students" element={<CollegeAdminStudents />} />
+                      <Route path="tpo" element={<CollegeAdminTPO />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
                     </Routes>
                   </ProtectedRoute>
