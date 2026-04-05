@@ -125,7 +125,7 @@ function SetupScreen({ onStart }: { onStart: (cfg: any) => void }) {
 
   return (
     <StudentLayout>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center">
@@ -247,7 +247,7 @@ function PreparationDashboard({ config, onReset }: { config: any; onReset: () =>
 
   return (
     <StudentLayout>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6 ">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
