@@ -188,7 +188,7 @@ export async function createSubject(subjectData: any) {
 
 export async function updateSubject(
   subjectId: string,
-  payload: Partial<{ subject_name: string; short_code: string | null }>
+  payload: Partial<{ subject_name: string; short_code: string | null; description: string | null }>
 ) {
   return restApiAuthUtil.patch(`/course/subjects/${subjectId}/`, payload);
 }
@@ -523,6 +523,9 @@ const subjectService = {
   fetchUserStats,
   fetchOverallUserProgress,
   fetchCollegeSubjects,
+  assignSubjectToCollege,
+  updateCollegeSubject,
+  removeSubjectFromCollege,
   addSubjectToSemester,
   removeSubjectFromSemester,
   getSubjectsForSemester,
