@@ -77,7 +77,7 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
     };
 
     return (
-        <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100/50 flex flex-col font-sans" style={{ height }}>
+        <div className="relative overflow-hidden bg-white flex flex-col font-sans" style={{ height }}>
             {/* Premium Header */}
             <div className="flex items-center justify-between px-6 h-14 bg-slate-50 border-b border-gray-100 shrink-0">
                 <div className="flex items-center gap-5">
@@ -85,7 +85,7 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                         <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-100">
                             <TerminalIcon className="w-3.5 h-3.5 text-white" />
                         </div>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Environment</span>
+                        <span className="text-[10px] font-bold text-gray-400 tracking-wide">Environment</span>
                     </div>
 
                     {onLanguageChange && (
@@ -116,7 +116,7 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                     {onShowExamples && (
                         <button
                             onClick={onShowExamples}
-                            className="flex items-center gap-2 text-[10px] font-black bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 px-4 py-2 rounded-xl transition-all active:scale-95 uppercase tracking-widest shadow-sm shadow-blue-50 hover:shadow-md"
+                            className="flex items-center gap-2 text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 px-4 py-2 rounded-xl transition-all active:scale-95 tracking-wide shadow-sm shadow-blue-50 hover:shadow-md"
                         >
                             <BookOpen className="w-3.5 h-3.5" />
                             Examples
@@ -142,7 +142,7 @@ const MonacoCodeEditor = React.forwardRef<any, MonacoCodeEditorProps>(({
                             {onToggleAiChat && (
                                 <button
                                     onClick={onToggleAiChat}
-                                    className={`flex items-center gap-2 text-[10px] h-9 px-5 rounded-xl transition-all font-black uppercase tracking-widest shadow-sm active:scale-95 ${isAiChatOpen
+                                    className={`flex items-center gap-2 text-[10px] h-9 px-5 rounded-xl transition-all font-bold tracking-wide shadow-sm active:scale-95 ${isAiChatOpen
                                         ? 'bg-indigo-600 text-white shadow-indigo-100 border border-indigo-600'
                                         : 'bg-white text-indigo-600 hover:bg-indigo-50 border border-indigo-100'
                                         }`}

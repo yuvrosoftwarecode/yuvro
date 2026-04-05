@@ -3,7 +3,7 @@ import ProgressCircleWidget from './ProgressCircleWidget';
 import ActivityCalendarWidget from './ActivityCalendarWidget';
 import DailyGoalWidget from './DailyGoalWidget';
 import LeaderboardWidget from './LeaderboardWidget';
-import { CalendarDays, ChevronUp, Trophy } from 'lucide-react';
+import { CalendarDays, ChevronUp, Trophy, Flame } from 'lucide-react';
 
 import type { Course, Stats, CourseProgressMap } from '../types';
 
@@ -135,6 +135,16 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
             <div className="relative z-10 flex flex-col overflow-hidden transform-gpu">
               {activeTab === 'calendar' ? (
                 <div key="calendar" className="animate-in fade-in slide-in-from-right-2 duration-300 ease-out fill-mode-forwards">
+                  <div className="px-3 pt-3">
+                    <div className="flex items-center justify-center gap-3 bg-white/50 backdrop-blur-sm px-3 py-2 rounded-xl border border-orange-100 shadow-sm relative hover:shadow-md hover:scale-[1.01] transition-all duration-300 mb-2">
+                        <div className="flex items-center gap-1.5">
+                            <Flame className="w-4 h-4 text-orange-500" />
+                            <span className="text-xs font-bold text-gray-800">Current - {stats.streak || 0}</span>
+                        </div>
+                        <div className="text-gray-300 text-xs font-light">|</div>
+                        <span className="text-xs font-bold text-gray-500">Max - {stats.max_streak || 0}</span>
+                    </div>
+                  </div>
                   <ActivityCalendarWidget
                     activityMap={realActivityMap}
                   />

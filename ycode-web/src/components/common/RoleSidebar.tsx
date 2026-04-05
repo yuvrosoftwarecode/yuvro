@@ -26,16 +26,9 @@ import {
   User,
   ChevronUp,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronsUpDown
 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SidebarItem {
@@ -200,6 +193,7 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const userRole = user?.role || 'student';
   const userEmail = user?.email || '';
@@ -302,50 +296,64 @@ const RoleSidebar: React.FC<RoleSidebarProps> = ({ className = '' }) => {
 
       {/* Bottom Profile Section */}
       <div className="p-4 border-t border-gray-100">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={`w-full flex items-center gap-3 p-2 rounded-xl transition-all hover:bg-gray-50 group ${sidebarCollapsed ? 'justify-center' : ''}`}>
-              <Avatar className="h-9 w-9 border-2 border-white shadow-sm ring-1 ring-gray-100">
-                <AvatarFallback className="bg-orange-600 text-white font-bold text-xs">
-                  {(user?.first_name || user?.username || 'U').charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              
-              {!sidebarCollapsed && (
+        <div>
+          <button
+            onClick={() => !sidebarCollapsed && setProfileOpen(!profileOpen)}
+            className={`w-full flex items-center p-2 rounded-xl transition-all hover:bg-gray-50 group ${sidebarCollapsed ? 'justify-center' : 'gap-3'}`}
+          >
+            <Avatar className="h-9 w-9 border-2 border-white shadow-sm ring-1 ring-gray-100 shrink-0">
+              <AvatarFallback className="bg-orange-600 text-white font-bold text-xs uppercase">
+                {(user?.first_name || user?.username || 'U').charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            
+            {!sidebarCollapsed && (
+              <>
                 <div className="flex-1 text-left min-w-0">
                   <p className="text-xs font-bold text-gray-900 truncate">
                     {user?.first_name || user?.username || 'User'}
                   </p>
                   <p className="text-[10px] text-gray-500 truncate capitalize">{userRole}</p>
                 </div>
-              )}
+                <ChevronsUpDown className={`h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+              </>
+            )}
+          </button>
+
+          {/* Inline expandable options */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              profileOpen && !sidebarCollapsed ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="px-2 pb-2 pt-2 space-y-1">
+              <p className="text-[10px] text-gray-400 font-medium px-2 pb-1 truncate border-b border-gray-50 mb-1">
+                {user?.email}
+              </p>
               
-              {!sidebarCollapsed && (
-                <ChevronUp className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-              )}
-            </button>
-          </DropdownMenuTrigger>
-          
-          <DropdownMenuContent align={sidebarCollapsed ? "center" : "end"} side={sidebarCollapsed ? "right" : "top"} className="w-56 mb-2 rounded-xl shadow-xl border-gray-100">
-            <DropdownMenuLabel className="font-semibold text-xs text-gray-500 uppercase tracking-wider px-3 py-2">
-              My Account
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            
-            {profileMenuItems.map((item) => (
-              <DropdownMenuItem key={item.path} className="rounded-lg m-1 cursor-pointer" onClick={() => navigate(item.path)}>
-                <item.icon className="mr-2 h-4 w-4 text-gray-400" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </DropdownMenuItem>
-            ))}
-            
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="rounded-lg m-1 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => logout()}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span className="text-sm font-medium">Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {profileMenuItems.map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className="w-full flex items-center rounded-lg px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  <item.icon className="mr-2 h-4 w-4 text-gray-400" />
+                  {item.label}
+                </button>
+              ))}
+              
+              <div className="h-px bg-gray-50 my-1" />
+              
+              <button
+                onClick={() => logout()}
+                className="w-full flex items-center rounded-lg px-2 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

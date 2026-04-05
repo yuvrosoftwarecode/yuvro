@@ -1,49 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchNotesBySubtopic, createNote, deleteNote, updateNote, Note } from "@/services/courseService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Trash2, Plus, StickyNote, BookOpen, Pencil, X, Check, Columns, Minimize2 } from "lucide-react";
+import { Trash2, Plus, StickyNote, BookOpen, Pencil, X, Check, Sparkles } from "lucide-react";
+import AIChatContainer from "./Learn/AIChatWidget/AIChatContainer";
 
 const MaterialsView = ({
   materials,
-  isSplitView,
-  setIsSplitView,
-  showHeader = true
+  showHeader = true,
+  actions
 }: {
   materials: Note[],
-  isSplitView: boolean,
-  setIsSplitView: (val: boolean) => void,
-  showHeader?: boolean
+  showHeader?: boolean,
+  actions?: React.ReactNode
 }) => (
   <div className="h-full flex flex-col">
     {showHeader && (
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div className="flex items-center gap-2 text-gray-800 font-semibold font-sans">
-          <BookOpen className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg">Study Materials</h2>
+      <div className="flex items-center justify-between mb-4 shrink-0 px-1">
+        <div className="flex items-center gap-3 text-gray-900 font-bold tracking-tight font-sans">
+          <BookOpen className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-base">Study materials</h2>
         </div>
-        {!isSplitView && (
-          <Button variant="secondary" size="sm" onClick={() => setIsSplitView(true)} className="gap-2 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all font-sans">
-            <Columns className="w-4 h-4" /> Compare
-          </Button>
-        )}
+        {actions}
       </div>
     )}
 
     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
       {materials.length === 0 ? (
-        <div className="text-center py-20 text-gray-400 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 font-sans">
+        <div className="text-center py-20 text-gray-400 bg-slate-50 border-gray-100/60 rounded-xl border border-dashed font-sans">
           <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
-          <p className="text-sm">No study materials available for this topic yet.</p>
+          <p className="text-sm font-medium">No study materials available for this topic yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {materials.map((note) => (
-            <Card key={note.id} className="border-l-4 border-l-blue-500 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all">
-              <CardContent className="p-5 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 font-sans">
+            <Card key={note.id} className="border-l-4 border-l-indigo-600 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all">
+              <CardContent className="p-5 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-700 font-sans">
                 {note.content}
               </CardContent>
             </Card>
@@ -56,8 +51,6 @@ const MaterialsView = ({
 
 const MyNotesView = ({
   myNotes,
-  isSplitView,
-  setIsSplitView,
   newNoteContent,
   setNewNoteContent,
   handleCreateNote,
@@ -69,11 +62,10 @@ const MyNotesView = ({
   handleUpdateNote,
   handleDeleteNote,
   startEditing,
-  showHeader = true
+  showHeader = true,
+  actions
 }: {
   myNotes: Note[],
-  isSplitView: boolean,
-  setIsSplitView: (val: boolean) => void,
   newNoteContent: string,
   setNewNoteContent: (val: string) => void,
   handleCreateNote: () => void,
@@ -85,74 +77,71 @@ const MyNotesView = ({
   handleUpdateNote: (id: string) => void,
   handleDeleteNote: (id: string) => void,
   startEditing: (note: Note) => void,
-  showHeader?: boolean
+  showHeader?: boolean,
+  actions?: React.ReactNode
 }) => (
   <div className="h-full flex flex-col">
     {showHeader && (
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div className="flex items-center gap-2 text-gray-800 font-semibold font-sans">
+      <div className="flex items-center justify-between mb-4 shrink-0 px-1">
+        <div className="flex items-center gap-3 text-gray-900 font-bold tracking-tight font-sans">
           <StickyNote className="w-5 h-5 text-indigo-600" />
-          <h2 className="text-lg">Personal Notes</h2>
+          <h2 className="text-base">Personal notes</h2>
         </div>
-        {!isSplitView && (
-          <Button variant="secondary" size="sm" onClick={() => setIsSplitView(true)} className="gap-2 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all font-sans">
-            <Columns className="w-4 h-4" /> Compare
-          </Button>
-        )}
+        {actions}
       </div>
     )}
 
     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
       <div className="flex flex-col gap-6">
         {/* Create Note Section */}
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 shadow-inner space-y-4">
-          <h3 className="font-semibold text-gray-900 text-sm ml-1 flex items-center gap-2 font-sans">
-            <Plus className="w-4 h-4 text-blue-600" />
-            Add New Note
+        <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-inner space-y-4">
+          <h3 className="font-bold text-gray-900 text-[11px] uppercase tracking-widest ml-1 flex items-center gap-2 font-sans opacity-70">
+            <Plus className="w-3.5 h-3.5 text-indigo-600" />
+            Add new note
           </h3>
           <Textarea
             placeholder="Write your key takeaways here..."
             value={newNoteContent}
             onChange={(e) => setNewNoteContent(e.target.value)}
-            className="min-h-[120px] bg-white focus:bg-white transition-all resize-none rounded-xl border-gray-200 focus:border-blue-300 focus:ring-4 focus:ring-blue-100 shadow-sm font-sans"
+            className="min-h-[120px] bg-white focus:bg-white transition-all resize-none rounded-xl border-gray-100 focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50 shadow-sm font-sans placeholder:text-gray-300"
           />
           <div className="flex justify-end">
             <Button
               onClick={handleCreateNote}
               disabled={!newNoteContent.trim() || isCreating}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 gap-2 shadow-lg shadow-blue-200 active:scale-95 transition-all font-sans"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8 h-10 gap-2 shadow-lg shadow-indigo-200/50 active:scale-95 transition-all font-bold text-sm font-sans"
             >
               <Plus className="w-4 h-4" />
-              {isCreating ? "Saving..." : "Save Note"}
+              {isCreating ? "Saving..." : "Save note"}
             </Button>
           </div>
         </div>
 
         {/* Notes List */}
         <div className="space-y-4">
-          {myNotes.length === 0 ? (
-            <div className="text-center py-12 text-gray-400 border border-dashed border-gray-200 rounded-2xl font-sans">
+            {myNotes.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 border border-dashed border-gray-100/60 rounded-xl font-sans bg-slate-50/30">
               <StickyNote className="w-10 h-10 mx-auto mb-2 opacity-20" />
-              <p className="text-sm">You haven't added any notes yet.</p>
+              <p className="text-sm font-medium">You haven't added any notes yet.</p>
             </div>
           ) : (
             myNotes.map((note) => (
-              <Card key={note.id} className="group hover:border-blue-200 transition-all shadow-sm hover:shadow-md rounded-2xl border-gray-100 overflow-hidden bg-white">
+              <Card key={note.id} className="group hover:border-indigo-100 transition-all shadow-sm hover:shadow-md rounded-xl border-gray-100 overflow-hidden bg-white">
                 <CardContent className="p-5">
                   {editingNoteId === note.id ? (
                     <div className="space-y-3">
                       <Textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
-                        className="min-h-[100px] resize-none rounded-xl border border-gray-200 focus:ring-4 focus:ring-green-50 focus:border-green-200 font-sans"
+                        className="min-h-[100px] resize-none rounded-xl border border-gray-100 focus:ring-4 focus:ring-emerald-50 focus:border-emerald-200 font-sans text-sm"
                       />
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="secondary" onClick={cancelEditing} className="rounded-xl border border-gray-200 font-sans">
-                          <X className="w-4 h-4 mr-1" /> Cancel
+                        <Button size="sm" variant="secondary" onClick={cancelEditing} className="rounded-xl border border-gray-200 font-bold text-xs h-9">
+                          <X className="w-3.5 h-3.5 mr-1" /> Cancel
                         </Button>
-                        <Button size="sm" onClick={() => handleUpdateNote(note.id)} className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 font-sans">
-                          <Check className="w-4 h-4 mr-1" /> Save Update
+                        <Button size="sm" onClick={() => handleUpdateNote(note.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-5 h-9 font-bold text-xs">
+                          <Check className="w-3.5 h-3.5 mr-1" /> Save update
                         </Button>
                       </div>
                     </div>
@@ -162,12 +151,12 @@ const MyNotesView = ({
                         <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed flex-1 pt-1 font-sans">
                           {note.content}
                         </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => startEditing(note)}
-                            className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 h-8 w-8 rounded-xl"
+                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8 rounded-lg"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
@@ -175,14 +164,14 @@ const MyNotesView = ({
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteNote(note.id)}
-                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 h-8 w-8 rounded-xl"
+                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 h-8 w-8 rounded-lg"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </div>
-                      <div className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest border-t border-gray-50 pt-3 flex items-center gap-1.5 font-sans">
-                        <div className="w-1 h-1 rounded-full bg-gray-300" />
+                      <div className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest border-t border-gray-50 pt-3 flex items-center gap-1.5 font-sans opacity-70">
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-100" />
                         {new Date(note.created_at || "").toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
                     </>
@@ -199,8 +188,9 @@ const MyNotesView = ({
 
 // --- Main Component ---
 
-const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, mode?: "materials" | "my-notes" }) => {
+const StudentNotes: React.FC<{ subtopicId: string, mode?: 'materials' | 'notes' }> = ({ subtopicId, mode = 'materials' }) => {
   const { user } = useAuth();
+  // --- Component State ---
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -212,8 +202,90 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
 
-  // Split View State
-  const [isSplitView, setIsSplitView] = useState(false);
+  // AI Buddy State
+  const [showAiChat, setShowAiChat] = useState(false);
+  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30); // % initial width for AI chat
+  const [chatSessionId, setChatSessionId] = useState(() => `notes-chat-${subtopicId}-${crypto.randomUUID()}`);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // View Mode Logic
+  const viewMode = mode === 'materials' ? 'materials' : 'my-notes';
+
+  // --- Resizing Engine (High Performance) ---
+  const [isResizing, setIsResizing] = useState(false);
+  const isDraggingRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+
+  const onDrag = (e: MouseEvent) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
+    
+    if (e.buttons !== 1) {
+      stopDrag();
+      return;
+    }
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    rafRef.current = requestAnimationFrame(() => {
+      if (!containerRef.current) return;
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const relativeX = e.clientX - rect.left;
+      const containerWidth = rect.width;
+      
+      const rightEdgeX = containerWidth - relativeX;
+      const newWidth = (rightEdgeX / containerWidth) * 100;
+      
+      if (newWidth >= 15 && newWidth <= 45) {
+        containerRef.current.style.setProperty('--ai-chat-width', `${newWidth}%`);
+      }
+    });
+  };
+
+  const startAiChatDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("mouseup", stopDrag);
+  };
+
+  const stopDrag = () => {
+    if (isDraggingRef.current && containerRef.current) {
+      const finalWidth = containerRef.current.style.getPropertyValue('--ai-chat-width');
+      if (finalWidth) {
+        setAiChatPanelWidth(parseFloat(finalWidth));
+      }
+    }
+    isDraggingRef.current = false;
+    setIsResizing(false);
+    document.body.style.cursor = 'default';
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    window.removeEventListener("mousemove", onDrag);
+    window.removeEventListener("mouseup", stopDrag);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("mousemove", onDrag);
+      window.removeEventListener("mouseup", stopDrag);
+    };
+  }, []);
+
+  // --- Helpers & Logic ---
+  const getNotesContext = () => {
+    const myNotesText = notes.filter(n => n.user === user?.id).map(n => n.content).join("\n- ");
+    const materialsText = notes.filter(n => n.user !== user?.id).map(n => n.content).join("\n- ");
+    return `
+Materials for this subtopic:
+${materialsText || "No materials provided."}
+
+Student's Personal Notes:
+${myNotesText || "No personal notes yet."}
+    `.trim();
+  };
 
   useEffect(() => {
     loadNotes();
@@ -289,84 +361,41 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
   };
 
   if (loading)
-    return <div className="text-muted-foreground p-4 font-sans">Loading notes...</div>;
+    return (
+      <div className="h-full flex items-center justify-center p-12 bg-white font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-gray-400 font-medium">Loading your materials...</p>
+        </div>
+      </div>
+    );
 
   const myNotes = notes.filter(n => n.user === user?.id);
   const materials = notes.filter(n => n.user !== user?.id);
 
-  if (isSplitView) {
-    return (
-      <div className="h-full flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
-        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden text-sans">
-          <div className="bg-gray-50 border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
-            <div className="font-bold text-sm text-gray-800 flex items-center gap-2">
-              <Columns className="w-4 h-4 text-blue-600" />
-              Side-by-Side Comparison
-            </div>
-            <Button variant="secondary" size="sm" onClick={() => setIsSplitView(false)} className="text-gray-600 border border-gray-200 rounded-xl hover:bg-white transition-all shadow-sm">
-              <Minimize2 className="w-4 h-4 mr-2" /> Exit Split View
-            </Button>
-          </div>
-          <div className="flex-1 grid grid-cols-2 gap-0 overflow-hidden">
-            {/* Left: Materials */}
-            <div className="border-r border-gray-100 p-6 flex flex-col overflow-hidden">
-              <div className="flex items-center gap-2 mb-6 text-gray-400 font-bold text-[10px] uppercase tracking-[0.15em] shrink-0">
-                <BookOpen className="w-3 h-3 text-blue-500" /> Study Materials
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <MaterialsView
-                  materials={materials}
-                  isSplitView={isSplitView}
-                  setIsSplitView={setIsSplitView}
-                  showHeader={false}
-                />
-              </div>
-            </div>
-            {/* Right: Personal Notes */}
-            <div className="p-6 flex flex-col overflow-hidden bg-slate-50/30">
-              <div className="flex items-center gap-2 mb-6 text-gray-400 font-bold text-[10px] uppercase tracking-[0.15em] shrink-0">
-                <StickyNote className="w-3 h-3 text-indigo-500" /> Personal Notes
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <MyNotesView
-                  myNotes={myNotes}
-                  isSplitView={isSplitView}
-                  setIsSplitView={setIsSplitView}
-                  newNoteContent={newNoteContent}
-                  setNewNoteContent={setNewNoteContent}
-                  handleCreateNote={handleCreateNote}
-                  isCreating={isCreating}
-                  editingNoteId={editingNoteId}
-                  editContent={editContent}
-                  setEditContent={setEditContent}
-                  cancelEditing={cancelEditing}
-                  handleUpdateNote={handleUpdateNote}
-                  handleDeleteNote={handleDeleteNote}
-                  startEditing={startEditing}
-                  showHeader={false}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const aiBuddyButton = (
+    <Button
+      onClick={() => setShowAiChat(!showAiChat)}
+      variant="outline"
+      size="sm"
+      className={`gap-2 rounded-xl border transition-all font-sans font-bold text-sm h-10 px-5 ${showAiChat ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200/50" : "bg-white text-indigo-700 border-indigo-100 hover:bg-indigo-50 shadow-sm"}`}
+    >
+      <Sparkles className={`w-4 h-4 ${showAiChat ? "text-white" : "text-indigo-500"}`} />
+      AI Buddy
+    </Button>
+  );
 
-  return (
-    <div className="h-full flex flex-col p-4 bg-slate-50/50 overflow-hidden font-sans">
-      <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        {mode === "materials" ? (
+  const mainView = (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-hidden">
+        {viewMode === "materials" ? (
           <MaterialsView
             materials={materials}
-            isSplitView={isSplitView}
-            setIsSplitView={setIsSplitView}
+            actions={aiBuddyButton}
           />
         ) : (
           <MyNotesView
             myNotes={myNotes}
-            isSplitView={isSplitView}
-            setIsSplitView={setIsSplitView}
             newNoteContent={newNoteContent}
             setNewNoteContent={setNewNoteContent}
             handleCreateNote={handleCreateNote}
@@ -378,8 +407,58 @@ const StudentNotes = ({ subtopicId, mode = "materials" }: { subtopicId: string, 
             handleUpdateNote={handleUpdateNote}
             handleDeleteNote={handleDeleteNote}
             startEditing={startEditing}
+            actions={aiBuddyButton}
           />
         )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      className="h-full flex overflow-hidden font-sans bg-gray-50 relative"
+      style={{
+        "--ai-chat-width": `${aiChatPanelWidth}%`
+      } as React.CSSProperties}
+    >
+      {/* Ghost overlay for mouse capture during drag - Now correctly renders on State change */}
+      {isResizing && (
+        <div className="fixed inset-0 z-[9999] cursor-col-resize bg-transparent" />
+      )}
+
+      <div
+        className={`h-full flex flex-col overflow-hidden p-6 pt-4 ${!isResizing ? 'transition-all duration-500 ease-in-out' : ''}`}
+        style={{ width: showAiChat ? `calc(100% - var(--ai-chat-width))` : "100%" }}
+      >
+        {mainView}
+      </div>
+
+      <div
+        className={`h-full flex flex-col shrink-0 relative border-l border-slate-100 ${!isResizing ? 'transition-all duration-500 ease-in-out' : ''} ${showAiChat ? 'opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}
+        style={{ width: showAiChat ? "var(--ai-chat-width)" : "0%" }}
+      >
+        {/* INTEGRATED RESIZER HANDLE (hit area sits on top of border) */}
+        <div
+          onMouseDown={startAiChatDrag}
+          className={`absolute top-0 bottom-0 -left-2 w-4 cursor-col-resize z-50 flex items-center justify-center group transition-opacity duration-300 ${showAiChat ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        >
+          {/* PILL SHAPE GRIP HANDLE (only visible on hover/drag) */}
+          <div className={`w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm ${isResizing ? 'opacity-100 scale-y-110' : 'opacity-0 group-hover:opacity-100'}`} />
+        </div>
+
+        <div className="h-full bg-white flex flex-col overflow-hidden">
+          <AIChatContainer
+            className="w-full flex-1 rounded-none border-none shadow-none"
+            style={{ border: 'none', boxShadow: 'none' }}
+            contextGetter={getNotesContext}
+            welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with your ${mode === 'materials' ? 'materials' : 'notes'}. Ask me anything!`}
+            persistenceKey={chatSessionId}
+            chatTitle={`${mode === 'materials' ? 'Materials' : 'My Notes'} - AI Buddy`}
+            onNewChat={() => setChatSessionId(`notes-chat-${subtopicId}-${crypto.randomUUID()}`)}
+            showHistory={false}
+          />
+        </div>
       </div>
     </div>
   );

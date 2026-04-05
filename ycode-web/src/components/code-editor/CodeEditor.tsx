@@ -532,13 +532,13 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
               >
                 <div className="h-full bg-white flex flex-col overflow-hidden p-4">
                   <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                    <TabsList className="flex-shrink-0 justify-between h-12 bg-white border-b border-gray-100 px-4">
+                    <TabsList className="flex-shrink-0 h-14 bg-white border-b border-gray-100 px-4 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <TabsTrigger value="output" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                        <TabsTrigger value="output" className="h-8 px-3 text-xs font-bold flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
                           <Terminal className="h-3.5 w-3.5" /> Console
                         </TabsTrigger>
                         {showTestCases && (
-                          <TabsTrigger value="testcases" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                          <TabsTrigger value="testcases" className="h-8 px-3 text-xs font-bold flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
                             <FlaskConical className="h-3.5 w-3.5" /> Test Cases
                           </TabsTrigger>
                         )}
@@ -548,7 +548,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           onClick={runCode}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          className="h-8 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95"
+                          className="h-8 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95"
                         >
                           <Play className="h-3 w-3 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
                         </Button>
@@ -556,9 +556,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                           onClick={submitSolution}
                           disabled={isRunning || isSubmitting}
                           size="sm"
-                          className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border-none"
+                          className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95 border-none"
                         >
-                          <Send className="h-3 w-3 mr-1.5 fill-current" /> {isSubmitting ? 'Submitting...' : 'Submit'}
+                          <Send className="h-3 w-3 mr-1.5 fill-current" /> Submit
                         </Button>
                         <div className="w-px h-6 bg-gray-200 mx-1" />
                         <Button
@@ -828,11 +828,11 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
           </div>
         </div>   {/* Minimal Console Bar when collapsed */}
         {!showOutput && (
-          <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6">
+          <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6 gap-2">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
+                className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all tracking-wide"
                 onClick={() => {
                   setShowOutput(true);
                   setActiveBottomTab('output');
@@ -848,7 +848,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     setActiveBottomTab('testcases');
                   }}
                   variant="ghost"
-                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
+                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all tracking-wide"
                 >
                   <FlaskConical className="h-4 w-4 text-blue-500" />
                   Test Cases
@@ -860,7 +860,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 onClick={runCode}
                 disabled={isRunning || isSubmitting}
                 size="sm"
-                className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+                className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs transition-all active:scale-95"
               >
                 <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> Run
               </Button>
@@ -868,7 +868,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 onClick={submitSolution}
                 disabled={isRunning || isSubmitting}
                 size="sm"
-                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
+                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs transition-all active:scale-95 border-none"
               >
                 <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
               </Button>
