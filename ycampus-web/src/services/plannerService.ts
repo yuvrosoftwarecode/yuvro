@@ -34,6 +34,29 @@ export interface StudyTime {
   hours: number;
 }
 
+export interface StudentPlan {
+  id: string;
+  company: string;
+  role: string;
+  duration_days: number;
+  daily_hours: number;
+  status: 'Active' | 'Completed' | 'Paused';
+  progress_percentage: number;
+  company_name: string;
+  role_title: string;
+  created_at: string;
+}
+
+export interface StudentPlanTask {
+  id: string;
+  plan: string;
+  day_number: number;
+  title: string;
+  task_type: 'Topic' | 'Test' | 'Mock';
+  reference_id?: string;
+  is_completed: boolean;
+}
+
 // --- API Service Functions ---
 
 const BASE_PATH = '/ai-interview-planner';
@@ -60,6 +83,26 @@ export const createStudyTime = async (data: { hours: number }): Promise<StudyTim
 
 export const deleteStudyTime = async (id: string): Promise<void> => {
   await restApiAuthUtil.delete(`${BASE_PATH}/study-times/${id}/`);
+};
+
+export const fetchStudentPlans = async (): Promise<StudentPlan[]> => {
+  return await restApiAuthUtil.get<StudentPlan[]>(`${BASE_PATH}/student-plans/`);
+};
+
+export const createStudentPlan = async (data: Partial<StudentPlan>): Promise<StudentPlan> => {
+  return await restApiAuthUtil.post<StudentPlan>(`${BASE_PATH}/student-plans/`, data);
+};
+
+export const deleteStudentPlan = async (planId: string): Promise<void> => {
+  await restApiAuthUtil.delete(`${BASE_PATH}/student-plans/${planId}/`);
+};
+
+export const fetchPlanTasks = async (planId: string): Promise<StudentPlanTask[]> => {
+  return await restApiAuthUtil.get<StudentPlanTask[]>(`${BASE_PATH}/student-tasks/`, { params: { plan: planId } });
+};
+
+export const updateTaskStatus = async (taskId: string, isCompleted: boolean): Promise<StudentPlanTask> => {
+  return await restApiAuthUtil.patch<StudentPlanTask>(`${BASE_PATH}/student-tasks/${taskId}/`, { is_completed: isCompleted });
 };
 
 export const fetchCompanies = async (): Promise<Company[]> => {
