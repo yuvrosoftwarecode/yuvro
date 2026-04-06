@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import PlannerCompany, PlannerRole, PlannerTopic, RoadmapTemplate, RoadmapTask, PrepTimeline, StudyTime
+from .models import (
+    PlannerCompany, PlannerRole, PlannerTopic, RoadmapTemplate, RoadmapTask, 
+    PrepTimeline, StudyTime, StudentPlan, StudentPlanTask
+)
 
 class PlannerRoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,3 +50,18 @@ class StudyTimeSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('created_by',)
 
+class StudentPlanTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentPlanTask
+        fields = '__all__'
+        read_only_fields = ('created_by',)
+
+class StudentPlanSerializer(serializers.ModelSerializer):
+    tasks = StudentPlanTaskSerializer(many=True, read_only=True)
+    company_name = serializers.ReadOnlyField(source='company.name')
+    role_title = serializers.ReadOnlyField(source='role.title')
+
+    class Meta:
+        model = StudentPlan
+        fields = '__all__'
+        read_only_fields = ('student', 'created_by', 'progress_percentage')
