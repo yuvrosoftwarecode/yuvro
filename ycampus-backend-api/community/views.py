@@ -5,6 +5,8 @@ from django.db.models import Q, Count
 from .models import Post, Tag, Like, Comment, SavedPost
 from .serializers import PostSerializer, TagSerializer, CommentSerializer
 from rest_framework.exceptions import PermissionDenied
+from django.conf import settings
+import traceback
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -63,28 +65,38 @@ class PostViewSet(viewsets.ModelViewSet):
         return queryset.distinct()
 
     def create(self, request, *args, **kwargs):
-        import traceback
+        # We manually call is_valid to catch and return field errors specifically
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
-            self.perform_create(serializer)
+            # save() returns the instance
+            instance = serializer.save(
+                user=request.user,
+                department=getattr(request.user.student_profile, 'department', None) if hasattr(request.user, 'student_profile') else None,
+                batch=getattr(request.user.student_profile, 'batch', None) if hasattr(request.user, 'student_profile') else None,
+                college=getattr(request.user, 'college', None)
+            )
+            # Re-serialize to include all read-only fields generated on creation
+            response_serializer = self.get_serializer(instance)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             tb = traceback.format_exc()
-            return Response({'detail': str(e), 'traceback': tb}, status=status.HTTP_400_BAD_REQUEST)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            # If it failed during save/create in serializer, it's a server/logic error
+            return Response({
+                'detail': str(e),
+                'error': 'Post creation failed on server',
+                'traceback': tb if settings.DEBUG else None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    # We manually handle the creation in 'create' to be more robust, 
+    # but we'll leave perform_create for compatibility if called elsewhere.
     def perform_create(self, serializer):
         user = self.request.user
-        department = None
-        batch = None
+        department = getattr(user.student_profile, 'department', None) if hasattr(user, 'student_profile') else None
+        batch = getattr(user.student_profile, 'batch', None) if hasattr(user, 'student_profile') else None
         college = getattr(user, 'college', None)
-        
-        if hasattr(user, 'student_profile'):
-            department = user.student_profile.department
-            batch = user.student_profile.batch
-            
         serializer.save(user=user, department=department, batch=batch, college=college)
 
     def perform_update(self, serializer):
@@ -125,9 +137,42 @@ class PostViewSet(viewsets.ModelViewSet):
     def comment(self, request, pk=None):
         post = self.get_object()
         content = request.data.get('content')
+        parent_id = request.data.get('parent_id') # Support replies
+        
         if not content:
             return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        comment = Comment.objects.create(post=post, user=request.user, content=content)
-        serializer = CommentSerializer(comment)
+        parent = None
+        if parent_id:
+            try:
+                parent = Comment.objects.get(id=parent_id, post=post)
+            except Comment.DoesNotExist:
+                return Response({'error': 'Parent comment not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        comment = Comment.objects.create(post=post, user=request.user, content=content, parent=parent)
+        serializer = CommentSerializer(comment, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            raise PermissionDenied("You can only delete your own comments.")
+        instance.delete()
+
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        from .models import CommentLike
+        comment = self.get_object()
+        CommentLike.objects.get_or_create(comment=comment, user=request.user)
+        return Response({'status': 'liked'})
+
+    @action(detail=True, methods=['post'])
+    def unlike(self, request, pk=None):
+        from .models import CommentLike
+        comment = self.get_object()
+        CommentLike.objects.filter(comment=comment, user=request.user).delete()
+        return Response({'status': 'unliked'})

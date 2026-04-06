@@ -28,10 +28,32 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = CommunityUserSerializer(read_only=True)
+    replies = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
     
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'content', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'content', 'parent', 'created_at', 'updated_at', 'replies', 'likes_count', 'is_liked']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+    def get_replies(self, obj):
+        # We only want to show replies if this is a top-level comment to avoid deep recursion
+        # But for simplicity, we'll just return all replies and let the frontend handle depth if needed
+        # Or even better, check if we're already deep
+        if obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True, context=self.context).data
+        return []
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            from .models import CommentLike
+            return CommentLike.objects.filter(comment=obj, user=request.user).exists()
+        return False
 
 class PostSerializer(serializers.ModelSerializer):
     user = CommunityUserSerializer(read_only=True)
@@ -42,9 +64,11 @@ class PostSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    batch_name = serializers.CharField(source="batch.name", read_only=True)
     
-    tag_ids = serializers.ListField(
-        child=serializers.IntegerField(), write_only=True, required=False
+    tag_names = serializers.ListField(
+        child=serializers.CharField(), write_only=True, required=False
     )
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
@@ -53,9 +77,9 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'user', 'content', 'visibility', 'tags', 'department', 'batch', 'college',
+            'id', 'user', 'content', 'visibility', 'tags', 'department', 'department_name', 'batch', 'batch_name', 'college',
             'created_at', 'updated_at', 'images', 'comments', 'likes_count',
-            'comments_count', 'is_liked', 'is_saved', 'tag_ids', 'uploaded_images'
+            'comments_count', 'is_liked', 'is_saved', 'tag_names', 'uploaded_images'
         ]
         read_only_fields = ['department', 'batch', 'college']
 
@@ -78,36 +102,39 @@ class PostSerializer(serializers.ModelSerializer):
         return False
 
     def create(self, validated_data):
-        validated_data.pop('uploaded_images', None)
-        validated_data.pop('tag_ids', None)
+        # Extract write-only fields
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        tag_names = validated_data.pop('tag_names', [])
 
-        images_data = self.context['request'].FILES.getlist('uploaded_images')
-        tags_data = self.context['request'].data.getlist('tags')
-        
+        # The extra kwargs passed from viewset.perform_create (or serializer.save)
+        # will be in validated_data.
         post = Post.objects.create(**validated_data)
         
-        if tags_data:
+        # Handle tags
+        if tag_names:
             tag_objs = []
-            for tag_name in tags_data:
-                tag, _ = Tag.objects.get_or_create(name=tag_name)
+            for name in tag_names:
+                tag, _ = Tag.objects.get_or_create(name=name)
                 tag_objs.append(tag)
             post.tags.set(tag_objs)
 
-        for image_data in images_data:
-            PostImage.objects.create(post=post, image=image_data)
+        # Handle images
+        for img_file in uploaded_images:
+            PostImage.objects.create(post=post, image=img_file)
+            
         return post
 
     def update(self, instance, validated_data):
-        tags_data = self.context['request'].data.getlist('tags')
+        tag_names = validated_data.pop('tag_names', None)
         
         instance.content = validated_data.get('content', instance.content)
         instance.visibility = validated_data.get('visibility', instance.visibility)
         instance.save()
 
-        if tags_data:
+        if tag_names is not None:
             tag_objs = []
-            for tag_name in tags_data:
-                tag, _ = Tag.objects.get_or_create(name=tag_name)
+            for name in tag_names:
+                tag, _ = Tag.objects.get_or_create(name=name)
                 tag_objs.append(tag)
             instance.tags.set(tag_objs)
             
