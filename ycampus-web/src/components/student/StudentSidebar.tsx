@@ -233,10 +233,14 @@ export function StudentSidebar() {
           >
             <div className="px-2 pb-2 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground px-2 pb-1 truncate">{user?.email}</p>
-              <button className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors">
+              <NavLink 
+                to="/student/profile" 
+                className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors"
+                onClick={() => setProfileOpen(false)}
+              >
                 <User className="mr-2 h-4 w-4" />
                 Profile
-              </button>
+              </NavLink>
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 className="flex items-center w-full rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent/50 transition-colors"
