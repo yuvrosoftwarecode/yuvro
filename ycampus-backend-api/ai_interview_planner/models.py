@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from core.models import BaseModel
 
 class PlannerCompany(BaseModel):
@@ -88,4 +89,42 @@ class StudyTime(BaseModel):
 
     def __str__(self):
         return f"{self.hours} Hours"
+
+class StudentPlan(BaseModel):
+    STATUS_CHOICES = [
+        ("Active", "Active"),
+        ("Completed", "Completed"),
+        ("Paused", "Paused"),
+    ]
+
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="planner_plans")
+    company = models.ForeignKey(PlannerCompany, on_delete=models.CASCADE)
+    role = models.ForeignKey(PlannerRole, on_delete=models.CASCADE)
+    duration_days = models.PositiveIntegerField()
+    daily_hours = models.PositiveIntegerField()
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default="Active")
+    progress_percentage = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.role.title} prep for {self.company.name} ({self.student.username})"
+
+class StudentPlanTask(BaseModel):
+    TASK_TYPE_CHOICES = [
+        ("Topic", "Topic Mastery"),
+        ("Test", "Practice Test"),
+        ("Mock", "Mock Interview"),
+    ]
+
+    plan = models.ForeignKey(StudentPlan, on_delete=models.CASCADE, related_name="tasks")
+    day_number = models.PositiveIntegerField()
+    title = models.CharField(max_length=255)
+    task_type = models.CharField(max_length=10, choices=TASK_TYPE_CHOICES, default="Topic")
+    reference_id = models.CharField(max_length=255, blank=True, null=True)
+    is_completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Day {self.day_number}: {self.title}"
+
+    class Meta:
+        ordering = ["day_number", "created_at"]
 
