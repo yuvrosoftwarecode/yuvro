@@ -9,8 +9,11 @@ export interface AnnouncementRow {
   title: string;
   description: string;
   full_content: string | null;
-  category: 'college' | 'department';
+  category: 'college' | 'department' | 'batch';
   department_id: string | null;
+  department_name?: string;
+  batch_id?: string | null;
+  batch_name?: string;
   priority: 'normal' | 'important' | 'urgent';
   posted_by: string;
   posted_date: string;
@@ -25,8 +28,11 @@ export interface CreateAnnouncementInput {
   title: string;
   description: string;
   full_content?: string;
-  category: 'college' | 'department';
+  category: 'college' | 'department' | 'batch';
   department_id?: string | null;
+  department_name?: string;
+  batch_id?: string | null;
+  batch_name?: string;
   priority: 'normal' | 'important' | 'urgent';
   expiry_date?: string | null;
   attachment_url?: string | null;
@@ -41,8 +47,11 @@ const mapToUI = (a: Announcement): AnnouncementRow => ({
   title: a.title,
   description: a.content || '',
   full_content: null,
-  category: a.level,
+  category: a.level as 'college' | 'department' | 'batch',
   department_id: a.department,
+  department_name: a.department_name ?? undefined,
+  batch_id: a.batch,
+  batch_name: a.batch_name ?? undefined,
   priority: a.priority,
   posted_by: a.created_by_name || 'Principal',
   posted_date: a.publish_date || a.created_at,
@@ -59,8 +68,9 @@ export function usePrincipalAnnouncements() {
   const collegeId = (user as any)?.college_id;
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState<'all' | 'college' | 'department'>('all');
+  const [filterCategory, setFilterCategory] = useState<'all' | 'college' | 'department' | 'batch'>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | 'normal' | 'important' | 'urgent'>('all');
+  const [filterAuthorship, setFilterAuthorship] = useState<'all' | 'self' | 'others'>('all');
 
   const { data: rawAnnouncements = [], isLoading } = useQuery({
     queryKey: ['principal-announcements', collegeId],
@@ -93,12 +103,13 @@ export function usePrincipalAnnouncements() {
         payload.append('level', input.category);
         if (input.category === 'department' && input.department_id) {
           payload.append('department', input.department_id);
+        } else if (input.category === 'batch' && input.batch_id) {
+          if (input.department_id) payload.append('department', input.department_id);
+          payload.append('batch', input.batch_id);
         }
         payload.append('priority', input.priority);
         payload.append('is_active', input.is_active.toString());
         if (collegeId) payload.append('college', collegeId);
-        payload.append('publish_date', new Date().toISOString());
-
         if (parsedExpiryDate) {
           payload.append('expiry_date', parsedExpiryDate);
         }
@@ -113,7 +124,8 @@ export function usePrincipalAnnouncements() {
           title: input.title,
           content: input.description,
           level: input.category,
-          department: input.category === 'department' ? input.department_id : null,
+          department: input.category !== 'college' ? input.department_id : null,
+          batch: input.category === 'batch' ? input.batch_id : null,
           priority: input.priority,
           expiry_date: input.expiry_date || null,
         };
@@ -158,11 +170,23 @@ export function usePrincipalAnnouncements() {
         const payload = new FormData();
         if (updates.title) payload.append('title', updates.title);
         if (updates.description) payload.append('content', updates.description);
-        if (updates.category) payload.append('level', updates.category);
-        if (updates.category === 'department' && updates.department_id) {
-          payload.append('department', updates.department_id);
-        } else if (updates.category === 'college') {
-          payload.append('department', '');
+        if (updates.category) {
+          payload.append('level', updates.category);
+          // When level changes, clear irrelevant secondary fields if not provided
+          if (updates.category === 'college') {
+            payload.append('department', '');
+            payload.append('batch', '');
+          } else if (updates.category === 'department' && updates.department_id) {
+            payload.append('department', updates.department_id);
+            payload.append('batch', '');
+          } else if (updates.category === 'batch' && updates.batch_id) {
+            if (updates.department_id) payload.append('department', updates.department_id);
+            payload.append('batch', updates.batch_id);
+          }
+        } else {
+          // If category didn't change, still append fields if provided
+          if (updates.department_id !== undefined) payload.append('department', updates.department_id || '');
+          if (updates.batch_id !== undefined) payload.append('batch', updates.batch_id || '');
         }
         if (updates.priority) payload.append('priority', updates.priority);
         if (updates.is_active !== undefined) payload.append('is_active', updates.is_active.toString());
@@ -198,6 +222,8 @@ export function usePrincipalAnnouncements() {
   const filtered = announcements.filter((a) => {
     if (filterCategory !== 'all' && a.category !== filterCategory) return false;
     if (filterPriority !== 'all' && a.priority !== filterPriority) return false;
+    if (filterAuthorship === 'self' && a.created_by_id?.toString() !== user?.id?.toString()) return false;
+    if (filterAuthorship === 'others' && a.created_by_id?.toString() === user?.id?.toString()) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       if (!a.title.toLowerCase().includes(q) && !a.description.toLowerCase().includes(q)) return false;
@@ -212,6 +238,7 @@ export function usePrincipalAnnouncements() {
     searchQuery, setSearchQuery,
     filterCategory, setFilterCategory,
     filterPriority, setFilterPriority,
+    filterAuthorship, setFilterAuthorship,
     createAnnouncement: createMutation.mutateAsync,
     deleteAnnouncement: deleteMutation.mutate,
     updateAnnouncement: updateMutation.mutateAsync,

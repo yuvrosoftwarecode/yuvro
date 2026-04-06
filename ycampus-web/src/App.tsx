@@ -36,6 +36,7 @@ import AttendanceReport from "./pages/faculty/AttendanceReport";
 import HODDashboard from "./pages/hod/HODDashboard";
 import HODStudents from "./pages/hod/Students";
 import HODFaculty from "./pages/hod/Faculty";
+import HODAnnouncements from "./pages/hod/Announcements";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
 import PrincipalDepartments from "./pages/principal/Departments";
 import PrincipalAnnouncements from './pages/principal/Announcements';
@@ -211,6 +212,7 @@ const App = () => (
                       <Route path="dashboard" element={<HODDashboard />} />
                       <Route path="students" element={<HODStudents />} />
                       <Route path="faculty" element={<HODFaculty />} />
+                      <Route path="announcements" element={<HODAnnouncements />} />
                     </Routes>
                   </ProtectedRoute>
                 }

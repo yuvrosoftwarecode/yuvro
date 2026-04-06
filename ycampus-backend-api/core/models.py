@@ -470,6 +470,7 @@ class Announcement(BaseTimestampedModel):
     LEVEL_CHOICES = [
         ("college", "College"),
         ("department", "Department"),
+        ("batch", "Batch"),
     ]
 
     title = models.CharField(max_length=255)
@@ -485,6 +486,14 @@ class Announcement(BaseTimestampedModel):
         null=True,
         blank=True,
         help_text="If null, this is a college-level announcement"
+    )
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.CASCADE,
+        related_name="announcements",
+        null=True,
+        blank=True,
+        help_text="If set, this is a batch-level announcement"
     )
     level = models.CharField(
         max_length=20,

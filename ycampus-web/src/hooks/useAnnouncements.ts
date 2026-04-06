@@ -8,8 +8,10 @@ export interface Announcement {
   title: string;
   description: string;
   full_content: string | null;
-  category: 'college' | 'department';
+  category: 'college' | 'department' | 'batch';
   department_id: string | null;
+  batch_id?: string | null;
+  batch_name?: string | null;
   priority: 'normal' | 'important' | 'urgent';
   posted_by: string;
   posted_date: string;
@@ -28,6 +30,8 @@ const mapToUI = (a: APIAnnouncement, readSet: Set<string>): Announcement => ({
   full_content: a.content || null,
   category: a.level,
   department_id: a.department,
+  batch_id: a.batch,
+  batch_name: a.batch_name,
   priority: a.priority,
   posted_by: a.created_by_name || 'Admin',
   posted_date: a.publish_date || a.created_at,
@@ -38,7 +42,7 @@ const mapToUI = (a: APIAnnouncement, readSet: Set<string>): Announcement => ({
   is_read: readSet.has(a.id),
 });
 
-export type CategoryFilter = 'all' | 'college' | 'department';
+export type CategoryFilter = 'all' | 'college' | 'department' | 'batch';
 export type PriorityFilter = 'all' | 'normal' | 'important' | 'urgent';
 export type SortOrder = 'latest' | 'oldest';
 
@@ -54,17 +58,29 @@ export function useAnnouncements() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch student's department info
-  const [studentDeptId, setStudentDeptId] = useState<string | null>(null);
+  // Use IDs from user context if available (standard in this app)
+  // Fallback to fetching profile if missing
+  const [studentDeptId, setStudentDeptId] = useState<string | null>(user?.department_id || null);
+  const [studentCollegeId, setStudentCollegeId] = useState<string | null>(user?.college_id || null);
+  const [studentBatchId, setStudentBatchId] = useState<string | null>(user?.batch_id || null);
 
   useEffect(() => {
     if (!user || user.role !== 'student') return;
+    // If we already have IDs from user context, don't re-fetch unless they change
+    if (user.college_id && user.department_id) {
+      setStudentDeptId(user.department_id);
+      setStudentCollegeId(user.college_id);
+      return;
+    }
+
     const fetchStudentProfile = async () => {
       try {
         const response = await studentService.getStudents({ user: user.id });
         if (response.results.length > 0) {
           const studentProfile = response.results[0];
           setStudentDeptId(studentProfile.department?.toString() || null);
+          setStudentCollegeId(studentProfile.college?.toString() || null);
+          setStudentBatchId(studentProfile.batch?.toString() || null);
         }
       } catch (err) {
         console.error('Error fetching student profile:', err);
@@ -76,32 +92,48 @@ export function useAnnouncements() {
   // Fetch announcements
   useEffect(() => {
     if (!user) return;
+    if (user.role === 'student' && !studentCollegeId) return;
+
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch announcements from REST API
-        const response = await announcementService.getAnnouncements({
+        const params: any = {
           is_active: true,
-          ordering: '-publish_date'
-        });
+          ordering: '-created_at'
+        };
+        if (studentCollegeId) params.college = studentCollegeId;
+
+        // Fetch announcements from REST API
+        const response = await announcementService.getAnnouncements(params);
 
         // For now, we'll use local state for read status as the backend doesn't have a direct "read" endpoint yet
         // or we could use a local storage based approach if needed.
         const readSet = new Set<string>(); // In a real app, this might come from another API call or localStorage
         setReadIds(readSet);
 
-        const apiAnnouncements = (response.results || []).map((a: APIAnnouncement) => 
+        const apiAnnouncements = (response.results || response.data || response || []).map((a: APIAnnouncement) => 
           mapToUI(a, readSet)
         );
 
-        // Filter: hide expired, filter department visibility
+        // Filter: hide expired, filter department visibility (Matching Backup Logic)
         const now = new Date();
         const visible = apiAnnouncements.filter((a: Announcement) => {
+          // Hide expired
           if (a.expiry_date && new Date(a.expiry_date) < now) return false;
-          // For students, show college announcements or those specifically for their department
-          if (user.role === 'student' && a.category === 'department' && a.department_id && a.department_id !== studentDeptId) {
+
+          // For students, implement specific visibility rules
+          if (user.role === 'student') {
+            if (a.category === 'college') return true;
+            if (a.category === 'department') {
+              return a.department_id?.toString() === studentDeptId?.toString();
+            }
+            if (a.category === 'batch') {
+              // Trust server-side filtering for batch level announcements
+              return true;
+            }
             return false;
           }
+          
           return true;
         });
 
@@ -113,7 +145,7 @@ export function useAnnouncements() {
       }
     };
     fetchData();
-  }, [user, studentDeptId]);
+  }, [user, studentDeptId, studentCollegeId]);
 
   // Mark as read (local state for now)
   const markAsRead = async (announcementId: string) => {
