@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone } from 'lucide-react';
+import { LayoutDashboard, Building, Users, UserCheck, BookOpen, FileText, Activity, Settings, Layers, Bell, LogOut, User, Moon, Sun, ChevronsUpDown, PanelLeft, Megaphone, ShieldCheck } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
