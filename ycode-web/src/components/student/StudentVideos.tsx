@@ -210,9 +210,8 @@ const StudentVideos = ({
 
   const renderVideo = () => (
     <div className="w-full h-full bg-gray-50 overflow-hidden p-6 flex items-center justify-center">
-      {/* The Black Card itself is now 16:9, making all internal black sides uniform */}
       <div
-        className="w-full relative bg-black flex items-center justify-center p-4 rounded-xl shadow-xl overflow-hidden ring-1 ring-white/10"
+        className="w-full relative flex items-center justify-center rounded-2xl shadow-sm border border-gray-200 overflow-hidden bg-white/50"
         style={{
           aspectRatio: "16 / 9",
           maxHeight: "100%",
@@ -225,7 +224,7 @@ const StudentVideos = ({
         ) : !selectedVideo ? (
           <div className="text-gray-500 font-medium text-sm">No video selected</div>
         ) : (
-          <div className="w-full h-full relative rounded-lg overflow-hidden shadow-2xl">
+          <div className="w-full h-full relative">
             {renderVideoPlayer(selectedVideo.video_link)}
           </div>
         )}

@@ -382,8 +382,8 @@ const CourseDetail: React.FC = () => {
                                     key={tab.key}
                                     title={!collapsed ? tab.label : ""}
                                     className={`relative px-4 py-2 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all duration-300 ${rightTab === tab.key
-                                        ? "bg-orange-500 text-white shadow-sm"
-                                        : "text-slate-500 hover:bg-orange-50 hover:text-orange-700 bg-white border border-slate-200"
+                                        ? "bg-slate-800 text-white shadow-md ring-1 ring-slate-300 ring-offset-2"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-700 bg-white border border-slate-200"
                                         }`}
                                     onClick={() => setRightTab(tab.key as any)}
                                 >

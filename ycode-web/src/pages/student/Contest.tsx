@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navigation from '../../components/common/Navigation';
+import DashboardLayout from '../../components/common/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -247,8 +247,7 @@ const ContestPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <Navigation />
+      <DashboardLayout hideHeader={true} hideFooter={true}>
         <div className="max-w-[1600px] mx-auto px-6 py-8">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-gray-200 rounded w-1/4"></div>
@@ -264,14 +263,16 @@ const ContestPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-
+    <DashboardLayout
+      hideHeader={true}
+      hideFooter={true}
+      contentClassName="bg-white"
+    >
       <div className="max-w-[1600px] mx-auto px-8 py-6 space-y-8">
         {/* Header with Inline Stats */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -763,7 +764,7 @@ const ContestPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
