@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Q, Count
 from .models import Post, Tag, Like, Comment, SavedPost
 from .serializers import PostSerializer, TagSerializer, CommentSerializer
+from .pagination import StandardPostPagination
 from rest_framework.exceptions import PermissionDenied
 from django.conf import settings
 import traceback
@@ -16,6 +17,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = StandardPostPagination
 
     def get_queryset(self):
         user = self.request.user

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
@@ -124,18 +124,30 @@ export function useCommunity(filter: FeedFilter = 'all') {
   };
 
   const {
-    data: posts,
+    data,
+    fetchNextPage,
+    hasNextPage,
     isLoading: postsLoading,
+    isFetchingNextPage,
     error: postsError,
-  } = useQuery({
+  } = useInfiniteQuery({
     queryKey: ['community-posts', filter, user?.id],
-    queryFn: async () => {
-      const response = await restApiAuthUtil.get<any[]>('/community/posts/', {
-          params: { tab: backendTabMap[filter] }
+    queryFn: async ({ pageParam = null }: { pageParam?: string | null }) => {
+      const url = pageParam || '/community/posts/';
+      const response = await restApiAuthUtil.get<any>(url, {
+          params: pageParam ? {} : { tab: backendTabMap[filter] }
       });
-      return response.map(mapBackendPost);
+      // Response is now { nextCursor, previousCursor, posts }
+      return {
+          posts: response.posts.map(mapBackendPost),
+          nextCursor: response.nextCursor
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    initialPageParam: null as string | null,
   });
+
+  const posts = data?.pages.flatMap(page => page.posts) || [];
 
   // Create post
   const createPostMutation = useMutation({
@@ -217,6 +229,9 @@ export function useCommunity(filter: FeedFilter = 'all') {
     posts,
     postsLoading,
     postsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     createPost: createPostMutation.mutateAsync,
     updatePost: updatePostMutation.mutateAsync,
     isCreatingPost: createPostMutation.isPending || updatePostMutation.isPending,
