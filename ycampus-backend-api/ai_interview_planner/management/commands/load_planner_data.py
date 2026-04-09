@@ -58,7 +58,27 @@ class Command(BaseCommand):
         with open(fixtures_path, "r") as f:
             data = json.load(f)
 
+        # Load Topics first
+        self.stdout.write("📚 Seeding Topics...")
+        topic_map = {}
+        for topic_data in data.get("topics", []):
+            category = topic_data["category"]
+            if category == "Core":
+                category = "Core Subjects"
+                
+            topic, _ = PlannerTopic.objects.get_or_create(
+                name=topic_data["name"],
+                defaults={
+                    "category": category,
+                    "difficulty": topic_data["difficulty"],
+                    "question_count": topic_data["question_count"],
+                    "created_by": admin_user
+                }
+            )
+            topic_map[topic.name] = topic
+
         # Load Companies
+        self.stdout.write("🏢 Seeding Companies...")
         companies = {}
         for comp_data in data.get("companies", []):
             company, _ = PlannerCompany.objects.get_or_create(
@@ -71,33 +91,29 @@ class Command(BaseCommand):
             )
             companies[comp_data["name"]] = company
 
-        # Load Roles for each company
+        # Load Roles and link Topics
+        self.stdout.write("💼 Seeding Roles & Linking Topics...")
         for company_name, target_company in companies.items():
             for role_data in data.get("roles", []):
-                PlannerRole.objects.get_or_create(
+                role, _ = PlannerRole.objects.get_or_create(
                     title=role_data["title"],
                     company=target_company,
                     defaults={
                         "difficulty": role_data["difficulty"],
-                        "required_skills": role_data["required_skills"],
                         "created_by": admin_user
                     }
                 )
-
-        # Load Topics
-        for topic_data in data.get("topics", []):
-            category = topic_data["category"]
-            if category == "Core":
-                category = "Core Subjects"
                 
-            PlannerTopic.objects.get_or_create(
-                name=topic_data["name"],
-                defaults={
-                    "category": category,
-                    "difficulty": topic_data["difficulty"],
-                    "question_count": topic_data["question_count"],
-                    "created_by": admin_user
-                }
-            )
+                # Link topics
+                for skill_name in role_data.get("required_skills", []):
+                    if skill_name in topic_map:
+                        role.topics.add(topic_map[skill_name])
+                    else:
+                        # Create topic on the fly if missing
+                        t, _ = PlannerTopic.objects.get_or_create(
+                            name=skill_name,
+                            defaults={"created_by": admin_user}
+                        )
+                        role.topics.add(t)
 
         self.stdout.write(self.style.SUCCESS("✅ AI Interview Planner mock data loaded successfully!"))

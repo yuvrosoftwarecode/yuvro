@@ -4,6 +4,7 @@ export interface Company {
   id: string;
   name: string;
   description: string;
+  company_type: 'Product Based' | 'Service Based' | 'Startup';
   logo?: string;
   roles?: Role[];
 }
@@ -114,7 +115,7 @@ export const createCompany = async (data: Partial<Company>): Promise<Company> =>
 };
 
 export const updateCompany = async (id: string, data: Partial<Company>): Promise<Company> => {
-  return await restApiAuthUtil.put<Company>(`${BASE_PATH}/companies/${id}/`, data);
+  return await restApiAuthUtil.patch<Company>(`${BASE_PATH}/companies/${id}/`, data);
 };
 
 export const deleteCompany = async (id: string): Promise<void> => {
@@ -133,6 +134,14 @@ export const createRole = async (data: Partial<Role>): Promise<Role> => {
   return await restApiAuthUtil.post<Role>(`${BASE_PATH}/roles/`, data);
 };
 
+export const updateRole = async (id: string, data: Partial<Role>): Promise<Role> => {
+  return await restApiAuthUtil.patch<Role>(`${BASE_PATH}/roles/${id}/`, data);
+};
+
+export const deleteRole = async (id: string): Promise<void> => {
+  await restApiAuthUtil.delete(`${BASE_PATH}/roles/${id}/`);
+};
+
 export const fetchTopics = async (): Promise<Topic[]> => {
   return await restApiAuthUtil.get<Topic[]>(`${BASE_PATH}/topics/`);
 };
@@ -142,7 +151,7 @@ export const createTopic = async (data: Partial<Topic>): Promise<Topic> => {
 };
 
 export const updateTopic = async (id: string, data: Partial<Topic>): Promise<Topic> => {
-  return await restApiAuthUtil.put<Topic>(`${BASE_PATH}/topics/${id}/`, data);
+  return await restApiAuthUtil.patch<Topic>(`${BASE_PATH}/topics/${id}/`, data);
 };
 
 export const deleteTopic = async (id: string): Promise<void> => {

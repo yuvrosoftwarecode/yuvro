@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BrainCircuit, Sparkles, Loader2 } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Globe } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from "sonner";
 import { 
@@ -62,13 +62,10 @@ export default function PlanCreationWizard({ onPlanCreated }: PlanCreationWizard
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
-  // Form State
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [timeline, setTimeline] = useState('');
   const [hours, setHours] = useState('');
-  const [interviewType, setInterviewType] = useState('');
-  const [focus, setFocus] = useState<string[]>([]);
 
   useEffect(() => {
     loadOptions();
@@ -122,11 +119,9 @@ export default function PlanCreationWizard({ onPlanCreated }: PlanCreationWizard
     }
   };
 
-  const toggleFocus = (f: string) =>
-    setFocus(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]);
 
   const handleStart = async () => {
-    if (!company || !role || !timeline || !hours || focus.length === 0) {
+    if (!company || !role || !timeline || !hours) {
       toast.error("Please fill in all options");
       return;
     }
@@ -148,7 +143,7 @@ export default function PlanCreationWizard({ onPlanCreated }: PlanCreationWizard
     }
   };
 
-  const canStart = company && role && timeline && hours && focus.length > 0;
+  const canStart = company && role && timeline && hours;
 
   if (loading) {
     return (
@@ -257,28 +252,20 @@ export default function PlanCreationWizard({ onPlanCreated }: PlanCreationWizard
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Interview Type</label>
-              <Select value={interviewType} onValueChange={setInterviewType}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                <SelectContent>
-                  {['Product Company', 'Service Company', 'Startup'].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">Company Type</label>
+              <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted/50 text-muted-foreground text-sm flex items-center gap-2">
+                {company ? (
+                  <>
+                    <Globe className="h-3.5 w-3.5" />
+                    {companies.find(c => c.id === company)?.company_type || 'Product Based'}
+                  </>
+                ) : (
+                  "Select company first"
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Focus areas */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Focus Areas</label>
-            <div className="flex flex-wrap gap-3">
-              {['DSA', 'Core Subjects', 'Coding Practice', 'System Design', 'HR Interview'].map(f => (
-                <label key={f} className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox checked={focus.includes(f)} onCheckedChange={() => toggleFocus(f)} />
-                  <span className="text-sm">{f}</span>
-                </label>
-              ))}
-            </div>
-          </div>
 
           <Button
             onClick={handleStart}

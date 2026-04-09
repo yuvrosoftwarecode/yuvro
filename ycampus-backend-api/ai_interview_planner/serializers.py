@@ -5,10 +5,17 @@ from .models import (
 )
 
 class PlannerRoleSerializer(serializers.ModelSerializer):
+    required_skills = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=PlannerTopic.objects.all(),
+        source='topics'
+    )
+
     class Meta:
         model = PlannerRole
-        fields = '__all__'
-        read_only_fields = ('created_by',)
+        fields = ('id', 'company', 'title', 'difficulty', 'required_skills', 'created_at', 'updated_at')
+        read_only_fields = ('created_at', 'updated_at')
 
 class PlannerCompanySerializer(serializers.ModelSerializer):
     roles = PlannerRoleSerializer(many=True, read_only=True)
@@ -58,10 +65,16 @@ class StudentPlanTaskSerializer(serializers.ModelSerializer):
 
 class StudentPlanSerializer(serializers.ModelSerializer):
     tasks = StudentPlanTaskSerializer(many=True, read_only=True)
-    company_name = serializers.ReadOnlyField(source='company.name')
-    role_title = serializers.ReadOnlyField(source='role.title')
+    topics = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
 
     class Meta:
         model = StudentPlan
-        fields = '__all__'
-        read_only_fields = ('student', 'created_by', 'progress_percentage')
+        fields = (
+            'id', 'student', 'company', 'role', 'duration_days', 'daily_hours',
+            'company_name', 'role_title', 'company_type', 'topics',
+            'status', 'progress_percentage', 'tasks', 'created_at'
+        )
+        read_only_fields = (
+            'student', 'created_by', 'progress_percentage', 
+            'company_name', 'role_title', 'company_type', 'topics'
+        )

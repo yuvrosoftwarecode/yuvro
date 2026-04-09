@@ -22,7 +22,7 @@ interface PlanDashboardProps {
   onReset: () => void;
 }
 
-// ─── Status helpers (exact copies from original) ───
+// ─── Status helpers ───
 const statusIcon = (completed: boolean) => {
   if (completed) return <CheckCircle2 className="h-4 w-4 text-green-600" />;
   return <Circle className="h-4 w-4 text-muted-foreground" />;
@@ -36,6 +36,7 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
   const [tasks, setTasks] = useState<StudentPlanTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
+  const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
   const [isPaused, setIsPaused] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -65,12 +66,72 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
     }
   };
 
+  const renderDayCard = (day: string, dayTasks: StudentPlanTask[]) => {
+    const dayNum = parseInt(day);
+    const open = expandedDay === dayNum;
+    const completed = dayTasks.filter(t => t.is_completed).length;
+    const pct = Math.round((completed / dayTasks.length) * 100);
+    
+    return (
+      <Card key={day} className={`border-border/60 transition-all ${open ? 'shadow-sm bg-background/50' : ''}`}>
+        <button
+          onClick={() => setExpandedDay(open ? null : dayNum)}
+          className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm
+              ${pct === 100 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+              D{day}
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Day {day}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-tight">{completed}/{dayTasks.length} Task Progress</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+               <span className="text-[10px] text-muted-foreground font-bold">{pct}%</span>
+               <Progress value={pct} className="w-16 h-1.5" />
+            </div>
+            {open ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          </div>
+        </button>
+        {open && (
+          <CardContent className="border-t pt-4 space-y-4">
+            <div className="space-y-2">
+               {dayTasks.map(task => (
+                 <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 group hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleToggleTask(task.id, task.is_completed)}>
+                       {statusIcon(task.is_completed)}
+                       <span className={`text-sm font-medium ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground bg-background">{task.task_type}</Badge>
+                       {statusBadge(task.is_completed)}
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+    );
+  };
+
   // Group tasks by day
   const tasksByDay = tasks.reduce((acc, task) => {
     if (!acc[task.day_number]) acc[task.day_number] = [];
     acc[task.day_number].push(task);
     return acc;
   }, {} as Record<number, StudentPlanTask[]>);
+  
+  // Group days by week
+  const tasksByWeek = Object.entries(tasksByDay).reduce((acc, [day, dayTasks]) => {
+    const weekNum = Math.ceil(parseInt(day) / 7);
+    if (!acc[weekNum]) acc[weekNum] = {};
+    acc[weekNum][parseInt(day)] = dayTasks;
+    return acc;
+  }, {} as Record<number, Record<number, StudentPlanTask[]>>);
 
   const completedCount = tasks.filter(t => t.is_completed).length;
   const totalCount = tasks.length;
@@ -169,54 +230,67 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
         </TabsList>
 
         <TabsContent value="roadmap" className="space-y-3">
-          {Object.entries(tasksByDay).map(([day, dayTasks]) => {
-            const dayNum = parseInt(day);
-            const open = expandedDay === dayNum;
-            const completed = dayTasks.filter(t => t.is_completed).length;
-            const pct = Math.round((completed / dayTasks.length) * 100);
-            
-            return (
-              <Card key={day} className="border-border/60">
-                <button
-                  onClick={() => setExpandedDay(open ? null : dayNum)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-sm font-bold
-                      ${pct === 100 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                      D{day}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Day {day} Overview</p>
-                      <p className="text-xs text-muted-foreground">{completed}/{dayTasks.length} tasks completed</p>
-                    </div>
+          {plan.duration_days >= 7 ? (
+            /* WEEKS VIEW */
+            Object.entries(tasksByWeek)
+              .sort(([a], [b]) => parseInt(a) - parseInt(b))
+              .map(([week, weekDays]) => {
+                const weekNum = parseInt(week);
+                const isWeekOpen = expandedWeek === weekNum;
+                
+                // Calculate week-wide progress
+                const weekTasks = Object.values(weekDays).flat();
+                const totalTasksInWeek = weekTasks.length;
+                const completedTasksInWeek = weekTasks.filter(t => t.is_completed).length;
+                const weekPct = totalTasksInWeek > 0 ? Math.round((completedTasksInWeek / totalTasksInWeek) * 100) : 0;
+
+                return (
+                  <div key={week} className="space-y-3">
+                    <Card className={`border-border/60 overflow-hidden transition-all ${isWeekOpen ? 'ring-1 ring-primary/20 bg-primary/5 shadow-sm' : ''}`}>
+                      <button
+                        onClick={() => setExpandedWeek(isWeekOpen ? null : weekNum)}
+                        className="w-full flex items-center justify-between p-5 text-left hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner
+                            ${weekPct === 100 ? 'bg-green-100 text-green-700' : 'bg-primary/10 text-primary'}`}>
+                            W{week}
+                          </div>
+                          <div>
+                            <p className="font-bold text-base">Week {week} Overview</p>
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                              {completedTasksInWeek} / {totalTasksInWeek} Tasks Completed
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-5">
+                          <div className="hidden sm:flex items-center gap-2">
+                            <span className="text-xs font-semibold text-muted-foreground">{weekPct}%</span>
+                            <Progress value={weekPct} className="w-24 h-2 shadow-sm" />
+                          </div>
+                          {isWeekOpen ? <ChevronDown className="h-5 w-5 text-primary" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                        </div>
+                      </button>
+                    </Card>
+
+                    {isWeekOpen && (
+                      <div className="pl-6 space-y-3 border-l-2 border-primary/20 ml-6 pt-2 pb-4">
+                        {Object.entries(weekDays)
+                          .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                          .map(([day, dayTasks]) => (
+                            renderDayCard(day, dayTasks)
+                          ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Progress value={pct} className="w-20 h-1.5" />
-                    {open ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-                </button>
-                {open && (
-                  <CardContent className="border-t pt-4 space-y-4">
-                    <div className="space-y-2">
-                       {dayTasks.map(task => (
-                         <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
-                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleToggleTask(task.id, task.is_completed)}>
-                               {statusIcon(task.is_completed)}
-                               <span className={`text-sm font-medium ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                               <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground">{task.task_type}</Badge>
-                               {statusBadge(task.is_completed)}
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                  </CardContent>
-                )}
-              </Card>
-            );
-          })}
+                );
+              })
+          ) : (
+            /* DIRECT DAYS VIEW */
+            Object.entries(tasksByDay)
+              .sort(([a], [b]) => parseInt(a) - parseInt(b))
+              .map(([day, dayTasks]) => renderDayCard(day, dayTasks))
+          )}
         </TabsContent>
 
         <TabsContent value="today" className="space-y-3">
