@@ -3,8 +3,15 @@ from django.conf import settings
 from core.models import BaseModel
 
 class PlannerCompany(BaseModel):
+    COMPANY_TYPE_CHOICES = [
+        ("Product Based", "Product Based"),
+        ("Service Based", "Service Based"),
+        ("Startup", "Startup"),
+    ]
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES, default="Product Based")
     website = models.URLField(blank=True, null=True)
     logo = models.URLField(blank=True, null=True) # or ImageField if uploads are needed later
 
@@ -24,7 +31,7 @@ class PlannerRole(BaseModel):
     company = models.ForeignKey(PlannerCompany, on_delete=models.CASCADE, related_name="roles")
     title = models.CharField(max_length=255)
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default="Medium")
-    required_skills = models.JSONField(default=list, blank=True)
+    topics = models.ManyToManyField("PlannerTopic", blank=True, related_name="roles")
 
     def __str__(self):
         return f"{self.title} at {self.company.name}"
@@ -102,6 +109,13 @@ class StudentPlan(BaseModel):
     role = models.ForeignKey(PlannerRole, on_delete=models.CASCADE)
     duration_days = models.PositiveIntegerField()
     daily_hours = models.PositiveIntegerField()
+    
+    # Snapshot fields
+    company_name = models.CharField(max_length=255, blank=True)
+    role_title = models.CharField(max_length=255, blank=True)
+    company_type = models.CharField(max_length=20, blank=True)
+    topics = models.ManyToManyField("PlannerTopic", blank=True, related_name="student_plans")
+    
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default="Active")
     progress_percentage = models.PositiveIntegerField(default=0)
 

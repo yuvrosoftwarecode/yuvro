@@ -88,34 +88,50 @@ class StudentPlanViewSet(viewsets.ModelViewSet):
         return StudentPlan.objects.filter(student=self.request.user)
 
     def perform_create(self, serializer):
-        # Save the plan first
-        plan = serializer.save(student=self.request.user, created_by=self.request.user)
+        # 1. Fetch relevant entities for snapshot
+        company_id = self.request.data.get('company')
+        role_id = self.request.data.get('role')
         
-        # Simple generation logic:
-        # Distribute available topics across the duration
-        topics = list(PlannerTopic.objects.all())
-        random.shuffle(topics)
+        company = PlannerCompany.objects.get(id=company_id)
+        role = PlannerRole.objects.get(id=role_id)
+        role_topics = list(role.topics.all())
         
-        duration = plan.duration_days
+        # 2. Save the plan with snapshots
+        plan = serializer.save(
+            student=self.request.user, 
+            created_by=self.request.user,
+            company_name=company.name,
+            role_title=role.title,
+            company_type=company.company_type
+        )
         
-        # Create a few tasks per day or spread topics
-        for i, topic in enumerate(topics[:duration]): # limit to duration for now
-            day = (i % duration) + 1
+        # 3. Store the topics snapshot
+        if role_topics:
+            plan.topics.set(role_topics)
+            
+            # 4. Generate tasks specifically for THESE topics
+            duration = plan.duration_days
+            for i, topic in enumerate(role_topics):
+                # Simple distribution: 1 topic per day or wrap around
+                day = (i % duration) + 1
+                StudentPlanTask.objects.create(
+                    plan=plan,
+                    day_number=day,
+                    title=f"Master {topic.name}",
+                    task_type="Topic",
+                    reference_id=str(topic.id),
+                    created_by=self.request.user
+                )
+        else:
+            # Fallback if role has no topics: just add some generic ones or leave empty
+            pass
+        
+        # 5. Add a few mock interviews
+        for day in [max(1, plan.duration_days // 2), plan.duration_days]:
             StudentPlanTask.objects.create(
                 plan=plan,
                 day_number=day,
-                title=f"Master {topic.name}",
-                task_type="Topic",
-                reference_id=str(topic.id),
-                created_by=self.request.user
-            )
-        
-        # Add a few mock interviews
-        for day in [duration // 2, duration]:
-            StudentPlanTask.objects.create(
-                plan=plan,
-                day_number=day,
-                title=f"Final Mock Interview - {plan.company.name}",
+                title=f"Final Mock Interview - {plan.company_name}",
                 task_type="Mock",
                 created_by=self.request.user
             )
