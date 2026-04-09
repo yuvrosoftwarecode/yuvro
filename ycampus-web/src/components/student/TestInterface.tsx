@@ -265,7 +265,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
     if (submissionId) {
       try {
         const all_question_ids = questions.map(q => q.id);
-        await submitSkillTest(topic.id, submissionId, answers, explanations, all_question_ids);
+        await submitSkillTest(topic.id, submissionId, answers, explanations, all_question_ids, timeSpent);
       } catch (err) {
         console.error('Error submitting test to backend:', err);
         // Still complete locally even if network call fails
@@ -382,7 +382,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const getMcqOptions = (q: Question): string[] => {
     if (!q.mcq_options || q.mcq_options.length === 0) return [];
     if (typeof q.mcq_options[0] === 'string') return q.mcq_options as string[];
-    return (q.mcq_options as { option_text: string }[]).map(o => o.option_text);
+    return (q.mcq_options as any[]).map(o => o.text || o.option_text || '');
   };
 
   const renderQuestion = () => {

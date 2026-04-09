@@ -15,8 +15,10 @@ export function QuestionPreview({ question, onDelete, onEdit }: QuestionPreviewP
   const getQuestionTypeBadge = (type: string) => {
     const badges = {
       'mcq': { label: 'MCQ', variant: 'default' as const },
+      'mcq_single': { label: 'MCQ Single', variant: 'default' as const },
+      'mcq_multiple': { label: 'MCQ Multiple', variant: 'default' as const },
       'coding': { label: 'Coding', variant: 'secondary' as const },
-      'short-answer': { label: 'Short Answer', variant: 'outline' as const },
+      'descriptive': { label: 'Descriptive', variant: 'outline' as const },
       'true-false': { label: 'True/False', variant: 'destructive' as const },
     };
     
@@ -27,25 +29,22 @@ export function QuestionPreview({ question, onDelete, onEdit }: QuestionPreviewP
   const renderCorrectAnswer = () => {
     switch (question.type) {
       case 'mcq':
-        if (question.isMultipleAnswer && Array.isArray(question.correctAnswer)) {
-          return (
-            <div>
-              <p className="font-medium text-muted-foreground mb-1">Correct Answers:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {question.correctAnswer.map((answer, index) => (
+      case 'mcq_single':
+      case 'mcq_multiple':
+        return (
+          <div>
+            <p className="font-medium text-muted-foreground mb-1">Correct Answers:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {Array.isArray(question.correctAnswer) ? (
+                question.correctAnswer.map((answer, index) => (
                   <li key={index} className="text-sm">{answer}</li>
-                ))}
-              </ul>
-            </div>
-          );
-        } else {
-          return (
-            <div>
-              <p className="font-medium text-muted-foreground mb-1">Correct Answer:</p>
-              <p className="text-sm">{question.correctAnswer as string}</p>
-            </div>
-          );
-        }
+                ))
+              ) : (
+                <li className="text-sm">{question.correctAnswer}</li>
+              )}
+            </ul>
+          </div>
+        );
       
       case 'coding':
         return (
@@ -58,6 +57,7 @@ export function QuestionPreview({ question, onDelete, onEdit }: QuestionPreviewP
         );
       
       case 'short-answer':
+      case 'descriptive':
         return (
           <div>
             <p className="font-medium text-muted-foreground mb-1">Expected Answer:</p>
@@ -113,7 +113,7 @@ export function QuestionPreview({ question, onDelete, onEdit }: QuestionPreviewP
         </div>
 
         {/* Options for MCQ */}
-        {question.type === 'mcq' && question.options && (
+        {(question.type === 'mcq_single' || question.type === 'mcq_multiple') && question.options && (
           <div>
             <p className="font-medium text-muted-foreground mb-2">Options:</p>
             <ul className="space-y-1">

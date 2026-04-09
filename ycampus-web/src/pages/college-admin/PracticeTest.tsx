@@ -398,14 +398,12 @@ const CollegeAdminPracticeTest = () => {
       const details = await Promise.all(allIds.map(id => fetchQuestionById(id).catch(() => null)));
       return details.filter(Boolean).map((q: any) => ({
         id: q.id,
-        type: q.type.startsWith('mcq') ? 'mcq' : q.type,
+        type: q.type,
         questionText: q.content,
-        options: q.mcq_options?.map((o: any) => o.text),
-        correctAnswer: q.type === 'mcq_single'
-          ? q.mcq_options?.find((o: any) => o.is_correct)?.text
-          : q.type === 'mcq_multiple'
-          ? q.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text)
-          : q.mcq_options?.[0]?.text,
+        options: q.mcq_options?.map((o: any) => o.text || o.option_text),
+        correctAnswer: q.type === 'mcq_multiple'
+          ? q.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text)
+          : q.mcq_options?.find((o: any) => o.is_correct)?.text || q.mcq_options?.find((o: any) => o.is_correct)?.option_text || q.reference_answer,
         marks: q.marks,
         isMultipleAnswer: q.type === 'mcq_multiple',
       }));
@@ -500,15 +498,18 @@ const CollegeAdminPracticeTest = () => {
         // Frontend local IDs use Date.now() string without hyphens, Backend uses UUID with hyphens
         if (!backendId || !String(backendId).includes('-')) {
           let qTypeStr = q.type as string;
+          // Normalize legacy/frontend types to backend standard
           if (q.type === 'mcq') qTypeStr = q.isMultipleAnswer ? 'mcq_multiple' : 'mcq_single';
           else if (q.type === 'short-answer') qTypeStr = 'descriptive';
           else if (q.type === 'true-false') qTypeStr = 'mcq_single';
 
           let mcqOpts = undefined;
-          if (q.type === 'mcq') {
+          if (qTypeStr.startsWith('mcq')) {
             mcqOpts = q.options?.map((opt: string) => ({
               text: opt,
-              is_correct: q.isMultipleAnswer ? q.correctAnswer.includes(opt) : q.correctAnswer === opt,
+              is_correct: qTypeStr === 'mcq_multiple' 
+                ? (Array.isArray(q.correctAnswer) ? q.correctAnswer.includes(opt) : false) 
+                : q.correctAnswer === opt,
             }));
           } else if (q.type === 'true-false') {
             mcqOpts = [
@@ -518,21 +519,28 @@ const CollegeAdminPracticeTest = () => {
           }
 
           const qData: any = {
-            type: qTypeStr, title: q.questionText.substring(0, 50), content: q.questionText,
-            level: 'unit', unit: selectedUnit, difficulty: 'medium', marks: q.marks || 1, duration: 60,
+            type: qTypeStr, 
+            title: q.questionText.substring(0, 50), 
+            content: q.questionText,
+            level: 'unit', 
+            subject: selectedSubject,
+            unit: selectedUnit, 
+            difficulty: 'medium', 
+            marks: q.marks || 1, 
+            duration: 60,
             categories: ['practice'],
             ...(mcqOpts && { mcq_options: mcqOpts }),
-            ...((q.type === 'coding' || q.type === 'short-answer') && { reference_answer: q.correctAnswer })
+            ...((qTypeStr === 'descriptive' || qTypeStr === 'coding') && { reference_answer: q.correctAnswer }),
+            ...(qTypeStr === 'coding' && { test_cases_basic: [], test_cases_advanced: [] })
           };
           const created = await createQuestion(qData);
           backendId = created.id;
         }
 
-        // Map the frontend types directly into the four backend config keys
-        let resolvedType = 'descriptive';
+        // Map the frontend types directly into the backend config keys
+        let resolvedType = q.type as string;
         if (q.type === 'mcq') resolvedType = q.isMultipleAnswer ? 'mcq_multiple' : 'mcq_single';
         else if (q.type === 'true-false') resolvedType = 'mcq_single';
-        else if (q.type === 'coding') resolvedType = 'coding';
         else if (q.type === 'short-answer') resolvedType = 'descriptive';
 
         if (resolvedType in savedQuestionIds) savedQuestionIds[resolvedType as keyof typeof savedQuestionIds].push(backendId);
@@ -840,7 +848,7 @@ const CollegeAdminPracticeTest = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {(['mcq_single', 'mcq_multiple', 'coding', 'descriptive'] as const).map((key) => (
                   <div key={key} className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <label className="text-xs font-semibold text-muted-foreground">
                       {key === 'mcq_single' ? 'MCQ Single' : key === 'mcq_multiple' ? 'MCQ Multi' : key.charAt(0).toUpperCase() + key.slice(1)}
                     </label>
                     <Input

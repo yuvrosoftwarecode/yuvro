@@ -55,7 +55,7 @@ const mockCourses = [
 export interface Question {
   id: string;
   questionText: string;
-  type: 'mcq' | 'coding' | 'short-answer' | 'true-false';
+  type: 'mcq' | 'coding' | 'short-answer' | 'true-false' | 'mcq_single' | 'mcq_multiple' | 'descriptive';
   options?: string[];
   correctAnswer: string | string[];
   marks: number;

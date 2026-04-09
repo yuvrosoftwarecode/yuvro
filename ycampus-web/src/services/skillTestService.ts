@@ -162,13 +162,14 @@ export const startSkillTest = async (testId: string): Promise<StartTestResponse>
   }
 };
 
-export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[]): Promise<SubmitTestResponse> => {
+export const submitSkillTest = async (testId: string, submissionId: string, answers: any, explanations?: any, all_question_ids?: string[], time_spent?: number): Promise<SubmitTestResponse> => {
   try {
     const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/submit/`, {
       submission_id: submissionId,
       answers,
       explanations,
-      all_question_ids
+      all_question_ids,
+      time_spent
     });
     return response as SubmitTestResponse;
   } catch (error) {
@@ -207,10 +208,10 @@ export const getSkillTestSubmission = async (submissionId: string): Promise<any>
   }
 };
 
-export const getUserSubmissions = async (userId: string): Promise<any[]> => {
+export const getUserSubmissions = async (userId: string, extraParams: any = {}): Promise<any[]> => {
   try {
     const response = await restApiAuthUtil.get<any[]>('/assessment/skill-test/submissions/', {
-      params: { user: userId }
+      params: { user: userId, ...extraParams }
     });
     return response;
   } catch (error) {

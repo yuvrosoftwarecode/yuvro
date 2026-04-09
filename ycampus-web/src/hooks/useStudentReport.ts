@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import adminApiService from '@/services/api';
 import studentService from '@/services/studentService';
 import subjectService, { getFacultyAssignments, SectionSubjectFaculty } from '@/services/subjectService';
-import { getUserSubmissions } from '@/services/skillTestService';
+import skillTestService, { getUserSubmissions } from '@/services/skillTestService';
 import taskService from '@/services/taskService';
 
 export interface ReportFilters {
@@ -263,7 +263,7 @@ export function useStudentReport() {
       try {
         const [pD, sS, oS] = await Promise.all([
           subjectService.fetchOverallUserProgress(userId),
-          getUserSubmissions(userId),
+          getUserSubmissions(userId, { limit: 1000 }),
           subjectService.fetchUserStats(userId)
         ]);
         progressData = (pD as any).results || pD || [];
@@ -272,6 +272,24 @@ export function useStudentReport() {
       } catch (err) {
         console.error('Error fetching core student stats:', err);
       }
+
+      // 1b. Fetch all tests for the assigned subjects to build a lookup map
+      let allLevelTests: any[] = [];
+      try {
+        const testResults = await Promise.allSettled(
+          assignments.map(a => {
+            const subjectId = a.semester_subject_details?.subject_details?.id;
+            return subjectId ? skillTestService.getSkillTests({ subject: String(subjectId) }) : Promise.resolve([]);
+          })
+        );
+        allLevelTests = testResults
+          .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
+          .flatMap(res => (res.value as any).results || res.value || []);
+      } catch (err) {
+        console.warn('Failed to fetch tests map:', err);
+      }
+      
+      const testsMap = new Map(allLevelTests.map(t => [String(t.id), t]));
 
       // 2. Fetch Optional Metrics (Tasks & Attendance) - Fail-safe
       try {
@@ -314,7 +332,11 @@ export function useStudentReport() {
           .map((assignment: any) => {
             const sDetails = assignment.semester_subject_details!.subject_details!;
             const sId = String(sDetails.id);
-            const prog = (progressData || []).find((p: any) => String(p.subject_id) === sId);
+            const semSubId = assignment.semester_subject_details?.id ? String(assignment.semester_subject_details.id) : null;
+            const prog = (progressData || []).find((p: any) => {
+              const pSubId = String(p.subject_id);
+              return pSubId === sId || (semSubId && pSubId === semSubId);
+            });
 
             // Task Logic (Real Data) - Match by Subject ID and Section ID
             const assignmentSectionId = String(assignment.section);
@@ -403,39 +425,86 @@ export function useStudentReport() {
 
             // Assessment Metrics (Real Data)
             const subjectSubmissions = (skillSubmissions || []).filter((sub: any) => {
-              const subId = String(sub.skill_test_details?.subject || sub.skill_test?.subject);
-              return subId === sId;
+              const testId = String(sub.skill_test_details?.id || sub.skill_test?.id || sub.skill_test);
+              const testInfo = testsMap.get(testId);
+              const subId = String(testInfo?.subject || sub.skill_test_details?.subject || sub.skill_test?.subject || sub.skill_test);
+              return subId === sId || (semSubId && subId === semSubId);
+            }).sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+
+            const practiceAttempts = subjectSubmissions.filter((sub: any) => {
+              const testId = String(sub.skill_test_details?.id || sub.skill_test?.id || sub.skill_test);
+              const testInfo = testsMap.get(testId);
+              const type = testInfo?.test_type || sub.skill_test_details?.test_type || sub.skill_test?.test_type;
+              return type === 'practice';
             });
-            const practiceAttempts = subjectSubmissions.filter((sub: any) => (sub.skill_test_details?.test_type || sub.skill_test?.test_type) === 'practice');
-            const assessmentAttempts = subjectSubmissions.filter((sub: any) => (sub.skill_test_details?.test_type || sub.skill_test?.test_type) === 'assessment');
+            const assessmentAttempts = subjectSubmissions.filter((sub: any) => {
+              const testId = String(sub.skill_test_details?.id || sub.skill_test?.id || sub.skill_test);
+              const testInfo = testsMap.get(testId);
+              const type = testInfo?.test_type || sub.skill_test_details?.test_type || sub.skill_test?.test_type;
+              return type === 'assessment';
+            });
 
-            const avg = (arr: any[]) => arr.length > 0 ? Math.round(arr.reduce((acc, curr) => acc + (curr.marks || 0), 0) / arr.length) : 0;
-            const testAvg = avg(practiceAttempts);
-            const assessmentAvg = avg(assessmentAttempts);
+            const avgPct = (arr: any[]) => {
+              if (arr.length === 0) return 0;
+              const totalPct = arr.reduce((acc, curr) => {
+                const marks = Number(curr.marks) || Number(curr.score) || 0;
+                const testId = String(curr.skill_test_details?.id || curr.skill_test?.id || curr.skill_test);
+                const testInfo = testsMap.get(testId);
+                const total = Number(testInfo?.total_marks || curr.skill_test_details?.total_marks || curr.skill_test?.total_marks || curr.total_marks || 100);
+                return acc + (marks / total) * 100;
+              }, 0);
+              return Number((totalPct / arr.length).toFixed(1));
+            };
 
-            const learningScore = prog?.percent || 0;
-            const attendanceScore = prog?.attendance_pct || 0;
-            const testScore = testAvg;
-            
-            // Composite Score = (Learning * 0.4) + (TestAvg * 0.3) + (Attendance * 0.3)
-            const compositeScore = Math.round((learningScore * 0.4) + (testScore * 0.3) + (attendanceScore * 0.3));
-            const strengthLabel = compositeScore >= 75 ? 'Strong' : compositeScore >= 50 ? 'Average' : 'Weak';
-            const riskLabel = compositeScore >= 75 ? 'Low' : compositeScore >= 50 ? 'Medium' : 'High';
+            const calculateTrend = (attempts: any[]): 'improving' | 'declining' | 'stable' => {
+              if (attempts.length < 2) return 'stable';
+              const overallAvg = avgPct(attempts);
+              const recent3 = attempts.slice(-3);
+              const recentAvg = avgPct(recent3);
+              if (recentAvg > overallAvg + 2) return 'improving';
+              if (recentAvg < overallAvg - 2) return 'declining';
+              return 'stable';
+            };
+
+            const accuracy = avgPct(practiceAttempts);
+            const trend = calculateTrend(practiceAttempts);
+            const testAvg = accuracy;
+            const assessmentAvg = avgPct(assessmentAttempts);
+
+            const easyAttempts = practiceAttempts.filter(a => {
+              const testId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
+              const testInfo = testsMap.get(testId);
+              return (testInfo?.difficulty || a.skill_test_details?.difficulty || a.skill_test?.difficulty) === 'easy';
+            });
+            const mediumAttempts = practiceAttempts.filter(a => {
+              const testId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
+              const testInfo = testsMap.get(testId);
+              return (testInfo?.difficulty || a.skill_test_details?.difficulty || a.skill_test?.difficulty) === 'medium';
+            });
+            const hardAttempts = practiceAttempts.filter(a => {
+              const testId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
+              const testInfo = testsMap.get(testId);
+              return (testInfo?.difficulty || a.skill_test_details?.difficulty || a.skill_test?.difficulty) === 'hard';
+            });
+
+            const learningScore = Number(Number(prog?.percent || 0).toFixed(1));
+            const attendanceScore = Number(Number(prog?.attendance_pct || 0).toFixed(1));
+            const compositeScore = Number(((learningScore * 0.4) + (testAvg * 0.3) + (attendanceScore * 0.3)).toFixed(1));
 
             return {
               id: sId,
               name: sDetails.subject_name || sDetails.name || 'Unknown',
               code: sDetails.short_code || '',
               notesCompletion: learningScore,
-              testAvgScore: testScore,
+              testAvgScore: testAvg,
               assessmentAvgScore: assessmentAvg,
               tasksTotal: prog && typeof prog.assigned_tasks_total === 'number' ? prog.assigned_tasks_total : subjectTasks.length,
               tasksSubmitted: prog && typeof prog.assigned_tasks_submitted === 'number' ? prog.assigned_tasks_submitted : (tasksOnTime + tasksLate),
               tasksPending: prog && typeof prog.assigned_tasks_pending === 'number' ? prog.assigned_tasks_pending : tasksPending,
               attendancePercent: attendanceScore,
-              strength: strengthLabel,
-              risk: riskLabel,
-              compositeScore: compositeScore, // Hidden field for summary logic
+              strength: compositeScore >= 75 ? 'Strong' : compositeScore >= 50 ? 'Average' : 'Weak',
+              risk: compositeScore >= 75 ? 'Low' : compositeScore >= 50 ? 'Medium' : 'High',
+              compositeScore: compositeScore,
               totalChapters: prog?.tasks_total || 0,
               chaptersCompleted: prog?.tasks_completed || 0,
               chaptersPending: (prog?.tasks_total || 0) - (prog?.tasks_completed || 0),
@@ -443,26 +512,33 @@ export function useStudentReport() {
               lastLearningDate: null,
               learningStreak: 0,
               testsAttempted: practiceAttempts.length,
-              easyAvg: 0,
-              mediumAvg: 0,
-              hardAvg: 0,
-              accuracy: 0,
-              trend: 'stable' as const,
+              easyAvg: avgPct(easyAttempts),
+              mediumAvg: avgPct(mediumAttempts),
+              hardAvg: avgPct(hardAttempts),
+              accuracy: accuracy,
+              trend: trend,
               assessmentsTotal: assessmentAttempts.length,
-              assessmentsCompleted: assessmentAttempts.filter((a: any) => a.status === 'completed').length,
-              assessmentsInProgress: assessmentAttempts.filter((a: any) => a.status === 'started').length,
+              assessmentsCompleted: assessmentAttempts.filter((a: any) => a.status === 'completed' || a.is_submitted).length,
+              assessmentsInProgress: assessmentAttempts.filter((a: any) => a.status === 'started' && !a.is_submitted).length,
               assessmentsPending: 0,
-              assessmentScores: assessmentAttempts.slice(0, 3).map((a: any) => ({
-                name: a.skill_test_details?.title || a.skill_test?.title || 'Assessment',
-                score: a.marks || 0,
-                date: a.submitted_at || a.created_at
-              })),
+              assessmentScores: assessmentAttempts.slice(-3).reverse().map((a: any) => {
+                const aMarks = Number(a.marks || a.score || 0);
+                const aTestId = String(a.skill_test_details?.id || a.skill_test?.id || a.skill_test);
+                const aTestInfo = testsMap.get(aTestId);
+                const aTotal = Number(aTestInfo?.total_marks || a.skill_test_details?.total_marks || a.skill_test?.total_marks || 100);
+                return {
+                  name: a.skill_test_details?.title || a.skill_test?.title || 'Assessment',
+                  score: Number(((aMarks / aTotal) * 100).toFixed(1)),
+                  date: a.submitted_at || a.created_at
+                };
+              }),
               tasksOnTime: prog && typeof prog.assigned_tasks_on_time === 'number' ? prog.assigned_tasks_on_time : tasksOnTime,
               tasksLate: prog && typeof prog.assigned_tasks_late === 'number' ? prog.assigned_tasks_late : tasksLate,
               classesHeld: prog && typeof prog.attendance_total === 'number' ? prog.attendance_total : (classesAttended + missedSessions),
               classesAttended: prog && typeof prog.attendance_present === 'number' ? prog.attendance_present : classesAttended,
               missedSessions: prog && typeof prog.attendance_missed === 'number' ? prog.attendance_missed : missedSessions,
             };
+
 
           });
 

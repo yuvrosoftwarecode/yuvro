@@ -21,7 +21,7 @@ import {
   Loader2
 } from 'lucide-react';
 import subjectService, { SectionSubjectFaculty, UnitBasic } from '@/services/subjectService';
-import { instructorDashboardService, InstructorActivity } from '@/services/instructorDashboardService';
+import { facultyDashboardService, FacultyActivity } from '@/services/facultyDashboardService';
 import { useAuth } from '@/contexts/AuthContext';
 
 const FacultyDashboard = () => {
@@ -43,7 +43,7 @@ const FacultyDashboard = () => {
     total_assessments: 0,
     average_attendance: 0
   });
-  const [activities, setActivities] = useState<InstructorActivity[]>([]);
+  const [activities, setActivities] = useState<FacultyActivity[]>([]);
   const [currentUnits, setCurrentUnits] = useState<UnitBasic[]>([]);
 
   // Backwards compatibility for stats call
@@ -79,7 +79,7 @@ const FacultyDashboard = () => {
       setLoading(true);
       const [assignmentsData, activityData] = await Promise.all([
         subjectService.getFacultyAssignments(),
-        instructorDashboardService.getRecentActivity()
+        facultyDashboardService.getRecentActivity()
       ]);
       setAssignments(assignmentsData);
       setActivities(activityData);
