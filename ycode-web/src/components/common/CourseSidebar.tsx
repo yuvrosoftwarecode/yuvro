@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, BookOpen } from 'lucide-react';
 import ProgressBar from '@/components/ui/ProgressBar';
 import React from 'react';
 
@@ -56,8 +56,8 @@ const TopicSidebar = ({
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <div className="w-10 h-10 flex items-center justify-center text-2xl font-bold bg-gray-50 rounded-xl" title={course.name}>
-              💻
+            <div className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-xl shrink-0 text-gray-600" title={course.name}>
+              {course.icon || <BookOpen className="w-5 h-5" />}
             </div>
             <div className="flex flex-col items-center gap-3 w-full px-2">
               {course.topics.map((topic) => {
@@ -89,8 +89,8 @@ const TopicSidebar = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center text-xl bg-gray-100 rounded-lg">
-                  💻
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-100/80 text-gray-600 rounded-lg shrink-0">
+                  {course.icon || <BookOpen className="w-5 h-5" />}
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{course.name}</h2>
               </div>

@@ -27,7 +27,7 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
 
   const realToday = new Date();
   const isCurrentMonth = currentMonth.getFullYear() === realToday.getFullYear() && currentMonth.getMonth() === realToday.getMonth();
-  const todayNum = isCurrentMonth ? realToday.getDate() : 999; 
+  const todayNum = isCurrentMonth ? realToday.getDate() : 999;
 
   const calendarDays = useMemo(() => {
     const days: (number | null)[] = [];
@@ -46,7 +46,7 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
 
   const getDayEmoji = (day: number) => {
     if (isCurrentMonth && day > realToday.getDate()) return null;
-    
+
     if (isActiveDay(day)) {
       let streak = 0;
       for (let d = day; d >= 1; d--) {
@@ -58,12 +58,12 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
       if (streak >= 2) return '😊';
       return '🙂';
     }
-    
+
     // It's a missed day if it's before today and not active
-    const isPastOrToday = currentMonth.getFullYear() < realToday.getFullYear() || 
-                          (currentMonth.getFullYear() === realToday.getFullYear() && currentMonth.getMonth() < realToday.getMonth()) ||
-                          (isCurrentMonth && day <= realToday.getDate());
-                          
+    const isPastOrToday = currentMonth.getFullYear() < realToday.getFullYear() ||
+      (currentMonth.getFullYear() === realToday.getFullYear() && currentMonth.getMonth() < realToday.getMonth()) ||
+      (isCurrentMonth && day <= realToday.getDate());
+
     if (isPastOrToday && !isActiveDay(day)) return '😢';
     return null;
   };
@@ -72,7 +72,7 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
     <div className="space-y-3">
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-bold text-foreground tracking-tight">Activity</span>
+        <span className="text-[12px] font-bold text-foreground tracking-tight">Activity</span>
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
@@ -91,19 +91,19 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-7 gap-px rounded-xl overflow-hidden border border-gray-100 bg-gray-100">
+      <div className="grid grid-cols-7 gap-px rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-          <div key={i} className="text-[9px] font-bold text-gray-400 text-center py-1.5 bg-gray-50 uppercase">{d}</div>
+          <div key={i} className="text-[9px] font-bold text-gray-400 text-center py-1.5 bg-gray-100 uppercase">{d}</div>
         ))}
         {calendarDays.map((day, i) => {
           if (!day) return <div key={i} className="aspect-square bg-white" />;
-          
+
           const isActive = isActiveDay(day);
-          
-          const isPastOrToday = currentMonth.getFullYear() < realToday.getFullYear() || 
-              (currentMonth.getFullYear() === realToday.getFullYear() && currentMonth.getMonth() < realToday.getMonth()) ||
-              (isCurrentMonth && day <= realToday.getDate());
-              
+
+          const isPastOrToday = currentMonth.getFullYear() < realToday.getFullYear() ||
+            (currentMonth.getFullYear() === realToday.getFullYear() && currentMonth.getMonth() < realToday.getMonth()) ||
+            (isCurrentMonth && day <= realToday.getDate());
+
           const isMissed = isPastOrToday && !isActive;
           const isToday = isCurrentMonth && day === realToday.getDate();
           const emoji = getDayEmoji(day);
@@ -112,17 +112,16 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
           return (
             <div
               key={i}
-              className={`aspect-square flex items-center justify-center text-[10px] font-semibold transition-all ${
-                isToday
-                  ? 'bg-saffron text-white'
-                  : isActive
-                    ? 'bg-emerald-50 text-emerald-600'
-                    : isMissed
-                      ? 'bg-rose-50 text-rose-400'
-                      : isFuture
-                        ? 'bg-white text-gray-200'
-                        : 'bg-white text-gray-300'
-              }`}
+              className={`aspect-square flex items-center justify-center text-[10px] font-semibold transition-all ${isToday
+                ? 'bg-saffron text-white'
+                : isActive
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : isMissed
+                    ? 'bg-rose-100 text-rose-600'
+                    : isFuture
+                      ? 'bg-white text-gray-200'
+                      : 'bg-white text-gray-300'
+                }`}
               title={emoji ? `${emoji} Day ${day}` : `Day ${day}`}
             >
               {emoji && !isToday ? (
@@ -138,16 +137,16 @@ const ActivityCalendarWidget: React.FC<ActivityCalendarWidgetProps> = ({
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 mt-3 pb-2">
         <div className="flex items-center gap-1">
-          <span className="text-[10px]">😊</span>
-          <span className="text-[9px] text-muted-foreground font-medium">Active</span>
+          <span className="text-[12px]">😊</span>
+          <span className="text-[11px] text-muted-foreground font-medium">Active</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-[10px]">😢</span>
-          <span className="text-[9px] text-muted-foreground font-medium">Missed</span>
+          <span className="text-[12px]">😢</span>
+          <span className="text-[11px] text-muted-foreground font-medium">Missed</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2.5 h-2.5 rounded bg-saffron" />
-          <span className="text-[9px] text-muted-foreground font-medium">Today</span>
+          <span className="text-[11px] text-muted-foreground font-medium">Today</span>
         </div>
       </div>
     </div>
