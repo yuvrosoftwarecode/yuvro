@@ -87,8 +87,18 @@ const SubjectMatrix: React.FC<SubjectMatrixProps> = ({ subjects, expandedSubject
                         <Progress value={s.notesCompletion} className="h-1 w-16" />
                       </div>
                     </td>
-                    <td className="p-3 text-center font-medium">{s.testAvgScore}%</td>
-                    <td className="p-3 text-center font-medium">{s.assessmentAvgScore}%</td>
+                    <td className="p-3 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-medium">{s.testAvgScore}%</span>
+                        <Progress value={s.testAvgScore} className="h-1 w-16" />
+                      </div>
+                    </td>
+                    <td className="p-3 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-medium">{s.assessmentAvgScore}%</span>
+                        <Progress value={s.assessmentAvgScore} className="h-1 w-16" />
+                      </div>
+                    </td>
                     <td className="p-3 text-center">
                       <span className="text-xs">
                         <span className="font-medium text-foreground">{s.tasksSubmitted}</span>

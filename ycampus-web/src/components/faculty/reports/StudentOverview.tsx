@@ -102,13 +102,13 @@ const StudentOverview: React.FC<StudentOverviewProps> = ({ report }) => {
         {/* Test Avg */}
         <MetricCard
           icon={<span className="text-xs">📝</span>}
-          value={`${Math.round(report.subjects.reduce((s, sub) => s + sub.testAvgScore, 0) / (report.subjects.length || 1))}%`}
+          value={`${(report.subjects.reduce((s, sub) => s + sub.testAvgScore, 0) / (report.subjects.length || 1)).toFixed(1)}%`}
           label="Test Avg"
         />
         {/* Task Rate */}
         <MetricCard
           icon={<span className="text-xs">✅</span>}
-          value={`${Math.round(report.subjects.reduce((s, sub) => s + (sub.tasksTotal > 0 ? (sub.tasksSubmitted / sub.tasksTotal) * 100 : 0), 0) / (report.subjects.length || 1))}%`}
+          value={`${(report.subjects.reduce((s, sub) => s + (sub.tasksTotal > 0 ? (sub.tasksSubmitted / sub.tasksTotal) * 100 : 0), 0) / (report.subjects.length || 1)).toFixed(1)}%`}
           label="Task Rate"
         />
       </div>

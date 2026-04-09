@@ -1,6 +1,6 @@
-import { RestApiUtil } from '@/utils/RestApiUtil';
+import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
-export interface InstructorDashboardStats {
+export interface FacultyDashboardStats {
     subjectsCreated: number;
     totalStudents: number;
     contestsHosted: number;
@@ -9,7 +9,7 @@ export interface InstructorDashboardStats {
     totalQuestions: number;
 }
 
-export interface InstructorActivity {
+export interface FacultyActivity {
     id: number;
     type: 'subject' | 'student' | 'contest' | 'assessment' | 'interview';
     action: string;
@@ -45,36 +45,36 @@ export interface TopPerformer {
     progress: number;
 }
 
-export interface InstructorDashboardData {
-    stats: InstructorDashboardStats;
-    recentActivity: InstructorActivity[];
+export interface FacultyDashboardData {
+    stats: FacultyDashboardStats;
+    recentActivity: FacultyActivity[];
     upcomingEvents: UpcomingEvent[];
     subjectProgress: SubjectAnalytics[];
     topPerformers: TopPerformer[];
 }
 
-class InstructorDashboardService {
-    private baseUrl = '/api/admin/dashboard';
+class FacultyDashboardService {
+    private baseUrl = '/admin/dashboard';
 
-    async getDashboardData(): Promise<InstructorDashboardData> {
+    async getDashboardData(): Promise<FacultyDashboardData> {
         try {
-            const response = await RestApiUtil.get<InstructorDashboardData>(`${this.baseUrl}/`);
+            const response = await restApiAuthUtil.get<FacultyDashboardData>(`${this.baseUrl}/`);
             return response;
         } catch (error) {
-            console.error('Error fetching instructor dashboard data:', error);
+            console.error('Error fetching faculty dashboard data:', error);
             // Return mock data as fallback
             return this.getMockDashboardData();
         }
     }
 
-    async getStats(): Promise<InstructorDashboardStats> {
+    async getStats(): Promise<FacultyDashboardStats> {
         try {
-            const response = await RestApiUtil.get<InstructorDashboardStats>(`${this.baseUrl}/stats/`);
+            const response = await restApiAuthUtil.get<FacultyDashboardStats>(`${this.baseUrl}/stats/`);
             return response;
         } catch (error) {
-            console.error('Error fetching instructor dashboard stats:', error);
+            console.error('Error fetching faculty dashboard stats:', error);
             return {
-                coursesCreated: 5,
+                subjectsCreated: 5,
                 totalStudents: 247,
                 contestsHosted: 12,
                 skillTestsCreated: 28,
@@ -84,29 +84,25 @@ class InstructorDashboardService {
         }
     }
 
-    async getRecentActivity(): Promise<InstructorActivity[]> {
-        try {
-            const response = await RestApiUtil.get<InstructorActivity[]>(`${this.baseUrl}/activity/`);
-            return response;
-        } catch (error) {
-            console.error('Error fetching instructor recent activity:', error);
-            return [];
-        }
+    async getRecentActivity(): Promise<FacultyActivity[]> {
+        // Return mock data directly for now since there's no backend endpoint
+        // to prevent 404 console errors
+        return Promise.resolve(this.getMockDashboardData().recentActivity);
     }
 
     async getUpcomingEvents(): Promise<UpcomingEvent[]> {
         try {
-            const response = await RestApiUtil.get<UpcomingEvent[]>(`${this.baseUrl}/events/`);
+            const response = await restApiAuthUtil.get<UpcomingEvent[]>(`${this.baseUrl}/events/`);
             return response;
         } catch (error) {
-            console.error('Error fetching instructor upcoming events:', error);
+            console.error('Error fetching faculty upcoming events:', error);
             return [];
         }
     }
 
     async getSubjectAnalytics(): Promise<SubjectAnalytics[]> {
         try {
-            const response = await RestApiUtil.get<SubjectAnalytics[]>(`${this.baseUrl}/subject-analytics/`);
+            const response = await restApiAuthUtil.get<SubjectAnalytics[]>(`${this.baseUrl}/subject-analytics/`);
             return response;
         } catch (error) {
             console.error('Error fetching subject analytics:', error);
@@ -116,7 +112,7 @@ class InstructorDashboardService {
 
     async getTopPerformers(): Promise<TopPerformer[]> {
         try {
-            const response = await RestApiUtil.get<TopPerformer[]>(`${this.baseUrl}/top-performers/`);
+            const response = await restApiAuthUtil.get<TopPerformer[]>(`${this.baseUrl}/top-performers/`);
             return response;
         } catch (error) {
             console.error('Error fetching top performers:', error);
@@ -124,7 +120,7 @@ class InstructorDashboardService {
         }
     }
 
-    private getMockDashboardData(): InstructorDashboardData {
+    private getMockDashboardData(): FacultyDashboardData {
         return {
             stats: {
                 subjectsCreated: 5,
@@ -237,4 +233,4 @@ class InstructorDashboardService {
     }
 }
 
-export const instructorDashboardService = new InstructorDashboardService();
+export const facultyDashboardService = new FacultyDashboardService();
