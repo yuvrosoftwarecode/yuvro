@@ -1,21 +1,22 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download, PanelLeftClose } from 'lucide-react';
+
+import { ChevronLeft, BrainCircuit, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, PanelLeftClose, Download, Code } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
+
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
-import codeEditorService from '@/services/codeEditorService';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import codeEditorService from '@/services/codeEditorService';
 
 interface CodeEditorWithAIProps {
   problem: CodingProblem;
@@ -71,12 +72,15 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
   // Custom performant drag-based CSS var resizing (like StudentVideos)
-  const [problemPanelWidth, setProblemPanelWidth] = useState(27);
-  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30);
+  const [problemPanelWidth, setProblemPanelWidth] = useState(22);
+  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(27);
   const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragInfo = useRef<{ mode: 'problem' | 'ai-chat' | null; val: number }>({ mode: null, val: 0 });
   const rafRef = useRef<number | null>(null);
+  // Stable ref so mousemove handler always reads latest values without re-registering
+  const stateRef = useRef({ isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth });
+  stateRef.current = { isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth };
 
   // Hint/Solution state
   const [leftTab, setLeftTab] = useState<'question' | 'hints' | 'solution'>('question');
@@ -120,12 +124,16 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
 
   const startProblemDrag = () => {
     setDragMode('problem');
-    dragInfo.current = { mode: 'problem', val: problemPanelWidth };
+    dragInfo.current = { mode: 'problem', val: stateRef.current.problemPanelWidth };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
   };
 
   const startAiChatDrag = () => {
     setDragMode('ai-chat');
-    dragInfo.current = { mode: 'ai-chat', val: aiChatPanelWidth };
+    dragInfo.current = { mode: 'ai-chat', val: stateRef.current.aiChatPanelWidth };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
   };
 
   const COLLAPSE_THRESHOLD = 5;
@@ -140,6 +148,9 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
 
       dragInfo.current = { mode: null, val: 0 };
       setDragMode(null);
+      // Release global cursor lock
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
 
@@ -157,16 +168,23 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
       rafRef.current = requestAnimationFrame(() => {
         if (!containerRef.current) return;
 
+        // Read latest state from stable ref — no stale closures
+        const { isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth } = stateRef.current;
+
         const rect = containerRef.current.getBoundingClientRect();
         const relativeX = e.clientX - rect.left;
         const containerWidth = rect.width;
 
         if (mode === 'problem') {
           const newWidth = (relativeX / containerWidth) * 100;
+          // Editor must always retain at least 45% width
+          const currentChatWidth = showAiChat ? aiChatPanelWidth : 0;
+          const maxProblemWidth = 100 - currentChatWidth - 40;
+
           if (isSidebarCollapsed) {
             if (relativeX > 40) {
               setIsSidebarCollapsed(false);
-              const clamped = Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), 50);
+              const clamped = Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), maxProblemWidth);
               containerRef.current.style.setProperty('--problem-width', `${clamped}%`);
               dragInfo.current.val = clamped;
             }
@@ -174,7 +192,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
             if (newWidth < COLLAPSE_THRESHOLD) {
               handleMouseUp();
               setIsSidebarCollapsed(true);
-            } else if (newWidth <= 50) {
+            } else if (newWidth <= maxProblemWidth) {
               containerRef.current.style.setProperty('--problem-width', `${newWidth}%`);
               dragInfo.current.val = newWidth;
             }
@@ -182,9 +200,13 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
         } else if (mode === 'ai-chat') {
           const rightEdgeX = containerWidth - relativeX;
           const newWidth = (rightEdgeX / containerWidth) * 100;
-          if (newWidth >= 15 && newWidth <= 40) {
-            containerRef.current.style.setProperty('--chat-width', `${newWidth}%`);
-            dragInfo.current.val = newWidth;
+          // Editor must always retain at least 45% width
+          const currentProblemWidth = !isSidebarCollapsed ? problemPanelWidth : 0;
+          const maxChatWidth = 100 - currentProblemWidth - 40;
+          const clampedChatWidth = Math.min(newWidth, maxChatWidth);
+          if (clampedChatWidth >= 15) {
+            containerRef.current.style.setProperty('--chat-width', `${clampedChatWidth}%`);
+            dragInfo.current.val = clampedChatWidth;
           }
         }
       });
@@ -196,7 +218,7 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isSidebarCollapsed]);
+  }, []); // stable — state accessed via stateRef, no re-registration needed
 
 
   // Generate a unique session key every time the problem is loaded to start fresh
@@ -324,11 +346,10 @@ ${codeEditorRef.current?.getCode() || ''}
           <div className="mb-4">
             <h2 className="text-lg font-bold text-gray-900 leading-snug mb-2">{problem.title}</h2>
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
-                problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
-                problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                'bg-red-50 text-red-700 border-red-200'
-              }`}>{problem.difficulty}</span>
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
+                  problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                    'bg-red-50 text-red-700 border-red-200'
+                }`}>{problem.difficulty}</span>
             </div>
           </div>
 
@@ -415,11 +436,10 @@ ${codeEditorRef.current?.getCode() || ''}
                           setSelectedLanguage(firstLang);
                           setSelectedSolutionIdx(0);
                         }}
-                        className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${
-                          selectedApproach === ap
+                        className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${selectedApproach === ap
                             ? 'border-indigo-600 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         {approachLabels[ap] || ap}
                       </button>
@@ -438,11 +458,10 @@ ${codeEditorRef.current?.getCode() || ''}
                       <button
                         key={lang}
                         onClick={() => { setSelectedLanguage(lang); setSelectedSolutionIdx(0); }}
-                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
-                          selectedLanguage === lang
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${selectedLanguage === lang
                             ? 'bg-indigo-600 text-white border-indigo-600'
                             : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
-                        }`}
+                          }`}
                       >
                         {String(lang).toUpperCase()}
                       </button>
@@ -510,9 +529,6 @@ ${codeEditorRef.current?.getCode() || ''}
 
   return (
     <>
-
-
-
       {/* 1) Problem-only view (editor hidden) */}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
         <div className={`${sharedContainerClass} flex-col overflow-y-auto custom-scrollbar`}>
@@ -651,48 +667,48 @@ ${codeEditorRef.current?.getCode() || ''}
               className={`h-full shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
               style={{ width: `var(--problem-width)` }}
             >
-                {/* Tab bar with back chevron on the left */}
-                <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onBack}
-                    className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-gray-900 shrink-0"
-                    title="Back to problems"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  {[
-                    { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
-                    { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
-                  ].map((t) => (
-                    <button
-                      key={t.key}
-                      onClick={() => setLeftTab(t.key as any)}
-                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+              {/* Tab bar with back chevron on the left */}
+              <div className="h-10 flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onBack}
+                  className="h-8 w-8 p-0 mr-1 rounded-md text-gray-400 hover:text-gray-900 shrink-0"
+                  title="Back to problems"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                {[
+                  { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                  { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
+                  { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                ].map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => setLeftTab(t.key as any)}
+                    className={`h-full flex items-center gap-1.5 px-3 text-xs font-semibold border-b-2 transition-all -mb-px
                         ${leftTab === t.key
-                          ? 'border-indigo-600 text-indigo-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
-                    >
-                      {t.icon}
-                      {t.label}
-                    </button>
-                  ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsSidebarCollapsed(true)}
-                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
-                    title="Collapse"
+                        ? 'border-indigo-600 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                   >
-                    <PanelLeftClose className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                    {t.icon}
+                    {t.label}
+                  </button>
+                ))}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidebarCollapsed(true)}
+                  className="h-8 w-8 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                  title="Collapse"
+                >
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                </Button>
+              </div>
 
-                <div className="flex-1 overflow-hidden p-0 flex">
-                  {renderLeftPanelContent()}
-                </div>
+              <div className="flex-1 overflow-hidden p-0 flex">
+                {renderLeftPanelContent()}
+              </div>
             </div>
           )}
 
@@ -713,31 +729,31 @@ ${codeEditorRef.current?.getCode() || ''}
           <div
             className={`h-full flex-1 flex flex-col bg-white overflow-hidden min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
           >
-              <CodeEditor
-                  ref={codeEditorRef}
-                  initialCode={code}
-                  onCodeChange={setCode}
-                  initialLanguage={language}
-                  onLanguageChange={setLanguage}
-                  problemTitle={problem.title}
-                  problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
-                  testCases={problem.test_cases_basic || []}
-                  showTestCases={true}
-                  allowCustomTestCases={true}
-                  showFullscreenButton={true}
-                  showExamplesButton={true}
-                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                  isAiChatOpen={showAiChat}
-                  onFullscreenChange={handleFullscreenChange}
-                  isFullscreen={isEditorFullscreen}
-                  className="h-full"
-                  templates={apiTemplates}
-                  codeSubmissionType={codeSubmissionType}
-                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                />
+            <CodeEditor
+              ref={codeEditorRef}
+              initialCode={code}
+              onCodeChange={setCode}
+              initialLanguage={language}
+              onLanguageChange={setLanguage}
+              problemTitle={problem.title}
+              problemId={problem.id}
+              courseId={course.id}
+              topicId={topic.id}
+              subtopicId={subtopicId}
+              testCases={problem.test_cases_basic || []}
+              showTestCases={true}
+              allowCustomTestCases={true}
+              showFullscreenButton={true}
+              showExamplesButton={true}
+              onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+              isAiChatOpen={showAiChat}
+              onFullscreenChange={handleFullscreenChange}
+              isFullscreen={isEditorFullscreen}
+              className="h-full"
+              templates={apiTemplates}
+              codeSubmissionType={codeSubmissionType}
+              onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+            />
           </div>
 
           {/* AI CHAT RESIZE HANDLE (always mounted for fluid transitions) */}
@@ -759,16 +775,16 @@ ${codeEditorRef.current?.getCode() || ''}
               className={`h-full shrink-0 min-h-0 border-l border-slate-200 bg-white overflow-hidden flex flex-col will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
               style={{ width: `var(--chat-width)` }}
             >
-                <AIChatContainer
-                  className="w-full flex-1 rounded-none border-none shadow-none"
-                  style={{ border: "none", boxShadow: "none" }}
-                  contextGetter={getProblemContext}
-                  welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
-                  persistenceKey={chatSessionId}
-                  chatTitle={`${problem.title} - AI Buddy`}
-                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                  onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
-                />
+              <AIChatContainer
+                className="w-full flex-1 rounded-none border-none shadow-none"
+                style={{ border: "none", boxShadow: "none" }}
+                contextGetter={getProblemContext}
+                welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                persistenceKey={chatSessionId}
+                chatTitle={`${problem.title} - AI Buddy`}
+                onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
+              />
             </div>
           )}
         </div>
@@ -822,46 +838,46 @@ ${codeEditorRef.current?.getCode() || ''}
                 className={`h-full shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
                 style={{ width: `var(--problem-width)` }}
               >
-                  <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFullscreenChange(false)}
-                      className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-red-600 shrink-0"
-                      title="Exit fullscreen"
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                    </Button>
-                    {[
-                      { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                      { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
-                      { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
-                    ].map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => setLeftTab(t.key as any)}
-                        className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+                <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFullscreenChange(false)}
+                    className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-red-600 shrink-0"
+                    title="Exit fullscreen"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  {[
+                    { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
+                    { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setLeftTab(t.key as any)}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
                           ${leftTab === t.key
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
-                      >
-                        {t.icon}
-                        {t.label}
-                      </button>
-                    ))}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsSidebarCollapsed(true)}
-                      className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
-                      title="Collapse"
+                          ? 'border-indigo-600 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                     >
-                      <PanelLeftClose className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                  <div className="flex-1 overflow-hidden p-0 flex">
-                    {renderLeftPanelContent()}
-                  </div>
+                      {t.icon}
+                      {t.label}
+                    </button>
+                  ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                    title="Collapse"
+                  >
+                    <PanelLeftClose className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-hidden p-0 flex">
+                  {renderLeftPanelContent()}
+                </div>
               </div>
             )}
 
@@ -880,31 +896,31 @@ ${codeEditorRef.current?.getCode() || ''}
 
             {/* Main Area (Editor + Output) */}
             <div className={`h-full flex-1 flex flex-col overflow-hidden bg-white min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>
-                <CodeEditor
-                  ref={codeEditorRef}
-                  initialCode={code}
-                  onCodeChange={setCode}
-                  initialLanguage={language}
-                  onLanguageChange={setLanguage}
-                  problemTitle={problem.title}
-                  problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
-                  testCases={problem.test_cases_basic || []}
-                  showTestCases={true}
-                  allowCustomTestCases={true}
-                  showFullscreenButton={true}
-                  showExamplesButton={true}
-                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                  isAiChatOpen={showAiChat}
-                  onFullscreenChange={handleFullscreenChange}
-                  isFullscreen={isEditorFullscreen}
-                  className="h-full"
-                  templates={apiTemplates}
-                  codeSubmissionType={codeSubmissionType}
-                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                />
+              <CodeEditor
+                ref={codeEditorRef}
+                initialCode={code}
+                onCodeChange={setCode}
+                initialLanguage={language}
+                onLanguageChange={setLanguage}
+                problemTitle={problem.title}
+                problemId={problem.id}
+                courseId={course.id}
+                topicId={topic.id}
+                subtopicId={subtopicId}
+                testCases={problem.test_cases_basic || []}
+                showTestCases={true}
+                allowCustomTestCases={true}
+                showFullscreenButton={true}
+                showExamplesButton={true}
+                onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+                isAiChatOpen={showAiChat}
+                onFullscreenChange={handleFullscreenChange}
+                isFullscreen={isEditorFullscreen}
+                className="h-full"
+                templates={apiTemplates}
+                codeSubmissionType={codeSubmissionType}
+                onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+              />
             </div>
 
             {/* AI Chat Resize Handle (always mounted for fluid transitions) */}
@@ -926,16 +942,16 @@ ${codeEditorRef.current?.getCode() || ''}
                 className={`h-full shrink-0 min-h-0 bg-white border-l border-slate-200 overflow-hidden flex flex-col will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
                 style={{ width: `var(--chat-width)` }}
               >
-                  <AIChatContainer
-                    className="w-full flex-1 rounded-none border-none shadow-none"
-                    style={{ border: "none", boxShadow: "none" }}
-                    contextGetter={getProblemContext}
-                    welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
-                    persistenceKey={chatSessionId}
-                    chatTitle={`${problem.title} - AI Buddy`}
-                    onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                    onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
-                  />
+                <AIChatContainer
+                  className="w-full flex-1 rounded-none border-none shadow-none"
+                  style={{ border: "none", boxShadow: "none" }}
+                  contextGetter={getProblemContext}
+                  welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
+                  persistenceKey={chatSessionId}
+                  chatTitle={`${problem.title} - AI Buddy`}
+                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                  onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
+                />
               </div>
             )}
           </div>

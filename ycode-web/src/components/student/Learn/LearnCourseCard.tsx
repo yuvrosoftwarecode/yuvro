@@ -128,9 +128,17 @@ const LearnCourseCard: React.FC<LearnCourseCardProps> = ({
           </div>
         </div>
 
-        {/* Bottom row: Progress bar + percentage */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-[6px] bg-gray-100 rounded-full overflow-hidden">
+        {/* Bottom row: Status + Progress bar + percentage */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-semibold ${pct === 100 ? 'text-emerald-500' : pct > 0 ? 'text-blue-500' : 'text-gray-400'}`}>
+              {pct === 100 ? 'Completed' : pct > 0 ? 'In progress' : 'Not started'}
+            </span>
+            <span className="text-[11px] font-semibold text-gray-600 tabular-nums">
+              {pct}%
+            </span>
+          </div>
+          <div className="w-full h-[5px] bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
@@ -139,9 +147,6 @@ const LearnCourseCard: React.FC<LearnCourseCardProps> = ({
               }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-700 tabular-nums min-w-[36px] text-right">
-            {pct}%
-          </span>
         </div>
       </div>
     </div>

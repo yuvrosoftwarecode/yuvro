@@ -240,20 +240,6 @@ const LearnDashboard: React.FC = () => {
       contentClassName="h-full p-0 overflow-hidden"
     >
       <style>{`
-        .thin-scrollbar::-webkit-scrollbar {
-          width: 3px;
-          height: 3px;
-        }
-        .thin-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .thin-scrollbar::-webkit-scrollbar-thumb {
-          background: transparent;
-          border-radius: 20px;
-        }
-        .thin-scrollbar:hover::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.08);
-        }
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
