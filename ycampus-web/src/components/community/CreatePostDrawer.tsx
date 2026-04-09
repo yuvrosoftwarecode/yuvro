@@ -27,8 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCommunity, PostTag, PostAudience } from '@/hooks/useCommunity';
-import { useImageUpload } from '@/hooks/useImageUpload';
+import { useCommunity, PostTag, PostAudience, CommunityPost } from '@/hooks/useCommunity';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -38,6 +37,7 @@ interface CreatePostDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onPostCreated: () => void;
+  post?: CommunityPost;
 }
 
 const availableTags: { value: PostTag; label: string; color: string }[] = [
@@ -58,18 +58,30 @@ export function CreatePostDrawer({
   open,
   onOpenChange,
   onPostCreated,
+  post,
 }: CreatePostDrawerProps) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { createPost, isCreatingPost } = useCommunity();
-  const { uploadImages, uploading, uploadProgress, deleteImage } = useImageUpload(user?.id);
+  const { createPost, updatePost, isCreatingPost } = useCommunity();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [content, setContent] = useState('');
-  const [selectedTags, setSelectedTags] = useState<PostTag[]>([]);
-  const [audience, setAudience] = useState<PostAudience>('college');
+  const [content, setContent] = useState(post?.content || '');
+  const [selectedTags, setSelectedTags] = useState<PostTag[]>(post?.tags || []);
+  const [audience, setAudience] = useState<PostAudience>(post?.audience || 'college');
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>(post?.images || []);
+
+  // Update state when post changes (when opening for edit)
+  React.useEffect(() => {
+    if (post) {
+      setContent(post.content);
+      setSelectedTags(post.tags);
+      setAudience(post.audience);
+      setPreviewUrls(post.images);
+    } else {
+      resetForm();
+    }
+  }, [post]);
 
   const toggleTag = (tag: PostTag) => {
     setSelectedTags((prev) =>
@@ -122,23 +134,26 @@ export function CreatePostDrawer({
     if (!content.trim()) return;
 
     try {
-      // Upload images first
-      let uploadedImageUrls: string[] = [];
-      if (selectedImages.length > 0) {
-        uploadedImageUrls = await uploadImages(selectedImages);
+      if (post) {
+        await updatePost({
+          id: post.id,
+          content: content.trim(),
+          tag_names: selectedTags,
+          visibility: audience === 'college' ? 'ENTIRE_COLLEGE' : audience === 'department' ? 'MY_DEPARTMENT' : 'MY_BATCH',
+        });
+      } else {
+        await createPost({
+          content: content.trim(),
+          tags: selectedTags,
+          visibility: audience === 'college' ? 'ENTIRE_COLLEGE' : audience === 'department' ? 'MY_DEPARTMENT' : 'MY_BATCH',
+          images: selectedImages,
+        });
       }
-
-      await createPost({
-        content: content.trim(),
-        tags: selectedTags,
-        audience,
-        images: uploadedImageUrls,
-      });
 
       resetForm();
       onPostCreated();
     } catch (error) {
-      console.error('Failed to create post:', error);
+      console.error('Failed to save post:', error);
     }
   };
 
@@ -147,7 +162,7 @@ export function CreatePostDrawer({
     onOpenChange(false);
   };
 
-  const isSubmitting = isCreatingPost || uploading;
+  const isSubmitting = isCreatingPost;
 
   const formContent = (
     <div className="space-y-4 px-4 sm:px-0">
@@ -210,16 +225,6 @@ export function CreatePostDrawer({
         </p>
       </div>
 
-      {/* Upload Progress */}
-      {uploading && (
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Uploading images...</span>
-            <span>{Math.round(uploadProgress)}%</span>
-          </div>
-          <Progress value={uploadProgress} className="h-1" />
-        </div>
-      )}
 
       <div className="space-y-2">
         <Label>Tags (optional)</Label>
@@ -274,11 +279,10 @@ export function CreatePostDrawer({
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            {uploading ? 'Uploading...' : 'Posting...'}
+            {post ? 'Saving...' : 'Posting...'}
           </>
         ) : (
-          'Post'
+          post ? 'Save Changes' : 'Post'
         )}
       </Button>
     </div>
