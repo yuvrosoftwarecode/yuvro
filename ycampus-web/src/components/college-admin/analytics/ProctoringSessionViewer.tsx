@@ -51,14 +51,14 @@ interface ProctoringSessionViewerProps {
 const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submission }) => {
     // Calculate total violations
     const totalViolations = (submission.proctoring_events?.filter((e: any) =>
-        !['snapshot', 'camera_enabled', 'camera_disabled'].includes(e.activity_type)).length || 0) +
+        e.activity_type && !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(e.activity_type)).length || 0) +
         (submission.question_activities?.reduce((acc: number, q: any) => acc + (q.violation_count || 0), 0) || 0);
 
     const questionActivities = submission.question_activities || [];
 
     const getImageUrl = (imgUrl: string | undefined) => {
         if (!imgUrl) return '';
-        if (imgUrl.startsWith('http')) return imgUrl;
+        if (imgUrl.startsWith('http') || imgUrl.startsWith('data:')) return imgUrl;
 
         let cleanPath = imgUrl.replace(/\\/g, '/');
         if (cleanPath.startsWith('uploads/')) {
@@ -152,13 +152,13 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                         </h5>
                                         <div className="space-y-1 max-h-40 overflow-y-auto pr-2">
                                             {[...(activity.navigation_activities || []), ...(activity.proctoring_activities || [])]
-                                                .filter(log => !['snapshot', 'camera_enabled', 'camera_disabled'].includes(log.activity_type))
+                                                .filter(log => log.activity_type && !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(log.activity_type))
                                                 .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
                                                 .map((log, i) => (
                                                     <div key={i} className={`flex items-center justify-between py-1.5 px-3 rounded-md mb-1 ${
-                                                        log.activity_type.includes('violation') || log.activity_type.includes('detected') ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-white border text-gray-600'
+                                                        (log.activity_type?.includes('violation') || log.activity_type?.includes('detected')) ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-white border text-gray-600'
                                                         }`}>
-                                                        <span className="font-medium capitalize">{log.activity_type.replace(/_/g, ' ')}</span>
+                                                        <span className="font-medium capitalize">{log.activity_type?.replace(/_/g, ' ')}</span>
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-xs text-gray-400">{format(new Date(log.timestamp), 'h:mm:ss a')}</span>
                                                             {log.meta_data?.key && (
@@ -224,7 +224,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                 }
 
                                 const filteredEvents = allEvents
-                                    .filter(event => !['snapshot', 'camera_enabled', 'camera_disabled'].includes(event.activity_type))
+                                    .filter(event => event.activity_type && !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(event.activity_type))
                                     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
                                 if (filteredEvents.length === 0) {
@@ -233,11 +233,11 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
 
                                 return filteredEvents.map((event, i) => (
                                     <div key={i} className={`flex justify-between items-start p-3 rounded-md border ${
-                                        (event.activity_type.includes('violation') || event.activity_type.includes('detected') || event.activity_type === 'tab_switched' || event.activity_type === 'window_focus_lost' || event.activity_type === 'devtools_opened') 
+                                        (event.activity_type?.includes('violation') || event.activity_type?.includes('detected') || event.activity_type === 'tab_switched' || event.activity_type === 'window_focus_lost' || event.activity_type === 'devtools_opened') 
                                         ? 'bg-red-50 border-red-100 text-red-700' 
                                         : 'bg-gray-50 border-gray-100 text-gray-700'
                                         }`}>
-                                        <span className="font-semibold text-sm capitalize">{event.activity_type.replace(/_/g, ' ')}</span>
+                                        <span className="font-semibold text-sm capitalize">{event.activity_type?.replace(/_/g, ' ')}</span>
                                         <div className="flex flex-col items-end">
                                             <span className="text-xs text-gray-400">{format(new Date(event.timestamp), 'h:mm:ss a')}</span>
                                             {event.meta_data?.platform && (
@@ -280,7 +280,7 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                 }
 
                                 const snapshotsToRender = allSnapshots
-                                    .filter(e => e.image_path || (e.activity_type === 'snapshot' && e.image_path))
+                                    .filter(e => e.image_path || e.activity_type === 'snapshot' || e.activity_type === 'periodic_snapshot')
                                     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
                                 if (snapshotsToRender.length === 0) {

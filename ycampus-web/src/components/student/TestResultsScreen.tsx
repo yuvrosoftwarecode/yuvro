@@ -23,7 +23,7 @@ import {
   Lightbulb,
   Loader2,
 } from 'lucide-react';
-import { getSkillTestSubmissions } from '@/services/skillTestService';
+import { getSkillTestSubmissions, fetchSkillTestById } from '@/services/skillTestService';
 
 interface TestResultsScreenProps {
   testName: string;
@@ -76,6 +76,7 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
   const [submissionDifficulty, setSubmissionDifficulty] = useState<string>('');
   const [submissionDuration, setSubmissionDuration] = useState<number>(0);
   const [hasSubmission, setHasSubmission] = useState<boolean>(false);
+  const [skillTestTotalMarks, setSkillTestTotalMarks] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,18 +85,29 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
     const fetchSubmission = async () => {
       try {
         setIsLoading(true);
-        const submissions = await getSkillTestSubmissions(skillTestId);
-        if (submissions && submissions.length > 0) {
-          // If a specific submissionId is provided (e.g. from Admin view), use it; otherwise use the most recent submission
-          const targetSubmission = submissionId 
-            ? submissions.find((s: any) => s.id === submissionId || String(s.id) === String(submissionId)) || submissions[submissions.length - 1]
-            : submissions[submissions.length - 1];
+        // Fetch both submissions and test details in parallel
+        const [submissions, testDetails] = await Promise.allSettled([
+          getSkillTestSubmissions(skillTestId),
+          fetchSkillTestById(skillTestId),
+        ]);
+
+        // Store test-level total_marks as primary fallback
+        if (testDetails.status === 'fulfilled' && testDetails.value?.total_marks) {
+          setSkillTestTotalMarks(testDetails.value.total_marks);
+        }
+
+        if (submissions.status === 'fulfilled' && submissions.value && submissions.value.length > 0) {
+          const allSubs = submissions.value;
+          // If a specific submissionId is provided (e.g. from Admin view), use it; otherwise use the most recent submission (newest first, so index 0)
+          const targetSubmission = submissionId
+            ? allSubs.find((s: any) => s.id === submissionId || String(s.id) === String(submissionId)) || allSubs[0]
+            : allSubs[0];
 
           const activities: QuestionActivity[] = targetSubmission.question_activities || [];
           setQuestionActivities(activities);
           setSubmissionMarks(targetSubmission.marks ?? 0);
           setHasSubmission(true);
-          // Total marks from question activities if available, else from skill_test data
+          // Total marks from question activities if available
           const activityTotal = activities.reduce((s: number, a: QuestionActivity) => s + (a.marks || 0), 0);
           setTotalMarks(activityTotal);
           setCompletedAt(targetSubmission.completed_at || targetSubmission.submitted_at || '');
@@ -119,7 +131,9 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
   const correctAnswers = questionActivities.filter(a => a.is_correct).length;
   const wrongAnswers = questionActivities.filter(a => !a.is_correct && a.answer_data).length;
   const notAttempted = questionActivities.filter(a => !a.answer_data).length;
-  const maxScore = totalMarks > 0 ? totalMarks : questionActivities.reduce((s, a) => s + (a.marks || 0), 0);
+  // maxScore priority: activity total → skill test level total_marks → 0
+  const activityMaxScore = questionActivities.reduce((s, a) => s + (a.marks || 0), 0);
+  const maxScore = totalMarks > 0 ? totalMarks : activityMaxScore > 0 ? activityMaxScore : skillTestTotalMarks;
   // Use submission-level marks as score (set by backend), fallback to summing activities
   const totalScore = submissionMarks > 0
     ? submissionMarks
@@ -272,7 +286,7 @@ const TestResultsScreen: React.FC<TestResultsScreenProps> = ({
                         {getScoreIcon(percentage)}
                       </div>
                       <p className="text-muted-foreground mb-4">
-                        {totalScore}/{maxScore > 0 ? maxScore : '?'} Points
+                        {totalScore}/{maxScore > 0 ? maxScore : '-'} Points
                       </p>
                       <div className="text-center">
                         <p className="font-medium text-lg">

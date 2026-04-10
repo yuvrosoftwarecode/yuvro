@@ -34,6 +34,7 @@ interface Topic {
   name: string;
   duration: number;
   questions: number;
+  totalMarks?: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
@@ -440,6 +441,7 @@ const TestSubjectDetail = () => {
                               name: problem.title,
                               duration: problem.duration,
                               questions: problem.total_questions || 0,
+                              totalMarks: problem.total_marks || 0,
                               difficulty: problem.difficulty === 'easy' ? 'Easy' : problem.difficulty === 'medium' ? 'Medium' : 'Hard'
                             };
 

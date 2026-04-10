@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   SquareFunction, Atom, Code, Database, Globe, Cpu, Layers,
   FlaskConical, BookMarked, PenLine, Sigma,
-  Pencil, Binary, BrainCircuit, BookOpen, ClipboardCheck
+  Pencil, Binary, BrainCircuit, BookOpen, ClipboardCheck, Zap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchSubjectsByCollege, Subject } from '@/services/subjectService';
@@ -27,18 +27,13 @@ function getSubjectIcon(name: string) {
   if (n.includes('structure') || n.includes('algorithm') || n.includes('dsa')) return Layers;
   if (n.includes('english') || n.includes('communication')) return PenLine;
   if (n.includes('drawing') || n.includes('cad') || n.includes('design') || n.includes('graphics')) return Pencil;
-  if (n.includes('digital') || n.includes('logic') || n.includes('circuit') || n.includes('electrical')) return Binary;
+  if (n.includes('digital') || n.includes('logic') || n.includes('circuit') || n.includes('electrical')) return Zap;
   if (n.includes('ai') || n.includes('machine') || n.includes('deep')) return BrainCircuit;
   if (n.includes('algebra') || n.includes('linear') || n.includes('discrete')) return SquareFunction;
   return BookOpen;
 }
 
-// India tricolor gradient bars (cycling through saffron, chakra-navy, green)
-const accentGradients = [
-  'from-[hsl(var(--saffron-dark))] to-[hsl(var(--saffron))]',
-  'from-[hsl(var(--chakra-dark))] to-[hsl(var(--chakra))]',
-  'from-[hsl(var(--success-dark))] to-[hsl(var(--success))]',
-];
+
 
 // ─── Skeleton card ────────────────────────────────────────────────────────────
 
@@ -91,14 +86,19 @@ const StudentTest = () => {
     const fetchCounts = async () => {
       try {
         const allTests = await fetchSkillTests({ test_type: 'practice', publish_status: 'active' });
+        // Initialize all subjects with 0 first
         const counts: Record<string, number> = {};
+        subjects.forEach(s => { counts[String(s.id)] = 0; });
+        
         allTests.forEach(t => {
           const sid = String(t.subject);
-          counts[sid] = (counts[sid] || 0) + 1;
+          if (sid in counts) {
+            counts[sid] = (counts[sid] || 0) + 1;
+          }
         });
         setTestCounts(counts);
       } catch {
-        // Non-critical — just don't show counts
+        // Non-critical
       }
     };
     fetchCounts();
@@ -110,25 +110,18 @@ const StudentTest = () => {
 
   return (
     <StudentLayout>
-      <div className="space-y-6 p-6">
+      <div className="space-y-8 p-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Practice Tests</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              Choose a subject to explore and attempt practice tests.
-            </p>
-          </div>
-          {!loading && subjects.length > 0 && (
-            <Badge variant="secondary" className="font-semibold text-sm px-3 py-1">
-              {subjects.length} Subject{subjects.length !== 1 ? 's' : ''}
-            </Badge>
-          )}
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Practice Test</h1>
+          <p className="text-slate-500 text-lg">
+            Select a subject to start your practice tests.
+          </p>
         </div>
 
         {/* Subject grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => <SubjectCardSkeleton key={i} />)}
           </div>
         ) : subjects.length === 0 ? (
@@ -142,59 +135,43 @@ const StudentTest = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {subjects.map((subject, index) => {
               const Icon = getSubjectIcon(subject.subject_name);
-              const gradient = accentGradients[index % accentGradients.length];
               const count = testCounts[String(subject.id)];
               const hasTests = typeof count === 'number' && count > 0;
 
               return (
-                <Card
+                <div
                   key={subject.id}
-                  className="cursor-pointer border-border bg-card hover:shadow-md transition-all duration-200 group overflow-hidden"
+                  className="group cursor-pointer border-0 rounded-2xl p-6 transition-all duration-200 hover:shadow-md flex items-center gap-5 h-auto min-h-[7rem]"
+                  style={{ backgroundColor: 'hsl(var(--notes-card-bg))' }}
                   onClick={() => handleCardClick(subject.id, subject.subject_name)}
                 >
-                  {/* Top accent bar */}
-                  <div className={`h-1.5 bg-gradient-to-r ${gradient}`} />
+                  {/* Icon */}
+                  <Icon className="h-7 w-7 shrink-0 text-slate-700" />
 
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      {/* Icon container */}
-                      <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}>
-                        <Icon className="h-6 w-6 text-white" />
-                      </div>
-
-                      {/* Text */}
-                      <div className="flex-1 min-w-0 pt-0.5">
-                        <h3 className="font-semibold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
-                          {subject.subject_name}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          {hasTests ? (
-                            <div className="flex items-center gap-1.5">
-                              <ClipboardCheck className="h-3.5 w-3.5 text-emerald-500" />
-                              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                {count} test{count !== 1 ? 's' : ''} available
-                              </span>
-                            </div>
-                          ) : typeof count === 'number' ? (
-                            <span className="text-xs text-muted-foreground">No tests yet</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground animate-pulse">Loading…</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Arrow indicator */}
-                      <div className="shrink-0 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200 mt-1">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M6 12l4-4-4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <h3 
+                      className="font-semibold text-lg leading-tight transition-colors"
+                      style={{ color: 'hsl(var(--notes-card-fg))' }}
+                    >
+                      {subject.subject_name}
+                    </h3>
+                    <div className="mt-1">
+                      {hasTests ? (
+                        <p className="text-sm font-medium text-slate-500/80">
+                          {count} {count === 1 ? 'test' : 'tests'} available
+                        </p>
+                      ) : typeof count === 'number' ? (
+                        <p className="text-sm text-slate-400">No tests</p>
+                      ) : (
+                        <div className="h-3 w-16 bg-slate-200/50 animate-pulse rounded mt-1" />
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
