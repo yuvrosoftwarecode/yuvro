@@ -458,6 +458,10 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
     question_activities = SkillTestQuestionActivitySerializer(
         source="skill_test_question_activities", many=True, read_only=True
     )
+    total_violations = serializers.SerializerMethodField()
+
+    def get_total_violations(self, obj):
+        return sum((activity.violation_count or 0) for activity in obj.skill_test_question_activities.all())
 
     class Meta:
         model = SkillTestSubmission
@@ -478,6 +482,7 @@ class SkillTestSubmissionSerializer(serializers.ModelSerializer):
             "ip_address",
             "user_agent",
             "question_activities",
+            "total_violations",
             "created_at",
             "updated_at",
         ]
