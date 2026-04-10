@@ -164,7 +164,7 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
                                 Semester {currentSemester.number}
                             </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground font-medium">{batch.department_name}</p>
+                        <p className="text-sm font-bold text-muted-foreground">{batch.department_name}</p>
                     </div>
                 </div>
             </div>
@@ -336,8 +336,8 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
                                                 <TableHead className="font-bold text-xs">Phone</TableHead>
                                                 <TableHead className="font-bold text-xs">Roll number</TableHead>
                                                 <TableHead className="font-bold text-xs">Type</TableHead>
-                                                <TableHead className="font-bold text-xs">Dept</TableHead>
-                                                <TableHead className="font-bold text-xs">Batch</TableHead>
+                                                <TableHead className="font-bold text-xs">Section</TableHead>
+                                                <TableHead className="font-bold text-xs">Status</TableHead>
                                                 <TableHead className="text-right px-6 font-bold text-xs">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -362,15 +362,20 @@ const BatchDetailSection: React.FC<BatchDetailSectionProps> = ({ batch, onBack }
                                                             {student.roll_number}
                                                         </code>
                                                     </TableCell>
+                                                    <TableCell className="text-[11px] font-bold text-muted-foreground">Sec {selectedSection?.name || 'N/A'}</TableCell>
                                                     <TableCell>
-                                                        <Badge variant="outline" className={`${student.admission_type === 'lateral_entry' ? 'bg-purple-50 text-purple-700 border-purple-100' : 'bg-muted text-muted-foreground border-gray-100'} text-[10px] font-bold px-1.5 py-0 rounded-md`}>
-                                                            {student.admission_type === 'lateral_entry' ? 'LE' : 'reg'}
-                                                        </Badge>
+                                                        {student.is_detained ? (
+                                                            <Badge variant="destructive" className="text-[10px] bg-red-50 text-red-600 border-red-100 font-bold px-1.5 py-0 rounded-md">
+                                                                Detained
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] font-bold px-1.5 py-0 rounded-md italic">
+                                                                Active
+                                                            </Badge>
+                                                        )}
                                                     </TableCell>
-                                                    <TableCell className="text-[11px] font-bold text-muted-foreground">{batch.department_name?.split(' ').map(w => w[0]).join('') || 'DEPT'}</TableCell>
-                                                    <TableCell className="text-[11px] font-bold text-muted-foreground">{batch.name}</TableCell>
                                                     <TableCell className="text-right px-6">
-                                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="flex items-center justify-end gap-1 transition-all">
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"

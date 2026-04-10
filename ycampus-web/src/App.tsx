@@ -36,8 +36,10 @@ import AttendanceReport from "./pages/faculty/AttendanceReport";
 import HODDashboard from "./pages/hod/HODDashboard";
 import HODStudents from "./pages/hod/Students";
 import HODFaculty from "./pages/hod/Faculty";
+import HODAnnouncements from "./pages/hod/Announcements";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
 import PrincipalDepartments from "./pages/principal/Departments";
+import PrincipalAnnouncements from './pages/principal/Announcements';
 import PRIReport from "./pages/principal/PRIReport";
 import DepartmentDetail from "./pages/principal/DepartmentDetail";
 import PrincipalHODs from "./pages/principal/HODs";
@@ -45,9 +47,11 @@ import CollegeAdminDashboard from "./pages/college-admin/CollegeAdminDashboard";
 import CollegeAdminPrincipals from "./pages/college-admin/Principals";
 import CollegeAdminHODs from "./pages/college-admin/HODs";
 import CollegeAdminDepartments from "./pages/college-admin/Departments";
+import CollegeAdminAnnouncements from "./pages/college-admin/Announcements";
 import CollegeAdminBatchIds from "./pages/college-admin/BatchIds";
 import CollegeAdminFaculty from "./pages/college-admin/Faculty";
 import CollegeAdminStudents from "./pages/college-admin/Students";
+import CollegeAdminTPO from "@/pages/college-admin/TPOManagement";
 import CollegeAdminSubjects from "./pages/college-admin/Subjects";
 import CollegeAdminPracticeTest from "./pages/college-admin/PracticeTest";
 import PrincipalFaculty from "./pages/principal/Faculty";
@@ -81,7 +85,7 @@ import JobApplicationsPage from "./pages/placement/JobApplications";
 import SubjectDetail from "@/components/student/SubjectDetail";
 import TestSubjectDetail from "@/components/student/TestSubjectDetail";
 import DummyReportScreen from "./components/student/DummyReportScreen";
-import Index from "./pages/Index";
+
 import NotFound from "./pages/NotFound";
 
 // Mock Interview Imports
@@ -209,6 +213,7 @@ const App = () => (
                       <Route path="dashboard" element={<HODDashboard />} />
                       <Route path="students" element={<HODStudents />} />
                       <Route path="faculty" element={<HODFaculty />} />
+                      <Route path="announcements" element={<HODAnnouncements />} />
                     </Routes>
                   </ProtectedRoute>
                 }
@@ -225,6 +230,7 @@ const App = () => (
                       <Route path="departments/:id" element={<DepartmentDetail />} />
                       <Route path="faculty" element={<PrincipalFaculty />} />
                       <Route path="students" element={<PrincipalStudents />} />
+                      <Route path="announcements" element={<PrincipalAnnouncements />} />
                       <Route path="pri-report" element={<PRIReport />} />
                       <Route path="hods" element={<PrincipalHODs />} />
                     </Routes>
@@ -243,11 +249,13 @@ const App = () => (
                       <Route path="hods" element={<CollegeAdminHODs />} />
                       <Route path="departments" element={<CollegeAdminDepartments />} />
                       <Route path="departments/:id" element={<CollegeAdminDepartments />} />
-                      <Route path="batches" element={<CollegeAdminBatchIds />} />
+                      <Route path="batch-ids" element={<CollegeAdminBatchIds />} />
                       <Route path="faculty" element={<CollegeAdminFaculty />} />
                       <Route path="students" element={<CollegeAdminStudents />} />
+                      <Route path="tpo" element={<CollegeAdminTPO />} />
                       <Route path="subjects" element={<CollegeAdminSubjects />} />
                       <Route path="practice-test" element={<CollegeAdminPracticeTest />} />
+                      <Route path="announcements" element={<CollegeAdminAnnouncements />} />
                     </Routes>
                   </ProtectedRoute>
                 }

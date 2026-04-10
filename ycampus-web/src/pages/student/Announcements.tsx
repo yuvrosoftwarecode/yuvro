@@ -4,10 +4,10 @@ import { useAnnouncements, CategoryFilter, PriorityFilter, SortOrder } from '@/h
 import { AnnouncementCard } from '@/components/student/announcements/AnnouncementCard';
 import { AnnouncementFilters } from '@/components/student/announcements/AnnouncementFilters';
 import { AnnouncementDetailModal } from '@/components/student/announcements/AnnouncementDetailModal';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Megaphone, Bell } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { badgeVariants } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import type { Announcement } from '@/hooks/useAnnouncements';
 
 const Announcements = () => {
@@ -45,10 +45,10 @@ const Announcements = () => {
             </div>
           </div>
           {unreadCount > 0 && (
-            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800 gap-1.5 px-3 py-1.5 text-sm">
+            <div className={cn(badgeVariants({ variant: 'default' }), "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800 gap-1.5 px-3 py-1.5 text-sm")}>
               <Bell className="h-3.5 w-3.5" />
               {unreadCount} unread
-            </Badge>
+            </div>
           )}
         </div>
 
@@ -73,7 +73,7 @@ const Announcements = () => {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-40 w-full rounded-xl" />
+              <div key={i} className="h-40 w-full rounded-xl bg-muted animate-pulse" />
             ))}
           </div>
         ) : announcements.length === 0 ? (
@@ -84,7 +84,7 @@ const Announcements = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {announcements.map((a) => (
+            {announcements.map((a: Announcement) => (
               <AnnouncementCard
                 key={a.id}
                 announcement={a}

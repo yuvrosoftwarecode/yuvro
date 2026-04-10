@@ -1,136 +1,120 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSubjects, Subject } from '@/hooks/useSubjects';
-import { useDepartments } from '@/hooks/useDepartments';
+import { Edit, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import subjectService, { CollegeSubject } from '@/services/subjectService';
 
 interface EditSubjectDialogProps {
+  collegeSubject: CollegeSubject | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  subject: Subject | null;
+  onSuccess?: () => void;
 }
 
-export function EditSubjectDialog({ open, onOpenChange, subject }: EditSubjectDialogProps) {
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
-  const [semester, setSemester] = useState('');
-  const [description, setDescription] = useState('');
-
-  const { updateSubject } = useSubjects();
-  const { departments } = useDepartments();
+export function EditSubjectDialog({ collegeSubject, open, onOpenChange, onSuccess }: EditSubjectDialogProps) {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    subject_name: '',
+    short_code: '',
+    description: ''
+  });
 
   useEffect(() => {
-    if (subject) {
-      setName(subject.name);
-      setCode(subject.code);
-      setDepartmentId(subject.department_id);
-      setSemester(subject.semester?.toString() || '');
-      setDescription(subject.description || '');
+    if (open && collegeSubject && collegeSubject.subject_details) {
+      setFormData({
+        subject_name: collegeSubject.subject_details.subject_name || '',
+        short_code: collegeSubject.subject_code || collegeSubject.subject_details.short_code || '',
+        description: collegeSubject.subject_details.description || ''
+      });
     }
-  }, [subject]);
+  }, [open, collegeSubject]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!subject) return;
+    if (!collegeSubject?.subject) return;
+    setLoading(true);
 
-    updateSubject({
-      id: subject.id,
-      name,
-      code,
-      department_id: departmentId,
-      semester: semester ? parseInt(semester) : undefined,
-      description: description || undefined,
-    });
+    try {
+      // 1. Update global subject info
+      await subjectService.updateSubject(collegeSubject.subject, {
+        subject_name: formData.subject_name,
+        short_code: formData.short_code,
+        description: formData.description
+      });
 
-    onOpenChange(false);
+      // 2. If subject_code in CollegeSubject needs updating separately
+      if (formData.short_code !== collegeSubject.subject_code) {
+        await subjectService.updateCollegeSubject(collegeSubject.id, {
+          subject_code: formData.short_code
+        });
+      }
+
+      toast.success('Subject details updated successfully');
+      onOpenChange(false);
+      if (onSuccess) onSuccess();
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.error || 'Failed to update subject';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Subject</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Edit className="h-5 w-5" />
+            Edit Subject Details
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">Subject Name *</Label>
-            <Input
-              id="edit-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Data Structures"
-              required
-            />
+        
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit_subject_name">Subject Name *</Label>
+              <Input
+                id="edit_subject_name"
+                value={formData.subject_name}
+                onChange={(e) => setFormData({ ...formData, subject_name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit_short_code">Subject Code *</Label>
+              <Input
+                id="edit_short_code"
+                value={formData.short_code}
+                onChange={(e) => setFormData({ ...formData, short_code: e.target.value.toUpperCase() })}
+                required
+                className="uppercase"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-code">Subject Code *</Label>
-            <Input
-              id="edit-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="e.g., CS101"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-department">Department *</Label>
-            <Select value={departmentId} onValueChange={setDepartmentId} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments?.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-semester">Semester</Label>
-            <Select value={semester} onValueChange={setSemester}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select semester" />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                  <SelectItem key={sem} value={sem.toString()}>
-                    Semester {sem}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-description">Description</Label>
+            <Label htmlFor="edit_description">Description</Label>
             <Textarea
-              id="edit-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of the subject..."
+              id="edit_description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="resize-none"
               rows={3}
             />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+          <div className="pt-4">
+            <Button type="submit" disabled={loading} className="w-full bg-black text-white hover:bg-black/90">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
+              {loading ? 'Updating...' : 'Update Subject'}
             </Button>
-            <Button type="submit" disabled={!name || !code || !departmentId}>
-              Save Changes
-            </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

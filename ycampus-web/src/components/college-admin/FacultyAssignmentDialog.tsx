@@ -130,13 +130,13 @@ const FacultyAssignmentDialog: React.FC<FacultyAssignmentDialogProps> = ({
             <DialogContent className="max-w-2xl bg-white p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
                 <DialogHeader className="p-6 pb-4 border-b">
                     <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 border border-orange-100 shadow-sm">
+                        <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center text-foreground border border-gray-100 shadow-sm">
                             <BookOpen className="h-6 w-6" />
                         </div>
                         <div className="flex-1 text-left">
                             <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                 Faculty assignment
-                                <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100 font-mono text-xs">
+                                <Badge variant="secondary" className="bg-zinc-100 text-zinc-900 hover:bg-zinc-100 font-mono text-xs">
                                     {semesterSubject.subject_details?.short_code}
                                 </Badge>
                             </DialogTitle>
@@ -153,13 +153,13 @@ const FacultyAssignmentDialog: React.FC<FacultyAssignmentDialogProps> = ({
                         <div className="flex-1">
                             <div className="flex justify-between text-xs font-bold mb-2">
                                 <span className="text-muted-foreground font-bold">Assignment progress</span>
-                                <span className={progress === 100 ? "text-emerald-600" : "text-amber-600"}>
+                                <span className={progress === 100 ? "text-emerald-600" : "text-foreground"}>
                                     {assignedSectionIds.length} of {sections.length} sections
                                 </span>
                             </div>
                             <div className="h-2 w-full bg-muted/20 rounded-full overflow-hidden">
                                 <div 
-                                    className={`h-full transition-all duration-500 rounded-full ${progress === 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                    className={`h-full transition-all duration-500 rounded-full ${progress === 100 ? 'bg-emerald-500' : 'bg-foreground'}`}
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
@@ -169,7 +169,7 @@ const FacultyAssignmentDialog: React.FC<FacultyAssignmentDialogProps> = ({
                                 <CheckCircle2 className="h-5 w-5" />
                             </div>
                         ) : (
-                            <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 border border-amber-100 shadow-sm">
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-foreground border border-gray-100 shadow-sm">
                                 <AlertCircle className="h-5 w-5" />
                             </div>
                         )}
