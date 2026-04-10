@@ -23,7 +23,7 @@ import {
   Loader2
 } from 'lucide-react';
 import CodeEditor from '@/components/ui/code-editor';
-import { startSkillTest, submitSkillTest } from '@/services/skillTestService';
+import { startSkillTest, submitSkillTest, uploadSnapshot } from '@/services/skillTestService';
 import { useProctoring } from '@/hooks/useProctoring';
 
 interface Topic {
@@ -94,6 +94,8 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const [isLoadingTest, setIsLoadingTest] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const loadPromiseRef = useRef<Promise<any> | null>(null);
+
   // Load real questions on mount
   useEffect(() => {
     let cancelled = false;
@@ -101,7 +103,12 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
       try {
         setIsLoadingTest(true);
         setLoadError(null);
-        const response = await startSkillTest(topic.id);
+        
+        if (!loadPromiseRef.current) {
+          loadPromiseRef.current = startSkillTest(topic.id);
+        }
+        
+        const response = await loadPromiseRef.current;
         if (!cancelled) {
           setSubmissionId(response.submission_id);
           // Normalize question type field from backend
@@ -118,9 +125,12 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
           if (response.duration) setTimeLeft(response.duration * 60);
         }
       } catch (err: any) {
+        console.error('Test loading error:', err);
         if (!cancelled) {
           const msg = err?.response?.data?.error || 'Failed to load test questions. Please try again.';
           setLoadError(msg);
+          loadPromiseRef.current = null; // Clear promise so user can retry
+          toast({ title: 'Error', description: msg, variant: 'destructive' });
         }
       } finally {
         if (!cancelled) setIsLoadingTest(false);
@@ -206,7 +216,8 @@ const TestInterface: React.FC<TestInterfaceProps> = ({
   const { logActivity } = useProctoring({
     assessmentId: topic.id,
     assessmentType: 'skill-tests',
-    enabled: true, // We enable proctoring globally for Practice Tests
+    enabled: !!submissionId, // We enable proctoring once the test has officially started/resumed
+    submissionId: submissionId,
     questionId: questions[currentQuestion]?.id,
     onViolation: handleProctoringViolation
   });

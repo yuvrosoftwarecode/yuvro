@@ -22,6 +22,7 @@ interface QuestionBankProps {
   subjectFilter?: string;
   unitFilter?: string;
   categoryFilter?: string;
+  difficultyFilter?: string;
 }
 
 export default function QuestionBank({
@@ -37,7 +38,8 @@ export default function QuestionBank({
   showSplitView = false,
   subjectFilter,
   unitFilter,
-  categoryFilter
+  categoryFilter,
+  difficultyFilter
 }: QuestionBankProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [allSelectedQuestions, setAllSelectedQuestions] = useState<Question[]>([]);
@@ -48,7 +50,8 @@ export default function QuestionBank({
     search: '',
     subject: subjectFilter,
     unit: unitFilter,
-    categories: categoryFilter
+    categories: categoryFilter,
+    difficulty: difficultyFilter
   });
   const [selectedType, setSelectedType] = useState<string>('mcq_single');
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
@@ -90,9 +93,10 @@ export default function QuestionBank({
       ...prev,
       subject: subjectFilter,
       unit: unitFilter,
-      categories: categoryFilter
+      categories: categoryFilter,
+      difficulty: difficultyFilter
     }));
-  }, [subjectFilter, unitFilter, categoryFilter]);
+  }, [subjectFilter, unitFilter, categoryFilter, difficultyFilter]);
 
   // Handle selectedQuestions changes - manage allSelectedQuestions
   useEffect(() => {

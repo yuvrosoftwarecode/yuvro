@@ -178,6 +178,20 @@ export const submitSkillTest = async (testId: string, submissionId: string, answ
   }
 };
 
+export const uploadSnapshot = async (testId: string, submissionId: string, image: string, questionId?: string): Promise<any> => {
+  try {
+    const response = await restApiAuthUtil.post(`/assessment/skill-tests/${testId}/snapshot/`, {
+      submission_id: submissionId,
+      image,
+      question_id: questionId
+    });
+    return response;
+  } catch (error) {
+    console.error('Error uploading snapshot:', error);
+    throw error;
+  }
+};
+
 
 // Utility functions
 export const getSkillTestsBySubject = async (subjectId: string, testType?: string): Promise<SkillTest[]> => {
@@ -246,6 +260,7 @@ const skillTestService = {
   getUserSubmissions,
   startSkillTest,
   submitSkillTest,
+  uploadSnapshot,
 };
 
 export default skillTestService;

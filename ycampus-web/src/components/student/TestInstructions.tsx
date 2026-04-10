@@ -21,6 +21,7 @@ interface Topic {
   name: string;
   duration: number;
   questions: number;
+  totalMarks?: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
@@ -110,7 +111,7 @@ const TestInstructions: React.FC<TestInstructionsProps> = ({
               <BarChart3 className="h-6 w-6 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">Total Marks</p>
-                <p className="font-semibold">100</p>
+                <p className="font-semibold">{topic.totalMarks || 100}</p>
               </div>
             </div>
           </div>

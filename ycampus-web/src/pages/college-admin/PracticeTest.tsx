@@ -22,7 +22,7 @@ import { fetchUnitsBySubject, fetchCollegeSubjects } from '@/services/subjectSer
 import departmentService, { Department } from '@/services/departmentService';
 import batchService, { Batch } from '@/services/batchService';
 import skillTestService, { SkillTest, CreateSkillTestData } from '@/services/skillTestService';
-import { fetchQuestionById, createQuestion } from '@/services/questionService';
+import { fetchQuestionById, createQuestion, fetchQuestions } from '@/services/questionService';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 
 import { QuestionForm } from '@/components/admin/test-questions/QuestionForm';
@@ -30,6 +30,7 @@ import { QuestionPreview } from '@/components/admin/test-questions/QuestionPrevi
 import AnalyticsStats from '@/components/college-admin/analytics/AnalyticsStats';
 import CandidatesTable from '@/components/college-admin/analytics/CandidatesTable';
 import SubmissionAnalyticsView from '@/components/college-admin/analytics/SubmissionAnalyticsView';
+import QuestionBank from '@/components/common/QuestionBank';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'analytics' | 'submission-results';
 
@@ -259,6 +260,8 @@ const CollegeAdminPracticeTest = () => {
   const [isLoadingInitial, setIsLoadingInitial] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [togglingStatusId, setTogglingStatusId] = useState<string | null>(null);
+  const [availableQuestionsCount, setAvailableQuestionsCount] = useState<Record<string, number>>({ mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 });
+  const [averageDurations, setAverageDurations] = useState<Record<string, number>>({ mcq_single: 1, mcq_multiple: 2, coding: 30, descriptive: 15 });
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
@@ -282,9 +285,9 @@ const CollegeAdminPracticeTest = () => {
     description: '',
     instructions: '',
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
-    duration: 60,
-    total_marks: 100,
-    passing_marks: 60,
+    duration: 0,
+    total_marks: 0,
+    passing_marks: 0,
     enable_proctoring: false,
     publish_status: 'draft' as 'draft' | 'active' | 'inactive' | 'archived',
   });
@@ -405,6 +408,7 @@ const CollegeAdminPracticeTest = () => {
           ? q.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text)
           : q.mcq_options?.find((o: any) => o.is_correct)?.text || q.mcq_options?.find((o: any) => o.is_correct)?.option_text || q.reference_answer,
         marks: q.marks,
+        duration: q.duration || 0,
         isMultipleAnswer: q.type === 'mcq_multiple',
       }));
     } catch {
@@ -427,6 +431,96 @@ const CollegeAdminPracticeTest = () => {
     if (selectedUnit && view === 'list') loadPracticeTests(selectedUnit);
   }, [selectedUnit, view]);
 
+  // Fetch available questions count based on filters to validate random config
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (!selectedSubject) return;
+      try {
+        const qs = await fetchQuestions({
+          subject: selectedSubject,
+          unit: selectedUnit || undefined,
+          categories: 'practice',
+          difficulty: formData.difficulty
+        });
+        
+        const counts: Record<string, number> = { mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 };
+        const durationsPool: Record<string, number[]> = { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] };
+
+        qs.forEach((q: any) => {
+          const t = q.type;
+          if (t in counts) {
+            counts[t]++;
+            if (q.duration) durationsPool[t].push(Number(q.duration));
+          }
+        });
+
+        setAvailableQuestionsCount(counts);
+
+        // Calculate actual averages from the bank for these specific filters
+        const avgDurations = { ...averageDurations };
+        Object.keys(durationsPool).forEach(type => {
+          if (durationsPool[type].length > 0) {
+            avgDurations[type] = Math.ceil(durationsPool[type].reduce((a, b) => a + b, 0) / durationsPool[type].length);
+          }
+        });
+        setAverageDurations(avgDurations);
+      } catch (err) {
+        console.error('Failed to load available questions count', err);
+      }
+    };
+    fetchCounts();
+  }, [selectedSubject, selectedUnit, formData.difficulty]);
+
+  // Auto-calculate test configuration based on questions and random config
+  useEffect(() => {
+    const getEstimate = (type: string) => {
+      const diff = formData.difficulty;
+      if (type === 'coding') return { marks: 10, duration: 30 };
+      if (type === 'descriptive') return { marks: 5, duration: 15 };
+      // MCQs
+      if (diff === 'easy') return { marks: 1, duration: 1 };
+      if (diff === 'hard') return { marks: 4, duration: 5 };
+      return { marks: 2, duration: 2 }; // medium
+    };
+
+    // 1. Sum up fixed questions with placeholder sanitization
+    let totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+    let totalDuration = questions.reduce((sum, q) => {
+      const qDur = Number(q.duration) || 0;
+      // If duration is the 60min placeholder or 0, use difficulty estimate
+      if (qDur === 60 || qDur === 0) {
+        const est = getEstimate(q.type || 'mcq_single');
+        return sum + est.duration;
+      }
+      return sum + qDur;
+    }, 0);
+    
+    // 2. Add estimates for random pool based on difficulty
+    Object.entries(randomQuestionsConfig).forEach(([type, count]) => {
+      if (count > 0) {
+        const est = getEstimate(type);
+        // For MCQs, always use the difficulty-based estimate to avoid bank noise
+        // For Coding/Descriptive, use the bank average only if it's not the 60min placeholder
+        const useBankAvg = type === 'coding' || type === 'descriptive';
+        let finalDurationPerQ = est.duration;
+        
+        if (useBankAvg && averageDurations[type] && averageDurations[type] !== 60) {
+          finalDurationPerQ = averageDurations[type];
+        }
+        
+        totalMarks += (count * est.marks);
+        totalDuration += (count * finalDurationPerQ);
+      }
+    });
+    
+    setFormData(prev => ({
+      ...prev,
+      total_marks: totalMarks,
+      duration: totalDuration,
+      passing_marks: Math.ceil(totalMarks * 0.4)
+    }));
+  }, [questions, randomQuestionsConfig, formData.difficulty, averageDurations]);
+
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleAnalytics = (test: SkillTest) => {
@@ -436,7 +530,7 @@ const CollegeAdminPracticeTest = () => {
   };
 
   const handleCreate = () => {
-    setFormData({ title: '', description: '', instructions: '', difficulty: 'medium', duration: 60, total_marks: 100, passing_marks: 60, enable_proctoring: false, publish_status: 'draft' });
+    setFormData({ title: '', description: '', instructions: '', difficulty: 'medium', duration: 0, total_marks: 0, passing_marks: 0, enable_proctoring: false, publish_status: 'draft' });
     setRandomQuestionsConfig({ mcq_single: 0, mcq_multiple: 0, coding: 0, descriptive: 0 });
     setQuestions([]);
     setCurrentFormTab('details');
@@ -449,7 +543,7 @@ const CollegeAdminPracticeTest = () => {
       description: test.description || '',
       instructions: test.instructions || '',
       difficulty: test.difficulty || 'medium',
-      duration: test.duration || 60,
+      duration: test.duration || 0,
       total_marks: test.total_marks || 100,
       passing_marks: test.passing_marks || 60,
       enable_proctoring: test.enable_proctoring || false,
@@ -484,6 +578,37 @@ const CollegeAdminPracticeTest = () => {
     }
   };
 
+  const handleQuestionsChange = async (selectedIds: string[]) => {
+    // We update the questions list based on the IDs selected in the bank
+    // If a question is already in our list (has details), we keep it.
+    // If it's new, we fetch its details to show in the preview or just store the minimal object.
+    const newQuestions = await Promise.all(
+      selectedIds.map(async (id) => {
+        const existing = questions.find(q => q.id === id);
+        if (existing) return existing;
+        
+        try {
+          const detail = await fetchQuestionById(id);
+          return {
+            id: detail.id,
+            type: detail.type,
+            questionText: detail.content,
+            options: detail.mcq_options?.map((o: any) => o.text || o.option_text),
+            correctAnswer: detail.type === 'mcq_multiple'
+              ? detail.mcq_options?.filter((o: any) => o.is_correct).map((o: any) => o.text || o.option_text)
+              : detail.mcq_options?.find((o: any) => o.is_correct)?.text || detail.mcq_options?.find((o: any) => o.is_correct)?.option_text || detail.reference_answer,
+            marks: detail.marks,
+            isMultipleAnswer: detail.type === 'mcq_multiple',
+            duration: detail.duration || 0,
+          };
+        } catch {
+          return { id, type: 'unknown', questionText: 'Loading error...' };
+        }
+      })
+    );
+    setQuestions(newQuestions);
+  };
+
   const handleSaveTest = async () => {
     if (!formData.title.trim()) {
       toast({ title: 'Error', description: 'Practice test title is required.', variant: 'destructive' });
@@ -494,56 +619,15 @@ const CollegeAdminPracticeTest = () => {
       const savedQuestionIds: Record<string, string[]> = { mcq_single: [], mcq_multiple: [], coding: [], descriptive: [] };
 
       for (const q of questions) {
-        let backendId = q.id;
-        // Frontend local IDs use Date.now() string without hyphens, Backend uses UUID with hyphens
-        if (!backendId || !String(backendId).includes('-')) {
-          let qTypeStr = q.type as string;
-          // Normalize legacy/frontend types to backend standard
-          if (q.type === 'mcq') qTypeStr = q.isMultipleAnswer ? 'mcq_multiple' : 'mcq_single';
-          else if (q.type === 'short-answer') qTypeStr = 'descriptive';
-          else if (q.type === 'true-false') qTypeStr = 'mcq_single';
-
-          let mcqOpts = undefined;
-          if (qTypeStr.startsWith('mcq')) {
-            mcqOpts = q.options?.map((opt: string) => ({
-              text: opt,
-              is_correct: qTypeStr === 'mcq_multiple' 
-                ? (Array.isArray(q.correctAnswer) ? q.correctAnswer.includes(opt) : false) 
-                : q.correctAnswer === opt,
-            }));
-          } else if (q.type === 'true-false') {
-            mcqOpts = [
-              { text: 'True', is_correct: q.correctAnswer === 'true' },
-              { text: 'False', is_correct: q.correctAnswer === 'false' }
-            ];
-          }
-
-          const qData: any = {
-            type: qTypeStr, 
-            title: q.questionText.substring(0, 50), 
-            content: q.questionText,
-            level: 'unit', 
-            subject: selectedSubject,
-            unit: selectedUnit, 
-            difficulty: 'medium', 
-            marks: q.marks || 1, 
-            duration: 60,
-            categories: ['practice'],
-            ...(mcqOpts && { mcq_options: mcqOpts }),
-            ...((qTypeStr === 'descriptive' || qTypeStr === 'coding') && { reference_answer: q.correctAnswer }),
-            ...(qTypeStr === 'coding' && { test_cases_basic: [], test_cases_advanced: [] })
-          };
-          const created = await createQuestion(qData);
-          backendId = created.id;
-        }
-
-        // Map the frontend types directly into the backend config keys
+        // Since we are using Question Bank, all questions should have IDs
         let resolvedType = q.type as string;
         if (q.type === 'mcq') resolvedType = q.isMultipleAnswer ? 'mcq_multiple' : 'mcq_single';
         else if (q.type === 'true-false') resolvedType = 'mcq_single';
         else if (q.type === 'short-answer') resolvedType = 'descriptive';
 
-        if (resolvedType in savedQuestionIds) savedQuestionIds[resolvedType as keyof typeof savedQuestionIds].push(backendId);
+        if (resolvedType in savedQuestionIds) {
+          savedQuestionIds[resolvedType as keyof typeof savedQuestionIds].push(q.id);
+        }
       }
 
       const payload: CreateSkillTestData = {
@@ -781,7 +865,10 @@ const CollegeAdminPracticeTest = () => {
             <CardContent className="pt-5 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Duration (minutes) *</label>
+                  <label className="text-sm font-medium text-foreground flex justify-between">
+                    Duration (minutes) *
+                    <span className="text-[10px] text-primary italic font-normal">Auto-synced</span>
+                  </label>
                   <Input type="number"
                     value={formData.duration}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, duration: Number(e.target.value) || 0 })}
@@ -789,7 +876,10 @@ const CollegeAdminPracticeTest = () => {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Total Marks</label>
+                  <label className="text-sm font-medium text-foreground flex justify-between">
+                    Total Marks
+                    <span className="text-[10px] text-primary italic font-normal">Auto-synced</span>
+                  </label>
                   <Input type="number"
                     value={formData.total_marks}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, total_marks: Number(e.target.value) || 0 })}
@@ -797,7 +887,10 @@ const CollegeAdminPracticeTest = () => {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">Passing Marks</label>
+                  <label className="text-sm font-medium text-foreground flex justify-between">
+                    Passing Marks
+                    <span className="text-[10px] text-primary italic font-normal">Auto-set (40%)</span>
+                  </label>
                   <Input type="number"
                     value={formData.passing_marks}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, passing_marks: Number(e.target.value) || 0 })}
@@ -847,16 +940,26 @@ const CollegeAdminPracticeTest = () => {
             <CardContent className="pt-5">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {(['mcq_single', 'mcq_multiple', 'coding', 'descriptive'] as const).map((key) => (
-                  <div key={key} className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">
-                      {key === 'mcq_single' ? 'MCQ Single' : key === 'mcq_multiple' ? 'MCQ Multi' : key.charAt(0).toUpperCase() + key.slice(1)}
-                    </label>
-                    <Input
-                      type="number" min={0}
-                      value={randomQuestionsConfig[key]}
-                      onChange={e => setRandomQuestionsConfig({ ...randomQuestionsConfig, [key]: Number((e.target as HTMLInputElement).value) || 0 })}
-                      className="h-10 bg-background border-border"
-                    />
+                  <div key={key} className="space-y-1.5 flex flex-col">
+                    <div className="flex justify-between items-end">
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        {key === 'mcq_single' ? 'MCQ Single' : key === 'mcq_multiple' ? 'MCQ Multi' : key.charAt(0).toUpperCase() + key.slice(1)}
+                      </label>
+                      <span className="text-[10px] text-muted-foreground">{availableQuestionsCount[key] || 0} avail</span>
+                    </div>
+                    <div>
+                      <Input
+                        type="number" min={0} max={availableQuestionsCount[key] || 0}
+                        value={randomQuestionsConfig[key]}
+                        onChange={e => setRandomQuestionsConfig({ ...randomQuestionsConfig, [key]: Number((e.target as HTMLInputElement).value) || 0 })}
+                        className={`h-10 bg-background border-border ${randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) ? 'border-red-500 bg-red-50 focus-visible:ring-red-500' : ''}`}
+                      />
+                      {randomQuestionsConfig[key] > (availableQuestionsCount[key] || 0) && (
+                        <p className="text-[10px] text-red-500 mt-1">
+                          Only {availableQuestionsCount[key] || 0} {formData.difficulty} questions available in bank.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -866,29 +969,40 @@ const CollegeAdminPracticeTest = () => {
             </CardContent>
           </Card>
 
-          {/* Manual Questions */}
+          {/* Question Bank Selection */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary" /> Manual Questions
+                <Search className="h-4 w-4 text-primary" /> Select Questions (Practice Category)
               </h3>
               <Badge variant="secondary" className="font-semibold">{questions.length}</Badge>
             </div>
 
-            <QuestionForm
-              onSave={(q: any) => setQuestions([...questions, { ...q, id: Date.now().toString() }])}
-              onCancel={() => {}}
+            <QuestionBank
+              mode="selection"
+              showSplitView={true}
+              selectedQuestions={questions.map(q => q.id)}
+              onQuestionsChange={handleQuestionsChange}
+              subjectFilter={selectedSubject}
+              unitFilter={selectedUnit}
+              categoryFilter="practice"
+              difficultyFilter={formData.difficulty}
             />
 
             {questions.length > 0 && (
-              <div className="grid grid-cols-1 gap-3 mt-4">
-                {questions.map((q: any) => (
-                  <QuestionPreview
-                    key={q.id}
-                    question={q}
-                    onDelete={() => setQuestions(questions.filter((x: any) => x.id !== q.id))}
-                  />
-                ))}
+              <div className="space-y-3 mt-6">
+                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <FileText className="h-3.5 w-3.5 text-muted-foreground" /> Selected Questions Preview
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {questions.map((q: any) => (
+                    <QuestionPreview
+                      key={q.id}
+                      question={q}
+                      onDelete={() => setQuestions(questions.filter((x: any) => x.id !== q.id))}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

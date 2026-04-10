@@ -5,15 +5,17 @@ interface ProctoringConfig {
     assessmentId: string;
     assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests' | 'certification-exams';
     enabled: boolean;
+    submissionId?: string | null;
     questionId?: string; // Optional context
     onViolation?: (type: string, data?: any) => void;
 }
 
-export const useProctoring = ({ assessmentId, assessmentType, enabled, questionId, mediaStream, onViolation }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
+export const useProctoring = ({ assessmentId, assessmentType, enabled, submissionId, questionId, mediaStream, onViolation }: ProctoringConfig & { mediaStream?: MediaStream | null }) => {
     const lastActiveRef = useRef<number>(Date.now());
+    const hasEnteredFullscreen = useRef<boolean>(false);
 
     const logActivity = useCallback(async (activityType: string, metaData: any = {}) => {
-        if (!enabled) return;
+        if (!enabled || (assessmentType === 'skill-tests' && !submissionId)) return;
 
         try {
             // Dynamic URL based on assessment type
@@ -134,24 +136,27 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
 
         const handleFullscreenChange = () => {
             if (!document.fullscreenElement) {
-                logActivity('fullscreen_exit');
-                if (onViolation) onViolation('fullscreen_exit');
+                // Only log exit if we have previously entered successful fullscreen
+                if (hasEnteredFullscreen.current) {
+                    logActivity('fullscreen_exit');
+                    if (onViolation) onViolation('fullscreen_exit');
+                }
             } else {
+                hasEnteredFullscreen.current = true;
                 logActivity('fullscreen_enter');
             }
         };
 
         const initialCheckTimeout = setTimeout(() => {
-            if (!document.fullscreenElement) {
-                console.warn("Fullscreen enforcement: Not in fullscreen on initialization");
+            if (!document.fullscreenElement && hasEnteredFullscreen.current) {
                 logActivity('fullscreen_exit', { trigger: 'initial_check' });
                 if (onViolation) onViolation('fullscreen_exit');
             }
-        }, 2000);
+        }, 5000); // 5 sec delay for initial check, only if previously entered
 
         const enforcementInterval = setInterval(() => {
-            if (!document.fullscreenElement) {
-                console.warn("Fullscreen enforcement: Lost fullscreen during assessment");
+            // Only enforce if the student has officially initialized fullscreen mode once
+            if (!document.fullscreenElement && hasEnteredFullscreen.current) {
                 logActivity('fullscreen_exit', { trigger: 'interval_check' });
                 if (onViolation) onViolation('fullscreen_exit');
             }
@@ -226,7 +231,7 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
         const canvas = document.createElement('canvas');
 
         const takeAndUploadSnapshot = async (currentStream: MediaStream) => {
-            if (!currentStream.active || !isActive) return;
+            if (!currentStream.active || !isActive || (assessmentType === 'skill-tests' && !submissionId)) return;
 
             try {
                 if (video.paused || video.ended || video.srcObject !== currentStream) {
@@ -234,12 +239,15 @@ export const useProctoring = ({ assessmentId, assessmentType, enabled, questionI
                     await video.play().catch(() => { });
                 }
 
-                if (video.readyState === 0) {
-                    return; 
+                if (video.readyState < 3) {
+                    return; // Wait for HAVE_FUTURE_DATA or HAVE_ENOUGH_DATA
                 }
 
                 canvas.width = video.videoWidth || 640;
                 canvas.height = video.videoHeight || 480;
+
+                // Basic black-frame or zero-size check
+                if (canvas.width < 10 || canvas.height < 10) return;
 
                 const ctx = canvas.getContext('2d');
                 if (ctx) {

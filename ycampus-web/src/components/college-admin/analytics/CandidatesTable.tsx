@@ -18,6 +18,7 @@ interface Submission {
     created_at?: string;
     time_spent?: number;
     proctoring_events?: any[];
+    total_violations?: number;
 }
 
 interface CandidatesTableProps {
@@ -70,7 +71,7 @@ export default function CandidatesTable({
     const getProctoringWarning = (events?: any[]) => {
         if (!events || events.length === 0) return 0;
         return events.filter((event) =>
-            !['snapshot', 'camera_enabled', 'camera_disabled'].includes(event.activity_type)
+            !['snapshot', 'camera_enabled', 'camera_disabled', 'periodic_snapshot'].includes(event.activity_type)
         ).length;
     };
 
@@ -104,7 +105,10 @@ export default function CandidatesTable({
                                 {submissions.map((sub, i) => {
                                     const submittedDate = sub.submitted_at || sub.completed_at || sub.created_at;
                                     const score = sub.marks ?? sub.score ?? 0;
-                                    const warningCount = getProctoringWarning(sub.proctoring_events);
+                                    // Use backend total_violations if available, fallback to local calc
+                                    const warningCount = sub.total_violations !== undefined 
+                                        ? sub.total_violations 
+                                        : getProctoringWarning(sub.proctoring_events);
 
                                     return (
                                         <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
