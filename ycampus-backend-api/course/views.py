@@ -30,6 +30,15 @@ from .models import (
     CollegeSubject,
     SemesterSubject,
     SectionSubjectFaculty,
+    SubUnitSectionStatus,
+)
+from .serializers import (
+    SubjectSerializer,
+    SubjectBasicSerializer,
+    UnitSerializer,
+    UnitBasicSerializer,
+    SubUnitSerializer,
+    SubUnitSectionStatusSerializer,
 )
 from .serializers import (
     CollegeSerializer,
@@ -395,6 +404,13 @@ class UnitViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return UnitSerializer if self.action == "retrieve" else UnitBasicSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        section_id = self.request.query_params.get("section_id")
+        if section_id:
+            context["section_id"] = section_id
+        return context
+
     def get_queryset(self):
         qs = Unit.objects.select_related("subject")
         user = self.request.user
@@ -411,6 +427,20 @@ class UnitViewSet(viewsets.ModelViewSet):
         subject_id = self.request.query_params.get("subject")
         if subject_id:
             qs = qs.filter(subject_id=subject_id)
+
+        if user.role == "student":
+            profile = StudentProfile.objects.filter(user=user).first()
+            if profile and profile.section:
+                # Filter by unlocked status for this student's section
+                # A Unit is visible if it has at least one unlocked SubUnit
+                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                    section=profile.section, is_unlocked=True
+                ).values_list("sub_unit_id", flat=True)
+                
+                # Filter units that have subunits among the unlocked ones
+                qs = qs.filter(subunits__id__in=unlocked_subunit_ids).distinct()
+            else:
+                qs = qs.none()
 
         
         qs = qs.annotate(
@@ -489,24 +519,80 @@ class SubUnitViewSet(viewsets.ModelViewSet):
     serializer_class = SubUnitSerializer
     permission_classes = [IsAuthenticatedUser]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        section_id = self.request.query_params.get("section_id")
+        if section_id:
+            context["section_id"] = section_id
+        return context
+
     def get_queryset(self):
         qs = SubUnit.objects.select_related("unit__subject")
         unit_id = self.request.query_params.get("unit")
+        subject_id = self.request.query_params.get("subject")
 
         if unit_id:
             qs = qs.filter(unit_id=unit_id)
+        if subject_id:
+            qs = qs.filter(unit__subject_id=subject_id)
 
         user = self.request.user
+        section_id = self.request.query_params.get("section_id")
+
         if user.role == "faculty":
-            if hasattr(user, 'college') and user.college:
-                assigned_subject_ids = CollegeSubject.objects.filter(college=user.college).values_list(
-                    "subject_id", flat=True
-                )
+            if hasattr(user, "college") and user.college:
+                assigned_subject_ids = CollegeSubject.objects.filter(
+                    college=user.college
+                ).values_list("subject_id", flat=True)
                 qs = qs.filter(unit__subject_id__in=assigned_subject_ids)
+            else:
+                qs = qs.none()
+        elif user.role == "student":
+            profile = StudentProfile.objects.filter(user=user).first()
+            if profile and profile.section:
+                # Filter by unlocked status for this student's section
+                unlocked_subunit_ids = SubUnitSectionStatus.objects.filter(
+                    section=profile.section, is_unlocked=True
+                ).values_list("sub_unit_id", flat=True)
+                qs = qs.filter(id__in=unlocked_subunit_ids)
             else:
                 qs = qs.none()
 
         return qs
+
+    @action(detail=True, methods=["post"])
+    def unlock(self, request, pk=None):
+        """
+        Unlock a SubUnit for a specific section.
+        """
+        user = request.user
+        if user.role != "faculty" and not user.is_staff:
+            return Response({"error": "Permission denied"}, status=403)
+
+        sub_unit = self.get_object()
+        section_id = request.data.get("section_id")
+        is_unlocked = request.data.get("is_unlocked", True)
+
+        if not section_id:
+            return Response({"error": "section_id is required"}, status=400)
+
+        section = get_object_or_404(Section, id=section_id)
+
+        status, created = SubUnitSectionStatus.objects.get_or_create(
+            section=section, sub_unit=sub_unit
+        )
+
+        status.is_unlocked = is_unlocked
+        if is_unlocked:
+            status.unlocked_at = timezone.now()
+        status.save()
+
+        return Response(
+            {
+                "message": f"SubUnit {'unlocked' if is_unlocked else 'locked'} successfully",
+                "is_unlocked": is_unlocked,
+            }
+        )
 
     def create(self, request, *a, **kw):
         user = request.user
@@ -1191,7 +1277,18 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             # 2. Calculate % for each Subject
             total_course_pct = 0
             for cid, current_sum in course_map.items():
-                total_subs = SubUnit.objects.filter(unit__subject_id=cid).count()
+                if user_to_query.role == "student":
+                    student_prof = StudentProfile.objects.filter(user=user_to_query).first()
+                    if student_prof and student_prof.section:
+                        unlocked_sub_ids = SubUnitSectionStatus.objects.filter(
+                            section=student_prof.section, is_unlocked=True
+                        ).values_list("sub_unit_id", flat=True)
+                        total_subs = SubUnit.objects.filter(unit__subject_id=cid, id__in=unlocked_sub_ids).count()
+                    else:
+                        total_subs = 0
+                else:
+                    total_subs = SubUnit.objects.filter(unit__subject_id=cid).count()
+                    
                 if total_subs > 0:
                     c_pct = current_sum / total_subs
                     c_pct = min(c_pct, 100.0)
@@ -1362,7 +1459,25 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             if not subject: continue
             
             sub_progress = progress_records.filter(subject_id=sid)
-            total_subs = SubUnit.objects.filter(unit__subject_id=sid).count()
+            
+            # Determine total available subunits and units based on unlocking logic
+            if user_to_query.role == "student":
+                student_prof = StudentProfile.objects.filter(user=user_to_query).first()
+                if student_prof and student_prof.section:
+                    unlocked_sub_ids = SubUnitSectionStatus.objects.filter(
+                        section=student_prof.section, is_unlocked=True
+                    ).values_list("sub_unit_id", flat=True)
+                    total_subs_qs = SubUnit.objects.filter(unit__subject_id=sid, id__in=unlocked_sub_ids)
+                    total_units_qs = Unit.objects.filter(subject_id=sid, subunits__id__in=unlocked_sub_ids).distinct()
+                else:
+                    total_subs_qs = SubUnit.objects.none()
+                    total_units_qs = Unit.objects.none()
+            else:
+                total_subs_qs = SubUnit.objects.filter(unit__subject_id=sid)
+                total_units_qs = Unit.objects.filter(subject_id=sid)
+
+            total_subs = total_subs_qs.count()
+            units_total = total_units_qs.count()
             
             # Calculate metrics, default to 0 if no subunits or no progress
             sum_progress = 0.0
@@ -1370,26 +1485,56 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
             video_pct = 0
             avg_quiz = 0
             avg_coding = 0
-            tasks_completed = 0
+            subunits_completed = 0
+            units_completed = 0
             
             if total_subs > 0:
-                sum_progress = sub_progress.aggregate(s=Sum('progress_percent'))['s'] or 0.0
+                # Only count progress for subunits that are actually part of the 'total' (unlocked for students)
+                relevant_sub_ids = total_subs_qs.values_list('id', flat=True)
+                relevant_progress = sub_progress.filter(sub_unit_id__in=relevant_sub_ids)
+                
+                sum_progress = relevant_progress.aggregate(s=Sum('progress_percent'))['s'] or 0.0
                 percent = round(min(sum_progress / total_subs, 100.0), 1)
                 
-                video_count = sub_progress.filter(is_videos_watched=True).count()
+                video_count = relevant_progress.filter(is_videos_watched=True).count()
                 video_pct = round((video_count / total_subs) * 100)
                 
-                avg_quiz_raw = sub_progress.aggregate(avg=Coalesce(Sum('quiz_score'), 0.0))['avg'] or 0.0
+                avg_quiz_raw = relevant_progress.aggregate(avg=Coalesce(Sum('quiz_score'), 0.0))['avg'] or 0.0
                 avg_quiz = round(avg_quiz_raw / total_subs)
                 
-                avg_coding_raw = sub_progress.aggregate(avg=Coalesce(Sum('coding_score'), 0.0))['avg'] or 0.0
+                avg_coding_raw = relevant_progress.aggregate(avg=Coalesce(Sum('coding_score'), 0.0))['avg'] or 0.0
                 avg_coding = round(avg_coding_raw / total_subs)
                 
-                tasks_completed = sub_progress.filter(is_completed=True).count()
+                subunits_completed = relevant_progress.filter(is_completed=True).count()
+                
+                # Unit is completed if ALL its subunits (that are currently total/unlocked) are completed
+                # This is a bit complex to do in a single query, so we'll do it iteratively for now or with a subquery
+                completed_unit_ids = []
+                for unit in total_units_qs:
+                    unit_subs = total_subs_qs.filter(unit=unit)
+                    unit_subs_count = unit_subs.count()
+                    if unit_subs_count > 0:
+                        unit_completed_subs = relevant_progress.filter(unit=unit, is_completed=True).count()
+                        if unit_completed_subs == unit_subs_count:
+                            units_completed += 1
+
+            # Last Activity
+            last_record = relevant_progress.order_by('-updated_at').first()
+            last_activity = last_record.updated_at.isoformat() if last_record else None
+
+            # Global Streak
+            streak = 0
+            try:
+                from .gamification_service import GamificationService
+                gamification = GamificationService.get_or_create_profile(user_to_query)
+                streak = gamification.current_streak
+            except Exception:
+                pass
 
             # Detailed Attendance Counts
             total_sessions = 0
             present_sessions = 0
+            attendance_pct = 0
             
             subject_sessions_qs = AttendanceRecord.objects.filter(
                 student__user=user_to_query,
@@ -1411,7 +1556,7 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 subject_tasks = Task.objects.filter(
                     subject_id=sid,
                     sections=student_profile.section
-                )
+                ).distinct()
                 assigned_tasks_total = subject_tasks.count()
                 
                 # Fetch student submissions for these tasks
@@ -1425,7 +1570,6 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 for sub in submissions:
                     # Logic for on-time vs late
                     task_due = sub.task.due_date
-                    # Use submitted_at, fallback to updated_at if missing (historical data)
                     submission_time = sub.submitted_at or sub.updated_at
                     
                     if not task_due:
@@ -1447,13 +1591,17 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
                 "attendance_total": total_sessions,
                 "attendance_present": present_sessions,
                 "attendance_missed": total_sessions - present_sessions,
-                "tasks_completed": tasks_completed, # Learning subunits completed
-                "tasks_total": total_subs, # Total learning subunits
+                "units_total": units_total,
+                "units_completed": units_completed,
+                "subunits_total": total_subs,
+                "subunits_completed": subunits_completed,
                 "assigned_tasks_total": assigned_tasks_total,
                 "assigned_tasks_submitted": assigned_tasks_completed,
                 "assigned_tasks_on_time": assigned_tasks_on_time,
                 "assigned_tasks_late": assigned_tasks_late,
-                "assigned_tasks_pending": assigned_tasks_total - assigned_tasks_completed
+                "assigned_tasks_pending": assigned_tasks_total - assigned_tasks_completed,
+                "last_activity": last_activity,
+                "learning_streak": streak
             })
 
         return Response(results)
@@ -1547,6 +1695,13 @@ class StudentSubjectProgressViewSet(viewsets.GenericViewSet):
 
         progress.last_accessed = timezone.now()
         progress.save(update_fields=["last_accessed", "updated_at"])
+
+        # Update Streak for today's activity
+        try:
+            from .gamification_service import GamificationService
+            GamificationService.record_activity(user, activity_type="access")
+        except Exception:
+            pass
 
         return Response({"message": "Access logged"})
 

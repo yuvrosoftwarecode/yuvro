@@ -15,6 +15,7 @@ from .models import (
     CollegeSubject,
     SemesterSubject,
     SectionSubjectFaculty,
+    SubUnitSectionStatus,
 )
 from .gamification_models import UserGamificationProfile
 from django.contrib.auth import get_user_model
@@ -203,14 +204,22 @@ class UserGamificationProfileSerializer(serializers.ModelSerializer):
 
 
 
+class SubUnitSectionStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubUnitSectionStatus
+        fields = ["id", "section", "sub_unit", "is_unlocked", "unlocked_at"]
+
+
 class SubUnitSerializer(serializers.ModelSerializer):
     """
     Serializer for SubUnit model.
     """
 
+    is_unlocked = serializers.SerializerMethodField()
+
     class Meta:
         model = SubUnit
-        fields = ["id", "unit", "name", "content", "order_index", "created_at"]
+        fields = ["id", "unit", "name", "content", "order_index", "created_at", "is_unlocked"]
         read_only_fields = ["id", "created_at"]
 
     def validate_video_url(self, value):
@@ -222,6 +231,26 @@ class SubUnitSerializer(serializers.ModelSerializer):
                 "Video URL must start with http:// or https://"
             )
         return value
+
+    def get_is_unlocked(self, obj):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        section_id = self.context.get("section_id")
+        if not section_id and request.user.role == "student":
+            from core.models import StudentProfile
+            profile = StudentProfile.objects.filter(user=request.user).first()
+            if profile:
+                section_id = profile.section_id
+        
+        if not section_id:
+            return False
+            
+        return SubUnitSectionStatus.objects.filter(
+            section_id=section_id, sub_unit=obj, is_unlocked=True
+        ).exists()
+
 
 
 class UnitSerializer(serializers.ModelSerializer):
