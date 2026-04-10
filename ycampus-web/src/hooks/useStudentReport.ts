@@ -27,10 +27,10 @@ export interface SubjectPerformance {
   attendancePercent: number;
   strength: 'Strong' | 'Average' | 'Weak';
   risk: 'Low' | 'Medium' | 'High';
-  totalChapters: number;
-  chaptersCompleted: number;
-  chaptersPending: number;
-  topicsNotOpened: number;
+  totalUnits: number;
+  unitsCompleted: number;
+  unitsPending: number;
+  subUnitsNotOpened: number;
   lastLearningDate: string | null;
   learningStreak: number;
   testsAttempted: number;
@@ -505,12 +505,12 @@ export function useStudentReport() {
               strength: compositeScore >= 75 ? 'Strong' : compositeScore >= 50 ? 'Average' : 'Weak',
               risk: compositeScore >= 75 ? 'Low' : compositeScore >= 50 ? 'Medium' : 'High',
               compositeScore: compositeScore,
-              totalChapters: prog?.tasks_total || 0,
-              chaptersCompleted: prog?.tasks_completed || 0,
-              chaptersPending: (prog?.tasks_total || 0) - (prog?.tasks_completed || 0),
-              topicsNotOpened: (prog?.tasks_total || 0) - (prog?.tasks_completed || 0),
-              lastLearningDate: null,
-              learningStreak: 0,
+              totalUnits: prog?.units_total || 0,
+              unitsCompleted: prog?.units_completed || 0,
+              unitsPending: (prog?.units_total || 0) - (prog?.units_completed || 0),
+              subUnitsNotOpened: (prog?.subunits_total || 0) - (prog?.subunits_completed || 0),
+              lastLearningDate: prog?.last_activity || null,
+              learningStreak: prog?.learning_streak || 0,
               testsAttempted: practiceAttempts.length,
               easyAvg: avgPct(easyAttempts),
               mediumAvg: avgPct(mediumAttempts),
@@ -552,7 +552,7 @@ export function useStudentReport() {
       // Summary Calculations
       const subjectsWithScores = uniqueSubjects.filter(s => (s as any).compositeScore !== undefined);
       const sortedByPerf = [...subjectsWithScores].sort((a, b) => (b as any).compositeScore - (a as any).compositeScore);
-      const sortedByPending = [...uniqueSubjects].sort((a, b) => (b.tasksPending + b.chaptersPending) - (a.tasksPending + a.chaptersPending));
+      const sortedByPending = [...uniqueSubjects].sort((a, b) => (b.tasksPending + b.unitsPending) - (a.tasksPending + a.unitsPending));
       const sortedByAttendance = [...uniqueSubjects].sort((a, b) => a.attendancePercent - b.attendancePercent);
 
       const performanceIndex = overallStats?.avg_progress || 0;
@@ -573,19 +573,19 @@ export function useStudentReport() {
         subjects: uniqueSubjects,
         strongestSubject: sortedByPerf.length > 0 ? sortedByPerf[0].name : 'N/A',
         weakestSubject: sortedByPerf.length > 0 ? sortedByPerf[sortedByPerf.length - 1].name : 'N/A',
-        highestPendingSubject: sortedByPending.length > 0 && (sortedByPending[0].tasksPending + sortedByPending[0].chaptersPending) > 0 ? sortedByPending[0].name : 'None',
+        highestPendingSubject: sortedByPending.length > 0 && (sortedByPending[0].tasksPending + sortedByPending[0].unitsPending) > 0 ? sortedByPending[0].name : 'None',
         lowestAttendanceSubject: sortedByAttendance.length > 0 ? sortedByAttendance[0].name : 'N/A',
         performanceGap: sortedByPerf.length > 1 ? (sortedByPerf[0] as any).compositeScore - (sortedByPerf[sortedByPerf.length - 1] as any).compositeScore : 0,
         activeLearningDays: overallStats?.active_days || 0,
         currentStreak: overallStats?.streak || 0,
         longestStreak: overallStats?.longest_streak || 0,
         badges: [
-          { name: 'Centum Attendee', icon: '💯', earned: overallAttendance === 100 },
-          { name: 'A+ Student', icon: '🏆', earned: performanceIndex >= 85 },
-          { name: 'Active Learner', icon: '📚', earned: learningCompletion >= 50 },
-          { name: 'Task Crusher', icon: '✅', earned: uniqueSubjects.every(s => s.tasksPending === 0) },
-          { name: 'Fast Mover', icon: '🚀', earned: uniqueSubjects.some(s => s.notesCompletion === 100) },
-          { name: 'Consistent', icon: '🔥', earned: (overallStats?.streak || 0) > 0 },
+          { name: 'Centum Attendee', icon: 'Trophy', earned: overallAttendance === 100 },
+          { name: 'A+ Student', icon: 'Award', earned: performanceIndex >= 85 },
+          { name: 'Active Learner', icon: 'BookOpen', earned: learningCompletion >= 50 },
+          { name: 'Task Crusher', icon: 'CheckCircle2', earned: uniqueSubjects.every(s => s.tasksPending === 0) },
+          { name: 'Fast Mover', icon: 'Zap', earned: uniqueSubjects.some(s => s.notesCompletion === 100) },
+          { name: 'Consistent', icon: 'Flame', earned: (overallStats?.streak || 0) > 0 },
         ],
         timeline: [],
         remarks: []

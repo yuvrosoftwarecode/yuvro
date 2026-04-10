@@ -100,15 +100,16 @@ const SubjectMatrix: React.FC<SubjectMatrixProps> = ({ subjects, expandedSubject
                       </div>
                     </td>
                     <td className="p-3 text-center">
-                      <span className="text-xs">
-                        <span className="font-medium text-foreground">{s.tasksSubmitted}</span>
-                        <span className="text-muted-foreground">/{s.tasksTotal}</span>
-                        {s.tasksPending > 0 && (
-                          <span className="text-amber-600 ml-1">({s.tasksPending} pending)</span>
-                        )}
+                      <span className={`text-xs ${s.tasksPending > 0 ? 'text-orange-600 font-bold' : ''}`}>
+                        <span className="font-medium">{s.tasksSubmitted}</span>
+                        <span>/{s.tasksTotal}</span>
                       </span>
                     </td>
-                    <td className="p-3 text-center font-medium">{s.attendancePercent}%</td>
+                    <td className={`p-3 text-center font-bold ${
+                      s.attendancePercent >= 75 ? 'text-emerald-600' :
+                      s.attendancePercent >= 60 ? 'text-orange-500' :
+                      'text-red-600'
+                    }`}>{s.attendancePercent}%</td>
                     <td className="p-3 text-center">
                       <Badge variant="secondary" className={`text-xs ${strengthColor[s.strength]}`}>
                         {s.strength}
@@ -146,10 +147,10 @@ const SubjectDrillDown: React.FC<{ subject: SubjectPerformance }> = ({ subject: 
           📚 Learning
         </h4>
         <div className="space-y-1.5 text-xs">
-          <Row label="Total Chapters" value={s.totalChapters} />
-          <Row label="Completed" value={s.chaptersCompleted} color="text-emerald-600" />
-          <Row label="Pending" value={s.chaptersPending} color="text-amber-600" />
-          <Row label="Topics Not Opened" value={s.topicsNotOpened} color="text-red-600" />
+          <Row label="Total Units" value={s.totalUnits} />
+          <Row label="Units Completed" value={s.unitsCompleted} color="text-emerald-600" />
+          <Row label="Units Pending" value={s.unitsPending} color="text-amber-600" />
+          <Row label="Sub-units Not Opened" value={s.subUnitsNotOpened} color="text-red-600" />
           <Row label="Last Activity" value={s.lastLearningDate ? new Date(s.lastLearningDate).toLocaleDateString() : 'N/A'} />
           <Row label="Learning Streak" value={`${s.learningStreak} days`} />
         </div>
