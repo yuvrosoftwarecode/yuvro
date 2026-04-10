@@ -539,17 +539,25 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
 
         if not submission:
             # 2. Check total completed attempts
-            completed_count = SkillTestSubmission.objects.filter(
+            completed_submissions = SkillTestSubmission.objects.filter(
                 skill_test=skill_test,
                 user=user,
                 status=SkillTestSubmission.STATUS_COMPLETED
-            ).count()
+            ).order_by('-completed_at')
+            
+            completed_count = completed_submissions.count()
 
             if completed_count >= skill_test.max_attempts:
                 return Response(
                     {'error': f'Maximum attempt limit ({skill_test.max_attempts}) reached for this test.'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            # Prevent double-start within 10 seconds
+            last_completed = completed_submissions.first()
+            if last_completed and last_completed.completed_at:
+                if (timezone.now() - last_completed.completed_at).total_seconds() < 10:
+                    return Response({'error': 'Please wait before starting another attempt.'}, status=status.HTTP_400_BAD_REQUEST)
 
             # 3. Create NEW submission
             submission = SkillTestSubmission.objects.create(
@@ -576,7 +584,7 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
         
         # Option B: Random Configuration (Additive)
         if skill_test.questions_random_config:
-            existing_ids = [q['id'] for q in questions_to_send]
+            existing_ids = [str(q['id']) for q in questions_to_send]
 
             for q_type, count in skill_test.questions_random_config.items():
                 if count > 0:
@@ -587,27 +595,35 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
                         q_filter &= (Q(sub_unit__unit=skill_test.unit) | Q(unit=skill_test.unit))
                     elif skill_test.subject:
                         q_filter &= Q(subject=skill_test.subject)
+                    
+                    # Strict difficulty filtering
+                    if skill_test.difficulty:
+                        q_filter &= Q(difficulty=skill_test.difficulty)
 
-                    candidates = list(Question.objects.filter(
+                    candidate_ids = list(Question.objects.filter(
                         q_filter
-                    ).exclude(id__in=existing_ids).values('id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'))
+                    ).exclude(id__in=existing_ids).values_list('id', flat=True))
 
-                    if len(candidates) >= count:
-                        selected = random.sample(candidates, count)
+                    if len(candidate_ids) >= count:
+                        selected_ids = random.sample(candidate_ids, count)
                     else:
-                        selected = candidates
+                        selected_ids = candidate_ids
 
+                    selected = list(Question.objects.filter(id__in=selected_ids).values(
+                        'id', 'title', 'content', 'type', 'mcq_options', 'marks', 'test_cases_basic'
+                    ))
                     questions_to_send.extend(selected)
+                    existing_ids.extend([str(sid) for sid in selected_ids])
                     
         # Shuffle final list
         random.shuffle(questions_to_send)
         
         # 2. Return Response
         return Response({
-            'submission_id': submission.id,
+            'submission_id': str(submission.id),
             'status': submission.status,
             'duration': skill_test.duration,
-            'questions': questions_to_send
+            'questions': [{**q, 'id': str(q['id'])} for q in questions_to_send]
         })
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
@@ -651,13 +667,15 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             
             # Grading Logic
             if question.type == 'mcq_single':
-                correct_opt = next((opt for opt in question.mcq_options if opt.get('is_correct')), None)
-                if correct_opt and user_ans == correct_opt['text']:
-                    marks_obtained = question.marks
-                    is_correct = True
+                correct_opt = next((opt for opt in question.mcq_options if bool(opt.get('is_correct'))), None)
+                if correct_opt:
+                    opt_val = str(correct_opt.get('text') or correct_opt.get('option_text', '')).strip()
+                    if str(user_ans or "").strip() == opt_val:
+                        marks_obtained = question.marks
+                        is_correct = True
             elif question.type == 'mcq_multiple':
-                 correct_opts = set(opt['text'] for opt in question.mcq_options if opt.get('is_correct'))
-                 user_opts = set(user_ans) if isinstance(user_ans, list) else set([user_ans]) if user_ans else set()
+                 correct_opts = set(str(opt.get('text') or opt.get('option_text', '')).strip() for opt in question.mcq_options if bool(opt.get('is_correct')))
+                 user_opts = set(str(ans).strip() for ans in (user_ans if isinstance(user_ans, list) else [user_ans] if user_ans else []))
                  if correct_opts == user_opts and correct_opts:
                      marks_obtained = question.marks
                      is_correct = True
@@ -696,6 +714,52 @@ class SkillTestViewSet(ProctoringMixin, viewsets.ModelViewSet):
             'status': 'submitted',
             'score': total_score
         })
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def snapshot(self, request, pk=None):
+        skill_test = self.get_object()
+        submission_id = request.data.get('submission_id')
+        image_data = request.data.get('image') # base64 image or file
+        question_id = request.data.get('question_id')
+        
+        submission = get_object_or_404(
+            SkillTestSubmission,
+            id=submission_id,
+            user=request.user,
+            skill_test=skill_test
+        )
+        
+        # Log to activity
+        if question_id:
+            try:
+                activity = SkillTestQuestionActivity.objects.get(
+                    skill_test_submission=submission,
+                    question_id=question_id
+                )
+                # Store snapshot in JSON field for now (or file system if configured)
+                current_snapshots = activity.camera_snapshots or []
+                current_snapshots.append({
+                    'timestamp': timezone.now().isoformat(),
+                    'image': image_data[:100] + '...', # Don't bloat DB, just log existence for now or handle properly
+                    'meta_data': {'type': 'periodic'}
+                })
+                activity.camera_snapshots = current_snapshots
+                activity.save()
+            except SkillTestQuestionActivity.DoesNotExist:
+                # If no activity yet, maybe skip or create draft
+                pass
+                
+        # Also log to global proctoring events
+        current_events = submission.proctoring_events or []
+        current_events.append({
+            'timestamp': timezone.now().isoformat(),
+            'activity_type': 'periodic_snapshot',
+            'question_id': question_id
+        })
+        submission.proctoring_events = current_events
+        submission.save()
+        
+        return Response({'status': 'logged'})
 
 class MockInterviewViewSet(viewsets.ModelViewSet):
     queryset = MockInterview.objects.all()

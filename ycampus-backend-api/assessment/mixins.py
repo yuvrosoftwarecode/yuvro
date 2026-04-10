@@ -141,6 +141,9 @@ class ProctoringMixin:
             "device_change",
             "external_monitor",
             "forbidden_platform_detected",
+            "fullscreen_exit",
+            "tab_switched",
+            "window_blur",
         ]
 
         if activity_type in violation_types:
