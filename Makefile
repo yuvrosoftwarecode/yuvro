@@ -23,7 +23,12 @@
 # ============================================================================
 
 DEPLOY_ENV  ?= local
-DEPLOY_TYPE ?= $(if $(filter local dev,$(DEPLOY_ENV)),docker,k8s)
+# DEPLOY_TYPE mapping:
+# - local: docker (local Docker Compose) - default
+# - dev: docker (AWS EC2 with Docker) - default, can override with k8s
+# - staging: k8s (Kubernetes) - default
+# - prod: k8s (Kubernetes) - default
+DEPLOY_TYPE ?= $(if $(filter staging prod,$(DEPLOY_ENV)),k8s,docker)
 
 # Validate DEPLOY_ENV
 VALID_DEPLOY_ENVS  := local dev staging prod
@@ -145,7 +150,12 @@ help:
 	@echo ""
 	@echo "Environment:"
 	@echo "  DEPLOY_ENV    local (default) | dev | staging | prod"
-	@echo "  DEPLOY_TYPE   docker (default for local/dev) | k8s (default for staging/prod)"
+	@echo ""
+	@echo "Deployment Type (auto-selected based on DEPLOY_ENV):"
+	@echo "  local  → docker (Local Docker Compose)"
+	@echo "  dev    → docker (AWS EC2 with Docker) - can override with DEPLOY_TYPE=k8s"
+	@echo "  staging → k8s (Kubernetes)"
+	@echo "  prod   → k8s (Kubernetes)"
 	@echo ""
 	@echo "Main Commands:"
 	@echo "  make install            Install/start all services"
@@ -189,11 +199,12 @@ help:
 	@echo "  make load-fixtures-ycampus  Load YCampus test data"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make install                        # Start all (local + docker)"
-	@echo "  DEPLOY_ENV=dev make install         # Start all (dev + docker)"
+	@echo "  make install                        # Start all (local + Docker Compose)"
+	@echo "  DEPLOY_ENV=dev make install         # Deploy to AWS EC2 (Docker Compose)"
+	@echo "  DEPLOY_ENV=dev DEPLOY_TYPE=k8s make install  # Deploy to AWS EC2 (Kubernetes)"
 	@echo "  make install-ycode                  # Start YCode only"
-	@echo "  DEPLOY_TYPE=k8s make install        # Deploy to Kubernetes"
-	@echo "  DEPLOY_ENV=staging DEPLOY_TYPE=k8s make install  # Deploy to staging k8s"
+	@echo "  DEPLOY_ENV=staging make install     # Deploy to staging (Kubernetes)"
+	@echo "  DEPLOY_ENV=prod make install        # Deploy to production (Kubernetes)"
 	@echo "  make observability-dev              # Start observability stack"
 	@echo "  make secrets-load                   # Load secrets for environment"
 
@@ -202,12 +213,17 @@ help:
 # ============================================================================
 
 ifeq ($(DEPLOY_TYPE),docker)
+  # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
   COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml $(ENV_OVERRIDE)
 endif
 
 install run: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo ""; \
+		bash infra/scripts/deploy-dev-auto.sh; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker compose $(COMPOSE_FILES) up; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -235,7 +251,20 @@ install run: _validate-deploy
 	fi
 
 stop: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🛑 Stopping AWS EC2 deployment [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo ""; \
+		echo "⚠️  This will terminate EC2 instances"; \
+		read -p "Continue? (yes/no) " -r; \
+		echo; \
+		if [[ ! $$REPLY =~ ^[Yy][Ee][Ss]$$ ]]; then \
+			echo "Cancelled"; \
+			exit 0; \
+		fi; \
+		echo "🛑 Destroying OpenTofu resources..."; \
+		cd infra/opentofu && tofu plan -destroy -var-file=dev.tfvars -out=tfplan_destroy && tofu apply tfplan_destroy && cd ../..; \
+		echo "✅ EC2 instances terminated!"; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🛑 Stopping all services..."; \
 		docker compose $(COMPOSE_FILES) down; \
 		echo "✅ All services stopped!"; \
@@ -246,7 +275,22 @@ stop: _validate-deploy
 	fi
 
 clean: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🧹 Cleaning AWS EC2 deployment [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo ""; \
+		echo "⚠️  This will destroy all EC2 resources"; \
+		read -p "Continue? (yes/no) " -r; \
+		echo; \
+		if [[ ! $$REPLY =~ ^[Yy][Ee][Ss]$$ ]]; then \
+			echo "Cancelled"; \
+			exit 0; \
+		fi; \
+		echo "🧹 Destroying OpenTofu resources..."; \
+		cd infra/opentofu && tofu plan -destroy -var-file=dev.tfvars -out=tfplan_destroy && tofu apply tfplan_destroy && cd ../..; \
+		echo "🧹 Cleaning OpenTofu state..."; \
+		rm -rf infra/opentofu/.terraform infra/opentofu/terraform.tfstate* infra/opentofu/tfplan* 2>/dev/null || true; \
+		echo "✅ Cleanup complete!"; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🧹 Cleaning all containers and volumes..."; \
 		docker compose $(COMPOSE_FILES) down -v --remove-orphans; \
 		docker system prune -f; \
@@ -262,7 +306,22 @@ clean: _validate-deploy
 	fi
 
 logs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📝 Viewing AWS EC2 deployment logs [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo ""; \
+		echo "⚠️  EC2 instances are managed by OpenTofu"; \
+		echo ""; \
+		echo "To view application logs on EC2:"; \
+		echo "  1. Get EC2 instance IP:"; \
+		echo "     aws ec2 describe-instances --region ap-south-1 --query 'Reservations[].Instances[].PublicIpAddress' --output text"; \
+		echo ""; \
+		echo "  2. SSH into instance:"; \
+		echo "     ssh -i your-key.pem ec2-user@<instance-ip>"; \
+		echo ""; \
+		echo "  3. View logs:"; \
+		echo "     docker compose logs -f"; \
+		exit 1; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "📝 Viewing logs from all services (Ctrl+C to exit)..."; \
 		docker compose $(COMPOSE_FILES) logs -f; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
@@ -271,7 +330,22 @@ logs: _validate-deploy
 	fi
 
 status: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📊 AWS EC2 deployment status [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo ""; \
+		if ! command -v tofu &> /dev/null; then \
+			echo "❌ OpenTofu is not installed"; \
+			exit 1; \
+		fi; \
+		echo "📊 OpenTofu Resources:"; \
+		cd infra/opentofu && tofu show -no-color | head -50 && cd ../..; \
+		echo ""; \
+		echo "📊 AWS EC2 Instances:"; \
+		aws ec2 describe-instances --region ap-south-1 --query 'Reservations[].Instances[?Tags[?Key==`Environment` && Value==`dev`]].[InstanceId,InstanceType,State.Name,PublicIpAddress]' --output table 2>/dev/null || echo "No instances found"; \
+		echo ""; \
+		echo "📊 RDS Databases:"; \
+		aws rds describe-db-instances --region ap-south-1 --query 'DBInstances[?Tags[?Key==`Environment` && Value==`dev`]].[DBInstanceIdentifier,DBInstanceClass,DBInstanceStatus]' --output table 2>/dev/null || echo "No databases found"; \
+	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "📊 Docker Compose status:"; \
 		docker compose $(COMPOSE_FILES) ps; \
 	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \

@@ -15,19 +15,19 @@ output "private_subnet_ids" {
 }
 
 # EC2 Outputs
-output "kubernetes_node_ids" {
-  description = "EC2 instance IDs for Kubernetes nodes"
-  value       = module.ec2_nodes.instance_ids
+output "app_node_ids" {
+  description = "EC2 instance IDs"
+  value       = var.instance_count > 0 ? module.ec2_nodes[0].instance_ids : []
 }
 
-output "kubernetes_node_private_ips" {
-  description = "Private IP addresses of Kubernetes nodes"
-  value       = module.ec2_nodes.private_ips
+output "app_node_private_ips" {
+  description = "Private IP addresses of app nodes"
+  value       = var.instance_count > 0 ? module.ec2_nodes[0].private_ips : []
 }
 
-output "kubernetes_node_public_ips" {
-  description = "Public IP addresses of Kubernetes nodes"
-  value       = module.ec2_nodes.public_ips
+output "app_node_public_ips" {
+  description = "Public IP addresses of app nodes"
+  value       = var.instance_count > 0 ? module.ec2_nodes[0].public_ips : []
 }
 
 # RDS YCode Outputs
@@ -88,11 +88,6 @@ output "logs_bucket_name" {
 }
 
 # IAM Outputs
-output "kubernetes_node_role_arn" {
-  description = "ARN of IAM role for Kubernetes nodes"
-  value       = module.iam.kubernetes_node_role_arn
-}
-
 output "app_service_role_arn" {
   description = "ARN of IAM role for application services"
   value       = module.iam.app_service_role_arn

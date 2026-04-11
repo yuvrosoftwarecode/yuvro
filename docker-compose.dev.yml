@@ -1,36 +1,30 @@
-# docker-compose.dev.yml
-# Override for DEPLOY_ENV=dev: loads .env.dev files, no source code volume mounts.
-# Usage: docker compose -f docker-compose.ycode.yml -f docker-compose.ycampus.yml \
-#          -f docker-compose.common.yml -f docker-compose.dev.yml up
+# Dev environment override - uses RDS instead of local DB containers
+# Usage: docker compose -f docker-compose.common.yml -f docker-compose.yml -f docker-compose.ycampus.yml -f docker-compose.dev.yml up -d
 
 services:
-  # ── YCode ──────────────────────────────────────────────────────────────────
+  # Stub DB containers - stay healthy so depends_on is satisfied, but backends use RDS via .env
   ycode-db:
-    env_file:
-      - ./ycode-backend-api/.env.dev
+    image: alpine
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      timeout: 1s
+      retries: 1
+      start_period: 1s
 
-  ycode-backend:
-    env_file:
-      - ./ycode-backend-api/.env.dev
-
-  ycode-frontend:
-    env_file:
-      - ./ycode-web/.env.dev
-
-  # ── YCampus ────────────────────────────────────────────────────────────────
   ycampus-db:
-    env_file:
-      - ./ycampus-backend-api/.env.dev
+    image: alpine
+    command: ["sh", "-c", "while true; do sleep 3600; done"]
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      timeout: 1s
+      retries: 1
+      start_period: 1s
 
-  ycampus-backend:
-    env_file:
-      - ./ycampus-backend-api/.env.dev
-
-  ycampus-frontend:
-    env_file:
-      - ./ycampus-web/.env.dev
-
-  # ── Code Executor ──────────────────────────────────────────────────────────
-  yuvro-code-executor:
-    env_file:
-      - ./yuvro-code-executer/.env.dev
+# Override executor network to be local (not external) so all services share it
+networks:
+  executor:
+    driver: bridge
+    external: false

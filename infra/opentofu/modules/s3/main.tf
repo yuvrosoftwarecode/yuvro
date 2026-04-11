@@ -39,6 +39,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "app_data" {
   rule {
     id     = "delete-old-versions"
     status = "Enabled"
+    filter {}
 
     noncurrent_version_expiration {
       noncurrent_days = 90
@@ -87,6 +88,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   rule {
     id     = "delete-old-logs"
     status = "Enabled"
+    filter {}
 
     expiration {
       days = 90

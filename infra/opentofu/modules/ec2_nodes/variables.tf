@@ -28,11 +28,6 @@ variable "key_pair_name" {
   type        = string
 }
 
-variable "kubernetes_version" {
-  description = "Kubernetes version"
-  type        = string
-}
-
 variable "root_volume_size" {
   description = "Root volume size in GB"
   type        = number

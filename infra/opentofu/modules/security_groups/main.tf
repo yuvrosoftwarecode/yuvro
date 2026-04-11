@@ -1,95 +1,60 @@
-resource "aws_security_group" "kubernetes" {
-  name        = "${var.environment}-kubernetes-sg"
-  description = "Security group for Kubernetes nodes"
+resource "aws_security_group" "app" {
+  name        = "${var.environment}-app-sg"
+  description = "Security group for app nodes"
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = "${var.environment}-kubernetes-sg"
+    Name = "${var.environment}-app-sg"
   }
 }
 
-# Allow inbound SSH
-resource "aws_vpc_security_group_ingress_rule" "kubernetes_ssh" {
-  security_group_id = aws_security_group.kubernetes.id
+resource "aws_vpc_security_group_ingress_rule" "app_ssh" {
+  security_group_id = aws_security_group.app.id
   description       = "SSH access"
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "ssh"
-  }
+  tags = { Name = "ssh" }
 }
 
-# Allow inbound Kubernetes API
-resource "aws_vpc_security_group_ingress_rule" "kubernetes_api" {
-  security_group_id = aws_security_group.kubernetes.id
-  description       = "Kubernetes API"
-  from_port         = 6443
-  to_port           = 6443
+resource "aws_vpc_security_group_ingress_rule" "app_http" {
+  security_group_id = aws_security_group.app.id
+  description       = "HTTP"
+  from_port         = 80
+  to_port           = 80
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "kubernetes-api"
-  }
+  tags = { Name = "http" }
 }
 
-# Allow inbound kubelet
-resource "aws_vpc_security_group_ingress_rule" "kubernetes_kubelet" {
-  security_group_id = aws_security_group.kubernetes.id
-  description       = "Kubelet"
-  from_port         = 10250
-  to_port           = 10250
+resource "aws_vpc_security_group_ingress_rule" "app_https" {
+  security_group_id = aws_security_group.app.id
+  description       = "HTTPS"
+  from_port         = 443
+  to_port           = 443
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "kubelet"
-  }
+  tags = { Name = "https" }
 }
 
-# Allow inbound node communication
-resource "aws_vpc_security_group_ingress_rule" "kubernetes_node_comm" {
-  security_group_id = aws_security_group.kubernetes.id
-  description       = "Node communication"
-  from_port         = 30000
-  to_port           = 32767
+# App ports: ycode-frontend(3000), ycode-backend(8001), executor(8002), ycampus-backend(8003), ycampus-frontend(3002)
+resource "aws_vpc_security_group_ingress_rule" "app_ports" {
+  security_group_id = aws_security_group.app.id
+  description       = "Application ports"
+  from_port         = 3000
+  to_port           = 9000
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "node-ports"
-  }
+  tags = { Name = "app-ports" }
 }
 
-# Allow intra-node communication
-resource "aws_vpc_security_group_ingress_rule" "kubernetes_intra" {
-  security_group_id = aws_security_group.kubernetes.id
-  description       = "Intra-node communication"
-  from_port         = 0
-  to_port           = 65535
-  ip_protocol       = "tcp"
-  referenced_security_group_id = aws_security_group.kubernetes.id
-
-  tags = {
-    Name = "intra-node"
-  }
-}
-
-# Allow outbound all traffic
-resource "aws_vpc_security_group_egress_rule" "kubernetes_all" {
-  security_group_id = aws_security_group.kubernetes.id
+resource "aws_vpc_security_group_egress_rule" "app_all" {
+  security_group_id = aws_security_group.app.id
   description       = "Allow all outbound traffic"
-  from_port         = 0
-  to_port           = 0
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "all-outbound"
-  }
+  tags = { Name = "all-outbound" }
 }
 
 # RDS Security Group
@@ -103,83 +68,20 @@ resource "aws_security_group" "rds" {
   }
 }
 
-# Allow inbound PostgreSQL from Kubernetes nodes
 resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
-  security_group_id = aws_security_group.rds.id
-  description       = "PostgreSQL from Kubernetes"
-  from_port         = 5432
-  to_port           = 5432
-  ip_protocol       = "tcp"
-  referenced_security_group_id = aws_security_group.kubernetes.id
-
-  tags = {
-    Name = "postgres"
-  }
+  security_group_id            = aws_security_group.rds.id
+  description                  = "PostgreSQL from app nodes"
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.app.id
+  tags = { Name = "postgres" }
 }
 
-# Allow outbound all traffic from RDS
 resource "aws_vpc_security_group_egress_rule" "rds_all" {
   security_group_id = aws_security_group.rds.id
   description       = "Allow all outbound traffic"
-  from_port         = 0
-  to_port           = 0
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "all-outbound"
-  }
-}
-
-# ALB Security Group (for future use)
-resource "aws_security_group" "alb" {
-  name        = "${var.environment}-alb-sg"
-  description = "Security group for Application Load Balancer"
-  vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "${var.environment}-alb-sg"
-  }
-}
-
-# Allow inbound HTTP
-resource "aws_vpc_security_group_ingress_rule" "alb_http" {
-  security_group_id = aws_security_group.alb.id
-  description       = "HTTP"
-  from_port         = 80
-  to_port           = 80
-  ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "http"
-  }
-}
-
-# Allow inbound HTTPS
-resource "aws_vpc_security_group_ingress_rule" "alb_https" {
-  security_group_id = aws_security_group.alb.id
-  description       = "HTTPS"
-  from_port         = 443
-  to_port           = 443
-  ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "https"
-  }
-}
-
-# Allow outbound all traffic from ALB
-resource "aws_vpc_security_group_egress_rule" "alb_all" {
-  security_group_id = aws_security_group.alb.id
-  description       = "Allow all outbound traffic"
-  from_port         = 0
-  to_port           = 0
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
-
-  tags = {
-    Name = "all-outbound"
-  }
+  tags = { Name = "all-outbound" }
 }

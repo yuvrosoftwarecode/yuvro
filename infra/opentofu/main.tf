@@ -48,22 +48,23 @@ module "security_groups" {
   vpc_id      = module.vpc.vpc_id
 }
 
-# EC2 Kubernetes Nodes Module
+# EC2 App Nodes Module (Docker Compose on dev, can be used for other envs too)
 module "ec2_nodes" {
+  count  = var.instance_count > 0 ? 1 : 0
   source = "./modules/ec2_nodes"
 
-  environment              = var.environment
-  instance_type            = var.instance_type
-  instance_count           = var.instance_count
-  subnet_ids               = module.vpc.private_subnet_ids
-  security_group_id        = module.security_groups.kubernetes_sg_id
-  key_pair_name            = var.key_pair_name
-  kubernetes_version       = var.kubernetes_version
-  root_volume_size         = var.root_volume_size
-  root_volume_type         = var.root_volume_type
+  environment       = var.environment
+  instance_type     = var.instance_type
+  instance_count    = var.instance_count
+  subnet_ids        = module.vpc.public_subnet_ids
+  security_group_id = module.security_groups.app_sg_id
+  key_pair_name     = var.key_pair_name
+  root_volume_size  = var.root_volume_size
+  root_volume_type  = var.root_volume_type
 }
 
 # RDS PostgreSQL for YCode
+# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
 module "rds_ycode" {
   source = "./modules/rds"
 
@@ -74,14 +75,16 @@ module "rds_ycode" {
   instance_class           = var.ycode_db_instance_class
   allocated_storage         = var.ycode_db_allocated_storage
   max_allocated_storage     = var.ycode_db_max_allocated_storage
-  subnet_ids               = module.vpc.private_subnet_ids
+  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
   security_group_id        = module.security_groups.rds_sg_id
   backup_retention_days    = var.backup_retention_days
   multi_az                 = var.multi_az
   engine_version           = var.postgres_version
+  skip_final_snapshot      = var.skip_final_snapshot
 }
 
 # RDS PostgreSQL for YCampus
+# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
 module "rds_ycampus" {
   source = "./modules/rds"
 
@@ -92,11 +95,12 @@ module "rds_ycampus" {
   instance_class           = var.ycampus_db_instance_class
   allocated_storage         = var.ycampus_db_allocated_storage
   max_allocated_storage     = var.ycampus_db_max_allocated_storage
-  subnet_ids               = module.vpc.private_subnet_ids
+  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
   security_group_id        = module.security_groups.rds_sg_id
   backup_retention_days    = var.backup_retention_days
   multi_az                 = var.multi_az
   engine_version           = var.postgres_version
+  skip_final_snapshot      = var.skip_final_snapshot
 }
 
 # S3 Buckets Module

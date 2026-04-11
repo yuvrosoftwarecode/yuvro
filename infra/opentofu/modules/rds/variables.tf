@@ -59,3 +59,9 @@ variable "engine_version" {
   description = "PostgreSQL engine version"
   type        = string
 }
+
+variable "skip_final_snapshot" {
+  description = "Skip final snapshot on deletion"
+  type        = bool
+  default     = false
+}
