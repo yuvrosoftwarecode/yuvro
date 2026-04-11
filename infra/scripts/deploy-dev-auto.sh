@@ -294,7 +294,7 @@ cd /home/ubuntu
 if [ -d "yuvro-code" ]; then
     cd yuvro-code && git pull
 else
-    git clone "$repo_url" yuvro-code
+    git clone -b k8s-setup-iac "$repo_url" yuvro-code
     cd yuvro-code
 fi
 
