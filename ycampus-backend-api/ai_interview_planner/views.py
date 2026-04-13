@@ -15,6 +15,10 @@ from .serializers import (
     StudentPlanTaskSerializer
 )
 import random
+from asgiref.sync import async_to_sync
+from rest_framework.exceptions import ValidationError
+from core.models import StudentProfile
+from .services import PreparationPlanGenerator, AIServiceError
 
 class PlannerCompanyViewSet(viewsets.ModelViewSet):
     queryset = PlannerCompany.objects.all()
@@ -96,7 +100,13 @@ class StudentPlanViewSet(viewsets.ModelViewSet):
         role = PlannerRole.objects.get(id=role_id)
         role_topics = list(role.topics.all())
         
-        # 2. Save the plan with snapshots
+        # 2. Fetch student profile for AI context
+        try:
+            student_profile = StudentProfile.objects.get(user=self.request.user)
+        except StudentProfile.DoesNotExist:
+            raise ValidationError({"detail": "Student profile not found. Please complete your profile first."})
+
+        # 3. Save the plan with snapshots
         plan = serializer.save(
             student=self.request.user, 
             created_by=self.request.user,
@@ -105,35 +115,49 @@ class StudentPlanViewSet(viewsets.ModelViewSet):
             company_type=company.company_type
         )
         
-        # 3. Store the topics snapshot
+        # 4. Store the topics snapshot
         if role_topics:
             plan.topics.set(role_topics)
             
-            # 4. Generate tasks specifically for THESE topics
-            duration = plan.duration_days
-            for i, topic in enumerate(role_topics):
-                # Simple distribution: 1 topic per day or wrap around
-                day = (i % duration) + 1
+        # 5. Generate tasks using AI
+        generator = PreparationPlanGenerator()
+        topic_names = [t.name for t in role_topics]
+        
+        try:
+            # Resolve context strings in sync context to avoid async ORM access issues
+            dept_name = student_profile.department.name if student_profile.department else "N/A"
+            semester_num = str(student_profile.semester.number) if student_profile.semester else "N/A"
+            
+            # Plan generation should be perfect for all days
+            ai_tasks = async_to_sync(generator.generate_plan)(
+                student_dept=dept_name,
+                student_semester=semester_num,
+                company_name=company.name,
+                company_type=company.company_type,
+                role_title=role.title,
+                role_difficulty=role.difficulty,
+                duration_days=plan.duration_days,
+                daily_hours=plan.daily_hours,
+                topics=topic_names
+            )
+            
+            # 6. Create StudentPlanTask records from AI response
+            for task_data in ai_tasks:
                 StudentPlanTask.objects.create(
                     plan=plan,
-                    day_number=day,
-                    title=f"Master {topic.name}",
-                    task_type="Topic",
-                    reference_id=str(topic.id),
+                    day_number=task_data.get('day_number'),
+                    title=task_data.get('title'),
+                    task_type=task_data.get('task_type', 'Topic'),
+                    reference_id=task_data.get('reference_id'),
                     created_by=self.request.user
                 )
-        else:
-            # Fallback if role has no topics: just add some generic ones or leave empty
-            pass
-        
-        # 5. Add a few mock interviews
-        for day in [max(1, plan.duration_days // 2), plan.duration_days]:
-            StudentPlanTask.objects.create(
-                plan=plan,
-                day_number=day,
-                title=f"Final Mock Interview - {plan.company_name}",
-                task_type="Mock",
-                created_by=self.request.user
-            )
+                
+        except AIServiceError as e:
+            # If AI fails, we delete the plan (since no fallback is requested) and raise error
+            plan.delete()
+            raise ValidationError({"detail": f"AI Plan Generation Failed: {str(e)}"})
+        except Exception as e:
+            plan.delete()
+            raise ValidationError({"detail": f"An unexpected error occurred during plan generation: {str(e)}"})
 
 
