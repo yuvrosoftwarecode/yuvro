@@ -85,7 +85,7 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
             </div>
             <div>
               <p className="font-semibold text-sm">Day {day}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-tight">{completed}/{dayTasks.length} Task Progress</p>
+              <p className="text-[10px] text-muted-foreground  tracking-tight">{completed}/{dayTasks.length} Task Progress</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -106,7 +106,7 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
                        <span className={`text-sm font-medium ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                       <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground bg-background">{task.task_type}</Badge>
+                       <Badge variant="outline" className="text-[10px]  font-bold text-muted-foreground bg-background">{task.task_type}</Badge>
                        {statusBadge(task.is_completed)}
                     </div>
                  </div>
@@ -258,7 +258,7 @@ export default function PlanDashboard({ plan, onReset }: PlanDashboardProps) {
                           </div>
                           <div>
                             <p className="font-bold text-base">Week {week} Overview</p>
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                            <p className="text-xs text-muted-foreground font-medium  tracking-wider">
                               {completedTasksInWeek} / {totalTasksInWeek} Tasks Completed
                             </p>
                           </div>
