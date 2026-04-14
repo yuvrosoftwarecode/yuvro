@@ -288,9 +288,9 @@ const LearnDashboard: React.FC = () => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold text-saffron-end uppercase tracking-widest bg-saffron/10 px-2 py-0.5 rounded">Resume Learning</span>
-                      <span className="text-[10px] font-medium text-gray-400">•</span>
-                      <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{continueProgress.course_name}</span>
+                      <span className="text-xs font-bold text-saffron-end tracking-wide bg-saffron/10 px-2 py-0.5 rounded">Resume learning</span>
+                      <span className="text-xs font-medium text-gray-400">•</span>
+                      <span className="text-xs font-medium text-gray-400 tracking-wide">{continueProgress.course_name}</span>
                     </div>
                     <h2 className="text-xl font-bold text-gray-900 truncate tracking-tight">{continueProgress.subtopic_name || "Next Lesson"}</h2>
 
