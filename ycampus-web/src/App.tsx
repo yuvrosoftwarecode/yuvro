@@ -69,6 +69,7 @@ import Contest from "./pages/student/Contest";
 // MockInterviewSelect replaced by StudentMockInterview
 import StudentJobs from "./pages/student/Jobs";
 import CodePractice from "./pages/student/CodePractice";
+import StudentProfile from "./pages/student/Profile";
 import PlacementDashboard from "./pages/placement/PlacementDashboard";
 import JobApprovals from "./pages/placement/JobApprovals";
 import LiveJobs from "./pages/placement/LiveJobs";
@@ -198,6 +199,7 @@ const App = () => (
                       <Route path="subjects/:id" element={<SubjectDetail />} />
                       <Route path="test-subjects/:id" element={<TestSubjectDetail />} />
                       <Route path="test/:subjectId" element={<TestSubjectDetail />} />
+                      <Route path="profile" element={<StudentProfile />} />
                     </Routes>
                   </ProtectedRoute>
                 }
