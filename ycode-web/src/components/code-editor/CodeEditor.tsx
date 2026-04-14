@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Play, Send, X, FlaskConical, Terminal, CheckCircle2, XCircle, Zap, Activity, Sparkles } from 'lucide-react';
 import MonacoCodeEditor from './MonacoCodeEditor';
 import codeEditorService from '@/services/codeEditorService';
-import ExampleCodeGallery from '@/components/code-editor/ExampleCodeGallery';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
+
+
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CustomTestCaseManager from '@/components/code-editor/CustomTestCaseManager';
+import ExampleCodeGallery from './ExampleCodeGallery';
 
 interface CustomTestCase {
   id: string;
@@ -102,28 +103,50 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
   // If value is provided, we use it as initial state, but we also sync it via useEffect
   const [code, setCode] = useState(value !== undefined ? value : initialCode);
 
-  // Custom resize state
-  const [outputPanelHeight, setOutputPanelHeight] = useState(40); // % height of output panel
+  // Custom resize state using CSS variables and rAF for smooth 60fps performance
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
-  const startDrag = () => setIsDragging(true);
-  const stopDrag = () => setIsDragging(false);
+  const startDrag = () => {
+    setIsDragging(true);
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+  };
+  
+  const stopDrag = () => {
+    setIsDragging(false);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  };
 
   const onDrag = (e: MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+    if (!containerRef.current) return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const relativeY = e.clientY - rect.top;
-    const containerHeight = rect.height;
-
-    // Calculate new height relative to bottom (since it's the bottom panel)
-    const newHeight = ((containerHeight - relativeY) / containerHeight) * 100;
-
-    // Clamp between 20% and 80%
-    if (newHeight >= 20 && newHeight <= 80) {
-      setOutputPanelHeight(newHeight);
+    // Failsafe: if mouse button is released outside window
+    if (e.buttons !== 1) {
+      stopDrag();
+      return;
     }
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    rafRef.current = requestAnimationFrame(() => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const relativeY = e.clientY - rect.top;
+      const containerHeight = rect.height;
+
+      // Calculate new height relative to bottom (since it's the bottom panel)
+      const newHeight = ((containerHeight - relativeY) / containerHeight) * 100;
+
+      // Clamp between 20% and 80%
+      if (newHeight >= 20 && newHeight <= 80) {
+        containerRef.current.style.setProperty('--output-height', `${newHeight}%`);
+      }
+    });
   };
 
   useEffect(() => {
@@ -491,7 +514,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
             {/* Editor Panel */}
             <div
               className="w-full bg-white relative flex flex-col"
-              style={{ height: showOutput ? `${100 - outputPanelHeight}%` : '100%' }}
+              style={{ height: showOutput ? `calc(100% - var(--output-height, 40%))` : '100%' }}
             >
               <div className="absolute inset-0">
                 <MonacoCodeEditor
@@ -518,9 +541,9 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                   e.preventDefault();
                   startDrag();
                 }}
-                className="h-4 -my-2 w-full bg-transparent hover:bg-transparent flex items-center justify-center transition-all opacity-0 hover:opacity-100 z-50 cursor-row-resize shrink-0"
+                className="h-4 -my-2 w-full relative flex items-center justify-center cursor-row-resize z-[60] group shrink-0"
               >
-                <div className="w-12 h-1 bg-gray-300 rounded-full shadow-sm pointer-events-none" />
+                <div className="w-12 h-1.5 bg-indigo-400 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-sm" />
               </div>
             )}
 
@@ -528,52 +551,51 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
             {showOutput && (
               <div
                 className="w-full bg-white flex flex-col overflow-hidden border-t border-gray-100"
-                style={{ height: `${outputPanelHeight}%` }}
+                style={{ height: `var(--output-height, 40%)` }}
               >
-                <div className="h-full bg-white flex flex-col overflow-hidden p-4">
-                  <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
-                    <TabsList className="flex-shrink-0 justify-between h-12 bg-white border-b border-gray-100 px-4">
-                      <div className="flex items-center gap-2">
-                        <TabsTrigger value="output" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
-                          <Terminal className="h-3.5 w-3.5" /> Console
+                <Tabs value={activeBottomTab} onValueChange={(v: any) => setActiveBottomTab(v)} className="h-full flex flex-col">
+                  <div className="flex-shrink-0 h-11 bg-white border-b border-gray-100 px-4 flex items-center justify-between gap-2">
+                    <TabsList className="bg-transparent border-none p-0 h-auto flex items-center gap-2">
+                      <TabsTrigger value="output" className="h-8 px-3 text-xs font-bold flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                        <Terminal className="h-3.5 w-3.5" /> Console
+                      </TabsTrigger>
+                      {showTestCases && (
+                        <TabsTrigger value="testcases" className="h-8 px-3 text-xs font-bold flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
+                          <FlaskConical className="h-3.5 w-3.5" /> Test Cases
                         </TabsTrigger>
-                        {showTestCases && (
-                          <TabsTrigger value="testcases" className="h-8 px-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500 rounded-lg transition-all">
-                            <FlaskConical className="h-3.5 w-3.5" /> Test Cases
-                          </TabsTrigger>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Button
-                          onClick={runCode}
-                          disabled={isRunning || isSubmitting}
-                          size="sm"
-                          className="h-8 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95"
-                        >
-                          <Play className="h-3 w-3 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
-                        </Button>
-                        <Button
-                          onClick={submitSolution}
-                          disabled={isRunning || isSubmitting}
-                          size="sm"
-                          className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border-none"
-                        >
-                          <Send className="h-3 w-3 mr-1.5 fill-current" /> {isSubmitting ? 'Submitting...' : 'Submit'}
-                        </Button>
-                        <div className="w-px h-6 bg-gray-200 mx-1" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setShowOutput(false)}
-                          className="h-9 w-9 text-gray-400 hover:text-gray-900 hover:bg-white hover:border-gray-200 border border-transparent rounded-xl transition-all"
-                        >
-                          <X className="h-5 w-5" />
-                        </Button>
-                      </div>
+                      )}
                     </TabsList>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={runCode}
+                        disabled={isRunning || isSubmitting}
+                        size="sm"
+                        className="h-8 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95"
+                      >
+                        <Play className="h-3 w-3 mr-1.5 fill-current" /> {isRunning ? 'Running...' : 'Run'}
+                      </Button>
+                      <Button
+                        onClick={submitSolution}
+                        disabled={isRunning || isSubmitting}
+                        size="sm"
+                        className="h-8 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-sm font-bold text-xs transition-all active:scale-95 border-none"
+                      >
+                        <Send className="h-3 w-3 mr-1.5 fill-current" /> Submit
+                      </Button>
+                      <div className="w-px h-6 bg-gray-200 mx-1" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowOutput(false)}
+                        className="h-8 w-8 text-gray-400 hover:text-gray-900 hover:bg-white hover:border-gray-200 border border-transparent rounded-lg transition-all"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-                    <TabsContent value="output" className="flex-1 overflow-auto p-6 m-0">
-                      <div className="max-w-5xl mx-auto space-y-8 pb-12">
+                  <TabsContent value="output" className="flex-1 overflow-auto p-4 m-0">
+                    <div className="space-y-5 pb-6">
                         {/* Execution Metrics */}
                         {executionMetrics && (
                           <div>
@@ -812,7 +834,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     </TabsContent>
 
                     {showTestCases && allowCustomTestCases && (
-                      <TabsContent value="testcases" className="flex-1 overflow-auto p-6 m-0">
+                      <TabsContent value="testcases" className="flex-1 overflow-auto p-4 m-0">
                         <div className="max-w-5xl mx-auto">
                           <CustomTestCaseManager
                             customTestCases={customTestCases}
@@ -822,17 +844,16 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                       </TabsContent>
                     )}
                   </Tabs>
-                </div>
               </div>
             )}
           </div>
         </div>   {/* Minimal Console Bar when collapsed */}
         {!showOutput && (
-          <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6">
+          <div className="flex-shrink-0 h-14 bg-white border-t border-gray-100 flex items-center justify-between px-6 gap-2">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
+                className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-lg px-4 transition-all tracking-wide"
                 onClick={() => {
                   setShowOutput(true);
                   setActiveBottomTab('output');
@@ -848,7 +869,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                     setActiveBottomTab('testcases');
                   }}
                   variant="ghost"
-                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-xl px-4 transition-all uppercase tracking-widest"
+                  className="h-9 text-xs font-bold text-gray-500 flex items-center gap-2 hover:bg-slate-50 rounded-lg px-4 transition-all tracking-wide"
                 >
                   <FlaskConical className="h-4 w-4 text-blue-500" />
                   Test Cases
@@ -860,7 +881,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 onClick={runCode}
                 disabled={isRunning || isSubmitting}
                 size="sm"
-                className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+                className="h-9 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-100 font-bold text-xs transition-all active:scale-95"
               >
                 <Play className="h-3.5 w-3.5 mr-1.5 fill-current" /> Run
               </Button>
@@ -868,7 +889,7 @@ const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(({
                 onClick={submitSolution}
                 disabled={isRunning || isSubmitting}
                 size="sm"
-                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-100 font-bold text-xs uppercase tracking-widest transition-all active:scale-95 border-none"
+                className="h-9 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-lg shadow-lg shadow-orange-100 font-bold text-xs transition-all active:scale-95 border-none"
               >
                 <Send className="h-3.5 w-3.5 mr-1.5 fill-current" /> Submit
               </Button>

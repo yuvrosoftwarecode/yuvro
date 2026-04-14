@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, DollarSign, ArrowLeft, BookmarkIcon, Share2, LogIn } from 'lucide-react';
-import Navigation from '@/components/common/Navigation';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -127,23 +127,21 @@ const JobDetails = () => {
 
   if (loading) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading job details...</p>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   if (!job) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Job not found</h2>
             <p className="text-gray-600 mb-4">The job you're looking for doesn't exist or has been removed.</p>
@@ -155,7 +153,7 @@ const JobDetails = () => {
             </button>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
@@ -209,10 +207,8 @@ const JobDetails = () => {
   };
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button */}
           <button
             onClick={() => navigate(isAuthenticated ? '/student/jobs' : '/')}
@@ -392,8 +388,7 @@ const JobDetails = () => {
             job={job}
           />
         )}
-      </div>
-    </>
+      </DashboardLayout>
   );
 };
 

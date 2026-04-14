@@ -1,21 +1,22 @@
 // AI-enhanced code editor that wraps CodeEditor with problem descriptions and AI chat functionality.
 // For simpler use cases without AI features, use CodeEditor.tsx instead.
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, BrainCircuit, Target, Code, PanelsRightBottom, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, Download, PanelLeftClose } from 'lucide-react';
+
+import { ChevronLeft, BrainCircuit, Layout, AlertTriangle, Lightbulb, Key, Shield, BookOpen, PanelLeftClose, Download, Code } from 'lucide-react';
 import CodeEditor, { CodeEditorHandle } from './CodeEditor';
 import type { Course, Topic, CodingProblem } from '@/pages/student/CodePractice';
-import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
+
 import AIChatContainer from '@/components/student/Learn/AIChatWidget/AIChatContainer';
-import codeEditorService from '@/services/codeEditorService';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import restApiAuthUtil from '@/utils/RestApiAuthUtil';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import codeEditorService from '@/services/codeEditorService';
 
 interface CodeEditorWithAIProps {
   problem: CodingProblem;
@@ -70,11 +71,16 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
   const [language, setLanguage] = useState("python");
   const [apiTemplates, setApiTemplates] = useState<Record<string, string>>({});
 
-  // Custom drag-based resizing (like StudentVideos)
-  const [problemPanelWidth, setProblemPanelWidth] = useState(27); // % width for problem description
-  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(30); // % width for AI chat
+  // Custom performant drag-based CSS var resizing (like StudentVideos)
+  const [problemPanelWidth, setProblemPanelWidth] = useState(22);
+  const [aiChatPanelWidth, setAiChatPanelWidth] = useState(27);
   const [dragMode, setDragMode] = useState<'problem' | 'ai-chat' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragInfo = useRef<{ mode: 'problem' | 'ai-chat' | null; val: number }>({ mode: null, val: 0 });
+  const rafRef = useRef<number | null>(null);
+  // Stable ref so mousemove handler always reads latest values without re-registering
+  const stateRef = useRef({ isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth });
+  stateRef.current = { isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth };
 
   // Hint/Solution state
   const [leftTab, setLeftTab] = useState<'question' | 'hints' | 'solution'>('question');
@@ -116,55 +122,103 @@ const CodeEditorWithAI = forwardRef<CodeEditorWithAIHandle, CodeEditorWithAIProp
     }
   };
 
-  // Custom drag handlers for resizing (like StudentVideos)
-  const startProblemDrag = () => setDragMode('problem');
-  const startAiChatDrag = () => setDragMode('ai-chat');
-  const stopDrag = () => setDragMode(null);
+  const startProblemDrag = () => {
+    setDragMode('problem');
+    dragInfo.current = { mode: 'problem', val: stateRef.current.problemPanelWidth };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  const startAiChatDrag = () => {
+    setDragMode('ai-chat');
+    dragInfo.current = { mode: 'ai-chat', val: stateRef.current.aiChatPanelWidth };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
 
   const COLLAPSE_THRESHOLD = 5;
 
-  const onDrag = (e: MouseEvent) => {
-    if (!dragMode || !containerRef.current) return;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
-    const containerWidth = rect.width;
-
-    if (dragMode === 'problem') {
-      const newWidth = (relativeX / containerWidth) * 100;
-      if (isSidebarCollapsed) {
-        if (relativeX > 40) {
-          setIsSidebarCollapsed(false);
-          setProblemPanelWidth(Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), 50));
-        }
-      } else {
-        if (newWidth < COLLAPSE_THRESHOLD) {
-          setIsSidebarCollapsed(true);
-          setDragMode(null);
-        } else if (newWidth <= 50) {
-          setProblemPanelWidth(newWidth);
-        }
-      }
-    } else if (dragMode === 'ai-chat') {
-      // AI chat resize - calculate from right edge
-      const rightEdgeX = containerWidth - relativeX;
-      const newWidth = (rightEdgeX / containerWidth) * 100;
-      if (newWidth >= 15 && newWidth <= 40) {
-        setAiChatPanelWidth(newWidth);
-      }
-    }
-  };
-
   useEffect(() => {
-    const handleDrag = (e: MouseEvent) => onDrag(e);
-    window.addEventListener("mousemove", handleDrag);
-    window.addEventListener("mouseup", stopDrag);
+    const handleMouseUp = () => {
+      const { mode, val } = dragInfo.current;
+      if (!mode) return;
 
-    return () => {
-      window.removeEventListener("mousemove", handleDrag);
-      window.removeEventListener("mouseup", stopDrag);
+      if (mode === 'problem') setProblemPanelWidth(val);
+      if (mode === 'ai-chat') setAiChatPanelWidth(val);
+
+      dragInfo.current = { mode: null, val: 0 };
+      setDragMode(null);
+      // Release global cursor lock
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [dragMode]);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { mode } = dragInfo.current;
+      if (!mode || !containerRef.current) return;
+
+      if (e.buttons !== 1) {
+        handleMouseUp();
+        return;
+      }
+
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+      rafRef.current = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
+
+        // Read latest state from stable ref — no stale closures
+        const { isSidebarCollapsed, showAiChat, aiChatPanelWidth, problemPanelWidth } = stateRef.current;
+
+        const rect = containerRef.current.getBoundingClientRect();
+        const relativeX = e.clientX - rect.left;
+        const containerWidth = rect.width;
+
+        if (mode === 'problem') {
+          const newWidth = (relativeX / containerWidth) * 100;
+          // Editor must always retain at least 45% width
+          const currentChatWidth = showAiChat ? aiChatPanelWidth : 0;
+          const maxProblemWidth = 100 - currentChatWidth - 40;
+
+          if (isSidebarCollapsed) {
+            if (relativeX > 40) {
+              setIsSidebarCollapsed(false);
+              const clamped = Math.min(Math.max(newWidth, COLLAPSE_THRESHOLD + 1), maxProblemWidth);
+              containerRef.current.style.setProperty('--problem-width', `${clamped}%`);
+              dragInfo.current.val = clamped;
+            }
+          } else {
+            if (newWidth < COLLAPSE_THRESHOLD) {
+              handleMouseUp();
+              setIsSidebarCollapsed(true);
+            } else if (newWidth <= maxProblemWidth) {
+              containerRef.current.style.setProperty('--problem-width', `${newWidth}%`);
+              dragInfo.current.val = newWidth;
+            }
+          }
+        } else if (mode === 'ai-chat') {
+          const rightEdgeX = containerWidth - relativeX;
+          const newWidth = (rightEdgeX / containerWidth) * 100;
+          // Editor must always retain at least 45% width
+          const currentProblemWidth = !isSidebarCollapsed ? problemPanelWidth : 0;
+          const maxChatWidth = 100 - currentProblemWidth - 40;
+          const clampedChatWidth = Math.min(newWidth, maxChatWidth);
+          if (clampedChatWidth >= 15) {
+            containerRef.current.style.setProperty('--chat-width', `${clampedChatWidth}%`);
+            dragInfo.current.val = clampedChatWidth;
+          }
+        }
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []); // stable — state accessed via stateRef, no re-registration needed
 
 
   // Generate a unique session key every time the problem is loaded to start fresh
@@ -243,11 +297,7 @@ ${codeEditorRef.current?.getCode() || ''}
     `.trim();
   };
 
-  const containerClassName = isEditorFullscreen
-    ? (isEmbedded ? 'h-full w-full bg-white relative flex flex-col' : 'h-screen bg-white')
-    : (isEmbedded
-      ? 'h-full w-full flex flex-col box-border bg-slate-50/50 font-sans overflow-hidden p-1.5'
-      : 'flex-1 flex flex-col p-2 box-border bg-slate-50/50 font-sans overflow-hidden');
+  const sharedContainerClass = "h-full flex-1 w-full flex overflow-hidden bg-white font-sans box-border relative";
 
   const handleRevealHint = async () => {
     if (hintToReveal === null) return;
@@ -296,11 +346,10 @@ ${codeEditorRef.current?.getCode() || ''}
           <div className="mb-4">
             <h2 className="text-lg font-bold text-gray-900 leading-snug mb-2">{problem.title}</h2>
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
-                problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
-                problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                'bg-red-50 text-red-700 border-red-200'
-              }`}>{problem.difficulty}</span>
+              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${problem.difficulty?.toLowerCase() === 'easy' ? 'bg-green-50 text-green-700 border-green-200' :
+                  problem.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                    'bg-red-50 text-red-700 border-red-200'
+                }`}>{problem.difficulty}</span>
             </div>
           </div>
 
@@ -387,11 +436,10 @@ ${codeEditorRef.current?.getCode() || ''}
                           setSelectedLanguage(firstLang);
                           setSelectedSolutionIdx(0);
                         }}
-                        className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${
-                          selectedApproach === ap
+                        className={`px-4 py-2 text-xs font-semibold border-b-2 -mb-px transition-all ${selectedApproach === ap
                             ? 'border-indigo-600 text-indigo-600'
                             : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         {approachLabels[ap] || ap}
                       </button>
@@ -410,11 +458,10 @@ ${codeEditorRef.current?.getCode() || ''}
                       <button
                         key={lang}
                         onClick={() => { setSelectedLanguage(lang); setSelectedSolutionIdx(0); }}
-                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
-                          selectedLanguage === lang
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${selectedLanguage === lang
                             ? 'bg-indigo-600 text-white border-indigo-600'
                             : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
-                        }`}
+                          }`}
                       >
                         {String(lang).toUpperCase()}
                       </button>
@@ -481,13 +528,10 @@ ${codeEditorRef.current?.getCode() || ''}
   );
 
   return (
-    <div className={containerClassName}>
-
-
-
+    <>
       {/* 1) Problem-only view (editor hidden) */}
       {showProblemDescription && !editorOpen && !isEditorFullscreen && (
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className={`${sharedContainerClass} flex-col overflow-y-auto custom-scrollbar`}>
           <Card className="rounded-2xl border border-gray-200 shadow-sm bg-white overflow-hidden">
             <CardHeader className="p-8 bg-gray-50/50 border-b border-gray-100">
               <div className="max-w-4xl mx-auto w-full">
@@ -580,11 +624,15 @@ ${codeEditorRef.current?.getCode() || ''}
       {editorOpen && !isEditorFullscreen && (
         <div
           ref={containerRef}
-          className={`flex-1 min-h-0 overflow-hidden flex relative gap-1.5 p-1.5 ${dragMode ? 'select-none' : ''}`}
+          className={`${sharedContainerClass} flex-row ${dragMode ? 'select-none' : ''}`}
+          style={{
+            '--problem-width': showProblemDescription && !isSidebarCollapsed ? `${problemPanelWidth}%` : '0%',
+            '--chat-width': showAiBuddy && showAiChat ? `${aiChatPanelWidth}%` : '0%'
+          } as React.CSSProperties}
         >
           {/* Collapsed Sidebar — vertical tab buttons */}
           {showProblemDescription && isSidebarCollapsed && (
-            <div className="w-9 shrink-0 border border-gray-200 bg-white rounded-xl flex flex-col items-center pt-2 pb-4 gap-1 transition-all shadow-sm overflow-hidden">
+            <div className="w-9 shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 transition-all z-10 overflow-hidden">
               <Button
                 variant="ghost"
                 size="sm"
@@ -613,135 +661,130 @@ ${codeEditorRef.current?.getCode() || ''}
             </div>
           )}
 
-          {/* LEFT PANEL — Tabbed Problem Description */}
-          {showProblemDescription && !isSidebarCollapsed && (
+          {/* LEFT PANEL — Tabbed Problem Description (always mounted for fluid transitions) */}
+          {showProblemDescription && (
             <div
-              className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
-              style={{ width: `calc(${problemPanelWidth}% - 4px)` }}
+              className={`h-full shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
+              style={{ width: `var(--problem-width)` }}
             >
-              <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-xl overflow-hidden">
-                {/* Tab bar with back chevron on the left */}
-                <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onBack}
-                    className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-gray-900 shrink-0"
-                    title="Back to problems"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  {[
-                    { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
-                    { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
-                  ].map((t) => (
-                    <button
-                      key={t.key}
-                      onClick={() => setLeftTab(t.key as any)}
-                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+              {/* Tab bar with back chevron on the left */}
+              <div className="h-10 flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onBack}
+                  className="h-8 w-8 p-0 mr-1 rounded-md text-gray-400 hover:text-gray-900 shrink-0"
+                  title="Back to problems"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                {[
+                  { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                  { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
+                  { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                ].map((t) => (
+                  <button
+                    key={t.key}
+                    onClick={() => setLeftTab(t.key as any)}
+                    className={`h-full flex items-center gap-1.5 px-3 text-xs font-semibold border-b-2 transition-all -mb-px
                         ${leftTab === t.key
-                          ? 'border-indigo-600 text-indigo-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
-                    >
-                      {t.icon}
-                      {t.label}
-                    </button>
-                  ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsSidebarCollapsed(true)}
-                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
-                    title="Collapse"
+                        ? 'border-indigo-600 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                   >
-                    <PanelLeftClose className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                    {t.icon}
+                    {t.label}
+                  </button>
+                ))}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidebarCollapsed(true)}
+                  className="h-8 w-8 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                  title="Collapse"
+                >
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                </Button>
+              </div>
 
-                <div className="flex-1 overflow-hidden p-0 flex">
-                  {renderLeftPanelContent()}
-                </div>
-              </Card>
+              <div className="flex-1 overflow-hidden p-0 flex">
+                {renderLeftPanelContent()}
+              </div>
             </div>
           )}
 
-          {/* PROBLEM RESIZE HANDLE — always visible when problem description is shown */}
+          {/* PROBLEM RESIZE HANDLE */}
           {showProblemDescription && (
             <div
               onMouseDown={(e) => {
                 e.preventDefault();
                 startProblemDrag();
               }}
-              className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+              className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
             >
-              <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+              <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
             </div>
           )}
 
           {/* CENTER PANEL — Editor + Output */}
           <div
-            className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
+            className={`h-full flex-1 flex flex-col bg-white overflow-hidden min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}
           >
-            <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden h-full">
-              <CodeEditor
-                  ref={codeEditorRef}
-                  initialCode={code}
-                  onCodeChange={setCode}
-                  initialLanguage={language}
-                  onLanguageChange={setLanguage}
-                  problemTitle={problem.title}
-                  problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
-                  testCases={problem.test_cases_basic || []}
-                  showTestCases={true}
-                  allowCustomTestCases={true}
-                  showFullscreenButton={true}
-                  showExamplesButton={true}
-                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                  isAiChatOpen={showAiChat}
-                  onFullscreenChange={handleFullscreenChange}
-                  isFullscreen={isEditorFullscreen}
-                  className="h-full"
-                  templates={apiTemplates}
-                  codeSubmissionType={codeSubmissionType}
-                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                />
-            </div>
+            <CodeEditor
+              ref={codeEditorRef}
+              initialCode={code}
+              onCodeChange={setCode}
+              initialLanguage={language}
+              onLanguageChange={setLanguage}
+              problemTitle={problem.title}
+              problemId={problem.id}
+              courseId={course.id}
+              topicId={topic.id}
+              subtopicId={subtopicId}
+              testCases={problem.test_cases_basic || []}
+              showTestCases={true}
+              allowCustomTestCases={true}
+              showFullscreenButton={true}
+              showExamplesButton={true}
+              onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+              isAiChatOpen={showAiChat}
+              onFullscreenChange={handleFullscreenChange}
+              isFullscreen={isEditorFullscreen}
+              className="h-full"
+              templates={apiTemplates}
+              codeSubmissionType={codeSubmissionType}
+              onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+            />
           </div>
 
-          {/* AI CHAT RESIZE HANDLE */}
-          {showAiBuddy && showAiChat && (
+          {/* AI CHAT RESIZE HANDLE (always mounted for fluid transitions) */}
+          {showAiBuddy && (
             <div
               onMouseDown={(e) => {
                 e.preventDefault();
                 startAiChatDrag();
               }}
-              className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+              className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
             >
-              <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+              <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
             </div>
           )}
 
-          {/* RIGHT PANEL — AI Chat */}
-          {showAiBuddy && showAiChat && (
+          {/* RIGHT PANEL — AI Chat (always mounted for fluid transitions) */}
+          {showAiBuddy && (
             <div
-              className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
-              style={{ width: `calc(${aiChatPanelWidth}% - 6px)` }}
+              className={`h-full shrink-0 min-h-0 border-l border-slate-200 bg-white overflow-hidden flex flex-col will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
+              style={{ width: `var(--chat-width)` }}
             >
-              <div className="h-full min-h-0 border border-gray-200 bg-white shadow-sm rounded-2xl overflow-hidden flex flex-col">
-                <AIChatContainer
-                  className="w-full flex-1"
-                  contextGetter={getProblemContext}
-                  welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
-                  persistenceKey={chatSessionId}
-                  chatTitle={`${problem.title} - AI Buddy`}
-                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                  onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
-                />
-              </div>
+              <AIChatContainer
+                className="w-full flex-1 rounded-none border-none shadow-none"
+                style={{ border: "none", boxShadow: "none" }}
+                contextGetter={getProblemContext}
+                welcomeMessage={`Hi! I'm your AI Buddy. Ready to help you with "${problem.title}". Ask me anything!`}
+                persistenceKey={chatSessionId}
+                chatTitle={`${problem.title} - AI Buddy`}
+                onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
+              />
             </div>
           )}
         </div>
@@ -752,11 +795,15 @@ ${codeEditorRef.current?.getCode() || ''}
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col overflow-hidden">
           <div
             ref={containerRef}
-            className={`flex-1 flex overflow-hidden p-1.5 gap-1.5 bg-gray-50 ${dragMode ? 'select-none' : ''}`}
+            className={`flex-1 flex overflow-hidden relative bg-white ${dragMode ? 'select-none' : ''}`}
+            style={{
+              '--problem-width': showProblemDescription && !isSidebarCollapsed ? `${problemPanelWidth}%` : '0%',
+              '--chat-width': showAiBuddy && showAiChat ? `${aiChatPanelWidth}%` : '0%'
+            } as React.CSSProperties}
           >
             {/* Collapsed Left Panel Sidebar Strip */}
             {showProblemDescription && isSidebarCollapsed && (
-              <div className="w-9 shrink-0 border border-gray-200 bg-white rounded-xl flex flex-col items-center pt-2 pb-4 gap-1 transition-all shadow-sm overflow-hidden">
+              <div className="w-9 shrink-0 border-r border-slate-200 bg-white flex flex-col items-center pt-2 pb-4 gap-1 transition-all z-10 overflow-hidden">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -785,54 +832,52 @@ ${codeEditorRef.current?.getCode() || ''}
               </div>
             )}
 
-            {/* Expanded Left Panel — Problem Description */}
-            {showProblemDescription && !isSidebarCollapsed && (
+            {/* Expanded Left Panel — Problem Description (always mounted for fluid transitions) */}
+            {showProblemDescription && (
               <div
-                className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
-                style={{ width: `calc(${problemPanelWidth}% - 4px)` }}
+                className={`h-full shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
+                style={{ width: `var(--problem-width)` }}
               >
-                <Card className="border border-gray-200 shadow-sm bg-white flex flex-col h-full rounded-xl overflow-hidden">
-                  <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFullscreenChange(false)}
-                      className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-red-600 shrink-0"
-                      title="Exit fullscreen"
-                    >
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                    </Button>
-                    {[
-                      { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
-                      { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
-                      { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
-                    ].map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => setLeftTab(t.key as any)}
-                        className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
+                <div className="flex items-center gap-0 px-1 border-b border-gray-200 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFullscreenChange(false)}
+                    className="h-7 w-7 p-0 mr-1 rounded-md text-gray-400 hover:text-red-600 shrink-0"
+                    title="Exit fullscreen"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  {[
+                    { key: 'question', label: 'Description', icon: <BookOpen className="w-3.5 h-3.5" /> },
+                    { key: 'hints', label: `Hints${problem.hints && problem.hints.length > 0 ? ` (${problem.hints.length})` : ''}`, icon: <Lightbulb className="w-3.5 h-3.5" /> },
+                    { key: 'solution', label: 'Solution', icon: <Key className="w-3.5 h-3.5" /> },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setLeftTab(t.key as any)}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 transition-all -mb-px
                           ${leftTab === t.key
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
-                      >
-                        {t.icon}
-                        {t.label}
-                      </button>
-                    ))}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsSidebarCollapsed(true)}
-                      className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
-                      title="Collapse"
+                          ? 'border-indigo-600 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}
                     >
-                      <PanelLeftClose className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                  <div className="flex-1 overflow-hidden p-0 flex">
-                    {renderLeftPanelContent()}
-                  </div>
-                </Card>
+                      {t.icon}
+                      {t.label}
+                    </button>
+                  ))}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className="h-7 w-7 p-0 ml-auto rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 shrink-0"
+                    title="Collapse"
+                  >
+                    <PanelLeftClose className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-hidden p-0 flex">
+                  {renderLeftPanelContent()}
+                </div>
               </div>
             )}
 
@@ -843,73 +888,70 @@ ${codeEditorRef.current?.getCode() || ''}
                   e.preventDefault();
                   startProblemDrag();
                 }}
-                className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+                className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${isSidebarCollapsed ? 'opacity-0 pointer-events-none' : ''}`}
               >
-                <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+                <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
               </div>
             )}
 
             {/* Main Area (Editor + Output) */}
-            <div className={`h-full flex-1 min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>
-              <div className="h-full flex flex-col overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <CodeEditor
-                  ref={codeEditorRef}
-                  initialCode={code}
-                  onCodeChange={setCode}
-                  initialLanguage={language}
-                  onLanguageChange={setLanguage}
-                  problemTitle={problem.title}
-                  problemId={problem.id}
-                  courseId={course.id}
-                  topicId={topic.id}
-                  subtopicId={subtopicId}
-                  testCases={problem.test_cases_basic || []}
-                  showTestCases={true}
-                  allowCustomTestCases={true}
-                  showFullscreenButton={true}
-                  showExamplesButton={true}
-                  onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
-                  isAiChatOpen={showAiChat}
-                  onFullscreenChange={handleFullscreenChange}
-                  isFullscreen={isEditorFullscreen}
-                  className="h-full"
-                  templates={apiTemplates}
-                  codeSubmissionType={codeSubmissionType}
-                  onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
-                />
-              </div>
+            <div className={`h-full flex-1 flex flex-col overflow-hidden bg-white min-w-0 ${dragMode ? 'pointer-events-none' : ''}`}>
+              <CodeEditor
+                ref={codeEditorRef}
+                initialCode={code}
+                onCodeChange={setCode}
+                initialLanguage={language}
+                onLanguageChange={setLanguage}
+                problemTitle={problem.title}
+                problemId={problem.id}
+                courseId={course.id}
+                topicId={topic.id}
+                subtopicId={subtopicId}
+                testCases={problem.test_cases_basic || []}
+                showTestCases={true}
+                allowCustomTestCases={true}
+                showFullscreenButton={true}
+                showExamplesButton={true}
+                onToggleAiChat={showAiBuddy ? handleToggleAiChat : undefined}
+                isAiChatOpen={showAiChat}
+                onFullscreenChange={handleFullscreenChange}
+                isFullscreen={isEditorFullscreen}
+                className="h-full"
+                templates={apiTemplates}
+                codeSubmissionType={codeSubmissionType}
+                onSubmissionComplete={onSubmissionComplete ? (result) => onSubmissionComplete(problem.id, result?.test_results?.success || false, result) : undefined}
+              />
             </div>
 
-            {/* AI Chat Resize Handle */}
-            {showAiBuddy && showAiChat && (
+            {/* AI Chat Resize Handle (always mounted for fluid transitions) */}
+            {showAiBuddy && (
               <div
                 onMouseDown={(e) => {
                   e.preventDefault();
                   startAiChatDrag();
                 }}
-                className="w-3 h-full cursor-col-resize z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity shrink-0 -mx-1.5"
+                className={`w-4 h-full cursor-col-resize z-20 flex items-center justify-center relative group shrink-0 -mx-2 transition-opacity duration-500 ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
               >
-                <div className="w-1 h-8 bg-gray-300 rounded-full shadow-sm" />
+                <div className="w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" />
               </div>
             )}
 
-            {/* AI Chat Sidebar */}
-            {showAiBuddy && showAiChat && (
+            {/* AI Chat Sidebar (always mounted for fluid transitions) */}
+            {showAiBuddy && (
               <div
-                className={`h-full shrink-0 ${dragMode ? 'pointer-events-none' : ''}`}
-                style={{ width: `calc(${aiChatPanelWidth}% - 8px)` }}
+                className={`h-full shrink-0 min-h-0 bg-white border-l border-slate-200 overflow-hidden flex flex-col will-change-[width] ${dragMode ? 'pointer-events-none' : 'transition-[width] duration-500 ease-in-out'} ${!showAiChat ? 'opacity-0 pointer-events-none' : ''}`}
+                style={{ width: `var(--chat-width)` }}
               >
-                <div className="h-full min-h-0 bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden flex flex-col">
-                  <AIChatContainer
-                    className="w-full flex-1"
-                    contextGetter={getProblemContext}
-                    welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
-                    persistenceKey={chatSessionId}
-                    chatTitle={`${problem.title} - AI Buddy`}
-                    onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
-                    onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
-                  />
-                </div>
+                <AIChatContainer
+                  className="w-full flex-1 rounded-none border-none shadow-none"
+                  style={{ border: "none", boxShadow: "none" }}
+                  contextGetter={getProblemContext}
+                  welcomeMessage="I'm active in fullscreen mode! Ask any questions about the problem or your code."
+                  persistenceKey={chatSessionId}
+                  chatTitle={`${problem.title} - AI Buddy`}
+                  onNewChat={() => setChatSessionId(`chat-${problem.id}-${crypto.randomUUID()}`)}
+                  onInsertCode={(code) => codeEditorRef.current?.insertText(code)}
+                />
               </div>
             )}
           </div>
@@ -954,7 +996,7 @@ ${codeEditorRef.current?.getCode() || ''}
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 });
 

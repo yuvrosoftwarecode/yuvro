@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import Navigation from "../../components/common/Navigation";
+import RoleSidebar from "../../components/common/RoleSidebar";
+import EdgeHoverSidebar from "../../components/common/EdgeHoverSidebar";
 import StudentVideos, { LayoutMode } from "./StudentVideos";
 import StudentQuizEmbed from "./StudentQuizEmbed";
 import StudentCodingEmbed from "./StudentCodingEmbed";
@@ -27,6 +28,7 @@ import { Check } from "lucide-react";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { PlayCircle, HelpCircle, StickyNote, Code, BookOpen, Info, CheckCircle2, MonitorPlay, Sparkles } from "lucide-react";
 import { getCourseIconConfig } from "@/utils/CourseIcons";
+import { cn } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
@@ -92,7 +94,8 @@ const CourseDetail: React.FC = () => {
         }
     };
     const [chatSessionId, setChatSessionId] = useState(`course-chat-${courseId}-${crypto.randomUUID()}`);
-    const [rightTab, setRightTab] = useState<'videos' | 'quizzes' | 'coding' | 'materials' | 'my-notes'>('videos');
+    const [rightTab, setRightTab] = useState<'videos' | 'quizzes' | 'coding' | 'materials' | 'notes'>('videos');
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
 
     const [requirements, setRequirements] = useState<{ hasQuiz: boolean; hasCoding: boolean; loaded: boolean }>({
         hasQuiz: false, hasCoding: false, loaded: false
@@ -159,8 +162,8 @@ const CourseDetail: React.FC = () => {
     }, [selectedSubtopic?.id]);
 
     const debouncedProgressUpdate = useCallback(
-        React.useMemo(() => {
-            let timeoutId: NodeJS.Timeout;
+        useMemo(() => {
+            let timeoutId: any;
             return () => {
                 clearTimeout(timeoutId);
                 timeoutId = setTimeout(() => {
@@ -330,9 +333,13 @@ const CourseDetail: React.FC = () => {
     const currentIconConfig = getCourseIconConfig(course?.name || "Course", course?.category || "");
 
     return (
-        <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
-            <Navigation autoHide={true} />
-            <div className="flex flex-1 overflow-hidden relative">
+        <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden relative">
+            <div className="flex flex-1 overflow-hidden relative w-full h-full">
+
+                <EdgeHoverSidebar>
+                    <RoleSidebar className="h-full border-r-0 shadow-2xl" />
+                </EdgeHoverSidebar>
+
                 <CustomContentSidebar
                     courseName={course?.name || "Course"}
                     courseIcon={currentIconConfig.Icon}
@@ -367,21 +374,21 @@ const CourseDetail: React.FC = () => {
                             {[
                                 { key: "videos", label: "Videos", icon: <PlayCircle className="w-4 h-4" /> },
                                 { key: "materials", label: "Materials", icon: <BookOpen className="w-4 h-4" /> },
-                                { key: "my-notes", label: "My Notes", icon: <StickyNote className="w-4 h-4" /> },
+                                { key: "notes", label: "My Notes", icon: <StickyNote className="w-4 h-4" /> },
                                 { key: "quizzes", label: "Quiz", icon: <HelpCircle className="w-4 h-4" /> },
                                 { key: "coding", label: "Coding", icon: <Code className="w-4 h-4" /> }
                             ].map((tab) => (
                                 <button
                                     key={tab.key}
                                     title={!collapsed ? tab.label : ""}
-                                    className={`relative px-3 py-1.5 rounded-full text-xs font-medium flex items-center justify-center gap-2 transition-all duration-300 ${rightTab === tab.key
-                                        ? "bg-slate-900 text-white shadow-md ring-2 ring-slate-100 ring-offset-2"
-                                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-white border border-slate-200"
+                                    className={`relative px-4 py-2 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all duration-300 ${rightTab === tab.key
+                                        ? "bg-slate-800 text-white shadow-md ring-1 ring-slate-300 ring-offset-2"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-700 bg-white border border-slate-200"
                                         }`}
                                     onClick={() => setRightTab(tab.key as any)}
                                 >
                                     {tab.icon}
-                                    <span className={`${!collapsed ? 'hidden' : 'block'} transition-all duration-300`}>
+                                    <span className="transition-all duration-300 whitespace-nowrap">
                                         {tab.label}
                                     </span>
 
@@ -393,7 +400,7 @@ const CourseDetail: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-4 ml-4 mr-6">
-                            <Dialog>
+                            <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
                                 <DialogTrigger asChild>
                                     <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Course Guide">
                                         <Info className="w-5 h-5" />
@@ -498,26 +505,26 @@ const CourseDetail: React.FC = () => {
                                                     </p>
 
                                                     <div className="space-y-3 mt-4">
-                                                        <div className="flex gap-3 p-3 border border-blue-100 bg-blue-50/50 rounded-xl">
+                                                        <div className="flex gap-3 p-3 border border-blue-100 bg-blue-50/50 rounded-xl cursor-pointer hover:bg-blue-100/50 transition-colors" onClick={() => { setRightTab("materials"); setIsHelpOpen(false); }}>
                                                             <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                                             <div>
-                                                                <h4 className="font-semibold text-blue-900 text-sm">Materials</h4>
+                                                                <h4 className="font-semibold text-blue-900 text-sm">Course Materials</h4>
                                                                 <p className="text-xs text-blue-800 mt-1">Official notes and cheat sheets provided by the instructor. These are read-only references.</p>
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex gap-3 p-3 border border-yellow-100 bg-yellow-50/50 rounded-xl">
+                                                        <div className="flex gap-3 p-3 border border-yellow-100 bg-yellow-50/50 rounded-xl cursor-pointer hover:bg-yellow-100/50 transition-colors" onClick={() => { setRightTab("notes"); setIsHelpOpen(false); }}>
                                                             <StickyNote className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                                                             <div>
-                                                                <h4 className="font-semibold text-yellow-900 text-sm">My Notes</h4>
+                                                                <h4 className="font-semibold text-yellow-900 text-sm">Personal Notes</h4>
                                                                 <p className="text-xs text-yellow-800 mt-1">Your personal digital notebook. Write, edit, and save your own key takeaways here.</p>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     <div className="mt-4 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 flex items-center gap-2">
-                                                        <MonitorPlay className="w-4 h-4" />
-                                                        <span><strong>Tip:</strong> Use "Split View" to read materials and write notes simultaneously!</span>
+                                                        <Sparkles className="w-4 h-4 text-indigo-500" />
+                                                        <span><strong>Tip:</strong> Open the AI Buddy in either tab to get instant summaries or help with your notes!</span>
                                                     </div>
                                                 </TabsContent>
                                             </ScrollArea>
@@ -699,7 +706,7 @@ const CourseDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className={(rightTab === "coding" || rightTab === "videos" || rightTab === "materials" || rightTab === "my-notes" || rightTab === "quizzes") ? "flex-1 overflow-hidden flex flex-col" : "p-6 flex-1 overflow-y-auto"}>
+                    <div className={(rightTab === "coding" || rightTab === "videos" || rightTab === "materials" || rightTab === "notes" || rightTab === "quizzes") ? "flex-1 overflow-hidden flex flex-col" : "p-6 flex-1 overflow-y-auto"}>
                         {!selectedSubtopic ? (
                             <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
                                 <div className="text-lg font-medium mb-2">Select a subtopic on the left</div>
@@ -736,7 +743,7 @@ const CourseDetail: React.FC = () => {
                                     />
                                 )}
                                 {rightTab === "materials" && <StudentNotes subtopicId={selectedSubtopic.id} mode="materials" />}
-                                {rightTab === "my-notes" && <StudentNotes subtopicId={selectedSubtopic.id} mode="my-notes" />}
+                                {rightTab === "notes" && <StudentNotes subtopicId={selectedSubtopic.id} mode="notes" />}
 
                             </>
                         )}

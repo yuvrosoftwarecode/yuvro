@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CheckCircle2, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { getCourseIconConfig } from '@/utils/CourseIcons';
@@ -288,7 +288,11 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
                               title={subtopic.title}
                             >
                               <TruncatedText text={subtopic.title} className="text-sm truncate min-w-0" />
-                              {isRead && <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />}
+                              {isRead ? (
+                                <CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                              )}
                             </button>
                           );
                         })}
@@ -326,6 +330,7 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
             ) : (
               collapsedActiveSubtopics.map((subtopic) => {
                 const isSelected = selectedTopic === subtopic.id;
+                const isRead = !!readMap[subtopic.id];
                 return (
                   <button
                     key={subtopic.id}
@@ -334,12 +339,17 @@ const CustomContentSidebar: React.FC<CustomContentSidebarProps> = ({
                       setCollapsedFlyoutTopicId(null);
                     }}
                     className={cn(
-                      'w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center',
+                      'w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-between gap-2',
                       isSelected ? 'bg-slate-100 text-accent-foreground' : 'hover:bg-slate-100 hover:text-accent-foreground',
                     )}
                     title={subtopic.title}
                   >
                     <TruncatedText text={subtopic.title} className="text-sm truncate min-w-0" />
+                    {isRead ? (
+                      <CheckCircle2 className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                    )}
                   </button>
                 );
               })

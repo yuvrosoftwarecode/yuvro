@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navigation from '../../components/common/Navigation';
+import DashboardLayout from '@/components/common/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -303,22 +303,20 @@ const ContestDetail: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <Navigation />
+            <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
                 <div className="max-w-6xl mx-auto px-6 py-12">
                     <div className="animate-pulse space-y-6">
                         <div className="h-8 bg-gray-200 rounded w-1/3"></div>
                         <div className="h-64 bg-gray-200 rounded-xl"></div>
                     </div>
                 </div>
-            </div>
+            </DashboardLayout>
         );
     }
 
     if (!contest) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <Navigation />
+            <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
                 <div className="max-w-6xl mx-auto px-6 py-12 text-center">
                     <AlertCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Contest Not Found</h2>
@@ -328,7 +326,7 @@ const ContestDetail: React.FC = () => {
                         Back to Contests
                     </Button>
                 </div>
-            </div>
+            </DashboardLayout>
         );
     }
 
@@ -340,8 +338,7 @@ const ContestDetail: React.FC = () => {
     const isRegistrationOpen = registrationInfo.state === 'open' || registrationInfo.state === 'late_entry';
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Navigation />
+        <DashboardLayout hideHeader={true} hideFooter={true} contentClassName="bg-gray-50">
 
             {/* Profile Requirements Modal */}
             <Dialog open={showProfileHelpModal} onOpenChange={setShowProfileHelpModal}>
@@ -766,7 +763,7 @@ const ContestDetail: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 };
 
