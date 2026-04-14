@@ -36,9 +36,9 @@ const EdgeHoverSidebar: React.FC<EdgeHoverSidebarProps> = ({ children }) => {
 
     return (
         <>
-            {/* Edge-Hover Trigger Zone */}
+            {/* Edge-Hover Trigger Zone — only around the grip handle, not full height */}
             <div 
-                className="absolute top-0 left-0 w-6 h-full z-[105] flex items-center group/trigger cursor-pointer"
+                className="absolute top-1/2 -translate-y-1/2 left-0 w-6 h-20 z-[105] flex items-center group/trigger cursor-pointer"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >

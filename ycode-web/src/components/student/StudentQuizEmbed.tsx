@@ -79,28 +79,29 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
   const handleSubmit = () => {
     if (selectedOption === null) return;
 
-    const isCorrect = selectedOption === currentQuiz.correct_answer_index;
-    const updatedScore = isCorrect ? score + 1 : score;
-    setScore(updatedScore);
-
-    setUserAnswers((prev) => ({
-      ...prev,
-      [currentIndex]: selectedOption,
-    }));
-
+    const updatedAnswers = { ...userAnswers, [currentIndex]: selectedOption };
+    setUserAnswers(updatedAnswers);
     setSubmitted(true);
 
     if (currentIndex === quizzes.length - 1) {
-      const percentage = (updatedScore / quizzes.length) * 100;
+      // Recalculate score from all answers to avoid stale accumulation
+      const finalScore = quizzes.reduce((acc, q, idx) => {
+        return updatedAnswers[idx] === q.correct_answer_index ? acc + 1 : acc;
+      }, 0);
+      setScore(finalScore);
+
+      const percentage = (finalScore / quizzes.length) * 100;
       const passed = percentage >= 70;
       if (passed) setIsPassed(true);
 
-      submitQuiz(subtopicId, { ...userAnswers, [currentIndex]: selectedOption }, percentage, passed)
-        .then(() => {
-          if (onComplete) onComplete(true);
-        })
+      submitQuiz(subtopicId, updatedAnswers, percentage, passed)
+        .then(() => { if (onComplete) onComplete(true); })
         .catch(err => console.error("Failed to submit quiz", err));
       setQuizCompleted(true);
+    } else {
+      // Update running score for display purposes only
+      const isCorrect = selectedOption === currentQuiz.correct_answer_index;
+      setScore(prev => isCorrect ? prev + 1 : prev);
     }
   };
 
@@ -148,7 +149,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
     return (
       <div className="h-full flex flex-col items-center justify-center bg-gray-50 font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-saffron-600/20 border-t-saffron-600 rounded-full animate-spin" />
           <p className="text-gray-400 font-medium">Preparing your assessment...</p>
         </div>
       </div>
@@ -193,7 +194,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
               <RotateCcw className="h-4 w-4 mr-2" /> Retake quiz
             </Button>
             {isPassed && onComplete && (
-              <Button onClick={() => onComplete(true)} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 shadow-lg shadow-indigo-200/50 font-bold text-sm transition-all active:scale-95">
+              <Button onClick={() => onComplete(true)} className="flex-1 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl h-12 shadow-lg shadow-saffron-200/50 font-bold text-sm transition-all active:scale-95">
                 Next lesson
               </Button>
             )}
@@ -210,30 +211,18 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
       {/* Ultra-Minimal Progress Bar */}
       <div className="h-1 w-full bg-gray-200 shrink-0 overflow-hidden">
         <div 
-          className="h-full bg-indigo-600 transition-all duration-700 ease-out shadow-[0_0_8px_rgba(79,70,229,0.4)]"
-          style={{ width: `${((currentIndex + 1) / quizzes.length) * 100}%` }}
+          className="h-full bg-saffron-600 shadow-[0_0_8px_rgba(255,128,0,0.4)]"
+          style={{ width: `${((currentIndex + 1) / quizzes.length) * 100}%`, transition: currentIndex > 0 ? 'width 700ms ease-out' : 'none' }}
         />
       </div>
 
       {/* Flush Minimal Header (Notes Style) */}
       <div className="px-6 py-5 flex justify-between items-center shrink-0 bg-white border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <BrainCircuit className="w-5 h-5 text-indigo-600" />
+          <BrainCircuit className="w-5 h-5 text-saffron-600" />
           <div>
             <h2 className="text-base font-bold text-gray-900 leading-tight">Learn quiz</h2>
             <p className="text-[11px] font-medium text-gray-400">Question {currentIndex + 1} of {quizzes.length}</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-6">
-          <div className="text-right">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Accuracy</p>
-            <p className="text-sm font-bold text-indigo-600 leading-none">{Math.round((score / quizzes.length) * 100)}%</p>
-          </div>
-          <div className="h-4 w-px bg-slate-100" />
-          <div className="flex items-center gap-2">
-            <Target className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="text-sm font-bold text-gray-900 tabular-nums">{score} / {quizzes.length}</span>
           </div>
         </div>
       </div>
@@ -275,9 +264,9 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
                     buttonClass += "border-gray-50 opacity-40";
                   }
                 } else if (isSelected) {
-                  buttonClass += "border-indigo-600 bg-indigo-50/30 text-indigo-900 ring-4 ring-indigo-50 shadow-md transform -translate-y-0.5";
+                  buttonClass += "border-saffron-600 bg-saffron-50/30 text-saffron-900 ring-4 ring-saffron-50 shadow-md transform -translate-y-0.5";
                 } else {
-                  buttonClass += "border-gray-100 bg-white hover:border-indigo-200 hover:bg-slate-50 text-gray-700 hover:shadow-sm";
+                  buttonClass += "border-gray-100 bg-white hover:border-saffron-200 hover:bg-slate-50 text-gray-700 hover:shadow-sm";
                 }
 
                 return (
@@ -288,10 +277,10 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
                     onClick={() => !submitted && setSelectedOption(index)}
                   >
                     <div className="flex items-center gap-5 w-full relative z-10">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border-2 font-bold text-xs transition-all duration-300 ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100/50' : 'border-gray-100 bg-gray-50 text-gray-400 group-hover:border-indigo-200 group-hover:text-indigo-500'}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border-2 font-bold text-xs transition-all duration-300 ${isSelected ? 'bg-saffron-600 border-saffron-600 text-white shadow-lg shadow-saffron-100/50' : 'border-gray-100 bg-gray-50 text-gray-400 group-hover:border-saffron-200 group-hover:text-saffron-500'}`}>
                         {String.fromCharCode(65 + index)}
                       </div>
-                      <span className={`flex-1 text-[15px] font-bold tracking-tight transition-colors ${isSelected ? 'text-indigo-900' : 'text-gray-700'}`}>{opt}</span>
+                      <span className={`flex-1 text-[15px] font-bold tracking-tight transition-colors ${isSelected ? 'text-saffron-900' : 'text-gray-700'}`}>{opt}</span>
                       {submitted && isSelected && (
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold shadow-sm ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                           {isCorrect ? "✓" : "✗"}
@@ -338,7 +327,7 @@ const StudentQuizEmbed = ({ subtopicId, onComplete }: StudentQuizEmbedProps) => 
           </Button>
 
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 px-10 shadow-lg shadow-indigo-200/50 font-bold transition-all active:scale-95 text-sm"
+            className="bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl h-12 px-10 shadow-lg shadow-saffron-200/50 font-bold transition-all active:scale-95 text-sm"
             disabled={selectedOption === null || animating}
             onClick={handleSubmit}
           >

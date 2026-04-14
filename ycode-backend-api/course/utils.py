@@ -201,17 +201,15 @@ class CodeExecutionUtil:
         Returns:
             StudentCodePractice: The created or updated practice record
         """
-        practice_record, created = StudentCodePractice.objects.get_or_create(
+        practice_record = StudentCodePractice.objects.create(
             user=user,
             question=question,
             context=context,
-            defaults={
-                "course": course or question.course,
-                "topic": topic
-                or question.topic
-                or (question.subtopic.topic if question.subtopic else None),
-                "status": StudentCodePractice.STATUS_SUBMITTED,
-            },
+            course=course or question.course,
+            topic=topic
+            or question.topic
+            or (question.subtopic.topic if question.subtopic else None),
+            status=StudentCodePractice.STATUS_SUBMITTED,
         )
 
         practice_record.answer_latest = {
@@ -231,8 +229,11 @@ class CodeExecutionUtil:
                 practice_record.marks_obtained = (
                     passed_tests_count / total_tests_count
                 ) * 100
-                if passed_tests_count == total_tests_count:
-                    practice_record.status = StudentCodePractice.STATUS_COMPLETED
+            practice_record.status = (
+                StudentCodePractice.STATUS_COMPLETED
+                if passed_tests_count == total_tests_count and total_tests_count > 0
+                else StudentCodePractice.STATUS_SUBMITTED
+            )
 
         if not practice_record.answer_history:
             practice_record.answer_history = []

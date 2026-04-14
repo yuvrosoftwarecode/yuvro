@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { getCourseIconConfig, getPastelStyle } from "@/utils/CourseIcons";
 
 interface LearnCourseCardProps {
@@ -32,8 +32,8 @@ const BG_TO_GRADIENT: Record<string, { from: string; to: string }> = {
   "bg-rose-500":    { from: "#F43F5E", to: "#FB7185" }, // Energetic Rose/Red-Pink
   // Cyans / Indigos
   "bg-cyan-500":    { from: "#06B6D4", to: "#3B82F6" },
-  "bg-indigo-500":  { from: "#6366F1", to: "#A855F7" },
-  "bg-indigo-600":  { from: "#4F46E5", to: "#06B6D4" }, // Pro Technical Indigo to Cyan
+  "bg-saffron-500":  { from: "#6366F1", to: "#A855F7" },
+  "bg-saffron-600":  { from: "#4F46E5", to: "#06B6D4" }, // Pro Technical Indigo to Cyan
   "bg-sky-500":     { from: "#0EA5E9", to: "#3B82F6" },
   // Yellows
   "bg-yellow-400":  { from: "#FACC15", to: "#F59E0B" },

@@ -21,7 +21,7 @@ const MaterialsView = ({
     {showHeader && (
       <div className="flex items-center justify-between mb-4 shrink-0 px-1">
         <div className="flex items-center gap-3 text-gray-900 font-bold tracking-tight font-sans">
-          <BookOpen className="w-5 h-5 text-indigo-600" />
+          <BookOpen className="w-5 h-5 text-saffron-600" />
           <h2 className="text-base">Study materials</h2>
         </div>
         {actions}
@@ -37,7 +37,7 @@ const MaterialsView = ({
       ) : (
         <div className="space-y-4">
           {materials.map((note) => (
-            <Card key={note.id} className="border-l-4 border-l-indigo-600 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all">
+            <Card key={note.id} className="border-l-4 border-l-saffron-600 shadow-sm rounded-xl overflow-hidden border-y border-r border-gray-100 bg-white hover:shadow-md transition-all">
               <CardContent className="p-5 whitespace-pre-wrap text-[15px] leading-relaxed text-gray-700 font-sans">
                 {note.content}
               </CardContent>
@@ -84,7 +84,7 @@ const MyNotesView = ({
     {showHeader && (
       <div className="flex items-center justify-between mb-4 shrink-0 px-1">
         <div className="flex items-center gap-3 text-gray-900 font-bold tracking-tight font-sans">
-          <StickyNote className="w-5 h-5 text-indigo-600" />
+          <StickyNote className="w-5 h-5 text-saffron-600" />
           <h2 className="text-base">Personal notes</h2>
         </div>
         {actions}
@@ -96,21 +96,21 @@ const MyNotesView = ({
         {/* Create Note Section */}
         <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-inner space-y-4">
           <h3 className="font-bold text-gray-900 text-[11px] uppercase tracking-widest ml-1 flex items-center gap-2 font-sans opacity-70">
-            <Plus className="w-3.5 h-3.5 text-indigo-600" />
+            <Plus className="w-3.5 h-3.5 text-saffron-600" />
             Add new note
           </h3>
           <Textarea
             placeholder="Write your key takeaways here..."
             value={newNoteContent}
             onChange={(e) => setNewNoteContent(e.target.value)}
-            className="min-h-[120px] bg-white focus:bg-white transition-all resize-none rounded-xl border-gray-100 focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50 shadow-sm font-sans placeholder:text-gray-300"
+            className="min-h-[120px] bg-white focus:bg-white transition-all resize-none rounded-xl border-gray-100 focus:border-saffron-200 focus:ring-4 focus:ring-saffron-50 shadow-sm font-sans placeholder:text-gray-300"
           />
           <div className="flex justify-end">
             <Button
               onClick={handleCreateNote}
               disabled={!newNoteContent.trim() || isCreating}
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8 h-10 gap-2 shadow-lg shadow-indigo-200/50 active:scale-95 transition-all font-bold text-sm font-sans"
+              className="bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl px-8 h-10 gap-2 shadow-lg shadow-saffron-200/50 active:scale-95 transition-all font-bold text-sm font-sans"
             >
               <Plus className="w-4 h-4" />
               {isCreating ? "Saving..." : "Save note"}
@@ -127,7 +127,7 @@ const MyNotesView = ({
             </div>
           ) : (
             myNotes.map((note) => (
-              <Card key={note.id} className="group hover:border-indigo-100 transition-all shadow-sm hover:shadow-md rounded-xl border-gray-100 overflow-hidden bg-white">
+              <Card key={note.id} className="group hover:border-saffron-100 transition-all shadow-sm hover:shadow-md rounded-xl border-gray-100 overflow-hidden bg-white">
                 <CardContent className="p-5">
                   {editingNoteId === note.id ? (
                     <div className="space-y-3">
@@ -156,7 +156,7 @@ const MyNotesView = ({
                             variant="ghost"
                             size="icon"
                             onClick={() => startEditing(note)}
-                            className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8 rounded-lg"
+                            className="text-gray-400 hover:text-saffron-600 hover:bg-saffron-50 h-8 w-8 rounded-lg"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
@@ -171,7 +171,7 @@ const MyNotesView = ({
                         </div>
                       </div>
                       <div className="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest border-t border-gray-50 pt-3 flex items-center gap-1.5 font-sans opacity-70">
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-100" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-saffron-100" />
                         {new Date(note.created_at || "").toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
                     </>
@@ -364,7 +364,7 @@ ${myNotesText || "No personal notes yet."}
     return (
       <div className="h-full flex items-center justify-center p-12 bg-white font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-saffron-600/20 border-t-saffron-600 rounded-full animate-spin" />
           <p className="text-gray-400 font-medium">Loading your materials...</p>
         </div>
       </div>
@@ -378,9 +378,9 @@ ${myNotesText || "No personal notes yet."}
       onClick={() => setShowAiChat(!showAiChat)}
       variant="outline"
       size="sm"
-      className={`gap-2 rounded-xl border transition-all font-sans font-bold text-sm h-10 px-5 ${showAiChat ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200/50" : "bg-white text-indigo-700 border-indigo-100 hover:bg-indigo-50 shadow-sm"}`}
+      className={`gap-2 rounded-xl border transition-all font-sans font-bold text-sm h-10 px-5 ${showAiChat ? "bg-saffron-600 text-white border-saffron-600 shadow-lg shadow-saffron-200/50" : "bg-white text-saffron-700 border-saffron-100 hover:bg-saffron-50 shadow-sm"}`}
     >
-      <Sparkles className={`w-4 h-4 ${showAiChat ? "text-white" : "text-indigo-500"}`} />
+      <Sparkles className={`w-4 h-4 ${showAiChat ? "text-white" : "text-saffron-500"}`} />
       AI Buddy
     </Button>
   );
@@ -444,7 +444,7 @@ ${myNotesText || "No personal notes yet."}
           className={`absolute top-0 bottom-0 -left-2 w-4 cursor-col-resize z-50 flex items-center justify-center group transition-opacity duration-300 ${showAiChat ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           {/* PILL SHAPE GRIP HANDLE (only visible on hover/drag) */}
-          <div className={`w-1.5 h-10 bg-indigo-500 rounded-full transition-all duration-200 shadow-sm ${isResizing ? 'opacity-100 scale-y-110' : 'opacity-0 group-hover:opacity-100'}`} />
+          <div className={`w-1.5 h-10 bg-saffron-500 rounded-full transition-all duration-200 shadow-sm ${isResizing ? 'opacity-100 scale-y-110' : 'opacity-0 group-hover:opacity-100'}`} />
         </div>
 
         <div className="h-full bg-white flex flex-col overflow-hidden">

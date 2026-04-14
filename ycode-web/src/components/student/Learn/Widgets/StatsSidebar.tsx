@@ -75,7 +75,7 @@ const StatsSidebar: React.FC<StatsSidebarProps> = ({
   };
 
   return (
-    <aside className="w-full flex-shrink-0 flex flex-col h-full bg-white rounded-lg border border-gray-100 shadow z-30 overflow-hidden">
+    <aside className="w-full flex-shrink-0 flex flex-col h-full z-30 overflow-hidden">
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto thin-scrollbar p-3 space-y-3">

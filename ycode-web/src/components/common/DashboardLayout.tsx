@@ -34,7 +34,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     footerLinks
 }) => {
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-50 relative">
+        <div className="flex h-screen overflow-hidden bg-background relative">
             <RoleSidebar className={`flex-shrink-0 ${sidebarClassName}`} />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">

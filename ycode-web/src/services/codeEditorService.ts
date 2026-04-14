@@ -201,7 +201,7 @@ class CodeEditorService {
         code: response.code || request.code,
         language: response.language || request.language,
         status: response.status || 'completed',
-        output: response.output || '',
+        output: response.output || response.execution_output || '',
         error_message: response.error_message || '',
         execution_time: response.execution_time || 0,
         memory_usage: response.memory_usage || 0,
@@ -233,25 +233,44 @@ class CodeEditorService {
   }
 
   async getSubmissions(codingProblemId?: string, submissionType: string = 'code_practice'): Promise<CodeSubmission[]> {
-    const params = codingProblemId ? { coding_problem_id: codingProblemId } : undefined;
-
     let endpoint = '';
     switch (submissionType) {
+      case 'learn':
       case 'code_practice':
+        // Both learn and practice submissions are stored in student-code-practices
         endpoint = '/course/student-code-practices/';
         break;
       case 'skill_test':
         endpoint = '/assessment/skill-test/submissions/';
         break;
       case 'contest':
-        endpoint = '/assessment/contests/submissions/';
+        // Note: singular 'contest' not 'contests' — matches contestService.ts
+        endpoint = '/assessment/contest/submissions/';
         break;
       case 'mock_interview':
-        endpoint = '/assessment/mock-interviews/submissions/';
+        // Mock interview submissions are nested under the interview ID
+        // but we can't know the interview ID here, so fall back to code practices
+        endpoint = '/course/student-code-practices/';
         break;
     }
 
-    return restApiAuthUtil.get(endpoint, { params });
+    const params: any = codingProblemId ? { question_id: codingProblemId } : {};
+
+    // Isolate submissions by passing the context to the backend.
+    if (endpoint === '/course/student-code-practices/') {
+      // Backend stores practice submissions with context='practice' instead of 'code_practice'
+      params.context = submissionType === 'learn' ? 'learn' : (submissionType === 'code_practice' ? 'practice' : submissionType);
+    }
+
+    try {
+      const response: any = await restApiAuthUtil.get(endpoint, Object.keys(params).length > 0 ? { params } : undefined);
+      console.log('[codeEditorService] getSubmissions raw response:', response);
+      const arr = Array.isArray(response) ? response : (response?.results ?? response?.data ?? []);
+      return arr;
+    } catch (err) {
+      console.error('[codeEditorService] getSubmissions failed:', err);
+      return [];
+    }
   }
 
   async getSubmission(id: number, submissionType: string = 'code_practice'): Promise<CodeSubmission> {
@@ -264,7 +283,7 @@ class CodeEditorService {
         endpoint = `/assessment/skill-test/submissions/${id}/`;
         break;
       case 'contest':
-        endpoint = `/assessment/contests/submissions/${id}/`;
+        endpoint = `/assessment/contest/submissions/${id}/`;
         break;
       case 'mock_interview':
         endpoint = `/assessment/mock-interviews/submissions/${id}/`;
@@ -272,8 +291,22 @@ class CodeEditorService {
       default:
         endpoint = `/course/student-code-practices/${id}/`;
     }
-
     return restApiAuthUtil.get(endpoint);
+  }
+
+  /** Fetches the full submission and normalises the code field from multiple possible API keys */
+  async getFullSubmission(id: number): Promise<CodeSubmission> {
+    const raw: any = await restApiAuthUtil.get(`/course/student-code-practices/${id}/`);
+    console.log('[codeEditorService] getFullSubmission raw keys:', Object.keys(raw), raw);
+    return {
+      ...raw,
+      code: raw.code || raw.answer_latest?.code || raw.source_code || raw.submitted_code || raw.user_code || raw.solution_code || '',
+      language: raw.language || raw.answer_latest?.language || raw.lang || '',
+    };
+  }
+
+  async deletePracticeSubmission(id: number): Promise<void> {
+    return restApiAuthUtil.delete(`/course/student-code-practices/${id}/`);
   }
 
   async getSupportedLanguagesAndTemplates(): Promise<any> {

@@ -65,6 +65,31 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     loadCodingQuestions();
   }, [subtopicId]);
 
+  // Pre-populate solvedMap from existing submissions
+  useEffect(() => {
+    if (questions.length === 0) return;
+    const fetchSolvedStatus = async () => {
+      try {
+        const questionIds = questions.map(q => q.id);
+        const response: any = await restApiAuthUtil.get('/course/student-code-practices/', {
+          params: { context: codeSubmissionType === 'learn' ? 'learn' : 'practice' }
+        });
+        const submissions: any[] = Array.isArray(response) ? response : (response?.results ?? []);
+        const solved: Record<string, boolean> = {};
+        submissions.forEach((s: any) => {
+          const qId = s.question_id || s.question;
+          if (questionIds.includes(qId) && s.status === 'completed') {
+            solved[qId] = true;
+          }
+        });
+        setSolvedMap(prev => ({ ...prev, ...solved }));
+      } catch (err) {
+        console.error('Failed to fetch solved status', err);
+      }
+    };
+    fetchSolvedStatus();
+  }, [questions, codeSubmissionType]);
+
   useEffect(() => {
     if (questions.length > 0) {
       const allSolved = questions.every(q => solvedMap[q.id]);
@@ -75,7 +100,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
     } else if (!loading && questions.length === 0) {
       if (onComplete) onComplete(true);
     }
-  }, [solvedMap, questions, loading, onComplete]);
+  }, [solvedMap, questions, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCodingQuestions = async () => {
     setLoading(true);
@@ -106,8 +131,8 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
 
   const handleSubmissionComplete = async (problemId: string, success: boolean, submissionResult?: any) => {
     if (success) {
-      const submissionKey = `${problemId}-${success}`;
-      if (processedSubmissions.current.has(submissionKey)) return;
+      // Use timestamp so re-submissions of the same problem are always processed
+      const submissionKey = `${problemId}-${Date.now()}`;
 
       const newSolvedMap = { ...solvedMap, [problemId]: true };
       setSolvedMap(newSolvedMap);
@@ -131,7 +156,6 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
           if (onComplete) onComplete(true);
         } catch (error) {
           console.error('Failed to update coding progress:', error);
-          processedSubmissions.current.delete(submissionKey);
         }
       }
     }
@@ -165,7 +189,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
       <div className="flex-1 flex flex-col p-6 overflow-hidden font-sans">
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-saffron-600/20 border-t-saffron-600 rounded-full animate-spin" />
             <p className="text-gray-400 font-medium">Initializing coding environment...</p>
           </div>
         </div>
@@ -194,27 +218,16 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
           {/* Header */}
           <div className="mb-6 flex justify-between items-center shrink-0 px-2">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200/50">
+              <div className="w-10 h-10 rounded-xl bg-saffron-600 flex items-center justify-center shadow-lg shadow-saffron-200/50">
                 <Code className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest mb-1 opacity-70">Logic Lab</p>
                 <h2 className="text-base font-bold text-gray-900 tracking-tight leading-none">Programming exercises</h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-8">
-              <div className="text-right hidden sm:block">
-                <div className="flex items-center gap-2 justify-end mb-1.5">
-                  <Target className="w-3.5 h-3.5 text-indigo-500" />
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Completion</p>
-                </div>
-                <p className="text-sm font-bold text-indigo-600 leading-none">
-                  {Math.round((Object.keys(solvedMap).length / questions.length) * 100)}%
-                </p>
-              </div>
-              <div className="h-10 w-[1px] bg-gray-100 hidden sm:block" />
-              <Badge variant={isCompleted ? "default" : "outline"} className={`rounded-xl px-5 py-2 font-bold transition-all border-none ${isCompleted ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50' : 'bg-slate-100 text-slate-600'}`}>
+            <div className="flex items-center gap-4">
+              <Badge variant={isCompleted ? "default" : "outline"} className={`rounded-xl px-5 py-2 font-bold transition-all border-none ${isCompleted ? 'bg-saffron-600 text-white shadow-lg shadow-saffron-200/50' : 'bg-slate-100 text-slate-600'}`}>
                 {isCompleted ? (
                   <span className="flex items-center gap-1.5 text-xs"><Sparkles className="w-3.5 h-3.5" /> All solved</span>
                 ) : (
@@ -239,7 +252,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
                       {/* Top Row: Layout without Icon */}
                       <div className="flex flex-col gap-3">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-[15px] font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                          <h3 className="text-[15px] font-bold text-gray-900 leading-tight group-hover:text-saffron-600 transition-colors">
                             {question.title || `Exercise ${index + 1}`}
                           </h3>
                           <div className="shrink-0">
@@ -251,7 +264,7 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
                         
                         <div className="flex items-center gap-3">
                           <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5 opacity-70">
-                            <BrainCircuit className="w-4 h-4 text-indigo-500" /> {question.marks ?? 100} pts
+                            <BrainCircuit className="w-4 h-4 text-saffron-500" /> {question.marks ?? 100} pts
                           </p>
                         </div>
                       </div>
@@ -259,13 +272,13 @@ const StudentCodingEmbed = ({ subtopicId, onComplete, codeSubmissionType = 'prac
                       {/* Bottom Row: Progress Indicator */}
                       <div className="mt-6 flex items-center justify-between">
                         {isSolved ? (
-                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-saffron-600 uppercase tracking-widest bg-saffron-50 px-3 py-1 rounded-full">
                             <CheckCircle className="w-3.5 h-3.5" /> Solved
                           </div>
                         ) : (
                           <div className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Not started</div>
                         )}
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all transform group-hover:translate-x-1 ${isSolved ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200/50' : 'bg-slate-50 text-slate-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-200/50'}`}>
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all transform group-hover:translate-x-1 ${isSolved ? 'bg-saffron-600 text-white shadow-lg shadow-saffron-200/50' : 'bg-slate-50 text-slate-300 group-hover:bg-saffron-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-saffron-200/50'}`}>
                           <ChevronRight className="w-5 h-5" />
                         </div>
                       </div>

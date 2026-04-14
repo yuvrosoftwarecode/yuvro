@@ -712,7 +712,6 @@ class StudentCodePractice(BaseTimestampedModel):
 
     class Meta:
         ordering = ["-created_at"]
-        unique_together = ["user", "question", "context"]
 
     def __str__(self):
         language = (

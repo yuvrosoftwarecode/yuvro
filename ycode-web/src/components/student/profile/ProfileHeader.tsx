@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Camera, MapPin, Calendar, Star, Edit, Upload } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       {/* Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+      <div className="relative h-64 bg-gradient-to-r from-saffron-start to-saffron-end">
         {coverPic && (
           <img
             src={coverPic}
@@ -61,7 +61,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   {profilePic ? (
                     <AvatarImage src={profilePic} alt="Profile" />
                   ) : (
-                    <AvatarFallback className="text-4xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                    <AvatarFallback className="text-4xl bg-gradient-to-r from-saffron-start to-saffron-end text-white">
                       {profile.full_name
                         ?.split(" ")
                         .map((n: string) => n[0])
@@ -77,7 +77,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   accept="image/*"
                   onChange={onProfilePicUpload}
                 />
-                <div className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-colors">
+                <div className="bg-saffron-600 hover:bg-saffron-700 text-white p-3 rounded-full shadow-lg transition-colors">
                   <Camera className="w-5 h-5" />
                 </div>
               </label>
@@ -123,14 +123,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="mt-8 lg:mt-0 flex space-x-3">
             <Button
               onClick={onEditClick}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-lg transition-colors"
+              className="bg-saffron-600 hover:bg-saffron-700 text-white px-6 py-3 rounded-lg shadow-lg transition-colors"
             >
               <Edit className="h-5 w-5 mr-2" />
               Edit Profile
             </Button>
             <Button
               variant="outline"
-              className="px-6 py-3 rounded-lg border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 transition-colors"
+              className="px-6 py-3 rounded-lg border-2 border-saffron-600 text-saffron-600 hover:bg-saffron-50 transition-colors"
             >
               Share Profile
             </Button>
